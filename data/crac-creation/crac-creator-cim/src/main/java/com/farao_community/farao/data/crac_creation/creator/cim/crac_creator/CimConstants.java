@@ -88,11 +88,7 @@ public final class CimConstants {
             return status; }
     }
 
-    // ------ PST
-    public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
-
-    // ------ Network Actions
-    public enum NetworkActionPsrType {
+    public enum PsrType {
         TIE_LINE("A01"),
         LINE("A02"),
         GENERATION("A04"),
@@ -104,11 +100,14 @@ public final class CimConstants {
 
         private String status;
 
-        NetworkActionPsrType(String status) {
+        PsrType(String status) {
             this.status = status;
         }
 
         public String getStatus() {
             return status; }
     }
+
+    // ------ PST remedial action
+    public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
 }

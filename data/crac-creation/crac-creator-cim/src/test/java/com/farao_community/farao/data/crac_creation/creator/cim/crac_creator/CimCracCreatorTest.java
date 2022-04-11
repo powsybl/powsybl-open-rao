@@ -100,14 +100,14 @@ public class CimCracCreatorTest {
         assertEquals(expectedCnecIds, importedCnecIds);
     }
 
-    private void assertPstNotImported(String id, ImportStatus importStatus) {
+    private void assertRemedialActionNotImported(String id, ImportStatus importStatus) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertFalse(remedialActionSeriesCreationContext.isImported());
         assertEquals(importStatus, remedialActionSeriesCreationContext.getImportStatus());
     }
 
-    private void assertPstImported(String id, String networkElement, boolean isAltered) {
+    private void assertPstRangeActionImported(String id, String networkElement, boolean isAltered) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertTrue(remedialActionSeriesCreationContext.isImported());
@@ -115,6 +115,16 @@ public class CimCracCreatorTest {
         assertNotNull(importedCrac.getPstRangeAction(id));
         String actualNetworkElement = importedCrac.getPstRangeAction(id).getNetworkElement().toString();
         assertEquals(networkElement, actualNetworkElement);
+    }
+
+    private void assertNetworkActionImported(String id, Set<String> networkElements, boolean isAltered) {
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
+        assertNotNull(remedialActionSeriesCreationContext);
+        assertTrue(remedialActionSeriesCreationContext.isImported());
+        assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
+        assertNotNull(importedCrac.getNetworkAction(id));
+        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        assertEquals(networkElements, actualNetworkElements);
     }
 
     @Test
@@ -164,28 +174,64 @@ public class CimCracCreatorTest {
     @Test
     public void testImportPstRangeActions() {
         setUp("/cracs/CIM_21_3_1.xml", null);
-        assertPstImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
-        assertPstNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("RA-Series-3", NOT_YET_HANDLED_BY_FARAO);
-        assertPstNotImported("RA-Series-4", NOT_YET_HANDLED_BY_FARAO);
-        assertPstNotImported("PRA_5", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_6", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_7", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_8", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_9", INCOMPLETE_DATA);
-        assertPstNotImported("PRA_10", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_11", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_12", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_13", INCOMPLETE_DATA);
-        assertPstNotImported("PRA_14", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_15", NOT_YET_HANDLED_BY_FARAO);
-        assertPstNotImported("PRA_16", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_17", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_18", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_19", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_20", INCONSISTENCY_IN_DATA);
-        assertPstNotImported("PRA_21", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertPstImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
+        assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("RA-Series-3", NOT_YET_HANDLED_BY_FARAO);
+        assertRemedialActionNotImported("RA-Series-4", NOT_YET_HANDLED_BY_FARAO);
+        assertRemedialActionNotImported("PRA_5", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_6", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_7", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_8", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_9", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_10", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_11", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_12", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_13", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_14", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_15", NOT_YET_HANDLED_BY_FARAO);
+        assertRemedialActionNotImported("PRA_16", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_17", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_18", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_19", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_20", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_21", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
         assertEquals(2, importedCrac.getPstRangeActions().size());
+    }
+
+    @Test
+    public void testImportNetworkActions() {
+        setUp("/cracs/CIM_21_4_1.xml", null);
+        assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
+        // Pst Setpoint
+        assertRemedialActionNotImported("PRA_2", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_3", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_4", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_5", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_6", ELEMENT_NOT_FOUND_IN_NETWORK);
+        // Injection Setpoint
+        assertNetworkActionImported("PRA_7", Set.of("_1dc9afba-23b5-41a0-8540-b479ed8baf4b", "_2844585c-0d35-488d-a449-685bcd57afbf"), false);
+        assertRemedialActionNotImported("PRA_8", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_9", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_10", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_11", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_12", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_13", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_14", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_15", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_16", ELEMENT_NOT_FOUND_IN_NETWORK);
+        // Topological
+        assertNetworkActionImported("PRA_17", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", "_f04ec73d-b94a-4b7e-a3d6-b1234fc37385_SW_fict", "_5a094c9f-0af5-48dc-94e9-89c6c220023c"), false);
+        assertRemedialActionNotImported("PRA_18", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_19", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_20", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_21", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_22", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("PRA_23", INCOMPLETE_DATA);
+        assertRemedialActionNotImported("PRA_24", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertRemedialActionNotImported("PRA_25", NOT_YET_HANDLED_BY_FARAO);
+        // Mix
+        assertNetworkActionImported("PRA_26", Set.of("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
+        assertRemedialActionNotImported("PRA_27", INCONSISTENCY_IN_DATA);
     }
 }
