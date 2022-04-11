@@ -454,13 +454,14 @@ public class RemedialActionSeriesCreator {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
-        if ((network.getIdentifiable(networkElementId) instanceof Branch) || (network.getIdentifiable(networkElementId) instanceof
+        if ((network.getIdentifiable(networkElementId) instanceof Branch) &&  (network.getIdentifiable(networkElementId) instanceof
             Switch)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
 
         networkActionAdder.newTopologicalAction()
+                .withNetworkElement(networkElementId)
                 .withNetworkElement(networkElementId)
                 .withActionType(actionType)
                 .add();

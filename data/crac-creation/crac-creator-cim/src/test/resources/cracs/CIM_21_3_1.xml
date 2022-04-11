@@ -668,7 +668,7 @@
             <RegisteredResource>
               <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
               <name>RA1-name</name>
-              <pSRType.psrType>A04</pSRType.psrType>
+              <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
