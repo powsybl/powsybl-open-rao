@@ -594,7 +594,7 @@ public class UcteCnecElementHelperTest {
 
     @Test
     public void testValidTransformerWithWildcardAmbiguity() {
-        // In this case, from->to and to->from match, because of ambiguity introduce by the wildcard:
+        // In this case, from->to and to->from match, because of the ambiguity introduced by the wildcard:
         // "BBE2AA1*" -> "BBE2AA1*" "1" can match BBE2AA13 BBE2AA11 1 or BBE2AA11 BBE2AA13 1
         // Priority should be given to first match (as written in the network), although Powsybl has the opposite convention
         // PST should then be considered inverted, like nominal case
