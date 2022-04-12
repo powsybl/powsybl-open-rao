@@ -19,8 +19,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
+import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
 import com.powsybl.iidm.network.Switch;
@@ -148,7 +150,7 @@ public class RemedialActionSeriesCreator {
                         remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
                         return true;
                     }
-                    addPstRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+                    addPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
                     return true;
                 }
             }
@@ -156,7 +158,7 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void addPstRemedialAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void addPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
@@ -450,18 +452,23 @@ public class RemedialActionSeriesCreator {
         }
 
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
-        if (Objects.isNull(network.getIdentifiable(networkElementId))) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId)));
-            return false;
+        Identifiable element = network.getIdentifiable(networkElementId);
+        if (Objects.isNull(element)) {
+            // Check that network element is not half a tie line
+            CgmesBranchHelper branchHelper = new CgmesBranchHelper(networkElementId, network);
+            if (branchHelper.getBranch() == null) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId)));
+                return false;
+            }
+            networkElementId = branchHelper.getIdInNetwork();
+
         }
-        if (!(network.getIdentifiable(networkElementId) instanceof Branch) &&  !(network.getIdentifiable(networkElementId) instanceof
-            Switch)) {
+        if (!(element instanceof Branch) &&  !(element instanceof Switch)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
 
         networkActionAdder.newTopologicalAction()
-                .withNetworkElement(networkElementId)
                 .withNetworkElement(networkElementId)
                 .withActionType(actionType)
                 .add();
