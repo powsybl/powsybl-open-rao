@@ -461,7 +461,7 @@ public class RemedialActionSeriesCreator {
                 return false;
             }
             networkElementId = branchHelper.getIdInNetwork();
-
+            element = branchHelper.getBranch();
         }
         if (!(element instanceof Branch) &&  !(element instanceof Switch)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
