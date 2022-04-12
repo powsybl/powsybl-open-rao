@@ -591,4 +591,26 @@ public class UcteCnecElementHelperTest {
         UcteCnecElementHelper branchHelper = new UcteCnecElementHelper("DDE1AA1*", "DDE2AA1*", "1", null, networkHelper);
         assertFalse(branchHelper.isValid());
     }
+
+    @Test
+    public void testValidTransformerWithWildcardAmbiguity() {
+        // In this case, from->to and to->from match, because of ambiguity introduce by the wildcard:
+        // "BBE2AA1*" -> "BBE2AA1*" "1" can match BBE2AA13 BBE2AA11 1 or BBE2AA11 BBE2AA13 1
+        // Priority should be given to first match (as written in the network), although Powsybl has the opposite convention
+        // PST should then be considered inverted, like nominal case
+        // Same with order code 2
+        setUp("TestCase_PstAmbiguity.uct");
+
+        UcteCnecElementHelper pstHelper = new UcteCnecElementHelper("BBE2AA1*", "BBE2AA1*", "1", null, networkHelper);
+        assertTrue(pstHelper.isValid());
+        assertEquals("BBE2AA1* BBE2AA1* 1", pstHelper.getUcteId());
+        assertEquals("BBE2AA13 BBE2AA11 1", pstHelper.getIdInNetwork());
+        assertTrue(pstHelper.isInvertedInNetwork());
+
+        pstHelper = new UcteCnecElementHelper("BBE2AA1", "BBE2AA1", "2", null, networkHelper);
+        assertTrue(pstHelper.isValid());
+        assertEquals("BBE2AA1  BBE2AA1  2", pstHelper.getUcteId());
+        assertEquals("BBE2AA12 BBE2AA11 2", pstHelper.getIdInNetwork());
+        assertTrue(pstHelper.isInvertedInNetwork());
+    }
 }
