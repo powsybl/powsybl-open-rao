@@ -36,10 +36,10 @@ public final class CimConstants {
 
     // --- Remedial Actions
     public static final String REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE = "B56";
-    public static final List<String> REMEDIAL_ACTION_AUTHORIZED_OPTIMIZATION_STATUS = List.of("Z01", "A01", "A52", "A49");
-    public static final String NETWORK_ELEMENT_BUSINESS_TYPE = "B59";
+    public static final List<String> REMEDIAL_ACTION_OPTIMIZATION_STATUS = List.of("Z01", "A01", "A52", "A49");
+    public static final String BUSINESS_TYPE_IN_REMEDIALACTION_SERIES = "B59";
 
-    public enum AuthorizedRemedialActionApplicationModeMarketObjectStatus {
+    public enum ApplicationModeMarketObjectStatus {
         PRA("A18"),
         CRA("A19"),
         PRA_AND_CRA("A27"),
@@ -47,7 +47,7 @@ public final class CimConstants {
 
         private String status;
 
-        AuthorizedRemedialActionApplicationModeMarketObjectStatus(String status) {
+        ApplicationModeMarketObjectStatus(String status) {
             this.status = status;
         }
 

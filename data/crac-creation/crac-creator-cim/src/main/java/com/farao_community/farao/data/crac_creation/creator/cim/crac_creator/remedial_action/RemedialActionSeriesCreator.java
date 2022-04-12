@@ -454,7 +454,7 @@ public class RemedialActionSeriesCreator {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
-        if ((network.getIdentifiable(networkElementId) instanceof Branch) &&  (network.getIdentifiable(networkElementId) instanceof
+        if (!(network.getIdentifiable(networkElementId) instanceof Branch) &&  !(network.getIdentifiable(networkElementId) instanceof
             Switch)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
             return false;
@@ -471,7 +471,7 @@ public class RemedialActionSeriesCreator {
 
     /*-------------- USAGE RULES ------------------------------*/
     private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies) {
-        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.PRA.getStatus())) {
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
             } else  {
@@ -479,7 +479,7 @@ public class RemedialActionSeriesCreator {
                 return false;
             }
         }
-        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.CRA.getStatus())) {
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
             if (contingencies.isEmpty()) {
                 if (!invalidContingencies.isEmpty()) {
                     remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant"));
@@ -491,7 +491,7 @@ public class RemedialActionSeriesCreator {
                 addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE, contingencies);
             }
         }
-        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
             addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
             if (invalidContingencies.isEmpty() && contingencies.isEmpty()) {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
@@ -500,7 +500,7 @@ public class RemedialActionSeriesCreator {
                 addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE, contingencies);
             }
         }
-        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.AUTO.getStatus())) {
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
                 return false;
@@ -536,7 +536,7 @@ public class RemedialActionSeriesCreator {
         String optimizationStatus = cimSerie.getOptimizationMarketObjectStatusStatus();
         if (Objects.nonNull(optimizationStatus)) {
             boolean statusOk = false;
-            for (String status : REMEDIAL_ACTION_AUTHORIZED_OPTIMIZATION_STATUS) {
+            for (String status : REMEDIAL_ACTION_OPTIMIZATION_STATUS) {
                 if (optimizationStatus.equals(status)) {
                     statusOk = true;
                     break;
@@ -561,7 +561,7 @@ public class RemedialActionSeriesCreator {
     }
 
     private boolean checkBusinessType(String createdRemedialActionId, String businessType) {
-        if (Objects.isNull(businessType) || !businessType.equals(NETWORK_ELEMENT_BUSINESS_TYPE)) {
+        if (Objects.isNull(businessType) || !businessType.equals(BUSINESS_TYPE_IN_REMEDIALACTION_SERIES)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong businessType: %s", businessType)));
             return false;
         }
@@ -573,7 +573,7 @@ public class RemedialActionSeriesCreator {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing applicationMode MarketObjectStatus"));
             return false;
         }
-        for (AuthorizedRemedialActionApplicationModeMarketObjectStatus value : AuthorizedRemedialActionApplicationModeMarketObjectStatus.values()) {
+        for (ApplicationModeMarketObjectStatus value : ApplicationModeMarketObjectStatus.values()) {
             if (applicationModeMarketObjectStatus.equals(value.getStatus())) {
                 return true;
             }
