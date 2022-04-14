@@ -35,7 +35,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
 
         super(curativeState, flowCnecs, looopFlowCnecs, availableNetworkActions, Map.of(curativeState, availableRangeActions));
 
-        if (curativeState.getInstant().equals(Instant.PREVENTIVE)) {
+        if (!curativeState.getInstant().equals(Instant.CURATIVE)) {
             throw new FaraoException("a CurativeOptimizationContext must be based on a curative state");
         }
     }

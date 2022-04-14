@@ -14,6 +14,7 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
@@ -29,8 +30,8 @@ import static org.mockito.Mockito.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class LinearProblemSmartBuilderTest {
-    private LinearProblemSmartBuilder linearProblemSmartBuilder;
+public class LinearProblemBuilderTest {
+    private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
     private SolverParameters solverParameters;
@@ -39,13 +40,11 @@ public class LinearProblemSmartBuilderTest {
 
     @Before
     public void setup() {
-        linearProblemSmartBuilder = new LinearProblemSmartBuilder();
+        linearProblemBuilder = new LinearProblemBuilder();
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-        linearProblemSmartBuilder.withParameters(parameters);
-        linearProblemSmartBuilder.withInputs(inputs);
-        linearProblemSmartBuilder = Mockito.spy(linearProblemSmartBuilder);
-        doReturn(new MPSolverMock()).when(linearProblemSmartBuilder).buildSolver();
+        linearProblemBuilder = Mockito.spy(linearProblemBuilder);
+        doReturn(new MPSolverMock()).when(linearProblemBuilder).buildSolver();
 
         solverParameters = Mockito.mock(SolverParameters.class);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
@@ -68,7 +67,7 @@ public class LinearProblemSmartBuilderTest {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RaoParameters.PstOptimizationApproximation.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
 
-        LinearProblem linearProblem = linearProblemSmartBuilder.build();
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
@@ -82,7 +81,7 @@ public class LinearProblemSmartBuilderTest {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
         when(parameters.getObjectiveFunction()).thenReturn(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
 
-        LinearProblem linearProblem = linearProblemSmartBuilder.build();
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(5, fillers.size());
@@ -98,7 +97,7 @@ public class LinearProblemSmartBuilderTest {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RaoParameters.PstOptimizationApproximation.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
 
-        LinearProblem linearProblem = linearProblemSmartBuilder.build();
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
@@ -115,7 +114,7 @@ public class LinearProblemSmartBuilderTest {
         when(parameters.isRaoWithLoopFlowLimitation()).thenReturn(true);
         when(parameters.getUnoptimizedCnecParameters()).thenReturn(Mockito.mock(UnoptimizedCnecParameters.class));
 
-        LinearProblem linearProblem = linearProblemSmartBuilder.build();
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(6, fillers.size());
@@ -136,7 +135,7 @@ public class LinearProblemSmartBuilderTest {
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(Mockito.mock(State.class)));
         when(raLimitationParameters.areRangeActionLimitedForState(Mockito.any())).thenReturn(true);
 
-        LinearProblem linearProblem = linearProblemSmartBuilder.build();
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(4, fillers.size());

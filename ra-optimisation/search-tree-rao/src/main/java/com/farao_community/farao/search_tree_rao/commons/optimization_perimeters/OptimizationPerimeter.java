@@ -15,13 +15,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Data structure to store the information needed to run a search tree on a perimeter.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface OptimizationPerimeter {
 
     /**
      The main optimization state is:
-     - the state on which the network action are optimized
+     - the state on which the network actions are optimized
      - the first state (chronologically speaking) on which range actions are optimized
      */
     State getMainOptimizationState();
@@ -32,7 +34,7 @@ public interface OptimizationPerimeter {
      In most cases, getRangeActionOptimizationStates() will only contain getMainOptimizationState()
 
      Though, if RangeActions are optimized in preventive and in curative (for instance, in the
-     2nd prev optimization), getAllOptimizationStates() will gather all the states on which
+     2nd prev optimization), getRangeActionOptimizationStates() will gather all the states on which
      at least one RangeAction can be optimized.
      */
     Set<State> getRangeActionOptimizationStates();
@@ -40,10 +42,10 @@ public interface OptimizationPerimeter {
     /**
      Returns the set of states which are monitored by the perimeter
 
-     A 'monitored state' is a state which contain at least one FlowCnec:
+     A 'monitored state' is a state which contains at least one FlowCnec:
      - which is optimized, or
      - which is monitored, or
-     - which have loop-flows which are monitored
+     - which has loop-flows which are monitored
 
      A 'monitored state' does not necessarily have RemedialActions
      */
@@ -55,12 +57,12 @@ public interface OptimizationPerimeter {
     Set<FlowCnec> getFlowCnecs();
 
     /**
-     Returns the set of FlowCnec which are either optimized by the perimeter
+     Returns the set of FlowCnec which are optimized by the perimeter
      */
     Set<FlowCnec> getOptimizedFlowCnecs();
 
     /**
-     Returns the set of FlowCnec which are either monitored by the perimeter
+     Returns the set of FlowCnec which are monitored by the perimeter
      */
     Set<FlowCnec> getMonitoredFlowCnecs();
 
@@ -81,7 +83,7 @@ public interface OptimizationPerimeter {
     Map<State, Set<RangeAction<?>>> getRangeActionsPerState();
 
     /**
-     Concatenate all the RangeActions of getRangeActionsPerState()
+     Returns a set of all the RangeActions that will be optimized on any state
      */
     Set<RangeAction<?>> getRangeActions();
 

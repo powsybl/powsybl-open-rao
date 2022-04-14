@@ -7,14 +7,12 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -33,14 +31,6 @@ public final class LinearProblem {
     private final List<ProblemFiller> fillerList;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
-
-    static {
-        try {
-            NativeLibraryLoader.loadNativeLibrary("jniortools");
-        } catch (Exception e) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
-        }
-    }
 
     public enum AbsExtension {
         POSITIVE,

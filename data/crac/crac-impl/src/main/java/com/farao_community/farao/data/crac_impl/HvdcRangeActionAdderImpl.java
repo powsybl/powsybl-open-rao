@@ -27,7 +27,6 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
 
     private String networkElementId;
     private String networkElementName;
-    private double initialSetpoint;
 
     @Override
     protected String getTypeDescription() {
@@ -48,12 +47,6 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     public HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
-        return this;
-    }
-
-    @Override
-    public HvdcRangeActionAdder withInitialSetpoint(double initialSetpoint) {
-        this.initialSetpoint = initialSetpoint;
         return this;
     }
 

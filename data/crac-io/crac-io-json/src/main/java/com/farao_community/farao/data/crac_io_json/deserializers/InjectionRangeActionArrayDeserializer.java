@@ -70,6 +70,10 @@ public final class InjectionRangeActionArrayDeserializer {
                     case GROUP_ID:
                         adder.withGroupId(jsonParser.nextTextValue());
                         break;
+                    case INITIAL_SETPOINT:
+                        jsonParser.nextToken();
+                        adder.withInitialSetpoint(jsonParser.getDoubleValue());
+                        break;
                     case RANGES:
                         jsonParser.nextToken();
                         StandardRangeArrayDeserializer.deserialize(jsonParser, adder);

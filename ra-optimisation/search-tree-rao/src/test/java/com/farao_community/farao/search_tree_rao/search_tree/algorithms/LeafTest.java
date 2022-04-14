@@ -27,8 +27,8 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemSmartBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -110,13 +110,11 @@ public class LeafTest {
     }
 
     private void prepareLinearProblemBuilder(IteratingLinearOptimizationResultImpl linearOptimizationResult) {
-        LinearProblemSmartBuilder linearProblemSmartBuilder = Mockito.mock(LinearProblemSmartBuilder.class);
-        when(linearProblemSmartBuilder.withInputs(Mockito.any())).thenReturn(linearProblemSmartBuilder);
-        when(linearProblemSmartBuilder.withParameters(Mockito.any())).thenReturn(linearProblemSmartBuilder);
+        LinearProblemBuilder linearProblemBuilder = Mockito.mock(LinearProblemBuilder.class);
         LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
-        when(linearProblemSmartBuilder.build()).thenReturn(linearProblem);
+        when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any())).thenReturn(linearProblem);
         try {
-            PowerMockito.whenNew(LinearProblemSmartBuilder.class).withNoArguments().thenReturn(linearProblemSmartBuilder);
+            PowerMockito.whenNew(LinearProblemBuilder.class).withNoArguments().thenReturn(linearProblemBuilder);
             PowerMockito.whenNew(IteratingLinearOptimizationResultImpl.class).withAnyArguments().thenReturn(linearOptimizationResult);
         } catch (Exception e) {
             e.printStackTrace();

@@ -20,6 +20,7 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.SolverParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPVariableMock;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
@@ -135,13 +136,11 @@ public class IteratingLinearOptimizerTest {
 
     }
 
-    private void prepareLinearProblemSmartBuilder() {
-        LinearProblemSmartBuilder linearProblemSmartBuilder = Mockito.mock(LinearProblemSmartBuilder.class);
-        when(linearProblemSmartBuilder.withInputs(Mockito.any())).thenReturn(linearProblemSmartBuilder);
-        when(linearProblemSmartBuilder.withParameters(Mockito.any())).thenReturn(linearProblemSmartBuilder);
-        when(linearProblemSmartBuilder.build()).thenReturn(linearProblem);
+    private void prepareLinearProblemBuilder() {
+        LinearProblemBuilder linearProblemBuilder = Mockito.mock(LinearProblemBuilder.class);
+        when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any())).thenReturn(linearProblem);
         try {
-            PowerMockito.whenNew(LinearProblemSmartBuilder.class).withNoArguments().thenReturn(linearProblemSmartBuilder);
+            PowerMockito.whenNew(LinearProblemBuilder.class).withNoArguments().thenReturn(linearProblemBuilder);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,7 +191,7 @@ public class IteratingLinearOptimizerTest {
     public void firstOptimizationFails() {
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
 
         LinearOptimizationResult result = optimize();
 
@@ -203,7 +202,7 @@ public class IteratingLinearOptimizerTest {
     public void firstLinearProblemDoesNotChangeSetPoint() {
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(0.));
         mockFunctionalCost(100.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(mock(RangeActionActivationResult.class)).when(optimizer, "roundResult", any(), any());
@@ -224,7 +223,7 @@ public class IteratingLinearOptimizerTest {
     public void secondLinearProblemDoesNotChangeSetPoint() {
         mockLinearProblem(Collections.nCopies(2, LinearProblemStatus.OPTIMAL), List.of(1., 1.));
         mockFunctionalCost(100., 50.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(sensitivityComputer).when(optimizer, "createSensitivityComputer", any());
@@ -244,7 +243,7 @@ public class IteratingLinearOptimizerTest {
     public void firstLinearProblemChangesSetPointButWorsenFunctionalCost() {
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100., 140.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(sensitivityComputer).when(optimizer, "createSensitivityComputer", any());
@@ -264,7 +263,7 @@ public class IteratingLinearOptimizerTest {
     public void reachMaxIterations() {
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(sensitivityComputer).when(optimizer, "createSensitivityComputer", any());
@@ -284,7 +283,7 @@ public class IteratingLinearOptimizerTest {
     public void optimizeWithInfeasibility() {
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.INFEASIBLE), List.of(1.));
         mockFunctionalCost(100., 50.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(sensitivityComputer).when(optimizer, "createSensitivityComputer", any());
@@ -308,7 +307,7 @@ public class IteratingLinearOptimizerTest {
         }).when(sensitivityComputer).compute(network);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100.);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(sensitivityComputer).when(optimizer, "createSensitivityComputer", any());
@@ -349,7 +348,7 @@ public class IteratingLinearOptimizerTest {
         when(setpointMpVarMock.solutionValue()).thenReturn(1.);
         when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
         network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(5);
-        prepareLinearProblemSmartBuilder();
+        prepareLinearProblemBuilder();
         optimizer = PowerMockito.spy(optimizer);
         try {
             PowerMockito.doReturn(sensitivityComputer).when(optimizer, "createSensitivityComputer", any());

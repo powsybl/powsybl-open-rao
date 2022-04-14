@@ -155,7 +155,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     }
 
     /**
-     * If aligned range actionsé initial setpoint are different, this function filters them out
+     * If aligned range actions' initial setpoint are different, this function filters them out
      */
     static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction<?>> rangeActions, RangeActionSetpointResult prePerimeterSetPoints) {
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)

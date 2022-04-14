@@ -70,20 +70,21 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
-        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold);
+        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState());
     }
 
     private void initializeForCurative() {
-        initialize(Set.of(cnec2), 0, 0, 0);
+        initialize(Set.of(cnec2), 0, 0, 0, cnec2.getState());
     }
 
     private void initializeForGlobal() {
-        initialize(Set.of(cnec1, cnec2), 0, 0, 0);
+        initialize(Set.of(cnec1, cnec2), 0, 0, 0, crac.getPreventiveState());
     }
 
-    private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
+    private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState) {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
+        Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
         cnecs.forEach(cnec -> rangeActions.put(cnec.getState(), Set.of(pstRangeAction)));
@@ -515,11 +516,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPConstraint flowConstraint;
         MPVariable rangeActionSetpoint;
         when(flowResult.getPtdfZonalSum(cnec1)).thenReturn(0.5);
-        Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
 
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(Set.of(cnec1), 2.5, 2.5, 2.5);
+        initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState());
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -536,7 +536,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) > 1/.5 should not be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(Set.of(cnec1), 1.5, 1.5, 1.5);
+        initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState());
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);

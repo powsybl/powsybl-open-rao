@@ -39,9 +39,4 @@ public interface InjectionRangeAction extends StandardRangeAction<InjectionRange
      * is impacted by a change of setpoint of the RangeAction
      */
     Map<NetworkElement, Double> getInjectionDistributionKeys();
-
-    /**
-     * Get the setpoint of the remedial action before RAO.
-     */
-    double getInitialSetpoint();
 }

@@ -17,6 +17,7 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 
@@ -102,18 +103,20 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return postAutomatonSensitivityAnalysisOutput.getRangeActions();
+        // range actions not yet considered as automaton
+        return new HashSet<>();
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         // range actions not yet considered as automaton
-        return Set.of();
+        return new HashSet<>();
     }
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-        return postAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
+        // range actions not yet considered as automaton
+        throw new NotImplementedException("range actions not yet considered as automaton");
     }
 
     @Override
@@ -124,7 +127,8 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
-        return postAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
+        // range actions not yet considered as automaton
+        throw new NotImplementedException("range actions not yet considered as automaton");
     }
 
     @Override

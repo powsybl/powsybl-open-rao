@@ -85,6 +85,7 @@ public final class JsonSerializationConstants {
     public static final String OPERATOR = "operator";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
+    public static final String INITIAL_SETPOINT = "initialSetpoint";
     public static final String INITIAL_TAP = "initialTap";
     public static final String TAP_TO_ANGLE_CONVERSION_MAP = "tapToAngleConversionMap";
 

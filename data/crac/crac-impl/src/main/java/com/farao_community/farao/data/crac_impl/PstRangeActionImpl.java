@@ -70,10 +70,10 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     }
 
     private double computeSmallestAngleStep() {
-        double smallestDiff = 0;
+        double smallestDiff = Double.POSITIVE_INFINITY;
         for (int i = lowTapPosition; i < highTapPosition; i++) {
             double absoluteDiff = Math.abs(tapToAngleConversionMap.get(i + 1) - tapToAngleConversionMap.get(i));
-            smallestDiff = Math.max(smallestDiff, absoluteDiff);
+            smallestDiff = Math.min(smallestDiff, absoluteDiff);
         }
         return smallestDiff;
     }

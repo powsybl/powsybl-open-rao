@@ -50,10 +50,6 @@ public final class TreeParameters {
         return targetObjectiveValue;
     }
 
-    public UnoptimizedCnecParameters getUnoptimizedCnecParameters() {
-        return null;
-    }
-
     public int getMaximumSearchDepth() {
         return maximumSearchDepth;
     }
@@ -68,7 +64,7 @@ public final class TreeParameters {
         switch (parameters.getPreventiveRaoStopCriterion()) {
             case MIN_OBJECTIVE:
                 return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                    0.0, //unsused
+                    0.0, // value does not matter
                     parameters.getMaximumSearchDepth(),
                     parameters.getPreventiveLeavesInParallel());
             case SECURE:
@@ -116,12 +112,12 @@ public final class TreeParameters {
         if (parameters.getPreventiveRaoStopCriterion().equals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE)
             && !parameters.getCurativeRaoStopCriterion().equals(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE)) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                0.0, //secure
+                0.0, // secure
                 parameters.getMaximumSearchDepth(),
                 parameters.getPreventiveLeavesInParallel());
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                0.0, //unused
+                0.0, // value does not matter
                 parameters.getMaximumSearchDepth(),
                 parameters.getPreventiveLeavesInParallel());
         }

@@ -137,8 +137,6 @@ public class PerimeterResultImpl implements PerimeterResult {
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
 
-        // todo: check behaviour of this method when end of POC
-        // todo: move this logics in RangeActionActivationResultImpl (?)
         if (optimizationResult.getRangeActions().contains(pstRangeAction)) {
             return optimizationResult.getOptimizedTap(pstRangeAction, state);
         }

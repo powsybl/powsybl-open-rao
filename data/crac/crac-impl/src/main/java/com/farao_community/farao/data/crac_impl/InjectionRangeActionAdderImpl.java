@@ -23,7 +23,6 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAdder<InjectionRangeActionAdder> implements InjectionRangeActionAdder {
 
     private final List<DistributionKeyOnNetworkElement> distributionKeys;
-    private double initialSetpoint;
 
     @Override
     protected String getTypeDescription() {
@@ -43,12 +42,6 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
         distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId, networkElementName));
-        return this;
-    }
-
-    @Override
-    public InjectionRangeActionAdder withInitialSetpoint(double initialSetpoint) {
-        this.initialSetpoint = initialSetpoint;
         return this;
     }
 
