@@ -508,8 +508,10 @@ public class CastorFullOptimization {
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), optPerimeter.getFlowCnecs()))
             .build();
 
-        // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
-        searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(optimalNetworkActionsInFirstPreventiveRao));
+        if (raoParameters.getExtension(SearchTreeRaoParameters.class).isSecondPreventiveHintFromFirstPreventive()) {
+            // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
+            searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(optimalNetworkActionsInFirstPreventiveRao));
+        }
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(raoInput.getNetwork())
