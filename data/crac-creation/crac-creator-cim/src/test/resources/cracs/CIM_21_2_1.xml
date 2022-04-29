@@ -95,11 +95,13 @@
               <Measurements>
                 <measurementType>A02</measurementType>
                 <unitSymbol>MAW</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
                 <analogValues.value>3.0</analogValues.value>
               </Measurements>
               <Measurements>
                 <measurementType>A12</measurementType>
                 <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
                 <analogValues.value>3.0</analogValues.value>
               </Measurements>
             </RegisteredResource>
@@ -110,6 +112,28 @@
             <RegisteredResource>
               <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
               <name>CNEC-4</name>
+              <in_Domain.mRID codingScheme="A01">1---0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1----0</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <positiveFlowIn>A01</positiveFlowIn>
+                <analogValues.value>4.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A13</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <positiveFlowIn>A01</positiveFlowIn>
+                <analogValues.value>4.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+          <Monitored_Series>
+            <mRID>CNEC-4bis</mRID>
+            <name>CNEC-4bis-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
+              <name>CNEC-4bis</name>
               <in_Domain.mRID codingScheme="A01">1---0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1----0</out_Domain.mRID>
               <Measurements>

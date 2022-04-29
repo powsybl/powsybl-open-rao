@@ -85,18 +85,22 @@ public class CimCracCreatorTest {
         assertEquals(importStatus, monitoredSeriesCreationContext.getImportStatus());
     }
 
-    private void assertCnecImported(String monitoredSeriesId, Set<String> expectedCnecIds) {
+    private void assertCnecImported(String monitoredSeriesId, Set<String> expectedCnecIds, Set<Boolean> expectedCnecInvertedDirections) {
         MonitoredSeriesCreationContext monitoredSeriesCreationContext = cracCreationContext.getMonitoredSeriesCreationContext(monitoredSeriesId);
         assertNotNull(monitoredSeriesCreationContext);
         Set<String> importedCnecIds = new HashSet<>();
+        Set<Boolean> importedCnecInvertedDirections = new HashSet<>();
         monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
             .filter(MeasurementCreationContext::isImported)
             .forEach(measurementCreationContext ->
                 measurementCreationContext.getCnecCreationContexts().values().stream()
                     .filter(CnecCreationContext::isImported)
-                    .forEach(cnecCreationContext ->
-                        importedCnecIds.add(cnecCreationContext.getCreatedCnecId())));
+                    .forEach(cnecCreationContext -> {
+                        importedCnecIds.add(cnecCreationContext.getCreatedCnecId());
+                        importedCnecInvertedDirections.add(cnecCreationContext.isDirectionInvertedInNetwork());
+                    }));
 
+        assertEquals(expectedCnecInvertedDirections, importedCnecInvertedDirections);
         assertEquals(expectedCnecIds, importedCnecIds);
     }
 
@@ -164,11 +168,20 @@ public class CimCracCreatorTest {
     public void testImportFakeCnecs() {
         setUp("/cracs/CIM_21_2_1.xml", null);
         assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertEquals(10, importedCrac.getFlowCnecs().size());
+        assertEquals(13, importedCrac.getFlowCnecs().size());
         assertCnecImported("CNEC-4",
-                Set.of("CNEC-4 - preventive",
-                        "CNEC-4 - Co-1 - curative",
-                        "CNEC-4 - Co-2 - curative"));
+                Set.of("CNEC-4 - DIRECT - preventive",
+                        "CNEC-4 - DIRECT - Co-1 - curative",
+                        "CNEC-4 - DIRECT - Co-2 - curative"), Set.of(false));
+        assertCnecImported("CNEC-4bis",
+                Set.of("CNEC-4bis - preventive",
+                        "CNEC-4bis - Co-1 - curative",
+                        "CNEC-4bis - Co-2 - curative"), Set.of(false));
+        assertCnecImported("CNEC-3",
+                Set.of("CNEC-3 - OPPOSITE - preventive",
+                        "CNEC-3 - OPPOSITE - Co-1 - auto",
+                        "CNEC-3 - OPPOSITE - Co-2 - auto"), Set.of(true));
+
     }
 
     @Test
