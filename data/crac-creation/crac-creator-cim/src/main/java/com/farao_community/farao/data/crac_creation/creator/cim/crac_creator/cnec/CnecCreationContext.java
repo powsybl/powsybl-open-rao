@@ -18,19 +18,21 @@ public final class CnecCreationContext {
     private final String createdCnecId;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
+    private final boolean isDirectionInverted;
 
-    private CnecCreationContext(String createdCnecId, ImportStatus importStatus, String importStatusDetail) {
+    private CnecCreationContext(String createdCnecId, boolean isDirectionInverted, ImportStatus importStatus, String importStatusDetail) {
         this.createdCnecId = createdCnecId;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
+        this.isDirectionInverted = isDirectionInverted;
     }
 
     static CnecCreationContext notImported(ImportStatus importStatus, String importStatusDetail) {
-        return new CnecCreationContext(null, importStatus, importStatusDetail);
+        return new CnecCreationContext(null, false, importStatus, importStatusDetail);
     }
 
-    static CnecCreationContext imported(String createdCnecId, String importStatusDetail) {
-        return new CnecCreationContext(createdCnecId, ImportStatus.IMPORTED, importStatusDetail);
+    static CnecCreationContext imported(String createdCnecId, boolean isDirectionInverted, String importStatusDetail) {
+        return new CnecCreationContext(createdCnecId, isDirectionInverted, ImportStatus.IMPORTED, importStatusDetail);
     }
 
     public String getCreatedCnecId() {
@@ -47,6 +49,10 @@ public final class CnecCreationContext {
 
     public String getImportStatusDetail() {
         return importStatusDetail;
+    }
+
+    public boolean isDirectionInvertedInNetwork() {
+        return isDirectionInverted;
     }
 }
 

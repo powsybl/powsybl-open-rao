@@ -213,8 +213,8 @@ public class MonitoredSeriesCreator {
                 branchThresholdAdder.withRule(BranchThresholdRule.ON_REGULATED_SIDE);
             }
 
-            Double voltageLevelLeft = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV();
-            Double voltageLevelRight = branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV();
+            double voltageLevelLeft = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV();
+            double voltageLevelRight = branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV();
             if (voltageLevelLeft > 1e-6 && voltageLevelRight > 1e-6) {
                 flowCnecAdder.withNominalVoltage(voltageLevelLeft, Side.LEFT);
                 flowCnecAdder.withNominalVoltage(voltageLevelRight, Side.RIGHT);
@@ -237,12 +237,14 @@ public class MonitoredSeriesCreator {
             }
 
             branchThresholdAdder.withUnit(unit);
+            boolean isInverted = false;
             if (direction.equals(CNECS_DIRECT_DIRECTION_FLOW)) {
                 branchThresholdAdder.withMax((double) value).add();
                 cnecId += " - DIRECT";
             } else if (direction.equals(CNECS_OPPOSITE_DIRECTION_FLOW)) {
                 branchThresholdAdder.withMin((double) -value).add();
                 cnecId += " - OPPOSITE";
+                isInverted = true;
             } else {
                 branchThresholdAdder.withMax((double) value);
                 branchThresholdAdder.withMin((double) -value).add();
@@ -268,7 +270,7 @@ public class MonitoredSeriesCreator {
                 ));
             } else {
                 measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(
-                    cnecId, ""
+                    cnecId, isInverted, ""
                 ));
                 flowCnecAdder.withId(cnecId);
                 flowCnecAdder.withName(cnecId).add();
