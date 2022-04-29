@@ -511,7 +511,7 @@ public class CastorFullOptimizationTest {
 
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
-        AppliedRemedialActions appliedRemedialActions = CastorFullOptimization.getAppliedRemedialActionsInCurative(curativeResults, prePerimeterResult);
+        AppliedRemedialActions appliedRemedialActions = CastorFullOptimization.getAppliedRemedialActionsPostContingency(curativeResults, prePerimeterResult);
 
         // apply only range action
         appliedRemedialActions.applyOnNetwork(state1, network);

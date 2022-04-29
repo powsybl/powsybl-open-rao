@@ -411,7 +411,7 @@ public final class LinearProblem {
     }
 
     public static double infinity() {
-        return MPSolver.infinity();
+        return 1e8;
     }
 
 }

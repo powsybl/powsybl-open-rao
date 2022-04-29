@@ -119,13 +119,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertNotNull(flowVariable);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
@@ -149,9 +149,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertNotNull(absoluteVariationConstraint1);
         assertNotNull(absoluteVariationConstraint2);
         assertEquals(-initialAlpha, absoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, absoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
         // total number of variables 4 :
@@ -179,13 +179,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertNotNull(flowVariable);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
@@ -209,9 +209,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertNotNull(absoluteVariationConstraint1);
         assertNotNull(absoluteVariationConstraint2);
         assertEquals(-initialAlpha, absoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, absoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
         // total number of variables 4 :
@@ -239,7 +239,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, state);
         assertNotNull(absoluteVariationVariable);
         assertEquals(0, absoluteVariationVariable.lb(), 0.01);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1 does not exist
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
@@ -252,8 +252,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
         assertNotNull(flowVariable2);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable2.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable2.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec2
         MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
@@ -269,9 +269,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertNotNull(absoluteVariationConstraint1);
         assertNotNull(absoluteVariationConstraint2);
         assertEquals(-initialAlpha, absoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, absoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), absoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
         // total number of variables 4 :
@@ -306,19 +306,19 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPVariable prevAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, prevState);
         assertNotNull(prevAbsoluteVariationVariable);
         assertEquals(0, prevAbsoluteVariationVariable.lb(), 0.01);
-        assertEquals(Double.POSITIVE_INFINITY, prevAbsoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), prevAbsoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check range action absolute variation variable for curative state
         MPVariable curAbsoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, curState);
         assertNotNull(curAbsoluteVariationVariable);
         assertEquals(0, curAbsoluteVariationVariable.lb(), 0.01);
-        assertEquals(Double.POSITIVE_INFINITY, curAbsoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), curAbsoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertNotNull(flowVariable);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
@@ -331,8 +331,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
         assertNotNull(flowVariable2);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable2.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable2.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec2
         MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
@@ -348,9 +348,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertNotNull(prevAbsoluteVariationConstraint1);
         assertNotNull(prevAbsoluteVariationConstraint2);
         assertEquals(-initialAlpha, prevAbsoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, prevAbsoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), prevAbsoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
         assertEquals(initialAlpha, prevAbsoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, prevAbsoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), prevAbsoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
 
         // check absolute variation constraints for curative state
         MPConstraint curAbsoluteVariationConstraint1 = linearProblem.getAbsoluteRangeActionVariationConstraint(pstRangeAction, curState, LinearProblem.AbsExtension.NEGATIVE);
@@ -408,8 +408,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // check flow variable for cnec1
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertNotNull(flowVariable);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
@@ -461,8 +461,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // check flow variable for cnec2
         MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
         assertNotNull(flowVariable2);
-        assertEquals(-Double.POSITIVE_INFINITY, flowVariable2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, flowVariable2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-LinearProblem.infinity(), flowVariable2.lb(), DOUBLE_TOLERANCE);
+        assertEquals(LinearProblem.infinity(), flowVariable2.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec2
         MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
