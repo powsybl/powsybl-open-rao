@@ -7,13 +7,11 @@
 
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialActionAdder;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -21,11 +19,11 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.google.gdata.util.common.base.Pair;
+import com.powsybl.iidm.network.*;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -43,6 +41,9 @@ public class RemedialActionSeriesCreator {
     private final List<TimeSeries> cimTimeSeries;
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private CimCracCreationContext cracCreationContext;
+    private List<Contingency> contingencies;
+    private List<String> invalidContingencies;
+    private List<RemedialActionSeries> storedHvdcRangeActions;
 
     public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
         this.cimTimeSeries = cimTimeSeries;
@@ -53,6 +54,9 @@ public class RemedialActionSeriesCreator {
 
     public void createAndAddRemedialActionSeries() {
         this.remedialActionSeriesCreationContexts = new HashSet<>();
+        this.contingencies = new ArrayList<>();
+        this.invalidContingencies = new ArrayList<>();
+        this.storedHvdcRangeActions = new ArrayList<>();
 
         for (TimeSeries cimTimeSerie : cimTimeSeries) {
             for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
@@ -60,8 +64,6 @@ public class RemedialActionSeriesCreator {
                     for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesRemedialActionsToImport).collect(Collectors.toList())) {
                         if (checkRemedialActionSeries(cimSerie)) {
                             // Read and store contingencies
-                            List<Contingency> contingencies = new ArrayList<>();
-                            List<String> invalidContingencies = new ArrayList<>();
                             for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
                                 Optional<Contingency> contingency = getContingencyFromCrac(cimContingency, crac);
                                 if (contingency.isPresent()) {
@@ -71,8 +73,11 @@ public class RemedialActionSeriesCreator {
                                 }
                             }
                             for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                                readAndAddRemedialAction(remedialActionSeries, contingencies, invalidContingencies);
+                                readAndAddRemedialAction(remedialActionSeries);
                             }
+                            // Hvdc remedial action series are defined in the same Series
+                            // Add HVDC range actions.
+                            readAndAddHvdcRangeActions(cimSerie.getMRID());
                         }
                     }
                 }
@@ -82,7 +87,7 @@ public class RemedialActionSeriesCreator {
     }
 
     // For now, only free-to-use remedial actions are handled.
-    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries) {
         String createdRemedialActionId = remedialActionSeries.getMRID();
         String createdRemedialActionName = remedialActionSeries.getName();
 
@@ -121,21 +126,373 @@ public class RemedialActionSeriesCreator {
             return;
         }
 
-        addRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+        if (!addRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
+            storedHvdcRangeActions.add(remedialActionSeries);
+        }
     }
 
-    private void addRemedialAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    // Return false : remedial action has not been added, but stored in storedHvdcRangeActions
+    private boolean addRemedialAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         // 1) Remedial Action is a Pst Range Action :
-        if (identifyAndAddRemedialActionPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies)) {
+        if (identifyAndAddRemedialActionPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
+            return true;
+        }
+        // 2) Remedial Action is part of a HVDC Range Action :
+        if (identifyHvdcRangeAction(createdRemedialActionId, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
+            return false;
+        }
+        // 3) Remedial Action is a Network Action :
+        addRemedialActionNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus);
+        return true;
+    }
+
+    private boolean identifyHvdcRangeAction(String createdRemedialActionId, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
+        for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
+            if (remedialActionRegisteredResource.getPSRTypePsrType().equals(PsrType.HVDC.getStatus())) {
+                if (!applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
+                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("HVDC cannot be imported at instant %s", applicationModeMarketObjectStatus)));
+                    return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void readAndAddHvdcRangeActions(String cimSerieId) {
+        // No Hvdc range actions have been defined  :
+        if (storedHvdcRangeActions.size() == 0) {
             return;
         }
-        // 2) Remedial Action is a Network Action :
-        addRemedialActionNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+
+        if (storedHvdcRangeActions.size() != 2) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s HVDC remedial actions were defined instead of 2", storedHvdcRangeActions.size())));
+            return;
+
+        }
+        RemedialActionSeries hvdcRangeActionDirection1 = storedHvdcRangeActions.get(0);
+        RemedialActionSeries hvdcRangeActionDirection2 = storedHvdcRangeActions.get(1);
+        if (hvdcRangeActionDirection1.getRegisteredResource().size() != 4) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(hvdcRangeActionDirection1.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s registered resources are defined in HVDC instead of 2", hvdcRangeActionDirection1.getRegisteredResource().size())));
+            return;
+        }
+        if (hvdcRangeActionDirection2.getRegisteredResource().size() != 4) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(hvdcRangeActionDirection2.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s registered resources are defined in HVDC instead of 2", hvdcRangeActionDirection1.getRegisteredResource().size())));
+            return;
+        }
+
+        // Read hvdcRangeActionDirection1
+        String groupId = "";
+        HvdcRangeActionAdder hvdcRangeActionAdder1 = crac.newHvdcRangeAction();
+        HvdcRangeActionAdder hvdcRangeActionAdder2 = crac.newHvdcRangeAction();
+        String hvdcRangeActionDirection1Id1 = "";
+        String hvdcRangeActionDirection1Id2 = "";
+        int direction1minRange1 = 0;
+        int direction1minRange2 = 0;
+        int direction1maxRange1 = 0;
+        int direction1maxRange2 = 0;
+        boolean direction1hvdc1IsDefined = false;
+
+        for (RemedialActionRegisteredResource registeredResource : hvdcRangeActionDirection1.getRegisteredResource()) {
+            List<Boolean> registeredResourceStatus = checkRegisteredResource(cimSerieId, registeredResource);
+            // registered resource is ill defined
+            if (registeredResourceStatus.get(0)) {
+                return;
+            }
+            // Ignore PMode registered resource
+            if (registeredResourceStatus.get(1)) {
+                continue;
+            }
+
+            // Add range action
+            if (!direction1hvdc1IsDefined) {
+                hvdcRangeActionDirection1Id1 = registeredResource.getMRID().getValue();
+                hvdcRangeActionAdder1.withId(hvdcRangeActionDirection1Id1)
+                        .withName(registeredResource.getName());
+
+                // Network element
+                String networkElementId = registeredResource.getMRID().getValue();
+                if (checkHvdcNetworkElement(hvdcRangeActionDirection1Id1, networkElementId)) {
+                    return;
+                }
+                hvdcRangeActionAdder1.withNetworkElement(networkElementId);
+
+                // Usage rules
+                if (!addUsageRules(hvdcRangeActionDirection1Id1, ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder1)) {
+                    return;
+                }
+
+                // READ RANGE
+                Pair<Boolean, List<Integer>> hvdcRange = defineHvdcRange(hvdcRangeActionDirection1Id1,
+                        registeredResource.getResourceCapacityMinimumCapacity().intValue(),
+                        registeredResource.getResourceCapacityMaximumCapacity().intValue(),
+                        registeredResource.getInAggregateNodeMRID().getValue(),
+                        registeredResource.getOutAggregateNodeMRID().getValue());
+                // hvdc range is ill defined :
+                if (hvdcRange.getFirst()) {
+                    return;
+                }
+                // else :
+                direction1minRange1 = hvdcRange.getSecond().get(0);
+                direction1maxRange1 = hvdcRange.getSecond().get(1);
+
+                groupId += hvdcRangeActionDirection1Id1;
+                direction1hvdc1IsDefined = true;
+            } else {
+                hvdcRangeActionDirection1Id2 = registeredResource.getMRID().getValue();
+                hvdcRangeActionAdder2.withId(hvdcRangeActionDirection1Id2)
+                        .withName(registeredResource.getName());
+
+                // Network element
+                checkHvdcNetworkElement(hvdcRangeActionDirection1Id2, hvdcRangeActionDirection1Id2);
+                hvdcRangeActionAdder2.withNetworkElement(hvdcRangeActionDirection1Id2);
+
+                // Usage rules
+                if (!addUsageRules(hvdcRangeActionDirection1Id2, ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder2)) {
+                    return;
+                }
+
+                // READ RANGE
+                Pair<Boolean, List<Integer>> hvdcRange = defineHvdcRange(hvdcRangeActionDirection1Id2,
+                        registeredResource.getResourceCapacityMinimumCapacity().intValue(),
+                        registeredResource.getResourceCapacityMaximumCapacity().intValue(),
+                        registeredResource.getInAggregateNodeMRID().getValue(),
+                        registeredResource.getOutAggregateNodeMRID().getValue());
+                // hvdc range is ill defined :
+                if (hvdcRange.getFirst()) {
+                    return;
+                }
+                // else :
+                direction1minRange2 = hvdcRange.getSecond().get(0);
+                direction1maxRange2 = hvdcRange.getSecond().get(1);
+
+                groupId += hvdcRangeActionDirection1Id2;
+            }
+
+            hvdcRangeActionAdder1.withGroupId(groupId);
+            hvdcRangeActionAdder2.withGroupId(groupId);
+        }
+
+        // Read hvdcRangeActionDirection2
+        String hvdcRangeActionDirection2Id1 = "";
+        String hvdcRangeActionDirection2Id2 = "";
+        int direction2minRange1 = 0;
+        int direction2minRange2 = 0;
+        int direction2maxRange1 = 0;
+        int direction2maxRange2 = 0;
+        int hvdc1minRange = 0;
+        int hvdc1maxRange = 0;
+        int hvdc2minRange = 0;
+        int hvdc2maxRange = 0;
+        boolean direction2hvdc1IsDefined = false;
+        for (RemedialActionRegisteredResource registeredResource : hvdcRangeActionDirection2.getRegisteredResource()) {
+            List<Boolean> registeredResourceStatus = checkRegisteredResource(cimSerieId, registeredResource);
+            // registered resource is ill defined
+            if (registeredResourceStatus.get(0)) {
+                return;
+            }
+            // Ignore PMode registered resource
+            if (registeredResourceStatus.get(1)) {
+                continue;
+            }
+
+            if (!direction2hvdc1IsDefined) {
+                hvdcRangeActionDirection2Id1 = registeredResource.getMRID().getValue();
+                // READ RANGE
+                Pair<Boolean, List<Integer>> hvdcRange = defineHvdcRange(hvdcRangeActionDirection2Id1,
+                        registeredResource.getResourceCapacityMinimumCapacity().intValue(),
+                        registeredResource.getResourceCapacityMaximumCapacity().intValue(),
+                        registeredResource.getInAggregateNodeMRID().getValue(),
+                        registeredResource.getOutAggregateNodeMRID().getValue());
+                // hvdc range is ill defined :
+                if (hvdcRange.getFirst()) {
+                    return;
+                }
+                // else :
+                direction2minRange1 = hvdcRange.getSecond().get(0);
+                direction2maxRange1 = hvdcRange.getSecond().get(1);
+            } else {
+                hvdcRangeActionDirection2Id2 = registeredResource.getMRID().getValue();
+                // Read range
+                Pair<Boolean, List<Integer>> hvdcRange = defineHvdcRange(hvdcRangeActionDirection2Id2,
+                        registeredResource.getResourceCapacityMinimumCapacity().intValue(),
+                        registeredResource.getResourceCapacityMaximumCapacity().intValue(),
+                        registeredResource.getInAggregateNodeMRID().getValue(),
+                        registeredResource.getOutAggregateNodeMRID().getValue());
+                // hvdc range is ill defined :
+                if (hvdcRange.getFirst()) {
+                    return;
+                }
+                // else :
+                direction2minRange2 = hvdcRange.getSecond().get(0);
+                direction2maxRange2 = hvdcRange.getSecond().get(1);
+            }
+            direction2hvdc1IsDefined = true;
+        }
+        // CHECK ID
+        if (hvdcRangeActionDirection2Id1.equals(hvdcRangeActionDirection1Id1)) {
+            Pair<Boolean, List<Integer>> concatenatedHvdc1Range = concatenateHvdcRanges(cimSerieId,
+                    direction1minRange1, direction2minRange1,
+                    direction1maxRange1, direction2maxRange1,
+                    hvdc1minRange, hvdc1maxRange);
+            // concatenated Hvdc range is ill defined :
+            if (concatenatedHvdc1Range.getFirst()) {
+                return;
+            }
+            // else :
+            hvdc1minRange = concatenatedHvdc1Range.getSecond().get(0);
+            hvdc1maxRange = concatenatedHvdc1Range.getSecond().get(1);
+
+            if (hvdcRangeActionDirection2Id2.equals(hvdcRangeActionDirection1Id2)) {
+                Pair<Boolean, List<Integer>> concatenatedHvdc2Range = concatenateHvdcRanges(cimSerieId,
+                        direction1minRange2, direction2minRange2,
+                        direction1maxRange2, direction2maxRange2,
+                        hvdc1minRange, hvdc1maxRange);
+                // concatenated Hvdc range is ill defined :
+                if (concatenatedHvdc2Range.getFirst()) {
+                    return;
+                }
+                // else :
+                hvdc2minRange = concatenatedHvdc2Range.getSecond().get(0);
+                hvdc2maxRange = concatenatedHvdc2Range.getSecond().get(1);
+            } else {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC ID mismatch"));
+                return;
+            }
+        }
+        if (hvdcRangeActionDirection2Id1.equals(hvdcRangeActionDirection1Id2)) {
+            Pair<Boolean, List<Integer>> concatenatedHvdcRange = concatenateHvdcRanges(cimSerieId,
+                    direction1minRange2, direction2minRange1,
+                    direction1maxRange2, direction2maxRange1,
+                    hvdc1minRange, hvdc1maxRange);
+            // concatenated Hvdc range is ill defined :
+            if (concatenatedHvdcRange.getFirst()) {
+                return;
+            }
+            // else :
+            hvdc2minRange = concatenatedHvdcRange.getSecond().get(0);
+            hvdc2maxRange = concatenatedHvdcRange.getSecond().get(1);
+
+            if (hvdcRangeActionDirection2Id2.equals(hvdcRangeActionDirection1Id1)) {
+                Pair<Boolean, List<Integer>> concatenatedHvdc1Range = concatenateHvdcRanges(cimSerieId,
+                        direction1minRange1, direction2minRange2,
+                        direction1maxRange1, direction2maxRange2,
+                        hvdc1minRange, hvdc1maxRange);
+                // concatenated Hvdc range is ill defined :
+                if (concatenatedHvdc1Range.getFirst()) {
+                    return;
+                }
+                // else :
+                hvdc1minRange = concatenatedHvdc1Range.getSecond().get(0);
+                hvdc1maxRange = concatenatedHvdc1Range.getSecond().get(1);
+            } else {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC ID mismatch"));
+                return;
+            }
+        }
+        // add ranges
+        hvdcRangeActionAdder1.newRange().withMin(hvdc1minRange).withMax(hvdc1maxRange);
+        hvdcRangeActionAdder2.newRange().withMin(hvdc2minRange).withMax(hvdc2maxRange);
+        hvdcRangeActionAdder1.add();
+        hvdcRangeActionAdder2.add();
+    }
+
+    // Return type : Pair of one boolean and a list of two integers :
+    // -- the boolean indicates whether the Hvdc ranges can be concatenated or not
+    // -- the integers are the min and max Hvdc concatenated range.
+    private  Pair<Boolean, List<Integer>> concatenateHvdcRanges(String cimSerieId, int min1, int min2, int max1, int max2, int minRange, int maxRange) {
+        if (min2 < min1) {
+            if (max2 < min1) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC range mismatch"));
+                return Pair.of(true, List.of(0, 0));
+            } else {
+                return Pair.of(false, List.of(min2, Math.max(max1, max2)));
+            }
+        } else {
+            if (min2 > max1) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC range mismatch"));
+                return Pair.of(true, List.of(0, 0));
+            } else {
+                return Pair.of(false, List.of(min1, Math.max(max1, max2)));
+            }
+        }
+    }
+
+    // Return type : list of two booleans, indicating whether the registered resource is ill defined, and whether the registered resource
+    // should be skipped
+    private List<Boolean> checkRegisteredResource(String cimSerieId, RemedialActionRegisteredResource registeredResource) {
+        // Check MarketObjectStatus
+        String marketObjectStatusStatus = registeredResource.getMarketObjectStatusStatus();
+        if (Objects.isNull(marketObjectStatusStatus)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatusStatus"));
+            return List.of(true, false);
+        }
+        if (marketObjectStatusStatus.equals(MarketObjectStatus.PMODE.getStatus())) {
+            return List.of(false, true);
+        }
+        if (!marketObjectStatusStatus.equals(MarketObjectStatus.ABSOLUTE.getStatus())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus)));
+            return List.of(true, false);
+        }
+        // Check unit
+        String unit = registeredResource.getResourceCapacityUnitSymbol();
+        if (Objects.isNull(unit)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCOMPLETE_DATA, "Missing unit"));
+            return List.of(true, false);
+        }
+        if (!registeredResource.getResourceCapacityUnitSymbol().equals(MEGAWATT_UNIT_SYMBOL)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit: %s", unit)));
+            return List.of(true, false);
+        }
+        // Check that min/max are defined
+        if (Objects.isNull(registeredResource.getResourceCapacityMinimumCapacity()) || Objects.isNull(registeredResource.getResourceCapacityMaximumCapacity())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCOMPLETE_DATA, "Missing min or max resource capacity"));
+            return List.of(true, false);
+        }
+        return List.of(false, false);
+    }
+
+    // Return type : Pair of one boolean and a list of two integers :
+    // -- the boolean indicates whether the Hvdc range is ill defined
+    // -- the integers are the min and max Hvdc range.
+    private Pair<Boolean, List<Integer>> defineHvdcRange(String createdRemedialActionId, int minCapacity, int maxCapacity, String inNode, String outNode) {
+        HvdcLine hvdcLine = network.getHvdcLine(createdRemedialActionId);
+        String from = hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus().getId();
+        String to = hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus().getId();
+
+        if (Objects.isNull(inNode) || Objects.isNull(outNode)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing HVDC in or out aggregate nodes"));
+            return Pair.of(true, List.of(0, 0));
+        }
+        if (inNode.equals(from) && outNode.equals(to)) {
+            return Pair.of(false, List.of(minCapacity, maxCapacity));
+        } else if (inNode.equals(to) && outNode.equals(from)) {
+            return Pair.of(false, List.of(-maxCapacity, -minCapacity));
+        } else {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Wrong HVDC inAggregateNode/outAggregateNode"));
+            return Pair.of(true, List.of(0, 0));
+        }
+    }
+
+    private boolean checkHvdcNetworkElement(String createdRemedialActionId, String networkElementId) {
+        if (Objects.isNull(network.getHvdcLine(networkElementId))) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is not a HVDC line", networkElementId)));
+            return false;
+        }
+        if (Objects.isNull(network.getHvdcLine(networkElementId).getExtension(HvdcAngleDroopActivePowerControl.class))) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC does not have a HvdcAngleDroopActivePowerControl extension"));
+            return false;
+        }
+        if (!network.getHvdcLine(networkElementId).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled()) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "HvdcAngleDroopActivePowerControl extension is not enabled"));
+            return false;
+        }
+        return true;
     }
 
     /*-------------- PST RANGE ACTION ------------------------------*/
     // Return true if remedial action has been defined.
-    private boolean identifyAndAddRemedialActionPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private boolean identifyAndAddRemedialActionPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
             if (Objects.isNull(psrType)) {
@@ -150,7 +507,7 @@ public class RemedialActionSeriesCreator {
                         remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
                         return true;
                     }
-                    addPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+                    addPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus);
                     return true;
                 }
             }
@@ -158,7 +515,7 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void addPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void addPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus) {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
@@ -222,7 +579,7 @@ public class RemedialActionSeriesCreator {
             addTapRangeWithMinTap(pstRangeActionAdder, pstHelper, minCapacity, rangeType);
         }
 
-        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies)) {
+        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder)) {
             return;
         }
 
@@ -285,12 +642,12 @@ public class RemedialActionSeriesCreator {
     }
 
     /*-------------- NETWORK ACTION ------------------------------*/
-    private void addRemedialActionNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void addRemedialActionNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
                 .withId(createdRemedialActionId)
                 .withName(createdRemedialActionName);
 
-        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies)) {
+        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder)) {
             return;
         }
 
@@ -477,7 +834,7 @@ public class RemedialActionSeriesCreator {
     }
 
     /*-------------- USAGE RULES ------------------------------*/
-    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder) {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
@@ -591,7 +948,7 @@ public class RemedialActionSeriesCreator {
 
     private boolean checkAvailabilityMarketObjectStatus(String createdRemedialActionId, String availabilityMarketObjectStatus) {
         if (Objects.isNull(availabilityMarketObjectStatus)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing availabilityMarketObjectStatus."));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing availabilityMarketObjectStatus"));
             return false;
         }
         // Temporary: A38 not yet handled by FARAO.
