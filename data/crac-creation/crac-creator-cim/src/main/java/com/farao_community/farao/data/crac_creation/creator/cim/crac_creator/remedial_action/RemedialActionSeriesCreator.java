@@ -42,6 +42,8 @@ public class RemedialActionSeriesCreator {
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private CimCracCreationContext cracCreationContext;
     private List<RemedialActionSeries> storedHvdcRangeActions;
+    private List<Contingency> contingencies;
+    private List<String> invalidContingencies;
 
     public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
         this.cimTimeSeries = cimTimeSeries;
@@ -53,6 +55,8 @@ public class RemedialActionSeriesCreator {
     public void createAndAddRemedialActionSeries() {
         this.remedialActionSeriesCreationContexts = new HashSet<>();
         this.storedHvdcRangeActions = new ArrayList<>();
+        this.contingencies = new ArrayList<>();
+        this.invalidContingencies = new ArrayList<>();
 
         for (TimeSeries cimTimeSerie : cimTimeSeries) {
             for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
@@ -60,8 +64,6 @@ public class RemedialActionSeriesCreator {
                     for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesRemedialActionsToImport).collect(Collectors.toList())) {
                         if (checkRemedialActionSeries(cimSerie)) {
                             // Read and store contingencies
-                            List<Contingency> contingencies = new ArrayList<>();
-                            List<String> invalidContingencies = new ArrayList<>();
                             for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
                                 Optional<Contingency> contingency = getContingencyFromCrac(cimContingency, crac);
                                 if (contingency.isPresent()) {
@@ -71,15 +73,17 @@ public class RemedialActionSeriesCreator {
                                 }
                             }
                             for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                                readAndAddRemedialAction(remedialActionSeries, contingencies, invalidContingencies);
+                                readAndAddRemedialAction(remedialActionSeries);
                             }
                             // Hvdc remedial action series are defined in the same Series
                             // Add HVDC range actions.
                             if (storedHvdcRangeActions.size() != 0) {
-                                readAndAddHvdcRangeActions(cimSerie.getMRID(), contingencies, invalidContingencies);
-                                storedHvdcRangeActions.clear();
+                                readAndAddHvdcRangeActions(cimSerie.getMRID());
                             }
                         }
+                        storedHvdcRangeActions.clear();
+                        contingencies.clear();
+                        invalidContingencies.clear();
                     }
                 }
             }
@@ -88,7 +92,7 @@ public class RemedialActionSeriesCreator {
     }
 
     // For now, only free-to-use remedial actions are handled.
-    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries) {
         String createdRemedialActionId = remedialActionSeries.getMRID();
         String createdRemedialActionName = remedialActionSeries.getName();
 
@@ -128,16 +132,16 @@ public class RemedialActionSeriesCreator {
         }
 
         // -- Add remedial action, or store it if it's a valid HVDC range action.
-        if (!addRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies)) {
+        if (!addRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
             storedHvdcRangeActions.add(remedialActionSeries);
         }
     }
 
     // Returns true if remedial action has been dealt with.
     // If false, remedial action is an hvdc range action, and will be added after the whole Series has been read.
-    private boolean addRemedialAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private boolean addRemedialAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         // 1) Remedial Action is a Pst Range Action :
-        if (identifyAndAddRemedialActionPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies)) {
+        if (identifyAndAddRemedialActionPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
             return true;
         }
         // 2) Remedial Action is part of a HVDC Range Action :
@@ -151,13 +155,13 @@ public class RemedialActionSeriesCreator {
             return false;
         }
         // 3) Remedial Action is a Network Action :
-        addRemedialActionNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+        addRemedialActionNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus);
         return true;
     }
 
     /*-------------- PST RANGE ACTION ------------------------------*/
     // Return true if remedial action has been defined.
-    private boolean identifyAndAddRemedialActionPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private boolean identifyAndAddRemedialActionPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
             if (Objects.isNull(psrType)) {
@@ -172,7 +176,7 @@ public class RemedialActionSeriesCreator {
                         remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
                         return true;
                     }
-                    addPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+                    addPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus);
                     return true;
                 }
             }
@@ -180,7 +184,7 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void addPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void addPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus) {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
@@ -244,7 +248,7 @@ public class RemedialActionSeriesCreator {
             addTapRangeWithMinTap(pstRangeActionAdder, pstHelper, minCapacity, rangeType);
         }
 
-        if (addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies)) {
+        if (addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder)) {
             return;
         }
 
@@ -307,12 +311,12 @@ public class RemedialActionSeriesCreator {
     }
 
     /*-------------- NETWORK ACTION ------------------------------*/
-    private void addRemedialActionNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private void addRemedialActionNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
                 .withId(createdRemedialActionId)
                 .withName(createdRemedialActionName);
 
-        if (addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies)) {
+        if (addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder)) {
             return;
         }
 
@@ -514,7 +518,7 @@ public class RemedialActionSeriesCreator {
         return List.of(false, false);
     }
 
-    private boolean checkHvdcRangeActionValidity(String cimSerieId, List<RemedialActionSeries> storedHvdcRangeActions) {
+    private boolean checkHvdcRangeActionValidity(String cimSerieId) {
         // Two hvdc range actions have been defined :
         if (storedHvdcRangeActions.size() != 2) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s HVDC remedial actions were defined instead of 2", storedHvdcRangeActions.size())));
@@ -536,7 +540,7 @@ public class RemedialActionSeriesCreator {
     // Return type : Pair of one boolean and a list of two integers :
     // -- the boolean indicates whether the Hvdc registered resource is ill defined
     // -- the integers are the min and max Hvdc range.
-    private Pair<Boolean, List<Integer>> readHvdcRegisteredResource(HvdcRangeActionAdder hvdcRangeActionAdder, RemedialActionRegisteredResource registeredResource, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private Pair<Boolean, List<Integer>> readHvdcRegisteredResource(HvdcRangeActionAdder hvdcRangeActionAdder, RemedialActionRegisteredResource registeredResource) {
         String hvdcId = registeredResource.getMRID().getValue();
         hvdcRangeActionAdder.withId(hvdcId)
                 .withName(registeredResource.getName());
@@ -549,7 +553,7 @@ public class RemedialActionSeriesCreator {
         hvdcRangeActionAdder.withNetworkElement(networkElementId);
 
         // Usage rules
-        if (addUsageRules(hvdcId, ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies)) {
+        if (addUsageRules(hvdcId, ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder)) {
             return Pair.of(true, List.of(0, 0));
         }
 
@@ -566,8 +570,8 @@ public class RemedialActionSeriesCreator {
         return Pair.of(false, List.of(hvdcRange.getSecond().get(0), hvdcRange.getSecond().get(1)));
     }
 
-    private void readAndAddHvdcRangeActions(String cimSerieId, List<Contingency> contingencies, List<String> invalidContingencies) {
-        if (!checkHvdcRangeActionValidity(cimSerieId, storedHvdcRangeActions)) {
+    private void readAndAddHvdcRangeActions(String cimSerieId) {
+        if (!checkHvdcRangeActionValidity(cimSerieId)) {
             return;
         }
         RemedialActionSeries hvdcRangeActionDirection1 = storedHvdcRangeActions.get(0);
@@ -599,7 +603,7 @@ public class RemedialActionSeriesCreator {
             if (!direction1hvdc1IsDefined) {
                 // common function
                 hvdcRangeActionDirection1Id1 = registeredResource.getMRID().getValue();
-                Pair<Boolean, List<Integer>> hvdcRegisteredResource1Status = readHvdcRegisteredResource(hvdcRangeActionAdder1, registeredResource, contingencies, invalidContingencies);
+                Pair<Boolean, List<Integer>> hvdcRegisteredResource1Status = readHvdcRegisteredResource(hvdcRangeActionAdder1, registeredResource);
                 // hvdc registered resource is ill defined :
                 if (hvdcRegisteredResource1Status.getFirst()) {
                     return;
@@ -616,7 +620,7 @@ public class RemedialActionSeriesCreator {
                     remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(hvdcRangeActionDirection1Id2, ImportStatus.INCONSISTENCY_IN_DATA, "Wrong id : HVDC registered resource has an id already defined"));
                     return;
                 }
-                Pair<Boolean, List<Integer>> hvdcRegisteredResource2Status = readHvdcRegisteredResource(hvdcRangeActionAdder2, registeredResource, contingencies, invalidContingencies);
+                Pair<Boolean, List<Integer>> hvdcRegisteredResource2Status = readHvdcRegisteredResource(hvdcRangeActionAdder2, registeredResource);
                 // hvdc registered resource is ill defined :
                 if (hvdcRegisteredResource2Status.getFirst()) {
                     return;
@@ -855,7 +859,7 @@ public class RemedialActionSeriesCreator {
     }
 
     /*-------------- USAGE RULES ------------------------------*/
-    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies) {
+    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder) {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
@@ -873,7 +877,7 @@ public class RemedialActionSeriesCreator {
                     addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
                 }
             } else {
-                addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE, contingencies);
+                addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE);
             }
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
@@ -882,7 +886,7 @@ public class RemedialActionSeriesCreator {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
             }
             if (!contingencies.isEmpty()) {
-                addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE, contingencies);
+                addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE);
             }
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
@@ -893,7 +897,7 @@ public class RemedialActionSeriesCreator {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant %s"));
                 return true;
             } else {
-                addOnStateUsageRules(remedialActionAdder, Instant.AUTO, UsageMethod.FORCED, contingencies);
+                addOnStateUsageRules(remedialActionAdder, Instant.AUTO, UsageMethod.FORCED);
             }
         }
         return false;
@@ -906,7 +910,7 @@ public class RemedialActionSeriesCreator {
                 .add();
     }
 
-    private void addOnStateUsageRules(RemedialActionAdder adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
+    private void addOnStateUsageRules(RemedialActionAdder adder, Instant raApplicationInstant, UsageMethod usageMethod) {
         contingencies.forEach(contingency ->
                 adder.newOnStateUsageRule()
                         .withInstant(raApplicationInstant)
