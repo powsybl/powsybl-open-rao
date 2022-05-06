@@ -13,8 +13,6 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters.DEFAULT_RA_GROUPS_AS_STRING;
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -29,7 +27,7 @@ public class CseCracCreationParametersConfigLoader implements CracCreationParame
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setRangeActionGroupsAsString(config.getStringListProperty("range-action-groups", DEFAULT_RA_GROUPS_AS_STRING));
+            parameters.setRangeActionGroupsAsString(config.getStringListProperty("range-action-groups", CseCracCreationParameters.getDefaultRaGroupsAsString()));
         }
         return parameters;
     }

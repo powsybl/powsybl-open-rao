@@ -17,7 +17,9 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
@@ -43,12 +45,14 @@ public class RemedialActionSeriesCreator {
     private final List<TimeSeries> cimTimeSeries;
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private CimCracCreationContext cracCreationContext;
+    private final CimCracCreationParameters cimCracCreationParameters;
 
-    public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
+    public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext, CimCracCreationParameters cimCracCreationParameters) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
+        this.cimCracCreationParameters = cimCracCreationParameters;
     }
 
     public void createAndAddRemedialActionSeries() {
@@ -197,6 +201,23 @@ public class RemedialActionSeriesCreator {
                 .withNetworkElement(pstHelper.getIdInNetwork())
                 .withInitialTap(pstHelper.getInitialTap())
                 .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());
+
+        // ---- add groupId if present
+        if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionGroups() != null) {
+            String groupId = null;
+            for (RangeActionGroup rangeActionGroup : cimCracCreationParameters.getRangeActionGroups()) {
+                for (String raGroupId : rangeActionGroup.getRangeActionsIds()) {
+                    if (raGroupId.equals(createdRemedialActionId)) {
+                        if (groupId != null) {
+                            cracCreationContext.getCreationReport().warn(String.format("GroupId already defined to %s for PST %s, group %s is ignored (only in PST %s).", groupId, createdRemedialActionId, rangeActionGroup, createdRemedialActionId));
+                        } else {
+                            groupId = rangeActionGroup.toString();
+                            pstRangeActionAdder.withGroupId(groupId);
+                        }
+                    }
+                }
+            }
+        }
 
         // --- Resource capacity
         String unitSymbol = remedialActionRegisteredResource.getResourceCapacityUnitSymbol();

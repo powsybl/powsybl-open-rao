@@ -1,0 +1,8 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CimCracCreatorParameters" : {
+      "range-action-groups" : [ "rangeAction3 + rangeAction4", "hvdc1 + hvdc2" ]
+    }
+  }
+}
