@@ -16,4 +16,9 @@ import java.util.List;
 public interface StandardRangeAction<T extends StandardRangeAction<T>> extends RangeAction<T> {
 
     List<StandardRange> getRanges();
+
+    /**
+     * Get the setpoint of the remedial action before RAO.
+     */
+    double getInitialSetpoint();
 }

@@ -6,17 +6,26 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,49 +45,60 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
         init();
         addPstGroupInCrac();
         useNetworkWithTwoPsts();
+        State state = crac.getPreventiveState();
 
         PstRangeAction pstRa1 = crac.getPstRangeAction("pst1-group1");
         PstRangeAction pstRa2 = crac.getPstRangeAction("pst2-group1");
         String groupId = "group1";
         Map<Integer, Double> tapToAngle = pstRa1.getTapToAngleConversionMap(); // both PSTs have the same map
         double initialAlpha = tapToAngle.get(0);
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRa1, initialAlpha, pstRa2, initialAlpha));
+        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRa1, initialAlpha, pstRa2, initialAlpha));
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+
+        Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
+        rangeActions.put(state, Set.of(pstRa1, pstRa2));
+        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+
+        RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(new RaoParameters());
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
-                network,
-                Set.of(cnec1),
-                Set.of(pstRa1, pstRa2),
-                initialRangeActionResult,
-                0.,
-                0.,
-                0.);
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            rangeActionParameters);
 
+        Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
+        pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
-                network,
-                Set.of(pstRa1, pstRa2),
-                initialRangeActionResult);
+            network,
+            state,
+            pstRangeActions,
+            initialRangeActionSetpointResult);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
-                network,
-                Set.of(pstRa1, pstRa2)
-                );
+            network,
+            state,
+            pstRangeActions);
 
-        LinearProblem linearProblem = new LinearProblem(List.of(coreProblemFiller, discretePstTapFiller, discretePstGroupFiller), mpSolver);
+        LinearProblem linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(discretePstTapFiller)
+            .withProblemFiller(discretePstGroupFiller)
+            .withSolver(mpSolver)
+            .build();
 
         // fill problem
-        coreProblemFiller.fill(linearProblem, flowResult, sensitivityResult);
-        discretePstTapFiller.fill(linearProblem, flowResult, sensitivityResult);
-        discretePstGroupFiller.fill(linearProblem, flowResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
-        MPVariable groupTapV = linearProblem.getPstGroupTapVariable(groupId);
-        MPVariable variationUp1V = linearProblem.getPstTapVariationVariable(pstRa1, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPVariable variationDown1V = linearProblem.getPstTapVariationVariable(pstRa1, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPVariable variationUp2V = linearProblem.getPstTapVariationVariable(pstRa2, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPVariable variationDown2V = linearProblem.getPstTapVariationVariable(pstRa2, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable groupTapV = linearProblem.getPstGroupTapVariable(groupId, state);
+        MPVariable variationUp1V = linearProblem.getPstTapVariationVariable(pstRa1, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable variationDown1V = linearProblem.getPstTapVariationVariable(pstRa1, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable variationUp2V = linearProblem.getPstTapVariationVariable(pstRa2, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable variationDown2V = linearProblem.getPstTapVariationVariable(pstRa2, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
-        MPConstraint groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1);
-        MPConstraint groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2);
+        MPConstraint groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1, state);
+        MPConstraint groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2, state);
 
         assertNotNull(groupTapV);
         assertNotNull(groupTap1C);
@@ -99,9 +119,9 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
 
         // update with a tap of -10
         double newAlpha = tapToAngle.get(-10);
-        RangeActionResult updatedRangeActionResult = new RangeActionResultImpl(Map.of(pstRa1, newAlpha, pstRa2, newAlpha));
-        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, updatedRangeActionResult);
-        discretePstGroupFiller.update(linearProblem, flowResult, sensitivityResult, updatedRangeActionResult);
+        RangeActionActivationResult updatedRangeActionActivationResult = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pstRa1, newAlpha, pstRa2, newAlpha)));
+        discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, updatedRangeActionActivationResult);
+        discretePstGroupFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, updatedRangeActionActivationResult);
 
         // check constraints
         assertEquals(-10, groupTap1C.lb(), 1e-6);

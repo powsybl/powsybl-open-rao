@@ -65,7 +65,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, networkElement, groupId);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId);
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
     }

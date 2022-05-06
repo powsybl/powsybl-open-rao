@@ -8,19 +8,16 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.farao_community.farao.search_tree_rao.result.impl.EmptyFlowResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunctionHelper;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -34,71 +31,74 @@ import java.util.Set;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PrePerimeterSensitivityAnalysis {
+
+    // actual input
     private final Set<FlowCnec> flowCnecs;
     private final Set<RangeAction<?>> rangeActions;
-    private final ToolProvider toolProvider;
     private final RaoParameters raoParameters;
-    private final LinearOptimizerParameters linearOptimizerParameters;
+    private final ToolProvider toolProvider;
 
+    // built internally
     private SensitivityComputer sensitivityComputer;
+    private ObjectiveFunction objectiveFunction;
 
-    public PrePerimeterSensitivityAnalysis(Set<RangeAction<?>> rangeActions,
-                                           Set<FlowCnec> flowCnecs,
-                                           ToolProvider toolProvider,
+    public PrePerimeterSensitivityAnalysis(Set<FlowCnec> flowCnecs,
+                                           Set<RangeAction<?>> rangeActions,
                                            RaoParameters raoParameters,
-                                           LinearOptimizerParameters linearOptimizerParameters) {
-        this.toolProvider = toolProvider;
+                                           ToolProvider toolProvider) {
         this.flowCnecs = flowCnecs;
         this.rangeActions = rangeActions;
         this.raoParameters = raoParameters;
-        this.linearOptimizerParameters = linearOptimizerParameters;
+        this.toolProvider = toolProvider;
     }
 
-    public PrePerimeterResult run(Network network) {
-        return run(network, null);
-    }
-
-    public PrePerimeterResult run(Network network, AppliedRemedialActions appliedRemedialActions) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network) {
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
-        sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
+
         sensitivityComputer = sensitivityComputerBuilder.build();
-        ObjectiveFunction objectiveFunction = getInitialMinMarginObjectiveFunction();
+        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters);
+
         return runAndGetResult(network, objectiveFunction);
     }
 
-    public PrePerimeterResult runBasedOn(Network network, FlowResult flowResult) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
+    public PrePerimeterResult runBasedOnInitialResults(Network network,
+                                                       FlowResult initialFlowResult,
+                                                       Set<String> operatorsNotSharingCras,
+                                                       AppliedRemedialActions appliedCurativeRemedialActions) {
+
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(flowResult);
+                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            sensitivityComputerBuilder.withPtdfsResults(flowResult);
+            sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+        }
+        if (appliedCurativeRemedialActions != null) {
+            // for 2nd preventive initial sensi
+            sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
-        ObjectiveFunction.ObjectiveFunctionBuilder builder = new ObjectiveFunction.ObjectiveFunctionBuilder();
-        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(
-            flowCnecs,
-            flowResult,
-            builder,
-            raoParameters.getObjectiveFunction().relativePositiveMargins(),
-            linearOptimizerParameters.getUnoptimizedCnecParameters(),
-            raoParameters.getObjectiveFunction().getUnit()
-        );
-        ObjectiveFunction objectiveFunction = builder.build();
+
+        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters);
+
         return runAndGetResult(network, objectiveFunction);
     }
 
-    private SensitivityComputer.SensitivityComputerBuilder getBuilder() {
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
+    }
+
+    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
         return SensitivityComputer.create()
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)
@@ -113,19 +113,12 @@ public class PrePerimeterSensitivityAnalysis {
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
-                new RangeActionResultImpl(network, rangeActions),
+                RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
                 objectiveFunctionResult
         );
     }
 
     private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, SensitivityResult sensitivityResult) {
         return objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus());
-    }
-
-    private ObjectiveFunction getInitialMinMarginObjectiveFunction() {
-        ObjectiveFunction.ObjectiveFunctionBuilder builder = ObjectiveFunction.create();
-        FlowResult emptyFlowResult = new EmptyFlowResultImpl();
-        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(flowCnecs, emptyFlowResult, builder, raoParameters.getObjectiveFunction().relativePositiveMargins(), linearOptimizerParameters.getUnoptimizedCnecParameters(), raoParameters.getObjectiveFunction().getUnit());
-        return builder.build();
     }
 }

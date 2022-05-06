@@ -33,6 +33,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final List<TapRange> ranges;
     private final int initialTapPosition;
     private final Map<Integer, Double> tapToAngleConversionMap;
+    private final double smallestAngleStep;
     private final int lowTapPosition;
     private final int highTapPosition;
 
@@ -43,6 +44,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         this.ranges = ranges;
         this.initialTapPosition = initialTap;
         this.tapToAngleConversionMap = tapToAngleConversionMap;
+        this.smallestAngleStep = computeSmallestAngleStep();
         this.lowTapPosition = Collections.min(tapToAngleConversionMap.keySet());
         this.highTapPosition = Collections.max(tapToAngleConversionMap.keySet());
     }
@@ -65,6 +67,20 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     @Override
     public Map<Integer, Double> getTapToAngleConversionMap() {
         return tapToAngleConversionMap;
+    }
+
+    private double computeSmallestAngleStep() {
+        double smallestDiff = Double.POSITIVE_INFINITY;
+        for (int i = lowTapPosition; i < highTapPosition; i++) {
+            double absoluteDiff = Math.abs(tapToAngleConversionMap.get(i + 1) - tapToAngleConversionMap.get(i));
+            smallestDiff = Math.min(smallestDiff, absoluteDiff);
+        }
+        return smallestDiff;
+    }
+
+    @Override
+    public double getSmallestAngleStep() {
+        return smallestAngleStep;
     }
 
     @Override

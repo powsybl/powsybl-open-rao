@@ -10,10 +10,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
+import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -35,15 +34,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
     public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
                                       FlowResult initialFlowResult,
-                                      Set<RangeAction<?>> rangeActions,
                                       Unit unit,
                                       MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
-        super(optimizedCnecs, rangeActions, unit, maxMinRelativeMarginParameters);
+        super(optimizedCnecs, unit);
         this.initialFlowResult = initialFlowResult;
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
-        this.highestThreshold = maxMinRelativeMarginParameters.getLargestCnecThreshold(optimizedCnecs);
-
+        this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs);
     }
 
     @Override

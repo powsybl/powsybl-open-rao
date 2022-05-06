@@ -303,15 +303,15 @@ public class RaoLoggerTest {
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
 
         RaoLogger.logOptimizationSummary(logger, preventive, 0, 0, 1., 2., objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"preventive\": initial cost = 3.00 (functional: 1.00, virtual: 2.00), no preventive remedial actions activated, cost after PRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = 3.00 (functional: 1.00, virtual: 2.00), no remedial actions activated, cost after PRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
 
         RaoLogger.logOptimizationSummary(logger, curative, 1, 0, -100., 40., objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": initial cost = -60.00 (functional: -100.00, virtual: 40.00), 1 curative network action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"contingency\": initial cost = -60.00 (functional: -100.00, virtual: 40.00), 1 network action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
 
         RaoLogger.logOptimizationSummary(logger, curative, 0, 2, 1., null, objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": 2 curative range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"contingency\": 2 range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
 
         RaoLogger.logOptimizationSummary(logger, curative, 3, 2, null, 200., objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": 3 curative network action(s) and 2 curative range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] Scenario \"contingency\": 3 network action(s) and 2 range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
     }
 }

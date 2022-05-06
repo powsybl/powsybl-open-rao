@@ -9,10 +9,11 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -27,7 +28,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
 public final class SearchTreeBloomer {
     private final Network network;
     private final CountryGraph countryGraph;
-    private final RangeActionResult prePerimeterRangeActionResult;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final int maxRa;
     private final int maxTso;
     private final Map<String, Integer> maxTopoPerTso;
@@ -35,20 +36,21 @@ public final class SearchTreeBloomer {
     private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
     private final List<NetworkActionCombination> preDefinedNaCombinations;
+    private final State optimizedStateForNetworkActions;
 
     public SearchTreeBloomer(Network network,
-                             RangeActionResult prePerimeterRangeActionResult,
+                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              int maxRa,
                              int maxTso,
                              Map<String, Integer> maxTopoPerTso,
                              Map<String, Integer> maxRaPerTso,
                              boolean filterFarElements,
                              int maxNumberOfBoundariesForSkippingNetworkActions,
-                             List<NetworkActionCombination> preDefinedNaCombinations) {
-
+                             List<NetworkActionCombination> preDefinedNaCombinations,
+                             State optimizedStateForNetworkActions) {
         this.network = network;
         countryGraph = new CountryGraph(network);
-        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.maxRa = maxRa;
         this.maxTso = maxTso;
         this.maxTopoPerTso = maxTopoPerTso;
@@ -56,6 +58,7 @@ public final class SearchTreeBloomer {
         this.filterFarElements = filterFarElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
         this.preDefinedNaCombinations = preDefinedNaCombinations;
+        this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
     }
 
     /**
@@ -238,9 +241,9 @@ public final class SearchTreeBloomer {
         return updatedMaxTopoPerTso;
     }
 
-    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction rangeAction) {
-        double optimizedSetPoint = fromLeaf.getOptimizedSetPoint(rangeAction);
-        double prePerimeterSetPoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction<?> rangeAction) {
+        double optimizedSetPoint = fromLeaf.getOptimizedSetpoint(rangeAction, optimizedStateForNetworkActions);
+        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
         if (Double.isNaN(optimizedSetPoint)) {
             return false;
         } else if (Double.isNaN(prePerimeterSetPoint)) {

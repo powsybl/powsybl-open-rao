@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks;
 
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.FaraoMPVariable;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -58,12 +59,34 @@ public class AppliedRemedialActions {
         }
     }
 
-    public boolean isEmpty() {
-        return appliedRa.isEmpty();
+    public boolean isEmpty(Network network) {
+        return getStatesWithRa(network).isEmpty();
     }
 
-    public Set<State> getStatesWithRa() {
-        return appliedRa.keySet();
+    public Set<State> getStatesWithRa(Network network) {
+        // state with at least one network action applied
+        // or state with at least one range action whose setpoint is different than the one in the network
+        return appliedRa.entrySet().stream()
+            .filter(stateE -> !stateE.getValue().networkActions.isEmpty() || stateE.getValue().rangeActions.entrySet().stream()
+                .anyMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
+    }
+
+    public Set<NetworkAction> getAppliedNetworkActions(State state) {
+        if (appliedRa.containsKey(state)) {
+            return appliedRa.get(state).networkActions;
+        } else {
+            return new HashSet<>();
+        }
+    }
+
+    public Map<RangeAction<?>, Double> getAppliedRangeActions(State state) {
+        if (appliedRa.containsKey(state)) {
+            return appliedRa.get(state).rangeActions;
+        } else {
+            return new HashMap<>();
+        }
     }
 
     public void applyOnNetwork(State state, Network network) {
@@ -73,9 +96,18 @@ public class AppliedRemedialActions {
         }
     }
 
+    public AppliedRemedialActions copy() {
+        AppliedRemedialActions ara = new AppliedRemedialActions();
+        appliedRa.forEach((state, appliedRaOnState) -> {
+            ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions);
+            ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
+        });
+        return ara;
+    }
+
     private void checkState(State state) {
-        if (!state.getInstant().equals(Instant.CURATIVE)) {
-            throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE remedial actions.");
+        if (!state.getInstant().equals(Instant.CURATIVE) && !state.getInstant().equals(Instant.AUTO)) {
+            throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
         }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }

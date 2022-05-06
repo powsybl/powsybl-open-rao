@@ -10,15 +10,27 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
 
 /**
@@ -103,5 +115,81 @@ public final class RaoUtil {
             return value - t + t;
         }
         return value;
+    }
+
+    /**
+     * Returns true if a remedial action is available depending on its usage rules
+     * If it has a OnFlowConstraint usage rule, then the margins are needed
+     */
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult) {
+        switch (remedialAction.getUsageMethod(optimizedState)) {
+            case AVAILABLE:
+                return true;
+            case TO_BE_EVALUATED:
+                return remedialAction.getUsageRules().stream()
+                    .anyMatch(usageRule -> (usageRule instanceof OnFlowConstraint)
+                        && isOnFlowConstraintAvailable((OnFlowConstraint) usageRule, optimizedState, flowResult));
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
+     * It needs a FlowResult to get the margin of the flow cnec
+     */
+    public static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
+        if (!onFlowConstraint.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
+            return false;
+        } else {
+            // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
+            return flowResult.getMargin(onFlowConstraint.getFlowCnec(), Unit.MEGAWATT) <= 0;
+        }
+    }
+
+    /**
+     * Returns the range action from optimizationContext that is available on the latest state
+     * strictly before the given state, and that acts on the same network element as rangeAction.
+     */
+    public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameNetworkElement(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
+
+        if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
+            // no previous instant
+            return null;
+        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+
+            // look if a preventive range action acts on the same network elements
+            State preventiveState = optimizationContext.getMainOptimizationState();
+
+            if (preventiveState.isPreventive()) {
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .findAny();
+
+                if (correspondingRa.isPresent()) {
+                    return Pair.of(correspondingRa.get(), preventiveState);
+                }
+            }
+            return null;
+        } else {
+            throw new FaraoException("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.");
+        }
+    }
+
+    public static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
+        double max = 0;
+        for (FlowCnec flowCnec : flowCnecs) {
+            if (flowCnec.isOptimized()) {
+                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
+                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
+                    max = Math.abs(minFlow.get());
+                }
+                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
+                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
+                    max = Math.abs(maxFlow.get());
+                }
+            }
+        }
+        return max;
     }
 }

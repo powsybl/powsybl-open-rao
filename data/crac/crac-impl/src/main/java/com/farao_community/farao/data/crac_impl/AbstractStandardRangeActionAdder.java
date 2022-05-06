@@ -19,6 +19,7 @@ import java.util.List;
 public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>>  extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
 
     protected String groupId;
+    protected double initialSetpoint;
     protected List<StandardRange> ranges;
 
     AbstractStandardRangeActionAdder(CracImpl crac) {
@@ -29,6 +30,12 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     @Override
     public T withGroupId(String groupId) {
         this.groupId = groupId;
+        return (T) this;
+    }
+
+    @Override
+    public T withInitialSetpoint(double initialSetpoint) {
+        this.initialSetpoint = initialSetpoint;
         return (T) this;
     }
 

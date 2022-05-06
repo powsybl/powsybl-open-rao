@@ -18,15 +18,15 @@ import java.util.*;
 
 public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
 
-    private FlowResult flowResult;
-    private SensitivityResult sensitivityResult;
-    private RangeActionResult rangeActionResult;
+    private final FlowResult flowResult;
+    private final SensitivityResult sensitivityResult;
+    private final RangeActionSetpointResult prePerimeterSetpoints;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
-    public PrePerimeterSensitivityResultImpl(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult, ObjectiveFunctionResult objectiveFunctionResult) {
+    public PrePerimeterSensitivityResultImpl(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionSetpointResult prePerimeterSetpoints, ObjectiveFunctionResult objectiveFunctionResult) {
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
-        this.rangeActionResult = rangeActionResult;
+        this.prePerimeterSetpoints = prePerimeterSetpoints;
         this.objectiveFunctionResult = objectiveFunctionResult;
     }
 
@@ -77,27 +77,17 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return rangeActionResult.getRangeActions();
+        return prePerimeterSetpoints.getRangeActions();
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return rangeActionResult.getOptimizedTap(pstRangeAction);
+    public double getSetpoint(RangeAction<?> rangeAction) {
+        return prePerimeterSetpoints.getSetpoint(rangeAction);
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
-        return rangeActionResult.getOptimizedSetPoint(rangeAction);
-    }
-
-    @Override
-    public Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return rangeActionResult.getOptimizedTaps();
-    }
-
-    @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
-        return rangeActionResult.getOptimizedSetPoints();
+    public int getTap(PstRangeAction pstRangeAction) {
+        return prePerimeterSetpoints.getTap(pstRangeAction);
     }
 
     public FlowResult getBranchResult() {

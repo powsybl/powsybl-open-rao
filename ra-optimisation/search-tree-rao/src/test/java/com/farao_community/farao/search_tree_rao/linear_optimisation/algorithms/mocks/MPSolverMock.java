@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks;
 
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.FaraoMPSolver;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     public static double infinity() {
-        return Double.MAX_VALUE;
+        return 1e10;
     }
 
     @Override
@@ -102,6 +102,11 @@ public class MPSolverMock extends FaraoMPSolver {
             return null;
         }
         return variablesWithSameName.get(0);
+    }
+
+    @Override
+    public MPObjectiveMock objective() {
+        return objective;
     }
 
     @Override
