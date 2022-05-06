@@ -50,9 +50,9 @@ public class AppliedRemedialActionsTest {
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), pstRangeAction, 3.1);
 
         // check object
-        assertFalse(appliedRemedialActions.isEmpty());
-        assertEquals(1, appliedRemedialActions.getStatesWithRa().size());
-        assertEquals("Contingency FR1 FR3", appliedRemedialActions.getStatesWithRa().iterator().next().getContingency().get().getId());
+        assertFalse(appliedRemedialActions.isEmpty(network));
+        assertEquals(1, appliedRemedialActions.getStatesWithRa(network).size());
+        assertEquals("Contingency FR1 FR3", appliedRemedialActions.getStatesWithRa(network).iterator().next().getContingency().get().getId());
 
         // apply remedial actions on network
         assertTrue(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
@@ -72,8 +72,8 @@ public class AppliedRemedialActionsTest {
         appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
 
-        assertFalse(appliedRemedialActions.isEmpty());
-        assertEquals(2, appliedRemedialActions.getStatesWithRa().size());
+        assertFalse(appliedRemedialActions.isEmpty(network));
+        assertEquals(2, appliedRemedialActions.getStatesWithRa(network).size());
 
         // apply remedial actions on network
         assertTrue(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
@@ -89,13 +89,40 @@ public class AppliedRemedialActionsTest {
     public void testEmptyAppliedRemedialActions() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
 
-        assertTrue(appliedRemedialActions.isEmpty());
-        assertEquals(0, appliedRemedialActions.getStatesWithRa().size());
+        assertTrue(appliedRemedialActions.isEmpty(network));
+        assertEquals(0, appliedRemedialActions.getStatesWithRa(network).size());
+    }
+
+    @Test
+    public void testAppliedRangeActionWithSetpointEqualToInitialNetwork() {
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 0.0);
+        // should not be taken into account, as PST setpoint is the same as in the initial network
+
+        assertTrue(appliedRemedialActions.isEmpty(network));
+        assertEquals(0, appliedRemedialActions.getStatesWithRa(network).size());
     }
 
     @Test (expected = FaraoException.class)
     public void testAppliedRemedialActionOnPreventiveState() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedNetworkAction(crac.getPreventiveState(), networkAction);
+    }
+
+    @Test
+    public void testCopy() {
+        AppliedRemedialActions originalAra = new AppliedRemedialActions();
+        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
+        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
+
+        // make a copy
+        AppliedRemedialActions copyAra = originalAra.copy();
+        assertFalse(originalAra.isEmpty(network));
+        assertFalse(copyAra.isEmpty(network));
+
+        // reset the original one
+        originalAra = new AppliedRemedialActions();
+        assertTrue(originalAra.isEmpty(network));
+        assertFalse(copyAra.isEmpty(network));
     }
 }
