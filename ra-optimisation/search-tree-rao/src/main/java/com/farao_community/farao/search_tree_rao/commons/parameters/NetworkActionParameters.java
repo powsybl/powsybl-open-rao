@@ -61,11 +61,6 @@ public class NetworkActionParameters {
     }
 
     public static NetworkActionParameters buildFromRaoParameters(RaoParameters raoParameters, Crac crac) {
-
-        /*
-        for now, values of NetworkActionParameters are constant over all the SearchTreeRao
-        they can therefore be instantiated directly from a RaoParameters
-         */
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters == null) {
             throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");

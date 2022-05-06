@@ -159,27 +159,9 @@ public class AutomatonPerimeterResultImplTest {
         when(postAutoSensitivity.getTap(pstRangeAction)).thenReturn(5);
         when(postAutoSensitivity.getSetpoint(pstRangeAction)).thenReturn(50.);
         when(postAutoSensitivity.getSetpoint(rangeAction)).thenReturn(100.);
-
-        try {
-            result.getOptimizedTap(pstRangeAction, state1);
-            fail();
-        } catch (NotImplementedException e) {
-            //should throw
-        }
-
-        try {
-            result.getOptimizedSetpoint(pstRangeAction, state1);
-            fail();
-        } catch (NotImplementedException e) {
-            //should throw
-        }
-
-        try {
-            result.getOptimizedSetpoint(rangeAction, state1);
-            fail();
-        } catch (NotImplementedException e) {
-            //should throw
-        }
+        assertThrows(NotImplementedException.class, () -> result.getOptimizedTap(pstRangeAction, state1));
+        assertThrows(NotImplementedException.class, () -> result.getOptimizedSetpoint(pstRangeAction, state1));
+        assertThrows(NotImplementedException.class, () -> result.getOptimizedSetpoint(rangeAction, state1));
     }
 
     @Test

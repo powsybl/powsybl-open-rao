@@ -411,7 +411,7 @@ public final class LinearProblem {
     }
 
     public static double infinity() {
-        return 1e8;
+        return 1e10;
     }
 
 }

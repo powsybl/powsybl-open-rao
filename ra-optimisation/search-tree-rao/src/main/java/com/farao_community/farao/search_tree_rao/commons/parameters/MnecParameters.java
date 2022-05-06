@@ -36,12 +36,6 @@ public class MnecParameters {
     }
 
     public static MnecParameters buildFromRaoParameters(RaoParameters raoParameters) {
-
-        /*
-        for now, values of MnecParameters are constant over all the SearchTreeRao
-        they can therefore be instantiated directly from a RaoParameters
-         */
-
         if (raoParameters.isRaoWithMnecLimitation()) {
             return new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
                 raoParameters.getMnecViolationCost(),

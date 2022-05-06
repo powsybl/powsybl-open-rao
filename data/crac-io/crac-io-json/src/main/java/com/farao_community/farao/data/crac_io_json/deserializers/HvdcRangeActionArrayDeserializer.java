@@ -32,7 +32,7 @@ public final class HvdcRangeActionArrayDeserializer {
     private HvdcRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", HVDC_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -88,6 +88,10 @@ public final class HvdcRangeActionArrayDeserializer {
                     default:
                         throw new FaraoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
                 }
+            }
+            if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
+                // initial setpoint was not exported then, set default value to 0 to avoid errors
+                adder.withInitialSetpoint(0);
             }
             RangeAction hvdcRangeAction = adder.add();
             if (!extensions.isEmpty()) {
