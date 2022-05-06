@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -19,24 +20,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class IteratingLinearOptimizationResultImpl implements LinearOptimizationResult {
 
     private LinearProblemStatus status;
     private int nbOfIteration;
-    private final RangeActionResult rangeActionResult;
+    private final RangeActionActivationResult rangeActionActivationResult;
     private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
     public IteratingLinearOptimizationResultImpl(LinearProblemStatus status,
                                                  int nbOfIteration,
-                                                 RangeActionResult rangeActionResult,
+                                                 RangeActionActivationResult rangeActionActivationResult,
                                                  FlowResult flowResult,
                                                  ObjectiveFunctionResult objectiveFunctionResult,
                                                  SensitivityResult sensitivityResult) {
         this.status = status;
         this.nbOfIteration = nbOfIteration;
-        this.rangeActionResult = rangeActionResult;
+        this.rangeActionActivationResult = rangeActionActivationResult;
         this.flowResult = flowResult;
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.sensitivityResult = sensitivityResult;
@@ -64,10 +68,6 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
 
     public ObjectiveFunctionResult getObjectiveFunctionResult() {
         return objectiveFunctionResult;
-    }
-
-    public RangeActionResult getRangeActionResult() {
-        return rangeActionResult;
     }
 
     @Override
@@ -127,27 +127,32 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return rangeActionResult.getRangeActions();
+        return rangeActionActivationResult.getRangeActions();
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return rangeActionResult.getOptimizedTap(pstRangeAction);
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
+        return rangeActionActivationResult.getActivatedRangeActions(state);
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
-        return rangeActionResult.getOptimizedSetPoint(rangeAction);
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+        return rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return rangeActionResult.getOptimizedTaps();
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+        return rangeActionActivationResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
-        return rangeActionResult.getOptimizedSetPoints();
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+        return rangeActionActivationResult.getOptimizedTap(pstRangeAction, state);
+    }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+        return rangeActionActivationResult.getOptimizedTapsOnState(state);
     }
 
     @Override
@@ -163,5 +168,10 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     @Override
     public double getSensitivityValue(FlowCnec branchCnec, SensitivityVariableSet linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, linearGlsk, unit);
+    }
+
+    @Override
+    public RangeActionActivationResult getRangeActionActivationResult() {
+        return rangeActionActivationResult;
     }
 }

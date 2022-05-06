@@ -25,10 +25,11 @@ public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
 
-    public static final String CRAC_IO_VERSION = "1.2";
+    public static final String CRAC_IO_VERSION = "1.3";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
+    v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
      */
 
     // headers
@@ -85,6 +86,7 @@ public final class JsonSerializationConstants {
     public static final String OPERATOR = "operator";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
+    public static final String INITIAL_SETPOINT = "initialSetpoint";
     public static final String INITIAL_TAP = "initialTap";
     public static final String TAP_TO_ANGLE_CONVERSION_MAP = "tapToAngleConversionMap";
 

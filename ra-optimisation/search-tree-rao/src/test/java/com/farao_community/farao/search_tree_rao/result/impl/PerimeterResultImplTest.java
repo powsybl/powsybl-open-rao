@@ -9,18 +9,17 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
@@ -38,10 +37,11 @@ public class PerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private PerimeterResultImpl perimeterResultImpl;
-    private RangeActionResult prePerimeterRangeActionResult;
+    private RangeActionSetpointResult prePerimeterRangeActionActivationResult;
     private OptimizationResult optimizationResult;
-    private RangeAction ra1;
-    private RangeAction ra2;
+    private State mainOptimizationState;
+    private RangeAction<?> ra1;
+    private RangeAction<?> ra2;
     private FlowCnec flowCnec1;
     private FlowCnec flowCnec2;
     private NetworkAction na1;
@@ -51,12 +51,13 @@ public class PerimeterResultImplTest {
 
     @Before
     public void setUp() {
-        prePerimeterRangeActionResult = mock(RangeActionResult.class);
+        prePerimeterRangeActionActivationResult = mock(RangeActionSetpointResult.class);
         optimizationResult = mock(OptimizationResult.class);
 
+        mainOptimizationState = mock(State.class);
         ra1 = mock(RangeAction.class);
         ra2 = mock(RangeAction.class);
-        when(prePerimeterRangeActionResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
+        when(prePerimeterRangeActionActivationResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
 
         flowCnec1 = mock(FlowCnec.class);
@@ -68,16 +69,17 @@ public class PerimeterResultImplTest {
         pst1 = mock(PstRangeAction.class);
         pst2 = mock(PstRangeAction.class);
 
-        perimeterResultImpl = new PerimeterResultImpl(prePerimeterRangeActionResult, optimizationResult);
+        perimeterResultImpl = new PerimeterResultImpl(prePerimeterRangeActionActivationResult, optimizationResult);
     }
 
     @Test
     public void testGetActivatedRangeActions() {
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(ra1)).thenReturn(5.);
-        when(optimizationResult.getOptimizedSetPoint(ra1)).thenReturn(5.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(ra2)).thenReturn(15.);
-        when(optimizationResult.getOptimizedSetPoint(ra2)).thenReturn(50.);
-        assertEquals(Set.of(ra2), perimeterResultImpl.getActivatedRangeActions());
+        when(prePerimeterRangeActionActivationResult.getSetpoint(ra1)).thenReturn(5.);
+        when(optimizationResult.getOptimizedSetpoint(ra1, mainOptimizationState)).thenReturn(5.);
+        when(prePerimeterRangeActionActivationResult.getSetpoint(ra2)).thenReturn(15.);
+        when(optimizationResult.getOptimizedSetpoint(ra2, mainOptimizationState)).thenReturn(50.);
+        when(optimizationResult.getActivatedRangeActions(mainOptimizationState)).thenReturn(Set.of(ra2));
+        assertEquals(Set.of(ra2), perimeterResultImpl.getActivatedRangeActions(mainOptimizationState));
     }
 
     @Test
@@ -174,64 +176,36 @@ public class PerimeterResultImplTest {
     public void testGetOptimizedTap() {
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
 
-        when(optimizationResult.getOptimizedTap(pst1)).thenReturn(10);
-        when(optimizationResult.getOptimizedTap(pst2)).thenThrow(new FaraoException("absent mock"));
-        when(prePerimeterRangeActionResult.getOptimizedTap(pst2)).thenReturn(3);
+        when(optimizationResult.getOptimizedTap(pst1, mainOptimizationState)).thenReturn(10);
+        when(optimizationResult.getOptimizedTap(pst2, mainOptimizationState)).thenThrow(new FaraoException("absent mock"));
+        when(prePerimeterRangeActionActivationResult.getTap(pst2)).thenReturn(3);
 
-        assertEquals(10, perimeterResultImpl.getOptimizedTap(pst1));
-        assertEquals(3, perimeterResultImpl.getOptimizedTap(pst2));
-    }
-
-    @Test
-    public void testGetOptimizedTapOfRaOnSamePst() {
-        when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
-
-        when(optimizationResult.getOptimizedTap(pst1)).thenReturn(-10);
-        when(optimizationResult.getOptimizedTap(pst2)).thenThrow(new FaraoException("absent mock"));
-        NetworkElement ne = Mockito.mock(NetworkElement.class);
-        when(pst1.getNetworkElement()).thenReturn(ne);
-        when(pst2.getNetworkElement()).thenReturn(ne);
-
-        assertEquals(-10, perimeterResultImpl.getOptimizedTap(pst1));
-        assertEquals(-10, perimeterResultImpl.getOptimizedTap(pst2));
+        assertEquals(10, perimeterResultImpl.getOptimizedTap(pst1, mainOptimizationState));
+        assertEquals(3, perimeterResultImpl.getOptimizedTap(pst2, mainOptimizationState));
     }
 
     @Test
     public void testGetOptimizedSetPoint() {
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1));
-        when(optimizationResult.getOptimizedSetPoint(ra1)).thenReturn(10.7);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(ra2)).thenReturn(3.5);
+        when(optimizationResult.getOptimizedSetpoint(ra1, mainOptimizationState)).thenReturn(10.7);
+        when(prePerimeterRangeActionActivationResult.getSetpoint(ra2)).thenReturn(3.5);
 
-        assertEquals(10.7, perimeterResultImpl.getOptimizedSetPoint(ra1), DOUBLE_TOLERANCE);
-        assertEquals(3.5, perimeterResultImpl.getOptimizedSetPoint(ra2), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testGetOptimizedSetPointOfRaOnSamePst() {
-        when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
-
-        when(optimizationResult.getOptimizedSetPoint(pst1)).thenReturn(5.2);
-        when(optimizationResult.getOptimizedSetPoint(pst2)).thenThrow(new FaraoException("absent mock"));
-        NetworkElement ne = Mockito.mock(NetworkElement.class);
-        when(pst1.getNetworkElements()).thenReturn(Set.of(ne));
-        when(pst2.getNetworkElements()).thenReturn(Set.of(ne));
-
-        assertEquals(5.2, perimeterResultImpl.getOptimizedSetPoint(pst1), 1e-4);
-        assertEquals(5.2, perimeterResultImpl.getOptimizedSetPoint(pst2), 1e-4);
+        assertEquals(10.7, perimeterResultImpl.getOptimizedSetpoint(ra1, mainOptimizationState), DOUBLE_TOLERANCE);
+        assertEquals(3.5, perimeterResultImpl.getOptimizedSetpoint(ra2, mainOptimizationState), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetOptimizedTaps() {
         Map<PstRangeAction, Integer> map = Map.of(pst1, 10, pst2, 5);
-        when(optimizationResult.getOptimizedTaps()).thenReturn(map);
-        assertEquals(map, perimeterResultImpl.getOptimizedTaps());
+        when(optimizationResult.getOptimizedTapsOnState(mainOptimizationState)).thenReturn(map);
+        assertEquals(map, perimeterResultImpl.getOptimizedTapsOnState(mainOptimizationState));
     }
 
     @Test
     public void testGetOptimizedSetPoints() {
         Map<RangeAction<?>, Double> map = Map.of(pst1, 10.6, pst2, 5.8, ra1, 52.5, ra2, 100.6);
-        when(optimizationResult.getOptimizedSetPoints()).thenReturn(map);
-        assertEquals(map, perimeterResultImpl.getOptimizedSetPoints());
+        when(optimizationResult.getOptimizedSetpointsOnState(mainOptimizationState)).thenReturn(map);
+        assertEquals(map, perimeterResultImpl.getOptimizedSetpointsOnState(mainOptimizationState));
     }
 
     @Test

@@ -10,5 +10,5 @@ package com.farao_community.farao.search_tree_rao.result.api;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface OptimizationResult extends FlowResult, SensitivityResult, ObjectiveFunctionResult, RangeActionResult, NetworkActionsResult {
+public interface OptimizationResult extends FlowResult, SensitivityResult, ObjectiveFunctionResult, RangeActionActivationResult, NetworkActionsResult {
 }

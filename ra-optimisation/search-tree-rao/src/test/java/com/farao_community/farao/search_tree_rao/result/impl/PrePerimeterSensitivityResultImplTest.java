@@ -12,9 +12,9 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
@@ -43,10 +43,10 @@ public class PrePerimeterSensitivityResultImplTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
-        RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
+        RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
         ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
 
-        PrePerimeterSensitivityResultImpl output = new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionResult, objectiveFunctionResult);
+        PrePerimeterSensitivityResultImpl output = new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getSensitivityStatus());
@@ -89,20 +89,14 @@ public class PrePerimeterSensitivityResultImplTest {
         when(flowResult.getPtdfZonalSums()).thenReturn(Map.of(cnec1, 0.1, cnec2, 0.2));
         assertEquals(Map.of(cnec1, 0.1, cnec2, 0.2), output.getPtdfZonalSums());
 
-        when(rangeActionResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
+        when(rangeActionSetpointResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
         assertEquals(Set.of(ra1, ra2), output.getRangeActions());
 
-        when(rangeActionResult.getOptimizedTap(ra1)).thenReturn(3);
-        assertEquals(3, output.getOptimizedTap(ra1), DOUBLE_TOLERANCE);
+        when(rangeActionSetpointResult.getTap(ra1)).thenReturn(3);
+        assertEquals(3, output.getTap(ra1), DOUBLE_TOLERANCE);
 
-        when(rangeActionResult.getOptimizedSetPoint(ra1)).thenReturn(15.6);
-        assertEquals(15.6, output.getOptimizedSetPoint(ra1), DOUBLE_TOLERANCE);
-
-        when(rangeActionResult.getOptimizedTaps()).thenReturn(Map.of(ra1, 1));
-        assertEquals(Map.of(ra1, 1), output.getOptimizedTaps());
-
-        when(rangeActionResult.getOptimizedSetPoints()).thenReturn(Map.of(ra1, 5.3, ra2, 6.7));
-        assertEquals(Map.of(ra1, 5.3, ra2, 6.7), output.getOptimizedSetPoints());
+        when(rangeActionSetpointResult.getSetpoint(ra1)).thenReturn(15.6);
+        assertEquals(15.6, output.getSetpoint(ra1), DOUBLE_TOLERANCE);
 
         assertEquals(flowResult, output.getBranchResult());
         assertEquals(sensitivityResult, output.getSensitivityResult());
