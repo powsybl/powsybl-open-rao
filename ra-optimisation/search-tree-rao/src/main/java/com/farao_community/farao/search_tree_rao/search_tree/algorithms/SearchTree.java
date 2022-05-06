@@ -91,6 +91,27 @@ public class SearchTree {
         previousDepthOptimalLeaf = rootLeaf;
     }
 
+    /**
+     * Detects forced network actions and applies them on root leaf, re-evaluating the leaf if needed.
+     */
+    private void applyForcedNetworkActionsOnRootLeaf() {
+        // Fetch available network actions, then apply those that should be forced
+        Set<NetworkAction> forcedNetworkActions = availableNetworkActions.stream()
+            .filter(ra -> isRemedialActionAvailable(ra, optimizedState, rootLeaf))
+            .filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod(optimizedState).equals(UsageMethod.FORCED)))
+            .collect(Collectors.toSet());
+        forcedNetworkActions.forEach(ra -> {
+            TECHNICAL_LOGS.debug("Network action {} is available and forced. It will be applied on the root leaf.", ra.getId());
+            ra.apply(network);
+        });
+        if (!forcedNetworkActions.isEmpty()) {
+            TECHNICAL_LOGS.info("{} network actions were forced on the network. The root leaf will be re-evaluated.", forcedNetworkActions.size());
+            rootLeaf = new Leaf(network, forcedNetworkActions, null, rootLeaf);
+            optimalLeaf = rootLeaf;
+            previousDepthOptimalLeaf = rootLeaf;
+        }
+    }
+
     Leaf makeLeaf(Network network, PrePerimeterResult prePerimeterOutput) {
         return new Leaf(network, prePerimeterOutput);
     }
@@ -117,6 +138,8 @@ public class SearchTree {
 
         this.prePerimeterRangeActionSetPoints = new HashMap<>();
         rootLeaf.getRangeActions().stream().forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, prePerimeterOutput.getOptimizedSetPoint(rangeAction)));
+
+        applyForcedNetworkActionsOnRootLeaf();
 
         TECHNICAL_LOGS.info("Evaluating root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, searchTreeInput.getRangeActions()));
@@ -413,6 +436,7 @@ public class SearchTree {
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult) {
         switch (remedialAction.getUsageMethod(optimizedState)) {
             case AVAILABLE:
+            case FORCED:
                 return true;
             case TO_BE_EVALUATED:
                 return remedialAction.getUsageRules().stream()
