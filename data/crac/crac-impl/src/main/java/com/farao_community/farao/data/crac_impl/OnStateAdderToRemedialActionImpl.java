@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateToRemedialActionAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T>> implements OnStateToRemedialActionAdder<T> {
+public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T>> implements OnStateAdderToRemedialAction<T> {
 
     private T owner;
     private UsageMethod usageMethod;
@@ -33,7 +33,7 @@ public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T
     }
 
     @Override
-    public OnStateToRemedialActionAdder<T> withState(State state) {
+    public OnStateAdderToRemedialAction<T> withState(State state) {
         this.state = state;
         return this;
     }

@@ -109,6 +109,7 @@ public class SearchTree {
             rootLeaf = new Leaf(network, forcedNetworkActions, null, rootLeaf);
             optimalLeaf = rootLeaf;
             previousDepthOptimalLeaf = rootLeaf;
+            availableNetworkActions.removeAll(forcedNetworkActions);
         }
     }
 
@@ -436,7 +437,6 @@ public class SearchTree {
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult) {
         switch (remedialAction.getUsageMethod(optimizedState)) {
             case AVAILABLE:
-            case FORCED:
                 return true;
             case TO_BE_EVALUATED:
                 return remedialAction.getUsageRules().stream()
