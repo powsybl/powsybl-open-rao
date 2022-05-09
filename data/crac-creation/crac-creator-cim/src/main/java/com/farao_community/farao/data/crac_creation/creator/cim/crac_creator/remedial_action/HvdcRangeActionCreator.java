@@ -9,18 +9,16 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionSeries;
-import com.google.gdata.util.common.base.Pair;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -54,6 +52,7 @@ public class HvdcRangeActionCreator {
         }
         RemedialActionSeries hvdcRangeActionDirection1 = storedHvdcRangeActions.get(0);
         RemedialActionSeries hvdcRangeActionDirection2 = storedHvdcRangeActions.get(1);
+        // Two adders are created, based on hvdcRangeActionDirection1, with range information from hvdcRangeActionDirection2.
         HvdcRangeActionAdder hvdcRangeActionAdder1 = crac.newHvdcRangeAction();
         HvdcRangeActionAdder hvdcRangeActionAdder2 = crac.newHvdcRangeAction();
 
@@ -84,13 +83,13 @@ public class HvdcRangeActionCreator {
                 hvdcRangeActionDirection1Id1 = registeredResource.getMRID().getValue();
                 Pair<List<Boolean>, List<Integer>> hvdcRegisteredResource1Status = readHvdcRegisteredResource(hvdcRangeActionAdder1, registeredResource);
                 // hvdc registered resource is ill defined :
-                if (hvdcRegisteredResource1Status.getFirst().get(0)) {
+                if (hvdcRegisteredResource1Status.getLeft().get(0)) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                isDirection1Inverted = hvdcRegisteredResource1Status.getFirst().get(1);
+                isDirection1Inverted = hvdcRegisteredResource1Status.getLeft().get(1);
 
-                direction1minRange1 = hvdcRegisteredResource1Status.getSecond().get(0);
-                direction1maxRange1 = hvdcRegisteredResource1Status.getSecond().get(1);
+                direction1minRange1 = hvdcRegisteredResource1Status.getRight().get(0);
+                direction1maxRange1 = hvdcRegisteredResource1Status.getRight().get(1);
 
                 groupId += hvdcRangeActionDirection1Id1;
                 direction1hvdc1IsDefined = true;
@@ -103,15 +102,15 @@ public class HvdcRangeActionCreator {
                 }
                 Pair<List<Boolean>, List<Integer>> hvdcRegisteredResource2Status = readHvdcRegisteredResource(hvdcRangeActionAdder2, registeredResource);
                 // hvdc registered resource is ill defined :
-                if (hvdcRegisteredResource2Status.getFirst().get(0)) {
+                if (hvdcRegisteredResource2Status.getLeft().get(0)) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                if (hvdcRegisteredResource2Status.getFirst().get(1) != isDirection1Inverted) {
+                if (hvdcRegisteredResource2Status.getLeft().get(1) != isDirection1Inverted) {
                     hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions"));
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                direction1minRange2 = hvdcRegisteredResource2Status.getSecond().get(0);
-                direction1maxRange2 = hvdcRegisteredResource2Status.getSecond().get(1);
+                direction1minRange2 = hvdcRegisteredResource2Status.getRight().get(0);
+                direction1maxRange2 = hvdcRegisteredResource2Status.getRight().get(1);
 
                 groupId += " + " + hvdcRangeActionDirection1Id2;
             }
@@ -120,6 +119,7 @@ public class HvdcRangeActionCreator {
         }
 
         //------------------    2) Read hvdcRangeActionDirection2       ------------------
+        // Only keep range data
         String hvdcRangeActionDirection2Id1 = "";
         String hvdcRangeActionDirection2Id2 = "";
         int direction2minRange1 = 0;
@@ -141,21 +141,21 @@ public class HvdcRangeActionCreator {
             if (!direction2hvdc1IsDefined) {
                 hvdcRangeActionDirection2Id1 = registeredResource.getMRID().getValue();
                 // READ RANGE
-                Pair<List<Boolean>, List<Integer>> hvdcRange1 = defineHvdcRange(hvdcRangeActionDirection2Id1,
+                Pair<List<Boolean>, List<Integer>> hvdcRange1Direction2 = defineHvdcRange(hvdcRangeActionDirection2Id1,
                         registeredResource.getResourceCapacityMinimumCapacity().intValue(),
                         registeredResource.getResourceCapacityMaximumCapacity().intValue(),
                         registeredResource.getInAggregateNodeMRID().getValue(),
                         registeredResource.getOutAggregateNodeMRID().getValue());
                 // hvdc range is ill defined :
-                if (hvdcRange1.getFirst().get(0)) {
+                if (hvdcRange1Direction2.getLeft().get(0)) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                if (hvdcRange1.getFirst().get(1) == isDirection1Inverted) {
+                if (hvdcRange1Direction2.getLeft().get(1) == isDirection1Inverted) {
                     hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC line should be defined in the opposite direction"));
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                direction2minRange1 = hvdcRange1.getSecond().get(0);
-                direction2maxRange1 = hvdcRange1.getSecond().get(1);
+                direction2minRange1 = hvdcRange1Direction2.getRight().get(0);
+                direction2maxRange1 = hvdcRange1Direction2.getRight().get(1);
 
                 direction2hvdc1IsDefined = true;
             } else {
@@ -165,41 +165,42 @@ public class HvdcRangeActionCreator {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
                 // Read range
-                Pair<List<Boolean>, List<Integer>> hvdcRange2 = defineHvdcRange(hvdcRangeActionDirection2Id2,
+                Pair<List<Boolean>, List<Integer>> hvdcRange2Direction2 = defineHvdcRange(hvdcRangeActionDirection2Id2,
                         registeredResource.getResourceCapacityMinimumCapacity().intValue(),
                         registeredResource.getResourceCapacityMaximumCapacity().intValue(),
                         registeredResource.getInAggregateNodeMRID().getValue(),
                         registeredResource.getOutAggregateNodeMRID().getValue());
                 // hvdc range is ill defined :
-                if (hvdcRange2.getFirst().get(0)) {
+                if (hvdcRange2Direction2.getLeft().get(0)) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                if (hvdcRange2.getFirst().get(1) == isDirection1Inverted) {
+                if (hvdcRange2Direction2.getLeft().get(1) == isDirection1Inverted) {
                     hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions"));
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                direction2minRange2 = hvdcRange2.getSecond().get(0);
-                direction2maxRange2 = hvdcRange2.getSecond().get(1);
+                direction2minRange2 = hvdcRange2Direction2.getRight().get(0);
+                direction2maxRange2 = hvdcRange2Direction2.getRight().get(1);
             }
         }
 
         //------------------    3) Concatenate hvdcRangeActionDirection1 and hvdcRangeActionDirection2      ------------------
         // hvdcRangeActionDirection1 and hvdcRangeActionDirection2 both contain 2 hvdc remedial actions
-        // They must be id matched and then have their ranges concatenated.
-        int hvdc1minRange = 0;
-        int hvdc1maxRange = 0;
-        int hvdc2minRange = 0;
-        int hvdc2maxRange = 0;
+        // They must be matched by id and then have their ranges concatenated.
+        int hvdc1minRange;
+        int hvdc1maxRange;
+        int hvdc2minRange;
+        int hvdc2maxRange;
+
         if (hvdcRangeActionDirection2Id1.equals(hvdcRangeActionDirection1Id1)) {
             Pair<Boolean, List<Integer>> concatenatedHvdc1Range = concatenateHvdcRanges(
                     direction1minRange1, direction2minRange1,
                     direction1maxRange1, direction2maxRange1);
             // concatenated Hvdc range is ill defined :
-            if (concatenatedHvdc1Range.getFirst()) {
+            if (concatenatedHvdc1Range.getLeft()) {
                 return hvdcRemedialActionSeriesCreationContexts;
             }
-            hvdc1minRange = concatenatedHvdc1Range.getSecond().get(0);
-            hvdc1maxRange = concatenatedHvdc1Range.getSecond().get(1);
+            hvdc1minRange = concatenatedHvdc1Range.getRight().get(0);
+            hvdc1maxRange = concatenatedHvdc1Range.getRight().get(1);
 
             // If hvdcRangeActionDirection2Id1 and hvdcRangeActionDirection1Id1 have the same id,
             // then hvdcRangeActionDirection2Id2 and hvdcRangeActionDirection1Id2 must also have a shared (and different) id.
@@ -208,26 +209,25 @@ public class HvdcRangeActionCreator {
                         direction1minRange2, direction2minRange2,
                         direction1maxRange2, direction2maxRange2);
                 // concatenated Hvdc range is ill defined :
-                if (concatenatedHvdc2Range.getFirst()) {
+                if (concatenatedHvdc2Range.getLeft()) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                hvdc2minRange = concatenatedHvdc2Range.getSecond().get(0);
-                hvdc2maxRange = concatenatedHvdc2Range.getSecond().get(1);
+                hvdc2minRange = concatenatedHvdc2Range.getRight().get(0);
+                hvdc2maxRange = concatenatedHvdc2Range.getRight().get(1);
             } else {
                 hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC ID mismatch"));
                 return hvdcRemedialActionSeriesCreationContexts;
             }
-        }
-        if (hvdcRangeActionDirection2Id1.equals(hvdcRangeActionDirection1Id2)) {
+        } else if (hvdcRangeActionDirection2Id1.equals(hvdcRangeActionDirection1Id2)) {
             Pair<Boolean, List<Integer>> concatenatedHvdcRange = concatenateHvdcRanges(
                     direction1minRange2, direction2minRange1,
                     direction1maxRange2, direction2maxRange1);
             // concatenated Hvdc range is ill defined :
-            if (concatenatedHvdcRange.getFirst()) {
+            if (concatenatedHvdcRange.getLeft()) {
                 return hvdcRemedialActionSeriesCreationContexts;
             }
-            hvdc2minRange = concatenatedHvdcRange.getSecond().get(0);
-            hvdc2maxRange = concatenatedHvdcRange.getSecond().get(1);
+            hvdc2minRange = concatenatedHvdcRange.getRight().get(0);
+            hvdc2maxRange = concatenatedHvdcRange.getRight().get(1);
 
             // If hvdcRangeActionDirection2Id1 and hvdcRangeActionDirection1Id2 have the same id,
             // then hvdcRangeActionDirection2Id2 and hvdcRangeActionDirection1Id1 must also have a shared (and different) id.
@@ -236,15 +236,18 @@ public class HvdcRangeActionCreator {
                         direction1minRange1, direction2minRange2,
                         direction1maxRange1, direction2maxRange2);
                 // concatenated Hvdc range is ill defined :
-                if (concatenatedHvdc1Range.getFirst()) {
+                if (concatenatedHvdc1Range.getLeft()) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                hvdc1minRange = concatenatedHvdc1Range.getSecond().get(0);
-                hvdc1maxRange = concatenatedHvdc1Range.getSecond().get(1);
+                hvdc1minRange = concatenatedHvdc1Range.getRight().get(0);
+                hvdc1maxRange = concatenatedHvdc1Range.getRight().get(1);
             } else {
                 hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC ID mismatch"));
                 return hvdcRemedialActionSeriesCreationContexts;
             }
+        } else {
+            hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC ID mismatch"));
+            return hvdcRemedialActionSeriesCreationContexts;
         }
 
         //------------------    4) Add hvdcRangeActionAdder1 and hvdcRangeActionAdder2 with concatenated range   ------------------
@@ -289,11 +292,10 @@ public class HvdcRangeActionCreator {
         hvdcRangeActionAdder.withNetworkElement(networkElementId);
 
         // Usage rules
-        if (addUsageRules(hvdcRangeActionAdder)) {
+        if (RemedialActionSeriesCreator.addUsageRules(hvdcId, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, hvdcRemedialActionSeriesCreationContexts)) {
             return Pair.of(List.of(true, false), List.of(0, 0));
         }
 
-        // READ RANGE
         return defineHvdcRange(hvdcId,
                 registeredResource.getResourceCapacityMinimumCapacity().intValue(),
                 registeredResource.getResourceCapacityMaximumCapacity().intValue(),
@@ -322,8 +324,9 @@ public class HvdcRangeActionCreator {
         }
     }
 
-    // Return type : list of two booleans, indicating whether the registered resource is ill defined,
-    // and whether the registered resource should be skipped
+    // Return type : list of two booleans, indicating :
+    // ------ * whether the registered resource is ill defined,
+    // ------ * whether the registered resource should be skipped
     private List<Boolean> checkRegisteredResource(RemedialActionRegisteredResource registeredResource) {
         // Check MarketObjectStatus
         String marketObjectStatusStatus = registeredResource.getMarketObjectStatusStatus();
@@ -417,23 +420,5 @@ public class HvdcRangeActionCreator {
             return false;
         }
         return true;
-    }
-
-    public boolean addUsageRules(HvdcRangeActionAdder hvdcRangeActionAdder) {
-        if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-            hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
-            return true;
-        } else if (contingencies.isEmpty()) {
-            hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant %s"));
-            return true;
-        } else {
-            contingencies.forEach(contingency ->
-                    hvdcRangeActionAdder.newOnStateUsageRule()
-                            .withInstant(Instant.AUTO)
-                            .withUsageMethod(UsageMethod.FORCED)
-                            .withContingency(contingency.getId())
-                            .add());
-        }
-        return false;
     }
 }
