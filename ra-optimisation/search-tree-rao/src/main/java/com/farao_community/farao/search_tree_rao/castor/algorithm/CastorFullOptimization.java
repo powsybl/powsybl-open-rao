@@ -467,7 +467,7 @@ public class CastorFullOptimization {
 
         // Run second preventive RAO
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [start]");
-        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithCurativeRemedialActions, firstPreventiveResult.getActivatedNetworkActions(), appliedCras)
+        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult.getActivatedNetworkActions(), appliedCras)
             .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult updatedPreCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
