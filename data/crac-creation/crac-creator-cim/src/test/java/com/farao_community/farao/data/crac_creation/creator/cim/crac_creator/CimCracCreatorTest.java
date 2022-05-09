@@ -22,7 +22,6 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
