@@ -72,6 +72,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
         assertFalse(extension.getCurativeRaoOptimizeOperatorsNotSharingCras());
         assertEquals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE, extension.getSecondPreventiveOptimizationCondition());
+        assertTrue(extension.isSecondPreventiveHintFromFirstPreventive());
 
         assertEquals(2, extension.getMaxCurativeTopoPerTso().size());
         assertEquals(3, extension.getMaxCurativeTopoPerTso().get("RTE").intValue());
