@@ -49,6 +49,8 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("curative-rao-min-obj-improvement"), anyDouble())).thenReturn(456.0);
         Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("curative-rao-optimize-operators-not-sharing-cras"), anyBoolean())).thenReturn(false);
         Mockito.when(searchTreeRaoParametersModule.getEnumProperty(eq("second-preventive-optimization-condition"), eq(SearchTreeRaoParameters.SecondPreventiveRaoCondition.class), any())).thenReturn(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE);
+        Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("global-opt-in-second-preventive"), anyBoolean())).thenReturn(true);
+        Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("second-preventive-hint-from-first-preventive"), anyBoolean())).thenReturn(true);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("search-tree-rao-parameters")).thenReturn(Optional.of(searchTreeRaoParametersModule));
 
@@ -65,6 +67,8 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         assertEquals(456.0, parameters.getCurativeRaoMinObjImprovement(), DOUBLE_TOLERANCE);
         assertFalse(parameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
         assertEquals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE, parameters.getSecondPreventiveOptimizationCondition());
+        assertTrue(parameters.isGlobalOptimizationInSecondPreventive());
+        assertTrue(parameters.isSecondPreventiveHintFromFirstPreventive());
     }
 
     @Test

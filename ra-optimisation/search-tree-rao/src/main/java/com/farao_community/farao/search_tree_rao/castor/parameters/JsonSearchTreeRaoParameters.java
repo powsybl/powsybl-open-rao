@@ -46,6 +46,8 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
         jsonGenerator.writeObjectField("second-preventive-optimization-condition", searchTreeRaoParameters.getSecondPreventiveOptimizationCondition());
+        jsonGenerator.writeBooleanField("global-opt-in-second-preventive", searchTreeRaoParameters.isGlobalOptimizationInSecondPreventive());
+        jsonGenerator.writeBooleanField("second-preventive-hint-from-first-preventive", searchTreeRaoParameters.isSecondPreventiveHintFromFirstPreventive());
 
         jsonGenerator.writeFieldName("network-action-combinations");
         jsonGenerator.writeStartArray();
@@ -125,8 +127,14 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "second-preventive-optimization-condition":
                     parameters.setSecondPreventiveOptimizationCondition(getSecondPreventiveRaoConditionFromString(jsonParser.nextTextValue()));
                     break;
+                case "global-opt-in-second-preventive":
+                    parameters.setGlobalOptimizationInSecondPreventive(jsonParser.getValueAsBoolean());
+                    break;
                 case "network-action-combinations":
                     parameters.setNetworkActionIdCombinations(readListOfListOfString(jsonParser));
+                    break;
+                case "second-preventive-hint-from-first-preventive":
+                    parameters.setSecondPreventiveHintFromFirstPreventive(jsonParser.getValueAsBoolean());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());

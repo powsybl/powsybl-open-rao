@@ -67,16 +67,22 @@ public class MinMarginEvaluator implements CostEvaluator {
     public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         FlowCnec limitingElement = getMostLimitingElement(flowResult);
         if (limitingElement == null) {
-            return 0;
+            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
+            // return a finite value, so that the virtual cost is not hidden by the functional cost
+            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
+            return -getHighestThresholdAmongFlowCnecs();
         }
         double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
         if (margin >= Double.MAX_VALUE / 2) {
             // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
-            // return a finite value, so that the virtual cost is not hidden by the functional cost
-            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
-            margin = flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
+            // return a finite value, like MNEC case above
+            return -getHighestThresholdAmongFlowCnecs();
         }
         return -margin;
+    }
+
+    private double getHighestThresholdAmongFlowCnecs() {
+        return flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
     }
 
     private double getHighestThreshold(FlowCnec flowCnec) {

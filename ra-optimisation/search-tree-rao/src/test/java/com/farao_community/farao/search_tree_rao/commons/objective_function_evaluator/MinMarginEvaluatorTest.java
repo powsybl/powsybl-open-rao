@@ -106,6 +106,8 @@ public class MinMarginEvaluatorTest {
         FlowCnec mnec2 = Mockito.mock(FlowCnec.class);
         when(mnec2.isMonitored()).thenReturn(true);
         when(mnec2.isOptimized()).thenReturn(false);
+        mockCnecThresholds(mnec1, 1000);
+        mockCnecThresholds(mnec2, 2000);
 
         MarginEvaluator marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
@@ -115,7 +117,7 @@ public class MinMarginEvaluatorTest {
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
         assertTrue(minMarginEvaluator.getCostlyElements(flowResult, 10).isEmpty());
         assertNull(minMarginEvaluator.getMostLimitingElement(flowResult));
-        assertEquals(0, minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(-2000, minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
