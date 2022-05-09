@@ -11,22 +11,28 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -233,5 +239,30 @@ public class CimCracCreatorTest {
         // Mix
         assertNetworkActionImported("PRA_26", Set.of("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
         assertRemedialActionNotImported("PRA_27", INCONSISTENCY_IN_DATA);
+    }
+
+    @Test
+    public void testImportAlignedRangeActions() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
+        rangeActionGroups.add(new RangeActionGroup(List.of("PRA_1", "PRA_22")));
+        Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
+
+        InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_3_1.xml");
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCracCreator cimCracCreator = new CimCracCreator();
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        importedCrac = cracCreationContext.getCrac();
+        assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
+        assertEquals(2, importedCrac.getPstRangeActions().size());
+        assertTrue(importedCrac.getPstRangeAction("PRA_1").getGroupId().isPresent());
+        assertTrue(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
+        assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_1").getGroupId().get());
+        assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_22").getGroupId().get());
     }
 }
