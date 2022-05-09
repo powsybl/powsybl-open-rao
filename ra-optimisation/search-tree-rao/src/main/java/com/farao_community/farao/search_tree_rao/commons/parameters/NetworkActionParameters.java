@@ -73,6 +73,10 @@ public class NetworkActionParameters {
             searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
     }
 
+    public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {
+        this.networkActionCombinations.add(networkActionCombination);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

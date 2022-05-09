@@ -8,19 +8,22 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLogger;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.google.common.hash.Hashing;
@@ -121,13 +124,12 @@ public class SearchTree {
 
         initLeaves(input);
 
+        applyForcedNetworkActionsOnRootLeaf();
+
         TECHNICAL_LOGS.info("Evaluating root leaf");
         rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
         this.preOptimFunctionalCost = rootLeaf.getFunctionalCost();
         this.preOptimVirtualCost = rootLeaf.getVirtualCost();
-
-        // todo in castor.java ?
-        // this.availableRangeActions = searchTreeInput.getRangeActions().stream().filter(ra -> isRemedialActionAvailable(ra, optimizedStateForNetworkActions, rootLeaf)).collect(Collectors.toSet());
 
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
@@ -174,6 +176,31 @@ public class SearchTree {
 
     Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    }
+
+    /**
+     * Detects forced network actions and applies them on root leaf, re-evaluating the leaf if needed.
+     */
+    private void applyForcedNetworkActionsOnRootLeaf() {
+        State optimizedState = input.getOptimizationPerimeter().getMainOptimizationState();
+        // Fetch available network actions, then apply those that should be forced
+        Set<NetworkAction> forcedNetworkActions = input.getOptimizationPerimeter().getNetworkActions().stream()
+            .filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod(optimizedState).equals(UsageMethod.FORCED)))
+            .collect(Collectors.toSet());
+        if (!forcedNetworkActions.isEmpty()) {
+            TECHNICAL_LOGS.info("{} network actions were forced on the network. The root leaf will be re-evaluated.", forcedNetworkActions.size());
+            forcedNetworkActions.forEach(ra -> TECHNICAL_LOGS.debug("Network action {} is available and forced. It will be applied on the root leaf.", ra.getId()));
+            input.getOptimizationPerimeter().getNetworkActions().removeAll(forcedNetworkActions);
+            rootLeaf = new Leaf(input.getOptimizationPerimeter(),
+                input.getNetwork(),
+                forcedNetworkActions,
+                null,
+                new RangeActionActivationResultImpl(input.getPrePerimeterResult()),
+                input.getPrePerimeterResult(),
+                input.getPreOptimizationAppliedNetworkActions());
+            optimalLeaf = rootLeaf;
+            previousDepthOptimalLeaf = rootLeaf;
+        }
     }
 
     private void logOptimizationSummary(Leaf leaf) {
@@ -344,7 +371,7 @@ public class SearchTree {
 
     private SensitivityComputer getSensitivityComputerForEvaluation(boolean isRootLeaf) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder =  SensitivityComputer.create()
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
@@ -359,7 +386,7 @@ public class SearchTree {
             sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
         }
 
-        if (parameters.getLoopFlowParameters() != null  && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.getLoopFlowParameters() != null) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());
