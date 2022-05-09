@@ -1,0 +1,682 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CRAC_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3 iec62325-451-n-crac_v2_3.xsd">
+  <mRID>CIM_CRAC_DOCUMENT</mRID>
+  <revisionNumber>1</revisionNumber>
+  <type>B15</type>
+  <process.processType>A48</process.processType>
+  <sender_MarketParticipant.mRID codingScheme="A01">FAKE</sender_MarketParticipant.mRID>
+  <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+  <receiver_MarketParticipant.mRID codingScheme="A01">FAKE</receiver_MarketParticipant.mRID>
+  <receiver_MarketParticipant.marketRole.type>A04</receiver_MarketParticipant.marketRole.type>
+  <createdDateTime>2021-03-31T15:02:00Z</createdDateTime>
+  <status>
+    <value>A42</value>
+  </status>
+  <time_Period.timeInterval>
+    <start>2021-04-01T22:00Z</start>
+    <end>2021-04-02T22:00Z</end>
+  </time_Period.timeInterval>
+  <domain.mRID codingScheme="A01">10YCB-FR-ES-PT-S</domain.mRID>
+  <TimeSeries>
+    <mRID>TimeSeries</mRID>
+    <businessType>B54</businessType>
+    <curveType>A03</curveType>
+    <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+    <Period>
+      <timeInterval>
+        <start>2021-04-01T22:00Z</start>
+        <end>2021-04-02T22:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point>
+        <position>2</position>
+        <Series>
+          <mRID>ContingenciesSeries</mRID>
+          <businessType>B55</businessType>
+          <name>ContingenciesSeries</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>Co1NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <name>Co2NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-1</mRID>
+          <businessType>B56</businessType>
+          <name>RA_AFTER_ALL_CONTINGENCIES</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_1</mRID>
+            <name>PRA_1</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-2</mRID>
+          <businessType>B56</businessType>
+          <name>Wrong_Optimization_Tag</name>
+          <optimization_MarketObjectStatus.status>A02</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_2</mRID>
+            <name>PRA_2</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-3</mRID>
+          <businessType>B56</businessType>
+          <name>AdditionalConstraint</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>BLABLA</mRID>
+            <businessType>B2</businessType>
+            <name>Random-name</name>
+            <measurement_Unit.name>ZZ</measurement_Unit.name>
+            <quantity.quantity>3</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_vfr</mRID>
+              <name>RANDOMNAME</name>
+              <marketObjectStatus.status>A23</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_3</mRID>
+            <name>PRA_3</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-4</mRID>
+          <businessType>B56</businessType>
+          <name>WITHMONITOREDSERIES</name>
+          <Monitored_Series>
+            <mRID>MS1</mRID>
+            <name>MS1Name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d6b</mRID>
+              <name>MSIResourceName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Monitored_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_4</mRID>
+            <name>PRA_4</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-5</mRID>
+          <businessType>B56</businessType>
+          <name>WrongBusinessType</name>
+          <RemedialAction_Series>
+            <mRID>PRA_5</mRID>
+            <name>PRA_5</name>
+            <businessType>B57</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-6</mRID>
+          <businessType>B56</businessType>
+          <name>WrongApplicationMode</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_6</mRID>
+            <name>PRA_6</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A21</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-7</mRID>
+          <businessType>B56</businessType>
+          <name>WrongAvailabilityMarketStatus</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_7</mRID>
+            <name>PRA_7</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A37</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-8</mRID>
+          <businessType>B56</businessType>
+          <name>MultipleRegisteredResources</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_8</mRID>
+            <name>PRA_8</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-9</mRID>
+          <businessType>B56</businessType>
+          <name>NoRegisteredResource</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_9</mRID>
+            <name>PRA_9</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-10</mRID>
+          <businessType>B56</businessType>
+          <name>WrongPSRType</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_10</mRID>
+            <name>PRA_10</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A07</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-11</mRID>
+          <businessType>B56</businessType>
+          <name>DefaultCapacityPresent</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_11</mRID>
+            <name>PRA_11</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>WRONGSTATUS</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>1.0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-12</mRID>
+          <businessType>B56</businessType>
+          <name>WRONGMARKETOBJECTSTATUSINREGISTEREDRESOURCE</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_12</mRID>
+            <name>PRA_12</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A24</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-13</mRID>
+          <businessType>B56</businessType>
+          <name>MISSINGUNIT</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_13</mRID>
+            <name>PRA_13</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-14</mRID>
+          <businessType>B56</businessType>
+          <name>WrongUnit</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_14</mRID>
+            <name>PRA_14</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C63</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-15</mRID>
+          <businessType>B56</businessType>
+          <name>WITHSHAREDDOMAIN</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_15</mRID>
+            <name>PRA_15</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">PRESENT-SHARED-DOMAIN</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-16</mRID>
+          <businessType>B56</businessType>
+          <name>A18-1</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <name>Co2NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Wrong-Co</mRID>
+            <name>Wrong-Co-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">WRONG_ID</mRID>
+              <name>WrongCoNetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_16</mRID>
+            <name>PRA_16</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-17</mRID>
+          <businessType>B56</businessType>
+          <name>A18-2</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <name>Co2NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_17</mRID>
+            <name>PRA_17</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-18</mRID>
+          <businessType>B56</businessType>
+          <name>A18-3</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Wrong-Co</mRID>
+            <name>Wrong-Co-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">WRONG_ID</mRID>
+              <name>WrongCoNetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_18</mRID>
+            <name>PRA_18</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-19</mRID>
+          <businessType>B56</businessType>
+          <name>A20-1</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Wrong-Co</mRID>
+            <name>Wrong-Co-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">WRONG_ID</mRID>
+              <name>WrongCoNetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_19</mRID>
+            <name>PRA_19</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-20</mRID>
+          <businessType>B56</businessType>
+          <name>A20-2</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_20</mRID>
+            <name>PRA_20</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-21</mRID>
+          <businessType>B56</businessType>
+          <name>RA_AFTER_ALL_CONTINGENCIES</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_21</mRID>
+            <name>PRA_21</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">WRONG_ID</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-22</mRID>
+          <businessType>B56</businessType>
+          <name>A19</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <name>Co1NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Wrong-Co</mRID>
+            <name>Wrong-Co-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">WRONG_ID</mRID>
+              <name>WrongCoNetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_22</mRID>
+            <name>PRA_22</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+      </Point>
+    </Period>
+  </TimeSeries>
+</CRAC_MarketDocument>

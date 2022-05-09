@@ -9,16 +9,21 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -31,47 +36,53 @@ import static java.lang.String.format;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class RaUsageLimitsFiller implements ProblemFiller {
-    private final Set<RangeAction<?>> rangeActions;
-    private final RangeActionResult prePerimeterRangeActionResult;
-    private final Integer maxRa;
-    private final Integer maxTso;
-    private final Set<String> maxTsoExclusions;
-    private final Map<String, Integer> maxPstPerTso;
-    private final Map<String, Integer> maxRaPerTso;
+
+    private final Map<State, Set<RangeAction<?>>> rangeActions;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
+    private final RangeActionLimitationParameters rangeActionLimitationParameters;
     private boolean arePstSetpointsApproximated;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
-    public RaUsageLimitsFiller(Set<RangeAction<?>> rangeActions,
-                               RangeActionResult prePerimeterRangeActionResult,
-                               Integer maxRa,
-                               Integer maxTso,
-                               Set<String> maxTsoExclusions,
-                               Map<String, Integer> maxPstPerTso,
-                               Map<String, Integer> maxRaPerTso,
+    public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
+                               RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                               RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated) {
         this.rangeActions = rangeActions;
-        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
-        this.maxRa = maxRa;
-        this.maxTso = maxTso;
-        this.maxTsoExclusions = maxTsoExclusions != null ? maxTsoExclusions : new HashSet<>();
-        this.maxPstPerTso = maxPstPerTso;
-        this.maxRaPerTso = maxRaPerTso;
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
+        this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        if ((maxRa == null || maxRa >= rangeActions.size())
-            && (maxTso == null || maxTso >= rangeActions.stream().map(RemedialAction::getOperator).distinct().filter(tso -> !maxTsoExclusions.contains(tso)).count())
-            && (maxPstPerTso == null || maxPstPerTso.isEmpty())
-            && (maxRaPerTso == null || maxRaPerTso.isEmpty())) {
-            return;
-        }
-        rangeActions.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra));
-        addMaxRaConstraint(linearProblem);
-        addMaxTsoConstraint(linearProblem);
-        addMaxRaPerTsoConstraint(linearProblem);
-        addMaxPstPerTsoConstraint(linearProblem);
+        rangeActions.forEach((state, rangeActionSet) -> {
+            if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
+                return;
+            }
+            rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
+            if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
+                addMaxRaConstraint(linearProblem, state);
+            }
+            if (rangeActionLimitationParameters.getMaxTso(state) != null) {
+                addMaxTsoConstraint(linearProblem, state);
+            }
+            if (!rangeActionLimitationParameters.getMaxRangeActionPerTso(state).isEmpty()) {
+                addMaxRaPerTsoConstraint(linearProblem, state);
+            }
+            if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
+                addMaxPstPerTsoConstraint(linearProblem, state);
+            }
+        });
+    }
+
+    @Override
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        // nothing to do, we are only comparing optimal and pre-perimeter setpoints
+    }
+
+    @Override
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 
     private double getAverageAbsoluteTapToAngleConversionFactor(PstRangeAction pstRangeAction) {
@@ -96,93 +107,86 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
     }
 
-    private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction) {
-        MPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction);
-        double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
-        MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
-        if (setpointVariable == null) {
-            throw new FaraoException(format("Range action setpoint variable for %s has not been defined yet.", rangeAction.getId()));
+    private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        MPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state);
+
+        MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
+        if (absoluteVariationVariable == null) {
+            throw new FaraoException(format("Range action absolute variation variable for %s has not been defined yet.", rangeAction.getId()));
         }
 
         double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
 
-        // range action setpoint <= intial setpoint + isVariationVariable * (max setpoint - initial setpoint)
+        // range action absolute variation <= isVariationVariable * (max setpoint - min setpoint) + initialSetpointRelaxation
         // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
         // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
-        double relaxedInitialSetpoint = initialSetpoint + initialSetpointRelaxation;
-        MPConstraint constraintUp = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), relaxedInitialSetpoint, rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
-        constraintUp.setCoefficient(setpointVariable, 1);
-        constraintUp.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - relaxedInitialSetpoint));
-
-        // range action setpoint >= intial setpoint - isVariationVariable * (initial setpoint - min setpoint)
-        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the minimum setpoint is feasible
-        // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
-        relaxedInitialSetpoint = initialSetpoint - initialSetpointRelaxation;
-        MPConstraint constraintDown = linearProblem.addIsVariationInDirectionConstraint(relaxedInitialSetpoint, LinearProblem.infinity(), rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        constraintDown.setCoefficient(setpointVariable, 1);
-        constraintDown.setCoefficient(isVariationVariable, relaxedInitialSetpoint - (rangeAction.getMinAdmissibleSetpoint(initialSetpoint) - RANGE_ACTION_SETPOINT_EPSILON));
+        MPConstraint constraint = linearProblem.addIsVariationConstraint(-LinearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
+        constraint.setCoefficient(absoluteVariationVariable, 1);
+        double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+        constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
     }
 
-    private void addMaxRaConstraint(LinearProblem linearProblem) {
+    private void addMaxRaConstraint(LinearProblem linearProblem, State state) {
+        Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
         if (maxRa == null) {
             return;
         }
-        MPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa);
-        rangeActions.forEach(ra -> {
-            MPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra);
+        MPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
+        rangeActions.get(state).forEach(ra -> {
+            MPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
             maxRaConstraint.setCoefficient(isVariationVariable, 1);
         });
     }
 
-    private void addMaxTsoConstraint(LinearProblem linearProblem) {
+    private void addMaxTsoConstraint(LinearProblem linearProblem, State state) {
+        Integer maxTso = rangeActionLimitationParameters.getMaxTso(state);
         if (maxTso == null) {
             return;
         }
-        Set<String> constraintTsos = rangeActions.stream()
+        Set<String> maxTsoExclusions = rangeActionLimitationParameters.getMaxTsoExclusion(state);
+        Set<String> constraintTsos = rangeActions.get(state).stream()
             .map(RemedialAction::getOperator)
             .filter(Objects::nonNull)
             .filter(tso -> !maxTsoExclusions.contains(tso))
             .collect(Collectors.toSet());
-        MPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso);
+        MPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
         constraintTsos.forEach(tso -> {
             // Create "is at least one RA for TSO used" binary variable ...
-            MPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso);
+            MPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso, state);
             maxTsoConstraint.setCoefficient(tsoRaUsedVariable, 1);
             // ... and the constraints that will define it
             // tsoRaUsed >= ra1_used, tsoRaUsed >= ra2_used + ...
-            rangeActions.stream().filter(ra -> tso.equals(ra.getOperator()))
+
+            rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
                 .forEach(ra -> {
-                    MPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, LinearProblem.infinity(), tso, ra);
+                    MPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, LinearProblem.infinity(), tso, ra, state);
                     tsoRaUsedConstraint.setCoefficient(tsoRaUsedVariable, 1);
-                    tsoRaUsedConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra), -1);
+                    tsoRaUsedConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), -1);
                 });
         });
     }
 
-    private void addMaxRaPerTsoConstraint(LinearProblem linearProblem) {
-        if (maxRaPerTso == null) {
+    private void addMaxRaPerTsoConstraint(LinearProblem linearProblem, State state) {
+        Map<String, Integer> maxRaPerTso = rangeActionLimitationParameters.getMaxRangeActionPerTso(state);
+        if (maxRaPerTso.isEmpty()) {
             return;
         }
         maxRaPerTso.forEach((tso, maxRaForTso) -> {
-            MPConstraint maxRaPerTsoConstraint = linearProblem.addMaxRaPerTsoConstraint(0, maxRaForTso, tso);
-            rangeActions.stream().filter(ra -> tso.equals(ra.getOperator()))
-                .forEach(ra -> maxRaPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra), 1));
+            MPConstraint maxRaPerTsoConstraint = linearProblem.addMaxRaPerTsoConstraint(0, maxRaForTso, tso, state);
+            rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
+                .forEach(ra -> maxRaPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });
     }
 
-    private void addMaxPstPerTsoConstraint(LinearProblem linearProblem) {
+    private void addMaxPstPerTsoConstraint(LinearProblem linearProblem, State state) {
+        Map<String, Integer> maxPstPerTso = rangeActionLimitationParameters.getMaxPstPerTso(state);
         if (maxPstPerTso == null) {
             return;
         }
         maxPstPerTso.forEach((tso, maxPstForTso) -> {
-            MPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso);
-            rangeActions.stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
-                .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra), 1));
+            MPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso, state);
+            rangeActions.get(state).stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
+                .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });
-    }
-
-    @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
-        // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 }

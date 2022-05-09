@@ -105,6 +105,24 @@ public class JsonRetrocompatibilityTest {
         testContentOfV1Point2Crac(crac);
     }
 
+    @Test
+    public void importV1Point3Test() {
+
+        // JSON file of farao-core v3.9
+        // addition of initial setpoints for InjectionRangeActions and HvdcRangeActions
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.3.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point3Crac(crac);
+    }
+
     private void testContentOfV1Crac(Crac crac) {
 
         // --------------------------
@@ -324,5 +342,16 @@ public class JsonRetrocompatibilityTest {
         assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
+    }
+
+    public void testContentOfV1Point3Crac(Crac crac) {
+
+        testContentOfV1Point1Crac(crac);
+        testContentOfV1Point2Crac(crac);
+
+        assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
+        assertEquals(-100, crac.getHvdcRangeAction("hvdcRange2Id").getInitialSetpoint(), 1e-3);
+        assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
+
     }
 }

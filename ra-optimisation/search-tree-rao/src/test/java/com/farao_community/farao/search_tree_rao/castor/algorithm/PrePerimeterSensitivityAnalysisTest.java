@@ -13,13 +13,14 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
-import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.AbsolutePtdfSumsComputation;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -27,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -54,8 +56,8 @@ public class PrePerimeterSensitivityAnalysisTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
         raoParameters = new RaoParameters();
+        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
         raoParameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
-        LinearOptimizerParameters linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
 
         cnec = Mockito.mock(FlowCnec.class);
 
@@ -67,7 +69,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(Mockito.mock(AbsolutePtdfSumsComputation.class));
 
-        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getRangeActions(), crac.getFlowCnecs(), toolProvider, raoParameters, linearOptimizerParameters);
+        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider);
     }
 
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
@@ -85,10 +87,10 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, false);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
 
-        result = prePerimeterSensitivityAnalysis.runBasedOn(network, optimizationResult);
+        result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
@@ -98,7 +100,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, false);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
@@ -108,7 +110,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, true);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
@@ -118,7 +120,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, true);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
@@ -128,7 +130,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, false);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOn(network, optimizationResult);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
         assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
         assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getCommercialFlow(cnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -141,7 +143,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, true);
 
-        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOn(network, optimizationResult);
+        PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
         assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
     }
