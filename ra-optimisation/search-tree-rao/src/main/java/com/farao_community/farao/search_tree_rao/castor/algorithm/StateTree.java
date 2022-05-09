@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
  */
 public class StateTree {
 
-    private Set<String> operatorsNotSharingCras;
-    private BasecaseScenario basecaseScenario;
-    private Set<ContingencyScenario> contingencyScenarios = new HashSet<>();
+    private final Set<String> operatorsNotSharingCras;
+    private final BasecaseScenario basecaseScenario;
+    private final Set<ContingencyScenario> contingencyScenarios = new HashSet<>();
 
     public StateTree(Crac crac) {
         basecaseScenario = new BasecaseScenario(crac.getPreventiveState(), null);

@@ -7,8 +7,14 @@
 
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 
@@ -75,6 +81,76 @@ public final class ObjectiveFunction {
     public static class ObjectiveFunctionBuilder {
         private CostEvaluator functionalCostEvaluator;
         private final List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
+
+        public ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs,
+                                                                              RaoParameters raoParameters) {
+
+            // min margin objective function
+            MarginEvaluator marginEvaluator;
+            if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+                marginEvaluator = FlowResult::getRelativeMargin;
+            } else {
+                marginEvaluator = FlowResult::getMargin;
+            }
+            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
+
+            return this.build();
+        }
+
+        public ObjectiveFunction build(Set<FlowCnec> flowCnecs,
+                                              Set<FlowCnec> loopFlowCnecs,
+                                              FlowResult initialFlowResult,
+                                              FlowResult prePerimeterFlowResult,
+                                              Set<String> operatorsNotToOptimizeInCurative,
+                                              RaoParameters raoParameters) {
+
+            SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
+            if (searchTreeRaoParameters == null) {
+                throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
+            }
+
+            // min margin objective function
+            MarginEvaluator marginEvaluator;
+            if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+                marginEvaluator = FlowResult::getRelativeMargin;
+            } else {
+                marginEvaluator = FlowResult::getMargin;
+            }
+
+            if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()
+                && !operatorsNotToOptimizeInCurative.isEmpty()) {
+
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
+                    new MarginEvaluatorWithUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
+
+            } else {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
+            }
+
+            // mnec virtual cost evaluator
+            if (raoParameters.isRaoWithMnecLimitation()) {
+
+                this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
+                    flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                    initialFlowResult,
+                    MnecParameters.buildFromRaoParameters(raoParameters)
+                ));
+            }
+
+            // loop-flow virtual cost evaluator
+            if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                this.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
+                    loopFlowCnecs,
+                    initialFlowResult,
+                    LoopFlowParameters.buildFromRaoParameters(raoParameters)
+                ));
+            }
+
+            // sensi fall-back overcost
+            this.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost()));
+
+            return this.build();
+        }
 
         public ObjectiveFunctionBuilder withFunctionalCostEvaluator(CostEvaluator costEvaluator) {
             this.functionalCostEvaluator = costEvaluator;

@@ -57,7 +57,8 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         if (!jsonParser.nextFieldName().equals(VERSION)) {
             throw new FaraoException(String.format("%s must contain a %s in its second field", CRAC_TYPE, VERSION));
         }
-        checkVersion(jsonParser.nextTextValue());
+        String version = jsonParser.nextTextValue();
+        checkVersion(version);
         jsonParser.nextToken();
 
         // get id and name
@@ -97,12 +98,12 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case HVDC_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
+                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
                 case INJECTION_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
+                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
                 case NETWORK_ACTIONS:

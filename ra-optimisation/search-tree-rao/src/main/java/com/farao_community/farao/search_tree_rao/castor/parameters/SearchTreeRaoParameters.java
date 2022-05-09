@@ -56,6 +56,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
     static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
     static final SecondPreventiveRaoCondition DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = SecondPreventiveRaoCondition.DISABLED;
+    static final boolean DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE = false;
     static final List<List<String>> DEFAULT_NETWORK_ACTION_ID_COMBINATIONS = new ArrayList<>();
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
@@ -75,6 +76,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
     private SecondPreventiveRaoCondition secondPreventiveOptimizationCondition = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
+    private boolean globalOptimizationInSecondPreventive = DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE;
     private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
     private List<NetworkActionCombination> networkActionCombinations = null;
 
@@ -255,6 +257,14 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setSecondPreventiveOptimizationCondition(SecondPreventiveRaoCondition secondPreventiveOptimizationCondition) {
         this.secondPreventiveOptimizationCondition = secondPreventiveOptimizationCondition;
+    }
+
+    public boolean isGlobalOptimizationInSecondPreventive() {
+        return globalOptimizationInSecondPreventive;
+    }
+
+    public void setGlobalOptimizationInSecondPreventive(boolean globalOptimizationInSecondPreventive) {
+        this.globalOptimizationInSecondPreventive = globalOptimizationInSecondPreventive;
     }
 
     public List<List<String>> getNetworkActionIdCombinations() {
