@@ -422,6 +422,9 @@ public class SearchTree {
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
+        if (leaf.getVirtualCost() > 1e-6) {
+            return false;
+        }
         if (purelyVirtual && leaf.getVirtualCost() < 1e-6) {
             TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;

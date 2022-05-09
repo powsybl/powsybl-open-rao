@@ -23,7 +23,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @AutoService(CracCreator.class)
 public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationContext> {
