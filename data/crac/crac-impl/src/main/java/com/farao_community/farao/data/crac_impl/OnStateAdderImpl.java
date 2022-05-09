@@ -9,11 +9,15 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
+ * Adds an OnState usage rule to a RemedialActionAdder
+ * Needs the CRAC to look up the contingency and add the new state if needed
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -49,21 +53,27 @@ public class OnStateAdderImpl<T extends AbstractRemedialActionAdder<T>> implemen
 
     @Override
     public T add() {
-        assertAttributeNotNull(contingencyId, CLASS_NAME, "contingency", "withContingency()");
         assertAttributeNotNull(instant, CLASS_NAME, "instant", "withInstant()");
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
+
+        State state;
         if (instant.equals(Instant.PREVENTIVE)) {
-            throw new FaraoException("OnState usage rules are not allowed for PREVENTIVE instant. Please use newFreeToUseUsageRule() instead.");
+            if (usageMethod != UsageMethod.FORCED) {
+                throw new FaraoException("OnState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newFreeToUseUsageRule() instead.");
+            }
+            state = owner.getCrac().addPreventiveState();
         } else if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnState usage rules are not allowed for OUTAGE instant.");
-        }
-        Contingency contingency = owner.getCrac().getContingency(contingencyId);
-        if (contingency == null) {
-            throw new FaraoException(String.format("Contingency %s of OnState usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
+        } else {
+            assertAttributeNotNull(contingencyId, CLASS_NAME, "contingency", "withContingency()");
+            Contingency contingency = owner.getCrac().getContingency(contingencyId);
+            if (contingency == null) {
+                throw new FaraoException(String.format("Contingency %s of OnState usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
+            }
+            state = owner.getCrac().addState(contingency, instant);
         }
 
-        OnState onState = new OnStateImpl(usageMethod, owner.getCrac().addState(contingency, instant));
-        owner.addUsageRule(onState);
+        owner.addUsageRule(new OnStateImpl(usageMethod, state));
         return owner;
     }
 }

@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 
 /**
+ * Adds a OnState usage rule to a RemedialActionAdder
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface OnStateAdder<T extends RemedialActionAdder<T>> {

@@ -142,16 +142,19 @@ public class CracImportExportTest {
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
         // check freeToUse usage rule
-        assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof FreeToUse);
-        FreeToUse freeToUse = (FreeToUse) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
+        FreeToUse freeToUse = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+            .filter(ur -> ur instanceof FreeToUse)
+            .map(ur -> (FreeToUse) ur)
+            .findAny().orElse(null);
+        assertNotNull(freeToUse);
         assertEquals(PREVENTIVE, freeToUse.getInstant());
         assertEquals(AVAILABLE, freeToUse.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
 
-        // check onState usage Rule
+        // check onState usage Rule (curative)
         OnState onState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
                 .filter(ur -> ur instanceof OnState)
                 .map(ur -> (OnState) ur)
@@ -159,6 +162,17 @@ public class CracImportExportTest {
         assertNotNull(onState);
         assertEquals("contingency1Id", onState.getContingency().getId());
         assertEquals(CURATIVE, onState.getInstant());
+        assertEquals(FORCED, onState.getUsageMethod());
+
+        // check onState usage Rule (preventive)
+        onState = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+            .filter(ur -> ur instanceof OnState)
+            .map(ur -> (OnState) ur)
+            .findAny().orElse(null);
+        assertNotNull(onState);
+        assertNull(onState.getContingency());
+        assertEquals(crac.getPreventiveState(), onState.getState());
+        assertEquals(PREVENTIVE, onState.getInstant());
         assertEquals(FORCED, onState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule

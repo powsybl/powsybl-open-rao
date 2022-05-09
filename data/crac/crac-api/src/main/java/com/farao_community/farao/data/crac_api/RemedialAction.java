@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
@@ -64,4 +65,6 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
         return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
                 .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
+
+    OnStateAdderToRemedialAction<I> newOnStateUsageRule();
 }

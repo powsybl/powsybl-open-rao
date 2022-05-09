@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
@@ -32,6 +33,15 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         this.usageRules = usageRules;
     }
 
+    void addUsageRule(UsageRule usageRule) {
+        this.usageRules.add(usageRule);
+    }
+
+    @Override
+    public OnStateAdderToRemedialAction<I> newOnStateUsageRule() {
+        return new OnStateAdderToRemedialActionImpl(this);
+    }
+
     @Override
     public String getOperator() {
         return operator;
@@ -50,12 +60,12 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
         if (usageMethods.contains(UsageMethod.UNAVAILABLE)) {
             return UsageMethod.UNAVAILABLE;
-        } else if (usageMethods.contains(UsageMethod.FORCED)) {
-            return UsageMethod.FORCED;
         } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
             return UsageMethod.AVAILABLE;
         } else if (usageMethods.contains(UsageMethod.TO_BE_EVALUATED)) {
             return UsageMethod.TO_BE_EVALUATED;
+        } else if (usageMethods.contains(UsageMethod.FORCED)) {
+            return UsageMethod.FORCED;
         } else {
             return UsageMethod.UNAVAILABLE;
         }
