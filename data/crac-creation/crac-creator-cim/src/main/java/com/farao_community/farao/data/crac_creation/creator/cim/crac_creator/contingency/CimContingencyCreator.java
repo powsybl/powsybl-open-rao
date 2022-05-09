@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class CimContingencyCreator {
     private final Crac crac;
