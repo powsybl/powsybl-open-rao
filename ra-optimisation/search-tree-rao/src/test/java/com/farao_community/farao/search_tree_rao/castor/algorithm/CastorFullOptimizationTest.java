@@ -418,7 +418,8 @@ public class CastorFullOptimizationTest {
         setUpCracWithRAs();
         // detect range actions that are preventive and curative
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
-        assertEquals(4, rangeActionsExcludedFrom2P.size());
+        assertEquals(5, rangeActionsExcludedFrom2P.size());
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
@@ -430,9 +431,8 @@ public class CastorFullOptimizationTest {
         setUpCracWithRAs();
         Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
         CastorFullOptimization.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
-        assertEquals(2, rangeActions.size());
+        assertEquals(1, rangeActions.size());
         assertTrue(rangeActions.contains(ra1));
-        assertTrue(rangeActions.contains(ra2));
     }
 
     private void setUpCracWithRealRAs(boolean curative) {
@@ -511,7 +511,7 @@ public class CastorFullOptimizationTest {
 
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
-        AppliedRemedialActions appliedRemedialActions = CastorFullOptimization.getAppliedRemedialActionsInCurative(curativeResults, prePerimeterResult);
+        AppliedRemedialActions appliedRemedialActions = CastorFullOptimization.getAppliedRemedialActionsPostContingency(curativeResults, prePerimeterResult);
 
         // apply only range action
         appliedRemedialActions.applyOnNetwork(state1, network);

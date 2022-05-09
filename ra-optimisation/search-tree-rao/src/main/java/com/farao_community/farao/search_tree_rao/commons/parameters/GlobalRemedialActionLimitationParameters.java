@@ -59,8 +59,8 @@ public class GlobalRemedialActionLimitationParameters {
     public static GlobalRemedialActionLimitationParameters buildFromRaoParameters(RaoParameters raoParameters) {
 
         /*
-        for now, values of GlobalRemedialActionLimitationParameters are constant over all the SearchTreeRao
-        they can therefore be instantiated directly from a RaoParameters
+        GlobalRemedialActionLimitationParameters only contains values that are not dependant of the perimeter. It can
+        therefore be instantiated from a RaoParameters alone.
          */
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters == null) {

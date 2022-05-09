@@ -106,8 +106,8 @@ public class AppliedRemedialActions {
     }
 
     private void checkState(State state) {
-        if (!state.getInstant().equals(Instant.CURATIVE)) {
-            throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE remedial actions.");
+        if (!state.getInstant().equals(Instant.CURATIVE) && !state.getInstant().equals(Instant.AUTO)) {
+            throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
         }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }

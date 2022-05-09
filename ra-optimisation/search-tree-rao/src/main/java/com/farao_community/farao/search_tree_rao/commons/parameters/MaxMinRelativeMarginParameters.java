@@ -24,12 +24,6 @@ public class MaxMinRelativeMarginParameters {
     }
 
     public static MaxMinRelativeMarginParameters buildFromRaoParameters(RaoParameters raoParameters) {
-
-        /*
-        for now, values of MaxMinRelativeMarginParameters are constant over all the SearchTreeRao
-        they can therefore be instantiated directly from a RaoParameters
-         */
-
         if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
             return new MaxMinRelativeMarginParameters(raoParameters.getPtdfSumLowerBound());
         } else {

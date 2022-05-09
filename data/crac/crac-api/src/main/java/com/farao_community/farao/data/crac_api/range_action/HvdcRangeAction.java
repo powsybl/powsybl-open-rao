@@ -21,9 +21,4 @@ public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
      * Get the HVDC Network Element on which the remedial action applies
      */
     NetworkElement getNetworkElement();
-
-    /**
-     * Get the setpoint of the remedial action before RAO.
-     */
-    double getInitialSetpoint();
 }

@@ -68,12 +68,6 @@ public class RangeActionParameters {
     }
 
     public static RangeActionParameters buildFromRaoParameters(RaoParameters raoParameters) {
-
-        /*
-        for now, values of RangeActionParameters are constant over all the SearchTreeRao
-        they can therefore be instantiated directly from a RaoParameters
-         */
-
         return new RangeActionParameters(raoParameters.getPstOptimizationApproximation(),
             raoParameters.getPstSensitivityThreshold(),
             raoParameters.getHvdcSensitivityThreshold(),

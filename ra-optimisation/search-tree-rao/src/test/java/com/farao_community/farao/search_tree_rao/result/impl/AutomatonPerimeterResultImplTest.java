@@ -15,9 +15,11 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,7 +149,7 @@ public class AutomatonPerimeterResultImplTest {
     public void testGetRangeActions() {
         Set<RangeAction<?>> rangeActions = Set.of(mock(RangeAction.class), mock(RangeAction.class));
         when(postAutoSensitivity.getRangeActions()).thenReturn(rangeActions);
-        assertEquals(rangeActions, result.getRangeActions());
+        assertEquals(new HashSet<>(), result.getRangeActions());
     }
 
     @Test
@@ -157,10 +159,9 @@ public class AutomatonPerimeterResultImplTest {
         when(postAutoSensitivity.getTap(pstRangeAction)).thenReturn(5);
         when(postAutoSensitivity.getSetpoint(pstRangeAction)).thenReturn(50.);
         when(postAutoSensitivity.getSetpoint(rangeAction)).thenReturn(100.);
-
-        assertEquals(5, result.getOptimizedTap(pstRangeAction, state1));
-        assertEquals(50., result.getOptimizedSetpoint(pstRangeAction, state1), DOUBLE_TOLERANCE);
-        assertEquals(100., result.getOptimizedSetpoint(rangeAction, state1), DOUBLE_TOLERANCE);
+        assertThrows(NotImplementedException.class, () -> result.getOptimizedTap(pstRangeAction, state1));
+        assertThrows(NotImplementedException.class, () -> result.getOptimizedSetpoint(pstRangeAction, state1));
+        assertThrows(NotImplementedException.class, () -> result.getOptimizedSetpoint(rangeAction, state1));
     }
 
     @Test

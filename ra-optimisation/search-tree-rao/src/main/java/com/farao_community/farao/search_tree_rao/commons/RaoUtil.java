@@ -147,7 +147,11 @@ public final class RaoUtil {
         }
     }
 
-    public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameAction(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
+    /**
+     * Returns the range action from optimizationContext that is available on the latest state
+     * strictly before the given state, and that acts on the same network element as rangeAction.
+     */
+    public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameNetworkElement(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
 
         if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
             // no previous instant
@@ -155,11 +159,11 @@ public final class RaoUtil {
         } else if (state.getInstant().equals(Instant.CURATIVE)) {
 
             // look if a preventive range action acts on the same network elements
-            State preventiveState = optimizationContext.getRangeActionsPerState().keySet().stream().filter(State::isPreventive).findAny().orElse(null);
+            State preventiveState = optimizationContext.getMainOptimizationState();
 
-            if (preventiveState != null) {
+            if (preventiveState.isPreventive()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
                     .findAny();
 
                 if (correspondingRa.isPresent()) {
@@ -168,7 +172,7 @@ public final class RaoUtil {
             }
             return null;
         } else {
-            throw new FaraoException("Linear optimization does no handle RA which are neither PREVENTIVE nor CURATIVE.");
+            throw new FaraoException("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.");
         }
     }
 

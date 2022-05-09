@@ -38,12 +38,6 @@ public class SolverParameters {
     }
 
     public static SolverParameters buildFromRaoParameters(RaoParameters raoParameters) {
-
-        /*
-        for now, values of SolverParameters are constant over all the SearchTreeRao
-        they can therefore be instantiated directly from a RaoParameters
-         */
-
         return new SolverParameters(raoParameters.getSolver(),
             raoParameters.getRelativeMipGap(),
             raoParameters.getSolverSpecificParameters());

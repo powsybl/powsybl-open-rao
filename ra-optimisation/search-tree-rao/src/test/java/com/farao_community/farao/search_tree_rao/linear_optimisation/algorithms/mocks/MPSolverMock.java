@@ -38,7 +38,7 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     public static double infinity() {
-        return Double.MAX_VALUE;
+        return 1e10;
     }
 
     @Override
