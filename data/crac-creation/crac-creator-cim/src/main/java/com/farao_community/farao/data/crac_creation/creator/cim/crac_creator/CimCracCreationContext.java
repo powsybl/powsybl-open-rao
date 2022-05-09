@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class CimCracCreationContext implements CracCreationContext {
     private Crac crac;

@@ -7,18 +7,21 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.Optional;
 
-import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem.VariationDirectionExtension.*;
-import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem.VariationReferenceExtension.*;
+import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationDirectionExtension.*;
+import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationReferenceExtension.*;
 import static org.junit.Assert.*;
 
 /**
@@ -37,15 +40,17 @@ public class LinearProblemTest {
 
     private LinearProblem linearProblem;
     private FlowCnec cnec;
+    private State state;
     private PstRangeAction rangeAction;
 
     @Before
     public void setUp() {
         FaraoMPSolver solver = new MPSolverMock();
-        linearProblem = new LinearProblem(Collections.emptyList(), solver);
+        linearProblem = new LinearProblemBuilder().withSolver(solver).build();
 
         rangeAction = Mockito.mock(PstRangeAction.class);
         cnec = Mockito.mock(FlowCnec.class);
+        state = Mockito.mock(State.class);
 
         Mockito.when(rangeAction.getId()).thenReturn(RANGE_ACTION_ID);
         Mockito.when(rangeAction.getGroupId()).thenReturn(Optional.of(GROUP_ID));
@@ -72,84 +77,84 @@ public class LinearProblemTest {
 
     @Test
     public void rangeActionSetPointVariableTest() {
-        assertNull(linearProblem.getRangeActionSetpointVariable(rangeAction));
-        linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction);
-        assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction));
-        assertEquals(LB, linearProblem.getRangeActionSetpointVariable(rangeAction).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getRangeActionSetpointVariable(rangeAction).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
+        linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction, state);
+        assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
+        assertEquals(LB, linearProblem.getRangeActionSetpointVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getRangeActionSetpointVariable(rangeAction, state).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void rangeActionAbsoluteVariationVariableTest() {
-        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction));
-        linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction);
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction));
-        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
+        linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction, state);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
+        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void rangeActionAbsoluteVariationConstraintTest() {
-        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.NEGATIVE));
-        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE));
-        linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearProblem.AbsExtension.NEGATIVE);
-        linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, LinearProblem.AbsExtension.POSITIVE);
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.NEGATIVE));
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE));
-        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.NEGATIVE).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
+        linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
+        linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.POSITIVE);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
+        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void pstTapVariationIntegerAndBinaryVariablesTest() {
-        assertNull(linearProblem.getPstTapVariationVariable(rangeAction, UPWARD));
-        assertNull(linearProblem.getPstTapVariationVariable(rangeAction, DOWNWARD));
-        assertNull(linearProblem.getPstTapVariationBinary(rangeAction, UPWARD));
-        assertNull(linearProblem.getPstTapVariationBinary(rangeAction, DOWNWARD));
+        assertNull(linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
+        assertNull(linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
+        assertNull(linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
+        assertNull(linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD));
 
-        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, UPWARD);
-        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, DOWNWARD);
-        linearProblem.addPstTapVariationBinary(rangeAction, UPWARD);
-        linearProblem.addPstTapVariationBinary(rangeAction, DOWNWARD);
+        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, UPWARD);
+        linearProblem.addPstTapVariationVariable(LB, UB, rangeAction, state, DOWNWARD);
+        linearProblem.addPstTapVariationBinary(rangeAction, state, UPWARD);
+        linearProblem.addPstTapVariationBinary(rangeAction, state, DOWNWARD);
 
-        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, UPWARD));
-        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, DOWNWARD));
-        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, UPWARD));
-        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, DOWNWARD));
-        assertEquals(LB, linearProblem.getPstTapVariationVariable(rangeAction, UPWARD).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getPstTapVariationVariable(rangeAction, DOWNWARD).ub(), DOUBLE_TOLERANCE);
+        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
+        assertNotNull(linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
+        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
+        assertNotNull(linearProblem.getPstTapVariationBinary(rangeAction, state, DOWNWARD));
+        assertEquals(LB, linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void pstTapConstraintsTest() {
-        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, UPWARD));
-        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, DOWNWARD));
-        assertNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction));
-        assertNull(linearProblem.getTapToAngleConversionConstraint(rangeAction));
+        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
+        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
+        assertNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
+        assertNull(linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
 
-        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, PREVIOUS_ITERATION, UPWARD);
-        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, PREVIOUS_ITERATION, DOWNWARD);
-        linearProblem.addUpOrDownPstVariationConstraint(rangeAction);
-        linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction);
+        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, state, PREVIOUS_ITERATION, UPWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, state, PREVIOUS_ITERATION, DOWNWARD);
+        linearProblem.addUpOrDownPstVariationConstraint(rangeAction, state);
+        linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction, state);
 
-        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, UPWARD));
-        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, DOWNWARD));
-        assertNotNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction));
-        assertNotNull(linearProblem.getTapToAngleConversionConstraint(rangeAction));
+        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
+        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
+        assertNotNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
+        assertNotNull(linearProblem.getTapToAngleConversionConstraint(rangeAction, state));
     }
 
     @Test
     public void pstGroupVariablesAndConstraintsTest() {
-        assertNull(linearProblem.getPstGroupTapVariable(GROUP_ID));
-        assertNull(linearProblem.getPstGroupTapConstraint(rangeAction));
+        assertNull(linearProblem.getPstGroupTapVariable(GROUP_ID, state));
+        assertNull(linearProblem.getPstGroupTapConstraint(rangeAction, state));
 
-        linearProblem.addPstGroupTapVariable(LB, UB, GROUP_ID);
-        linearProblem.addPstGroupTapConstraint(LB, UB, rangeAction);
+        linearProblem.addPstGroupTapVariable(LB, UB, GROUP_ID, state);
+        linearProblem.addPstGroupTapConstraint(LB, UB, rangeAction, state);
 
-        assertNotNull(linearProblem.getPstGroupTapVariable(GROUP_ID));
-        assertNotNull(linearProblem.getPstGroupTapConstraint(rangeAction));
-        assertEquals(LB, linearProblem.getPstGroupTapVariable(GROUP_ID).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getPstGroupTapConstraint(rangeAction).ub(), DOUBLE_TOLERANCE);
+        assertNotNull(linearProblem.getPstGroupTapVariable(GROUP_ID, state));
+        assertNotNull(linearProblem.getPstGroupTapConstraint(rangeAction, state));
+        assertEquals(LB, linearProblem.getPstGroupTapVariable(GROUP_ID, state).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getPstGroupTapConstraint(rangeAction, state).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test

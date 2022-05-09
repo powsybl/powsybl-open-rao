@@ -7,21 +7,29 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,14 +42,17 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     private PstRangeAction pst1;
     private PstRangeAction pst2;
     private PstRangeAction pst3;
     private HvdcRangeAction hvdc;
     private InjectionRangeAction injection;
-    private Set<RangeAction<?>> rangeActions;
-    private RangeActionResult prePerimeterRangeActionResult;
+    private Map<State, Set<RangeAction<?>>> rangeActionsPerState;
+    private RangeActionActivationResult prePerimeterRangeActionActivationResult;
+    private RangeActionSetpointResult prePerimeterRangeActionSetpointResult;
+    private State state;
 
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -49,6 +60,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     @Before
     public void setup() {
         init();
+        state = crac.getPreventiveState();
 
         pst1 = mock(PstRangeAction.class);
         when(pst1.getId()).thenReturn("pst1");
@@ -73,90 +85,115 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(injection.getId()).thenReturn("injection");
         when(injection.getOperator()).thenReturn("opC");
 
-        rangeActions = Set.of(pst1, pst2, pst3, hvdc, injection);
+        Set<RangeAction<?>> rangeActions = Set.of(pst1, pst2, pst3, hvdc, injection);
 
-        prePerimeterRangeActionResult = mock(RangeActionResult.class);
+        prePerimeterRangeActionSetpointResult = mock(RangeActionSetpointResult.class);
 
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(pst1)).thenReturn(1.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(pst2)).thenReturn(2.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(pst3)).thenReturn(3.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(hvdc)).thenReturn(4.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(injection)).thenReturn(5.);
+        when(prePerimeterRangeActionSetpointResult.getRangeActions()).thenReturn(rangeActions);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst1)).thenReturn(1.);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst2)).thenReturn(2.);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(pst3)).thenReturn(3.);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(hvdc)).thenReturn(4.);
+        when(prePerimeterRangeActionSetpointResult.getSetpoint(injection)).thenReturn(5.);
+
+        prePerimeterRangeActionActivationResult = new RangeActionActivationResultImpl(prePerimeterRangeActionSetpointResult);
 
         rangeActions.forEach(ra -> {
-            double min = -10 * prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
-            double max = 20 * prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
+            double min = -10 * prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
+            double max = 20 * prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
             when(ra.getMinAdmissibleSetpoint(anyDouble())).thenReturn(min);
             when(ra.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(max);
         });
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
 
-        // fill the problem : the core filler is required
+        rangeActionsPerState = new HashMap<>();
+        rangeActionsPerState.put(state, rangeActions);
+        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
+
+        RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(new RaoParameters());
+
         coreProblemFiller = new CoreProblemFiller(
-            network,
-            Set.of(),
-            rangeActions,
-            prePerimeterRangeActionResult,
-            0.,
-            0.,
-            0.);
+            optimizationPerimeter,
+            prePerimeterRangeActionSetpointResult,
+            prePerimeterRangeActionActivationResult,
+            rangeActionParameters);
     }
 
     @Test
     public void testSkipFiller() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 5, 2, Set.of("opA"), null, new HashMap<>(), false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        rangeActions.forEach(ra -> assertNull(linearProblem.getRangeActionVariationBinary(ra)));
+        rangeActionsPerState.get(state).forEach(ra -> assertNull(linearProblem.getRangeActionVariationBinary(ra, state)));
     }
 
     @Test
     public void testVariationVariableAndConstraints() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 1, null, null, null, null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(state, 1);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        rangeActions.forEach(ra -> {
-            MPVariable binary = linearProblem.getRangeActionVariationBinary(ra);
-            MPConstraint constraintUp = linearProblem.getIsVariationInDirectionConstraint(ra, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
-            MPConstraint constraintDown = linearProblem.getIsVariationInDirectionConstraint(ra, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        rangeActionsPerState.get(state).forEach(ra -> {
+            MPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
+            MPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
 
             assertNotNull(binary);
-            assertNotNull(constraintUp);
-            assertNotNull(constraintDown);
+            assertNotNull(constraint);
 
-            MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
-            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
+            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+            double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
 
-            assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) - initialSetpoint), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraintUp.lb(), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint + 1e-5, constraintUp.ub(), DOUBLE_TOLERANCE);
-
-            assertEquals(1, constraintDown.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - ra.getMinAdmissibleSetpoint(initialSetpoint), constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - 1e-5, constraintDown.lb(), DOUBLE_TOLERANCE);
-            assertEquals(LinearProblem.infinity(), constraintDown.ub(), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(-LinearProblem.infinity(), constraint.lb(), DOUBLE_TOLERANCE);
         });
     }
 
     @Test
     public void testVariationVariableAndConstraintsApproxPsts() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 1, null, null, null, null, true);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(state, 1);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            true);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        rangeActions.forEach(ra -> {
-            MPVariable binary = linearProblem.getRangeActionVariationBinary(ra);
-            MPConstraint constraintUp = linearProblem.getIsVariationInDirectionConstraint(ra, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
-            MPConstraint constraintDown = linearProblem.getIsVariationInDirectionConstraint(ra, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        rangeActionsPerState.get(state).forEach(ra -> {
+            MPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
+            MPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
 
             assertNotNull(binary);
-            assertNotNull(constraintUp);
-            assertNotNull(constraintDown);
+            assertNotNull(constraint);
 
-            MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
-            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
+            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+            double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
             double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {
                 relaxation = 0.3 * 6.9 / 2;
@@ -166,75 +203,113 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
                 relaxation = 0.3 * 4.5 / 3;
             }
 
-            assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + 1e-5 - initialSetpoint - relaxation), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraintUp.lb(), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint + relaxation, constraintUp.ub(), DOUBLE_TOLERANCE);
-
-            assertEquals(1, constraintDown.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - relaxation - ra.getMinAdmissibleSetpoint(initialSetpoint) + 1e-5, constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - relaxation, constraintDown.lb(), DOUBLE_TOLERANCE);
-            assertEquals(LinearProblem.infinity(), constraintDown.ub(), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(-LinearProblem.infinity(), constraint.lb(), DOUBLE_TOLERANCE);
         });
     }
 
     @Test
     public void testSkipConstraints1() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 5, null, null, null, null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(state, 5);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
-        assertNull(linearProblem.getMaxTsoConstraint());
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opA"));
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB"));
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opC"));
-        assertNull(linearProblem.getMaxRaPerTsoConstraint("opA"));
-        assertNull(linearProblem.getMaxRaPerTsoConstraint("opB"));
-        assertNull(linearProblem.getMaxRaPerTsoConstraint("opC"));
+
+        assertNull(linearProblem.getMaxTsoConstraint(state));
+        assertNull(linearProblem.getMaxPstPerTsoConstraint("opA", state));
+        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB", state));
+        assertNull(linearProblem.getMaxPstPerTsoConstraint("opC", state));
+        assertNull(linearProblem.getMaxRaPerTsoConstraint("opA", state));
+        assertNull(linearProblem.getMaxRaPerTsoConstraint("opB", state));
+        assertNull(linearProblem.getMaxRaPerTsoConstraint("opC", state));
     }
 
     @Test
     public void testSkipConstraints2() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, 3, null, null, null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(state, 3);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
-        assertNull(linearProblem.getMaxRaConstraint());
+
+        assertNull(linearProblem.getMaxRaConstraint(state));
     }
 
     @Test
     public void testMaxRa() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 4, null, null, null, null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeAction(state, 4);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraint = linearProblem.getMaxRaConstraint();
+        MPConstraint constraint = linearProblem.getMaxRaConstraint(state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(4, constraint.ub(), DOUBLE_TOLERANCE);
-        rangeActions.forEach(ra -> assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra)), DOUBLE_TOLERANCE));
+        rangeActionsPerState.get(state).forEach(ra ->
+            assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra, state)), DOUBLE_TOLERANCE));
     }
 
     private void checkTsoToRaConstraint(String tso, RangeAction<?> ra) {
-        MPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra);
+        MPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra, state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable(tso)), DOUBLE_TOLERANCE);
-        assertEquals(-1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable(tso, state)), DOUBLE_TOLERANCE);
+        assertEquals(-1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra, state)), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testMaxTso() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, 2, null, null, null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(state, 2);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraint = linearProblem.getMaxTsoConstraint();
+        MPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(2, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA")), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB")), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opC")), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opC", state)), DOUBLE_TOLERANCE);
 
         checkTsoToRaConstraint("opA", pst1);
         checkTsoToRaConstraint("opA", pst2);
@@ -245,74 +320,107 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxTsoWithExclusion() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, 1, Set.of("opC"), null, null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(state, 1);
+        raLimitationParameters.setMaxTsoExclusion(state, Set.of("opC"));
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraint = linearProblem.getMaxTsoConstraint();
+        MPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA")), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB")), DOUBLE_TOLERANCE);
-        assertNull(linearProblem.getTsoRaUsedVariable("opC"));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", state)), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getTsoRaUsedVariable("opC", state));
     }
 
     @Test
     public void testMaxRaPerTso() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, null, null, null, Map.of("opA", 2, "opC", 0), false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxRangeActionPerTso(state, Map.of("opA", 2, "opC", 0));
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraintA = linearProblem.getMaxRaPerTsoConstraint("opA");
+        MPConstraint constraintA = linearProblem.getMaxRaPerTsoConstraint("opA", state);
         assertNotNull(constraintA);
         assertEquals(0, constraintA.lb(), DOUBLE_TOLERANCE);
         assertEquals(2, constraintA.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(injection)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        MPConstraint constraintC = linearProblem.getMaxRaPerTsoConstraint("opC");
+        MPConstraint constraintC = linearProblem.getMaxRaPerTsoConstraint("opC", state);
         assertNotNull(constraintC);
         assertEquals(0, constraintC.lb(), DOUBLE_TOLERANCE);
         assertEquals(0, constraintC.ub(), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(injection)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB"));
+        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB", state));
     }
 
     @Test
     public void testMaxPstPerTso() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, null, null, Map.of("opA", 1, "opC", 3), null, false);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxPstPerTso(state, Map.of("opA", 1, "opC", 3));
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraintA = linearProblem.getMaxPstPerTsoConstraint("opA");
+        MPConstraint constraintA = linearProblem.getMaxPstPerTsoConstraint("opA", state);
         assertNotNull(constraintA);
         assertEquals(0, constraintA.lb(), DOUBLE_TOLERANCE);
         assertEquals(1, constraintA.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(injection)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        MPConstraint constraintC = linearProblem.getMaxPstPerTsoConstraint("opC");
+        MPConstraint constraintC = linearProblem.getMaxPstPerTsoConstraint("opC", state);
         assertNotNull(constraintC);
         assertEquals(0, constraintC.lb(), DOUBLE_TOLERANCE);
         assertEquals(3, constraintC.ub(), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(injection)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraintC.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB"));
+        assertNull(linearProblem.getMaxPstPerTsoConstraint("opB", state));
     }
 }

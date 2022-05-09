@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -54,7 +53,8 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
     private State state2;
     private State state3;
     private State preventiveState;
-    private SecondPreventiveAndCurativesRaoResultImpl output;
+    private SecondPreventiveAndCurativesRaoResultImpl outputRaIn2p;
+    private SecondPreventiveAndCurativesRaoResultImpl outputRaExcludedFrom2p;
     private OptimizationResult curativeResult1;
     private OptimizationResult curativeResult2;
 
@@ -73,6 +73,7 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
         when(state1.getInstant()).thenReturn(Instant.CURATIVE);
         when(state2.getInstant()).thenReturn(Instant.CURATIVE);
+        when(state3.getInstant()).thenReturn(Instant.CURATIVE);
 
         initialResult = mock(PrePerimeterResult.class);
         post1PResult = mock(PerimeterResult.class);
@@ -95,12 +96,10 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
         when(initialResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2));
         when(initialResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec1));
-        when(initialResult.getOptimizedSetPoint(pstRangeAction)).thenReturn(6.7);
-        when(initialResult.getOptimizedSetPoint(rangeAction)).thenReturn(5.6);
-        when(initialResult.getOptimizedTap(pstRangeAction)).thenReturn(1);
+        when(initialResult.getSetpoint(pstRangeAction)).thenReturn(6.7);
+        when(initialResult.getSetpoint(rangeAction)).thenReturn(5.6);
+        when(initialResult.getTap(pstRangeAction)).thenReturn(1);
         when(initialResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(initialResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 1));
-        when(initialResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 6.7, rangeAction, 5.6));
         when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1000.);
         when(initialResult.getMargin(cnec1, Unit.AMPERE)).thenReturn(-500.);
         when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(-2000.);
@@ -119,13 +118,14 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(post1PResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
         when(post1PResult.isActivated(networkAction)).thenReturn(false);
         when(post1PResult.getActivatedNetworkActions()).thenReturn(Set.of());
-        when(post1PResult.getActivatedRangeActions()).thenReturn(Set.of());
-        when(post1PResult.getOptimizedSetPoint(pstRangeAction)).thenReturn(18.9);
-        when(post1PResult.getOptimizedSetPoint(rangeAction)).thenReturn(15.6);
-        when(post1PResult.getOptimizedTap(pstRangeAction)).thenReturn(12);
+        when(post1PResult.getActivatedRangeActions(any())).thenReturn(Set.of());
+        when(post1PResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(18.9);
+        when(post1PResult.getOptimizedSetpoint(eq(rangeAction), any())).thenReturn(15.6);
+        when(post1PResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(12);
         when(post1PResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(post1PResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 12));
-        when(post1PResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 18.9, rangeAction, 15.6));
+        when(post1PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(post1PResult.getOptimizedTapsOnState(preventiveState)).thenReturn(Map.of(pstRangeAction, 12));
+        when(post1PResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(pstRangeAction, 18.9, rangeAction, 15.6));
         when(post1PResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1010.);
         when(post1PResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(510.);
         when(post1PResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2010.);
@@ -144,13 +144,26 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(post2PResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
         when(post2PResult.isActivated(networkAction)).thenReturn(true);
         when(post2PResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        when(post2PResult.getActivatedRangeActions()).thenReturn(Set.of(rangeAction));
-        when(post2PResult.getOptimizedSetPoint(pstRangeAction)).thenReturn(28.9);
-        when(post2PResult.getOptimizedSetPoint(rangeAction)).thenReturn(25.6);
-        when(post2PResult.getOptimizedTap(pstRangeAction)).thenReturn(22);
+        when(post2PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, preventiveState)).thenReturn(28.9);
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, state1)).thenReturn(10.2);
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, state2)).thenReturn(28.9);
+        when(post2PResult.getOptimizedTap(pstRangeAction, preventiveState)).thenReturn(22);
+        when(post2PResult.getOptimizedTap(pstRangeAction, state1)).thenReturn(10);
+        when(post2PResult.getOptimizedTap(pstRangeAction, state2)).thenReturn(22);
+        when(post2PResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(25.6);
+        when(post2PResult.getOptimizedSetpoint(rangeAction, state1)).thenReturn(25.6);
+        when(post2PResult.getOptimizedSetpoint(rangeAction, state2)).thenReturn(-14.2);
         when(post2PResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(post2PResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 22));
-        when(post2PResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
+        when(post2PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(post2PResult.getActivatedRangeActions(state1)).thenReturn(Set.of(pstRangeAction));
+        when(post2PResult.getActivatedRangeActions(state2)).thenReturn(Set.of(rangeAction));
+        when(post2PResult.getOptimizedTapsOnState(preventiveState)).thenReturn(Map.of(pstRangeAction, 22));
+        when(post2PResult.getOptimizedTapsOnState(state1)).thenReturn(Map.of(pstRangeAction, 10));
+        when(post2PResult.getOptimizedTapsOnState(state2)).thenReturn(Map.of(pstRangeAction, 22));
+        when(post2PResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
+        when(post2PResult.getOptimizedSetpointsOnState(state1)).thenReturn(Map.of(pstRangeAction, 10.2, rangeAction, 25.6));
+        when(post2PResult.getOptimizedSetpointsOnState(state2)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, -14.2));
         when(post2PResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1020.);
         when(post2PResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(520.);
         when(post2PResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2020.);
@@ -169,12 +182,13 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(curativeResult1.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
         when(curativeResult1.isActivated(networkAction)).thenReturn(false);
         when(curativeResult1.getActivatedNetworkActions()).thenReturn(Set.of());
-        when(curativeResult1.getOptimizedSetPoint(pstRangeAction)).thenReturn(28.9);
-        when(curativeResult1.getOptimizedSetPoint(rangeAction)).thenReturn(25.6);
-        when(curativeResult1.getOptimizedTap(pstRangeAction)).thenReturn(22);
+        when(curativeResult1.getOptimizedSetpoint(pstRangeAction, state1)).thenReturn(28.9);
+        when(curativeResult1.getOptimizedSetpoint(rangeAction, state1)).thenReturn(25.6);
+        when(curativeResult1.getOptimizedTap(pstRangeAction, state1)).thenReturn(22);
         when(curativeResult1.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(curativeResult1.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 22));
-        when(curativeResult1.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
+        when(curativeResult1.getActivatedRangeActions(state1)).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(curativeResult1.getOptimizedTapsOnState(state1)).thenReturn(Map.of(pstRangeAction, 22));
+        when(curativeResult1.getOptimizedSetpointsOnState(state1)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
         when(curativeResult1.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1030.);
         when(curativeResult1.getMargin(cnec2, Unit.AMPERE)).thenReturn(530.);
         when(curativeResult1.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2030.);
@@ -193,12 +207,13 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(curativeResult2.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
         when(curativeResult2.isActivated(networkAction)).thenReturn(false);
         when(curativeResult2.getActivatedNetworkActions()).thenReturn(Set.of());
-        when(curativeResult2.getOptimizedSetPoint(pstRangeAction)).thenReturn(48.9);
-        when(curativeResult2.getOptimizedSetPoint(rangeAction)).thenReturn(25.6);
-        when(curativeResult2.getOptimizedTap(pstRangeAction)).thenReturn(42);
+        when(curativeResult2.getOptimizedSetpoint(pstRangeAction, state2)).thenReturn(48.9);
+        when(curativeResult2.getOptimizedSetpoint(rangeAction, state2)).thenReturn(25.6);
+        when(curativeResult2.getOptimizedTap(pstRangeAction, state2)).thenReturn(42);
         when(curativeResult2.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(curativeResult2.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 42));
-        when(curativeResult2.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
+        when(curativeResult1.getActivatedRangeActions(state2)).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(curativeResult2.getOptimizedTapsOnState(state2)).thenReturn(Map.of(pstRangeAction, 42));
+        when(curativeResult2.getOptimizedSetpointsOnState(state2)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
         when(curativeResult2.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1040.);
         when(curativeResult2.getMargin(cnec2, Unit.AMPERE)).thenReturn(540.);
         when(curativeResult2.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2040.);
@@ -215,12 +230,10 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getVirtualCost("lf")).thenReturn(-130.);
         when(preCurativeResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec3, cnec2));
         when(preCurativeResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec1, cnec4));
-        when(preCurativeResult.getOptimizedSetPoint(pstRangeAction)).thenReturn(58.9);
-        when(preCurativeResult.getOptimizedSetPoint(rangeAction)).thenReturn(55.6);
-        when(preCurativeResult.getOptimizedTap(pstRangeAction)).thenReturn(52);
+        when(preCurativeResult.getSetpoint(pstRangeAction)).thenReturn(18.9);
+        when(preCurativeResult.getSetpoint(rangeAction)).thenReturn(15.6);
+        when(preCurativeResult.getTap(pstRangeAction)).thenReturn(52);
         when(preCurativeResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(preCurativeResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 52));
-        when(preCurativeResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 58.9, rangeAction, 55.6));
         when(preCurativeResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1050.);
         when(preCurativeResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(550.);
         when(preCurativeResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2050.);
@@ -230,12 +243,20 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(preCurativeResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(1550.);
         when(preCurativeResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(800.);
 
-        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+        outputRaIn2p = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+                preventiveState,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
                 Map.of(state1, curativeResult1, state2, curativeResult2),
                 Set.of());
+        outputRaExcludedFrom2p = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+            preventiveState,
+            post1PResult,
+            post2PResult,
+            preCurativeResult,
+            Map.of(state1, curativeResult1, state2, curativeResult2),
+            Set.of(rangeAction, pstRangeAction));
     }
 
     @Test
@@ -244,248 +265,318 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(post2PResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult1.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, outputRaIn2p.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+        assertEquals(ComputationStatus.FAILURE, outputRaIn2p.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(post2PResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+        assertEquals(ComputationStatus.FAILURE, outputRaIn2p.getComputationStatus());
 
         when(post2PResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+        assertEquals(ComputationStatus.FAILURE, outputRaIn2p.getComputationStatus());
     }
 
     @Test
     public void testUnimplementedGetResult() {
-        assertThrows(NotImplementedException.class, () -> output.getPerimeterResult(INITIAL, state1));
-        assertThrows(NotImplementedException.class, () -> output.getPostPreventivePerimeterResult());
-        assertThrows(NotImplementedException.class, () -> output.getInitialResult());
+        assertThrows(NotImplementedException.class, () -> outputRaIn2p.getPerimeterResult(INITIAL, state1));
+        assertThrows(NotImplementedException.class, () -> outputRaIn2p.getPostPreventivePerimeterResult());
+        assertThrows(NotImplementedException.class, () -> outputRaIn2p.getInitialResult());
     }
 
     @Test
     public void testGetFunctionalCost() {
-        assertEquals(1000., output.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
-        assertEquals(-1050., output.getFunctionalCost(AFTER_PRA), DOUBLE_TOLERANCE);
-        assertEquals(-1020., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(1000., outputRaIn2p.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
+        assertEquals(-1050., outputRaIn2p.getFunctionalCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-1020., outputRaIn2p.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetMostLimitingElements() {
-        assertEquals(List.of(cnec1), output.getMostLimitingElements(INITIAL, 5));
-        assertEquals(List.of(cnec3), output.getMostLimitingElements(AFTER_PRA, 15));
-        assertEquals(List.of(cnec2), output.getMostLimitingElements(AFTER_CRA, 445));
+        assertEquals(List.of(cnec1), outputRaIn2p.getMostLimitingElements(INITIAL, 5));
+        assertEquals(List.of(cnec3), outputRaIn2p.getMostLimitingElements(AFTER_PRA, 15));
+        assertEquals(List.of(cnec2), outputRaIn2p.getMostLimitingElements(AFTER_CRA, 445));
     }
 
     @Test
     public void testGetVirtualCost() {
-        assertEquals(100., output.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
-        assertEquals(-150., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
-        assertEquals(-120., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(100., outputRaIn2p.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
+        assertEquals(-150., outputRaIn2p.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-120., outputRaIn2p.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetVirtualCostNames() {
-        assertEquals(Set.of("mnec", "lf"), output.getVirtualCostNames());
+        assertEquals(Set.of("mnec", "lf"), outputRaIn2p.getVirtualCostNames());
     }
 
     @Test
     public void testGetVirtualCostByName() {
-        assertEquals(20., output.getVirtualCost(INITIAL, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(80., output.getVirtualCost(INITIAL, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-70., output.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-130., output.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-40., output.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-100., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getVirtualCost(INITIAL, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(80., outputRaIn2p.getVirtualCost(INITIAL, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., outputRaIn2p.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., outputRaIn2p.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-40., outputRaIn2p.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-100., outputRaIn2p.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetCostlyElements() {
-        assertEquals(List.of(cnec2), output.getCostlyElements(INITIAL, "mnec", 5));
-        assertEquals(List.of(cnec1), output.getCostlyElements(INITIAL, "lf", 15));
+        assertEquals(List.of(cnec2), outputRaIn2p.getCostlyElements(INITIAL, "mnec", 5));
+        assertEquals(List.of(cnec1), outputRaIn2p.getCostlyElements(INITIAL, "lf", 15));
 
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(AFTER_PRA, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_PRA, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), outputRaIn2p.getCostlyElements(AFTER_PRA, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), outputRaIn2p.getCostlyElements(AFTER_PRA, "lf", 15));
 
-        assertEquals(List.of(cnec1), output.getCostlyElements(AFTER_CRA, "mnec", 5));
-        assertEquals(List.of(cnec2), output.getCostlyElements(AFTER_CRA, "lf", 15));
+        assertEquals(List.of(cnec1), outputRaIn2p.getCostlyElements(AFTER_CRA, "mnec", 5));
+        assertEquals(List.of(cnec2), outputRaIn2p.getCostlyElements(AFTER_CRA, "lf", 15));
     }
 
     @Test
     public void testWasNetworkActionActivatedBeforeState() {
-        assertFalse(output.wasActivatedBeforeState(preventiveState, networkAction));
-        assertTrue(output.wasActivatedBeforeState(state1, networkAction));
-        assertTrue(output.wasActivatedBeforeState(state2, networkAction));
+        assertFalse(outputRaIn2p.wasActivatedBeforeState(preventiveState, networkAction));
+        assertTrue(outputRaIn2p.wasActivatedBeforeState(state1, networkAction));
+        assertTrue(outputRaIn2p.wasActivatedBeforeState(state2, networkAction));
 
-        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+        outputRaIn2p = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+                preventiveState,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
                 Map.of(state1, curativeResult1, state2, curativeResult2),
                 Set.of(networkAction));
-        assertFalse(output.wasActivatedBeforeState(state1, networkAction));
-        assertFalse(output.wasActivatedBeforeState(state2, networkAction));
+        assertFalse(outputRaIn2p.wasActivatedBeforeState(state1, networkAction));
+        assertFalse(outputRaIn2p.wasActivatedBeforeState(state2, networkAction));
     }
 
     @Test
     public void testIsNetworkActionActivatedDuringState() {
-        assertTrue(output.isActivatedDuringState(preventiveState, networkAction));
-        assertFalse(output.isActivatedDuringState(state1, networkAction));
-        assertFalse(output.isActivatedDuringState(state2, networkAction));
-        assertFalse(output.isActivatedDuringState(state3, networkAction));
+        assertTrue(outputRaIn2p.isActivatedDuringState(preventiveState, networkAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state1, networkAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state2, networkAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state3, networkAction));
 
         when(curativeResult1.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+        outputRaIn2p = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+                preventiveState,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
                 Map.of(state1, curativeResult1, state2, curativeResult2),
                 Set.of(networkAction));
-        assertFalse(output.isActivatedDuringState(preventiveState, networkAction));
-        assertTrue(output.isActivatedDuringState(state1, networkAction));
-        assertFalse(output.isActivatedDuringState(state2, networkAction));
-        assertFalse(output.isActivatedDuringState(state3, networkAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(preventiveState, networkAction));
+        assertTrue(outputRaIn2p.isActivatedDuringState(state1, networkAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state2, networkAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state3, networkAction));
     }
 
     @Test
     public void testGetActivatedNetworkActionsDuringState() {
-        assertEquals(Set.of(networkAction), output.getActivatedNetworkActionsDuringState(preventiveState));
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state3));
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state1));
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state2));
+        assertEquals(Set.of(networkAction), outputRaIn2p.getActivatedNetworkActionsDuringState(preventiveState));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(state3));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(state1));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(state2));
 
         when(curativeResult2.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+        outputRaIn2p = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+                preventiveState,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
                 Map.of(state1, curativeResult1, state2, curativeResult2),
                 Set.of(networkAction));
-        assertEquals(Set.of(networkAction), output.getActivatedNetworkActionsDuringState(preventiveState));
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state3));
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state1));
-        assertEquals(Set.of(networkAction), output.getActivatedNetworkActionsDuringState(state2));
+        assertEquals(Set.of(networkAction), outputRaIn2p.getActivatedNetworkActionsDuringState(preventiveState));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(state3));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(state1));
+        assertEquals(Set.of(networkAction), outputRaIn2p.getActivatedNetworkActionsDuringState(state2));
 
         when(post2PResult.getActivatedNetworkActions()).thenReturn(Set.of());
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(preventiveState));
-        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state3));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(preventiveState));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedNetworkActionsDuringState(state3));
     }
 
     @Test
     public void testIsRangeActionActivatedDuringState() {
-        assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertTrue(output.isActivatedDuringState(state1, rangeAction));
-        assertTrue(output.isActivatedDuringState(state2, rangeAction));
-        assertFalse(output.isActivatedDuringState(state3, rangeAction));
+        // with - by default - ranges actions included in 2P
+        when(post2PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction));
+        when(post2PResult.getActivatedRangeActions(state1)).thenReturn(Set.of(rangeAction));
+        when(post2PResult.getActivatedRangeActions(state2)).thenReturn(Set.of(pstRangeAction, rangeAction));
+        when(post2PResult.getActivatedRangeActions(state3)).thenReturn(Set.of());
 
-        when(curativeResult2.getOptimizedSetPoint(rangeAction)).thenReturn(15.6);
-        assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertTrue(output.isActivatedDuringState(state1, rangeAction));
-        assertFalse(output.isActivatedDuringState(state2, rangeAction));
-        assertFalse(output.isActivatedDuringState(state3, rangeAction));
+        assertTrue(outputRaIn2p.isActivatedDuringState(preventiveState, pstRangeAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state1, pstRangeAction));
+        assertTrue(outputRaIn2p.isActivatedDuringState(state2, pstRangeAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state3, pstRangeAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(preventiveState, rangeAction));
+        assertTrue(outputRaIn2p.isActivatedDuringState(state1, rangeAction));
+        assertTrue(outputRaIn2p.isActivatedDuringState(state2, rangeAction));
+        assertFalse(outputRaIn2p.isActivatedDuringState(state3, rangeAction));
 
-        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
-                post1PResult,
-                post2PResult,
-                preCurativeResult,
-                Map.of(state1, curativeResult1, state2, curativeResult2),
-                Set.of(rangeAction));
-        assertFalse(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertTrue(output.isActivatedDuringState(state1, rangeAction));
-        assertFalse(output.isActivatedDuringState(state2, rangeAction));
-        assertFalse(output.isActivatedDuringState(state3, rangeAction));
+        // with range Action excluded from 2p
+        when(post1PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction, rangeAction));
+        when(curativeResult1.getActivatedRangeActions(state1)).thenReturn(Set.of(pstRangeAction));
+        when(curativeResult2.getActivatedRangeActions(state2)).thenReturn(Set.of(rangeAction));
+
+        assertTrue(outputRaExcludedFrom2p.isActivatedDuringState(preventiveState, pstRangeAction));
+        assertTrue(outputRaExcludedFrom2p.isActivatedDuringState(state1, pstRangeAction));
+        assertFalse(outputRaExcludedFrom2p.isActivatedDuringState(state2, pstRangeAction));
+        assertFalse(outputRaExcludedFrom2p.isActivatedDuringState(state3, pstRangeAction));
+        assertTrue(outputRaExcludedFrom2p.isActivatedDuringState(preventiveState, rangeAction));
+        assertFalse(outputRaExcludedFrom2p.isActivatedDuringState(state1, rangeAction));
+        assertTrue(outputRaExcludedFrom2p.isActivatedDuringState(state2, rangeAction));
+        assertFalse(outputRaExcludedFrom2p.isActivatedDuringState(state3, rangeAction));
     }
 
     @Test
     public void testGetPreOptimizationTapOnState() {
-        assertEquals(1, output.getPreOptimizationTapOnState(preventiveState, pstRangeAction));
-        assertEquals(22, output.getPreOptimizationTapOnState(state1, pstRangeAction));
-        assertEquals(22, output.getPreOptimizationTapOnState(state2, pstRangeAction));
-        assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(state3, pstRangeAction));
+        // with - by default - ranges actions included in 2P
+        when(initialResult.getTap(pstRangeAction)).thenReturn(1);
+        when(post2PResult.getOptimizedTap(pstRangeAction, preventiveState)).thenReturn(22);
+        assertEquals(1, outputRaIn2p.getPreOptimizationTapOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(22, outputRaIn2p.getPreOptimizationTapOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(22, outputRaIn2p.getPreOptimizationTapOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(22, outputRaIn2p.getPreOptimizationTapOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
+
+        // with range Action excluded from 2p
+        when(post1PResult.getOptimizedTap(pstRangeAction, preventiveState)).thenReturn(-12);
+        assertEquals(1, outputRaExcludedFrom2p.getPreOptimizationTapOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-12, outputRaExcludedFrom2p.getPreOptimizationTapOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-12, outputRaExcludedFrom2p.getPreOptimizationTapOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-12, outputRaExcludedFrom2p.getPreOptimizationTapOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetOptimizedTapOnState() {
-        when(post2PResult.getOptimizedTap(pstRangeAction)).thenReturn(202);
-        assertEquals(202, output.getOptimizedTapOnState(preventiveState, pstRangeAction));
-        assertEquals(22, output.getOptimizedTapOnState(state1, pstRangeAction));
-        assertEquals(42, output.getOptimizedTapOnState(state2, pstRangeAction));
-        assertEquals(202, output.getOptimizedTapOnState(state3, pstRangeAction));
+        // with - by default - ranges actions included in 2P
+        when(post2PResult.getOptimizedTap(pstRangeAction, preventiveState)).thenReturn(10);
+        when(post2PResult.getOptimizedTap(pstRangeAction, state1)).thenReturn(11);
+        when(post2PResult.getOptimizedTap(pstRangeAction, state2)).thenReturn(12);
+        when(post2PResult.getOptimizedTap(pstRangeAction, state3)).thenReturn(13);
+
+        assertEquals(10, outputRaIn2p.getOptimizedTapOnState(preventiveState, pstRangeAction));
+        assertEquals(11, outputRaIn2p.getOptimizedTapOnState(state1, pstRangeAction));
+        assertEquals(12, outputRaIn2p.getOptimizedTapOnState(state2, pstRangeAction));
+        assertEquals(13, outputRaIn2p.getOptimizedTapOnState(state3, pstRangeAction));
+
+        // with range Action excluded from 2p
+        when(post1PResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(20);
+        when(curativeResult1.getOptimizedTap(pstRangeAction, state1)).thenReturn(21);
+        when(curativeResult2.getOptimizedTap(pstRangeAction, state2)).thenReturn(22);
+
+        assertEquals(20, outputRaExcludedFrom2p.getOptimizedTapOnState(preventiveState, pstRangeAction));
+        assertEquals(21, outputRaExcludedFrom2p.getOptimizedTapOnState(state1, pstRangeAction));
+        assertEquals(22, outputRaExcludedFrom2p.getOptimizedTapOnState(state2, pstRangeAction));
+        assertEquals(20, outputRaExcludedFrom2p.getOptimizedTapOnState(state3, pstRangeAction));
     }
 
     @Test
     public void testGetPreOptimizationSetPointOnState() {
-        assertEquals(6.7, output.getPreOptimizationSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(28.9, output.getPreOptimizationSetPointOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(28.9, output.getPreOptimizationSetPointOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(state3, pstRangeAction));
+        // with - by default - ranges actions included in 2P
+        when(initialResult.getSetpoint(pstRangeAction)).thenReturn(6.7);
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, preventiveState)).thenReturn(28.9);
+        assertEquals(6.7, outputRaIn2p.getPreOptimizationSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(28.9, outputRaIn2p.getPreOptimizationSetPointOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(28.9, outputRaIn2p.getPreOptimizationSetPointOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(28.9, outputRaIn2p.getPreOptimizationSetPointOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
+
+        // with range Action excluded from 2p
+        when(post1PResult.getOptimizedSetpoint(pstRangeAction, preventiveState)).thenReturn(-10.3);
+        assertEquals(6.7, outputRaExcludedFrom2p.getPreOptimizationSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-10.3, outputRaExcludedFrom2p.getPreOptimizationSetPointOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-10.3, outputRaExcludedFrom2p.getPreOptimizationSetPointOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-10.3, outputRaExcludedFrom2p.getPreOptimizationSetPointOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetOptimizedSetPointOnState() {
-        when(post2PResult.getOptimizedSetPoint(pstRangeAction)).thenReturn(567.);
-        assertEquals(567, output.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(28.9, output.getOptimizedSetPointOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(48.9, output.getOptimizedSetPointOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(567, output.getOptimizedSetPointOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
+        // with - by default - ranges actions included in 2P
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, preventiveState)).thenReturn(567.);
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, state1)).thenReturn(28.9);
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, state2)).thenReturn(48.9);
+        when(post2PResult.getOptimizedSetpoint(pstRangeAction, state3)).thenReturn(567.);
+        assertEquals(567, outputRaIn2p.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(28.9, outputRaIn2p.getOptimizedSetPointOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(48.9, outputRaIn2p.getOptimizedSetPointOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(567, outputRaIn2p.getOptimizedSetPointOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
+
+        // with range Action excluded from 2p
+        when(post1PResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(40.2);
+        when(curativeResult1.getOptimizedSetpoint(pstRangeAction, state1)).thenReturn(450.2);
+        when(curativeResult2.getOptimizedSetpoint(pstRangeAction, state2)).thenReturn(-100.5);
+
+        assertEquals(40.2, outputRaExcludedFrom2p.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(450.2, outputRaExcludedFrom2p.getOptimizedSetPointOnState(state1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-100.5, outputRaExcludedFrom2p.getOptimizedSetPointOnState(state2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(40.2, outputRaExcludedFrom2p.getOptimizedSetPointOnState(state3, pstRangeAction), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetActivatedRangeActionsDuringState() {
-        assertEquals(Set.of(rangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
-        assertEquals(Set.of(pstRangeAction, rangeAction), output.getActivatedRangeActionsDuringState(state1));
-        assertEquals(Set.of(pstRangeAction, rangeAction), output.getActivatedRangeActionsDuringState(state2));
-        assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(state3));
+        assertEquals(Set.of(pstRangeAction, rangeAction), outputRaIn2p.getActivatedRangeActionsDuringState(preventiveState));
+        assertEquals(Set.of(pstRangeAction), outputRaIn2p.getActivatedRangeActionsDuringState(state1));
+        assertEquals(Set.of(rangeAction), outputRaIn2p.getActivatedRangeActionsDuringState(state2));
+        assertEquals(Set.of(), outputRaIn2p.getActivatedRangeActionsDuringState(state3));
 
-        when(post2PResult.getActivatedRangeActions()).thenReturn(Set.of());
-        when(post1PResult.getActivatedRangeActions()).thenReturn(Set.of(pstRangeAction));
-        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+        when(post2PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of());
+        when(post1PResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction));
+        outputRaIn2p = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
+                preventiveState,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
                 Map.of(state1, curativeResult1, state2, curativeResult2),
                 Set.of(pstRangeAction));
-        assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
+        assertEquals(Set.of(pstRangeAction), outputRaIn2p.getActivatedRangeActionsDuringState(preventiveState));
     }
 
     @Test
     public void testGetOptimizedTapsOnState() {
-        when(post2PResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 222));
+        // with - by default - ranges actions included in 2P
+        when(post2PResult.getOptimizedTapsOnState(preventiveState)).thenReturn(Map.of(pstRangeAction, 0));
+        when(post2PResult.getOptimizedTapsOnState(state1)).thenReturn(Map.of(pstRangeAction, 0));
+        when(post2PResult.getOptimizedTapsOnState(state2)).thenReturn(Map.of(pstRangeAction, -15));
+        when(post2PResult.getOptimizedTapsOnState(state3)).thenReturn(Map.of(pstRangeAction, 0));
 
-        when(curativeResult1.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 333));
-        when(curativeResult1.getOptimizedTap(pstRangeAction)).thenReturn(333);
-        // with next line, pstRangeAction should be detected as activated in state1
-        when(curativeResult1.getOptimizedSetPoint(pstRangeAction)).thenReturn(3330.);
+        assertEquals(Map.of(pstRangeAction, 0), outputRaIn2p.getOptimizedTapsOnState(preventiveState));
+        assertEquals(Map.of(pstRangeAction, 0), outputRaIn2p.getOptimizedTapsOnState(state1));
+        assertEquals(Map.of(pstRangeAction, -15), outputRaIn2p.getOptimizedTapsOnState(state2));
+        assertEquals(Map.of(pstRangeAction, 0), outputRaIn2p.getOptimizedTapsOnState(state3));
 
-        when(curativeResult2.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 444));
-        when(curativeResult2.getOptimizedTap(pstRangeAction)).thenReturn(444);
-        // with next line, pstRangeAction should not be detected as activated in state2
-        when(curativeResult2.getOptimizedSetPoint(pstRangeAction)).thenReturn(18.9);
+        // with range Action excluded from 2p
+        when(post1PResult.getOptimizedTapsOnState(any())).thenReturn(Map.of(pstRangeAction, 4));
+        when(curativeResult1.getOptimizedTapsOnState(state1)).thenReturn(Map.of(pstRangeAction, -10));
+        when(curativeResult2.getOptimizedTapsOnState(state2)).thenReturn(Map.of(pstRangeAction, 4));
 
-        assertEquals(Map.of(pstRangeAction, 222), output.getOptimizedTapsOnState(preventiveState));
-        assertEquals(Map.of(pstRangeAction, 333), output.getOptimizedTapsOnState(state1));
-        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(state2));
-        assertEquals(Map.of(pstRangeAction, 222), output.getOptimizedTapsOnState(state3));
+        assertEquals(Map.of(pstRangeAction, 4), outputRaExcludedFrom2p.getOptimizedTapsOnState(preventiveState));
+        assertEquals(Map.of(pstRangeAction, -10), outputRaExcludedFrom2p.getOptimizedTapsOnState(state1));
+        assertEquals(Map.of(pstRangeAction, 4), outputRaExcludedFrom2p.getOptimizedTapsOnState(state2));
+        assertEquals(Map.of(pstRangeAction, 4), outputRaExcludedFrom2p.getOptimizedTapsOnState(state3));
     }
 
     @Test
     public void testGetOptimizedSetPointsOnState() {
-        when(post2PResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
+        // with - by default - ranges actions included in 2P
+        when(post2PResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
+        when(post2PResult.getOptimizedSetpointsOnState(state1)).thenReturn(Map.of(pstRangeAction, 10.2, rangeAction, 25.6));
+        when(post2PResult.getOptimizedSetpointsOnState(state2)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, -14.2));
+        when(post2PResult.getOptimizedSetpointsOnState(state3)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
 
-        when(curativeResult1.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 333.));
-        // with next line, pstRangeAction should be detected as activated in state1
-        when(curativeResult1.getOptimizedSetPoint(pstRangeAction)).thenReturn(333.);
+        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, 25.6), outputRaIn2p.getOptimizedSetPointsOnState(preventiveState));
+        assertEquals(Map.of(pstRangeAction, 10.2, rangeAction, 25.6), outputRaIn2p.getOptimizedSetPointsOnState(state1));
+        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, -14.2), outputRaIn2p.getOptimizedSetPointsOnState(state2));
+        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, 25.6), outputRaIn2p.getOptimizedSetPointsOnState(state3));
 
-        when(curativeResult2.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 444.));
-        // with next line, pstRangeAction should not be detected as activated in state2
-        when(curativeResult2.getOptimizedSetPoint(pstRangeAction)).thenReturn(18.9);
+        // with range Action excluded from 2p
+        when(post1PResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 0., rangeAction, 1000.));
+        when(curativeResult1.getOptimizedSetpointsOnState(state1)).thenReturn(Map.of(pstRangeAction, 333., rangeAction, 1000.));
+        when(curativeResult2.getOptimizedSetpointsOnState(state2)).thenReturn(Map.of(pstRangeAction, 444., rangeAction, 111.));
 
-        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(preventiveState));
-        assertEquals(Map.of(pstRangeAction, 333., rangeAction, 25.6), output.getOptimizedSetPointsOnState(state1));
-        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, 25.6), output.getOptimizedSetPointsOnState(state2));
-        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(state3));
+        assertEquals(Map.of(pstRangeAction, 0., rangeAction, 1000.), outputRaExcludedFrom2p.getOptimizedSetPointsOnState(preventiveState));
+        assertEquals(Map.of(pstRangeAction, 333., rangeAction, 1000.), outputRaExcludedFrom2p.getOptimizedSetPointsOnState(state1));
+        assertEquals(Map.of(pstRangeAction, 444., rangeAction, 111.), outputRaExcludedFrom2p.getOptimizedSetPointsOnState(state2));
+        assertEquals(Map.of(pstRangeAction, 0., rangeAction, 1000.), outputRaExcludedFrom2p.getOptimizedSetPointsOnState(state3));
     }
 
     @Test
@@ -493,9 +584,9 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
         when(post2PResult.getFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
-        assertEquals(10., output.getFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., outputRaIn2p.getFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., outputRaIn2p.getFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -503,9 +594,9 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
         when(post2PResult.getMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
-        assertEquals(10., output.getMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., outputRaIn2p.getMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., outputRaIn2p.getMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -513,9 +604,9 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
         when(post2PResult.getRelativeMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
-        assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getRelativeMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., outputRaIn2p.getRelativeMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getRelativeMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., outputRaIn2p.getRelativeMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -523,9 +614,9 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getCommercialFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getCommercialFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
         when(post2PResult.getCommercialFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
-        assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getCommercialFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., outputRaIn2p.getCommercialFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getCommercialFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., outputRaIn2p.getCommercialFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -533,9 +624,9 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getLoopFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
         when(preCurativeResult.getLoopFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
         when(post2PResult.getLoopFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
-        assertEquals(10., output.getLoopFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getLoopFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., outputRaIn2p.getLoopFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getLoopFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., outputRaIn2p.getLoopFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -543,8 +634,8 @@ public class SecondPreventiveAndCurativesRaoResultImplTest {
         when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(10.);
         when(preCurativeResult.getPtdfZonalSum(cnec2)).thenReturn(20.);
         when(post2PResult.getPtdfZonalSum(cnec3)).thenReturn(30.);
-        assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3), DOUBLE_TOLERANCE);
+        assertEquals(10., outputRaIn2p.getPtdfZonalSum(INITIAL, cnec1), DOUBLE_TOLERANCE);
+        assertEquals(20., outputRaIn2p.getPtdfZonalSum(AFTER_PRA, cnec2), DOUBLE_TOLERANCE);
+        assertEquals(30., outputRaIn2p.getPtdfZonalSum(AFTER_CRA, cnec3), DOUBLE_TOLERANCE);
     }
 }

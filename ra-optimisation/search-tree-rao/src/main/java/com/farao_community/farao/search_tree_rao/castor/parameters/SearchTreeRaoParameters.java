@@ -56,7 +56,9 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
     static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
     static final SecondPreventiveRaoCondition DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = SecondPreventiveRaoCondition.DISABLED;
+    static final boolean DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE = false;
     static final List<List<String>> DEFAULT_NETWORK_ACTION_ID_COMBINATIONS = new ArrayList<>();
+    static final boolean DEFAULT_SECOND_PREVENTIVE_HINT_FROM_FIRST_PREVENTIVE = false;
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -75,8 +77,10 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
     private SecondPreventiveRaoCondition secondPreventiveOptimizationCondition = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
+    private boolean globalOptimizationInSecondPreventive = DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE;
     private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
     private List<NetworkActionCombination> networkActionCombinations = null;
+    private boolean secondPreventiveHintFromFirstPreventive = DEFAULT_SECOND_PREVENTIVE_HINT_FROM_FIRST_PREVENTIVE;
 
     @Override
     public String getName() {
@@ -257,12 +261,28 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         this.secondPreventiveOptimizationCondition = secondPreventiveOptimizationCondition;
     }
 
+    public boolean isGlobalOptimizationInSecondPreventive() {
+        return globalOptimizationInSecondPreventive;
+    }
+
+    public void setGlobalOptimizationInSecondPreventive(boolean globalOptimizationInSecondPreventive) {
+        this.globalOptimizationInSecondPreventive = globalOptimizationInSecondPreventive;
+    }
+
     public List<List<String>> getNetworkActionIdCombinations() {
         return networkActionIdCombinations;
     }
 
     public void setNetworkActionIdCombinations(List<List<String>> networkActionCombinations) {
         this.networkActionIdCombinations = networkActionCombinations;
+    }
+
+    public boolean isSecondPreventiveHintFromFirstPreventive() {
+        return secondPreventiveHintFromFirstPreventive;
+    }
+
+    public void setSecondPreventiveHintFromFirstPreventive(boolean secondPreventiveHintFromFirstPreventive) {
+        this.secondPreventiveHintFromFirstPreventive = secondPreventiveHintFromFirstPreventive;
     }
 
     public List<NetworkActionCombination> getNetworkActionCombinations(Crac crac) {
