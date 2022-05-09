@@ -47,7 +47,7 @@ public class OnStateAdderImplTest {
 
     @Test
     public void testOk() {
-        RemedialAction remedialAction = remedialActionAdder.newOnStateUsageRule()
+        RemedialAction<?> remedialAction = remedialActionAdder.newOnStateUsageRule()
             .withInstant(Instant.CURATIVE)
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
@@ -58,9 +58,23 @@ public class OnStateAdderImplTest {
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnState);
         assertEquals(Instant.CURATIVE, ((OnState) remedialAction.getUsageRules().get(0)).getState().getInstant());
         assertEquals(contingency, ((OnState) remedialAction.getUsageRules().get(0)).getState().getContingency().orElse(null));
-        assertEquals(UsageMethod.AVAILABLE, ((OnState) remedialAction.getUsageRules().get(0)).getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, remedialAction.getUsageRules().get(0).getUsageMethod());
         assertEquals(1, crac.getStates().size());
         assertNotNull(crac.getState("contingencyId", Instant.CURATIVE));
+    }
+
+    @Test
+    public void testOkPreventive() {
+        RemedialAction<?> remedialAction = remedialActionAdder.newOnStateUsageRule()
+            .withInstant(Instant.PREVENTIVE)
+            .withUsageMethod(UsageMethod.FORCED)
+            .add()
+            .add();
+
+        assertEquals(1, remedialAction.getUsageRules().size());
+        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnState);
+        assertEquals(Instant.PREVENTIVE, ((OnState) remedialAction.getUsageRules().get(0)).getState().getInstant());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
 
     @Test (expected = FaraoException.class)
