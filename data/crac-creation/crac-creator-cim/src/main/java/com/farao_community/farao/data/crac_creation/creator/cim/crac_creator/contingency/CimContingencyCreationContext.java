@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreati
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class CimContingencyCreationContext implements ElementaryCreationContext {
     private String contingencyID;

@@ -13,7 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesId;

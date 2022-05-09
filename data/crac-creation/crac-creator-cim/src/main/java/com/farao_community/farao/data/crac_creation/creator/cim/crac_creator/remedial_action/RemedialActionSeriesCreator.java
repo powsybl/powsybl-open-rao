@@ -35,7 +35,7 @@ import static com.farao_community.farao.data.crac_creation.creator.cim.crac_crea
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.*;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RemedialActionSeriesCreator {
     private final Crac crac;

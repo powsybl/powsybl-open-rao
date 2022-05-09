@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Philippe Edwards <philippe.edwards at rte-france.com>
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class MonitoredSeriesCreator {
     private final Crac crac;
