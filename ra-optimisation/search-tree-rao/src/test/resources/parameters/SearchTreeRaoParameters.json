@@ -71,6 +71,7 @@
       "curative-rao-optimize-operators-not-sharing-cras" : false,
       "second-preventive-optimization-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
       "global-opt-in-second-preventive" : true,
+      "second-preventive-hint-from-first-preventive" : false,
       "network-action-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ]
     }
   }

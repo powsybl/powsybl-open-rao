@@ -58,6 +58,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final SecondPreventiveRaoCondition DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = SecondPreventiveRaoCondition.DISABLED;
     static final boolean DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE = false;
     static final List<List<String>> DEFAULT_NETWORK_ACTION_ID_COMBINATIONS = new ArrayList<>();
+    static final boolean DEFAULT_SECOND_PREVENTIVE_HINT_FROM_FIRST_PREVENTIVE = false;
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -79,6 +80,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private boolean globalOptimizationInSecondPreventive = DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE;
     private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
     private List<NetworkActionCombination> networkActionCombinations = null;
+    private boolean secondPreventiveHintFromFirstPreventive = DEFAULT_SECOND_PREVENTIVE_HINT_FROM_FIRST_PREVENTIVE;
 
     @Override
     public String getName() {
@@ -273,6 +275,14 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setNetworkActionIdCombinations(List<List<String>> networkActionCombinations) {
         this.networkActionIdCombinations = networkActionCombinations;
+    }
+
+    public boolean isSecondPreventiveHintFromFirstPreventive() {
+        return secondPreventiveHintFromFirstPreventive;
+    }
+
+    public void setSecondPreventiveHintFromFirstPreventive(boolean secondPreventiveHintFromFirstPreventive) {
+        this.secondPreventiveHintFromFirstPreventive = secondPreventiveHintFromFirstPreventive;
     }
 
     public List<NetworkActionCombination> getNetworkActionCombinations(Crac crac) {

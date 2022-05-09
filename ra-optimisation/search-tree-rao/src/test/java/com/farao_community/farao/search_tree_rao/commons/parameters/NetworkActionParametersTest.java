@@ -8,14 +8,18 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -54,6 +58,10 @@ public class NetworkActionParametersTest {
         assertEquals(0.01, nap.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertTrue(nap.skipNetworkActionFarFromMostLimitingElements());
         assertEquals(4, nap.getMaxNumberOfBoundariesForSkippingNetworkActions());
+
+        NetworkActionCombination naCombination = new NetworkActionCombination(Set.of(Mockito.mock(NetworkAction.class), Mockito.mock(NetworkAction.class)));
+        nap.addNetworkActionCombination(naCombination);
+        assertTrue(nap.getNetworkActionCombinations().contains(naCombination));
     }
 
     @Test (expected = FaraoException.class)
