@@ -222,7 +222,9 @@ public class LinearProblemBuilder {
         Map<State, Set<RangeAction<?>>> outRangeActions = new HashMap<>();
         inRangeActions.forEach((state, rangeActions) -> {
             if (rangeActions.stream().anyMatch(ra -> !(ra instanceof PstRangeAction))) {
-                outRangeActions.put(state, rangeActions.stream().filter(ra -> !(ra instanceof PstRangeAction)).collect(Collectors.toSet()));
+                outRangeActions.put(state, rangeActions.stream().filter(ra -> !(ra instanceof PstRangeAction)).collect(Collectors.toCollection(
+                    () -> new TreeSet<>(Comparator.comparing(RangeAction::getId))
+                )));
             }
         });
         return outRangeActions;
@@ -232,7 +234,9 @@ public class LinearProblemBuilder {
         Map<State, Set<PstRangeAction>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
         inRangeActions.forEach((state, rangeActions) -> {
             if (rangeActions.stream().anyMatch(PstRangeAction.class::isInstance)) {
-                outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet()));
+                outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toCollection(
+                    () -> new TreeSet<>(Comparator.comparing(PstRangeAction::getId))
+                )));
             }
         });
         return outRangeActions;
