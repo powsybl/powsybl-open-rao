@@ -270,6 +270,7 @@ public class CimCracCreatorTest {
         assertRemedialActionNotImported("RA-Series-4", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-5", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-6", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("RA-Series-7", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC-direction71", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-8", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("RA-Series-9", INCONSISTENCY_IN_DATA);
