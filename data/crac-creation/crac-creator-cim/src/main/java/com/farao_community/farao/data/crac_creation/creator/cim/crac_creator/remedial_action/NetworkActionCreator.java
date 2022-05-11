@@ -60,7 +60,7 @@ public class NetworkActionCreator {
                 .withId(createdRemedialActionId)
                 .withName(createdRemedialActionName);
 
-        if (RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, networkActionCreationContexts)) {
+        if (!RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, networkActionCreationContexts)) {
             return networkActionCreationContexts;
         }
 
@@ -107,7 +107,7 @@ public class NetworkActionCreator {
     }
 
     private boolean addPstSetpointElementaryAction(String createdRemedialActionId, String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
-        if (RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol(), networkActionCreationContexts)) {
+        if (!RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol(), networkActionCreationContexts)) {
             return false;
         }
         // Pst helper

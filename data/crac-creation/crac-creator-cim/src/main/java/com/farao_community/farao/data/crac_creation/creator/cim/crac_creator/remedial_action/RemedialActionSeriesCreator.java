@@ -208,13 +208,13 @@ public class RemedialActionSeriesCreator {
     public static boolean checkPstUnit(String createdRemedialActionId, String unitSymbol, Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts) {
         if (Objects.isNull(unitSymbol)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing unit symbol"));
-            return true;
+            return false;
         }
         if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol)));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public static boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies, Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts) {
@@ -223,14 +223,14 @@ public class RemedialActionSeriesCreator {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
             } else  {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency"));
-                return true;
+                return false;
             }
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
             if (contingencies.isEmpty()) {
                 if (!invalidContingencies.isEmpty()) {
                     remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant"));
-                    return true;
+                    return false;
                 } else {
                     RemedialActionSeriesCreator.addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
                 }
@@ -250,15 +250,15 @@ public class RemedialActionSeriesCreator {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
-                return true;
+                return false;
             } else if (contingencies.isEmpty()) {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant"));
-                return true;
+                return false;
             } else {
                 RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, Instant.AUTO, UsageMethod.FORCED, contingencies);
             }
         }
-        return false;
+        return true;
     }
 
     private static void addFreeToUseUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {

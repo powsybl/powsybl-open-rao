@@ -87,7 +87,7 @@ public class PstRangeActionCreator {
             return pstRangeActionCreationContexts;
         }
 
-        if (RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, pstRangeActionCreationContexts)) {
+        if (!RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, pstRangeActionCreationContexts)) {
             return pstRangeActionCreationContexts;
         }
 
@@ -120,19 +120,19 @@ public class PstRangeActionCreator {
         if (Objects.nonNull(resourceCapacityMinimumCapacity) && Objects.nonNull(resourceCapacityMaximumCapacity)) {
             int minCapacity = resourceCapacityMinimumCapacity.intValue();
             int maxCapacity = resourceCapacityMaximumCapacity.intValue();
-            if (RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, unitSymbol, pstRangeActionCreationContexts)) {
+            if (!RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, unitSymbol, pstRangeActionCreationContexts)) {
                 return false;
             }
             addTapRangeWithMinAndMaxTap(pstRangeActionAdder, pstHelper, minCapacity, maxCapacity, rangeType);
         } else if (Objects.nonNull(resourceCapacityMaximumCapacity)) {
             int maxCapacity = resourceCapacityMaximumCapacity.intValue();
-            if (RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, unitSymbol, pstRangeActionCreationContexts)) {
+            if (!RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, unitSymbol, pstRangeActionCreationContexts)) {
                 return false;
             }
             addTapRangeWithMaxTap(pstRangeActionAdder, pstHelper, maxCapacity, rangeType);
         } else if (Objects.nonNull(resourceCapacityMinimumCapacity)) {
             int minCapacity = resourceCapacityMinimumCapacity.intValue();
-            if (RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, unitSymbol, pstRangeActionCreationContexts)) {
+            if (!RemedialActionSeriesCreator.checkPstUnit(createdRemedialActionId, unitSymbol, pstRangeActionCreationContexts)) {
                 return false;
             }
             addTapRangeWithMinTap(pstRangeActionAdder, pstHelper, minCapacity, rangeType);
