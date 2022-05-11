@@ -32,7 +32,7 @@
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
-      "version" : "1.6",
+      "version" : "1.7",
       "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
@@ -52,7 +52,7 @@
   "fallback-sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
-      "version" : "1.6",
+      "version" : "1.7",
       "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
