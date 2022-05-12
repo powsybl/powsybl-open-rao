@@ -11,8 +11,11 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
@@ -50,7 +53,7 @@ public class PstRangeActionCreator {
         this.invalidContingencies = invalidContingencies;
     }
 
-    public Set<RemedialActionSeriesCreationContext> addPstRangeAction() {
+    public Set<RemedialActionSeriesCreationContext> addPstRangeAction(CimCracCreationParameters cimCracCreationParameters, CracCreationContext cracCreationContext) {
         this.pstRangeActionCreationContexts = new HashSet<>();
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = pstRegisteredResource.getMarketObjectStatusStatus();
@@ -81,6 +84,27 @@ public class PstRangeActionCreator {
                 .withNetworkElement(pstHelper.getIdInNetwork())
                 .withInitialTap(pstHelper.getInitialTap())
                 .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());
+
+        // ---- add groupId if present
+        if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionGroups() != null) {
+            String groupId = null;
+            for (RangeActionGroup rangeActionGroup : cimCracCreationParameters.getRangeActionGroups()) {
+                for (String raGroupId : rangeActionGroup.getRangeActionsIds()) {
+                    if (Objects.isNull(raGroupId)) {
+                        cracCreationContext.getCreationReport().warn(String.format("RangeActionGroup %s contains a range action group containing a null value.", rangeActionGroup));
+                        continue;
+                    }
+                    if (raGroupId.equals(createdRemedialActionId)) {
+                        if (groupId != null) {
+                            cracCreationContext.getCreationReport().warn(String.format("GroupId already defined to %s for PST %s, group %s is ignored (only in PST %s).", groupId, createdRemedialActionId, rangeActionGroup, createdRemedialActionId));
+                        } else {
+                            groupId = rangeActionGroup.toString();
+                            pstRangeActionAdder.withGroupId(groupId);
+                        }
+                    }
+                }
+            }
+        }
 
         // --- Resource capacity
         if (!defineTapRange(pstRangeActionAdder, pstHelper, rangeType)) {
