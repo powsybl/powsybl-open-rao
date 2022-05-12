@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.powsybl.iidm.network.*;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
 import org.apache.commons.lang3.StringUtils;
@@ -33,12 +34,14 @@ public class RemedialActionSeriesCreator {
     private List<RemedialActionSeries> storedHvdcRangeActions;
     private List<Contingency> contingencies;
     private List<String> invalidContingencies;
+    private final CimCracCreationParameters cimCracCreationParameters;
 
-    public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
+    public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext, CimCracCreationParameters cimCracCreationParameters) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
+        this.cimCracCreationParameters = cimCracCreationParameters;
     }
 
     public void createAndAddRemedialActionSeries() {
@@ -169,7 +172,7 @@ public class RemedialActionSeriesCreator {
                     }
                     Set<RemedialActionSeriesCreationContext> pstRemedialActionSeriesCreationContexts = new PstRangeActionCreator(crac, network,
                             createdRemedialActionId, createdRemedialActionName, applicationModeMarketObjectStatus, remedialActionRegisteredResource,
-                            contingencies, invalidContingencies).addPstRangeAction();
+                            contingencies, invalidContingencies).addPstRangeAction(cimCracCreationParameters, cracCreationContext);
                     remedialActionSeriesCreationContexts.addAll(pstRemedialActionSeriesCreationContexts);
                     return true;
                 }
