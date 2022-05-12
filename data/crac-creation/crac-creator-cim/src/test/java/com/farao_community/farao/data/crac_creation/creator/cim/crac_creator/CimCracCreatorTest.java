@@ -264,4 +264,55 @@ public class CimCracCreatorTest {
         assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_1").getGroupId().get());
         assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_22").getGroupId().get());
     }
+
+    @Test
+    public void testImportAlignedRangeActionsGroupIdNull() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
+        List<String> groupIds = new ArrayList<>();
+        groupIds.add(null);
+        rangeActionGroups.add(new RangeActionGroup(groupIds));
+        Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
+
+        InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_3_1.xml");
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCracCreator cimCracCreator = new CimCracCreator();
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        importedCrac = cracCreationContext.getCrac();
+        assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
+        assertEquals(2, importedCrac.getPstRangeActions().size());
+        assertFalse(importedCrac.getPstRangeAction("PRA_1").getGroupId().isPresent());
+        assertFalse(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
+    }
+
+    @Test
+    public void testImportAlignedRangeActionsGroupIdAlreadyDefined() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
+        rangeActionGroups.add(new RangeActionGroup(List.of("PRA_1")));
+        rangeActionGroups.add(new RangeActionGroup(List.of("PRA_1", "PRA_22")));
+        Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
+
+        InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_3_1.xml");
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCracCreator cimCracCreator = new CimCracCreator();
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        importedCrac = cracCreationContext.getCrac();
+        assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
+        assertEquals(2, importedCrac.getPstRangeActions().size());
+        assertTrue(importedCrac.getPstRangeAction("PRA_1").getGroupId().isPresent());
+        assertTrue(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
+        assertEquals("PRA_1", importedCrac.getPstRangeAction("PRA_1").getGroupId().get());
+        assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_22").getGroupId().get());
+    }
 }

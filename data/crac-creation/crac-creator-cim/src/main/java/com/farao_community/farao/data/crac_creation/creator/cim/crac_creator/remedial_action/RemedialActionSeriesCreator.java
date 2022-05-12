@@ -207,6 +207,10 @@ public class RemedialActionSeriesCreator {
             String groupId = null;
             for (RangeActionGroup rangeActionGroup : cimCracCreationParameters.getRangeActionGroups()) {
                 for (String raGroupId : rangeActionGroup.getRangeActionsIds()) {
+                    if (Objects.isNull(raGroupId)) {
+                        cracCreationContext.getCreationReport().warn(String.format("RangeActionGroup %s contains a range action group containing a null value.", rangeActionGroup));
+                        continue;
+                    }
                     if (raGroupId.equals(createdRemedialActionId)) {
                         if (groupId != null) {
                             cracCreationContext.getCreationReport().warn(String.format("GroupId already defined to %s for PST %s, group %s is ignored (only in PST %s).", groupId, createdRemedialActionId, rangeActionGroup, createdRemedialActionId));

@@ -31,7 +31,6 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
     private Crac crac;
     private Network network;
     CimCracCreationContext creationContext;
-    private CimCracCreationParameters cimCracCreationParameters;
 
     @Override
     public String getNativeCracFormat() {
@@ -47,7 +46,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         this.creationContext = new CimCracCreationContext(crac);
 
         // Get warning messages from parameters parsing
-        this.cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
             cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
         }
@@ -65,7 +64,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
 
         createContingencies();
         createCnecs();
-        createRemedialActions();
+        createRemedialActions(cimCracCreationParameters);
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -78,7 +77,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         new MonitoredSeriesCreator(cimTimeSeries, crac, network, creationContext).createAndAddMonitoredSeries();
     }
 
-    private void createRemedialActions() {
+    private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters) {
         new RemedialActionSeriesCreator(cimTimeSeries, crac, network, creationContext, cimCracCreationParameters).createAndAddRemedialActionSeries();
     }
 
