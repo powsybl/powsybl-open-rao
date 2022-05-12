@@ -76,7 +76,8 @@ public final class CimConstants {
         RELATIVE_TO_PREVIOUS_INSTANT2("Z01"),
         STOP("A23"),
         OPEN("A21"),
-        CLOSE("A22");
+        CLOSE("A22"),
+        PMODE("A43");
 
         private String status;
 
@@ -96,7 +97,8 @@ public final class CimConstants {
         PST("A06"),
         CIRCUIT_BREAKER("A07"),
         TRANSFORMER("B24"),
-        DEPRECATED_LINE("A12");
+        DEPRECATED_LINE("A12"),
+        HVDC("B22");
 
         private String status;
 
