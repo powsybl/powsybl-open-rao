@@ -5,17 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
-import static com.farao_community.farao.data.core_cne_exporter.SweCneConstants.PATL_MEASUREMENT_TYPE;
-import static com.farao_community.farao.data.core_cne_exporter.SweCneConstants.TATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneConstants.PATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneConstants.TATL_MEASUREMENT_TYPE;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -25,14 +26,14 @@ public class SweCneHelper {
 
     private Crac crac;
     private Network network;
-    private StandardCracCreationContext cracCreationContext;
+    private CimCracCreationContext cracCreationContext;
     private boolean relativePositiveMargins;
     private boolean withLoopflows;
     private RaoResult raoResult;
     private SweCneExporterParameters exporterParameters;
     private double mnecAcceptableMarginDiminution;
 
-    public SweCneHelper(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, SweCneExporterParameters exporterParameters) {
+    public SweCneHelper(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, SweCneExporterParameters exporterParameters) {
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
@@ -64,7 +65,7 @@ public class SweCneHelper {
         return crac;
     }
 
-    public StandardCracCreationContext getCracCreationContext() {
+    public CimCracCreationContext getCracCreationContext() {
         return cracCreationContext;
     }
 

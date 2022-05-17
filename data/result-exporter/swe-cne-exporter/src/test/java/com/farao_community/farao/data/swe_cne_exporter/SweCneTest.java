@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.import_.Importers;
@@ -22,19 +22,22 @@ import org.mockito.Mockito;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneTest {
+public class SweCneTest {
     private Crac crac;
     private Network network;
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private SweCneExporterParameters exporterParameters;
-    private StandardCracCreationContext cracCreationContext;
+    private CimCracCreationContext cracCreationContext;
 
     @Before
     public void setUp() {
@@ -43,9 +46,9 @@ public class CneTest {
         crac = CracFactory.findDefault().create("test-crac");
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
-        cracCreationContext = Mockito.mock(StandardCracCreationContext.class);
-        Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());
-        Mockito.when(cracCreationContext.getRemedialActionCreationContexts()).thenReturn(new ArrayList<>());
+        cracCreationContext = Mockito.mock(CimCracCreationContext.class);
+        Mockito.when(cracCreationContext.getMonitoredSeriesCreationContexts()).thenReturn(new HashMap<>());
+        Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContexts()).thenReturn(new HashSet<>());
         Mockito.when(cracCreationContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2021, 11, 15, 11, 50, 0, 0, ZoneOffset.of("+1")));
     }
 

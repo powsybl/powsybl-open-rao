@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.data.core_cne_exporter.xsd.ESMPDateTimeInterval;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneUtilTest {
+public class SweCneUtilTest {
     @Test
     public void testInterval() {
         OffsetDateTime odt = OffsetDateTime.parse("2021-10-30T22:00:00Z");

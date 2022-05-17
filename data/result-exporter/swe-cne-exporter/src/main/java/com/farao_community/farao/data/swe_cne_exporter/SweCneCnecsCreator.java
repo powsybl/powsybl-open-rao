@@ -5,15 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.core_cne_exporter.xsd.Analog;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ContingencySeries;
-import com.farao_community.farao.data.core_cne_exporter.xsd.MonitoredRegisteredResource;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.ConstraintSeries;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.ContingencySeries;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredRegisteredResource;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -25,8 +26,8 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.core_cne_exporter.SweCneClassCreator.*;
-import static com.farao_community.farao.data.core_cne_exporter.SweCneConstants.*;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneClassCreator.*;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneConstants.*;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series
@@ -48,40 +49,40 @@ public final class SweCneCnecsCreator {
 
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
-        List<BranchCnecCreationContext> sortedCnecs = cneHelper.getCracCreationContext().getBranchCnecCreationContexts().stream()
-            .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId)).collect(Collectors.toList());
-        for (BranchCnecCreationContext cnec : sortedCnecs) {
+        List<MonitoredSeriesCreationContext> sortedCnecs = cneHelper.getCracCreationContext().getMonitoredSeriesCreationContexts().entrySet().stream()
+            .sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).collect(Collectors.toList());
+        for (MonitoredSeriesCreationContext cnec : sortedCnecs) {
             constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper));
         }
         return constraintSeries;
     }
 
-    private List<ConstraintSeries> createConstraintSeriesOfACnec(BranchCnecCreationContext branchCnecCreationContext, SweCneHelper cneHelper) {
-        if (!branchCnecCreationContext.isImported()) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", branchCnecCreationContext.getNativeId());
+    private List<ConstraintSeries> createConstraintSeriesOfACnec(MonitoredSeriesCreationContext monitoredSeriesCreationContext, SweCneHelper cneHelper) {
+        if (!monitoredSeriesCreationContext.isImported()) {
+            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", monitoredSeriesCreationContext.getNativeId());
             return new ArrayList<>();
         }
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         String outageBranchCnecId;
         String curativeBranchCnecId;
-        if (branchCnecCreationContext.isBaseCase()) {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(Instant.PREVENTIVE);
+        if (monitoredSeriesCreationContext.isBaseCase()) {
+            outageBranchCnecId = monitoredSeriesCreationContext.getCreatedCnecsIds().get(Instant.PREVENTIVE);
             curativeBranchCnecId = outageBranchCnecId;
         } else {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(Instant.OUTAGE);
-            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(Instant.CURATIVE);
+            outageBranchCnecId = monitoredSeriesCreationContext.getCreatedCnecsIds().get(Instant.OUTAGE);
+            curativeBranchCnecId = monitoredSeriesCreationContext.getCreatedCnecsIds().get(Instant.CURATIVE);
         }
 
         // A52 (CNEC)
         if (cneHelper.getCrac().getFlowCnec(outageBranchCnecId).isOptimized()) {
             constraintSeries.addAll(
-                createConstraintSeriesOfCnec(branchCnecCreationContext, outageBranchCnecId, curativeBranchCnecId, false, cneHelper)
+                createConstraintSeriesOfCnec(monitoredSeriesCreationContext, outageBranchCnecId, curativeBranchCnecId, false, cneHelper)
             );
         } else if (cneHelper.getCrac().getFlowCnec(outageBranchCnecId).isMonitored()) {
             // A49 (MNEC)
             // TODO : remove 'else' when we go back to exporting CNEC+MNEC branches as both a CNEC and a MNEC
             constraintSeries.addAll(
-                createConstraintSeriesOfCnec(branchCnecCreationContext, outageBranchCnecId, curativeBranchCnecId, true, cneHelper)
+                createConstraintSeriesOfCnec(monitoredSeriesCreationContext, outageBranchCnecId, curativeBranchCnecId, true, cneHelper)
             );
         }
         return constraintSeries;

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 /**
  * Constants used in the CNE file
@@ -19,7 +19,7 @@ public final class SweCneConstants {
     public static final String UNHANDLED_UNIT = "Unhandled unit %s";
 
     /* General */
-    public static final String CNE_XSD_2_4 = "iec62325-451-n-cne_v2_4_FlowBased_v04.xsd";
+    public static final String CNE_XSD_2_5 = "iec62325-451-n-cne_v2_5.xsd";
     public static final String LOCALTYPES_XSD = "urn-entsoe-eu-local-extension-types.xsd";
     public static final String CODELISTS_XSD = "urn-entsoe-eu-wgedi-codelists.xsd";
     public static final String CNE_TAG = "CriticalNetworkElement_MarketDocument";
@@ -29,8 +29,20 @@ public final class SweCneConstants {
     public static final String A02_CODING_SCHEME = "A02";
 
     /* CriticalNetworkElement_MarketDocument */
+    // revision number
+    public static final String REVISION_NUMBER_1 = "1";
     // type
     public static final String CNE_TYPE = "B06";
+    // process type
+    public static final String Z01_PROCESS_TYPE = "Z01";
+    // rte EIC (sender mrid)
+    public static final String RTE_EIC = "10XFR-RTE------Q";
+    // sender role
+    public static final String AO4_SENDER_ROLE = "A04";
+    // coreso EIC (receiver mrid)
+    public static final String CORESO_EIC = "22XCORESO------S";
+    // receiver role
+    public static final String A36_RECEIVER_ROLE = "A36";
 
     /* TimeSeries */
     // businessType

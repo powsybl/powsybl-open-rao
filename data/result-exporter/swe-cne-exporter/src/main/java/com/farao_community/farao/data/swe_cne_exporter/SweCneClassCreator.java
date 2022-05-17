@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.core_cne_exporter.xsd.*;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -18,8 +18,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.core_cne_exporter.SweCneConstants.*;
-import static com.farao_community.farao.data.core_cne_exporter.SweCneUtil.*;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneConstants.*;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneUtil.*;
 
 /**
  * Creates the classes that constitute the CNE file structure

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter.xml_formatter;
+package com.farao_community.farao.data.swe_cne_exporter.xml_formatter;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

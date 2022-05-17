@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -34,8 +34,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.core_cne_exporter.SweCneConstants.*;
-
 /**
  * Xml export of the CNE file
  *
@@ -45,7 +43,7 @@ import static com.farao_community.farao.data.core_cne_exporter.SweCneConstants.*
 public class SweCneExporter {
 
     public void exportCne(Crac crac, Network network,
-                          StandardCracCreationContext cracCreationContext,
+                          CimCracCreationContext cracCreationContext,
                           RaoResult raoResult, RaoParameters raoParameters,
                           SweCneExporterParameters exporterParameters, OutputStream outputStream) {
         SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
@@ -59,14 +57,14 @@ public class SweCneExporter {
 
             // format the XML output
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, CNE_XSD_2_4);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, SweCneConstants.CNE_XSD_2_5);
 
-            QName qName = new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, CNE_TAG);
+            QName qName = new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, SweCneConstants.CNE_TAG);
             JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName, CriticalNetworkElementMarketDocument.class, marketDocument);
 
             jaxbMarshaller.marshal(root, stringWriter);
 
-            String result = stringWriter.toString().replace("xsi:" + CNE_TAG, CNE_TAG);
+            String result = stringWriter.toString().replace("xsi:" + SweCneConstants.CNE_TAG, SweCneConstants.CNE_TAG);
 
             if (!validateCNESchema(result)) {
                 FaraoLoggerProvider.TECHNICAL_LOGS.warn("CNE output doesn't fit the xsd.");
@@ -89,9 +87,9 @@ public class SweCneExporter {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 
-            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_4)),
-                               new StreamSource(getSchemaFile(CODELISTS_XSD)),
-                               new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
+            Source[] source = {new StreamSource(getSchemaFile(SweCneConstants.CNE_XSD_2_5)),
+                               new StreamSource(getSchemaFile(SweCneConstants.CODELISTS_XSD)),
+                               new StreamSource(getSchemaFile(SweCneConstants.LOCALTYPES_XSD))};
             Schema schema = factory.newSchema(source);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 

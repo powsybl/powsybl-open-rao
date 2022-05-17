@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.core_cne_exporter.xsd.AreaIDString;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ESMPDateTimeInterval;
-import com.farao_community.farao.data.core_cne_exporter.xsd.PartyIDString;
-import com.farao_community.farao.data.core_cne_exporter.xsd.ResourceIDString;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.AreaIDString;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.PartyIDString;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.ResourceIDString;
 import org.threeten.extra.Interval;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -43,7 +43,7 @@ public final class SweCneUtil {
     }
 
     // Creation of time interval
-    public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
+    public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime timeStart, OffsetDateTime timeEnd) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
 
         ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();

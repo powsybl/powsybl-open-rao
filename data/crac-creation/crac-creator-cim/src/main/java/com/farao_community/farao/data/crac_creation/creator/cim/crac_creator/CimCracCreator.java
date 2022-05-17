@@ -43,7 +43,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
         this.network = network;
         this.cimTimeSeries = cimCrac.getCracDocument().getTimeSeries();
-        this.creationContext = new CimCracCreationContext(crac);
+        this.creationContext = new CimCracCreationContext(crac, offsetDateTime);
 
         // Get warning messages from parameters parsing
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);

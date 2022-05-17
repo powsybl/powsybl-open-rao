@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.core_cne_exporter.xsd.*;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneCnecsCreatorTest {
+public class SweCneCnecsCreatorTest {
 
     private Crac crac;
     private Network network;
