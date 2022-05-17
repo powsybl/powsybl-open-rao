@@ -17,6 +17,7 @@
 
     <modules>
         <module>core-cne-exporter</module>
+        <module>swe-cne-exporter</module>
     </modules>
 
 </project>

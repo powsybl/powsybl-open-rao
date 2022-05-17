@@ -16,10 +16,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-core-cne-exporter</artifactId>
+    <artifactId>farao-swe-cne-exporter</artifactId>
     <packaging>jar</packaging>
-    <name>CORE CNE exporter</name>
-    <description>Export the results of a RAO in a CNE file for the CORE region</description>
+    <name>SWE CNE exporter</name>
+    <description>Export the results of a RAO in a CNE file for the SWE region</description>
 
     <build>
         <plugins>
