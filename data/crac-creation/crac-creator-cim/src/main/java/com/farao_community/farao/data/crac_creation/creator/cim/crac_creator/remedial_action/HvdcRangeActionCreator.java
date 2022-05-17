@@ -367,8 +367,8 @@ public class HvdcRangeActionCreator {
             hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line"));
             return Pair.of(List.of(false, false), List.of(0, 0));
         }
-        String from = hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus().getId();
-        String to = hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus().getId();
+        String from = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId();
+        String to = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId();
 
         if (Objects.isNull(inNode) || Objects.isNull(outNode)) {
             hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCOMPLETE_DATA, "Missing HVDC in or out aggregate nodes"));
