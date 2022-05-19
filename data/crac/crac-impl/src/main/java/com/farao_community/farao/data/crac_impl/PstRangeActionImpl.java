@@ -38,8 +38,8 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int highTapPosition;
 
     PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap) {
-        super(id, name, operator, usageRules, groupId);
+                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
+        super(id, name, operator, usageRules, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
         this.initialTapPosition = initialTap;

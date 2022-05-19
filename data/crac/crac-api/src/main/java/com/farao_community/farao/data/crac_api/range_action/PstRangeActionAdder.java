@@ -24,6 +24,8 @@ public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionA
 
     PstRangeActionAdder withGroupId(String groupId);
 
+    PstRangeActionAdder withSpeed(Integer speed);
+
     PstRangeActionAdder withInitialTap(int initialTap);
 
     PstRangeActionAdder withTapToAngleConversionMap(Map<Integer, Double> tapToAngleConversionMap);

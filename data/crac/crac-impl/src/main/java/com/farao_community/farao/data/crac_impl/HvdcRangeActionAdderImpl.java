@@ -53,6 +53,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     @Override
     public HvdcRangeAction add() {
         checkId();
+        checkAutoUsageRules();
         assertAttributeNotNull(networkElementId, "HvdcRangeAction", "network element", "withNetworkElement()");
         assertAttributeNotEmpty(ranges, "HvdcRangeAction", "range", "newRange()");
 
@@ -65,7 +66,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed);
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
     }
