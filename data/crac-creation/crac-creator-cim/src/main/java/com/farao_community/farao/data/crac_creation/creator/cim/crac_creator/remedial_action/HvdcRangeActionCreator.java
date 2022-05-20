@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
@@ -35,14 +36,16 @@ public class HvdcRangeActionCreator {
     private final List<RemedialActionSeries> storedHvdcRangeActions;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
+    private Set<FlowCnec> flowCnecs;
 
-    public HvdcRangeActionCreator(String cimSerieId, Crac crac, Network network, List<RemedialActionSeries> storedHvdcRangeActions, List<Contingency> contingencies, List<String> invalidContingencies) {
+    public HvdcRangeActionCreator(String cimSerieId, Crac crac, Network network, List<RemedialActionSeries> storedHvdcRangeActions, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs) {
         this.cimSerieId = cimSerieId;
         this.crac = crac;
         this.network = network;
         this.storedHvdcRangeActions = storedHvdcRangeActions;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
+        this.flowCnecs = flowCnecs;
     }
 
     public Set<RemedialActionSeriesCreationContext> createAndAddHvdcRemedialActionSeries() {
@@ -69,11 +72,11 @@ public class HvdcRangeActionCreator {
         for (RemedialActionRegisteredResource registeredResource : hvdcRangeActionDirection1.getRegisteredResource()) {
             List<Boolean> registeredResourceStatus = checkRegisteredResource(registeredResource);
             // registered resource is ill defined
-            if (!registeredResourceStatus.get(0)) {
+            if (Boolean.FALSE.equals(registeredResourceStatus.get(0))) {
                 return hvdcRemedialActionSeriesCreationContexts;
             }
             // Ignore PMode registered resource
-            if (registeredResourceStatus.get(1)) {
+            if (Boolean.TRUE.equals(registeredResourceStatus.get(1))) {
                 continue;
             }
 
@@ -83,7 +86,7 @@ public class HvdcRangeActionCreator {
                 hvdcRangeActionDirection1Id1 = registeredResource.getMRID().getValue();
                 Pair<List<Boolean>, List<Integer>> hvdcRegisteredResource1Status = readHvdcRegisteredResource(hvdcRangeActionAdder1, registeredResource);
                 // hvdc registered resource is ill defined :
-                if (!hvdcRegisteredResource1Status.getLeft().get(0)) {
+                if (Boolean.FALSE.equals(hvdcRegisteredResource1Status.getLeft().get(0))) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
                 isDirection1Inverted = hvdcRegisteredResource1Status.getLeft().get(1);
@@ -102,10 +105,10 @@ public class HvdcRangeActionCreator {
                 }
                 Pair<List<Boolean>, List<Integer>> hvdcRegisteredResource2Status = readHvdcRegisteredResource(hvdcRangeActionAdder2, registeredResource);
                 // hvdc registered resource is ill defined :
-                if (!hvdcRegisteredResource2Status.getLeft().get(0)) {
+                if (Boolean.FALSE.equals(hvdcRegisteredResource2Status.getLeft().get(0))) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                if (hvdcRegisteredResource2Status.getLeft().get(1) != isDirection1Inverted) {
+                if (Boolean.valueOf(!isDirection1Inverted).equals(hvdcRegisteredResource2Status.getLeft().get(1))) {
                     hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions"));
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
@@ -130,11 +133,11 @@ public class HvdcRangeActionCreator {
         for (RemedialActionRegisteredResource registeredResource : hvdcRangeActionDirection2.getRegisteredResource()) {
             List<Boolean> registeredResourceStatus = checkRegisteredResource(registeredResource);
             // registered resource is ill defined
-            if (!registeredResourceStatus.get(0)) {
+            if (Boolean.FALSE.equals(registeredResourceStatus.get(0))) {
                 return hvdcRemedialActionSeriesCreationContexts;
             }
             // Ignore PMode registered resource
-            if (registeredResourceStatus.get(1)) {
+            if (Boolean.TRUE.equals(registeredResourceStatus.get(1))) {
                 continue;
             }
 
@@ -147,10 +150,10 @@ public class HvdcRangeActionCreator {
                         registeredResource.getInAggregateNodeMRID().getValue(),
                         registeredResource.getOutAggregateNodeMRID().getValue());
                 // hvdc range is ill defined :
-                if (!hvdcRange1Direction2.getLeft().get(0)) {
+                if (Boolean.FALSE.equals(hvdcRange1Direction2.getLeft().get(0))) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                if (hvdcRange1Direction2.getLeft().get(1) == isDirection1Inverted) {
+                if (Boolean.valueOf(isDirection1Inverted).equals(hvdcRange1Direction2.getLeft().get(1))) {
                     hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC line should be defined in the opposite direction"));
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
@@ -171,10 +174,10 @@ public class HvdcRangeActionCreator {
                         registeredResource.getInAggregateNodeMRID().getValue(),
                         registeredResource.getOutAggregateNodeMRID().getValue());
                 // hvdc range is ill defined :
-                if (!hvdcRange2Direction2.getLeft().get(0)) {
+                if (Boolean.FALSE.equals(hvdcRange2Direction2.getLeft().get(0))) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
-                if (hvdcRange2Direction2.getLeft().get(1) == isDirection1Inverted) {
+                if (Boolean.valueOf(isDirection1Inverted).equals(hvdcRange2Direction2.getLeft().get(1))) {
                     hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerieId, ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions"));
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
@@ -196,7 +199,7 @@ public class HvdcRangeActionCreator {
                     direction1minRange1, direction2minRange1,
                     direction1maxRange1, direction2maxRange1);
             // concatenated Hvdc range is ill defined :
-            if (!concatenatedHvdc1Range.getLeft()) {
+            if (Boolean.FALSE.equals(concatenatedHvdc1Range.getLeft())) {
                 return hvdcRemedialActionSeriesCreationContexts;
             }
             hvdc1minRange = concatenatedHvdc1Range.getRight().get(0);
@@ -209,7 +212,7 @@ public class HvdcRangeActionCreator {
                         direction1minRange2, direction2minRange2,
                         direction1maxRange2, direction2maxRange2);
                 // concatenated Hvdc range is ill defined :
-                if (!concatenatedHvdc2Range.getLeft()) {
+                if (Boolean.FALSE.equals(concatenatedHvdc2Range.getLeft())) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
                 hvdc2minRange = concatenatedHvdc2Range.getRight().get(0);
@@ -223,7 +226,7 @@ public class HvdcRangeActionCreator {
                     direction1minRange2, direction2minRange1,
                     direction1maxRange2, direction2maxRange1);
             // concatenated Hvdc range is ill defined :
-            if (!concatenatedHvdcRange.getLeft()) {
+            if (Boolean.FALSE.equals(concatenatedHvdcRange.getLeft())) {
                 return hvdcRemedialActionSeriesCreationContexts;
             }
             hvdc2minRange = concatenatedHvdcRange.getRight().get(0);
@@ -236,7 +239,7 @@ public class HvdcRangeActionCreator {
                         direction1minRange1, direction2minRange2,
                         direction1maxRange1, direction2maxRange2);
                 // concatenated Hvdc range is ill defined :
-                if (!concatenatedHvdc1Range.getLeft()) {
+                if (Boolean.FALSE.equals(concatenatedHvdc1Range.getLeft())) {
                     return hvdcRemedialActionSeriesCreationContexts;
                 }
                 hvdc1minRange = concatenatedHvdc1Range.getRight().get(0);
@@ -289,7 +292,7 @@ public class HvdcRangeActionCreator {
         hvdcRangeActionAdder.withNetworkElement(hvdcId);
 
         // Usage rules
-        if (!RemedialActionSeriesCreator.addUsageRules(hvdcId, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, hvdcRemedialActionSeriesCreationContexts)) {
+        if (!RemedialActionSeriesCreator.addUsageRules(hvdcId, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, hvdcRemedialActionSeriesCreationContexts)) {
             return Pair.of(List.of(false, false), List.of(0, 0));
         }
 

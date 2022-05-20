@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -42,8 +43,9 @@ public class NetworkActionCreator {
     private Set<RemedialActionSeriesCreationContext> networkActionCreationContexts;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
+    private Set<FlowCnec> flowCnecs;
 
-    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies) {
+    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs) {
         this.crac = crac;
         this.network = network;
         this.createdRemedialActionId = createdRemedialActionId;
@@ -52,6 +54,7 @@ public class NetworkActionCreator {
         this.networkActionRegisteredResources = networkActionRegisteredResources;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
+        this.flowCnecs = flowCnecs;
     }
 
     public Set<RemedialActionSeriesCreationContext> addRemedialActionNetworkAction() {
@@ -60,7 +63,7 @@ public class NetworkActionCreator {
                 .withId(createdRemedialActionId)
                 .withName(createdRemedialActionName);
 
-        if (!RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, networkActionCreationContexts)) {
+        if (!RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, networkActionCreationContexts)) {
             return networkActionCreationContexts;
         }
 

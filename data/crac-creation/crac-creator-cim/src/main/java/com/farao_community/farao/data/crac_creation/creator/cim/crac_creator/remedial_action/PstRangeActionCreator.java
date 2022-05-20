@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
@@ -41,8 +42,9 @@ public class PstRangeActionCreator {
     private final RemedialActionRegisteredResource pstRegisteredResource;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
+    private Set<FlowCnec> flowCnecs;
 
-    public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies) {
+    public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs) {
         this.crac = crac;
         this.network = network;
         this.createdRemedialActionId = createdRemedialActionId;
@@ -51,6 +53,7 @@ public class PstRangeActionCreator {
         this.pstRegisteredResource = pstRegisteredResource;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
+        this.flowCnecs = flowCnecs;
     }
 
     public Set<RemedialActionSeriesCreationContext> addPstRangeAction(CimCracCreationParameters cimCracCreationParameters, CracCreationContext cracCreationContext) {
@@ -111,7 +114,7 @@ public class PstRangeActionCreator {
             return pstRangeActionCreationContexts;
         }
 
-        if (!RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, pstRangeActionCreationContexts)) {
+        if (!RemedialActionSeriesCreator.addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, pstRangeActionCreationContexts)) {
             return pstRangeActionCreationContexts;
         }
 
