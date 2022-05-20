@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionSeries;
 import com.powsybl.iidm.network.HvdcLine;
@@ -45,7 +47,7 @@ public class HvdcRangeActionCreator {
         this.invalidContingencies = invalidContingencies;
     }
 
-    public Set<RemedialActionSeriesCreationContext> createAndAddHvdcRemedialActionSeries() {
+    public Set<RemedialActionSeriesCreationContext> createAndAddHvdcRemedialActionSeries(CimCracCreationParameters cimCracCreationParameters) {
         this.hvdcRemedialActionSeriesCreationContexts = new HashSet<>();
         if (!checkHvdcRangeActionValidity()) {
             return hvdcRemedialActionSeriesCreationContexts;
@@ -260,6 +262,18 @@ public class HvdcRangeActionCreator {
         Set<String> createdIds = Set.of(hvdc1Id, hvdc2Id);
         hvdcRangeActionAdder1.withId(hvdc1Id).withName(hvdc1Id);
         hvdcRangeActionAdder2.withId(hvdc2Id).withName(hvdc2Id);
+        // Speed
+        // -- add speed if present
+        if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {
+            for (RangeActionSpeed rangeActionSpeed : cimCracCreationParameters.getRangeActionSpeedSet()) {
+                if (rangeActionSpeed.getRangeActionId().equals(hvdc1Id)) {
+                    hvdcRangeActionAdder1.withSpeed(rangeActionSpeed.getSpeed());
+                }
+                if (rangeActionSpeed.getRangeActionId().equals(hvdc2Id)) {
+                    hvdcRangeActionAdder2.withSpeed(rangeActionSpeed.getSpeed());
+                }
+            }
+        }
 
         if (invalidContingencies.isEmpty()) {
             hvdcRemedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.importedHvdcRa(hvdcRangeActionDirection1.getMRID(), createdIds, false, isDirection1Inverted, ""));

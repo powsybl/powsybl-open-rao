@@ -73,7 +73,7 @@ public class RemedialActionSeriesCreator {
                                 Set<RemedialActionSeriesCreationContext> hvdcRemedialActionSeriesCreationContexts = new HvdcRangeActionCreator(
                                         cimSerie.getMRID(),
                                         crac, network, storedHvdcRangeActions,
-                                        contingencies, invalidContingencies).createAndAddHvdcRemedialActionSeries();
+                                        contingencies, invalidContingencies).createAndAddHvdcRemedialActionSeries(cimCracCreationParameters);
                                 remedialActionSeriesCreationContexts.addAll(hvdcRemedialActionSeriesCreationContexts);
                             }
                         }

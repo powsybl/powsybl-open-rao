@@ -58,8 +58,42 @@ public class JsonCimCracCreationParametersTest {
         assertEquals("hvdc1 + hvdc2", cimCracCreationParameters.getRangeActionGroupsAsString().get(1));
     }
 
+    @Test
+    public void importOkTest2() {
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok2.json"));
+
+        CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
+        assertNotNull(cimCracCreationParameters);
+
+        assertEquals(2, cimCracCreationParameters.getRangeActionSpeedSet().size());
+        assert cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().equals(1);
+        assert cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getSpeed().equals(2);
+        assertEquals(cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getRangeActionId(), "rangeAction1");
+        assertEquals(cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getRangeActionId(), "rangeAction2");
+    }
+
     @Test (expected = FaraoException.class)
     public void importNokTest() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importNokTest2() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok2.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importNokTest3() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok3.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importNokTest4() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok4.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importNokTest5() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok5.json"));
     }
 }
