@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -18,6 +19,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
@@ -269,19 +271,42 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportHvdcRangeActions() {
-        setUpForHvdc("/cracs/CIM_21_6_1.xml", null);
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        Set<RangeActionSpeed> rangeActionSpeeds = new HashSet<>();
+        rangeActionSpeeds.add(new RangeActionSpeed("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", 1));
+        rangeActionSpeeds.add(new RangeActionSpeed("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1", 2));
+        Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
+        InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_6_1.xml");
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCracCreator cimCracCreator = new CimCracCreator();
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, hvdcNetwork, null, cracCreationParameters);
+        importedCrac = cracCreationContext.getCrac();
+
         assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-3", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-4", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-5", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-6", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-7", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC-direction71", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-8", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("RA-Series-9", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-10", INCONSISTENCY_IN_DATA);
         assertHvdcRangeActionImported("HVDC-direction11", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), true);
         assertHvdcRangeActionImported("HVDC-direction12", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), false);
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testImportKOHvdcRangeActions() {
+        InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_6_2.xml");
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCracCreator cimCracCreator = new CimCracCreator();
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, hvdcNetwork, null, new CracCreationParameters());
+        importedCrac = cracCreationContext.getCrac();
     }
 
     @Test
