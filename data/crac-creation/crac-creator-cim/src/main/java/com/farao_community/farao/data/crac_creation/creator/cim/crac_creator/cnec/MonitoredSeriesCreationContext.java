@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
  */
 public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesId;
-    private String inZoneId;
-    private String outZoneId;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
     private final Set<MeasurementCreationContext> measurementCreationContexts;
@@ -28,14 +26,10 @@ public final class MonitoredSeriesCreationContext {
 
     private MonitoredSeriesCreationContext(
         String monitoredSeriesId,
-        String inZoneId,
-        String outZoneId,
         ImportStatus importStatus,
         boolean isAltered,
         String importStatusDetail) {
         this.monitoredSeriesId = monitoredSeriesId;
-        this.inZoneId = inZoneId;
-        this.outZoneId = outZoneId;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         measurementCreationContexts = new LinkedHashSet<>();
@@ -43,23 +37,15 @@ public final class MonitoredSeriesCreationContext {
     }
 
     static MonitoredSeriesCreationContext notImported(String monitoredSeriesId, ImportStatus importStatus, String importStatusDetail) {
-        return new MonitoredSeriesCreationContext(monitoredSeriesId, null, null, importStatus, false, importStatusDetail);
+        return new MonitoredSeriesCreationContext(monitoredSeriesId, importStatus, false, importStatusDetail);
     }
 
-    static MonitoredSeriesCreationContext imported(String monitoredSeriesId, String inZoneId, String outZoneId, boolean isAltered, String importStatusDetail) {
-        return new MonitoredSeriesCreationContext(monitoredSeriesId, inZoneId, outZoneId, ImportStatus.IMPORTED, isAltered, importStatusDetail);
+    static MonitoredSeriesCreationContext imported(String monitoredSeriesId, boolean isAltered, String importStatusDetail) {
+        return new MonitoredSeriesCreationContext(monitoredSeriesId, ImportStatus.IMPORTED, isAltered, importStatusDetail);
     }
 
     public String getNativeId() {
         return monitoredSeriesId;
-    }
-
-    public String getInZoneId() {
-        return inZoneId;
-    }
-
-    public String getOutZoneId() {
-        return outZoneId;
     }
 
     public boolean isImported() {

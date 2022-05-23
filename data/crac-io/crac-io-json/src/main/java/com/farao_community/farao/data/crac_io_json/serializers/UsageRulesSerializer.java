@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
@@ -31,6 +28,7 @@ public final class UsageRulesSerializer {
         serializeUsageRules(remedialAction, FreeToUse.class, FREE_TO_USE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnState.class, ON_STATE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnFlowConstraint.class, ON_FLOW_CONSTRAINT_USAGE_RULES, gen);
+        serializeUsageRules(remedialAction, OnFlowConstraintInCountry.class, ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES, gen);
     }
 
     private static void serializeUsageRules(RemedialAction<?> remedialAction, Class<? extends UsageRule> usageRuleType, String arrayName, JsonGenerator gen) throws IOException {

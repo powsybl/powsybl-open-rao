@@ -123,10 +123,10 @@ public class MonitoredSeriesCreator {
 
         MonitoredSeriesCreationContext monitoredSeriesCreationContext;
         if (invalidContingencies.isEmpty()) {
-            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, monitoredRegisteredResource.getInDomainMRID().getValue(), monitoredRegisteredResource.getOutDomainMRID().getValue(), false, "");
+            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, monitoredRegisteredResource.getInDomainMRID().getValue(), monitoredRegisteredResource.getOutDomainMRID().getValue(), true, String.format("Contingencies %s not defined in B55s", contingencyList));
+            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, true, String.format("Contingencies %s not defined in B55s", contingencyList));
         }
         monitoredSeriesCreationContexts.put(nativeId, monitoredSeriesCreationContext);
 

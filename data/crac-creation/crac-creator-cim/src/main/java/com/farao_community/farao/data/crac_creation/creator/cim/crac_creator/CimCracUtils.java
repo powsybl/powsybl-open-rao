@@ -44,14 +44,4 @@ public final class CimCracUtils {
         return mscc.getCreatedCnecIds().stream().map(cnecId -> cracCreationContext.getCrac().getFlowCnec(cnecId)).collect(Collectors.toSet());
     }
 
-    public static Set<FlowCnec> getFlowCnecsFromCrac(String zoneId, CimCracCreationContext cracCreationContext) {
-        Objects.requireNonNull(zoneId);
-        return cracCreationContext.getMonitoredSeriesCreationContexts().values().stream()
-            .filter(mscc -> zoneId.equals(mscc.getInZoneId()) || zoneId.equals(mscc.getOutZoneId()))
-            .map(MonitoredSeriesCreationContext::getCreatedCnecIds)
-            .flatMap(Set::stream)
-            .map(cnecId -> cracCreationContext.getCrac().getFlowCnec(cnecId))
-            .collect(Collectors.toSet());
-    }
-
 }

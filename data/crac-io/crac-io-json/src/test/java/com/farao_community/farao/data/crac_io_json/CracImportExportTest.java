@@ -18,16 +18,15 @@ import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
+import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
-import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
 import static junit.framework.TestCase.assertEquals;
@@ -276,5 +275,20 @@ public class CracImportExportTest {
         assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
+
+        // Test OnFlowConstraintInCountry usage rules
+        List<UsageRule> usageRules = crac.getRemedialAction("hvdcRange1Id").getUsageRules();
+        assertEquals(1, usageRules.size());
+        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
+        OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        assertEquals(PREVENTIVE, ur.getInstant());
+        assertEquals(Country.FR, ur.getCountry());
+
+        usageRules = crac.getRemedialAction("injectionRange1Id").getUsageRules();
+        assertEquals(1, usageRules.size());
+        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
+        ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        assertEquals(CURATIVE, ur.getInstant());
+        assertEquals(Country.ES, ur.getCountry());
     }
 }

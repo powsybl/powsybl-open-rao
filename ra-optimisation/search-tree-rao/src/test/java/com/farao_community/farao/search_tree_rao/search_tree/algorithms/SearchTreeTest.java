@@ -411,7 +411,7 @@ public class SearchTreeTest {
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network));
 
         NetworkAction na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
@@ -421,20 +421,20 @@ public class SearchTreeTest {
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
         assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
         assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
 
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
-        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network));
         assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
     }
 
     @Test
@@ -488,7 +488,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogsDontVerbose() throws Exception {
+    public void testLogsDontVerbose() {
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
         raoWithoutLoopFlowLimitation();
 
