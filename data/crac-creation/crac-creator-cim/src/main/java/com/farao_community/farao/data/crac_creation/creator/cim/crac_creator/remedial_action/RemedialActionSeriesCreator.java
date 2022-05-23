@@ -98,8 +98,9 @@ public class RemedialActionSeriesCreator {
                 flowCnecs.addAll(flowCnecsForMs);
             }
             // Read and create RAs
+            boolean shouldReadSharedDomain = cimSerie.getContingencySeries().isEmpty() && cimSerie.getMonitoredSeries().isEmpty();
             for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                readAndAddRemedialAction(cimSerie.getMRID(), remedialActionSeries);
+                readAndAddRemedialAction(cimSerie.getMRID(), remedialActionSeries, shouldReadSharedDomain);
             }
             // Hvdc remedial action series are defined in the same Series
             // Add HVDC range actions.
@@ -136,7 +137,7 @@ public class RemedialActionSeriesCreator {
     }
 
     // For now, only free-to-use remedial actions are handled.
-    private void readAndAddRemedialAction(String cimSerieId, RemedialActionSeries remedialActionSeries) {
+    private void readAndAddRemedialAction(String cimSerieId, RemedialActionSeries remedialActionSeries, boolean shouldReadSharedDomain) {
         String createdRemedialActionId = remedialActionSeries.getMRID();
 
         // --- BusinessType
@@ -159,7 +160,7 @@ public class RemedialActionSeriesCreator {
 
         // --- Shared domain
         sharedDomain = null;
-        if (!remedialActionSeries.getSharedDomain().isEmpty() && (contingencies == null || contingencies.isEmpty()) && flowCnecs.isEmpty()) {
+        if (shouldReadSharedDomain && !remedialActionSeries.getSharedDomain().isEmpty()) {
             if (remedialActionSeries.getSharedDomain().size() > 1) {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "RemedialActionSeries with multiple SharedDomain are not supported"));
                 return;
