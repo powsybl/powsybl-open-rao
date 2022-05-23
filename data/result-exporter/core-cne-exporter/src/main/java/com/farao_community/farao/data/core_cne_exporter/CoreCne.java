@@ -8,6 +8,9 @@
 package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
+import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.core_cne_exporter.xsd.Point;
@@ -24,9 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.core_cne_exporter.CneClassCreator.*;
-import static com.farao_community.farao.data.core_cne_exporter.CneConstants.*;
-import static com.farao_community.farao.data.core_cne_exporter.CneUtil.*;
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
+import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.createXMLGregorianCalendarNow;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.*;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
 
 /**
  * Fills the classes that constitute the CNE file structure
@@ -34,11 +38,11 @@ import static com.farao_community.farao.data.core_cne_exporter.CneUtil.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class Cne {
+public class CoreCne {
     private CriticalNetworkElementMarketDocument marketDocument;
     private CneHelper cneHelper;
 
-    public Cne(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CoreCneExporterParameters exporterParameters) {
+    public CoreCne(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
         cneHelper = new CneHelper(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
     }
@@ -54,11 +58,11 @@ public class Cne {
 
         // this will crash if cneHelper.getCracCreationContext().getTimeStamp() is null
         // the usage of a timestamp in FbConstraintCracCreator is mandatory so it shouldn't be an issue
-        if (Objects.isNull(cneHelper.getCracCreationContext().getTimeStamp())) {
+        if (Objects.isNull(cneHelper.getStandardCracCreationContext().getTimeStamp())) {
             throw new FaraoException("Cannot export CNE file if the CRAC has no timestamp");
         }
 
-        OffsetDateTime offsetDateTime = cneHelper.getCracCreationContext().getTimeStamp().withMinute(0);
+        OffsetDateTime offsetDateTime = cneHelper.getStandardCracCreationContext().getTimeStamp().withMinute(0);
         fillHeader();
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
@@ -95,8 +99,8 @@ public class Cne {
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        constraintSeriesList.addAll(new CneCnecsCreator(cneHelper).generate());
-        constraintSeriesList.addAll(new CneRemedialActionsCreator(cneHelper, constraintSeriesList).generate());
+        constraintSeriesList.addAll(new CoreCneCnecsCreator(cneHelper).generate());
+        constraintSeriesList.addAll(new CoreCneRemedialActionsCreator(cneHelper, constraintSeriesList).generate());
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 }

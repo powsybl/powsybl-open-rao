@@ -10,6 +10,7 @@ package com.farao_community.farao.data.core_cne_exporter;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.core_cne_exporter.xsd.Analog;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ContingencySeries;
@@ -19,14 +20,15 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.core_cne_exporter.CneClassCreator.*;
-import static com.farao_community.farao.data.core_cne_exporter.CneConstants.*;
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
+import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreator.*;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series
@@ -34,21 +36,21 @@ import static com.farao_community.farao.data.core_cne_exporter.CneConstants.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public final class CneCnecsCreator {
+public final class CoreCneCnecsCreator {
 
     private CneHelper cneHelper;
 
-    public CneCnecsCreator(CneHelper cneHelper) {
+    public CoreCneCnecsCreator(CneHelper cneHelper) {
         this.cneHelper = cneHelper;
     }
 
-    private CneCnecsCreator() {
+    private CoreCneCnecsCreator() {
 
     }
 
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
-        List<BranchCnecCreationContext> sortedCnecs = cneHelper.getCracCreationContext().getBranchCnecCreationContexts().stream()
+        List<BranchCnecCreationContext> sortedCnecs = cneHelper.getStandardCracCreationContext().getBranchCnecCreationContexts().stream()
             .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId)).collect(Collectors.toList());
         for (BranchCnecCreationContext cnec : sortedCnecs) {
             constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper));

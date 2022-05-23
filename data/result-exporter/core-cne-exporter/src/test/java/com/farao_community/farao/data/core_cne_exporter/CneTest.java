@@ -54,7 +54,7 @@ public class CneTest {
         exporterParameters = new CoreCneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CoreCneExporterParameters.ProcessType.DAY_AHEAD_CC,
             "22XCORESO------S", CoreCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CoreCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00:00Z/2021-10-31T23:00:00Z");
-        Cne cne = new Cne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+        CoreCne cne = new CoreCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         assertEquals("22XCORESO------S-20211115-F299v1", marketDocument.getMRID());

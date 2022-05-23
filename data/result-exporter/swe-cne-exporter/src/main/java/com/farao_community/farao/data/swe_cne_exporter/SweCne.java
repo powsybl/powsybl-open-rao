@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.ConstraintSeries;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
@@ -38,11 +39,11 @@ import static com.farao_community.farao.data.swe_cne_exporter.SweCneUtil.*;
  */
 public class SweCne {
     private CriticalNetworkElementMarketDocument marketDocument;
-    private SweCneHelper cneHelper;
+    private CneHelper cneHelper;
 
     public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, SweCneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new SweCneHelper(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+        cneHelper = new CneHelper(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
     }
 
     public CriticalNetworkElementMarketDocument getMarketDocument() {

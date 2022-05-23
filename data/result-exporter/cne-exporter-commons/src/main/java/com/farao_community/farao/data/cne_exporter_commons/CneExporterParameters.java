@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.swe_cne_exporter;
+package com.farao_community.farao.data.cne_exporter_commons;
 
 /**
  * Parameters for CNE export
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SweCneExporterParameters {
+public class CneExporterParameters {
     private String documentId;
     private int revisionNumber;
     private String domainId;
@@ -60,7 +60,7 @@ public class SweCneExporterParameters {
         }
     }
 
-    public SweCneExporterParameters(String documentId, int revisionNumber, String domainId, ProcessType processType, String senderId, RoleType senderRole, String receiverId, RoleType receiverRole, String timeInterval) {
+    public CneExporterParameters(String documentId, int revisionNumber, String domainId, ProcessType processType, String senderId, RoleType senderRole, String receiverId, RoleType receiverRole, String timeInterval) {
         this.documentId = documentId;
         this.revisionNumber = revisionNumber;
         this.domainId = domainId;

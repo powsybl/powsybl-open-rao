@@ -16,10 +16,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-core-cne-exporter</artifactId>
+    <artifactId>farao-cne-exporter-commons</artifactId>
     <packaging>jar</packaging>
-    <name>CORE CNE exporter</name>
-    <description>Export the results of a RAO in a CNE file for the CORE region</description>
+    <name>CNE exporter commons</name>
+    <description>Contains classes useful to all CNE exporters</description>
 
     <build>
         <plugins>
@@ -132,12 +132,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.farao-community.farao</groupId>
-            <artifactId>farao-cne-exporter-commons</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

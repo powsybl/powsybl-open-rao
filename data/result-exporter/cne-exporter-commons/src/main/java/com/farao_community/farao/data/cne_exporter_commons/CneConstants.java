@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.cne_exporter_commons;
 
 /**
  * Constants used in the CNE file

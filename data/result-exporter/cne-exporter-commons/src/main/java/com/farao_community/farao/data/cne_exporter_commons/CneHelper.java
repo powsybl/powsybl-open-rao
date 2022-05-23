@@ -5,17 +5,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.core_cne_exporter;
+package com.farao_community.farao.data.cne_exporter_commons;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
-import static com.farao_community.farao.data.core_cne_exporter.CneConstants.PATL_MEASUREMENT_TYPE;
-import static com.farao_community.farao.data.core_cne_exporter.CneConstants.TATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.PATL_MEASUREMENT_TYPE;
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.TATL_MEASUREMENT_TYPE;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -25,14 +27,14 @@ public class CneHelper {
 
     private Crac crac;
     private Network network;
-    private StandardCracCreationContext cracCreationContext;
+    private CracCreationContext cracCreationContext;
     private boolean relativePositiveMargins;
     private boolean withLoopflows;
     private RaoResult raoResult;
-    private CoreCneExporterParameters exporterParameters;
+    private CneExporterParameters exporterParameters;
     private double mnecAcceptableMarginDiminution;
 
-    public CneHelper(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CoreCneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, Network network, CracCreationContext CreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
@@ -64,8 +66,16 @@ public class CneHelper {
         return crac;
     }
 
-    public StandardCracCreationContext getCracCreationContext() {
+    public CracCreationContext getCracCreationContext() {
         return cracCreationContext;
+    }
+
+    public StandardCracCreationContext getStandardCracCreationContext() {
+        if (cracCreationContext instanceof StandardCracCreationContext) {
+            return (StandardCracCreationContext) cracCreationContext;
+        } else {
+            throw new FaraoException("Expected a StandardCracCreationContext.");
+        }
     }
 
     public String instantToCodeConverter(Instant instant) {
@@ -76,7 +86,7 @@ public class CneHelper {
         }
     }
 
-    public CoreCneExporterParameters getExporterParameters() {
+    public CneExporterParameters getExporterParameters() {
         return exporterParameters;
     }
 
