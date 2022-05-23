@@ -20,6 +20,7 @@ public final class CneConstants {
 
     /* General */
     public static final String CNE_XSD_2_4 = "iec62325-451-n-cne_v2_4_FlowBased_v04.xsd";
+    public static final String CNE_XSD_2_5 = "iec62325-451-n-cne_v2_5.xsd";
     public static final String LOCALTYPES_XSD = "urn-entsoe-eu-local-extension-types.xsd";
     public static final String CODELISTS_XSD = "urn-entsoe-eu-wgedi-codelists.xsd";
     public static final String CNE_TAG = "CriticalNetworkElement_MarketDocument";

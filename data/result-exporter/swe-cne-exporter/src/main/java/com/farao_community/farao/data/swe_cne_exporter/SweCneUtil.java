@@ -39,13 +39,14 @@ public final class SweCneUtil {
     }
 
     // Creation of time interval
-    public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime timeStart, OffsetDateTime timeEnd) {
+    public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
 
         ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
 
-        timeInterval.setStart(dateFormat.format(timeStart.withOffsetSameInstant(ZoneOffset.UTC)));
-        timeInterval.setEnd(dateFormat.format(timeEnd.withOffsetSameInstant(ZoneOffset.UTC)));
+        OffsetDateTime utcDateTime = offsetDateTime.withOffsetSameInstant(ZoneOffset.UTC);
+        timeInterval.setStart(dateFormat.format(utcDateTime));
+        timeInterval.setEnd(dateFormat.format(utcDateTime.plusHours(1)));
         return timeInterval;
 
     }

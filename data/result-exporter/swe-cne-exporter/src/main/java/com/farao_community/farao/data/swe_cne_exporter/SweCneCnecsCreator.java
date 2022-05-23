@@ -10,6 +10,7 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.ConstraintSeries;
@@ -26,8 +27,8 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 import static com.farao_community.farao.data.swe_cne_exporter.SweCneClassCreator.*;
-import static com.farao_community.farao.data.swe_cne_exporter.SweCneConstants.*;
 
 /**
  * Creates the measurements, monitored registered resources and monitored series
@@ -37,9 +38,9 @@ import static com.farao_community.farao.data.swe_cne_exporter.SweCneConstants.*;
  */
 public final class SweCneCnecsCreator {
 
-    private SweCneHelper cneHelper;
+    private CneHelper cneHelper;
 
-    public SweCneCnecsCreator(SweCneHelper cneHelper) {
+    public SweCneCnecsCreator(CneHelper cneHelper) {
         this.cneHelper = cneHelper;
     }
 
@@ -49,15 +50,15 @@ public final class SweCneCnecsCreator {
 
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
-        List<MonitoredSeriesCreationContext> sortedCnecs = cneHelper.getCracCreationContext().getMonitoredSeriesCreationContexts().entrySet().stream()
-            .sorted(Comparator.comparing(Map.Entry::getKey)).map(Map.Entry::getValue).collect(Collectors.toList());
-        for (MonitoredSeriesCreationContext cnec : sortedCnecs) {
+        List<BranchCnecCreationContext> sortedCnecs = cneHelper.getCseCracCreationContext().getBranchCnecCreationContexts().stream()
+            .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId)).collect(Collectors.toList());
+        for (BranchCnecCreationContext cnec : sortedCnecs) {
             constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper));
         }
         return constraintSeries;
     }
 
-    private List<ConstraintSeries> createConstraintSeriesOfACnec(MonitoredSeriesCreationContext monitoredSeriesCreationContext, SweCneHelper cneHelper) {
+    private List<ConstraintSeries> createConstraintSeriesOfACnec(BranchCnecCreationContext monitoredSeriesCreationContext, CneHelper cneHelper) {
         if (!monitoredSeriesCreationContext.isImported()) {
             FaraoLoggerProvider.TECHNICAL_LOGS.warn("Cnec {} was not imported into the RAO, its results will be absent from the CNE file", monitoredSeriesCreationContext.getNativeId());
             return new ArrayList<>();
@@ -88,7 +89,7 @@ public final class SweCneCnecsCreator {
         return constraintSeries;
     }
 
-    private List<ConstraintSeries> createConstraintSeriesOfCnec(BranchCnecCreationContext branchCnecCreationContext, String outageCnecId, String curativeCnecId, boolean asMnec, SweCneHelper cneHelper) {
+    private List<ConstraintSeries> createConstraintSeriesOfCnec(BranchCnecCreationContext branchCnecCreationContext, String outageCnecId, String curativeCnecId, boolean asMnec, CneHelper cneHelper) {
         List<ConstraintSeries> constraintSeriesOfCnec = new ArrayList<>();
         String nativeCnecId = branchCnecCreationContext.getNativeId();
         boolean shouldInvertBranchDirection = branchCnecCreationContext.isDirectionInvertedInNetwork();
