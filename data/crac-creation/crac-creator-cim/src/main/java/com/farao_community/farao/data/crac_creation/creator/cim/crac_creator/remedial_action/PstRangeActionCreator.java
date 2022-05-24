@@ -135,19 +135,21 @@ public class PstRangeActionCreator {
 
     private void defineTapRange(PstRangeActionAdder pstRangeActionAdder, IidmPstHelper pstHelper, RangeType rangeType) {
         String unitSymbol = pstRegisteredResource.getResourceCapacityUnitSymbol();
-        RemedialActionSeriesCreator.checkPstUnit(unitSymbol);
         BigDecimal resourceCapacityMinimumCapacity = pstRegisteredResource.getResourceCapacityMinimumCapacity();
         BigDecimal resourceCapacityMaximumCapacity = pstRegisteredResource.getResourceCapacityMaximumCapacity();
         // Min and Max defined
         if (Objects.nonNull(resourceCapacityMinimumCapacity) && Objects.nonNull(resourceCapacityMaximumCapacity)) {
             int minCapacity = resourceCapacityMinimumCapacity.intValue();
             int maxCapacity = resourceCapacityMaximumCapacity.intValue();
+            RemedialActionSeriesCreator.checkPstUnit(unitSymbol);
             addTapRangeWithMinAndMaxTap(pstRangeActionAdder, pstHelper, minCapacity, maxCapacity, rangeType);
         } else if (Objects.nonNull(resourceCapacityMaximumCapacity)) {
             int maxCapacity = resourceCapacityMaximumCapacity.intValue();
+            RemedialActionSeriesCreator.checkPstUnit(unitSymbol);
             addTapRangeWithMaxTap(pstRangeActionAdder, pstHelper, maxCapacity, rangeType);
         } else if (Objects.nonNull(resourceCapacityMinimumCapacity)) {
             int minCapacity = resourceCapacityMinimumCapacity.intValue();
+            RemedialActionSeriesCreator.checkPstUnit(unitSymbol);
             addTapRangeWithMinTap(pstRangeActionAdder, pstHelper, minCapacity, rangeType);
         }
     }
