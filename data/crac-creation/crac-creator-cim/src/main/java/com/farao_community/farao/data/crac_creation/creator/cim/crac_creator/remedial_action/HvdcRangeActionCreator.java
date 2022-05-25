@@ -217,8 +217,8 @@ public class HvdcRangeActionCreator {
         if (Objects.isNull(hvdcLine)) {
             throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
         }
-        String from = hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus().getId();
-        String to = hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus().getId();
+        String from = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId();
+        String to = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId();
 
         if (Objects.isNull(inNode) || Objects.isNull(outNode)) {
             throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing HVDC in or out aggregate nodes");
