@@ -265,8 +265,7 @@ public class RemedialActionSeriesCreator {
                     remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("HVDC cannot be imported at instant %s", applicationModeMarketObjectStatus)));
                     return true;
                 }
-                if (Objects.isNull(hvdcRangeActionCreator ))
-                {
+                if (Objects.isNull(hvdcRangeActionCreator)) {
                     hvdcRangeActionCreator = new HvdcRangeActionCreator(
                         crac, network,
                         contingencies, invalidContingencies, flowCnecs, sharedDomain);
