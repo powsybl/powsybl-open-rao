@@ -15,8 +15,6 @@ import com.farao_community.farao.data.crac_creation.creator.cim.xsd.ContingencyS
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.MonitoredSeries;
 
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,14 +24,12 @@ import java.util.stream.Collectors;
 public final class CimCracUtils {
     private CimCracUtils() { }
 
-    public static Optional<Contingency> getContingencyFromCrac(ContingencySeries cimContingency, CimCracCreationContext cracCreationContext) {
+    public static Contingency getContingencyFromCrac(ContingencySeries cimContingency, CimCracCreationContext cracCreationContext) {
         CimContingencyCreationContext ccc = cracCreationContext.getContingencyCreationContext(cimContingency.getMRID());
-        if (ccc == null) {
-            return Optional.empty();
+        if (ccc == null || ccc.getCreatedContingencyId() == null) {
+            return null;
         }
-        String createdContingencyId = ccc.getCreatedContingencyId();
-        Contingency contingency = cracCreationContext.getCrac().getContingency(createdContingencyId);
-        return Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency);
+        return cracCreationContext.getCrac().getContingency(ccc.getCreatedContingencyId());
     }
 
     public static Set<FlowCnec> getFlowCnecsFromCrac(MonitoredSeries monitoredSeries, CimCracCreationContext cracCreationContext) {

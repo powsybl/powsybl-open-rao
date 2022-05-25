@@ -55,9 +55,9 @@ public class MonitoredSeriesCreator {
             List<String> invalidContingencies = new ArrayList<>();
             String optimizationStatus = cimSerie.getOptimizationMarketObjectStatusStatus();
             for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
-                Optional<Contingency> contingency = getContingencyFromCrac(cimContingency, cracCreationContext);
-                if (contingency.isPresent()) {
-                    contingencies.add(contingency.get());
+                Contingency contingency = getContingencyFromCrac(cimContingency, cracCreationContext);
+                if (Objects.nonNull(contingency)) {
+                    contingencies.add(contingency);
                 } else {
                     invalidContingencies.add(cimContingency.getMRID());
                 }

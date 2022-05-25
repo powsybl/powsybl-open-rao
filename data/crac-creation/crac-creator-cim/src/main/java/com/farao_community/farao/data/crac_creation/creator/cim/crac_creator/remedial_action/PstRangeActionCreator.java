@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
@@ -29,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
@@ -60,7 +60,7 @@ public class PstRangeActionCreator {
         this.sharedDomain = sharedDomain;
     }
 
-    public void createPstRangeActionAdder(CimCracCreationParameters cimCracCreationParameters, CracCreationContext cracCreationContext) {
+    public void createPstRangeActionAdder(CimCracCreationParameters cimCracCreationParameters) {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = pstRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
@@ -90,22 +90,16 @@ public class PstRangeActionCreator {
 
             // ---- add groupId if present
             if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionGroups() != null) {
-                String groupId = null;
-                for (RangeActionGroup rangeActionGroup : cimCracCreationParameters.getRangeActionGroups()) {
-                    for (String raGroupId : rangeActionGroup.getRangeActionsIds()) {
-                        if (Objects.isNull(raGroupId)) {
-                            cracCreationContext.getCreationReport().warn(String.format("RangeActionGroup %s contains a range action group containing a null value.", rangeActionGroup));
-                            continue;
-                        }
-                        if (raGroupId.equals(createdRemedialActionId)) {
-                            if (groupId != null) {
-                                cracCreationContext.getCreationReport().warn(String.format("GroupId already defined to %s for PST %s, group %s is ignored (only in PST %s).", groupId, createdRemedialActionId, rangeActionGroup, createdRemedialActionId));
-                            } else {
-                                groupId = rangeActionGroup.toString();
-                                pstRangeActionAdder.withGroupId(groupId);
-                            }
-                        }
-                    }
+                List<String> raGroups = cimCracCreationParameters.getRangeActionGroups().stream()
+                    .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(createdRemedialActionId))
+                    .map(RangeActionGroup::toString)
+                    .collect(Collectors.toList());
+                if (raGroups.size() > 1) {
+                    this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Multiple (%s) groups defined for range action %s", raGroups.size(), createdRemedialActionId));
+                    return;
+                }
+                if (!raGroups.isEmpty()) {
+                    pstRangeActionAdder.withGroupId(raGroups.get(0));
                 }
             }
 

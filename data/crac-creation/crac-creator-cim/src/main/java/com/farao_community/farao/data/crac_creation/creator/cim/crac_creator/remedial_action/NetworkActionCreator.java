@@ -79,14 +79,14 @@ public class NetworkActionCreator {
                     addPstSetpointElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
                 } else if (psrType.equals(CimConstants.PsrType.GENERATION.getStatus()) || psrType.equals(CimConstants.PsrType.LOAD.getStatus())) {
                     // Injection elementary action
-                    addInjectionSetpointElementaryAction(createdRemedialActionId, elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
+                    addInjectionSetpointElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
                     // ------ TODO : Missing check : default capacity in ohms
                 } else if (psrType.equals(CimConstants.PsrType.LINE.getStatus()) && remedialActionRegisteredResource.getMarketObjectStatusStatus().equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
                     this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Modify line impedance as remedial action on elementary action %s", elementaryActionId));
                     return;
                 } else if (psrType.equals(CimConstants.PsrType.TIE_LINE.getStatus()) || psrType.equals(CimConstants.PsrType.LINE.getStatus()) || psrType.equals(CimConstants.PsrType.CIRCUIT_BREAKER.getStatus()) || psrType.equals(CimConstants.PsrType.TRANSFORMER.getStatus())) {
                     // Topological elementary action
-                    addTopologicalElementaryAction(createdRemedialActionId, elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
+                    addTopologicalElementaryAction(elementaryActionId, remedialActionRegisteredResource, networkActionAdder);
                 } else if (psrType.equals(CimConstants.PsrType.DEPRECATED_LINE.getStatus())) {
                     this.networkActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong psrType: %s, deprecated LINE psrType on elementary action %s", psrType, elementaryActionId));
                     return;
@@ -130,33 +130,30 @@ public class NetworkActionCreator {
             .add();
     }
 
-    private void addInjectionSetpointElementaryAction(String createdRemedialActionId, String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+    private void addInjectionSetpointElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
         // Injection range actions aren't handled
         if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s should not have a min or max capacity defined", elementaryActionId));
         }
         // Market object status
         String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
-        int setpoint;
         if (Objects.isNull(marketObjectStatusStatus)) {
             throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on injection setpoint elementary action %s", elementaryActionId));
-        } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
-            if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
-                throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a defaultCapacity", elementaryActionId));
-            }
-            if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
-                throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a unitSymbol", elementaryActionId));
+        }
+        int setpoint;
+        if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.ABSOLUTE.getStatus())) {
+            if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())
+                || Objects.isNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
+                throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a defaultCapacity and a unitSymbol", elementaryActionId));
             }
             if (!remedialActionRegisteredResource.getResourceCapacityUnitSymbol().equals(MEGAWATT_UNIT_SYMBOL)) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol for injection setpoint elementary action %s with ABSOLUTE marketObjectStatus : %s", elementaryActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol()));
             }
             setpoint = remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.STOP.getStatus())) {
-            if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a defaultCapacity", elementaryActionId));
-            }
-            if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a unitSymbol", elementaryActionId));
+            if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())
+                || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a defaultCapacity nor a unitSymbol", elementaryActionId));
             }
             setpoint = 0;
         } else {
@@ -164,9 +161,7 @@ public class NetworkActionCreator {
         }
 
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
-        if (Objects.isNull(network.getGenerator(networkElementId)) && Objects.isNull(network.getLoad(networkElementId))) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is nor a generator nor a load on injection setpoint elementary action %s", networkElementId, elementaryActionId));
-        }
+        checkGeneratorOrLoad(networkElementId);
 
         networkActionAdder.newInjectionSetPoint()
             .withNetworkElement(networkElementId)
@@ -174,7 +169,13 @@ public class NetworkActionCreator {
             .add();
     }
 
-    private void addTopologicalElementaryAction(String createdRemedialActionId, String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+    private void checkGeneratorOrLoad(String networkElementId) {
+        if (Objects.isNull(network.getGenerator(networkElementId)) && Objects.isNull(network.getLoad(networkElementId))) {
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is neither a generator nor a load", networkElementId));
+        }
+    }
+
+    private void addTopologicalElementaryAction(String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
         if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Topological elementary action %s should not have any resource capacity defined", elementaryActionId));
         }

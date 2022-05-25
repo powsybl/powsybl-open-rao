@@ -147,7 +147,7 @@ public class CimCracCreatorTest {
     private void assertHvdcRangeActionImported(String expectedNativeId, Set<String> expectedCreatedIds, Set<String> expectedNetworkElements, boolean isInverted) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(expectedNativeId);
         assertNotNull(remedialActionSeriesCreationContext);
-        assertEquals(remedialActionSeriesCreationContext.getCreatedIds(), expectedCreatedIds);
+        assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedIds());
         assertTrue(remedialActionSeriesCreationContext.isImported());
         expectedCreatedIds.forEach(createdId -> assertNotNull(importedCrac.getHvdcRangeAction(createdId)));
         Set<String> actualNetworkElements = new HashSet<>();
@@ -275,18 +275,44 @@ public class CimCracCreatorTest {
     @Test
     public void testImportHvdcRangeActions() {
         setUpForHvdc("/cracs/CIM_21_6_1.xml", null);
-        assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-3", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-4", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-5", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-6", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-7", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-2
+        assertRemedialActionNotImported("HVDC-direction21", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction22", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction2", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-3
+        assertRemedialActionNotImported("HVDC-direction31", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction32", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-4
+        assertRemedialActionNotImported("HVDC-direction41", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction42", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-5
+        assertRemedialActionNotImported("HVDC-direction51", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction52", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-6
+        assertRemedialActionNotImported("HVDC-direction61", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction62", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-7
         assertRemedialActionNotImported("HVDC-direction71", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-8", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertRemedialActionNotImported("RA-Series-9", INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA-Series-10", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction72", INCONSISTENCY_IN_DATA);
+
+        // RA-Series-8
+        assertRemedialActionNotImported("HVDC-direction81", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction82", ELEMENT_NOT_FOUND_IN_NETWORK);
+
+        // RA-Series-9
+        assertRemedialActionNotImported("HVDC-direction91", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction92", INCONSISTENCY_IN_DATA);
+
         assertHvdcRangeActionImported("HVDC-direction11", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), true);
         assertHvdcRangeActionImported("HVDC-direction12", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), false);
+        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get());
+        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
     }
 
     @Test
@@ -356,12 +382,10 @@ public class CimCracCreatorTest {
         CimCracCreator cimCracCreator = new CimCracCreator();
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
-        assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        assertRemedialActionNotImported("PRA_1", INCONSISTENCY_IN_DATA);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
-        assertEquals(2, importedCrac.getPstRangeActions().size());
-        assertTrue(importedCrac.getPstRangeAction("PRA_1").getGroupId().isPresent());
+        assertEquals(1, importedCrac.getPstRangeActions().size());
         assertTrue(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
-        assertEquals("PRA_1", importedCrac.getPstRangeAction("PRA_1").getGroupId().get());
         assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_22").getGroupId().get());
     }
 
