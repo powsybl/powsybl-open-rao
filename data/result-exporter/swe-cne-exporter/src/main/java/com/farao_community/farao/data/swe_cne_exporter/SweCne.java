@@ -101,9 +101,7 @@ public class SweCne {
 
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
-        List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        constraintSeriesList.addAll(new SweCneCnecsCreator(cneHelper).generate());
-        constraintSeriesList.addAll(new SweCneRemedialActionsCreator(cneHelper, constraintSeriesList).generate());
+        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(cneHelper).generate();
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 }

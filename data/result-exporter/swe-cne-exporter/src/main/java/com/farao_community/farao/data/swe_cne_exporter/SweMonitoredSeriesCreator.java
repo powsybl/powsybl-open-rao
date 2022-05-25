@@ -7,10 +7,9 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.swe_cne_exporter.xsd.AreaIDString;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.PartyIDString;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.ResourceIDString;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import org.threeten.extra.Interval;
 
 import java.time.OffsetDateTime;
@@ -27,4 +26,13 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutStr
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class SweMonitoredSeriesCreator {
+    private final CneHelper cneHelper;
+
+    public SweMonitoredSeriesCreator(CneHelper cneHelper) {
+        this.cneHelper = cneHelper;
+    }
+
+    public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {
+        return new ArrayList<>();
+    }
 }

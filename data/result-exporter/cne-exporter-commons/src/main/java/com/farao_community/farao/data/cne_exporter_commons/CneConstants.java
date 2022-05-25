@@ -78,6 +78,7 @@ public final class CneConstants {
     // applicationMode_MarketObjectStatus.status
     public static final String PREVENTIVE_MARKET_OBJECT_STATUS = "A18";
     public static final String CURATIVE_MARKET_OBJECT_STATUS = "A19";
+    public static final String AUTO_MARKET_OBJECT_STATUS = "A20";
 
     /* RegisteredResource */
     // pSRType.psrType

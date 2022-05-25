@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.swe_cne_exporter.xsd.AreaIDString;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.PartyIDString;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.ResourceIDString;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
+import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import org.threeten.extra.Interval;
 
 import java.time.OffsetDateTime;
@@ -19,6 +19,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.B56_BUSINESS_TYPE;
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.B57_BUSINESS_TYPE;
 import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
 
 /**
@@ -27,60 +29,106 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutStr
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class SweConstraintSeriesCreator {
-    private static final double FLOAT_LIMIT = 999999;
-    private static Set<String> usedUniqueIds;
+    private final CneHelper cneHelper;
+    private final SweMonitoredSeriesCreator monitoredSeriesCreator;
+    private final SweRemedialActionSeriesCreator remedialActionSeriesCreator;
 
-    private SweConstraintSeriesCreator() {
+    public SweConstraintSeriesCreator(CneHelper cneHelper) {
+        this.cneHelper = cneHelper;
+        this.monitoredSeriesCreator = new SweMonitoredSeriesCreator(cneHelper);
+        this.remedialActionSeriesCreator = new SweRemedialActionSeriesCreator(cneHelper);
     }
 
-    public static void initUniqueIds() {
-        usedUniqueIds = new HashSet<>();
+    public List<ConstraintSeries> generate() {
+        List<ConstraintSeries> allConstraintSeries = new ArrayList<>();
+        allConstraintSeries.addAll(generateB56());
+        allConstraintSeries.addAll(generateB57());
+        return allConstraintSeries;
     }
 
-    // Creation of time interval
-    public static ESMPDateTimeInterval createEsmpDateTimeInterval(OffsetDateTime offsetDateTime) {
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
-
-        ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
-
-        OffsetDateTime utcDateTime = offsetDateTime.withOffsetSameInstant(ZoneOffset.UTC);
-        timeInterval.setStart(dateFormat.format(utcDateTime));
-        timeInterval.setEnd(dateFormat.format(utcDateTime.plusHours(1)));
-        return timeInterval;
-
+    private List<ConstraintSeries> generateB56() {
+        List<ConstraintSeries> constraintSeries = new ArrayList<>();
+        constraintSeries.add(generateBasecaseB56());
+        for (Contingency contingency : cneHelper.getCrac().getContingencies()) {
+            constraintSeries.add(generateContingencyB56(contingency));
+        }
+        return constraintSeries;
     }
 
-    // Creation of time interval
-    public static ESMPDateTimeInterval createEsmpDateTimeIntervalForWholeDay(String intervalString) {
-        Interval interval = Interval.parse(intervalString);
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'").withZone(ZoneId.from(ZoneOffset.UTC));
-        ESMPDateTimeInterval timeInterval = new ESMPDateTimeInterval();
-        timeInterval.setStart(dateFormat.format(interval.getStart()));
-        timeInterval.setEnd(dateFormat.format(interval.getEnd()));
-        return timeInterval;
+    private ConstraintSeries generateBasecaseB56() {
+        ConstraintSeries constraintSeries = new ConstraintSeries();
+        constraintSeries.setMRID(CneUtil.generateUUID());
+        constraintSeries.setBusinessType(B56_BUSINESS_TYPE);
+        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeries(null);
+        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
+            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
+        }
+        return constraintSeries;
     }
 
-    // Creation of ID with code scheme
-    public static ResourceIDString createResourceIDString(String codingScheme, String value) {
-        ResourceIDString resourceMRID = new ResourceIDString();
-        resourceMRID.setCodingScheme(codingScheme);
-        resourceMRID.setValue(cutString(value, 60));
-        return resourceMRID;
+    private ConstraintSeries generateContingencyB56(Contingency contingency) {
+        ConstraintSeries constraintSeries = new ConstraintSeries();
+        constraintSeries.setMRID(CneUtil.generateUUID());
+        constraintSeries.setBusinessType(B56_BUSINESS_TYPE);
+
+        constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
+
+        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeries(contingency);
+        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
+            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
+        }
+        return constraintSeries;
     }
 
-    // Creation of ID with code scheme
-    public static PartyIDString createPartyIDString(String codingScheme, String value) {
-        PartyIDString marketParticipantMRID = new PartyIDString();
-        marketParticipantMRID.setCodingScheme(codingScheme);
-        marketParticipantMRID.setValue(cutString(value, 16));
-        return marketParticipantMRID;
+    private List<ConstraintSeries> generateB57() {
+        List<ConstraintSeries> constraintSeries = new ArrayList<>();
+        constraintSeries.add(generateBasecaseB57());
+        for (Contingency contingency : cneHelper.getCrac().getContingencies()) {
+            constraintSeries.add(generateContingencyB57(contingency));
+        }
+        return constraintSeries;
     }
 
-    // Creation of area ID with code scheme
-    public static AreaIDString createAreaIDString(String codingScheme, String value) {
-        AreaIDString areaIDString = new AreaIDString();
-        areaIDString.setCodingScheme(codingScheme);
-        areaIDString.setValue(cutString(value, 16));
-        return areaIDString;
+    private ConstraintSeries generateBasecaseB57() {
+        ConstraintSeries constraintSeries = new ConstraintSeries();
+        constraintSeries.setMRID(CneUtil.generateUUID());
+        constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
+
+        List<MonitoredSeries> monitoredSeriesList = monitoredSeriesCreator.generateMonitoredSeries(null);
+        for (MonitoredSeries monitoredSeries : monitoredSeriesList) {
+            constraintSeries.getMonitoredSeries().add(monitoredSeries);
+        }
+
+        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeriesReference(null);
+        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
+            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
+        }
+        return constraintSeries;
+    }
+
+    private ConstraintSeries generateContingencyB57(Contingency contingency) {
+        ConstraintSeries constraintSeries = new ConstraintSeries();
+        constraintSeries.setMRID(CneUtil.generateUUID());
+        constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
+
+        constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
+
+        List<MonitoredSeries> monitoredSeriesList = monitoredSeriesCreator.generateMonitoredSeries(contingency);
+        for (MonitoredSeries monitoredSeries : monitoredSeriesList) {
+            constraintSeries.getMonitoredSeries().add(monitoredSeries);
+        }
+
+        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeriesReference(contingency);
+        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
+            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
+        }
+        return constraintSeries;
+    }
+
+    private ContingencySeries generateContingencySeries(Contingency contingency) {
+        ContingencySeries contingencySeries = new ContingencySeries();
+        contingencySeries.setMRID(contingency.getId());
+        contingencySeries.setName(contingency.getName());
+        return contingencySeries;
     }
 }

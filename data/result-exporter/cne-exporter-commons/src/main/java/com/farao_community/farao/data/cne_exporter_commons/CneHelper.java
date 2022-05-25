@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.CseCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -79,11 +80,11 @@ public class CneHelper {
         }
     }
 
-    public CseCracCreationContext getCseCracCreationContext() {
-        if (cracCreationContext instanceof CseCracCreationContext) {
-            return (CseCracCreationContext) cracCreationContext;
+    public CimCracCreationContext getCimCracCreationContext() {
+        if (cracCreationContext instanceof CimCracCreationContext) {
+            return (CimCracCreationContext) cracCreationContext;
         } else {
-            throw new FaraoException("Expected a CseCracCreationContext.");
+            throw new FaraoException("Expected a CimCracCreationContext.");
         }
     }
 

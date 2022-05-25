@@ -67,4 +67,13 @@ public final class CneUtil {
     public static float limitFloatInterval(double value) {
         return (float) Math.min(Math.round(Math.abs(value)), FLOAT_LIMIT);
     }
+
+    public static String generateUUID() {
+        String uuidString = UUID.randomUUID().toString().substring(1);
+        while (usedUniqueIds.contains(uuidString)) {
+            uuidString = UUID.randomUUID().toString().substring(1);
+        }
+        usedUniqueIds.add(uuidString);
+        return uuidString;
+    }
 }
