@@ -173,7 +173,6 @@ public final class RaoUtil {
         return cnec.getLocation(network).stream()
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .filter(Objects::nonNull)
             .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 

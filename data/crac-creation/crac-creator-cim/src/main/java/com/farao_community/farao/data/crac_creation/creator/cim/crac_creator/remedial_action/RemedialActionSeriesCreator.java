@@ -89,7 +89,7 @@ public class RemedialActionSeriesCreator {
             // Read and create RAs
             boolean shouldReadSharedDomain = cimSerie.getContingencySeries().isEmpty() && cimSerie.getMonitoredSeries().isEmpty();
             for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                readAndAddRemedialAction(cimSerie.getMRID(), remedialActionSeries, shouldReadSharedDomain);
+                readAndAddRemedialAction(remedialActionSeries, shouldReadSharedDomain);
             }
 
             if (hvdcRangeActionCreator != null) {
@@ -140,7 +140,7 @@ public class RemedialActionSeriesCreator {
     }
 
     // For now, only free-to-use remedial actions are handled.
-    private void readAndAddRemedialAction(String cimSerieId, RemedialActionSeries remedialActionSeries, boolean shouldReadSharedDomain) {
+    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries, boolean shouldReadSharedDomain) {
         String createdRemedialActionId = remedialActionSeries.getMRID();
 
         // --- BusinessType

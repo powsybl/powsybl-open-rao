@@ -14,30 +14,24 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.RaoBusinessLogs;
 import com.farao_community.farao.commons.logs.TechnicalLogs;
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
-import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.MultipleNetworkPool;
@@ -50,9 +44,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -397,44 +393,6 @@ public class SearchTreeTest {
 
     private void setMaxRa(int maxRa) {
         when(raLimitationParameters.getMaxCurativeRa()).thenReturn(maxRa);
-    }
-
-    @Test
-    public void testIsNetworkActionAvailable() {
-        Crac crac = CommonCracCreation.create();
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
-
-        FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
-        FlowResult flowResult = mock(FlowResult.class);
-
-        NetworkAction na1 = crac.newNetworkAction().withId("na1")
-            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
-        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network));
-
-        NetworkAction na2 = crac.newNetworkAction().withId("na2")
-            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).add()
-            .add();
-        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().get(0);
-
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
-
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
-
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
-
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
-        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network));
-        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
     }
 
     @Test
