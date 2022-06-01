@@ -8,4 +8,6 @@
     <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
+    <logger name="com.powsybl.triplestore.api" level="ERROR"/>
+    <logger name="com.powsybl.cgmes" level="ERROR"/>
 </configuration>

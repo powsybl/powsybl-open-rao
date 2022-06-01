@@ -17,10 +17,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
@@ -31,6 +28,7 @@ import com.farao_community.farao.data.crac_creation.creator.cse.outage.CseOutage
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.remedial_action.CsePstCreationContext;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -357,16 +355,22 @@ public class CseCracCreatorTest {
         assertTrue(cra2.getUsageRules().get(1) instanceof FreeToUse);
         // cra_3
         RemedialAction<?> cra3 = importedCrac.getNetworkAction("cra_3");
-        assertEquals(2, cra3.getUsageRules().size()); // 2 OnConstraint on CNEC 1 and CNEC 2
+        assertEquals(2, cra3.getUsageRules().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR
         assertTrue(cra3.getUsageRules().get(0) instanceof OnFlowConstraint);
-        assertTrue(cra3.getUsageRules().get(1) instanceof OnFlowConstraint);
+        assertTrue(cra3.getUsageRules().get(1) instanceof OnFlowConstraintInCountry);
+        assertEquals(Country.FR, ((OnFlowConstraintInCountry) cra3.getUsageRules().get(1)).getCountry());
         // cra_4
         RemedialAction<?> cra4 = importedCrac.getNetworkAction("cra_4");
-        assertEquals(0, cra4.getUsageRules().size());
+        assertEquals(1, cra4.getUsageRules().size()); // on country NL
+        assertTrue(cra4.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
+        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) cra4.getUsageRules().get(0)).getInstant());
+        assertEquals(Country.NL, ((OnFlowConstraintInCountry) cra4.getUsageRules().get(0)).getCountry());
         // cra_5
         RemedialAction<?> cra5 = importedCrac.getNetworkAction("cra_5");
-        assertEquals(1, cra5.getUsageRules().size()); // one OnConstraint on CNEC 2
-        assertTrue(cra5.getUsageRules().get(0) instanceof OnFlowConstraint);
+        assertEquals(1, cra5.getUsageRules().size()); // on country FR
+        assertTrue(cra5.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
+        assertEquals(Instant.CURATIVE, ((OnFlowConstraintInCountry) cra5.getUsageRules().get(0)).getInstant());
+        assertEquals(Country.FR, ((OnFlowConstraintInCountry) cra5.getUsageRules().get(0)).getCountry());
         // cra_6
         assertTrue(importedCrac.getNetworkAction("cra_6").getUsageRules().isEmpty());
     }
