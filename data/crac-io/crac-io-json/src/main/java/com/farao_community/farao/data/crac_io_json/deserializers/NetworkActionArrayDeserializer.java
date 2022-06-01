@@ -62,6 +62,10 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
                         break;
+                    case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        break;
                     case TOPOLOGICAL_ACTIONS:
                         jsonParser.nextToken();
                         TopologicalActionArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);

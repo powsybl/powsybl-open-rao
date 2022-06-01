@@ -63,6 +63,10 @@ public final class InjectionRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
                         break;
+                    case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        break;
                     case NETWORK_ELEMENT_IDS_AND_KEYS:
                         jsonParser.nextToken();
                         deserializeInjectionDistributionKeys(jsonParser, adder, networkElementsNamesPerId);

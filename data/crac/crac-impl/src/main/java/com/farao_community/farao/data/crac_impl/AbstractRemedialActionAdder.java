@@ -7,10 +7,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUseAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +47,11 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     @Override
     public OnFlowConstraintAdder<T> newOnFlowConstraintUsageRule() {
         return new OnFlowConstraintAdderImpl(this);
+    }
+
+    @Override
+    public OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule() {
+        return new OnFlowConstraintInCountryAdderImpl(this);
     }
 
     void addUsageRule(UsageRule usageRule) {

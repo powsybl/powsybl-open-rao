@@ -62,6 +62,10 @@ public final class HvdcRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
                         break;
+                    case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        break;
                     case NETWORK_ELEMENT_ID:
                         String networkElementId = jsonParser.nextTextValue();
                         if (networkElementsNamesPerId.containsKey(networkElementId)) {

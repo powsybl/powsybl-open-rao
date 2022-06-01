@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.powsybl.iidm.network.Country;
 
 import java.util.Map;
 
@@ -189,7 +190,7 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .withNetworkElement("hvdc")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE).withCountry(Country.FR).add()
                 .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange2Id")
@@ -207,7 +208,7 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("contingency1Id").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()
                 .add();
 
         return crac;

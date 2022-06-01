@@ -30,8 +30,8 @@ public final class MeasurementCreationContext {
         return new MeasurementCreationContext(importStatus, importStatusDetail);
     }
 
-    static MeasurementCreationContext imported(String importStatusDetail) {
-        return new MeasurementCreationContext(ImportStatus.IMPORTED, importStatusDetail);
+    static MeasurementCreationContext imported() {
+        return new MeasurementCreationContext(ImportStatus.IMPORTED, null);
     }
 
     public boolean isImported() {

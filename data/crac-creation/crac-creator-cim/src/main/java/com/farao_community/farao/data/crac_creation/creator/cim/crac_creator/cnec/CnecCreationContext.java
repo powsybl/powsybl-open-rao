@@ -29,8 +29,8 @@ public final class CnecCreationContext {
         return new CnecCreationContext(null, importStatus, importStatusDetail);
     }
 
-    static CnecCreationContext imported(String createdCnecId, String importStatusDetail) {
-        return new CnecCreationContext(createdCnecId, ImportStatus.IMPORTED, importStatusDetail);
+    static CnecCreationContext imported(String createdCnecId) {
+        return new CnecCreationContext(createdCnecId, ImportStatus.IMPORTED, null);
     }
 
     public String getCreatedCnecId() {
