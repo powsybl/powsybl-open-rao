@@ -240,7 +240,7 @@ public class RemedialActionSeriesCreator {
 
     private void addExtraUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
         try {
-            RemedialActionSeriesCreator.addExtraUsageRules(applicationModeMarketObjectStatus,
+            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus,
                 adder,
                 contingencies, invalidContingencies, flowCnecs, sharedDomain);
         } catch (FaraoImportException e) {
@@ -306,33 +306,33 @@ public class RemedialActionSeriesCreator {
         }
     }
 
-    public static void addExtraUsageRules(String applicationModeMarketObjectStatus,
-                                          RemedialActionAdder<?> remedialActionAdder,
-                                          List<Contingency> contingencies,
-                                          List<String> invalidContingencies,
-                                          Set<FlowCnec> flowCnecs,
-                                          Country sharedDomain) {
+    public static void addUsageRules(String applicationModeMarketObjectStatus,
+                                     RemedialActionAdder<?> remedialActionAdder,
+                                     List<Contingency> contingencies,
+                                     List<String> invalidContingencies,
+                                     Set<FlowCnec> flowCnecs,
+                                     Country sharedDomain) {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.PREVENTIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addExtraUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, sharedDomain, Instant.PREVENTIVE);
-            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
+            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, sharedDomain, Instant.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.AUTO);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.AUTO);
         }
     }
 
-    private static void addExtraUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
-                                                    List<Contingency> contingencies,
-                                                    List<String> invalidContingencies,
-                                                    Set<FlowCnec> flowCnecs,
-                                                    Country sharedDomain,
-                                                    Instant instant) {
+    private static void addUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
+                                               List<Contingency> contingencies,
+                                               List<String> invalidContingencies,
+                                               Set<FlowCnec> flowCnecs,
+                                               Country sharedDomain,
+                                               Instant instant) {
         if (!flowCnecs.isEmpty()) {
             flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
             return;

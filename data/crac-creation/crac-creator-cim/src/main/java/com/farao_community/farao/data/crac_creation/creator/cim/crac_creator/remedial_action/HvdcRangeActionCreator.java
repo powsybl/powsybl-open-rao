@@ -160,7 +160,7 @@ public class HvdcRangeActionCreator {
         hvdcRangeActionAdder.withNetworkElement(hvdcId);
 
         // Usage rules
-        RemedialActionSeriesCreator.addExtraUsageRules(CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
+        RemedialActionSeriesCreator.addUsageRules(CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
 
         return hvdcRangeActionAdder;
     }
