@@ -64,7 +64,7 @@ public class NetworkActionCreator {
             .withName(createdRemedialActionName);
 
         try {
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
+            RemedialActionSeriesCreator.addExtraUsageRules(applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
 
             // Elementary actions
             for (RemedialActionRegisteredResource remedialActionRegisteredResource : networkActionRegisteredResources) {

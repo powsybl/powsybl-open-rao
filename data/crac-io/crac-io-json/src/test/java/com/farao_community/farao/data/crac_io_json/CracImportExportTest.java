@@ -260,6 +260,14 @@ public class CracImportExportTest {
         assertEquals(1000, hvdcRange.getMax(), 1e-3);
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
 
+        // Check OnFlowConstraintInCountry usage rules
+        List<UsageRule> usageRules = crac.getRemedialAction("hvdcRange1Id").getUsageRules();
+        assertEquals(1, usageRules.size());
+        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
+        OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        assertEquals(PREVENTIVE, ur.getInstant());
+        assertEquals(Country.FR, ur.getCountry());
+
         // ---------------------------------
         // --- test InjectionRangeAction ---
         // ---------------------------------
@@ -276,14 +284,7 @@ public class CracImportExportTest {
         assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
-        // Test OnFlowConstraintInCountry usage rules
-        List<UsageRule> usageRules = crac.getRemedialAction("hvdcRange1Id").getUsageRules();
-        assertEquals(1, usageRules.size());
-        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
-        OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) usageRules.get(0);
-        assertEquals(PREVENTIVE, ur.getInstant());
-        assertEquals(Country.FR, ur.getCountry());
-
+        // Check OnFlowConstraintInCountry usage rules
         usageRules = crac.getRemedialAction("injectionRange1Id").getUsageRules();
         assertEquals(1, usageRules.size());
         assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);

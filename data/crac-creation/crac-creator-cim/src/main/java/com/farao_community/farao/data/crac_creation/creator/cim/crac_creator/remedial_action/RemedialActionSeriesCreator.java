@@ -41,11 +41,12 @@ public class RemedialActionSeriesCreator {
     private final CimCracCreationContext cracCreationContext;
     private List<Contingency> contingencies;
     private List<String> invalidContingencies;
+    private HvdcRangeActionCreator hvdcRangeActionCreator = null;
     private Set<FlowCnec> flowCnecs;
     private final CimCracCreationParameters cimCracCreationParameters;
     private Map<String, PstRangeActionCreator> pstRangeActionCreators = new HashMap<>();
     private Map<String, NetworkActionCreator> networkActionCreators = new HashMap<>();
-    private HvdcRangeActionCreator hvdcRangeActionCreator = null;
+    private Set<HvdcRangeActionCreator> hvdcRangeActionCreators = new HashSet<>();
     private Country sharedDomain;
 
     public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext, CimCracCreationParameters cimCracCreationParameters) {
@@ -86,14 +87,14 @@ public class RemedialActionSeriesCreator {
             });
             // Read and store Monitored Series
             this.flowCnecs = getFlowCnecsFromMonitoredAndContingencySeries(cimSerie);
-            // Read and create RAs
+            // Read and create / modify RA creators
             boolean shouldReadSharedDomain = cimSerie.getContingencySeries().isEmpty() && cimSerie.getMonitoredSeries().isEmpty();
             for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                readAndAddRemedialAction(remedialActionSeries, shouldReadSharedDomain);
+                readRemedialAction(remedialActionSeries, shouldReadSharedDomain);
             }
 
             if (hvdcRangeActionCreator != null) {
-                this.remedialActionSeriesCreationContexts.addAll(hvdcRangeActionCreator.add());
+                this.hvdcRangeActionCreators.add(hvdcRangeActionCreator);
                 hvdcRangeActionCreator = null;
             }
 
@@ -101,6 +102,7 @@ public class RemedialActionSeriesCreator {
             invalidContingencies.clear();
         }
 
+        // Add all RAs from creators to CRAC
         addAllRemedialActionsToCrac();
         this.cracCreationContext.setRemedialActionSeriesCreationContexts(remedialActionSeriesCreationContexts);
     }
@@ -137,10 +139,12 @@ public class RemedialActionSeriesCreator {
                 this.remedialActionSeriesCreationContexts.add(creator.getNetworkActionCreationContext());
             }
         );
+        hvdcRangeActionCreators.forEach(
+            creator -> this.remedialActionSeriesCreationContexts.addAll(creator.add())
+        );
     }
 
-    // For now, only free-to-use remedial actions are handled.
-    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries, boolean shouldReadSharedDomain) {
+    private void readRemedialAction(RemedialActionSeries remedialActionSeries, boolean shouldReadSharedDomain) {
         String createdRemedialActionId = remedialActionSeries.getMRID();
 
         // --- BusinessType
@@ -178,43 +182,31 @@ public class RemedialActionSeriesCreator {
             return;
         }
 
-        // -- Add remedial action, or store it if it's a valid HVDC range action.
-        addRemedialAction(remedialActionSeries);
+        // -- Read remedial action, and store or modify its creator
+        readRemedialAction(remedialActionSeries);
     }
 
-    private void addRemedialAction(RemedialActionSeries remedialActionSeries) {
+    private void readRemedialAction(RemedialActionSeries remedialActionSeries) {
         String createdRemedialActionId = remedialActionSeries.getMRID();
         String createdRemedialActionName = remedialActionSeries.getName();
         List<RemedialActionRegisteredResource> remedialActionRegisteredResources = remedialActionSeries.getRegisteredResource();
         String applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
 
-        // 1) Remedial Action is a Pst Range Action :
-        if (identifyAndAddRemedialActionPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
+        // 1) Check if Remedial Action is a Pst Range Action :
+        if (identifyAndReadPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus)) {
             return;
         }
-        // 2) Remedial Action is part of a HVDC Range Action :
-        if (identifyHvdcRangeAction(remedialActionSeries)) {
+        // 2) Check if Remedial Action is part of a HVDC Range Action :
+        if (identifyAndReadHvdcRangeAction(remedialActionSeries)) {
             return;
         }
 
-        // 3) Remedial Action is a Network Action :
-        if (!networkActionCreators.containsKey(createdRemedialActionId)
-            || !networkActionCreators.get(createdRemedialActionId).getNetworkActionCreationContext().isImported()) {
-            NetworkActionCreator networkActionCreator = new NetworkActionCreator(
-                crac, network,
-                createdRemedialActionId, createdRemedialActionName, applicationModeMarketObjectStatus,
-                remedialActionRegisteredResources,
-                contingencies, invalidContingencies, flowCnecs, sharedDomain);
-            networkActionCreator.createNetworkActionAdder();
-            networkActionCreators.put(createdRemedialActionId, networkActionCreator);
-        } else {
-            // Only import extra usage rules
-            addUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
-        }
+        // 3) Suppose that Remedial Action is a Network Action :
+        readNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus);
     }
 
-    // Return true if remedial action has been defined.
-    private boolean identifyAndAddRemedialActionPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
+    // Return true if PST range action has been read.
+    private boolean identifyAndReadPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
             if (Objects.isNull(psrType)) {
@@ -235,8 +227,9 @@ public class RemedialActionSeriesCreator {
                     pstRangeActionCreator.createPstRangeActionAdder(cimCracCreationParameters);
                     pstRangeActionCreators.put(createdRemedialActionId, pstRangeActionCreator);
                 } else {
-                    // Only import extra usage rules
-                    addUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
+                    // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
+                    // In this case, only import extra usage rules
+                    addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
                 }
                 return true;
 
@@ -245,9 +238,9 @@ public class RemedialActionSeriesCreator {
         return false;
     }
 
-    private void addUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
+    private void addExtraUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
         try {
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus,
+            RemedialActionSeriesCreator.addExtraUsageRules(applicationModeMarketObjectStatus,
                 adder,
                 contingencies, invalidContingencies, flowCnecs, sharedDomain);
         } catch (FaraoImportException e) {
@@ -256,7 +249,7 @@ public class RemedialActionSeriesCreator {
     }
 
     // Indicates whether an hvdc range action is present amidst the registered resources
-    private boolean identifyHvdcRangeAction(RemedialActionSeries remedialActionSeries) {
+    private boolean identifyAndReadHvdcRangeAction(RemedialActionSeries remedialActionSeries) {
         List<RemedialActionRegisteredResource> remedialActionRegisteredResources = remedialActionSeries.getRegisteredResource();
         String applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
@@ -275,6 +268,23 @@ public class RemedialActionSeriesCreator {
             }
         }
         return false;
+    }
+
+    private void readNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus) {
+        if (!networkActionCreators.containsKey(createdRemedialActionId)
+            || !networkActionCreators.get(createdRemedialActionId).getNetworkActionCreationContext().isImported()) {
+            NetworkActionCreator networkActionCreator = new NetworkActionCreator(
+                crac, network,
+                createdRemedialActionId, createdRemedialActionName, applicationModeMarketObjectStatus,
+                remedialActionRegisteredResources,
+                contingencies, invalidContingencies, flowCnecs, sharedDomain);
+            networkActionCreator.createNetworkActionAdder();
+            networkActionCreators.put(createdRemedialActionId, networkActionCreator);
+        } else {
+            // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
+            // In this case, only import extra usage rules
+            addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
+        }
     }
 
     /*---------------- STATIC METHODS ----------------------*/
@@ -296,33 +306,33 @@ public class RemedialActionSeriesCreator {
         }
     }
 
-    public static void addUsageRules(String applicationModeMarketObjectStatus,
-                                     RemedialActionAdder<?> remedialActionAdder,
-                                     List<Contingency> contingencies,
-                                     List<String> invalidContingencies,
-                                     Set<FlowCnec> flowCnecs,
-                                     Country sharedDomain) {
+    public static void addExtraUsageRules(String applicationModeMarketObjectStatus,
+                                          RemedialActionAdder<?> remedialActionAdder,
+                                          List<Contingency> contingencies,
+                                          List<String> invalidContingencies,
+                                          Set<FlowCnec> flowCnecs,
+                                          Country sharedDomain) {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.PREVENTIVE);
+            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.PREVENTIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
+            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, sharedDomain, Instant.PREVENTIVE);
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
+            addExtraUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, sharedDomain, Instant.PREVENTIVE);
+            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.AUTO);
+            addExtraUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain, Instant.AUTO);
         }
     }
 
-    private static void addUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
-                                               List<Contingency> contingencies,
-                                               List<String> invalidContingencies,
-                                               Set<FlowCnec> flowCnecs,
-                                               Country sharedDomain,
-                                               Instant instant) {
+    private static void addExtraUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
+                                                    List<Contingency> contingencies,
+                                                    List<String> invalidContingencies,
+                                                    Set<FlowCnec> flowCnecs,
+                                                    Country sharedDomain,
+                                                    Instant instant) {
         if (!flowCnecs.isEmpty()) {
             flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
             return;
@@ -445,7 +455,7 @@ public class RemedialActionSeriesCreator {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing availabilityMarketObjectStatus"));
             return false;
         }
-        // Temporary: A38 not yet handled by FARAO.
+        // A38 not handled by FARAO.
         if (availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.SHALL_BE_USED.getStatus())) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
             return false;
