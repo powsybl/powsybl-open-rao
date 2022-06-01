@@ -240,9 +240,9 @@ public class RemedialActionSeriesCreator {
 
     private void addExtraUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
         try {
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus,
-                adder,
-                contingencies, invalidContingencies, flowCnecs, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(
+                applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, sharedDomain
+            );
         } catch (FaraoImportException e) {
             cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
         }
