@@ -74,7 +74,8 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
 
     @Test
     public void testExceptionCases() {
-        assertThrows(UncheckedIOException.class, () -> JsonFlowbasedDomain.read(getClass().getResourceAsStream("/notExistingFile.json")));
+        InputStream resource = getClass().getResourceAsStream("/notExistingFile.json");
+        assertThrows(UncheckedIOException.class, () -> JsonFlowbasedDomain.read(resource));
     }
 
     @Test
