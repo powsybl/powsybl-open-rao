@@ -20,7 +20,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.BusBarChangeSwitches;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.cse.parameters.RangeActionGroup;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UctePstHelper;
@@ -351,35 +351,20 @@ public class TRemedialActionAdder {
         if (sharedWithId.equals("None")) {
             return;
         }
-        boolean countryRecognized = false;
-        for (Country c : Country.values()) {
-            if (c.toString().equals(sharedWithId)) {
-                countryRecognized = true;
-                break;
-            }
-        }
-        if (!countryRecognized) {
+
+        Country country;
+        try {
+            country = Country.valueOf(sharedWithId);
+        } catch (IllegalArgumentException e) {
             cseCracCreationContext.getCreationReport().removed(String.format("RA %s has a non-UCTE sharedWith country : %s. The usage rule was not created.", tRemedialAction.getName().getV(), sharedWithId));
             return;
         }
 
         // RA is available for specific UCTE country
-        crac.getFlowCnecs().forEach(flowCnec -> {
-            // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
-            if (raApplicationInstant.compareTo(crac.getFlowCnec(flowCnec.getId()).getState().getInstant()) > 0) {
-                return;
-            }
-            flowCnec.getLocation(network).forEach(country -> {
-                if (country.isEmpty()) {
-                    return;
-                }
-                if (country.get().toString().equals(sharedWithId)) {
-                    remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(raApplicationInstant)
-                        .withFlowCnec(flowCnec.getId())
-                        .add();
-                }
-            });
-        });
+        remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
+            .withInstant(raApplicationInstant)
+            .withCountry(country)
+            .add();
     }
 
     private void addFreeToUseUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {

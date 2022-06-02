@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.cse.parameters;
+package com.farao_community.farao.data.crac_creation.creator.api.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 
@@ -23,7 +23,7 @@ public class RangeActionGroup {
 
     private final List<String> rangeActionsIds;
 
-    RangeActionGroup(List<String> rangeActionsIds) {
+    public RangeActionGroup(List<String> rangeActionsIds) {
         this.rangeActionsIds = rangeActionsIds;
     }
 
@@ -31,7 +31,7 @@ public class RangeActionGroup {
         return rangeActionsIds;
     }
 
-    static List<String> parse(String concatenatedIds) {
+    public static List<String> parse(String concatenatedIds) {
         String[] seperatedIds = concatenatedIds.split(Pattern.quote(SEPARATOR));
         if (seperatedIds.length < 2) {
             throw new FaraoException(String.format("ParallelRangeActions configuration %s cannot be interpreted, it should contains at least two ids seperated with '%s'", concatenatedIds, SEPARATOR));

@@ -12,7 +12,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cn
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class CnecCreationContext {
     private final String createdCnecId;
@@ -29,8 +29,8 @@ public final class CnecCreationContext {
         return new CnecCreationContext(null, importStatus, importStatusDetail);
     }
 
-    static CnecCreationContext imported(String createdCnecId, String importStatusDetail) {
-        return new CnecCreationContext(createdCnecId, ImportStatus.IMPORTED, importStatusDetail);
+    static CnecCreationContext imported(String createdCnecId) {
+        return new CnecCreationContext(createdCnecId, ImportStatus.IMPORTED, null);
     }
 
     public String getCreatedCnecId() {

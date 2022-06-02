@@ -18,16 +18,15 @@ import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
+import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
-import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
 import static junit.framework.TestCase.assertEquals;
@@ -142,16 +141,19 @@ public class CracImportExportTest {
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
         // check freeToUse usage rule
-        assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof FreeToUse);
-        FreeToUse freeToUse = (FreeToUse) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
+        FreeToUse freeToUse = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+            .filter(ur -> ur instanceof FreeToUse)
+            .map(ur -> (FreeToUse) ur)
+            .findAny().orElse(null);
+        assertNotNull(freeToUse);
         assertEquals(PREVENTIVE, freeToUse.getInstant());
         assertEquals(AVAILABLE, freeToUse.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
 
-        // check onState usage Rule
+        // check onState usage Rule (curative)
         OnState onState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
                 .filter(ur -> ur instanceof OnState)
                 .map(ur -> (OnState) ur)
@@ -159,6 +161,17 @@ public class CracImportExportTest {
         assertNotNull(onState);
         assertEquals("contingency1Id", onState.getContingency().getId());
         assertEquals(CURATIVE, onState.getInstant());
+        assertEquals(FORCED, onState.getUsageMethod());
+
+        // check onState usage Rule (preventive)
+        onState = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+            .filter(ur -> ur instanceof OnState)
+            .map(ur -> (OnState) ur)
+            .findAny().orElse(null);
+        assertNotNull(onState);
+        assertNull(onState.getContingency());
+        assertEquals(crac.getPreventiveState(), onState.getState());
+        assertEquals(PREVENTIVE, onState.getInstant());
         assertEquals(FORCED, onState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
@@ -247,6 +260,14 @@ public class CracImportExportTest {
         assertEquals(1000, hvdcRange.getMax(), 1e-3);
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
 
+        // Check OnFlowConstraintInCountry usage rules
+        List<UsageRule> usageRules = crac.getRemedialAction("hvdcRange1Id").getUsageRules();
+        assertEquals(1, usageRules.size());
+        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
+        OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        assertEquals(PREVENTIVE, ur.getInstant());
+        assertEquals(Country.FR, ur.getCountry());
+
         // ---------------------------------
         // --- test InjectionRangeAction ---
         // ---------------------------------
@@ -262,5 +283,13 @@ public class CracImportExportTest {
         assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
+
+        // Check OnFlowConstraintInCountry usage rules
+        usageRules = crac.getRemedialAction("injectionRange1Id").getUsageRules();
+        assertEquals(1, usageRules.size());
+        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
+        ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        assertEquals(CURATIVE, ur.getInstant());
+        assertEquals(Country.ES, ur.getCountry());
     }
 }

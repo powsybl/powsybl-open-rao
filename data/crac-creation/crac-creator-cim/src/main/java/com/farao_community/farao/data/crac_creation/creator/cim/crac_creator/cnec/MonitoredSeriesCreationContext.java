@@ -10,10 +10,12 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cn
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesId;
@@ -22,7 +24,11 @@ public final class MonitoredSeriesCreationContext {
     private final Set<MeasurementCreationContext> measurementCreationContexts;
     private final boolean isAltered;
 
-    private MonitoredSeriesCreationContext(String monitoredSeriesId, ImportStatus importStatus, boolean isAltered, String importStatusDetail) {
+    private MonitoredSeriesCreationContext(
+        String monitoredSeriesId,
+        ImportStatus importStatus,
+        boolean isAltered,
+        String importStatusDetail) {
         this.monitoredSeriesId = monitoredSeriesId;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
@@ -64,6 +70,12 @@ public final class MonitoredSeriesCreationContext {
 
     public boolean isAltered() {
         return isAltered;
+    }
+
+    public Set<String> getCreatedCnecIds() {
+        return measurementCreationContexts.stream().map(mcc ->
+            mcc.getCnecCreationContexts().values().stream().map(CnecCreationContext::getCreatedCnecId).filter(Objects::nonNull).collect(Collectors.toSet())
+        ).flatMap(Set::stream).collect(Collectors.toSet());
     }
 }
 

@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracC
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreator;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
@@ -22,7 +23,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @AutoService(CracCreator.class)
 public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationContext> {
@@ -44,6 +45,12 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         this.cimTimeSeries = cimCrac.getCracDocument().getTimeSeries();
         this.creationContext = new CimCracCreationContext(crac);
 
+        // Get warning messages from parameters parsing
+        CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
+        if (cimCracCreationParameters != null) {
+            cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
+        }
+
         if (offsetDateTime == null) {
             creationContext.getCreationReport().warn("Timestamp is null for cim crac creator. No check will be performed.");
         } else {
@@ -57,7 +64,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
 
         createContingencies();
         createCnecs();
-        createRemedialActions();
+        createRemedialActions(cimCracCreationParameters);
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -67,11 +74,11 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
     }
 
     private void createCnecs() {
-        new MonitoredSeriesCreator(cimTimeSeries, crac, network, creationContext).createAndAddMonitoredSeries();
+        new MonitoredSeriesCreator(cimTimeSeries, network, creationContext).createAndAddMonitoredSeries();
     }
 
-    private void createRemedialActions() {
-        new RemedialActionSeriesCreator(cimTimeSeries, crac, network, creationContext).createAndAddRemedialActionSeries();
+    private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters) {
+        new RemedialActionSeriesCreator(cimTimeSeries, crac, network, creationContext, cimCracCreationParameters).createAndAddRemedialActionSeries();
     }
 
     private boolean isInTimeInterval(OffsetDateTime offsetDateTime, String startTime, String endTime) {

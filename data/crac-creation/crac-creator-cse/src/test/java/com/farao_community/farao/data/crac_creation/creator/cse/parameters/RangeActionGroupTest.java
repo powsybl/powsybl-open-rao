@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cse.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import org.junit.Test;
 
 import java.util.ArrayList;

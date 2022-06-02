@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class CimCracCreationContext implements CracCreationContext {
     private Crac crac;
@@ -131,11 +131,11 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContexts(String seriesId) {
-        return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElseThrow();
+        return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 
     public CimContingencyCreationContext getContingencyCreationContext(String contingencyName) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeId().equals(contingencyName)).findAny().orElseThrow();
+        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeId().equals(contingencyName)).findAny().orElse(null);
     }
 
     CimCracCreationContext creationFailure() {

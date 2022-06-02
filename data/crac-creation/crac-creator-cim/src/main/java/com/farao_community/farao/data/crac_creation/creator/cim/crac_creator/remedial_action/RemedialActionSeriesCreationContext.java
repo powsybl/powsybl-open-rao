@@ -10,32 +10,42 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
+import java.util.Set;
+
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class RemedialActionSeriesCreationContext implements ElementaryCreationContext {
-    private final String remedialActionSeriesId;
+    private final String nativeId;
+    private final Set<String> createdIds;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
     private final boolean isAltered;
+    private final boolean isInverted;
 
-    private RemedialActionSeriesCreationContext(String remedialActionSeriesId, ImportStatus importStatus, boolean isAltered, String importStatusDetail) {
-        this.remedialActionSeriesId = remedialActionSeriesId;
+    private RemedialActionSeriesCreationContext(String nativeId, Set<String> createdIds, ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
+        this.nativeId = nativeId;
+        this.createdIds = createdIds;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         this.isAltered = isAltered;
+        this.isInverted = isInverted;
     }
 
-    static RemedialActionSeriesCreationContext notImported(String remedialActionSeriesId, ImportStatus importStatus, String importStatusDetail) {
-        return new RemedialActionSeriesCreationContext(remedialActionSeriesId, importStatus, false, importStatusDetail);
+    static RemedialActionSeriesCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
+        return new RemedialActionSeriesCreationContext(nativeId, Set.of(nativeId), importStatus, false, false, importStatusDetail);
     }
 
-    static RemedialActionSeriesCreationContext imported(String remedialActionSeriesId, boolean isAltered, String importStatusDetail) {
-        return new RemedialActionSeriesCreationContext(remedialActionSeriesId, ImportStatus.IMPORTED, isAltered, importStatusDetail);
+    static RemedialActionSeriesCreationContext imported(String nativeId, boolean isAltered, String importStatusDetail) {
+        return new RemedialActionSeriesCreationContext(nativeId, Set.of(nativeId), ImportStatus.IMPORTED, isAltered, false, importStatusDetail);
+    }
+
+    static RemedialActionSeriesCreationContext importedHvdcRa(String nativeId, Set<String> createdIds, boolean isAltered, boolean isInverted, String importStatusDetail) {
+        return new RemedialActionSeriesCreationContext(nativeId, createdIds, ImportStatus.IMPORTED, isAltered, isInverted, importStatusDetail);
     }
 
     public String getNativeId() {
-        return remedialActionSeriesId;
+        return nativeId;
     }
 
     public boolean isImported() {
@@ -51,7 +61,16 @@ public final class RemedialActionSeriesCreationContext implements ElementaryCrea
     }
 
     public boolean isAltered() {
+
         return isAltered;
+    }
+
+    public boolean isInverted() {
+        return isInverted;
+    }
+
+    public Set<String> getCreatedIds() {
+        return createdIds;
     }
 }
 

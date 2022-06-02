@@ -13,7 +13,7 @@ import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 /**
- * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class MeasurementCreationContext {
     private final ImportStatus importStatus;
@@ -30,8 +30,8 @@ public final class MeasurementCreationContext {
         return new MeasurementCreationContext(importStatus, importStatusDetail);
     }
 
-    static MeasurementCreationContext imported(String importStatusDetail) {
-        return new MeasurementCreationContext(ImportStatus.IMPORTED, importStatusDetail);
+    static MeasurementCreationContext imported() {
+        return new MeasurementCreationContext(ImportStatus.IMPORTED, null);
     }
 
     public boolean isImported() {
