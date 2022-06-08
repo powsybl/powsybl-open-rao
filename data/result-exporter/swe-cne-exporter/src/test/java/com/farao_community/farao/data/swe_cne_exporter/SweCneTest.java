@@ -85,7 +85,7 @@ public class SweCneTest {
         }
         for (int i = 0; i < splitExpected.length; i++) {
             if (!splitExpected[i].equals(splitOutput[i]) && !splitExpected[i].contains("mRID") && !splitExpected[i].contains("createdDateTime")) {
-                 Assert.fail(String.format("Difference at line %d: \"%s\" instead of \"%s\"", i, splitOutput[i], splitExpected[i]));
+                Assert.fail(String.format("Difference at line %d: \"%s\" instead of \"%s\"", i, splitOutput[i], splitExpected[i]));
             }
         }
     }
