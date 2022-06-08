@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
 /**
- * @author Peter Mitri <peter.mitri at rte-france.com>
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class FaraoImportException extends RuntimeException {
     private final ImportStatus importStatus;
