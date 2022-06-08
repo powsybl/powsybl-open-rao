@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.core_cne_exporter.xsd.ESMPDateTimeInterval;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
 import org.junit.Test;
 
 import java.time.OffsetDateTime;

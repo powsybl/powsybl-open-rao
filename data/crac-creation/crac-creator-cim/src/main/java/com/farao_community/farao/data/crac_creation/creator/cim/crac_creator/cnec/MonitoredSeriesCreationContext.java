@@ -17,29 +17,50 @@ import java.util.Set;
  */
 public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesId;
+    private final String monitoredSeriesName;
+    private final String registeredResourceId;
+    private final String registeredResourceName;
     private final ImportStatus importStatus;
     private final String importStatusDetail;
     private final Set<MeasurementCreationContext> measurementCreationContexts;
     private final boolean isAltered;
 
-    private MonitoredSeriesCreationContext(String monitoredSeriesId, ImportStatus importStatus, boolean isAltered, String importStatusDetail) {
+    private MonitoredSeriesCreationContext(String monitoredSeriesId, String monitoredSeriesName, String registeredResourceId, String registeredResourceName,
+                                           ImportStatus importStatus, boolean isAltered, String importStatusDetail) {
         this.monitoredSeriesId = monitoredSeriesId;
+        this.monitoredSeriesName = monitoredSeriesName;
+        this.registeredResourceId = registeredResourceId;
+        this.registeredResourceName = registeredResourceName;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         measurementCreationContexts = new LinkedHashSet<>();
         this.isAltered = isAltered;
     }
 
-    static MonitoredSeriesCreationContext notImported(String monitoredSeriesId, ImportStatus importStatus, String importStatusDetail) {
-        return new MonitoredSeriesCreationContext(monitoredSeriesId, importStatus, false, importStatusDetail);
+    static MonitoredSeriesCreationContext notImported(String monitoredSeriesId, String monitoredSeriesName, String registeredResourceId, String registeredResourceName,
+                                                      ImportStatus importStatus, String importStatusDetail) {
+        return new MonitoredSeriesCreationContext(monitoredSeriesId, monitoredSeriesName, registeredResourceId, registeredResourceName, importStatus, false, importStatusDetail);
     }
 
-    static MonitoredSeriesCreationContext imported(String monitoredSeriesId, boolean isAltered, String importStatusDetail) {
-        return new MonitoredSeriesCreationContext(monitoredSeriesId, ImportStatus.IMPORTED, isAltered, importStatusDetail);
+    static MonitoredSeriesCreationContext imported(String monitoredSeriesId, String monitoredSeriesName, String registeredResourceId, String registeredResourceName,
+                                                   boolean isAltered, String importStatusDetail) {
+        return new MonitoredSeriesCreationContext(monitoredSeriesId, monitoredSeriesName, registeredResourceId, registeredResourceName, ImportStatus.IMPORTED, isAltered, importStatusDetail);
     }
 
     public String getNativeId() {
         return monitoredSeriesId;
+    }
+
+    public String getNativeName() {
+        return monitoredSeriesName;
+    }
+
+    public String getNativeResourceId() {
+        return registeredResourceId;
+    }
+
+    public String getNativeResourceName() {
+        return registeredResourceName;
     }
 
     public boolean isImported() {

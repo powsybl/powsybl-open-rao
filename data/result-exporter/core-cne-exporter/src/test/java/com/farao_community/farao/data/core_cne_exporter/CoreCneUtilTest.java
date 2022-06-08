@@ -17,23 +17,23 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneUtilTest {
+public class CoreCneUtilTest {
     @Test
     public void testInterval() {
         OffsetDateTime odt = OffsetDateTime.parse("2021-10-30T22:00:00Z");
-        ESMPDateTimeInterval interval = CneUtil.createEsmpDateTimeInterval(odt);
+        ESMPDateTimeInterval interval = CoreCneUtil.createEsmpDateTimeInterval(odt);
         assertEquals("2021-10-30T22:00Z", interval.getStart());
         assertEquals("2021-10-30T23:00Z", interval.getEnd());
 
         odt = OffsetDateTime.parse("2021-03-28T10:00:00Z");
-        interval = CneUtil.createEsmpDateTimeInterval(odt);
+        interval = CoreCneUtil.createEsmpDateTimeInterval(odt);
         assertEquals("2021-03-28T10:00Z", interval.getStart());
         assertEquals("2021-03-28T11:00Z", interval.getEnd());
     }
 
     @Test
     public void testIntervalWholeDay() {
-        ESMPDateTimeInterval interval = CneUtil.createEsmpDateTimeIntervalForWholeDay("2021-10-30T22:00Z/2021-10-31T23:00Z");
+        ESMPDateTimeInterval interval = CoreCneUtil.createEsmpDateTimeIntervalForWholeDay("2021-10-30T22:00Z/2021-10-31T23:00Z");
         assertEquals("2021-10-30T22:00Z", interval.getStart());
         assertEquals("2021-10-31T23:00Z", interval.getEnd());
     }

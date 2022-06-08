@@ -80,24 +80,27 @@ public class MonitoredSeriesCreator {
 
     private void readAndAddCnec(MonitoredSeries monitoredSeries, List<Contingency> contingencies, String optimizationStatus, List<String> invalidContingencies) {
         String nativeId = monitoredSeries.getMRID();
+        String nativeName = monitoredSeries.getName();
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, "", "", ImportStatus.INCOMPLETE_DATA, "No registered resources"));
             return;
         }
         if (monitoredRegisteredResources.size() > 1) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
+            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, "", "", ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
             return;
         }
 
         MonitoredRegisteredResource monitoredRegisteredResource = monitoredRegisteredResources.get(0);
         String cnecId = monitoredRegisteredResource.getName();
+        String resourceId = monitoredRegisteredResource.getMRID().getValue();
+        String resourceName = monitoredRegisteredResource.getName();
 
         //Get network element
         CgmesBranchHelper branchHelper = new CgmesBranchHelper(monitoredRegisteredResource.getMRID().getValue(), network);
         if (branchHelper.getBranch() == null) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())));
+            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())));
             return;
         }
 
@@ -108,17 +111,18 @@ public class MonitoredSeriesCreator {
         } else if (Objects.isNull(optimizationStatus) || optimizationStatus.equals(CNECS_OPTIMIZED_MARKET_OBJECT_STATUS)) {
             isMnec = false;
         } else {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Unrecognized optimization_MarketObjectStatus.status: %s", optimizationStatus)));
+            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
+                ImportStatus.INCONSISTENCY_IN_DATA, String.format("Unrecognized optimization_MarketObjectStatus.status: %s", optimizationStatus)));
             return;
         }
 
         MonitoredSeriesCreationContext monitoredSeriesCreationContext;
         if (invalidContingencies.isEmpty()) {
-            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, false, "");
+            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, nativeName, resourceId, resourceName, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, true, String.format("Contingencies %s not defined in B55s", contingencyList));
+            monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, nativeName, resourceId, resourceName,
+                true, String.format("Contingencies %s not defined in B55s", contingencyList));
         }
         monitoredSeriesCreationContexts.put(nativeId, monitoredSeriesCreationContext);
 

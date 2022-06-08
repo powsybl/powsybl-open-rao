@@ -59,6 +59,8 @@ public final class CneConstants {
     public static final String PATL_MEASUREMENT_TYPE = "A02";
     public static final String FRM_MEASUREMENT_TYPE = "A03";
     public static final String TATL_MEASUREMENT_TYPE = "A07";
+    public static final String AUTO_MEASUREMENT_TYPE = "A12";
+    public static final String CURATIVE_MEASUREMENT_TYPE = "A13";
     public static final String SUM_PTDF_MEASUREMENT_TYPE = "Z11";
     public static final String ABS_MARG_PATL_MEASUREMENT_TYPE = "Z12";
     public static final String OBJ_FUNC_PATL_MEASUREMENT_TYPE = "Z13";
@@ -87,6 +89,14 @@ public final class CneConstants {
     public static final String WITHOUT_UNIT_SYMBOL = "C62";
     // marketObjectStatus.status
     public static final String ABSOLUTE_MARKET_OBJECT_STATUS = "A26";
+
+    /* Reason */
+    public static final String SECURE_CODE = "Z13";
+    public static final String SECURE_TEXT = "Network is secure";
+    public static final String UNSECURE_CODE = "Z03";
+    public static final String UNSECURE_TEXT = "Network is unsecure";
+    public static final String DIVERGENCE_CODE = "Z08";
+    public static final String DIVERGENCE_TEXT = "Load flow divergence";
 
     private CneConstants() { }
 }

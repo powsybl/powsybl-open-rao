@@ -58,7 +58,7 @@ public class PstRangeActionCreator {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = pstRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
-            pstRangeActionCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatus"));
+            pstRangeActionCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatus"));
             return pstRangeActionCreationContexts;
         }
         Pair<Boolean, RangeType> rangeTypeStatus = defineRangeType(marketObjectStatusStatus);
@@ -74,7 +74,7 @@ public class PstRangeActionCreator {
 
         IidmPstHelper pstHelper = new IidmPstHelper(networkElementId, network);
         if (!pstHelper.isValid()) {
-            pstRangeActionCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s", pstHelper.getInvalidReason())));
+            pstRangeActionCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s", pstHelper.getInvalidReason())));
             return pstRangeActionCreationContexts;
         }
 
@@ -115,7 +115,7 @@ public class PstRangeActionCreator {
             return pstRangeActionCreationContexts;
         }
 
-        RemedialActionSeriesCreator.importWithContingencies(createdRemedialActionId, invalidContingencies, pstRangeActionCreationContexts);
+        RemedialActionSeriesCreator.importPstWithContingencies(createdRemedialActionId, invalidContingencies, pstRangeActionCreationContexts, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName());
         pstRangeActionAdder.add();
         return pstRangeActionCreationContexts;
     }
@@ -128,10 +128,10 @@ public class PstRangeActionCreator {
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT1.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT2.getStatus())) {
             return Pair.of(true, RangeType.RELATIVE_TO_PREVIOUS_INSTANT);
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
-            pstRangeActionCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus)));
+            pstRangeActionCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus)));
             return Pair.of(false, RangeType.ABSOLUTE);
         } else {
-            pstRangeActionCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus)));
+            pstRangeActionCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus)));
             return Pair.of(false, RangeType.ABSOLUTE);
         }
     }

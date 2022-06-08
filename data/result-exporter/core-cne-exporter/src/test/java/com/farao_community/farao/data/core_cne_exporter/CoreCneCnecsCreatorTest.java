@@ -8,6 +8,9 @@
 package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
+import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.*;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -35,13 +38,13 @@ import static org.mockito.Mockito.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneCnecsCreatorTest {
+public class CoreCneCnecsCreatorTest {
 
     private Crac crac;
     private Network network;
     private RaoResult raoResult;
     private RaoParameters raoParameters;
-    private CoreCneExporterParameters exporterParameters;
+    private CneExporterParameters exporterParameters;
 
     @Before
     public void setUp() {
@@ -50,8 +53,8 @@ public class CneCnecsCreatorTest {
         crac = CracFactory.findDefault().create("test-crac");
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
-        exporterParameters = new CoreCneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CoreCneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", CoreCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CoreCneExporterParameters.RoleType.CAPACITY_COORDINATOR, "2021-10-30T22:00Z/2021-10-31T23:00Z");
+        exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
+            "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR, "2021-10-30T22:00Z/2021-10-31T23:00Z");
     }
 
     private void checkConstraintSeriesContent(ConstraintSeries cs, FlowCnec cnec, String businessType, List<String> countries, boolean asMnec,

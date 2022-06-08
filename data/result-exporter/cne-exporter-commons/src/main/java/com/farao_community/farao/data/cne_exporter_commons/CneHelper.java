@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cse.CseCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -36,7 +35,7 @@ public class CneHelper {
     private CneExporterParameters exporterParameters;
     private double mnecAcceptableMarginDiminution;
 
-    public CneHelper(Crac crac, Network network, CracCreationContext CreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, Network network, CracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;

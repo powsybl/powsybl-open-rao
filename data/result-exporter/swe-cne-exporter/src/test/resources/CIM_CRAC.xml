@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CRAC_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3 iec62325-451-n-crac_v2_3.xsd">
+  <mRID>CIM_CRAC_DOCUMENT</mRID>
+  <revisionNumber>1</revisionNumber>
+  <type>B15</type>
+  <process.processType>A48</process.processType>
+  <sender_MarketParticipant.mRID codingScheme="A01">FAKE</sender_MarketParticipant.mRID>
+  <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+  <receiver_MarketParticipant.mRID codingScheme="A01">FAKE</receiver_MarketParticipant.mRID>
+  <receiver_MarketParticipant.marketRole.type>A04</receiver_MarketParticipant.marketRole.type>
+  <createdDateTime>2021-03-31T15:02:00Z</createdDateTime>
+  <status>
+    <value>A42</value>
+  </status>
+  <time_Period.timeInterval>
+    <start>2021-04-01T22:00Z</start>
+    <end>2021-04-02T22:00Z</end>
+  </time_Period.timeInterval>
+  <domain.mRID codingScheme="A01">10YCB-FR-ES-PT-S</domain.mRID>
+  <TimeSeries>
+    <mRID>TimeSeries</mRID>
+    <businessType>B54</businessType>
+    <curveType>A03</curveType>
+    <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+    <Period>
+      <timeInterval>
+        <start>2021-04-01T22:00Z</start>
+        <end>2021-04-02T22:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point>
+        <position>2</position>
+        <Series>
+          <mRID>Contingencies_1</mRID>
+          <businessType>B55</businessType>
+          <name>Contingencies_1</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Contingency 1 name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
+              <name>FFR1AA11 FFR3AA11 1</name>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Contingency 2 name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE1AA11 BBE3AA11 1</mRID>
+              <name>BBE1AA11 BBE3AA11 1</name>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-1</mRID>
+          <businessType>B56</businessType>
+          <name>HVDC valid range actions</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Contingency name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
+              <name>FFR1AA11 FFR3AA11 1</name>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Contingency 2 name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE1AA11 BBE3AA1 1</mRID>
+              <name>BBE1AA11 BBE3AA11 1</name>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>HVDC-direction11</mRID>
+            <name>HVDC-direction11-ra</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA11 FFR3AA11 1</mRID>
+              <name>PMode on HVDC BE2 FR3 1</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <marketObjectStatus.status>A43</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA11 FFR3AA11 1</mRID>
+              <name>RangeAction on HVDC BE2 FR3 1</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">FFR3AA11</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">BBE2AA11</out_AggregateNode.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>1500.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.defaultCapacity>500.0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA12 FFR3AA12 1</mRID>
+              <name>PMode on HVDC BE2 FR3 2</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C2</out_Domain.mRID>
+              <marketObjectStatus.status>A43</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA12 FFR3AA12 1</mRID>
+              <name>RangeAction on HVDC BE2 FR3 2</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">FFR3AA12</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">BBE2AA12</out_AggregateNode.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>1500.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.defaultCapacity>500.0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+          <RemedialAction_Series>
+            <mRID>HVDC-direction12</mRID>
+            <name>HVDC-direction12-ra</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA11 FFR3AA11 1</mRID>
+              <name>PMode on HVDC BE2 FR3 1</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <marketObjectStatus.status>A43</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA11 FFR3AA11 1</mRID>
+              <name>RangeAction on HVDC BE2 FR3 1</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">BBE2AA11</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">FFR3AA11</out_AggregateNode.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>1000.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.defaultCapacity>500.0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA12 FFR3AA12 1</mRID>
+              <name>PMode on HVDC BE2 FR3 2</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <marketObjectStatus.status>A43</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA12 FFR3AA12 1</mRID>
+              <name>RangeAction on HVDC BE2 FR3 2</name>
+              <pSRType.psrType>B22</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">BBE2AA12</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">FFR3AA12</out_AggregateNode.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>1000.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.defaultCapacity>500.0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-1</mRID>
+          <businessType>B56</businessType>
+          <name>RA_AFTER_ALL_CONTINGENCIES</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <RemedialAction_Series>
+            <mRID>PRA_1</mRID>
+            <name>PRA_1</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA11 BBE3AA11 1</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_2</mRID>
+            <name>PRA_2</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">NNL2AA11 NNL3AA11 1</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A01</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A21</marketObjectStatus.status>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>CNECs_after_all_contingencies</mRID>
+          <businessType>B57</businessType>
+          <name>CNECs_after_all_contingencies</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Monitored_Series>
+            <mRID>CNEC-1</mRID>
+            <name>CNEC-1-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">DDE2AA11 NNL3AA11 1</mRID>
+              <name>CNEC-1</name>
+              <in_Domain.mRID codingScheme="A01">1---W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1--W</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>2.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A07</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A01</positiveFlowIn>
+                <analogValues.value>2.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+          <Monitored_Series>
+            <mRID>CNEC-2</mRID>
+            <name>CNEC-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+              <name>CNEC-2</name>
+              <in_Domain.mRID codingScheme="A01">1---W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1--W</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <positiveFlowIn>A01</positiveFlowIn>
+                <analogValues.value>2.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A07</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>7.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A12</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>12.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A13</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>13.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+        </Series>
+      </Point>
+    </Period>
+  </TimeSeries>
+</CRAC_MarketDocument>

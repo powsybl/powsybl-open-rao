@@ -11,17 +11,11 @@ import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
-import org.threeten.extra.Interval;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.B56_BUSINESS_TYPE;
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.B57_BUSINESS_TYPE;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
 
 /**
  * Structures the chaining of RASeriesCreator and MonitoredSeriesCreator for SWE CNE format

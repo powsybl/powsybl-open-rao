@@ -4,7 +4,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
 import java.util.Set;
 
-public class PstRangeActionSeriesCreationContext extends RemedialActionSeriesCreationContext {
+public final class PstRangeActionSeriesCreationContext extends RemedialActionSeriesCreationContext {
     private final String networkElementNativeMrid;
     private final String networkElementNativeName;
 

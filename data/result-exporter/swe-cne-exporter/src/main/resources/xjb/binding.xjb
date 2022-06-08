@@ -12,6 +12,6 @@
         <jxb:javaType name="java.lang.Float"
                       xmlType="xs:float"
                       parseMethod="javax.xml.bind.DatatypeConverter.parseFloat"
-                      printMethod="com.farao_community.farao.data.swe_cne_exporter.xml_formatter.NumberFormatter.printFloat" />
+                      printMethod="com.farao_community.farao.data.cne_exporter_commons.xml_formatter.NumberFormatter.printFloat" />
     </jxb:globalBindings>
 </jxb:bindings>

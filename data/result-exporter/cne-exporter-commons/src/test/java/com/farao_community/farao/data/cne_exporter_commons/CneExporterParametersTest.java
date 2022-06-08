@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.swe_cne_exporter;
+package com.farao_community.farao.data.cne_exporter_commons;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -13,30 +13,30 @@ import static org.junit.Assert.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SweCneExporterParametersTest {
+public class CneExporterParametersTest {
     @Test
     public void basicTest() {
-        SweCneExporterParameters params = new SweCneExporterParameters(
-            "a", 3, "b", SweCneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "c", SweCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
-            "e", SweCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+        CneExporterParameters params = new CneExporterParameters(
+            "a", 3, "b", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
+            "c", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
+            "e", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "timeInterval");
 
         assertEquals("a", params.getDocumentId());
         assertEquals(3, params.getRevisionNumber());
         assertEquals("b", params.getDomainId());
 
-        assertEquals(SweCneExporterParameters.ProcessType.DAY_AHEAD_CC, params.getProcessType());
+        assertEquals(CneExporterParameters.ProcessType.DAY_AHEAD_CC, params.getProcessType());
         assertEquals("A48", params.getProcessType().getCode());
         assertEquals("A48", params.getProcessType().toString());
 
         assertEquals("c", params.getSenderId());
-        assertEquals(SweCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, params.getSenderRole());
+        assertEquals(CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, params.getSenderRole());
         assertEquals("A44", params.getSenderRole().getCode());
         assertEquals("A44", params.getSenderRole().toString());
 
         assertEquals("e", params.getReceiverId());
-        assertEquals(SweCneExporterParameters.RoleType.CAPACITY_COORDINATOR, params.getReceiverRole());
+        assertEquals(CneExporterParameters.RoleType.CAPACITY_COORDINATOR, params.getReceiverRole());
         assertEquals("A36", params.getReceiverRole().getCode());
         assertEquals("A36", params.getReceiverRole().toString());
 

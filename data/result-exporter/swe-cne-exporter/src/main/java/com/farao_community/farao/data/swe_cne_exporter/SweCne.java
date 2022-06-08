@@ -12,20 +12,17 @@ import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.ConstraintSeries;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.Point;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.SeriesPeriod;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,21 +53,24 @@ public class SweCne {
     // Main method
     public void generate() {
         // Reset unique IDs
-        SweCneUtil.initUniqueIds();
+        CneUtil.initUniqueIds();
 
         // this will crash if cneHelper.getCracCreationContext().getTimeStamp() is null
         // the usage of a timestamp in FbConstraintCracCreator is mandatory so it shouldn't be an issue
-        if (Objects.isNull(cneHelper.getCseCracCreationContext().getTimeStamp())) {
+        if (Objects.isNull(cneHelper.getCimCracCreationContext().getTimeStamp())) {
             throw new FaraoException("Cannot export CNE file if the CRAC has no timestamp");
         }
 
-        OffsetDateTime offsetDateTime = cneHelper.getCseCracCreationContext().getTimeStamp().withMinute(0);
+        OffsetDateTime offsetDateTime = cneHelper.getCimCracCreationContext().getTimeStamp().withMinute(0);
         fillHeader(cneHelper.getNetwork().getCaseDate().toDate().toInstant().atOffset(ZoneOffset.UTC));
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
         // fill CNE
         createAllConstraintSeries(point);
+
+        // add reason
+        addResaon(point);
     }
 
     // fills the header of the CNE
@@ -85,7 +85,6 @@ public class SweCne {
         marketDocument.setReceiverMarketParticipantMarketRoleType(cneHelper.getExporterParameters().getReceiverRole().getCode());
         marketDocument.setCreatedDateTime(createXMLGregorianCalendarNow());
         marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeIntervalForWholeDay(cneHelper.getExporterParameters().getTimeInterval()));
-        marketDocument.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getDomainId()));
         marketDocument.setTimePeriodTimeInterval(SweCneUtil.createEsmpDateTimeInterval(offsetDateTime));
     }
 
@@ -103,5 +102,21 @@ public class SweCne {
     private void createAllConstraintSeries(Point point) {
         List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(cneHelper).generate();
         point.getConstraintSeries().addAll(constraintSeriesList);
+    }
+
+    private void addResaon(Point point) {
+        Reason reason = new Reason();
+        RaoResult raoResult = cneHelper.getRaoResult();
+        if (raoResult.getComputationStatus() == ComputationStatus.FAILURE) {
+            reason.setCode(DIVERGENCE_CODE);
+            reason.setCode(DIVERGENCE_TEXT);
+        } else if (raoResult.getFunctionalCost(OptimizationState.AFTER_CRA) > 0) {
+            reason.setCode(UNSECURE_CODE);
+            reason.setText(UNSECURE_TEXT);
+        } else {
+            reason.setCode(SECURE_CODE);
+            reason.setCode(SECURE_TEXT);
+        }
+        point.getReason().add(reason);
     }
 }

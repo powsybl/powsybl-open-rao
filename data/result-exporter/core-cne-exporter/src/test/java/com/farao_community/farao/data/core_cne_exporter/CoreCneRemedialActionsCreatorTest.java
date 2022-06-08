@@ -5,9 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.swe_cne_exporter;
+package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
+import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
+import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ContingencySeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.RemedialActionRegisteredResource;
@@ -36,21 +39,21 @@ import static org.mockito.Mockito.any;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SweCneRemedialActionsCreatorTest {
+public class CoreCneRemedialActionsCreatorTest {
 
     private Crac crac;
     private Network network;
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private List<ConstraintSeries> cnecsConstraintSeries;
-    private SweCneExporterParameters exporterParameters;
+    private CneExporterParameters exporterParameters;
 
     @Before
     public void setUp() {
-        SweCneUtil.initUniqueIds();
+        CneUtil.initUniqueIds();
         network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
-        exporterParameters = new SweCneExporterParameters("22XCORESO------S-20211115-F299v1", 10, "10YDOM-REGION-1V", SweCneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", SweCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", SweCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+        exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 10, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
+            "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00Z/2021-10-31T23:00Z");
         crac = CracFactory.findDefault().create("test-crac");
         crac.newContingency()
@@ -99,8 +102,8 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, new ArrayList<>());
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -135,8 +138,8 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, new ArrayList<>());
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -157,8 +160,8 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, new ArrayList<>());
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -183,9 +186,9 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
 
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -236,9 +239,9 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
 
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -284,8 +287,8 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Set.of(networkAction));
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, new ArrayList<>());
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -304,9 +307,9 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
 
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -348,9 +351,9 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", Instant.CURATIVE))).thenReturn(Set.of(networkAction));
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
 
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -394,11 +397,11 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cneHelper.getCracCreationContext().getRemedialActionCreationContexts().get(0);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, new ArrayList<>());
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new ArrayList<>());
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -437,12 +440,12 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cneHelper.getCracCreationContext().getRemedialActionCreationContexts().get(0);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
 
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 
@@ -492,12 +495,12 @@ public class SweCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.isActivatedDuringState(crac.getState("contingency-id", Instant.CURATIVE), pstRangeAction)).thenReturn(true);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SweCneHelper cneHelper = new SweCneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
-        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cneHelper.getCracCreationContext().getRemedialActionCreationContexts().get(0);
+        CneHelper cneHelper = new CneHelper(crac, network, new MockCracCreationContext(crac), raoResult, raoParameters, exporterParameters);
+        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
 
-        SweCneRemedialActionsCreator cneRemedialActionsCreator = new SweCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
+        CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cnecsConstraintSeries);
 
         List<ConstraintSeries> constraintSeriesList = cneRemedialActionsCreator.generate();
 

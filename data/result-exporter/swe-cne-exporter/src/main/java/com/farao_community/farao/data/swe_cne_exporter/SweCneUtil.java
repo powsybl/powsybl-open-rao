@@ -29,13 +29,8 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutStr
  */
 public final class SweCneUtil {
     private static final double FLOAT_LIMIT = 999999;
-    private static Set<String> usedUniqueIds;
 
     private SweCneUtil() {
-    }
-
-    public static void initUniqueIds() {
-        usedUniqueIds = new HashSet<>();
     }
 
     // Creation of time interval

@@ -13,17 +13,16 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 
@@ -46,50 +45,99 @@ public class SweRemedialActionSeriesCreator {
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
             context.getRemedialActionSeriesCreationContexts().forEach(
-                raSeriesCreationContext -> remedialActionSeriesList.add(generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext))
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, false);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
             );
         } else {
             //CURATIVE && AUTO
             context.getRemedialActionSeriesCreationContexts().forEach(
-                raSeriesCreationContext -> remedialActionSeriesList.addAll(generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext))
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, false);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
             );
             context.getRemedialActionSeriesCreationContexts().forEach(
-                raSeriesCreationContext -> remedialActionSeriesList.addAll(generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext))
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, false);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
             );
         }
         return remedialActionSeriesList;
     }
 
-    private RemedialActionSeries generateRaSeries(State state, RemedialActionSeriesCreationContext context) {
+    public List<RemedialActionSeries> generateRaSeriesReference(Contingency contingency) {
+        List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
+        CimCracCreationContext context = cneHelper.getCimCracCreationContext();
+        Crac crac = cneHelper.getCrac();
+        if (Objects.isNull(contingency)) {
+            //PREVENTIVE
+            context.getRemedialActionSeriesCreationContexts().forEach(
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, true);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
+            );
+        } else {
+            //for the B57, in a contingency case, we want all remedial actions with an effect on the cnecs, so PREVENTIVE, CURATIVE && AUTO
+            context.getRemedialActionSeriesCreationContexts().forEach(
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, true);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
+            );
+            context.getRemedialActionSeriesCreationContexts().forEach(
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, true);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
+            );
+            context.getRemedialActionSeriesCreationContexts().forEach(
+                raSeriesCreationContext -> {
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, true);
+                    if (Objects.nonNull(raSeries)) {
+                        remedialActionSeriesList.add(raSeries);
+                    }
+                }
+            );
+        }
+        return remedialActionSeriesList;
+    }
+
+    private RemedialActionSeries generateRaSeries(State state, RemedialActionSeriesCreationContext context, boolean onlyReference) {
         RaoResult raoResult = cneHelper.getRaoResult();
         Crac crac = cneHelper.getCrac();
-        RemedialAction<?> usedRa = context.getCreatedIds().stream().map(crac::getRangeAction)
-            .filter(ra -> raoResult.isActivatedDuringState(state, ra)).findFirst().orElse(null);
-        if (Objects.nonNull(usedRa)) {
+        Set<RemedialAction<?>> usedRas = context.getCreatedIds().stream().map(crac::getRemedialAction)
+            .filter(ra -> raoResult.isActivatedDuringState(state, ra)).collect(Collectors.toSet());
+        for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction) {
                 return generateNetworkRaSeries((NetworkAction) usedRa, state);
             } else if (usedRa instanceof PstRangeAction) {
-                return generatePstRaSeries((PstRangeAction) usedRa, state, context);
+                return generatePstRaSeries((PstRangeAction) usedRa, state, context, onlyReference);
             } else if (usedRa instanceof HvdcRangeAction) {
                 // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
                 if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) usedRa) < 0)) {
                     return generateHvdcRaSeries((HvdcRangeAction) usedRa, state, context);
-                } else {
-                    return null;
                 }
             } else {
                 throw new NotImplementedException(String.format("Range action of type %s not supported yet.", usedRa.getClass().getName()));
             }
         }
-    }
-
-    public List<RemedialActionSeries> generateRaSeriesReference(Contingency contingency) {
-        if (Objects.isNull(contingency)) {
-            //PREVENTIVE
-        } else {
-            //AUTO and CURATIVE
-        }
-        return new ArrayList<>();
+        return null;
     }
 
     private RemedialActionSeries generateNetworkRaSeries(NetworkAction networkAction, State state) {
@@ -100,12 +148,15 @@ public class SweRemedialActionSeriesCreator {
         return remedialActionSeries;
     }
 
-    private RemedialActionSeries generatePstRaSeries(PstRangeAction rangeAction, State state, RemedialActionSeriesCreationContext context) {
+    private RemedialActionSeries generatePstRaSeries(PstRangeAction rangeAction, State state, RemedialActionSeriesCreationContext context, boolean onlyReference) {
         RemedialActionSeries remedialActionSeries = new RemedialActionSeries();
         remedialActionSeries.setMRID(rangeAction.getId() + "@" + cneHelper.getRaoResult().getOptimizedTapOnState(state, rangeAction) + "@");
         remedialActionSeries.setName(rangeAction.getName());
         remedialActionSeries.setApplicationModeMarketObjectStatusStatus(getApplicationModeMarketObjectStatusStatus(state));
-        remedialActionSeries.getRegisteredResource().add(generateRegisteredResource(rangeAction, state));
+        if (!onlyReference) {
+            //we only want to write the registeredResource for B56s
+            remedialActionSeries.getRegisteredResource().add(generateRegisteredResource(rangeAction, state, context));
+        }
         return remedialActionSeries;
     }
 
@@ -131,11 +182,11 @@ public class SweRemedialActionSeriesCreator {
         }
     }
 
-    private RemedialActionRegisteredResource generateRegisteredResource(PstRangeAction pstRangeAction, State state) {
-        PstRangeActionSeriesCreationContext pstContext = (PstRangeActionSeriesCreationContext) cneHelper
-            .getCimCracCreationContext().getRemedialActionSeriesCreationContexts().stream()
-            .filter(context -> context.getCreatedIds().contains(pstRangeAction.getId()))
-            .findFirst().orElseThrow(() -> new FaraoException(String.format("Unable to find PST %s in crac creation context", pstRangeAction.getId())));
+    private RemedialActionRegisteredResource generateRegisteredResource(PstRangeAction pstRangeAction, State state, RemedialActionSeriesCreationContext context) {
+        if (!(context instanceof PstRangeActionSeriesCreationContext)) {
+            throw new FaraoException("Expected a PstRangeActionSeriesCreationContext");
+        }
+        PstRangeActionSeriesCreationContext pstContext = (PstRangeActionSeriesCreationContext) context;
 
         RemedialActionRegisteredResource registeredResource = new RemedialActionRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, pstContext.getNetworkElementNativeMrid()));

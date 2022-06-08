@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.core_cne_exporter;
 
+import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
+import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
@@ -28,12 +30,12 @@ import static org.junit.Assert.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneTest {
+public class CoreCneTest {
     private Crac crac;
     private Network network;
     private RaoResult raoResult;
     private RaoParameters raoParameters;
-    private CoreCneExporterParameters exporterParameters;
+    private CneExporterParameters exporterParameters;
     private StandardCracCreationContext cracCreationContext;
 
     @Before
@@ -51,8 +53,8 @@ public class CneTest {
 
     @Test
     public void testHeader() {
-        exporterParameters = new CoreCneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CoreCneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", CoreCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CoreCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+        exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
+            "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00:00Z/2021-10-31T23:00:00Z");
         CoreCne cne = new CoreCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
         cne.generate();

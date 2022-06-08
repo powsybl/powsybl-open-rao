@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
@@ -159,7 +160,7 @@ public class RemedialActionSeriesCreator {
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
             if (Objects.isNull(psrType)) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing psrType"));
+                remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing psrType"));
                 return true;
             }
             // ------ PST
@@ -167,7 +168,7 @@ public class RemedialActionSeriesCreator {
                 // --------- PST Range Action
                 if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
                     if (remedialActionRegisteredResources.size() > 1) {
-                        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
+                        remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
                         return true;
                     }
                     Set<RemedialActionSeriesCreationContext> pstRemedialActionSeriesCreationContexts = new PstRangeActionCreator(crac, network,
@@ -208,13 +209,22 @@ public class RemedialActionSeriesCreator {
         }
     }
 
+    public static void importPstWithContingencies(String createdRemedialActionId, List<String> invalidContingencies, Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts, String nativeElementMrid, String nativeElementName) {
+        if (invalidContingencies.isEmpty()) {
+            remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, nativeElementMrid, nativeElementName, false, ""));
+        } else {
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, nativeElementMrid, nativeElementName, true, String.format("Contingencies %s not defined in B55s", contingencyList)));
+        }
+    }
+
     public static boolean checkPstUnit(String createdRemedialActionId, String unitSymbol, Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts) {
         if (Objects.isNull(unitSymbol)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing unit symbol"));
+            remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing unit symbol"));
             return false;
         }
         if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol)));
+            remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol)));
             return false;
         }
         return true;
@@ -225,14 +235,22 @@ public class RemedialActionSeriesCreator {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
             } else  {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency"));
+                if (remedialActionAdder instanceof PstRangeActionAdder) {
+                    remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency"));
+                } else {
+                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency"));
+                }
                 return false;
             }
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
             if (contingencies.isEmpty()) {
                 if (!invalidContingencies.isEmpty()) {
-                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant"));
+                    if (remedialActionAdder instanceof PstRangeActionAdder) {
+                        remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant"));
+                    } else {
+                        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant"));
+                    }
                     return false;
                 } else {
                     RemedialActionSeriesCreator.addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
@@ -252,10 +270,18 @@ public class RemedialActionSeriesCreator {
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
+                if (remedialActionAdder instanceof PstRangeActionAdder) {
+                    remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
+                } else {
+                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
+                }
                 return false;
             } else if (contingencies.isEmpty()) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant"));
+                if (remedialActionAdder instanceof PstRangeActionAdder) {
+                    remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant"));
+                } else {
+                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant"));
+                }
                 return false;
             } else {
                 RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, Instant.AUTO, UsageMethod.FORCED, contingencies);
