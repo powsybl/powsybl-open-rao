@@ -28,14 +28,7 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutStr
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class CoreCneUtil {
-    private static final double FLOAT_LIMIT = 999999;
-    private static Set<String> usedUniqueIds;
-
     private CoreCneUtil() {
-    }
-
-    public static void initUniqueIds() {
-        usedUniqueIds = new HashSet<>();
     }
 
     // Creation of time interval

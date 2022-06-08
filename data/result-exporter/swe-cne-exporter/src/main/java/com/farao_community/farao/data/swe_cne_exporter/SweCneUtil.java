@@ -17,7 +17,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
 
@@ -28,8 +27,6 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutStr
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class SweCneUtil {
-    private static final double FLOAT_LIMIT = 999999;
-
     private SweCneUtil() {
     }
 
