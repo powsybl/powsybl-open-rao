@@ -20,7 +20,6 @@ import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +31,6 @@ import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -81,7 +79,6 @@ public class SweCneTest {
             Assert.fail();
         }
     }
-
 
     public static void compareCneFiles(InputStream expectedCneInputStream, InputStream actualCneInputStream) throws AssertionError {
         DiffBuilder db = DiffBuilder
