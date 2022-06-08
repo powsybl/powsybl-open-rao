@@ -76,6 +76,7 @@ public final class JsonSerializationConstants {
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules";
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules";
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
+    public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
 
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -94,6 +95,8 @@ public final class JsonSerializationConstants {
     public static final String RULE = "rule";
     public static final String MIN = "min";
     public static final String MAX = "max";
+
+    public static final String COUNTRY = "country";
 
     // instants
     public static final String PREVENTIVE_INSTANT = "preventive";

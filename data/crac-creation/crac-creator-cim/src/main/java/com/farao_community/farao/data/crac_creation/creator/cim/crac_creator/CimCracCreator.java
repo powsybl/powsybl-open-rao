@@ -74,7 +74,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
     }
 
     private void createCnecs() {
-        new MonitoredSeriesCreator(cimTimeSeries, crac, network, creationContext).createAndAddMonitoredSeries();
+        new MonitoredSeriesCreator(cimTimeSeries, network, creationContext).createAndAddMonitoredSeries();
     }
 
     private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters) {

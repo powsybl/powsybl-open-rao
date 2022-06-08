@@ -102,8 +102,8 @@
               <pSRType.psrType>B22</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
-              <in_AggregateNode.mRID codingScheme="A02">FFR3AA11</in_AggregateNode.mRID>
-              <out_AggregateNode.mRID codingScheme="A02">BBE2AA11</out_AggregateNode.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">FFR3AA1</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">BBE2AA1</out_AggregateNode.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
               <resourceCapacity.maximumCapacity>1500.0</resourceCapacity.maximumCapacity>
               <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
@@ -124,8 +124,8 @@
               <pSRType.psrType>B22</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
-              <in_AggregateNode.mRID codingScheme="A02">FFR3AA12</in_AggregateNode.mRID>
-              <out_AggregateNode.mRID codingScheme="A02">BBE2AA12</out_AggregateNode.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">FFR3AA1</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">BBE2AA1</out_AggregateNode.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
               <resourceCapacity.maximumCapacity>1500.0</resourceCapacity.maximumCapacity>
               <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
@@ -153,8 +153,8 @@
               <pSRType.psrType>B22</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
-              <in_AggregateNode.mRID codingScheme="A02">BBE2AA11</in_AggregateNode.mRID>
-              <out_AggregateNode.mRID codingScheme="A02">FFR3AA11</out_AggregateNode.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">BBE2AA1</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">FFR3AA1</out_AggregateNode.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
               <resourceCapacity.maximumCapacity>1000.0</resourceCapacity.maximumCapacity>
               <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
@@ -175,8 +175,8 @@
               <pSRType.psrType>B22</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
-              <in_AggregateNode.mRID codingScheme="A02">BBE2AA12</in_AggregateNode.mRID>
-              <out_AggregateNode.mRID codingScheme="A02">FFR3AA12</out_AggregateNode.mRID>
+              <in_AggregateNode.mRID codingScheme="A02">BBE2AA1</in_AggregateNode.mRID>
+              <out_AggregateNode.mRID codingScheme="A02">FFR3AA1</out_AggregateNode.mRID>
               <marketObjectStatus.status>A26</marketObjectStatus.status>
               <resourceCapacity.maximumCapacity>1000.0</resourceCapacity.maximumCapacity>
               <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>

@@ -212,7 +212,7 @@ public final class SearchTreeBloomer {
 
     private boolean exceedMaxNumberOfRaPerTso(NetworkActionCombination naCombination, Map<String, Integer> maxNaPerTso) {
         return naCombination.getOperators().stream().anyMatch(operator -> {
-            int numberOfActionForTso = (int) naCombination.getNetworkActionSet().stream().filter(na -> na.getOperator().equals(operator)).count();
+            int numberOfActionForTso = (int) naCombination.getNetworkActionSet().stream().filter(na -> Objects.nonNull(na.getOperator()) && na.getOperator().equals(operator)).count();
             return numberOfActionForTso > maxNaPerTso.getOrDefault(operator, Integer.MAX_VALUE);
         });
     }

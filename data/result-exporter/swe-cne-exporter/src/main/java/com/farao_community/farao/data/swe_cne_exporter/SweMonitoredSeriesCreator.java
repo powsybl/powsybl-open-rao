@@ -41,7 +41,7 @@ public class SweMonitoredSeriesCreator {
     }
 
     private void prepareMap() {
-        cnecCreationContextsMap = new HashMap<>();
+        cnecCreationContextsMap = new TreeMap<>(Comparator.comparing(Contingency::getId));
         Crac crac = cneHelper.getCrac();
         cneHelper.getCimCracCreationContext().getMonitoredSeriesCreationContexts().values().stream()
             .filter(MonitoredSeriesCreationContext::isImported).forEach(
@@ -52,8 +52,8 @@ public class SweMonitoredSeriesCreator {
                                 cnecCreationContext -> {
                                     FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
                                     Contingency contingency = cnec.getState().getContingency().orElse(null);
-                                    cnecCreationContextsMap.computeIfAbsent(contingency, c -> new HashMap<>());
-                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc -> new HashSet<>());
+                                    cnecCreationContextsMap.computeIfAbsent(contingency, c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
+                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
                                     cnecCreationContextsMap.get(contingency).get(monitoredSeriesCreationContext).add(cnecCreationContext);
                                 }
                             )
@@ -72,7 +72,7 @@ public class SweMonitoredSeriesCreator {
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts) {
         RaoResult raoResult = cneHelper.getRaoResult();
         Crac crac = cneHelper.getCrac();
-        Map<Integer, MonitoredSeries> monitoredSeriesPerFlowValue = new HashMap<>();
+        Map<Integer, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
             FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
             int roundedFlow = (int) Math.round(raoResult.getFlow(OptimizationState.AFTER_CRA, cnec, Unit.AMPERE));
