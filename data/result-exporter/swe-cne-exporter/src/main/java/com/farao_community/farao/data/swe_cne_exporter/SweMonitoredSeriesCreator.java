@@ -41,7 +41,17 @@ public class SweMonitoredSeriesCreator {
     }
 
     private void prepareMap() {
-        cnecCreationContextsMap = new TreeMap<>(Comparator.comparing(Contingency::getId));
+        cnecCreationContextsMap = new TreeMap<>((c1, c2) -> {
+            if (Objects.isNull(c1) && Objects.isNull(c2)) {
+                return 0;
+            } else if (Objects.isNull(c1)) {
+                return -1;
+            } else if (Objects.isNull(c2)) {
+                return 1;
+            } else {
+                return c1.getId().compareTo(c2.getId());
+            }
+        });
         Crac crac = cneHelper.getCrac();
         cneHelper.getCimCracCreationContext().getMonitoredSeriesCreationContexts().values().stream()
             .filter(MonitoredSeriesCreationContext::isImported).forEach(

@@ -109,13 +109,13 @@ public class SweCne {
         RaoResult raoResult = cneHelper.getRaoResult();
         if (raoResult.getComputationStatus() == ComputationStatus.FAILURE) {
             reason.setCode(DIVERGENCE_CODE);
-            reason.setCode(DIVERGENCE_TEXT);
+            reason.setText(DIVERGENCE_TEXT);
         } else if (raoResult.getFunctionalCost(OptimizationState.AFTER_CRA) > 0) {
             reason.setCode(UNSECURE_CODE);
             reason.setText(UNSECURE_TEXT);
         } else {
             reason.setCode(SECURE_CODE);
-            reason.setCode(SECURE_TEXT);
+            reason.setText(SECURE_TEXT);
         }
         point.getReason().add(reason);
     }

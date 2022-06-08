@@ -20,10 +20,13 @@ import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -55,7 +58,7 @@ public class SweCneTest {
     }
 
     @Test
-    public void testHeader() {
+    public void testExport() {
         CneExporterParameters params = new CneExporterParameters(
             "documentId", 3, "domainId", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
             "senderId", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
@@ -63,12 +66,27 @@ public class SweCneTest {
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         OutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
-
+        String output = outputStream.toString();
+        String expected = "";
+        try {
+            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
+            expected = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            Assert.fail();
+        }
+        checkCneEquality(expected, output);
     }
 
-    @Test
-    public void testBody() {
-
+    private void checkCneEquality(String expected, String output) {
+        String[] splitExpected = expected.split("\n");
+        String[] splitOutput = output.split("\n");
+        if (splitExpected.length != splitOutput.length) {
+            Assert.fail("Generated string has wrong number of lines");
+        }
+        for (int i = 0; i < splitExpected.length; i++) {
+            if (!splitExpected[i].equals(splitOutput[i]) && !splitExpected[i].contains("mRID") && !splitExpected[i].contains("createdDateTime")) {
+                 Assert.fail(String.format("Difference at line %d: \"%s\" instead of \"%s\"", i, splitOutput[i], splitExpected[i]));
+            }
+        }
     }
-
 }
