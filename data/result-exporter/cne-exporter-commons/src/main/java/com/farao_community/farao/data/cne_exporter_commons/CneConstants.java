@@ -95,7 +95,7 @@ public final class CneConstants {
     public static final String SECURE_TEXT = "Network is secure";
     public static final String UNSECURE_CODE = "Z03";
     public static final String UNSECURE_TEXT = "Network is unsecure";
-    public static final String DIVERGENCE_CODE = "Z08";
+    public static final String DIVERGENCE_CODE = "B40";
     public static final String DIVERGENCE_TEXT = "Load flow divergence";
 
     private CneConstants() { }

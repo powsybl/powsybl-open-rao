@@ -24,11 +24,19 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Node;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.DefaultComparisonFormatter;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.Difference;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -64,29 +72,44 @@ public class SweCneTest {
             "senderId", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
-        OutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
-        String output = outputStream.toString();
-        String expected = "";
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
-            expected = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            compareCneFiles(new ByteArrayInputStream(outputStream.toByteArray()), inputStream);
         } catch (IOException e) {
             Assert.fail();
         }
-        checkCneEquality(expected, output);
     }
 
-    private void checkCneEquality(String expected, String output) {
-        String[] splitExpected = expected.split("\n");
-        String[] splitOutput = output.split("\n");
-        if (splitExpected.length != splitOutput.length) {
-            Assert.fail("Generated string has wrong number of lines");
-        }
-        for (int i = 0; i < splitExpected.length; i++) {
-            if (!splitExpected[i].equals(splitOutput[i]) && !splitExpected[i].contains("mRID") && !splitExpected[i].contains("createdDateTime")) {
-                Assert.fail(String.format("Difference at line %d: \"%s\" instead of \"%s\"", i, splitOutput[i], splitExpected[i]));
+
+    public static void compareCneFiles(InputStream expectedCneInputStream, InputStream actualCneInputStream) throws AssertionError {
+        DiffBuilder db = DiffBuilder
+            .compare(Input.fromStream(expectedCneInputStream))
+            .withTest(Input.fromStream(actualCneInputStream))
+            .ignoreComments()
+            .withNodeFilter(SweCneTest::shouldCompareNode);
+        Diff d = db.build();
+
+        if (d.hasDifferences()) {
+            DefaultComparisonFormatter formatter = new DefaultComparisonFormatter();
+            StringBuffer buffer = new StringBuffer();
+            for (Difference ds : d.getDifferences()) {
+                buffer.append(formatter.getDescription(ds.getComparison()) + "\n");
             }
+            throw new AssertionError("There are XML differences in CNE files\n" + buffer);
+        }
+        assertFalse(d.hasDifferences());
+    }
+
+    private static boolean shouldCompareNode(Node node) {
+        if (node.getNodeName().equals("mRID")) {
+            // For the following fields, mRID is generated randomly as per the CNE specifications
+            // We should not compare them with the test file
+            return !node.getParentNode().getNodeName().equals("TimeSeries")
+                && (!node.getParentNode().getNodeName().equals("Constraint_Series"));
+        } else {
+            return !(node.getNodeName().equals("createdDateTime"));
         }
     }
 }
