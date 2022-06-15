@@ -7,22 +7,20 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -42,6 +40,10 @@ public class AutomatonPerimeterResultImplTest {
     private FlowCnec cnec2;
     private NetworkAction networkAction1;
     private NetworkAction networkAction2;
+    private PstRangeAction pstRangeActionShifted;
+    private HvdcRangeAction hvdcRangeActionShifted;
+    private RangeAction unshiftedRangeAction;
+    private Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private AutomatonPerimeterResultImpl result;
     private PrePerimeterResult postAutoSensitivity;
 
@@ -52,8 +54,16 @@ public class AutomatonPerimeterResultImplTest {
         cnec2 = mock(FlowCnec.class);
         networkAction1 = mock(NetworkAction.class);
         networkAction2 = mock(NetworkAction.class);
+        pstRangeActionShifted = mock(PstRangeAction.class);
+        hvdcRangeActionShifted = mock(HvdcRangeAction.class);
+        unshiftedRangeAction = mock(RangeAction.class);
         postAutoSensitivity = mock(PrePerimeterResult.class);
-        result = new AutomatonPerimeterResultImpl(postAutoSensitivity, Set.of(networkAction1));
+        // Define rangeActionsWithSetpoint
+        rangeActionsWithSetpoint = new HashMap<>();
+        rangeActionsWithSetpoint.put(pstRangeActionShifted, 1.0);
+        rangeActionsWithSetpoint.put(hvdcRangeActionShifted, 2.0);
+        rangeActionsWithSetpoint.put(unshiftedRangeAction, 3.0);
+        result = new AutomatonPerimeterResultImpl(postAutoSensitivity, Set.of(networkAction1), Set.of(pstRangeActionShifted, hvdcRangeActionShifted), rangeActionsWithSetpoint, state1);
     }
 
     @Test
@@ -91,7 +101,7 @@ public class AutomatonPerimeterResultImplTest {
 
     @Test
     public void testGetActivatedRangeActions() {
-        assertEquals(Set.of(), result.getActivatedRangeActions(state1));
+        assertEquals(Set.of(pstRangeActionShifted, hvdcRangeActionShifted), result.getActivatedRangeActions(state1));
     }
 
     @Test
@@ -147,21 +157,27 @@ public class AutomatonPerimeterResultImplTest {
 
     @Test
     public void testGetRangeActions() {
-        Set<RangeAction<?>> rangeActions = Set.of(mock(RangeAction.class), mock(RangeAction.class));
-        when(postAutoSensitivity.getRangeActions()).thenReturn(rangeActions);
-        assertEquals(new HashSet<>(), result.getRangeActions());
+        when(postAutoSensitivity.getRangeActions()).thenReturn(rangeActionsWithSetpoint.keySet());
+        assertEquals(Set.of(pstRangeActionShifted, hvdcRangeActionShifted, unshiftedRangeAction), result.getRangeActions());
     }
 
     @Test
+    //TODO modify
     public void testGetTapsAndSetpoints() {
-        PstRangeAction pstRangeAction = mock(PstRangeAction.class);
-        RangeAction<?> rangeAction = mock(RangeAction.class);
-        when(postAutoSensitivity.getTap(pstRangeAction)).thenReturn(5);
-        when(postAutoSensitivity.getSetpoint(pstRangeAction)).thenReturn(50.);
-        when(postAutoSensitivity.getSetpoint(rangeAction)).thenReturn(100.);
-        assertThrows(NotImplementedException.class, () -> result.getOptimizedTap(pstRangeAction, state1));
-        assertThrows(NotImplementedException.class, () -> result.getOptimizedSetpoint(pstRangeAction, state1));
-        assertThrows(NotImplementedException.class, () -> result.getOptimizedSetpoint(rangeAction, state1));
+        when(postAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(pstRangeActionShifted));
+        when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
+        when(postAutoSensitivity.getSetpoint(hvdcRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(hvdcRangeActionShifted));
+        when(pstRangeActionShifted.convertAngleToTap(rangeActionsWithSetpoint.get(pstRangeActionShifted))).thenReturn(55);
+        assertEquals(55, result.getOptimizedTap(pstRangeActionShifted, state1));
+        assertEquals(1., result.getOptimizedSetpoint(pstRangeActionShifted, state1), DOUBLE_TOLERANCE);
+        assertEquals(2., result.getOptimizedSetpoint(hvdcRangeActionShifted, state1), DOUBLE_TOLERANCE);
+        assertEquals(3., result.getOptimizedSetpoint(unshiftedRangeAction, state1), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testWrongState() {
+        State wrongState = mock(State.class);
+        assertThrows(FaraoException.class, () -> result.getActivatedRangeActions(wrongState));
     }
 
     @Test

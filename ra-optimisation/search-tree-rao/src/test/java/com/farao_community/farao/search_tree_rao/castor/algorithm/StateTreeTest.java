@@ -259,6 +259,7 @@ public class StateTreeTest {
                 crac.newPstRangeAction()
                     .withId("pst-ra-auto")
                     .withNetworkElement("pst")
+                    .withSpeed(1)
                     .withInitialTap(1)
                     .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                     .newOnStateUsageRule().withContingency("contingency").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()

@@ -7,12 +7,16 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -39,6 +43,8 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -64,6 +70,7 @@ public class CastorFullOptimization {
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
+    private static final double DOUBLE_NON_NULL = 1e-12;
 
     private final RaoInput raoInput;
     private final RaoParameters raoParameters;
@@ -287,51 +294,310 @@ public class CastorFullOptimization {
                                                                 Set<String> operatorsNotSharingCras) {
 
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
-        if (!crac.getRangeActions(automatonState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty()) {
-            BUSINESS_WARNS.warn("CRAC has range action automatons. These are not supported yet.");
-        }
         if (!crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).isEmpty()) {
             BUSINESS_WARNS.warn("CRAC has network action automatons with usage method AVAILABLE. These are not supported.");
         }
         TECHNICAL_LOGS.info("Initial situation:");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState, curativeState), raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
-        // Apply network actions
-        // First get forced network actions
+        // I) Simulate topological automatons
+        // -- Apply network actions
+        // -- First get forced network actions
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
-        // Then add those with an OnFlowConstraint usage rule if their constraint is verified
+        // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput))
-            .forEach(appliedNetworkActions::add);
-        // Apply
+                .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput))
+                .forEach(appliedNetworkActions::add);
+        // -- Apply
         appliedNetworkActions.forEach(na -> {
             TECHNICAL_LOGS.debug("Activating automaton {}.", na.getId());
             na.apply(network);
         });
 
-        // Run sensitivity computation before running curative RAO later
-        // Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
-        // Get cnecs
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
-        flowCnecs.addAll(crac.getFlowCnecs(curativeState));
-        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            flowCnecs,
-            curativeRangeActions,
-            raoParameters,
-            toolProvider);
+        // II) Simulate range actions
+        // -- Look for range actions automatons
+        // -- Sort by decreasing speed
+        crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED)
+                .forEach(rangeAction -> {
+                    if (rangeAction.getSpeed().isEmpty()) {
+                        BUSINESS_WARNS.warn("Range action {} will not be considered in RAO as no speed is defined", rangeAction.getId());
+                    }
+                });
+        List<RangeAction<?>> rangeActionsOnAutomatonState = crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).stream()
+                .filter(rangeAction -> rangeAction.getSpeed().isPresent())
+                .sorted(Comparator.comparing(ra -> ra.getSpeed().get()))
+                .collect(Collectors.toList());
+        Map<RangeAction<?>, Double> rangeActionsWithSetpoint = new HashMap<>();
+        rangeActionsOnAutomatonState.forEach(rangeAction -> rangeActionsWithSetpoint.put(rangeAction, rangeAction.getCurrentSetpoint(network)));
+        Set<RangeAction<?>> activatedRangeActions = new HashSet<>();
 
-        // Run computation
-        PrePerimeterResult postAutomatonSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, postAutomatonSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+        PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
+        PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                crac.getFlowCnecs(),
+                null,
+                raoParameters,
+                toolProvider);
+
+        // Run sensi
+        if (rangeActionsOnAutomatonState.isEmpty()) {
+            if (appliedNetworkActions.isEmpty()) {
+                TECHNICAL_LOGS.info("Nothing to optimize for automaton state {}.", automatonState.getId());
+                return new AutomatonPerimeterResultImpl(automatonRangeActionOptimizationSensitivityAnalysisOutput, null, null, rangeActionsWithSetpoint, automatonState);
+            } else {
+                PrePerimeterResult postAutomatonSensitivityAnalysisOutput = runPreCurativeSensitivityComputation(automatonState,
+                        curativeState,
+                        crac,
+                        network,
+                        raoParameters,
+                        toolProvider,
+                        initialFlowResult,
+                        operatorsNotSharingCras);
+                TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
+                return new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions, null, rangeActionsWithSetpoint, automatonState);
+            }
+        } else if (!appliedNetworkActions.isEmpty()) {
+            automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
+        }
+
+        // -- Optimize range-action automatons
+        Unit marginUnit = raoParameters.getObjectiveFunction().getUnit();
+        for (RangeAction<?> availableRangeAction : rangeActionsOnAutomatonState) {
+            // Look for aligned range actions in all range actions : they have the same groupId and the same usageMethod
+            List<RangeAction<?>> alignedRa;
+            String groupId = availableRangeAction.getGroupId().orElse(null);
+            alignedRa = crac.getRangeActions().stream()
+                        .filter(rangeAction -> Objects.nonNull(groupId) && groupId.equals(rangeAction.getGroupId().orElse(null)))
+                        .collect(Collectors.toList());
+            if (!checkAlignedRangeActions(availableRangeAction.getId(), automatonState, alignedRa, rangeActionsOnAutomatonState)) {
+                continue;
+            }
+
+            // Disable AC emulation for HVDC lines
+            automatonRangeActionOptimizationSensitivityAnalysisOutput = disableACEmulation(alignedRa, network,
+                    preAutoPerimeterSensitivityAnalysis, initialFlowResult, automatonRangeActionOptimizationSensitivityAnalysisOutput, operatorsNotSharingCras);
+
+            if (availableRangeAction.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
+                Set<FlowCnec> flowCnecs = availableRangeAction.getUsageRules().stream()
+                        .filter(OnFlowConstraint.class::isInstance)
+                        .map(OnFlowConstraint.class::cast)
+                        .map(OnFlowConstraint::getFlowCnec)
+                        .collect(Collectors.toSet());
+                Pair<PrePerimeterResult,  Map<RangeAction<?>, Double>> shiftedSetpoint = shiftSetpoint(alignedRa,
+                        flowCnecs,
+                        network,
+                        preAutoPerimeterSensitivityAnalysis,
+                        initialFlowResult,
+                        automatonRangeActionOptimizationSensitivityAnalysisOutput,
+                        marginUnit,
+                        operatorsNotSharingCras);
+                automatonRangeActionOptimizationSensitivityAnalysisOutput = shiftedSetpoint.getLeft();
+                activatedRangeActions.addAll(shiftedSetpoint.getRight().keySet());
+                rangeActionsWithSetpoint.putAll(shiftedSetpoint.getRight());
+            }
+            if (availableRangeAction.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
+                Pair<PrePerimeterResult,  Map<RangeAction<?>, Double>> shiftedSetpoint = shiftSetpoint(alignedRa,
+                        crac.getFlowCnecs(),
+                        network,
+                        preAutoPerimeterSensitivityAnalysis,
+                        initialFlowResult,
+                        automatonRangeActionOptimizationSensitivityAnalysisOutput,
+                        marginUnit,
+                        operatorsNotSharingCras);
+                automatonRangeActionOptimizationSensitivityAnalysisOutput = shiftedSetpoint.getLeft();
+                activatedRangeActions.addAll(shiftedSetpoint.getRight().keySet());
+                rangeActionsWithSetpoint.putAll(shiftedSetpoint.getRight());
+
+            }
+            rangeActionsOnAutomatonState.removeAll(alignedRa);
+        }
+
+        PrePerimeterResult postAutomatonSensitivityAnalysisOutput = runPreCurativeSensitivityComputation(automatonState,
+                curativeState,
+                crac,
+                network,
+                raoParameters,
+                toolProvider,
+                initialFlowResult,
+                operatorsNotSharingCras);
 
         // Build and return optimization result
-        AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions);
+        AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions, activatedRangeActions, rangeActionsWithSetpoint, automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
 
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions().size(), automatonPerimeterResultImpl.getActivatedRangeActions(automatonState).size(), null, null, automatonPerimeterResultImpl);
 
         return automatonPerimeterResultImpl;
+    }
+
+    private boolean checkAlignedRangeActions(String availableRangeActionId, State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOnAutomatonState) {
+        // Ignore aligned range actions when one element of the group has a different usage method than the others
+        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).collect(Collectors.toSet()).size() != 1) {
+            BUSINESS_WARNS.warn("Range action {} belongs to a group of aligned range actions with different usage methods; they are not simulated", availableRangeActionId);
+            rangeActionsOnAutomatonState.removeAll(alignedRa);
+            return false;
+        }
+        // Ignore aligned range actions when one element of the group is not available at AUTO instant
+        if (!rangeActionsOnAutomatonState.containsAll(alignedRa)) {
+            BUSINESS_WARNS.warn("Range action {} belongs to a group of aligned range actions not all available at AUTO instant; they are not simulated", availableRangeActionId);
+            rangeActionsOnAutomatonState.removeAll(alignedRa);
+            return false;
+        }
+        return true;
+    }
+
+    private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState,
+                                                State curativeState,
+                                                Crac crac,
+                                                Network network,
+                                                RaoParameters raoParameters,
+                                                ToolProvider toolProvider,
+                                                FlowResult initialFlowResult,
+                                                Set<String> operatorsNotSharingCras) {
+        // -- Run sensitivity computation before running curative RAO later
+        // -- Get curative range actions
+        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        // Get cnecs
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
+        flowCnecs.addAll(crac.getFlowCnecs(curativeState));
+        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                flowCnecs,
+                curativeRangeActions,
+                raoParameters,
+                toolProvider);
+
+        // Run computation
+        PrePerimeterResult postAutomatonSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, postAutomatonSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+        return postAutomatonSensitivityAnalysisOutput;
+    }
+
+    private PrePerimeterResult disableACEmulation(List<RangeAction<?>> alignedRa,
+                                    Network network,
+                                    PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
+                                    FlowResult initialFlowResult,
+                                    PrePerimeterResult prePerimeterSensitivityOutput,
+                                    Set<String> operatorsNotSharingCras) {
+        boolean oneRaIsNotHvdc = false;
+        boolean runSensi = false;
+        for (RangeAction<?> alignedAvailableRa : alignedRa) {
+            if (alignedAvailableRa instanceof HvdcRangeAction) {
+                if (oneRaIsNotHvdc) {
+                    throw new FaraoException(String.format("Hvdc range action %s is aligned with non HVDC range actions.", alignedAvailableRa.getName()));
+                }
+                // Disable AC emulation
+                try {
+                    network.getHvdcLine(((HvdcRangeAction) alignedAvailableRa).getNetworkElement().getId()).getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
+                    runSensi = true;
+                } catch (Exception e) {
+                    throw new FaraoException(String.format("Hvdc range action %s is ill defined in network with error %s", alignedAvailableRa, e));
+                }
+
+            } else {
+                oneRaIsNotHvdc = true;
+            }
+        }
+        if (runSensi) {
+            PrePerimeterResult result =  preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, result, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+            return result;
+        } else {
+            return prePerimeterSensitivityOutput;
+        }
+    }
+
+    private List<FlowCnec> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> cnecs,
+                                                                          Set<FlowCnec> cnecsToBeExcluded,
+                                                                          PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                          Unit marginUnit) {
+        List<FlowCnec> flowCnecsWithNegativeMargin = cnecs.stream()
+                .filter(flowCnec -> prePerimeterSensitivityOutput.getMargin(flowCnec, marginUnit) <= 0)
+                .sorted(Comparator.comparing(flowCnec -> prePerimeterSensitivityOutput.getMargin(flowCnec, marginUnit)))
+                .collect(Collectors.toList());
+        flowCnecsWithNegativeMargin.removeAll(cnecsToBeExcluded);
+        return flowCnecsWithNegativeMargin;
+    }
+
+    private double computeOptimalSetpoint(double initialSetpoint, double cnecMargin, double sensitivityValue, List<RangeAction<?>> alignedRangeActions, double minSetpointInAlignedRa, double maxSetpointInAlignedRa) {
+        double optimalSetpoint = initialSetpoint + Math.min(cnecMargin, 0) / sensitivityValue;
+        // Compare setpoint to min and max
+        if (optimalSetpoint > maxSetpointInAlignedRa) {
+            optimalSetpoint = maxSetpointInAlignedRa;
+        }
+        if (optimalSetpoint < minSetpointInAlignedRa) {
+            optimalSetpoint = minSetpointInAlignedRa;
+        }
+
+        boolean oneRaIsNotPst = false;
+        for (RangeAction<?> rangeAction : alignedRangeActions) {
+            if (rangeAction instanceof PstRangeAction) {
+                if (oneRaIsNotPst) {
+                    throw new FaraoException(String.format("Pst range action %s is aligned with non Pst range actions.", rangeAction.getName()));
+                }
+                optimalSetpoint = ((PstRangeAction) rangeAction).convertTapToAngle(((PstRangeAction) rangeAction).roundUpAngleToTapWrtInitialSetpoint(optimalSetpoint, initialSetpoint));
+            } else {
+                oneRaIsNotPst = true;
+            }
+        }
+        return optimalSetpoint;
+    }
+
+    private Pair<PrePerimeterResult,  Map<RangeAction<?>, Double>> shiftSetpoint(List<RangeAction<?>> alignedRangeActions,
+                                                                                 Set<FlowCnec> flowCnecs,
+                                                                                 Network network,
+                                                                                 PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
+                                                                                 FlowResult initialFlowResult,
+                                                                                 PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                                 Unit marginUnit,
+                                                                                 Set<String> operatorsNotSharingCras) {
+        Set<FlowCnec> flowCnecsToBeExcluded = null;
+        PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
+        Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
+        List<FlowCnec> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, marginUnit);
+
+        boolean firstIteration = true;
+        double direction = 0;
+        while (!flowCnecsWithNegativeMargin.isEmpty()) {
+            FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.get(0);
+            double cnecMargin = automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, marginUnit);
+            // Aligned range actions have the same setpoint :
+            double initialSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
+            // Min and max admissible setpoint in group of aligned range actions :
+            double minSetpointInAlignedRa = alignedRangeActions.get(0).getMinAdmissibleSetpoint(initialSetpoint);
+            double maxSetpointInAlignedRa = alignedRangeActions.get(0).getMaxAdmissibleSetpoint(initialSetpoint);
+            double sensitivityValue = 0;
+            if (alignedRangeActions.size() > 1) {
+                for (RangeAction<?> rangeAction : alignedRangeActions) {
+                    sensitivityValue += prePerimeterSensitivityOutput.getSensitivityValue(toBeShiftedCnec, rangeAction, marginUnit);
+                    minSetpointInAlignedRa = Math.max(minSetpointInAlignedRa, rangeAction.getMinAdmissibleSetpoint(initialSetpoint));
+                    maxSetpointInAlignedRa = Math.min(maxSetpointInAlignedRa, rangeAction.getMaxAdmissibleSetpoint(initialSetpoint));
+                }
+            } else {
+                sensitivityValue = prePerimeterSensitivityOutput.getSensitivityValue(toBeShiftedCnec, alignedRangeActions.get(0), marginUnit);
+            }
+            // if sensi is null, move on to next cnec with negative margin
+            if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
+                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, marginUnit);
+                continue;
+            }
+
+            double optimalSetpoint = computeOptimalSetpoint(initialSetpoint, cnecMargin, sensitivityValue, alignedRangeActions, minSetpointInAlignedRa, maxSetpointInAlignedRa);
+
+            // Compare direction with previous shift
+            if (!firstIteration && direction != Math.signum(optimalSetpoint - initialSetpoint)) {
+                return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
+            }
+
+            direction = Math.signum(optimalSetpoint - initialSetpoint);
+            firstIteration = false;
+            for (RangeAction<?> rangeAction : alignedRangeActions) {
+                rangeAction.apply(network, optimalSetpoint);
+                activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
+            }
+            automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, marginUnit);
+        }
+        return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
     }
 
     private OptimizationResult optimizeCurativeState(State curativeState,

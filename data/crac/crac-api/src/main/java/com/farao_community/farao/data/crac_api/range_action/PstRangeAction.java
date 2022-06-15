@@ -67,4 +67,10 @@ public interface PstRangeAction extends RangeAction<PstRangeAction> {
      * Convert the angle of the PST designated by the Remedial Action in tap
      */
     int convertAngleToTap(double angle);
+
+    /**
+     * Convert the angle of the PST designated by the Remedial Action in the first
+     * tap after angle in the opposite direction of initial_angle
+     */
+    int roundUpAngleToTapWrtInitialSetpoint(double angle, double initialAngle);
 }

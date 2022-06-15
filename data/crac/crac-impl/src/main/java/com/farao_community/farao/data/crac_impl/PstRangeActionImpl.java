@@ -134,15 +134,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
     @Override
     public int convertAngleToTap(double angle) {
-
-        double minAngle = Collections.min(tapToAngleConversionMap.values());
-        double maxAngle = Collections.max(tapToAngleConversionMap.values());
-
-        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
-        if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
-            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
-        }
-
+        checkAngle(angle);
         AtomicReference<Double> smallestAngleDifference = new AtomicReference<>(Double.MAX_VALUE);
         AtomicInteger approximatedTapPosition = new AtomicInteger(0);
 
@@ -154,6 +146,49 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             }
         });
         return approximatedTapPosition.get();
+    }
+
+    private void checkAngle(double angle) {
+        double minAngle = Collections.min(tapToAngleConversionMap.values());
+        double maxAngle = Collections.max(tapToAngleConversionMap.values());
+
+        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
+        if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
+            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
+        }
+
+    }
+
+    public int roundUpAngleToTapWrtInitialSetpoint(double angle, double initialAngle) {
+        checkAngle(initialAngle);
+        checkAngle(angle);
+
+        AtomicReference<Double> smallestAngleDifference = new AtomicReference<>(Double.MAX_VALUE);
+        AtomicInteger leftTap = new AtomicInteger(0);
+        AtomicInteger rightTap = new AtomicInteger(0);
+
+        tapToAngleConversionMap.forEach((tap, alpha) -> {
+            double diff = Math.abs(alpha - angle);
+            if (diff < smallestAngleDifference.get()) {
+                smallestAngleDifference.set(diff);
+                if (angle < alpha) {
+                    rightTap.set(tap);
+                    leftTap.set(tap - 1);
+                } else if (angle > alpha) {
+                    leftTap.set(tap);
+                    rightTap.set(tap + 1);
+                } else {
+                    leftTap.set(tap);
+                    rightTap.set(tap);
+                }
+            }
+        });
+
+        if (initialAngle > angle) {
+            return leftTap.get();
+        } else {
+            return rightTap.get();
+        }
     }
 
     private Pair<Integer, Integer> getMinAndMaxTaps(double previousInstantSetPoint) {

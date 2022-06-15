@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -17,7 +18,6 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 
@@ -31,10 +31,16 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
     private final Set<NetworkAction> activatedNetworkActions;
+    private final Set<RangeAction<?>> activatedRangeActions;
+    private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
+    private final State optimizedState;
 
-    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.activatedNetworkActions = activatedNetworkActions;
+        this.activatedRangeActions = activatedRangeActions;
+        this.rangeActionsWithSetpoint =  rangeActionsWithSetpoint;
+        this.optimizedState = optimizedState;
     }
 
     public PrePerimeterResult getPostAutomatonSensitivityAnalysisOutput() {
@@ -103,38 +109,39 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        // range actions not yet considered as automaton
-        return new HashSet<>();
+        return rangeActionsWithSetpoint.keySet();
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        // range actions not yet considered as automaton
-        return new HashSet<>();
+        checkState(state);
+        return activatedRangeActions;
     }
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-        // range actions not yet considered as automaton
-        throw new NotImplementedException("range actions not yet considered as automaton");
+        checkState(state);
+        return rangeActionsWithSetpoint.get(rangeAction);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
-        // range actions not yet considered as automaton
-        return new HashMap<>();
+        return rangeActionsWithSetpoint;
     }
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
-        // range actions not yet considered as automaton
-        throw new NotImplementedException("range actions not yet considered as automaton");
+        checkState(state);
+        return pstRangeAction.convertAngleToTap(rangeActionsWithSetpoint.get(pstRangeAction));
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        // range actions not yet considered as automaton
-        return new HashMap<>();
+        checkState(state);
+        Map<PstRangeAction, Integer> pstRangeActionOptimizedTaps = new HashMap<>();
+        activatedRangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
+                .forEach(pstRangeAction -> pstRangeActionOptimizedTaps.put(pstRangeAction, getOptimizedTap(pstRangeAction, state)));
+        return pstRangeActionOptimizedTaps;
     }
 
     @Override
@@ -150,5 +157,11 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, linearGlsk, unit);
+    }
+
+    private void checkState(State state) {
+        if (state != optimizedState) {
+            throw new FaraoException("State should be " + optimizedState.getId() + " but was " + state.getId());
+        }
     }
 }
