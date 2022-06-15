@@ -33,14 +33,16 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*
  */
 public class SweRemedialActionSeriesCreator {
     private final CneHelper cneHelper;
+    private final CimCracCreationContext cracCreationContext;
 
-    public SweRemedialActionSeriesCreator(CneHelper cneHelper) {
+    public SweRemedialActionSeriesCreator(CneHelper cneHelper, CimCracCreationContext cracCreationContext) {
         this.cneHelper = cneHelper;
+        this.cracCreationContext = cracCreationContext;
     }
 
     public List<RemedialActionSeries> generateRaSeries(Contingency contingency) {
         List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
-        CimCracCreationContext context = cneHelper.getCimCracCreationContext();
+        CimCracCreationContext context = cracCreationContext;
         Crac crac = cneHelper.getCrac();
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
@@ -76,11 +78,10 @@ public class SweRemedialActionSeriesCreator {
 
     public List<RemedialActionSeries> generateRaSeriesReference(Contingency contingency) {
         List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
-        CimCracCreationContext context = cneHelper.getCimCracCreationContext();
         Crac crac = cneHelper.getCrac();
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
@@ -90,7 +91,7 @@ public class SweRemedialActionSeriesCreator {
             );
         } else {
             //for the B57, in a contingency case, we want all remedial actions with an effect on the cnecs, so PREVENTIVE, CURATIVE && AUTO
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
@@ -98,7 +99,7 @@ public class SweRemedialActionSeriesCreator {
                     }
                 }
             );
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
@@ -106,7 +107,7 @@ public class SweRemedialActionSeriesCreator {
                     }
                 }
             );
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {

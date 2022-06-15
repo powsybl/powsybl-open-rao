@@ -37,7 +37,7 @@ import java.time.ZoneOffset;
 import static org.junit.Assert.assertFalse;
 
 /**
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class SweCneTest {
     private Crac crac;

@@ -7,12 +7,8 @@
 
 package com.farao_community.farao.data.cne_exporter_commons;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -28,17 +24,15 @@ public class CneHelper {
 
     private Crac crac;
     private Network network;
-    private CracCreationContext cracCreationContext;
     private boolean relativePositiveMargins;
     private boolean withLoopflows;
     private RaoResult raoResult;
     private CneExporterParameters exporterParameters;
     private double mnecAcceptableMarginDiminution;
 
-    public CneHelper(Crac crac, Network network, CracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, Network network, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         this.crac = crac;
         this.network = network;
-        this.cracCreationContext = cracCreationContext;
         this.raoResult = raoResult;
         this.exporterParameters = exporterParameters;
 
@@ -65,26 +59,6 @@ public class CneHelper {
 
     public Crac getCrac() {
         return crac;
-    }
-
-    public CracCreationContext getCracCreationContext() {
-        return cracCreationContext;
-    }
-
-    public StandardCracCreationContext getStandardCracCreationContext() {
-        if (cracCreationContext instanceof StandardCracCreationContext) {
-            return (StandardCracCreationContext) cracCreationContext;
-        } else {
-            throw new FaraoException("Expected a StandardCracCreationContext.");
-        }
-    }
-
-    public CimCracCreationContext getCimCracCreationContext() {
-        if (cracCreationContext instanceof CimCracCreationContext) {
-            return (CimCracCreationContext) cracCreationContext;
-        } else {
-            throw new FaraoException("Expected a CimCracCreationContext.");
-        }
     }
 
     public String instantToCodeConverter(Instant instant) {

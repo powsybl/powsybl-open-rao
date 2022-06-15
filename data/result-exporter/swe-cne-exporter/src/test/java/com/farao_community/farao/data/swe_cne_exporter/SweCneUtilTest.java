@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class SweCneUtilTest {
     @Test

@@ -20,6 +20,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
@@ -38,9 +39,11 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreat
 public final class CoreCneCnecsCreator {
 
     private CneHelper cneHelper;
+    private StandardCracCreationContext cracCreationContext;
 
-    public CoreCneCnecsCreator(CneHelper cneHelper) {
+    public CoreCneCnecsCreator(CneHelper cneHelper, StandardCracCreationContext cracCreationContext) {
         this.cneHelper = cneHelper;
+        this.cracCreationContext = cracCreationContext;
     }
 
     private CoreCneCnecsCreator() {
@@ -49,7 +52,7 @@ public final class CoreCneCnecsCreator {
 
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
-        List<BranchCnecCreationContext> sortedCnecs = cneHelper.getStandardCracCreationContext().getBranchCnecCreationContexts().stream()
+        List<BranchCnecCreationContext> sortedCnecs = cracCreationContext.getBranchCnecCreationContexts().stream()
             .sorted(Comparator.comparing(BranchCnecCreationContext::getNativeId)).collect(Collectors.toList());
         for (BranchCnecCreationContext cnec : sortedCnecs) {
             constraintSeries.addAll(createConstraintSeriesOfACnec(cnec, cneHelper));

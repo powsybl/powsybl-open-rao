@@ -10,6 +10,7 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 
 import java.util.*;
@@ -27,10 +28,10 @@ public final class SweConstraintSeriesCreator {
     private final SweMonitoredSeriesCreator monitoredSeriesCreator;
     private final SweRemedialActionSeriesCreator remedialActionSeriesCreator;
 
-    public SweConstraintSeriesCreator(CneHelper cneHelper) {
+    public SweConstraintSeriesCreator(CneHelper cneHelper, CimCracCreationContext cracCreationContext) {
         this.cneHelper = cneHelper;
-        this.monitoredSeriesCreator = new SweMonitoredSeriesCreator(cneHelper);
-        this.remedialActionSeriesCreator = new SweRemedialActionSeriesCreator(cneHelper);
+        this.monitoredSeriesCreator = new SweMonitoredSeriesCreator(cneHelper, cracCreationContext);
+        this.remedialActionSeriesCreator = new SweRemedialActionSeriesCreator(cneHelper, cracCreationContext);
     }
 
     public List<ConstraintSeries> generate() {
@@ -43,9 +44,9 @@ public final class SweConstraintSeriesCreator {
     private List<ConstraintSeries> generateB56() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         constraintSeries.add(generateBasecaseB56());
-        for (Contingency contingency : cneHelper.getCrac().getContingencies()) {
-            constraintSeries.add(generateContingencyB56(contingency));
-        }
+        cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency ->
+            constraintSeries.add(generateContingencyB56(contingency))
+        );
         return constraintSeries;
     }
 
@@ -53,10 +54,7 @@ public final class SweConstraintSeriesCreator {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B56_BUSINESS_TYPE);
-        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeries(null);
-        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
-            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
-        }
+        constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeries(null));
         return constraintSeries;
     }
 
@@ -64,22 +62,17 @@ public final class SweConstraintSeriesCreator {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B56_BUSINESS_TYPE);
-
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
-
-        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeries(contingency);
-        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
-            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
-        }
+        constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeries(contingency));
         return constraintSeries;
     }
 
     private List<ConstraintSeries> generateB57() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         constraintSeries.add(generateBasecaseB57());
-        for (Contingency contingency : cneHelper.getCrac().getContingencies()) {
-            constraintSeries.add(generateContingencyB57(contingency));
-        }
+        cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency ->
+            constraintSeries.add(generateContingencyB57(contingency))
+        );
         return constraintSeries;
     }
 
@@ -87,16 +80,8 @@ public final class SweConstraintSeriesCreator {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
-
-        List<MonitoredSeries> monitoredSeriesList = monitoredSeriesCreator.generateMonitoredSeries(null);
-        for (MonitoredSeries monitoredSeries : monitoredSeriesList) {
-            constraintSeries.getMonitoredSeries().add(monitoredSeries);
-        }
-
-        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeriesReference(null);
-        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
-            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
-        }
+        constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(null));
+        constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeriesReference(null));
         return constraintSeries;
     }
 
@@ -104,18 +89,9 @@ public final class SweConstraintSeriesCreator {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
-
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
-
-        List<MonitoredSeries> monitoredSeriesList = monitoredSeriesCreator.generateMonitoredSeries(contingency);
-        for (MonitoredSeries monitoredSeries : monitoredSeriesList) {
-            constraintSeries.getMonitoredSeries().add(monitoredSeries);
-        }
-
-        List<RemedialActionSeries> remedialActionSeriesList = remedialActionSeriesCreator.generateRaSeriesReference(contingency);
-        for (RemedialActionSeries remedialActionSeries : remedialActionSeriesList) {
-            constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
-        }
+        constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(contingency));
+        constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeriesReference(contingency));
         return constraintSeries;
     }
 

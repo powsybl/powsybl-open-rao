@@ -54,7 +54,6 @@ public class SweMonitoredSeriesCreatorTest {
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
-        Mockito.when(cneHelper.getCimCracCreationContext()).thenReturn(cracCreationContext);
         Mockito.when(cneHelper.getNetwork()).thenReturn(network);
     }
 
@@ -85,7 +84,7 @@ public class SweMonitoredSeriesCreatorTest {
         setCnecResult(mscc3, Instant.AUTO, contingency, -105);
         setCnecResult(mscc3, Instant.CURATIVE, contingency, 95);
 
-        SweMonitoredSeriesCreator monitoredSeriesCreator = new SweMonitoredSeriesCreator(cneHelper);
+        SweMonitoredSeriesCreator monitoredSeriesCreator = new SweMonitoredSeriesCreator(cneHelper, cracCreationContext);
 
         List<MonitoredSeries> basecaseMonitoredSeries = monitoredSeriesCreator.generateMonitoredSeries(null);
         List<MonitoredSeries> contingencyMonitoredSeries = monitoredSeriesCreator.generateMonitoredSeries(contingency);

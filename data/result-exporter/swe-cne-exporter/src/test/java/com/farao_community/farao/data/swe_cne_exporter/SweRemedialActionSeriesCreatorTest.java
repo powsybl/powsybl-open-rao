@@ -45,7 +45,6 @@ public class SweRemedialActionSeriesCreatorTest {
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
-        Mockito.when(cneHelper.getCimCracCreationContext()).thenReturn(cracCreationContext);
     }
 
     @Test
@@ -81,7 +80,7 @@ public class SweRemedialActionSeriesCreatorTest {
         addHvdcRangeActionToRaoResult(autoState, "hvdcPtEs + hvdcEsPt - 1", -400.0);
         addHvdcRangeActionToRaoResult(autoState, "hvdcPtEs + hvdcEsPt - 2", -400.0);
 
-        SweRemedialActionSeriesCreator raSeriesCreator = new SweRemedialActionSeriesCreator(cneHelper);
+        SweRemedialActionSeriesCreator raSeriesCreator = new SweRemedialActionSeriesCreator(cneHelper, cracCreationContext);
 
         List<RemedialActionSeries> basecaseSeries = raSeriesCreator.generateRaSeries(null);
         List<RemedialActionSeries> contingencySeries = raSeriesCreator.generateRaSeries(contingency);

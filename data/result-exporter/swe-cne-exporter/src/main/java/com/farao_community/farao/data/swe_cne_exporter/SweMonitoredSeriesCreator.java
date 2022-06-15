@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
@@ -33,10 +34,12 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*
  */
 public class SweMonitoredSeriesCreator {
     private final CneHelper cneHelper;
+    private final CimCracCreationContext cracCreationContext;
     private Map<Contingency, Map<MonitoredSeriesCreationContext, Set<CnecCreationContext>>> cnecCreationContextsMap;
 
-    public SweMonitoredSeriesCreator(CneHelper cneHelper) {
+    public SweMonitoredSeriesCreator(CneHelper cneHelper, CimCracCreationContext cracCreationContext) {
         this.cneHelper = cneHelper;
+        this.cracCreationContext = cracCreationContext;
         prepareMap();
     }
 
@@ -53,7 +56,7 @@ public class SweMonitoredSeriesCreator {
             }
         });
         Crac crac = cneHelper.getCrac();
-        cneHelper.getCimCracCreationContext().getMonitoredSeriesCreationContexts().values().stream()
+        cracCreationContext.getMonitoredSeriesCreationContexts().values().stream()
             .filter(MonitoredSeriesCreationContext::isImported).forEach(
                 monitoredSeriesCreationContext -> monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
                     .filter(MeasurementCreationContext::isImported).forEach(

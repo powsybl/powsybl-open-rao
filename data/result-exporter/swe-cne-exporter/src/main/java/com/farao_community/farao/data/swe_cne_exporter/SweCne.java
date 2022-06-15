@@ -40,10 +40,12 @@ import static com.farao_community.farao.data.swe_cne_exporter.SweCneUtil.*;
 public class SweCne {
     private CriticalNetworkElementMarketDocument marketDocument;
     private CneHelper cneHelper;
+    private CimCracCreationContext cracCreationContext;
 
     public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+        cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        this.cracCreationContext = cracCreationContext;
     }
 
     public CriticalNetworkElementMarketDocument getMarketDocument() {
@@ -56,12 +58,12 @@ public class SweCne {
         CneUtil.initUniqueIds();
 
         // this will crash if cneHelper.getCracCreationContext().getTimeStamp() is null
-        // the usage of a timestamp in FbConstraintCracCreator is mandatory so it shouldn't be an issue
-        if (Objects.isNull(cneHelper.getCimCracCreationContext().getTimeStamp())) {
+        // the usage of a timestamp in CimCracCreator is mandatory so it shouldn't be an issue
+        if (Objects.isNull(cracCreationContext.getTimeStamp())) {
             throw new FaraoException("Cannot export CNE file if the CRAC has no timestamp");
         }
 
-        OffsetDateTime offsetDateTime = cneHelper.getCimCracCreationContext().getTimeStamp().withMinute(0);
+        OffsetDateTime offsetDateTime = cracCreationContext.getTimeStamp().withMinute(0);
         fillHeader(cneHelper.getNetwork().getCaseDate().toDate().toInstant().atOffset(ZoneOffset.UTC));
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
@@ -100,7 +102,7 @@ public class SweCne {
 
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
-        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(cneHelper).generate();
+        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(cneHelper, cracCreationContext).generate();
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 

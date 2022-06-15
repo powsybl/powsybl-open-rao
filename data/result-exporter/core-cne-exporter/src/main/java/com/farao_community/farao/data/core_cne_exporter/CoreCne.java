@@ -41,10 +41,12 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
 public class CoreCne {
     private CriticalNetworkElementMarketDocument marketDocument;
     private CneHelper cneHelper;
+    private StandardCracCreationContext cracCreationContext;
 
     public CoreCne(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+        cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        this.cracCreationContext = cracCreationContext;
     }
 
     public CriticalNetworkElementMarketDocument getMarketDocument() {
@@ -58,11 +60,11 @@ public class CoreCne {
 
         // this will crash if cneHelper.getCracCreationContext().getTimeStamp() is null
         // the usage of a timestamp in FbConstraintCracCreator is mandatory so it shouldn't be an issue
-        if (Objects.isNull(cneHelper.getStandardCracCreationContext().getTimeStamp())) {
+        if (Objects.isNull(cracCreationContext.getTimeStamp())) {
             throw new FaraoException("Cannot export CNE file if the CRAC has no timestamp");
         }
 
-        OffsetDateTime offsetDateTime = cneHelper.getStandardCracCreationContext().getTimeStamp().withMinute(0);
+        OffsetDateTime offsetDateTime = cracCreationContext.getTimeStamp().withMinute(0);
         fillHeader();
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
@@ -99,8 +101,8 @@ public class CoreCne {
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        constraintSeriesList.addAll(new CoreCneCnecsCreator(cneHelper).generate());
-        constraintSeriesList.addAll(new CoreCneRemedialActionsCreator(cneHelper, constraintSeriesList).generate());
+        constraintSeriesList.addAll(new CoreCneCnecsCreator(cneHelper, cracCreationContext).generate());
+        constraintSeriesList.addAll(new CoreCneRemedialActionsCreator(cneHelper, cracCreationContext, constraintSeriesList).generate());
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 }

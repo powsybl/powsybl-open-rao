@@ -92,11 +92,11 @@ public class MonitoredSeriesCreator {
         String nativeName = monitoredSeries.getName();
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, "", "", ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
             return;
         }
         if (monitoredRegisteredResources.size() > 1) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, "", "", ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
+            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
             return;
         }
 

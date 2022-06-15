@@ -52,7 +52,8 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         }
 
         if (offsetDateTime == null) {
-            creationContext.getCreationReport().warn("Timestamp is null for cim crac creator. No check will be performed.");
+            creationContext.getCreationReport().error("Timestamp is null for cim crac creator.");
+            return creationContext.creationFailure();
         } else {
             String cracTimePeriodStart = cimCrac.getCracDocument().getTimePeriodTimeInterval().getStart();
             String cracTimePeriodEnd = cimCrac.getCracDocument().getTimePeriodTimeInterval().getEnd();

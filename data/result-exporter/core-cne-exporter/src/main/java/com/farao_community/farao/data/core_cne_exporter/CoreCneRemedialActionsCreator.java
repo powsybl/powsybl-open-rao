@@ -23,6 +23,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.PstRangeActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
 import java.util.ArrayList;
@@ -43,13 +44,15 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreat
 public final class CoreCneRemedialActionsCreator {
 
     private CneHelper cneHelper;
+    private StandardCracCreationContext cracCreationContext;
     private List<ConstraintSeries> cnecsConstraintSeries;
 
     private static final String RA_SERIES = "RAseries";
 
-    public CoreCneRemedialActionsCreator(CneHelper cneHelper, List<ConstraintSeries> cnecsConstraintSeries) {
+    public CoreCneRemedialActionsCreator(CneHelper cneHelper, StandardCracCreationContext cracCreationContext, List<ConstraintSeries> cnecsConstraintSeries) {
         this.cneHelper = cneHelper;
         this.cnecsConstraintSeries = new ArrayList<>(cnecsConstraintSeries);
+        this.cracCreationContext = cracCreationContext;
     }
 
     private CoreCneRemedialActionsCreator() {
@@ -65,12 +68,12 @@ public final class CoreCneRemedialActionsCreator {
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
 
-        List<PstRangeAction> sortedRangeActions = cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().stream()
+        List<PstRangeAction> sortedRangeActions = cracCreationContext.getRemedialActionCreationContexts().stream()
             .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
             .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
             .filter(ra -> !Objects.isNull(ra))
             .collect(Collectors.toList());
-        List<NetworkAction> sortedNetworkActions = cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().stream()
+        List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
             .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
             .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
             .filter(ra -> !Objects.isNull(ra))
@@ -91,7 +94,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private void logMissingRangeActions() {
-        cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().forEach(remedialActionCreationContext -> {
+        cracCreationContext.getRemedialActionCreationContexts().forEach(remedialActionCreationContext -> {
             if (!remedialActionCreationContext.isImported()) {
                 FaraoLoggerProvider.TECHNICAL_LOGS.warn("Remedial action {} was not imported into the RAO, it will be absent from the CNE file", remedialActionCreationContext.getNativeId());
             }
@@ -109,7 +112,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private RemedialActionSeries createPreOptimRangeRemedialActionSeries(PstRangeAction pstRangeAction) {
-        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
+        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
         int initialTap = (context.isInverted() ? -1 : 1) * pstRangeAction.getInitialTap();
         RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(pstRangeAction.getId(), pstRangeAction.getName(), pstRangeAction.getOperator(), OptimizationState.INITIAL);
         pstRangeAction.getNetworkElements().forEach(networkElement -> {
@@ -210,7 +213,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private void createPstRangeActionRegisteredResource(PstRangeAction pstRangeAction, State state, RemedialActionSeries remedialActionSeries) {
-        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cneHelper.getStandardCracCreationContext().getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
+        PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
         int tap = (context.isInverted() ? -1 : 1) * cneHelper.getRaoResult().getOptimizedTapOnState(state, pstRangeAction);
         RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(context.getNativeId(), context.getNativeNetworkElementId(), PST_RANGE_PSR_TYPE, tap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
         remedialActionSeries.getRegisteredResource().add(registeredResource);
