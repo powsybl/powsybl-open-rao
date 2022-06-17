@@ -205,7 +205,7 @@ public class CimCracCreatorTest {
 
         assertEquals(1, importedCrac.getContingencies().size());
         assertContingencyImported("Co-2", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
-}
+    }
 
     @Test
     public void testImportFakeCnecs() {
@@ -213,9 +213,9 @@ public class CimCracCreatorTest {
         assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertEquals(10, importedCrac.getFlowCnecs().size());
         assertCnecImported("CNEC-4",
-                Set.of("CNEC-4 - preventive",
-                        "CNEC-4 - Co-1 - curative",
-                        "CNEC-4 - Co-2 - curative"));
+            Set.of("CNEC-4 - preventive",
+                "CNEC-4 - Co-1 - curative",
+                "CNEC-4 - Co-2 - curative"));
     }
 
     @Test
@@ -327,7 +327,7 @@ public class CimCracCreatorTest {
     public void testImportAlignedRangeActions() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
         rangeActionGroups.add(new RangeActionGroup(List.of("PRA_1", "PRA_22")));
@@ -352,7 +352,7 @@ public class CimCracCreatorTest {
     public void testImportAlignedRangeActionsGroupIdNull() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
         List<String> groupIds = new ArrayList<>();
@@ -377,7 +377,7 @@ public class CimCracCreatorTest {
     public void testImportAlignedRangeActionsGroupIdAlreadyDefined() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
         rangeActionGroups.add(new RangeActionGroup(List.of("PRA_1")));
