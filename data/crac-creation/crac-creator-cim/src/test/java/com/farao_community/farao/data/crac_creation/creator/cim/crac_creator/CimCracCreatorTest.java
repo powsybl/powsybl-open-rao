@@ -201,7 +201,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportContingencyOnTieLine() {
-        setUp("/cracs/CIM_co_halfline.xml", null);
+        setUp("/cracs/CIM_co_halfline.xml", OffsetDateTime.parse("2021-04-01T22:00Z"));
 
         assertEquals(1, importedCrac.getContingencies().size());
         assertContingencyImported("Co-2", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
