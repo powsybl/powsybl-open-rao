@@ -264,23 +264,27 @@ public class SearchTree {
         CountDownLatch latch = new CountDownLatch(naCombinations.size());
         naCombinations.forEach(naCombination ->
             networkPool.submit(() -> {
+                Network networkClone = null; //This is where the threads actually wait for available networks
                 try {
-                    Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+                    networkClone = networkPool.getAvailableNetwork();
+                } catch (InterruptedException e) {
+                    throw new FaraoException(e);
+                }
+                try {
+                    Network networkFinal = networkClone;
                     if (combinationFulfillingStopCriterion.isEmpty() || arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
                         previousDepthOptimalLeaf.getRangeActions()
-                            .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
+                            .forEach(ra -> ra.apply(networkFinal, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
 
                         // todo
                         // set alreadyAppliedRa
 
                         optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
-                        networkPool.releaseUsedNetwork(networkClone);
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
-                        networkPool.releaseUsedNetwork(networkClone);
                     }
                 } catch (InterruptedException e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
@@ -290,6 +294,11 @@ public class SearchTree {
                 } finally {
                     TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                     latch.countDown();
+                    try {
+                        networkPool.releaseUsedNetwork(networkClone);
+                    } catch (InterruptedException ex) {
+                        throw new FaraoException(ex);
+                    }
                 }
             })
         );
@@ -323,7 +332,6 @@ public class SearchTree {
             topLevelLogger.info("Could not evaluate network action combination \"{}\": {}", printNetworkActions(networkActions), e.getMessage());
             return;
         } catch (NotImplementedException e) {
-            networkPool.releaseUsedNetwork(network);
             throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
