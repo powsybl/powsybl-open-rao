@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -38,6 +39,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(FreeToUse.class, new FreeToUseSerializer());
         this.addSerializer(OnState.class, new OnStateSerializer());
         this.addSerializer(OnFlowConstraint.class, new OnFlowConstraintSerializer());
+        this.addSerializer(OnFlowConstraintInCountry.class, new OnFlowConstraintInCountrySerializer());
         this.addSerializer(TapRange.class, new TapRangeSerializer());
         this.addSerializer(StandardRange.class, new StandardRangeSerializer());
         this.addSerializer(NetworkAction.class, new NetworkActionSerializer());
