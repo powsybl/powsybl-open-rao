@@ -165,6 +165,17 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
+    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        if (remedialAction instanceof NetworkAction) {
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
+        } else if (remedialAction instanceof RangeAction<?>) {
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        } else {
+            throw new FaraoException("Unrecognized remedial action type");
+        }
+    }
+
+    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (!state.equals(optimizedState)) {
             throw new FaraoException("Trying to access perimeter result for the wrong state.");
