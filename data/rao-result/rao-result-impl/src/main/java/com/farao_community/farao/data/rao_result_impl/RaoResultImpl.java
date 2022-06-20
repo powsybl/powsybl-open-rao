@@ -6,7 +6,9 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -111,6 +113,17 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
         return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
+    }
+
+    @Override
+    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        if (remedialAction instanceof NetworkAction) {
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
+        } else if (remedialAction instanceof RangeAction<?>) {
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        } else {
+            throw new FaraoException("Unrecognized remedial action type");
+        }
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {

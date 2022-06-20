@@ -64,7 +64,7 @@ public class PstRangeActionCreator {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = pstRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
-            this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatus");
+            this.pstRangeActionCreationContext = PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatus");
             return;
         }
         try {
@@ -77,7 +77,7 @@ public class PstRangeActionCreator {
 
             IidmPstHelper pstHelper = new IidmPstHelper(networkElementId, network);
             if (!pstHelper.isValid()) {
-                this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s", pstHelper.getInvalidReason()));
+                this.pstRangeActionCreationContext = PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s", pstHelper.getInvalidReason()));
                 return;
             }
 
@@ -107,7 +107,7 @@ public class PstRangeActionCreator {
             defineTapRange(pstRangeActionAdder, pstHelper, rangeType);
             RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
 
-            this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importWithContingencies(createdRemedialActionId, invalidContingencies);
+            this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies);
         } catch (FaraoImportException e) {
             this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, e.getImportStatus(), e.getMessage());
         }

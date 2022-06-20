@@ -16,7 +16,9 @@
     <description>Module that regroups the RAO result exporters</description>
 
     <modules>
+        <module>cne-exporter-commons</module>
         <module>core-cne-exporter</module>
+        <module>swe-cne-exporter</module>
     </modules>
 
 </project>

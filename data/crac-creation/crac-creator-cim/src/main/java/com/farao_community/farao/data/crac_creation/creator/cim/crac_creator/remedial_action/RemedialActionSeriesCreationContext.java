@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class RemedialActionSeriesCreationContext implements ElementaryCreationContext {
+public class RemedialActionSeriesCreationContext implements ElementaryCreationContext {
     private final String nativeId;
     private final Set<String> createdIds;
     private final ImportStatus importStatus;
@@ -23,7 +23,7 @@ public final class RemedialActionSeriesCreationContext implements ElementaryCrea
     private final boolean isAltered;
     private final boolean isInverted;
 
-    private RemedialActionSeriesCreationContext(String nativeId, Set<String> createdIds, ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
+    protected RemedialActionSeriesCreationContext(String nativeId, Set<String> createdIds, ImportStatus importStatus, boolean isAltered, boolean isInverted, String importStatusDetail) {
         this.nativeId = nativeId;
         this.createdIds = createdIds;
         this.importStatus = importStatus;

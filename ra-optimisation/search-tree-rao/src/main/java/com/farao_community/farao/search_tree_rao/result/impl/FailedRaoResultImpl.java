@@ -80,6 +80,11 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
+    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }

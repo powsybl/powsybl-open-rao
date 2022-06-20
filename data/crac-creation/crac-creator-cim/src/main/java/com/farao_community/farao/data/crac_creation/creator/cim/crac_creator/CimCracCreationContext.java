@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,10 +33,12 @@ public class CimCracCreationContext implements CracCreationContext {
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private CracCreationReport creationReport;
+    private OffsetDateTime timeStamp;
 
-    public CimCracCreationContext(Crac crac) {
+    public CimCracCreationContext(Crac crac, OffsetDateTime timeStamp) {
         this.crac = crac;
         creationReport = new CracCreationReport();
+        this.timeStamp = timeStamp;
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
@@ -45,6 +48,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.monitoredSeriesCreationContexts = toCopy.monitoredSeriesCreationContexts;
         this.remedialActionSeriesCreationContexts = new HashSet<>(toCopy.remedialActionSeriesCreationContexts);
         this.creationReport = toCopy.creationReport;
+        this.timeStamp = toCopy.timeStamp;
     }
 
     @Override
@@ -106,6 +110,10 @@ public class CimCracCreationContext implements CracCreationContext {
         return creationReport;
     }
 
+    public OffsetDateTime getTimeStamp() {
+        return timeStamp;
+    }
+
     public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
@@ -128,6 +136,10 @@ public class CimCracCreationContext implements CracCreationContext {
 
     public void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
         this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
+    }
+
+    public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts() {
+        return remedialActionSeriesCreationContexts;
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContexts(String seriesId) {

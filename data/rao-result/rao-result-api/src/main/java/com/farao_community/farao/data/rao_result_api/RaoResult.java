@@ -9,6 +9,7 @@ package com.farao_community.farao.data.rao_result_api;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -148,6 +149,15 @@ public interface RaoResult {
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(OptimizationState optimizationState, String virtualCostName);
+
+    /**
+     * It states if the {@link RemedialAction} is activated on a specific {@link State}.
+     *
+     * @param state: The state of the state tree to be studied.
+     * @param remedialAction: The remedial action to be studied.
+     * @return True if the remedial action is chosen by the optimizer during the specified state.
+     */
+    boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction);
 
     /**
      * It states if the {@link NetworkAction} was already activated when a specific {@link State} is studied. Meaning

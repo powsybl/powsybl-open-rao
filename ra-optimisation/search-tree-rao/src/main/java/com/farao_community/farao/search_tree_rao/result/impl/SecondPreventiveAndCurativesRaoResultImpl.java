@@ -187,6 +187,17 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
     }
 
     @Override
+    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        if (remedialAction instanceof NetworkAction) {
+            return isActivatedDuringState(state, (NetworkAction) remedialAction);
+        } else if (remedialAction instanceof RangeAction<?>) {
+            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        } else {
+            throw new FaraoException("Unrecognized remedial action type");
+        }
+    }
+
+    @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return false;

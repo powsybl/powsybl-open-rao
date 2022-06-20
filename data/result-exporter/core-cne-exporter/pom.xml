@@ -18,8 +18,8 @@
 
     <artifactId>farao-core-cne-exporter</artifactId>
     <packaging>jar</packaging>
-    <name>CNE exporter</name>
-    <description>Export the results of a RAO in a CNE file</description>
+    <name>CORE CNE exporter</name>
+    <description>Export the results of a RAO in a CNE file for the CORE region</description>
 
     <build>
         <plugins>
@@ -51,6 +51,11 @@
 
     <dependencies>
         <!-- Compile dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-cne-exporter-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>
