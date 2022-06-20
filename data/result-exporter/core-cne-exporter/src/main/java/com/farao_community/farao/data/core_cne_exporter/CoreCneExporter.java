@@ -9,6 +9,7 @@ package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
 import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
@@ -34,7 +35,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.core_cne_exporter.CneConstants.*;
+import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 
 /**
  * Xml export of the CNE file
@@ -47,8 +48,8 @@ public class CoreCneExporter {
     public void exportCne(Crac crac, Network network,
                           StandardCracCreationContext cracCreationContext,
                           RaoResult raoResult, RaoParameters raoParameters,
-                          CoreCneExporterParameters exporterParameters, OutputStream outputStream) {
-        Cne cne = new Cne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+                          CneExporterParameters exporterParameters, OutputStream outputStream) {
+        CoreCne cne = new CoreCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();
