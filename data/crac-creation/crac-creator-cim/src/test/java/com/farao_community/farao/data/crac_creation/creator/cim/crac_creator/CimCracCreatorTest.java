@@ -102,7 +102,7 @@ public class CimCracCreatorTest {
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
     }
 
@@ -248,7 +248,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportPstRangeActions() {
-        setUp("/cracs/CIM_21_3_1.xml", baseNetwork, null, new CracCreationParameters());
+        setUp("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-3", NOT_YET_HANDLED_BY_FARAO);
