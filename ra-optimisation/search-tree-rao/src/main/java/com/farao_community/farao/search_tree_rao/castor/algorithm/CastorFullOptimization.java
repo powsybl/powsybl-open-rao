@@ -431,7 +431,7 @@ public class CastorFullOptimization {
 
     private boolean checkAlignedRangeActions(String availableRangeActionId, State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOnAutomatonState) {
         // Ignore aligned range actions when one element of the group has a different usage method than the others
-        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).collect(Collectors.toSet()).size() != 1) {
+        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).collect(Collectors.toSet()).size() > 1) {
             BUSINESS_WARNS.warn("Range action {} belongs to a group of aligned range actions with different usage methods; they are not simulated", availableRangeActionId);
             rangeActionsOnAutomatonState.removeAll(alignedRa);
             return false;
