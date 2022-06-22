@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -145,6 +146,9 @@ public class HvdcRangeActionCreator {
                 return raSeriesIds.stream().map(id ->
                     RemedialActionSeriesCreationContext.notImported(id, e.getImportStatus(), e.getMessage())
                 ).collect(Collectors.toSet());
+            } catch (FaraoException e) {
+                return raSeriesIds.stream().map(id ->
+                        RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
             }
         }
 

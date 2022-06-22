@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -351,9 +350,11 @@ public class CimCracCreatorTest {
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testImportKOHvdcRangeActions() {
         setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), null);
+        assertRemedialActionNotImported("HVDC-direction11", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC-direction12", INCONSISTENCY_IN_DATA);
     }
 
     @Test

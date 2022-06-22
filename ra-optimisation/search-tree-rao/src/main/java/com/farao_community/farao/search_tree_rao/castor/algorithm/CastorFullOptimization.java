@@ -342,7 +342,7 @@ public class CastorFullOptimization {
         if (rangeActionsOnAutomatonState.isEmpty()) {
             if (appliedNetworkActions.isEmpty()) {
                 TECHNICAL_LOGS.info("Nothing to optimize for automaton state {}.", automatonState.getId());
-                return new AutomatonPerimeterResultImpl(automatonRangeActionOptimizationSensitivityAnalysisOutput, null, null, rangeActionsWithSetpoint, automatonState);
+                return new AutomatonPerimeterResultImpl(automatonRangeActionOptimizationSensitivityAnalysisOutput, appliedNetworkActions, activatedRangeActions, rangeActionsWithSetpoint, automatonState);
             } else {
                 PrePerimeterResult postAutomatonSensitivityAnalysisOutput = runPreCurativeSensitivityComputation(automatonState,
                         curativeState,
@@ -353,7 +353,7 @@ public class CastorFullOptimization {
                         initialFlowResult,
                         operatorsNotSharingCras);
                 TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
-                return new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions, null, rangeActionsWithSetpoint, automatonState);
+                return new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions, activatedRangeActions, rangeActionsWithSetpoint, automatonState);
             }
         } else if (!appliedNetworkActions.isEmpty()) {
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
