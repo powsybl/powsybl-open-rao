@@ -136,7 +136,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         double newAngle = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState);
         int newTapPosition = rangeActionActivationResult.getOptimizedTap(pstRangeAction, optimizedState);
 
-        double prePerimeterAngle = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
+        double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
         int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
         int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
 
