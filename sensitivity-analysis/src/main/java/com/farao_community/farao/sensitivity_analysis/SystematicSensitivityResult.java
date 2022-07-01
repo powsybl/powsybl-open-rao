@@ -112,12 +112,15 @@ public class SystematicSensitivityResult {
             this.status = SensitivityComputationStatus.SUCCESS;
         }
 
-        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
+        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1)) {
             stateResult.getReferenceFlows().putIfAbsent(factor.getFunctionId(), reference);
             stateResult.getFlowSensitivities().computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
                 .putIfAbsent(factor.getVariableId(), sensitivity);
-        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT)) {
-            stateResult.getReferenceIntensities().putIfAbsent(factor.getFunctionId(), reference);
+        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+            if (!stateResult.getReferenceIntensities().containsKey(factor.getFunctionId())
+                || Math.abs(reference) > Math.abs(stateResult.getReferenceIntensities().get(factor.getFunctionId()))) {
+                stateResult.getReferenceIntensities().put(factor.getFunctionId(), reference);
+            }
             stateResult.getIntensitySensitivities().computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
                 .putIfAbsent(factor.getVariableId(), sensitivity);
         }

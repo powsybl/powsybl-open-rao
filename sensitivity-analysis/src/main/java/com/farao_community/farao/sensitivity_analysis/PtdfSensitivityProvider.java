@@ -58,7 +58,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
             .map(Cnec::getNetworkElement)
             .distinct()
             .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, ne.getId(),
+                .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, ne.getId(),
                     SensitivityVariableType.INJECTION_ACTIVE_POWER, linearGlsk.getId(),
                     true, preContingencyContext))
                 .forEach(factors::add));
@@ -79,7 +79,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
                 .map(Cnec::getNetworkElement)
                 .distinct()
                 .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                    .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, ne.getId(),
+                    .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, ne.getId(),
                         SensitivityVariableType.INJECTION_ACTIVE_POWER, linearGlsk.getId(),
                         true, preContingencyContext))
                     .forEach(factors::add));

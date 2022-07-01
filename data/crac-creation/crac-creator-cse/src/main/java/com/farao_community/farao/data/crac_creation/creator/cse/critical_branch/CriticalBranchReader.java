@@ -76,7 +76,13 @@ public class CriticalBranchReader {
     }
 
     public CriticalBranchReader(TBranch tBranch, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
-        this.criticalBranchName = tBranch.getName().getV();
+        String outage;
+        if (tOutage == null) {
+            outage = "basecase";
+        } else {
+            outage = tOutage.getV();
+        }
+        this.criticalBranchName = String.join(" - ", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage);
         UcteCnecElementHelper branchHelper = new UcteCnecElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), ucteNetworkAnalyzer);
         this.nativeBranch = new NativeBranch(branchHelper.getOriginalFrom(), branchHelper.getOriginalTo(), branchHelper.getSuffix());
         if (!branchHelper.isValid()) {
@@ -124,16 +130,16 @@ public class CriticalBranchReader {
         }
         String cnecId = getCnecId(tBranch, tOutage, instant);
         FlowCnecAdder cnecAdder = crac.newFlowCnec()
-                .withId(cnecId)
-                .withName(tBranch.getName().getV())
-                .withInstant(instant)
-                .withContingency(tOutage != null ? tOutage.getV() : null)
-                .withOptimized(true)
-                .withNetworkElement(branchHelper.getIdInNetwork())
-                .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-                .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+            .withId(cnecId)
+            .withName(tBranch.getName().getV())
+            .withInstant(instant)
+            .withContingency(tOutage != null ? tOutage.getV() : null)
+            .withOptimized(true)
+            .withNetworkElement(branchHelper.getIdInNetwork())
+            .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
+            .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
+            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
+            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
 
         addThreshold(cnecAdder, tImax.getV(), tImax.getUnit(), tBranch.getDirection().getV(), isDirectionInverted);
         cnecAdder.add();
@@ -150,8 +156,8 @@ public class CriticalBranchReader {
     private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, String unit, String direction, boolean invert) {
         Unit convertedUnit = convertUnit(unit);
         BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-                .withUnit(convertedUnit);
+            .withRule(BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL)
+            .withUnit(convertedUnit);
         convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, convertedUnit == Unit.PERCENT_IMAX);
         branchThresholdAdder.add();
     }
