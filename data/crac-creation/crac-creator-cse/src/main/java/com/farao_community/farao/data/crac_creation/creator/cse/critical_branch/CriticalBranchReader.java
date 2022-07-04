@@ -82,7 +82,7 @@ public class CriticalBranchReader {
         } else {
             outage = tOutage.getV();
         }
-        this.criticalBranchName = tBranch.getName().getV() + " - " + outage;
+        this.criticalBranchName = String.join(" - ", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage);
         UcteCnecElementHelper branchHelper = new UcteCnecElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), ucteNetworkAnalyzer);
         this.nativeBranch = new NativeBranch(branchHelper.getOriginalFrom(), branchHelper.getOriginalTo(), branchHelper.getSuffix());
         if (!branchHelper.isValid()) {

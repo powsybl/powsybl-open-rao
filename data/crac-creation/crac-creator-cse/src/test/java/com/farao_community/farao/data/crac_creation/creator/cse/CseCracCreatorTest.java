@@ -122,7 +122,7 @@ public class CseCracCreatorTest {
         assertHvdcRangeActionImported("CRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
 
         assertOutageNotImported("fake_contingency_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertCriticalBranchNotImported("fake_because_we_have_to - null", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertCriticalBranchNotImported("fake_because_we_have_to - AAAAAA11 - BBBBBB11 - null", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("CRA_HVDC_fake", NOT_YET_HANDLED_BY_FARAO);
         assertRemedialActionNotImported("WEIRD_HVDC_WITH_2_HVDCNODES", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC_WITH_NON_OPPOSITE_GENERATORS", INCONSISTENCY_IN_DATA);
@@ -173,7 +173,7 @@ public class CseCracCreatorTest {
     public void createPreventiveCnecs() {
         setUp("/cracs/cse_crac_1.xml");
         assertEquals(3, importedCrac.getCnecs(importedCrac.getPreventiveState()).size());
-        BranchCnecCreationContext cnec1context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_1 - basecase");
+        BranchCnecCreationContext cnec1context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_1 - NNL2AA1  - NNL3AA1  - basecase");
         assertTrue(cnec1context.isBaseCase());
         assertTrue(cnec1context.isImported());
         assertFalse(cnec1context.isDirectionInvertedInNetwork());
@@ -185,7 +185,7 @@ public class CseCracCreatorTest {
     @Test
     public void createCurativeCnecs() {
         setUp("/cracs/cse_crac_1.xml");
-        BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("French line 1 - outage_1");
+        BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("French line 1 - FFR1AA1  - FFR2AA1  - outage_1");
         assertFalse(cnec2context.isBaseCase());
         assertTrue(cnec2context.isImported());
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
@@ -198,8 +198,7 @@ public class CseCracCreatorTest {
     @Test
     public void doNotCreateAbsentFromNetworkCnec() {
         setUp("/cracs/cse_crac_1.xml");
-        BranchCnecCreationContext cnec3context = cracCreationContext.getBranchCnecCreationContext("Albertville - La Coche");
-        assertCriticalBranchNotImported("French line 2 - outage_2", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertCriticalBranchNotImported("French line 2 - FFRFAK2 - FFRFAK1 - outage_2", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
