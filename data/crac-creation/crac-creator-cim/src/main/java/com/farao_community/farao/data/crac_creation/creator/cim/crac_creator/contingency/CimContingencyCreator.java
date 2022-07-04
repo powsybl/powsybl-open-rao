@@ -103,7 +103,7 @@ public class CimContingencyCreator {
         Identifiable<?> networkElement = network.getIdentifiable(networkElementIdInCrac);
         if (networkElement == null) {
             CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
-            if (cgmesBranchHelper.isValid() && cgmesBranchHelper.isTieLine()) {
+            if (cgmesBranchHelper.isValid()) {
                 networkElementId = cgmesBranchHelper.getIdInNetwork();
             }
         } else {

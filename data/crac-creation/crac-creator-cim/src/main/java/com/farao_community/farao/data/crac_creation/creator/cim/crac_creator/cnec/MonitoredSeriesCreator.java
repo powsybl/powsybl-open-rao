@@ -104,7 +104,7 @@ public class MonitoredSeriesCreator {
 
         //Get network element
         CgmesBranchHelper branchHelper = new CgmesBranchHelper(monitoredRegisteredResource.getMRID().getValue(), network);
-        if (branchHelper.getBranch() == null) {
+        if (!branchHelper.isValid()) {
             monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
                 String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())));
             return;
