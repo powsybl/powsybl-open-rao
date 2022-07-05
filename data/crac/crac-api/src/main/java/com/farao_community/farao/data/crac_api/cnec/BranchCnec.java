@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_api.cnec;
 
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
 import java.util.Optional;
@@ -24,6 +25,11 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
+
+    /**
+     * Getter of the {@link NetworkElement} on which the {@code Cnec} is defined.
+     */
+    NetworkElement getNetworkElement();
 
     /**
      * Getter of the {@link BranchThreshold}s that the {@link PhysicalParameter} of this {@code BranchCnec}

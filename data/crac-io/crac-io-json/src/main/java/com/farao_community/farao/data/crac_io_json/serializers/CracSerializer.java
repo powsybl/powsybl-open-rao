@@ -58,7 +58,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         Map<String, String> networkElementsNamesPerId = new HashMap<>();
 
         // Get network elements from Cnecs
-        crac.getCnecs().stream().map(Cnec::getNetworkElement)
+        crac.getCnecs().stream().map(Cnec::getNetworkElements).flatMap(Set::stream)
                 .filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
                 .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
 

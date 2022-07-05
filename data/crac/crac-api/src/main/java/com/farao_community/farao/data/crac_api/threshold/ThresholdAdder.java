@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_api.threshold;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
