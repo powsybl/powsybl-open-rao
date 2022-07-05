@@ -24,7 +24,6 @@ public class AngleThresholdAdderImpl extends ThresholdAdderImpl<AngleThresholdAd
         this.ownerAdder = (AngleCnecAdderImpl) ownerAdder;
     }
 
-
     @Override
     public AngleCnecAdder add() {
         super.checkThreshold();

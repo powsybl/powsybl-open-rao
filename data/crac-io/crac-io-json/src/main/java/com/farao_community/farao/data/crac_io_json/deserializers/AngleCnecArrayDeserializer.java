@@ -32,7 +32,7 @@ public final class AngleCnecArrayDeserializer {
     private AngleCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", ANGLE_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -80,7 +80,19 @@ public final class AngleCnecArrayDeserializer {
                     case MONITORED:
                         adder.withMonitored(jsonParser.nextBooleanValue());
                         break;
+                    case FRM:
+                        //"frm" renamed to "reliabilityMargin" in 1.4
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
+                            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, FRM));
+                        }
+                        jsonParser.nextToken();
+                        adder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        break;
                     case RELIABILITY_MARGIN:
+                        //"frm" renamed to "reliabilityMargin" in 1.4
+                        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
+                            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
+                        }
                         jsonParser.nextToken();
                         adder.withReliabilityMargin(jsonParser.getDoubleValue());
                         break;

@@ -63,6 +63,8 @@ public final class JsonSerializationConstants {
 
     public static final String THRESHOLDS = "thresholds";
     public static final String RELIABILITY_MARGIN = "reliabilityMargin";
+    @Deprecated
+    public static final String FRM = "frm";
     public static final String OPTIMIZED = "optimized";
     public static final String MONITORED = "monitored";
     public static final String I_MAX = "iMax";

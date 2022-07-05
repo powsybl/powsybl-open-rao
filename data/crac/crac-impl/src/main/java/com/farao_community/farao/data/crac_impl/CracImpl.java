@@ -307,9 +307,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return getFlowCnec(cnecId);
         } else if (angleCnecs.containsKey(cnecId)) {
             return getAngleCnec(cnecId);
-        } else {
-            throw new FaraoException(String.format("Unable to find cnec with id : %s", cnecId));
         }
+        return null;
     }
 
     @Override
