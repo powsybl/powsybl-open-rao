@@ -167,9 +167,9 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void cracCreationSuccessfulNullTime() {
+    public void cracCreationFailureNullTime() {
         setUp("/cracs/CIM_21_1_1.xml", null);
-        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertFalse(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
@@ -186,7 +186,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportContingencies() {
-        setUp("/cracs/CIM_21_1_1.xml", null);
+        setUp("/cracs/CIM_21_1_1.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         assertEquals(3, importedCrac.getContingencies().size());
         assertContingencyImported("Co-1", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
@@ -196,7 +196,7 @@ public class CimCracCreatorTest {
         assertContingencyNotImported("Co-4", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertContingencyNotImported("Co-5", INCOMPLETE_DATA);
 
-        assertEquals(4, cracCreationContext.getCreationReport().getReport().size()); // 2 fake contingencies, 1 altered, null offsetDateTime
+        assertEquals(3, cracCreationContext.getCreationReport().getReport().size()); // 2 fake contingencies, 1 altered
     }
 
     @Test
@@ -209,7 +209,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportFakeCnecs() {
-        setUp("/cracs/CIM_21_2_1.xml", null);
+        setUp("/cracs/CIM_21_2_1.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertEquals(10, importedCrac.getFlowCnecs().size());
         assertCnecImported("CNEC-4",
@@ -220,7 +220,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportPstRangeActions() {
-        setUp("/cracs/CIM_21_3_1.xml", null);
+        setUp("/cracs/CIM_21_3_1.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA-Series-3", NOT_YET_HANDLED_BY_FARAO);
@@ -246,7 +246,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportNetworkActions() {
-        setUp("/cracs/CIM_21_4_1.xml", null);
+        setUp("/cracs/CIM_21_4_1.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
         assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
         // Pst Setpoint
         assertRemedialActionNotImported("PRA_2", INCONSISTENCY_IN_DATA);
@@ -282,7 +282,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportHvdcRangeActions() {
-        setUpForHvdc("/cracs/CIM_21_6_1.xml", null);
+        setUpForHvdc("/cracs/CIM_21_6_1.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         // RA-Series-2
         assertRemedialActionNotImported("HVDC-direction21", INCONSISTENCY_IN_DATA);
@@ -337,7 +337,7 @@ public class CimCracCreatorTest {
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
@@ -364,7 +364,7 @@ public class CimCracCreatorTest {
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
@@ -388,7 +388,7 @@ public class CimCracCreatorTest {
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, null, cracCreationParameters);
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         assertRemedialActionNotImported("PRA_1", INCONSISTENCY_IN_DATA);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
@@ -411,7 +411,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportOnFlowConstraintUsageRules() {
-        setUp("/cracs/CIM_21_5_1.xml", null);
+        setUp("/cracs/CIM_21_5_1.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
@@ -468,7 +468,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportRasAvailableForSpecificCountry() {
-        setUp("/cracs/CIM_21_5_2.xml", null);
+        setUp("/cracs/CIM_21_5_2.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         // RA_1
         assertNetworkActionImported("RA_1", Set.of("_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
@@ -539,7 +539,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportOnFlowConstraintRepeatedRa() {
-        setUp("/cracs/CIM_21_5_3.xml", null);
+        setUp("/cracs/CIM_21_5_3.xml", OffsetDateTime.parse("2021-04-01T23:00Z"));
 
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
