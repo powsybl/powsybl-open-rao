@@ -50,6 +50,11 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     }
 
     @Override
+    public OnAngleConstraintAdder<T> newOnAngleConstraintUsageRule() {
+        return new OnAngleConstraintAdderImpl(this);
+    }
+
+    @Override
     public OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule() {
         return new OnFlowConstraintInCountryAdderImpl(this);
     }

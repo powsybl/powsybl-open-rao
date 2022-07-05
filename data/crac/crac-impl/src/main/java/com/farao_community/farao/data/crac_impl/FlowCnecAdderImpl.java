@@ -90,7 +90,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     public FlowCnec add() {
         checkCnec();
 
-        if (owner.getFlowCnec(id) != null) {
+        if (owner.getCnec(id) != null) {
             throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
         }
 

@@ -63,8 +63,12 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
     public AngleCnec add() {
         checkCnec();
 
-        if (owner.getAngleCnec(id) != null) {
+        if (owner.getCnec(id) != null) {
             throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
+        }
+
+        if (optimized) {
+            throw new FaraoException(format("Error while adding cnec %s : Farao does not allow the optimization of AngleCnecs.", id));
         }
 
         checkAndInitThresholds();
