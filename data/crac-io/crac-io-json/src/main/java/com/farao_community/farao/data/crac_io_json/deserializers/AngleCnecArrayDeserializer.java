@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,10 +9,8 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -20,25 +18,27 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public final class FlowCnecArrayDeserializer {
+public final class AngleCnecArrayDeserializer {
 
-    private FlowCnecArrayDeserializer() {
+    private AngleCnecArrayDeserializer() {
     }
 
     public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
-            throw new FaraoException(String.format("Cannot deserialize %s before %s", FLOW_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
+            throw new FaraoException(String.format("Cannot deserialize %s before %s", ANGLE_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            FlowCnecAdder adder = crac.newFlowCnec();
-            List<Extension<FlowCnec>> extensions = new ArrayList<>();
+            AngleCnecAdder adder = crac.newAngleCnec();
+            List<Extension<AngleCnec>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -47,12 +47,22 @@ public final class FlowCnecArrayDeserializer {
                     case NAME:
                         adder.withName(jsonParser.nextTextValue());
                         break;
-                    case NETWORK_ELEMENT_ID:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+                    case EXPORTING_NETWORK_ELEMENT_ID:
+                        String exportingNetworkElementId = jsonParser.nextTextValue();
+                        //TODO: CHECK IF NAME IS NEEDED
+                        if (networkElementsNamesPerId.containsKey(exportingNetworkElementId)) {
+                            adder.withExportingNetworkElement(exportingNetworkElementId);
                         } else {
-                            adder.withNetworkElement(networkElementId);
+                            adder.withExportingNetworkElement(exportingNetworkElementId);
+                        }
+                        break;
+                    case IMPORTING_NETWORK_ELEMENT_ID:
+                        String importingNetworkElementId = jsonParser.nextTextValue();
+                        //TODO: CHECK IF NAME IS NEEDED
+                        if (networkElementsNamesPerId.containsKey(importingNetworkElementId)) {
+                            adder.withImportingNetworkElement(importingNetworkElementId);
+                        } else {
+                            adder.withImportingNetworkElement(importingNetworkElementId);
                         }
                         break;
                     case OPERATOR:
@@ -74,43 +84,19 @@ public final class FlowCnecArrayDeserializer {
                         jsonParser.nextToken();
                         adder.withReliabilityMargin(jsonParser.getDoubleValue());
                         break;
-                    case I_MAX:
-                        jsonParser.nextToken();
-                        Double[] iMax = jsonParser.readValueAs(Double[].class);
-                        if (iMax.length == 1) {
-                            adder.withIMax(iMax[0]);
-                        } else if (iMax.length == 2) {
-                            adder.withIMax(iMax[0], Side.LEFT);
-                            adder.withIMax(iMax[1], Side.RIGHT);
-                        } else if (iMax.length > 2) {
-                            throw new FaraoException("iMax array of a flowCnec cannot contain more than 2 values");
-                        }
-                        break;
-                    case NOMINAL_VOLTAGE:
-                        jsonParser.nextToken();
-                        Double[] nominalV = jsonParser.readValueAs(Double[].class);
-                        if (nominalV.length == 1) {
-                            adder.withNominalVoltage(nominalV[0]);
-                        } else if (nominalV.length == 2) {
-                            adder.withNominalVoltage(nominalV[0], Side.LEFT);
-                            adder.withNominalVoltage(nominalV[1], Side.RIGHT);
-                        } else if (nominalV.length > 2) {
-                            throw new FaraoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
-                        }
-                        break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        BranchThresholdArrayDeserializer.deserialize(jsonParser, adder);
+                        AngleThresholdArrayDeserializer.deserialize(jsonParser, adder);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
                     default:
-                        throw new FaraoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
+                        throw new FaraoException("Unexpected field in AngleCnec: " + jsonParser.getCurrentName());
                 }
             }
-            FlowCnec cnec = adder.add();
+            AngleCnec cnec = adder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
             }
