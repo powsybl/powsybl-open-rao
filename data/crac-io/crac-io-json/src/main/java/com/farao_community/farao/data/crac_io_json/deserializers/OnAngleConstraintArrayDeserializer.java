@@ -36,7 +36,7 @@ public final class OnAngleConstraintArrayDeserializer {
                         adder.withAngleCnec(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new FaraoException("Unexpected field in OnFlowConstraint: " + jsonParser.getCurrentName());
+                        throw new FaraoException("Unexpected field in OnAngleConstraint: " + jsonParser.getCurrentName());
                 }
             }
             adder.add();

@@ -49,18 +49,16 @@ public final class AngleCnecArrayDeserializer {
                         break;
                     case EXPORTING_NETWORK_ELEMENT_ID:
                         String exportingNetworkElementId = jsonParser.nextTextValue();
-                        //TODO: CHECK IF NAME IS NEEDED
                         if (networkElementsNamesPerId.containsKey(exportingNetworkElementId)) {
-                            adder.withExportingNetworkElement(exportingNetworkElementId);
+                            adder.withExportingNetworkElement(exportingNetworkElementId, networkElementsNamesPerId.get(exportingNetworkElementId));
                         } else {
                             adder.withExportingNetworkElement(exportingNetworkElementId);
                         }
                         break;
                     case IMPORTING_NETWORK_ELEMENT_ID:
                         String importingNetworkElementId = jsonParser.nextTextValue();
-                        //TODO: CHECK IF NAME IS NEEDED
                         if (networkElementsNamesPerId.containsKey(importingNetworkElementId)) {
-                            adder.withImportingNetworkElement(importingNetworkElementId);
+                            adder.withImportingNetworkElement(importingNetworkElementId, networkElementsNamesPerId.get(importingNetworkElementId));
                         } else {
                             adder.withImportingNetworkElement(importingNetworkElementId);
                         }
