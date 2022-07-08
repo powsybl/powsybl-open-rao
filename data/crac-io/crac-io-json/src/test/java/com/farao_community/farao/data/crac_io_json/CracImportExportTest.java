@@ -48,7 +48,8 @@ public class CracImportExportTest {
         assertEquals(5, importedCrac.getStates().size());
         assertEquals(2, importedCrac.getContingencies().size());
         assertEquals(7, importedCrac.getFlowCnecs().size());
-        assertEquals(5, importedCrac.getRangeActions().size());
+        assertEquals(1, importedCrac.getAngleCnecs().size());
+        assertEquals(6, importedCrac.getRangeActions().size());
         assertEquals(4, importedCrac.getNetworkActions().size());
 
         // --------------------------
@@ -122,6 +123,20 @@ public class CracImportExportTest {
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
         assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+
+        // ----------------------
+        // --- test AngleCnec ---
+        // ----------------------
+        assertNotNull(crac.getAngleCnec("angleCnecId"));
+        assertEquals("eneId", crac.getAngleCnec("angleCnecId").getExportingNetworkElement().getId());
+        assertEquals("ineId", crac.getAngleCnec("angleCnecId").getImportingNetworkElement().getId());
+        assertEquals(CURATIVE, crac.getAngleCnec("angleCnecId").getState().getInstant());
+        assertEquals("contingency1Id", crac.getAngleCnec("angleCnecId").getState().getContingency().get().getId());
+        assertFalse(crac.getAngleCnec("angleCnecId").isOptimized());
+        assertTrue(crac.getAngleCnec("angleCnecId").isMonitored());
+        assertEquals("operator1", crac.getAngleCnec("angleCnecId").getOperator());
+        assertEquals(-90., crac.getAngleCnec("angleCnecId").getLowerBound(Unit.DEGREE).orElseThrow(), 1e-3);
+        assertEquals(90., crac.getAngleCnec("angleCnecId").getUpperBound(Unit.DEGREE).orElseThrow(), 1e-3);
 
         // ---------------------------
         // --- test NetworkActions ---
@@ -199,10 +214,12 @@ public class CracImportExportTest {
         // check that RangeActions are present
         assertNotNull(crac.getRangeAction("pstRange1Id"));
         assertNotNull(crac.getRangeAction("pstRange2Id"));
+        assertNotNull(crac.getRangeAction("pstRange3Id"));
 
         // check groupId
         assertTrue(crac.getRangeAction("pstRange1Id").getGroupId().isEmpty());
         assertEquals("group-1-pst", crac.getRangeAction("pstRange2Id").getGroupId().orElseThrow());
+        assertEquals("group-3-pst", crac.getRangeAction("pstRange3Id").getGroupId().orElseThrow());
 
         // check taps
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getInitialTap());
@@ -234,6 +251,13 @@ public class CracImportExportTest {
         OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) crac.getPstRangeAction("pstRange2Id").getUsageRules().get(0);
         assertEquals(PREVENTIVE, onFlowConstraint2.getInstant());
         assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
+
+        // check OnAngleConstraint usage rule
+        assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
+        assertTrue(crac.getPstRangeAction("pstRange3Id").getUsageRules().get(0) instanceof OnAngleConstraint);
+        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) crac.getPstRangeAction("pstRange3Id").getUsageRules().get(0);
+        assertEquals(CURATIVE, onAngleConstraint.getInstant());
+        assertSame(crac.getCnec("angleCnecId"), onAngleConstraint.getAngleCnec());
 
         // -----------------------------
         // --- test HvdcRangeActions ---

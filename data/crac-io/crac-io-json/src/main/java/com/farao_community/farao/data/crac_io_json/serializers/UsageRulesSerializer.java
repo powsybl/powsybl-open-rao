@@ -28,6 +28,7 @@ public final class UsageRulesSerializer {
         serializeUsageRules(remedialAction, FreeToUse.class, FREE_TO_USE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnState.class, ON_STATE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnFlowConstraint.class, ON_FLOW_CONSTRAINT_USAGE_RULES, gen);
+        serializeUsageRules(remedialAction, OnAngleConstraint.class, ON_ANGLE_CONSTRAINT_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnFlowConstraintInCountry.class, ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES, gen);
     }
 
