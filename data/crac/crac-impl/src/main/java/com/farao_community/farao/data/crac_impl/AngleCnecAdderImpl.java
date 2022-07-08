@@ -27,21 +27,49 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
 
     private final Set<Threshold> thresholds = new HashSet<>();
     private String exportingNetworkElementId;
+    private String exportingNetworkElementName;
     private String importingNetworkElementId;
+    private String importingNetworkElementName;
 
     AngleCnecAdderImpl(CracImpl owner) {
         super(owner);
     }
 
     @Override
+    public AngleCnecAdder withNetworkElement(String networkElementId) {
+        throw new FaraoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
+    }
+
+    @Override
+    public AngleCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
+        throw new FaraoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
+    }
+
+    @Override
     public AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId) {
+        this.withExportingNetworkElement(exportingNetworkElementId, exportingNetworkElementId);
+        return this;
+    }
+
+    @Override
+    public AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId, String exportingNetworkElementName) {
         this.exportingNetworkElementId = exportingNetworkElementId;
+        this.exportingNetworkElementName = exportingNetworkElementName;
+        super.withNetworkElement(exportingNetworkElementId, exportingNetworkElementName);
         return this;
     }
 
     @Override
     public AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId) {
+        this.withImportingNetworkElement(importingNetworkElementId, importingNetworkElementId);
+        return this;
+    }
+
+    @Override
+    public AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId, String importingNetworkElementName) {
         this.importingNetworkElementId = importingNetworkElementId;
+        this.importingNetworkElementName = importingNetworkElementName;
+        super.withNetworkElement(importingNetworkElementId, importingNetworkElementName);
         return this;
     }
 
@@ -103,5 +131,12 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().equals(Unit.DEGREE))) {
             throw new FaraoException("AngleCnec threshold must be in DEGREE");
         }
+    }
+
+    @Override
+    protected void checkCnec() {
+        AdderUtils.assertAttributeNotNull(exportingNetworkElementId, "AngleCnec", "exporting network element", "withExportingNetworkElement()");
+        AdderUtils.assertAttributeNotNull(importingNetworkElementId, "AngleCnec", "importing network element", "withImportingNetworkElement()");
+        super.checkCnec();
     }
 }

@@ -41,6 +41,15 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     }
 
     @Override
+    public FlowCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
+        if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
+            throw new FaraoException("Cannot add multiple network elements for a flow cnec.");
+        }
+        super.withNetworkElement(networkElementId, networkElementName);
+        return this;
+    }
+
+    @Override
     public FlowCnecAdder withIMax(double iMaxInAmpere) {
         this.iMaxLeft = iMaxInAmpere;
         this.iMaxRight = iMaxInAmpere;
@@ -103,7 +112,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
             state = owner.addPreventiveState();
         }
 
-        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementId), operator, state, optimized, monitored,
+        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, state, optimized, monitored,
             thresholds.stream().map(th -> (BranchThreshold) th).collect(Collectors.toSet()),
             reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
 

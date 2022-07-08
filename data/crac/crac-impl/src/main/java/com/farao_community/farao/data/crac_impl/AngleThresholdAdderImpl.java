@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.PhysicalParameter;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.AngleThresholdAdder;
 
@@ -15,13 +17,20 @@ import java.util.Objects;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AngleThresholdAdderImpl extends ThresholdAdderImpl<AngleThresholdAdder> implements AngleThresholdAdder {
+public class AngleThresholdAdderImpl extends AbstractThresholdAdderImpl<AngleThresholdAdder> implements AngleThresholdAdder {
 
     private final AngleCnecAdderImpl ownerAdder;
 
     AngleThresholdAdderImpl(AngleCnecAdder ownerAdder) {
         Objects.requireNonNull(ownerAdder);
         this.ownerAdder = (AngleCnecAdderImpl) ownerAdder;
+    }
+
+    @Override
+    public AngleThresholdAdderImpl withUnit(Unit unit) {
+        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
+        this.unit = unit;
+        return this;
     }
 
     @Override
