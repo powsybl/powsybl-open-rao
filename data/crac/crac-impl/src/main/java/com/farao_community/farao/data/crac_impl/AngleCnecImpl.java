@@ -129,9 +129,9 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         }
         AngleCnecImpl cnec = (AngleCnecImpl) o;
         return super.equals(cnec)
-            && thresholds == cnec.getThresholds()
-            && exportingNetworkElement == cnec.getExportingNetworkElement()
-            && importingNetworkElement == cnec.getImportingNetworkElement();
+            && thresholds.equals(cnec.getThresholds())
+            && exportingNetworkElement.equals(cnec.getExportingNetworkElement())
+            && importingNetworkElement.equals(cnec.getImportingNetworkElement());
     }
 
     @Override
