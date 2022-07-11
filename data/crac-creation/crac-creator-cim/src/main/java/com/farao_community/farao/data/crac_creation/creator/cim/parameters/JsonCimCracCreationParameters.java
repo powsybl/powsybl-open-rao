@@ -110,7 +110,6 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
 
     private Set<RangeActionSpeed> deserializeRangeActionSpeedSet(JsonParser jsonParser) throws IOException {
         Set<String> ids = new HashSet<>();
-        Set<Integer> speeds = new HashSet<>();
         Set<RangeActionSpeed> set = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String rangeActionId = null;
@@ -136,11 +135,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
             if (ids.contains(rangeActionId)) {
                 throw new FaraoException(String.format("Range action %s has two or more associated %s", rangeActionId, SPEED));
             }
-            if (speeds.contains(speed)) {
-                throw new FaraoException(String.format("Range action %s has a speed %s already defined", rangeActionId, speed.toString()));
-            }
             ids.add(rangeActionId);
-            speeds.add(speed);
             set.add(new RangeActionSpeed(rangeActionId, speed));
         }
         return set;

@@ -68,8 +68,22 @@ public class JsonCimCracCreationParametersTest {
         assertEquals(2, cimCracCreationParameters.getRangeActionSpeedSet().size());
         assert cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().equals(1);
         assert cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getSpeed().equals(2);
-        assertEquals(cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getRangeActionId(), "rangeAction1");
-        assertEquals(cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getRangeActionId(), "rangeAction2");
+        assertEquals("rangeAction1", cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getRangeActionId());
+        assertEquals("rangeAction2", cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getRangeActionId());
+    }
+
+    @Test
+    public void importOkTest3() {
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok-aligned.json"));
+
+        CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
+        assertNotNull(cimCracCreationParameters);
+
+        assertEquals(2, cimCracCreationParameters.getRangeActionSpeedSet().size());
+        assert cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().equals(1);
+        assert cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getSpeed().equals(1);
+        assertEquals("rangeAction1", cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getRangeActionId());
+        assertEquals("rangeAction2", cimCracCreationParameters.getRangeActionSpeed("rangeAction2").getRangeActionId());
     }
 
     @Test (expected = FaraoException.class)
@@ -79,7 +93,7 @@ public class JsonCimCracCreationParametersTest {
 
     @Test (expected = FaraoException.class)
     public void importNokTest2() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok2.json"));
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok-same-speed.json"));
     }
 
     @Test (expected = FaraoException.class)
@@ -95,5 +109,10 @@ public class JsonCimCracCreationParametersTest {
     @Test (expected = FaraoException.class)
     public void importNokTest5() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok5.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importNokTest6() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok-aligned.json"));
     }
 }

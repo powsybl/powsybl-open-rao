@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 /**
- * A class that maps BuBarChange remedial actions to switches that were added to the network
+ * A class that maps rangeActionId to speed
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
