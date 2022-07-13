@@ -268,6 +268,7 @@ public class SearchTree {
                 try {
                     networkClone = networkPool.getAvailableNetwork();
                 } catch (InterruptedException e) {
+                    latch.countDown();
                     throw new FaraoException(e);
                 }
                 try {
