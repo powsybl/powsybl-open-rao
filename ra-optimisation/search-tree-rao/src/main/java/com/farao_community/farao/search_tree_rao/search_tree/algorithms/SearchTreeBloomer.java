@@ -81,9 +81,13 @@ public final class SearchTreeBloomer {
             .collect(Collectors.toList());
 
         // + individual available Network Actions
-        networkActionCombinations.addAll(networkActions.stream()
-                .map(NetworkActionCombination::new)
-                .collect(Collectors.toList()));
+        final List<NetworkActionCombination> finalNetworkActionCombinations = new ArrayList<>(networkActionCombinations);
+        networkActions.stream()
+            .filter(na ->
+                finalNetworkActionCombinations.stream().noneMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na))
+            )
+            .map(NetworkActionCombination::new)
+            .forEach(networkActionCombinations::add);
 
         // filters
         // (idea: create one class per filter which implement a common interface)
@@ -116,6 +120,9 @@ public final class SearchTreeBloomer {
         List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
 
         for (NetworkActionCombination preDefinedCombination : preDefinedNaCombinations) {
+            if (preDefinedCombination.isDetectedDuringRao()) {
+                continue;
+            }
 
             // elements of the combination which have not been activated yet
             List<NetworkAction> notTestedNaInCombination = preDefinedCombination.getNetworkActionSet().stream()
@@ -280,7 +287,7 @@ public final class SearchTreeBloomer {
         for (Optional<Country> location : locations) {
             for (Optional<Country> networkActionCountry : networkActionCountries) {
                 if (location.isPresent() && networkActionCountry.isPresent()
-                        && countryGraph.areNeighbors(location.get(), networkActionCountry.get(), maxNumberOfBoundariesForSkippingNetworkActions)) {
+                    && countryGraph.areNeighbors(location.get(), networkActionCountry.get(), maxNumberOfBoundariesForSkippingNetworkActions)) {
                     return true;
                 }
             }
