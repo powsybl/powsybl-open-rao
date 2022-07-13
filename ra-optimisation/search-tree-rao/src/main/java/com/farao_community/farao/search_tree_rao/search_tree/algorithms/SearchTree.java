@@ -282,13 +282,10 @@ public class SearchTree {
                         // todo
                         // set alreadyAppliedRa
 
-                        optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
+                        optimizeNextLeafAndUpdate(naCombination, networkClone);
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                     }
-                } catch (InterruptedException e) {
-                    BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                    Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                 } finally {
@@ -310,7 +307,13 @@ public class SearchTree {
     }
 
     private int arbitraryNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
-        return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
+        if (ra1.isDetectedDuringRao() == ra2.isDetectedDuringRao()) {
+            return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
+        } else if (ra1.isDetectedDuringRao()) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     private String printNetworkActions(Set<NetworkAction> networkActions) {
@@ -321,7 +324,7 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network, AbstractNetworkPool networkPool) throws InterruptedException {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
