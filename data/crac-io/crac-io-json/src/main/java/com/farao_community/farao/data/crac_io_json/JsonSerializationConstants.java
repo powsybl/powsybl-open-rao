@@ -30,7 +30,7 @@ public final class JsonSerializationConstants {
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
     v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
-    v1.4: addition of AngleCnecs; frm renamed to relialbilityMargin
+    v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
      */
 
     // headers
