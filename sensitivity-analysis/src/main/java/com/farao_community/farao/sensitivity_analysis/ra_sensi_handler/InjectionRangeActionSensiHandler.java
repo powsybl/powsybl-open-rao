@@ -36,7 +36,13 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
     @Override
     public double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult) {
         return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec) * getKeySum(getPositiveGlskMap())
-                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec) * getKeySum(getNegativeGlskMap());
+            - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec) * getKeySum(getNegativeGlskMap());
+    }
+
+    @Override
+    public double getSensitivityOnIntensity(FlowCnec cnec, SystematicSensitivityResult sensitivityResult) {
+        return sensitivityResult.getSensitivityOnIntensity(getPositiveGlskMapId(), cnec) * getKeySum(getPositiveGlskMap())
+            - sensitivityResult.getSensitivityOnIntensity(getNegativeGlskMapId(), cnec) * getKeySum(getNegativeGlskMap());
     }
 
     @Override

@@ -170,16 +170,19 @@ public class SystematicSensitivityResult {
         return sensitivities.getOrDefault(variableId, 0.0);
     }
 
-    @Deprecated
     public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
-        /*
-        Should not be useful in the RAO -> sensi on intensity are never used + might crash for
-        some rangeAction time
-        For now: deprecate the method and make it throw an exception to ensure that is not used in RAO.
-        Later: reprecate the method if it has some purpose ouside of the RAO.
-         */
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnIntensity((FlowCnec) cnec, this);
+    }
 
-        throw new UnsupportedOperationException();
+    public double getSensitivityOnIntensity(String variableId, Cnec<?> cnec) {
+        StateResult stateResult = getCnecStateResult(cnec);
+        if (stateResult == null ||
+            !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId)) {
+            return 0.0;
+        }
+        Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());
+        return sensitivities.getOrDefault(variableId, 0.0);
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {

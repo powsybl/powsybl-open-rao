@@ -144,7 +144,8 @@ public class LinearProblemBuilder {
             inputs.getOptimizationPerimeter(),
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
-            parameters.getRangeActionParameters()
+            parameters.getRangeActionParameters(),
+            parameters.getObjectiveFunctionUnit()
         );
     }
 
@@ -177,6 +178,7 @@ public class LinearProblemBuilder {
         return new MaxLoopFlowFiller(
             inputs.getOptimizationPerimeter().getLoopFlowCnecs(),
             inputs.getInitialFlowResult(),
+            parameters.getObjectiveFunctionUnit(),
             parameters.getLoopFlowParameters()
         );
     }
@@ -185,7 +187,8 @@ public class LinearProblemBuilder {
         return new UnoptimizedCnecFiller(
             inputs.getOptimizationPerimeter().getFlowCnecs(),
             inputs.getPrePerimeterFlowResult(),
-            parameters.getUnoptimizedCnecParameters()
+            parameters.getUnoptimizedCnecParameters(),
+            parameters.getObjectiveFunctionUnit()
         );
     }
 

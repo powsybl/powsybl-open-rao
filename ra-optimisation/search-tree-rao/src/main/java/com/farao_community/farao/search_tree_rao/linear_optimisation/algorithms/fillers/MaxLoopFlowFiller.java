@@ -31,14 +31,16 @@ import java.util.TreeSet;
 public class MaxLoopFlowFiller implements ProblemFiller {
     private final Set<FlowCnec> loopFlowCnecs;
     private final FlowResult initialFlowResult;
+    private final Unit unit;
     private final RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
 
-    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParameters loopFlowParameters) {
+    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, Unit unit, LoopFlowParameters loopFlowParameters) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.loopFlowCnecs.addAll(loopFlowCnecs);
+        this.unit = unit;
         this.initialFlowResult = initialFlowResult;
         this.loopFlowApproximationLevel = loopFlowParameters.getLoopFlowApproximationLevel();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
@@ -114,7 +116,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
 
             MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, Unit.MEGAWATT),
+                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, unit),
                     LinearProblem.infinity(),
                     cnec,
                     LinearProblem.BoundExtension.LOWER_BOUND
@@ -124,7 +126,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -LinearProblem.infinity(),
-                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, Unit.MEGAWATT),
+                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, unit),
                     cnec,
                     LinearProblem.BoundExtension.UPPER_BOUND
             );
@@ -151,7 +153,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
                 continue;
             }
-            double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT);
+            double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, unit);
 
             MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.LOWER_BOUND);
             if (positiveLoopflowViolationConstraint == null) {
@@ -168,8 +170,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     private double getLoopFlowUpperBound(FlowCnec loopFlowCnec) {
-        double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, Unit.MEGAWATT);
+        double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(unit);
+        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, unit);
         //add a tiny bit of slack to the threshold to avoid the rounding causing infeasibilities
         return Math.max(Math.abs(initialLoopFlow),
             Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient) + 0.01;

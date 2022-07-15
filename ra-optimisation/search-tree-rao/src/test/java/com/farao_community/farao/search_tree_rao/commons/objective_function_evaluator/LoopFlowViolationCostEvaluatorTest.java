@@ -75,7 +75,8 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void buildLoopFlowViolationCostEvaluator() {
-        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parameters);
+        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), Unit.MEGAWATT, initialLoopFlows, parameters);
+        // TODO: test with AMPERE unit
     }
 
     @Test

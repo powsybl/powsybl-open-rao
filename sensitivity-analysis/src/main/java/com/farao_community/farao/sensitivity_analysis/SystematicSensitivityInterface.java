@@ -178,8 +178,9 @@ public final class SystematicSensitivityInterface {
     private void refreshRequestedUnits() {
         SensitivityAnalysisParameters sensitivityAnalysisParameters = fallbackMode ? fallbackParameters : defaultParameters;
         Set<Unit> requestedUnits = new HashSet<>();
-        requestedUnits.add(Unit.MEGAWATT);
-        if (!sensitivityAnalysisParameters.getLoadFlowParameters().isDc()) {
+        if (sensitivityAnalysisParameters.getLoadFlowParameters().isDc()) {
+            requestedUnits.add(Unit.MEGAWATT);
+        } else {
             requestedUnits.add(Unit.AMPERE);
         }
         cnecSensitivityProvider.setRequestedUnits(requestedUnits);

@@ -66,8 +66,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters
+            rangeActionParameters,
+            Unit.MEGAWATT
         );
+        // TODO: test with AMPERE unit
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }
 
@@ -77,8 +79,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         maxLoopFlowFiller = new MaxLoopFlowFiller(
                 Set.of(cnec1),
                 initialFlowResult,
+                Unit.MEGAWATT,
                 loopFlowParameters
         );
+        // TODO: test with AMPERE unit
     }
 
     private void setCommercialFlowValue(double commercialFlowValue) {

@@ -78,7 +78,9 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            MEGAWATT);
+        // TODO: test with AMPERE unit
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {

@@ -21,8 +21,6 @@ import com.google.ortools.linearsolver.MPVariable;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -126,22 +124,21 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-            maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
+            minFlow = cnec.getLowerBound(Side.LEFT, unit);
+            maxFlow = cnec.getUpperBound(Side.LEFT, unit);
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
-                MPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), -minFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-                minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+                MPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), -minFlow.get() + relMarginCoef * maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                minimumMarginNegative.setCoefficient(minRelMarginVariable, relMarginCoef);
+                minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, relMarginCoef * maxNegativeRelativeRam);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), maxFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-                minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
+                MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), maxFlow.get() + relMarginCoef * maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                minimumMarginPositive.setCoefficient(minRelMarginVariable, relMarginCoef);
+                minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, relMarginCoef * maxNegativeRelativeRam);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });

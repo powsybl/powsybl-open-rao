@@ -100,7 +100,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            Unit.MEGAWATT);
+        // TODO: test with AMPERE unit
         buildLinearProblem();
     }
 
@@ -498,7 +500,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            Unit.MEGAWATT);
+        // TODO: test with AMPERE unit
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withSolver(mpSolver)

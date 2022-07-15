@@ -23,15 +23,18 @@ import java.util.stream.Collectors;
  */
 public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> loopflowCnecs;
+    private final Unit unit;
     private final FlowResult initialLoopFLowResult;
     private final double loopFlowViolationCost;
     private final double loopFlowAcceptableAugmentation;
     private List<FlowCnec> sortedElements = new ArrayList<>();
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
+                                          Unit unit,
                                           FlowResult initialLoopFlowResult,
                                           LoopFlowParameters loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
+        this.unit = unit;
         this.initialLoopFLowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
@@ -58,7 +61,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public Unit getUnit() {
-        return Unit.MEGAWATT;
+        return unit;
     }
 
     @Override
@@ -81,12 +84,12 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
-        return Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec));
+        return Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, unit)) - getLoopFlowUpperBound(cnec));
     }
 
     private double getLoopFlowUpperBound(FlowCnec cnec) {
-        double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, Unit.MEGAWATT);
+        double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(unit);
+        double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, unit);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

@@ -99,7 +99,9 @@ public class MnecFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            Unit.MEGAWATT);
+        // TODO: test with AMPERE unit
     }
 
     private void fillProblemWithFiller(Unit unit) {

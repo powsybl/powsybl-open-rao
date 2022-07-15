@@ -31,6 +31,11 @@ public class HvdcRangeActionSensiHandler implements RangeActionSensiHandler {
     }
 
     @Override
+    public double getSensitivityOnIntensity(FlowCnec cnec, SystematicSensitivityResult sensitivityResult) {
+        return sensitivityResult.getSensitivityOnIntensity(hvdcRangeAction.getNetworkElement().getId(), cnec);
+    }
+
+    @Override
     public void checkConsistency(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(hvdcRangeAction.getNetworkElement().getId());
         if (!(identifiable instanceof HvdcLine)) {

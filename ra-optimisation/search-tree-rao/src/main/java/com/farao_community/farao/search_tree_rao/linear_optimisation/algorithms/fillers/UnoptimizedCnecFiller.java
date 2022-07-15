@@ -8,22 +8,24 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * This filler adds variables and constraints allowing the RAO to ignore some
@@ -37,16 +39,19 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private final Set<FlowCnec> flowCnecs;
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
+    private final Unit unit;
     private final double highestThresholdValue;
 
     public UnoptimizedCnecFiller(Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
-                                 UnoptimizedCnecParameters unoptimizedCnecParameters) {
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
+                                 Unit unit) {
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(flowCnecs);
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs);
+        this.unit = unit;
     }
 
     @Override
@@ -101,7 +106,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         // the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
         getFlowCnecs().forEach(cnec -> {
-            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, MEGAWATT);
+            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, unit);
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
             if (flowVariable == null) {
@@ -114,8 +119,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-            maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
+            minFlow = cnec.getLowerBound(Side.LEFT, unit);
+            maxFlow = cnec.getUpperBound(Side.LEFT, unit);
 
             if (minFlow.isPresent()) {
                 MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(

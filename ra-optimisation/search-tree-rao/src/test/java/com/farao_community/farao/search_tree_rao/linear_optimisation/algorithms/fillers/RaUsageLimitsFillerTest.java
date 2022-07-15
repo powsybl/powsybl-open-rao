@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
@@ -116,7 +117,9 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             prePerimeterRangeActionSetpointResult,
             prePerimeterRangeActionActivationResult,
-            rangeActionParameters);
+            rangeActionParameters,
+            Unit.MEGAWATT);
+        // TODO: test with AMPERE unit
     }
 
     @Test

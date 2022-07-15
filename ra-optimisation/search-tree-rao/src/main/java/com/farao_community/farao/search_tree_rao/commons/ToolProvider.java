@@ -84,27 +84,28 @@ public final class ToolProvider {
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions) {
+        Unit unit = raoParameters.getObjectiveFunction().getUnit();
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(raoParameters.getSensitivityProvider())
             .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
-            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
+            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(unit))
             .withAppliedRemedialActions(appliedRemedialActions);
 
         if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
-            builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
+            builder.withLoadflow(cnecs, Collections.singleton(unit));
         }
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
             eic.addAll(getEicForLoopFlows());
-            builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, Collections.singleton(unit));
         } else if (computeLoopFlows) {
             Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
-            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, Collections.singleton(unit));
         } else if (computePtdfs) {
-            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(unit));
         }
 
         return builder.build();

@@ -117,8 +117,10 @@ public class BestTapFinderTest {
                 startingSetPoint,
                 List.of(cnec1, cnec2),
                 flowResult,
-                sensitivityResult
+                sensitivityResult,
+                Unit.MEGAWATT
         );
+        // TODO: test with AMPERE unit
     }
 
     private RangeActionActivationResult computeUpdatedRangeActionResult() {
@@ -129,8 +131,10 @@ public class BestTapFinderTest {
                 rangeActionSetpointResult,
                 List.of(cnec1, cnec2),
                 flowResult,
-                sensitivityResult
+                sensitivityResult,
+                Unit.MEGAWATT
         );
+        // TODO: test with AMPERE unit
     }
 
     private PstRangeAction createPstWithGroupId(String groupId) {

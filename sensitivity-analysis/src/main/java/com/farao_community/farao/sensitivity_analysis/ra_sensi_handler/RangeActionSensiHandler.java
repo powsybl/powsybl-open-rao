@@ -22,6 +22,8 @@ public interface RangeActionSensiHandler {
 
     double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult);
 
+    double getSensitivityOnIntensity(FlowCnec cnec, SystematicSensitivityResult sensitivityResult);
+
     void checkConsistency(Network network);
 
     static RangeActionSensiHandler get(RangeAction<?> rangeAction) {

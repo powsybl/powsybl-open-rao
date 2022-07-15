@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
@@ -91,7 +90,7 @@ public class MnecFiller implements ProblemFiller {
                     throw new FaraoException(String.format("Mnec violation variable has not yet been created for Mnec %s", mnec.getId()));
                 }
 
-                Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, MEGAWATT);
+                Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, unit);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
@@ -99,7 +98,7 @@ public class MnecFiller implements ProblemFiller {
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
 
-                Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, MEGAWATT);
+                Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, unit);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
@@ -112,8 +111,7 @@ public class MnecFiller implements ProblemFiller {
 
     public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem) {
         getMonitoredCnecs().stream().filter(FlowCnec::isMonitored).forEach(mnec ->
-            linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec),
-                    RaoUtil.getFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecViolationCost)
+            linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost)
         );
     }
 }

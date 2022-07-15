@@ -211,7 +211,8 @@ public class IteratingLinearOptimizer {
             input.getPrePerimeterSetpoints(),
             previousResult.getObjectiveFunctionResult().getMostLimitingElements(10),
             previousResult.getBranchResult(),
-            previousResult.getSensitivityResult()
+            previousResult.getSensitivityResult(),
+            parameters.getObjectiveFunctionUnit()
         );
     }
 

@@ -53,11 +53,14 @@ public class MnecViolationCostEvaluatorTest {
 
         evaluator1 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
+                Unit.MEGAWATT,
                 initialFlowResult,
                 new MnecParameters(50, 10, 1)
         );
+        // TODO: test with AMPERE unit
         evaluator2 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
+                Unit.MEGAWATT,
                 initialFlowResult,
                 new MnecParameters(20, 2, 1)
         );
@@ -71,6 +74,7 @@ public class MnecViolationCostEvaluatorTest {
 
         return new MnecViolationCostEvaluator(
                 Set.of(mnec1, mnec2, pureCnec),
+                Unit.MEGAWATT,
                 initialFlowResult,
                 new MnecParameters(50, violationCost, 1)
         );
@@ -84,6 +88,7 @@ public class MnecViolationCostEvaluatorTest {
 
         return new MnecViolationCostEvaluator(
                 Set.of(mnec1, mnec2, pureCnec),
+                Unit.MEGAWATT,
                 initialFlowResult,
                 new MnecParameters(50, 10, 1)
         );

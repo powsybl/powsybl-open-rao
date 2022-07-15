@@ -91,7 +91,9 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            MEGAWATT);
+        // TODO: test with AMPERE unit
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
@@ -103,8 +105,10 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                unoptimizedCnecParameters
+                unoptimizedCnecParameters,
+                MEGAWATT
         );
+        // TODO: test with AMPERE unit
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
@@ -136,8 +140,10 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                unoptimizedCnecParameters
+                unoptimizedCnecParameters,
+                MEGAWATT
         );
+        // TODO: test with AMPERE unit
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
