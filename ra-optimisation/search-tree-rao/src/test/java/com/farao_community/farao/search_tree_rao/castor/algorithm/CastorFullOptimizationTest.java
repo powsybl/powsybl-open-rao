@@ -511,11 +511,12 @@ public class CastorFullOptimizationTest {
 
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
-        AppliedRemedialActions appliedRemedialActions = CastorFullOptimization.getAppliedRemedialActionsPostContingency(curativeResults, prePerimeterResult);
+        AppliedRemedialActions appliedRemedialActions = CastorFullOptimization.getAppliedNetworkActionsPostContingency(curativeResults);
 
-        // apply only range action
+        // do not apply network action
+        // do not apply range action as it was not yet added to applied RAs
         appliedRemedialActions.applyOnNetwork(state1, network);
-        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertTrue(network.getLine(naNeId).getTerminal1().isConnected());
 
         // reset network
@@ -525,6 +526,9 @@ public class CastorFullOptimizationTest {
         appliedRemedialActions.applyOnNetwork(state2, network);
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
+
+        // add range action
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(appliedRemedialActions, curativeResults, prePerimeterResult);
 
         // apply also range action
         appliedRemedialActions.applyOnNetwork(state1, network);
