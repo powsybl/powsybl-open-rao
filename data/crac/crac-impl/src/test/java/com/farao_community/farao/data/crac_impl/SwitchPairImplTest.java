@@ -35,6 +35,29 @@ public class SwitchPairImplTest {
     }
 
     @Test
+    public void hasImpactOnNetwork() {
+        SwitchPair sp1 = new SwitchPairImpl(switch1, switch2);
+        SwitchPair sp2 = new SwitchPairImpl(switch2, switch1);
+        assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
+        assertEquals(Set.of(switch1, switch2), sp2.getNetworkElements());
+
+        network.getSwitch(switch1.getId()).setOpen(true);
+        network.getSwitch(switch2.getId()).setOpen(false);
+        assertFalse(sp1.hasImpactOnNetwork(network));
+        assertTrue(sp2.hasImpactOnNetwork(network));
+
+        network.getSwitch(switch1.getId()).setOpen(true);
+        network.getSwitch(switch2.getId()).setOpen(true);
+        assertTrue(sp1.hasImpactOnNetwork(network));
+        assertTrue(sp2.hasImpactOnNetwork(network));
+
+        network.getSwitch(switch1.getId()).setOpen(false);
+        network.getSwitch(switch2.getId()).setOpen(false);
+        assertTrue(sp1.hasImpactOnNetwork(network));
+        assertTrue(sp2.hasImpactOnNetwork(network));
+    }
+
+    @Test
     public void testCanBeApplied() {
         SwitchPair sp1 = new SwitchPairImpl(switch1, switch2);
         SwitchPair sp2 = new SwitchPairImpl(switch2, switch1);

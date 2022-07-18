@@ -17,12 +17,17 @@ import java.util.Set;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SwitchPairImpl implements SwitchPair {
-    private NetworkElement switchToOpen;
-    private NetworkElement switchToClose;
+    private final NetworkElement switchToOpen;
+    private final NetworkElement switchToClose;
 
     SwitchPairImpl(NetworkElement switchToOpen, NetworkElement switchToClose) {
         this.switchToOpen = switchToOpen;
         this.switchToClose = switchToClose;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork(Network network) {
+        return !network.getSwitch(switchToOpen.getId()).isOpen() || network.getSwitch(switchToClose.getId()).isOpen();
     }
 
     @Override

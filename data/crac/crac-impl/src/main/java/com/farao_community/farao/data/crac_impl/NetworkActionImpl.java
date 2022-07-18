@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
 
-    private Set<ElementaryAction> elementaryActions;
+    private final Set<ElementaryAction> elementaryActions;
 
     NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
                              Set<ElementaryAction> elementaryNetworkActions) {
@@ -35,6 +35,11 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     public Set<ElementaryAction> getElementaryActions() {
         return elementaryActions;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork(Network network) {
+        return elementaryActions.stream().anyMatch(elementaryAction -> elementaryAction.hasImpactOnNetwork(network));
     }
 
     @Override

@@ -24,8 +24,8 @@ import java.util.Set;
  */
 public final class PstSetpointImpl implements PstSetpoint {
 
-    private NetworkElement networkElement;
-    private int setpoint;
+    private final NetworkElement networkElement;
+    private final int setpoint;
 
     PstSetpointImpl(NetworkElement networkElement, int setpoint) {
         this.networkElement = networkElement;
@@ -47,6 +47,10 @@ public final class PstSetpointImpl implements PstSetpoint {
         return Collections.singleton(networkElement);
     }
 
+    private int getNormalizedSetpoint(PhaseTapChanger phaseTapChanger) {
+        return ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + setpoint;
+    }
+
     /**
      * Change tap position of the PST pointed by the network element at the tap given at object instantiation.
      *
@@ -55,8 +59,7 @@ public final class PstSetpointImpl implements PstSetpoint {
     @Override
     public void apply(Network network) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
-
-        int normalizedSetPoint = ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + (int) setpoint;
+        int normalizedSetPoint = getNormalizedSetpoint(phaseTapChanger);
 
         if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
             phaseTapChanger.setTapPosition(normalizedSetPoint);
@@ -84,8 +87,14 @@ public final class PstSetpointImpl implements PstSetpoint {
     }
 
     @Override
+    public boolean hasImpactOnNetwork(Network network) {
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
+        return getNormalizedSetpoint(phaseTapChanger) != phaseTapChanger.getTapPosition();
+    }
+
+    @Override
     public boolean canBeApplied(Network network) {
-        // TODO : we can return false if the network element is already at the target setpoint
+        // TODO : setpoint out of range ?
         return true;
     }
 

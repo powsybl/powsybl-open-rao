@@ -47,6 +47,14 @@ public class TopologicalActionImplTest {
     }
 
     @Test
+    public void hasImpactOnNetworkForLine() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+
+        assertTrue(topologyOpen.hasImpactOnNetwork(network));
+        assertFalse(topologyClose.hasImpactOnNetwork(network));
+    }
+
+    @Test
     public void applyOpenCloseLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
@@ -59,6 +67,25 @@ public class TopologicalActionImplTest {
         topologyClose.apply(network);
         assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
         assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
+    }
+
+    @Test
+    public void hasImpactOnNetworkForSwitch() {
+        Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
+        String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
+
+        NetworkElement networkElement = new NetworkElementImpl(switchNetworkElementId);
+        TopologicalActionImpl openSwitchTopology = new TopologicalActionImpl(
+            networkElement,
+            ActionType.OPEN);
+
+        assertTrue(openSwitchTopology.hasImpactOnNetwork(network));
+
+        TopologicalActionImpl closeSwitchTopology = new TopologicalActionImpl(
+            networkElement,
+            ActionType.CLOSE);
+
+        assertFalse(closeSwitchTopology.hasImpactOnNetwork(network));
     }
 
     @Test

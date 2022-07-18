@@ -35,6 +35,26 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
+    public void hasImpactOnNetworkForGenerator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("FFR1AA1 _generator"),
+            100);
+
+        assertTrue(generatorSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    public void hasNoImpactOnNetworkForGenerator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("FFR1AA1 _generator"),
+            2000);
+
+        assertFalse(generatorSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
     public void applyOnGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
@@ -46,6 +66,26 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
+    public void hasImpactOnNetworkForLoad() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("FFR1AA1 _load"),
+            100);
+
+        assertTrue(loadSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    public void hasNoImpactOnNetworkForLoad() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("FFR1AA1 _load"),
+            1000);
+
+        assertFalse(loadSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
     public void applyOnLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
@@ -54,6 +94,28 @@ public class InjectionSetpointImplTest {
 
         loadSetpoint.apply(network);
         assertEquals(100., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
+    }
+
+    @Test
+    public void hasImpactOnNetworkForDanglingLine() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addDanglingLine(network);
+        InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("DL1"),
+            100);
+
+        assertTrue(danglingLineSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    public void hasNoImpactOnNetworkForDanglingLine() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addDanglingLine(network);
+        InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
+            new NetworkElementImpl("DL1"),
+            0);
+
+        assertFalse(danglingLineSetpoint.hasImpactOnNetwork(network));
     }
 
     @Test

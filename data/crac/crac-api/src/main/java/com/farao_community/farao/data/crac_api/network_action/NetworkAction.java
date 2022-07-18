@@ -26,6 +26,14 @@ import java.util.Set;
 public interface NetworkAction extends RemedialAction<NetworkAction> {
 
     /**
+     * States if the remedial action would change the current state of the network. It has no impact on the network.
+     *
+     * @param network: Network that serves as reference for the impact.
+     * @return True if the remedial action would have an impact on the network.
+     */
+    boolean hasImpactOnNetwork(final Network network);
+
+    /**
      * Apply the action on a given network.
      * @param network the Network to apply the network action upon
      * @return true if the network action was applied, false if not (eg if it was already applied)
