@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.range.Range;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +31,7 @@ public class JsonCimCracCreationParametersTest {
         CracCreationParameters exportedParameters = new CracCreationParameters();
         CimCracCreationParameters exportedCimParameters = new CimCracCreationParameters();
         exportedCimParameters.setRangeActionGroupsAsString(List.of("rangeAction3 + rangeAction4", "hvdc1 + hvdc2"));
+        exportedCimParameters.setRemedialActionSpeed(Set.of(new RangeActionSpeed("rangeAction1", 1)));
 
         exportedParameters.addExtension(CimCracCreationParameters.class, exportedCimParameters);
 
@@ -44,6 +47,7 @@ public class JsonCimCracCreationParametersTest {
         assertEquals(2, cimCracCreationParameters.getRangeActionGroupsAsString().size());
         assertEquals("rangeAction3 + rangeAction4", cimCracCreationParameters.getRangeActionGroupsAsString().get(0));
         assertEquals("hvdc1 + hvdc2", cimCracCreationParameters.getRangeActionGroupsAsString().get(1));
+        assertEquals(1, cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().intValue());
     }
 
     @Test
