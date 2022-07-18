@@ -20,13 +20,19 @@ import java.util.stream.Collectors;
 public class NetworkActionCombination {
 
     private final Set<NetworkAction> networkActionSet;
+    private final boolean detectedDuringRao;
+
+    public NetworkActionCombination(Set<NetworkAction> networkActionSet, boolean detectedDuringRao) {
+        this.networkActionSet = networkActionSet;
+        this.detectedDuringRao = detectedDuringRao;
+    }
 
     public NetworkActionCombination(Set<NetworkAction> networkActionSet) {
-        this.networkActionSet = networkActionSet;
+        this(networkActionSet, false);
     }
 
     public NetworkActionCombination(NetworkAction networkAction) {
-        this.networkActionSet = Collections.singleton(networkAction);
+        this(Collections.singleton(networkAction), false);
     }
 
     public Set<NetworkAction> getNetworkActionSet() {
@@ -43,6 +49,10 @@ public class NetworkActionCombination {
         return networkActionSet.stream()
             .map(Identifiable::getId)
             .collect(Collectors.joining(" + "));
+    }
+
+    public boolean isDetectedDuringRao() {
+        return detectedDuringRao;
     }
 
     @Override
