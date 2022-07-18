@@ -66,8 +66,10 @@ public final class TopologicalActionImpl implements TopologicalAction {
         if (element instanceof Branch) {
             Branch<?> branch = (Branch<?>) element;
             if (actionType == ActionType.OPEN) {
-                return branch.getTerminal1().isConnected() || branch.getTerminal2().isConnected();
+                // Line is considered closed if both terminal are connected
+                return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
             } else {
+                // Line is already considered opened if one of the terminals is disconnected
                 return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
             }
         } else if (element instanceof Switch) {
