@@ -96,7 +96,7 @@
       "onStateUsageRules" : [ {
         "instant" : "auto",
         "contingencyId" : "N-1 NL1-NL3",
-        "usageMethod" : "available"
+        "usageMethod" : "forced"
       } ],
       "ranges": [
         {
