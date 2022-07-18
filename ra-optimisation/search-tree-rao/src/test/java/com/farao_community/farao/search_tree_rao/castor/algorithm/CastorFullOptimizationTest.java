@@ -30,7 +30,6 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import javassist.expr.Cast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
