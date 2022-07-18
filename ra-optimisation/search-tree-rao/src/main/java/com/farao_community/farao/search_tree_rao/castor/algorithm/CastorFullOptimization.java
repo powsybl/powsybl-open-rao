@@ -434,7 +434,7 @@ public class CastorFullOptimization {
      * This function gathers the flow cnecs to be considered while shifting range actions,
      * depending on the range action availableRa's UsageMethod.
      */
-    private Set<FlowCnec> gatherFlowCnecs(RangeAction<?> availableRa,
+    static Set<FlowCnec> gatherFlowCnecs(RangeAction<?> availableRa,
                                            State automatonState,
                                            Crac crac,
                                            Network network) {

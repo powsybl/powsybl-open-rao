@@ -30,6 +30,7 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import javassist.expr.Cast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -433,6 +434,48 @@ public class CastorFullOptimizationTest {
         CastorFullOptimization.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
         assertEquals(1, rangeActions.size());
         assertTrue(rangeActions.contains(ra1));
+    }
+
+    private void setUpCracWithAutoRAs() {
+        crac = CracFactory.findDefault().create("test-crac");
+        Contingency contingency1 = crac.newContingency()
+                .withId("contingency1")
+                .withNetworkElement("contingency1-ne")
+                .add();
+        crac.newFlowCnec()
+                .withId("cnec")
+                .withNetworkElement("cnec-ne")
+                .withContingency("contingency1")
+                .withInstant(Instant.AUTO)
+                .withNominalVoltage(220.)
+                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+                .add();
+        state1 = crac.getState(contingency1, Instant.AUTO);
+        // ra2 : auto
+        ra2 = crac.newPstRangeAction()
+                .withId("ra2")
+                .withNetworkElement("ra2-ne")
+                .withSpeed(2)
+                .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        ra3 = crac.newPstRangeAction()
+                .withId("ra3")
+                .withNetworkElement("ra2-ne")
+                .withSpeed(3)
+                .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec").add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+
+        state1 = crac.getState(contingency1, Instant.AUTO);
+    }
+
+    @Test
+    public void testGatherCnecs() {
+        setUpCracWithAutoRAs();
+        assertEquals(1, CastorFullOptimization.gatherFlowCnecs(ra2, state1, crac, network).size());
+        assertEquals(1, CastorFullOptimization.gatherFlowCnecs(ra3, state1, crac, network).size());
     }
 
     private void setUpCracWithRealRAs(boolean curative) {
