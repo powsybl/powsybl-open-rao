@@ -12,10 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
-import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
 
 import java.util.HashSet;
@@ -76,9 +73,8 @@ public class CimContingencyCreator {
         boolean allRegisteredResourcesOk = true;
         String missingNetworkElements = null;
         for (ContingencyRegisteredResource registeredResource : cimContingency.getRegisteredResource()) {
-            String networkElementId = getNetworkElementIdInNetwork(registeredResource.getMRID().getValue());
-            if (networkElementId != null) {
-                contingencyAdder.withNetworkElement(networkElementId);
+            if (network.getIdentifiable(registeredResource.getMRID().getValue()) != null) {
+                contingencyAdder.withNetworkElement(registeredResource.getMRID().getValue());
                 anyRegisteredResourceOk = true;
             } else {
                 allRegisteredResourcesOk = false;
@@ -96,20 +92,6 @@ public class CimContingencyCreator {
         } else {
             cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
         }
-    }
-
-    private String getNetworkElementIdInNetwork(String networkElementIdInCrac) {
-        String networkElementId = null;
-        Identifiable<?> networkElement = network.getIdentifiable(networkElementIdInCrac);
-        if (networkElement == null) {
-            CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
-            if (cgmesBranchHelper.isValid() && cgmesBranchHelper.isTieLine()) {
-                networkElementId = cgmesBranchHelper.getIdInNetwork();
-            }
-        } else {
-            networkElementId = networkElement.getId();
-        }
-        return networkElementId;
     }
 
     private boolean describesContingencyToImport(Series series) {

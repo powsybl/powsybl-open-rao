@@ -156,7 +156,7 @@ public class CriticalBranchReader {
     private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, String unit, String direction, boolean invert) {
         Unit convertedUnit = convertUnit(unit);
         BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-            .withRule(BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL)
+            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
             .withUnit(convertedUnit);
         convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, convertedUnit == Unit.PERCENT_IMAX);
         branchThresholdAdder.add();
