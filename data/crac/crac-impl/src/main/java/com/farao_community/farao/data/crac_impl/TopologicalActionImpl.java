@@ -61,8 +61,26 @@ public final class TopologicalActionImpl implements TopologicalAction {
     }
 
     @Override
+    public boolean hasImpactOnNetwork(Network network) {
+        Identifiable<?> element = network.getIdentifiable(networkElement.getId());
+        if (element instanceof Branch) {
+            Branch<?> branch = (Branch<?>) element;
+            if (actionType == ActionType.OPEN) {
+                return branch.getTerminal1().isConnected() || branch.getTerminal2().isConnected();
+            } else {
+                return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
+            }
+        } else if (element instanceof Switch) {
+            Switch aSwitch = (Switch) element;
+            return aSwitch.isOpen() == (actionType == ActionType.CLOSE);
+        } else {
+            throw new NotImplementedException("Topological actions are only on branches or switches for now");
+        }
+    }
+
+    @Override
     public boolean canBeApplied(Network network) {
-        // TODO : we can return false if the network element is already at the target state
+        // TODO : always true ?
         return true;
     }
 
