@@ -167,12 +167,6 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testSwe() {
-        network = Importers.loadNetwork(new File(CimCracCreatorTest.class.getResource("/networks/20210402_0230_2D5_UX0.zip").getFile()).toString());
-        setUp("/cracs/large_crac.xml", null);
-    }
-
-    @Test
     public void cracCreationFailureNullTime() {
         setUp("/cracs/CIM_21_1_1.xml", null);
         assertFalse(cracCreationContext.isCreationSuccessful());
