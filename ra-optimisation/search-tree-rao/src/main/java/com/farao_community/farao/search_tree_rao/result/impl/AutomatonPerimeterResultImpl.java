@@ -126,6 +126,7 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+        checkState(state);
         return rangeActionsWithSetpoint;
     }
 
