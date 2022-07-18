@@ -175,28 +175,12 @@
       "operator": "Elia",
       "freeToUseUsageRules": [
         {
-          "usageMethod": "available",
+          "usageMethod": "forced",
           "instant": "auto"
         }
       ],
       "topologicalActions" : [ {
         "networkElementId": "NNL1AA1  NNL2AA1  1",
-        "actionType": "open"
-      }
-      ]
-    },
-    {
-      "id": "Open line BE2-FR3",
-      "name": "Open line BE2-FR3",
-      "operator": "Elia",
-      "freeToUseUsageRules": [
-        {
-          "usageMethod": "available",
-          "instant": "auto"
-        }
-      ],
-      "topologicalActions" : [ {
-        "networkElementId": "BBE2AA1  FFR3AA1  1",
         "actionType": "open"
       }
       ]

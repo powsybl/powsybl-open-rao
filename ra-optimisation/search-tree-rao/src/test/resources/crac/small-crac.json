@@ -25,7 +25,7 @@
         "rule" : "onLeftSide"
       } ],
       "contingencyId": "N-1 NL1-NL3",
-      "instant" : "curative",
+      "instant" : "auto",
       "optimized": true,
       "nominalV" : [ 380.0 ]
     },

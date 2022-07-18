@@ -50,14 +50,8 @@ public class CastorFullOptimizationAutoSimulationTest {
     private Crac crac;
     private Network network;
     private State state1;
-    private State state2;
-    private RangeAction<?> ra1;
     private RangeAction<?> ra2;
     private RangeAction<?> ra3;
-    private RangeAction<?> ra4;
-    private RangeAction<?> ra5;
-    private RangeAction<?> ra6;
-    private NetworkAction na1;
 
     private CastorFullOptimization castorFullOptimization;
     private RaoInput inputs;
