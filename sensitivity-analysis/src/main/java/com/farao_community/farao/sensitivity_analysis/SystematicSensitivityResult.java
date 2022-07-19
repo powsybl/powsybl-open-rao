@@ -170,7 +170,7 @@ public class SystematicSensitivityResult {
         return sensitivities.getOrDefault(variableId, 0.0);
     }
 
-    @Deprecated
+    @Deprecated (since = "3.6.0")
     public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
         /*
         Should not be useful in the RAO -> sensi on intensity are never used + might crash for

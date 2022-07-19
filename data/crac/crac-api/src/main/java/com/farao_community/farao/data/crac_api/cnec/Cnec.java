@@ -90,13 +90,13 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * @deprecated
      * use the method withMonitored() of the {@link CnecAdder} instead
      */
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     void setMonitored(boolean monitored);
 
     /**
      * @deprecated
      * use the method withOptimized() of the {@link CnecAdder} instead
      */
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     void setOptimized(boolean optimized);
 }

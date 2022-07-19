@@ -185,8 +185,8 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
-    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
-    @Deprecated
+    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
+    @Deprecated (since = "3.0.0")
     Set<BranchCnec> getBranchCnecs();
 
     /**
@@ -195,8 +195,8 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
-    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
-    @Deprecated
+    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
+    @Deprecated (since = "3.0.0")
     Set<BranchCnec> getBranchCnecs(State state);
 
     /**
@@ -204,8 +204,8 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @deprecated consider using getCnec() or getFlowCnec() instead
      */
-    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
-    @Deprecated
+    // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
+    @Deprecated (since = "3.0.0")
     BranchCnec getBranchCnec(String branchCnecId);
 
     /**

@@ -37,57 +37,57 @@ public final class HvdcRangeActionArrayDeserializer {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", HVDC_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            HvdcRangeActionAdder adder = crac.newHvdcRangeAction();
+            HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
             List<Extension<RangeAction>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
-                        adder.withId(jsonParser.nextTextValue());
+                        hvdcRangeActionAdder.withId(jsonParser.nextTextValue());
                         break;
                     case NAME:
-                        adder.withName(jsonParser.nextTextValue());
+                        hvdcRangeActionAdder.withName(jsonParser.nextTextValue());
                         break;
                     case OPERATOR:
-                        adder.withOperator(jsonParser.nextTextValue());
+                        hvdcRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case FREE_TO_USE_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, adder);
+                        FreeToUseArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, adder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case NETWORK_ELEMENT_ID:
                         String networkElementId = jsonParser.nextTextValue();
                         if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+                            hvdcRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
                         } else {
-                            adder.withNetworkElement(networkElementId);
+                            hvdcRangeActionAdder.withNetworkElement(networkElementId);
                         }
                         break;
                     case GROUP_ID:
-                        adder.withGroupId(jsonParser.nextTextValue());
+                        hvdcRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                         break;
                     case INITIAL_SETPOINT:
                         jsonParser.nextToken();
-                        adder.withInitialSetpoint(jsonParser.getDoubleValue());
+                        hvdcRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
                         break;
                     case RANGES:
                         jsonParser.nextToken();
-                        StandardRangeArrayDeserializer.deserialize(jsonParser, adder);
+                        StandardRangeArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -99,9 +99,9 @@ public final class HvdcRangeActionArrayDeserializer {
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
-                adder.withInitialSetpoint(0);
+                hvdcRangeActionAdder.withInitialSetpoint(0);
             }
-            RangeAction hvdcRangeAction = adder.add();
+            RangeAction hvdcRangeAction = hvdcRangeActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(hvdcRangeAction, extensions);
             }

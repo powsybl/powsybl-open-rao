@@ -63,7 +63,12 @@ public final class JsonSerializationConstants {
 
     public static final String THRESHOLDS = "thresholds";
     public static final String RELIABILITY_MARGIN = "reliabilityMargin";
-    @Deprecated
+    /**
+     * frm has been replaced by reliability_margin
+     *
+     * @deprecated use {@link #RELIABILITY_MARGIN} instead.
+     */
+    @Deprecated (since = "1.4")
     public static final String FRM = "frm";
     public static final String OPTIMIZED = "optimized";
     public static final String MONITORED = "monitored";

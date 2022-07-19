@@ -37,54 +37,54 @@ public final class NetworkActionArrayDeserializer {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", NETWORK_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            NetworkActionAdder adder = crac.newNetworkAction();
+            NetworkActionAdder networkActionAdder = crac.newNetworkAction();
             List<Extension<NetworkAction>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
-                        adder.withId(jsonParser.nextTextValue());
+                        networkActionAdder.withId(jsonParser.nextTextValue());
                         break;
                     case NAME:
-                        adder.withName(jsonParser.nextTextValue());
+                        networkActionAdder.withName(jsonParser.nextTextValue());
                         break;
                     case OPERATOR:
-                        adder.withOperator(jsonParser.nextTextValue());
+                        networkActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case FREE_TO_USE_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, adder);
+                        FreeToUseArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, adder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case TOPOLOGICAL_ACTIONS:
                         jsonParser.nextToken();
-                        TopologicalActionArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);
+                        TopologicalActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case PST_SETPOINTS:
                         jsonParser.nextToken();
-                        PstSetpointArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);
+                        PstSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case INJECTION_SETPOINTS:
                         jsonParser.nextToken();
-                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);
+                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case SWITCH_PAIRS:
                         jsonParser.nextToken();
-                        SwitchPairArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);
+                        SwitchPairArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -94,7 +94,7 @@ public final class NetworkActionArrayDeserializer {
                         throw new FaraoException("Unexpected field in NetworkAction: " + jsonParser.getCurrentName());
                 }
             }
-            NetworkAction networkAction = adder.add();
+            NetworkAction networkAction = networkActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(networkAction, extensions);
             }

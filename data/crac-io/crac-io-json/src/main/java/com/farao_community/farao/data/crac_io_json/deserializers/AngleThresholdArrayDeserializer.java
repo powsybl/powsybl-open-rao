@@ -27,25 +27,25 @@ public final class AngleThresholdArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, AngleCnecAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            AngleThresholdAdder adder = ownerAdder.newThreshold();
+            AngleThresholdAdder angleThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:
-                        adder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
+                        angleThresholdAdder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
                         break;
                     case MIN:
                         jsonParser.nextToken();
-                        adder.withMin(jsonParser.getDoubleValue());
+                        angleThresholdAdder.withMin(jsonParser.getDoubleValue());
                         break;
                     case MAX:
                         jsonParser.nextToken();
-                        adder.withMax(jsonParser.getDoubleValue());
+                        angleThresholdAdder.withMax(jsonParser.getDoubleValue());
                         break;
                     default:
                         throw new FaraoException("Unexpected field in Threshold: " + jsonParser.getCurrentName());
                 }
             }
-            adder.add();
+            angleThresholdAdder.add();
         }
     }
 }

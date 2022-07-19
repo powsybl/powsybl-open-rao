@@ -27,9 +27,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
 
     private final Set<Threshold> thresholds = new HashSet<>();
     private String exportingNetworkElementId;
-    private String exportingNetworkElementName;
     private String importingNetworkElementId;
-    private String importingNetworkElementName;
 
     AngleCnecAdderImpl(CracImpl owner) {
         super(owner);
@@ -54,7 +52,6 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
     @Override
     public AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId, String exportingNetworkElementName) {
         this.exportingNetworkElementId = exportingNetworkElementId;
-        this.exportingNetworkElementName = exportingNetworkElementName;
         super.withNetworkElement(exportingNetworkElementId, exportingNetworkElementName);
         return this;
     }
@@ -68,7 +65,6 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
     @Override
     public AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId, String importingNetworkElementName) {
         this.importingNetworkElementId = importingNetworkElementId;
-        this.importingNetworkElementName = importingNetworkElementName;
         super.withNetworkElement(importingNetworkElementId, importingNetworkElementName);
         return this;
     }

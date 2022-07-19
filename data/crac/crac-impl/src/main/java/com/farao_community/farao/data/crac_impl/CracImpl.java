@@ -77,23 +77,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the NetworkElement is referenced in a Contingency, a Cnec or a RemedialAction
      */
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
-        if (getContingencies().stream()
+        return getContingencies().stream()
             .flatMap(co -> co.getNetworkElements().stream())
-            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
-            return true;
-        } else if (getCnecs().stream()
-            .map(Cnec::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))) {
-            return true;
-        } else if (getRemedialActions().stream()
-            .map(RemedialAction::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
-            return true;
-        }
-
-        return false;
+            .anyMatch(ne -> ne.getId().equals(networkElementId))
+                || getCnecs().stream()
+                .map(Cnec::getNetworkElements)
+                .flatMap(Set::stream)
+                .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
+                || getRemedialActions().stream()
+                .map(RemedialAction::getNetworkElements)
+                .flatMap(Set::stream)
+                .anyMatch(ne -> ne.getId().equals(networkElementId));
     }
 
     /**
@@ -162,15 +156,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
-        if (getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
-                        && cnec.getState().getContingency().get().getId().equals(contingencyId))) {
-            return true;
-        } else if (getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
-                        .anyMatch(usageMethod -> (usageMethod instanceof OnStateImpl)
-                                && ((OnStateImpl) usageMethod).getContingency().getId().equals(contingencyId))) {
-            return true;
-        }
-        return false;
+        return getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
+                        && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
+                .anyMatch(usageMethod -> (usageMethod instanceof OnStateImpl)
+                        && ((OnStateImpl) usageMethod).getContingency().getId().equals(contingencyId));
     }
 
     //endregion
@@ -257,17 +247,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
      */
     private boolean isStateUsedWithinCrac(String stateId) {
-        if (getCnecs().stream()
-            .anyMatch(cnec -> cnec.getState().getId().equals(stateId))) {
-            return true;
-        } else if (getRemedialActions().stream()
-            .map(RemedialAction::getUsageRules)
-            .flatMap(List::stream)
-            .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId))) {
-            return true;
-        }
-
-        return false;
+        return getCnecs().stream()
+            .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
+                || getRemedialActions().stream()
+                .map(RemedialAction::getUsageRules)
+                .flatMap(List::stream)
+                .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId));
     }
 
     //endregion
@@ -311,20 +296,37 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return null;
     }
 
+    /**
+     * Find a BranchCnec by its id, returns null if the BranchCnec does not exists
+     *
+     * @deprecated consider using getCnec() or getFlowCnec() instead
+     */
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public BranchCnec getBranchCnec(String id) {
         return getFlowCnec(id);
     }
 
+    /**
+     * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     * @deprecated consider using getCnecs() or getFlowCnecs() instead
+     */
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public Set<BranchCnec> getBranchCnecs() {
         return new HashSet<>(flowCnecs.values());
     }
 
+    /**
+     * Gather all the BranchCnecs of a specified State. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     * @deprecated consider using getCnecs() or getFlowCnecs() instead
+     */
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public Set<BranchCnec> getBranchCnecs(State state) {
         return new HashSet<>(getFlowCnecs(state));
     }

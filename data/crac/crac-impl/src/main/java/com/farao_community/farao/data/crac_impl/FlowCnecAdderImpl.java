@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule.*;
 import static java.lang.String.format;
 
 /**
@@ -113,7 +112,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         }
 
         FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, state, optimized, monitored,
-            thresholds.stream().map(th -> (BranchThreshold) th).collect(Collectors.toSet()),
+            thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),
             reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
 
         owner.addFlowCnec(cnec);
@@ -141,7 +140,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
             throw new FaraoException("FlowCnec threshold must be in a flow unit (Unit.AMPERE, Unit.MEGAWATT or Unit.PERCENT_IMAX)");
         }
 
-        if (this.thresholds.stream().anyMatch(th -> th.getUnit().equals(Unit.AMPERE) || th.getUnit().equals(Unit.PERCENT_IMAX))) {
+        if ((this.thresholds.stream().anyMatch(th -> th.getUnit().equals(Unit.AMPERE) || th.getUnit().equals(Unit.PERCENT_IMAX)))
+                && (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight))) {
             /*
             In the SearchTreeRao, nominal voltages are required in order to handle AMPERE threshold, as:
                 - in the sensi in DC, conversion must be made as AMPERE are not returned by the sensi engine
@@ -149,10 +149,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
 
             I do not think that nominalVoltage are absolutely required with thresholds in MEGAWATT, but I'm not 100% sure.
              */
-
-            if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight)) {
-                throw new FaraoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
-            }
+            throw new FaraoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
         }
 
         for (BranchThresholdImpl branchThreshold : thresholds) {

@@ -58,7 +58,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public void setOptimized(boolean optimized) {
         this.optimized = optimized;
     }
@@ -69,7 +69,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public void setMonitored(boolean monitored) {
         this.monitored = monitored;
     }

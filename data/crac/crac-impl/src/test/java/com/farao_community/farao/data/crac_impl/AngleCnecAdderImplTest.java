@@ -27,6 +27,8 @@ public class AngleCnecAdderImplTest {
     private CracImpl crac;
     private String contingency1Id = "condId1";
     private Contingency contingency1;
+    private AngleCnec cnec1;
+    private AngleCnec cnec2;
 
     @Before
     public void setUp() {
@@ -34,26 +36,30 @@ public class AngleCnecAdderImplTest {
         contingency1 = crac.newContingency().withId(contingency1Id).add();
     }
 
+    private void createAngleCnecs() {
+        cnec1 = crac.newAngleCnec()
+                .withId("cnecId1")
+                .withName("cnecName1")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withOperator("cnec1Operator")
+                .withExportingNetworkElement("eneId1", "eneName1")
+                .withImportingNetworkElement("ineId1", "ineName1")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(1000.0).withMin(-1000.0).add()
+                .add();
+        cnec2 = crac.newAngleCnec()
+                .withId("cnecId2")
+                .withInstant(Instant.PREVENTIVE)
+                .withOperator("cnec2Operator")
+                .withExportingNetworkElement("eneId2")
+                .withImportingNetworkElement("ineId2")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(500.0).add()
+                .add();
+    }
+
     @Test
-    public void testAdd() {
-        AngleCnec cnec1 = crac.newAngleCnec()
-            .withId("cnecId1")
-            .withName("cnecName1")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withOperator("cnec1Operator")
-            .withExportingNetworkElement("eneId1", "eneName1")
-            .withImportingNetworkElement("ineId1", "ineName1")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(1000.0).withMin(-1000.0).add()
-            .add();
-        AngleCnec cnec2 = crac.newAngleCnec()
-            .withId("cnecId2")
-            .withInstant(Instant.PREVENTIVE)
-            .withOperator("cnec2Operator")
-            .withExportingNetworkElement("eneId2")
-            .withImportingNetworkElement("ineId2")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(500.0).add()
-            .add();
+    public void testCheckCnecs() {
+        createAngleCnecs();
         assertEquals(2, crac.getAngleCnecs().size());
 
         // Verify 1st cnec content
@@ -78,6 +84,11 @@ public class AngleCnecAdderImplTest {
         assertEquals(500.0, cnec2.getUpperBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(Unit.DEGREE).isPresent());
 
+    }
+
+    @Test
+    public void testAdd() {
+        createAngleCnecs();
         // Verify that network elements were created
         crac.newAngleCnec()
             .withId("cnecId3")
