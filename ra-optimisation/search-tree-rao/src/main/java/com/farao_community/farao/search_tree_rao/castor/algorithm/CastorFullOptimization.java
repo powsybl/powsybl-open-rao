@@ -527,7 +527,7 @@ public class CastorFullOptimization {
      * - contains range actions tha are available at AUTO instant.
      * Returns true if checks are valid.
      */
-    private boolean checkAlignedRangeActions(String availableRangeActionId, State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
+    public static boolean checkAlignedRangeActions(String availableRangeActionId, State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
         // Check types
         checkAlignedRangeActionsType(alignedRa);
 
@@ -547,7 +547,7 @@ public class CastorFullOptimization {
     /**
      * This function checks that the group of aligned range actions contains same type range actions (PST, HVDC, or other) : all-or-none principle
      */
-    private void checkAlignedRangeActionsType(List<RangeAction<?>> alignedRangeActions) {
+    public static void checkAlignedRangeActionsType(List<RangeAction<?>> alignedRangeActions) {
         Set<RangeAction<?>> pstInAlignedRangeActions = alignedRangeActions.stream()
                 .filter(PstRangeAction.class::isInstance).collect(Collectors.toSet());
         Set<RangeAction<?>> hvdcInAlignedRangeActions = alignedRangeActions.stream()

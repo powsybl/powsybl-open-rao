@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -34,6 +35,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -50,8 +52,11 @@ public class CastorFullOptimizationAutoSimulationTest {
     private Crac crac;
     private Network network;
     private State state1;
+    private RangeAction<?> ra1;
     private RangeAction<?> ra2;
     private RangeAction<?> ra3;
+    private RangeAction<?> ra4;
+    private RangeAction<?> ra5;
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private CastorFullOptimization castorFullOptimization;
@@ -126,7 +131,13 @@ public class CastorFullOptimizationAutoSimulationTest {
                 .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
                 .add();
         state1 = crac.getState(contingency1, Instant.AUTO);
-        // ra2 : auto
+        ra1 = crac.newHvdcRangeAction()
+                .withId("ra1")
+                .withNetworkElement("ra1-ne")
+                .withSpeed(1)
+                .newRange().withMax(1).withMin(-1).add()
+                .add();
+
         ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ra2-ne")
@@ -136,11 +147,22 @@ public class CastorFullOptimizationAutoSimulationTest {
                 .add();
         ra3 = crac.newPstRangeAction()
                 .withId("ra3")
-                .withNetworkElement("ra2-ne")
+                .withNetworkElement("ra3-ne")
                 .withSpeed(3)
-                .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
                 .newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec").add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        ra4 = crac.newPstRangeAction()
+                .withId("ra4")
+                .withNetworkElement("ra4-ne")
+                .withSpeed(3)
+                .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec").add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        ra5 = crac.newInjectionRangeAction()
+                .withId("ra5")
+                .withNetworkElementAndKey(1.0, "key")
+                .newRange().withMin(-1).withMax(1).add()
                 .add();
 
         state1 = crac.getState(contingency1, Instant.AUTO);
@@ -162,4 +184,23 @@ public class CastorFullOptimizationAutoSimulationTest {
         assertEquals(100.0, CastorFullOptimization.roundUpAngleToTapWrtInitialSetpoint((PstRangeAction) ra2, setpoint2, setpoint1), DOUBLE_TOLERANCE);
     }
 
+    @Test (expected = FaraoException.class)
+    public void testCheckAlignedRangeActionsType() {
+        setUpCracWithAutoRAs();
+        CastorFullOptimization.checkAlignedRangeActionsType(List.of(ra1, ra5));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testCheckAlignedRangeActionsType2() {
+        setUpCracWithAutoRAs();
+        CastorFullOptimization.checkAlignedRangeActionsType(List.of(ra5, ra2));
+    }
+
+    @Test
+    public void testCheckAlignedRangeActions1() {
+        setUpCracWithAutoRAs();
+        assertFalse(CastorFullOptimization.checkAlignedRangeActions("id", state1, List.of(ra2, ra3), List.of(ra2, ra3)));
+        assertFalse(CastorFullOptimization.checkAlignedRangeActions("id", state1, List.of(ra2, ra4), List.of(ra2, ra3, ra4)));
+        assertTrue(CastorFullOptimization.checkAlignedRangeActions("id", state1, List.of(ra2), List.of(ra2, ra3)));
+    }
 }
