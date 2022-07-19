@@ -92,7 +92,7 @@ public final class InjectionRangeActionArrayDeserializer {
                         break;
                     case SPEED:
                         jsonParser.nextToken();
-                        adder.withSpeed(jsonParser.getIntValue());
+                        injectionRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
                     default:
                         throw new FaraoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());

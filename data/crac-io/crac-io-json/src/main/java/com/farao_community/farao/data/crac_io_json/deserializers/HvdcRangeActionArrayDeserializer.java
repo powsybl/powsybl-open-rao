@@ -95,7 +95,7 @@ public final class HvdcRangeActionArrayDeserializer {
                         break;
                     case SPEED:
                         jsonParser.nextToken();
-                        adder.withSpeed(jsonParser.getIntValue());
+                        hvdcRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
                     default:
                         throw new FaraoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());

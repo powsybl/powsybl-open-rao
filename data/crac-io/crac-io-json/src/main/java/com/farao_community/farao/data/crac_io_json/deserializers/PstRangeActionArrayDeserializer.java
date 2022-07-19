@@ -101,7 +101,7 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case SPEED:
                         jsonParser.nextToken();
-                        adder.withSpeed(jsonParser.getIntValue());
+                        pstRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
                     default:
                         throw new FaraoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
