@@ -6,10 +6,7 @@
  */
 package com.farao_community.farao.data.crac_api;
 
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUseAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -24,6 +21,8 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
     OnStateAdder<T> newOnStateUsageRule();
 
     OnFlowConstraintAdder<T> newOnFlowConstraintUsageRule();
+
+    OnAngleConstraintAdder<T> newOnAngleConstraintUsageRule();
 
     OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule();
 }

@@ -6,8 +6,10 @@
  */
 package com.farao_community.farao.search_tree_rao.result.api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -82,6 +84,11 @@ public interface SearchTreeRaoResult extends RaoResult {
     }
 
     @Override
+    default double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the search tree rao");
+    }
+
+    @Override
     default double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
             return getInitialResult().getMargin(flowCnec, unit);
@@ -91,6 +98,11 @@ public interface SearchTreeRaoResult extends RaoResult {
         } else {
             return getPerimeterResult(optimizationState, flowCnec.getState()).getMargin(flowCnec, unit);
         }
+    }
+
+    @Override
+    default double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the search tree rao");
     }
 
     @Override

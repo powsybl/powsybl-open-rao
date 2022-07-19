@@ -25,11 +25,12 @@ public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
 
-    public static final String CRAC_IO_VERSION = "1.3";
+    public static final String CRAC_IO_VERSION = "1.4";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
     v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
+    v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
      */
 
     // headers
@@ -42,10 +43,13 @@ public final class JsonSerializationConstants {
     // field
     public static final String NETWORK_ELEMENTS_IDS = "networkElementsIds";
     public static final String NETWORK_ELEMENT_ID = "networkElementId";
+    public static final String EXPORTING_NETWORK_ELEMENT_ID = "exportingNetworkElementId";
+    public static final String IMPORTING_NETWORK_ELEMENT_ID = "importingNetworkElementId";
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
     public static final String NETWORK_ELEMENT_IDS_AND_KEYS = "networkElementIdsAndKeys";
 
     public static final String GROUP_ID = "groupId";
+    public static final String SPEED = "speed";
 
     public static final String CONTINGENCIES = "contingencies";
     public static final String CONTINGENCY_ID = "contingencyId";
@@ -55,7 +59,17 @@ public final class JsonSerializationConstants {
     public static final String FLOW_CNECS = "flowCnecs";
     public static final String FLOW_CNEC_ID = "flowCnecId";
 
+    public static final String ANGLE_CNECS = "angleCnecs";
+    public static final String ANGLE_CNEC_ID = "angleCnecId";
+
     public static final String THRESHOLDS = "thresholds";
+    public static final String RELIABILITY_MARGIN = "reliabilityMargin";
+    /**
+     * frm has been replaced by reliability_margin
+     *
+     * @deprecated use {@link #RELIABILITY_MARGIN} instead.
+     */
+    @Deprecated (since = "1.4")
     public static final String FRM = "frm";
     public static final String OPTIMIZED = "optimized";
     public static final String MONITORED = "monitored";
@@ -76,6 +90,7 @@ public final class JsonSerializationConstants {
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules";
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules";
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
+    public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
     public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
 
     public static final String ID = "id";

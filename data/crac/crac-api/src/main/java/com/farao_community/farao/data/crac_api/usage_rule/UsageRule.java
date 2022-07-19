@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api.usage_rule;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
 /**
@@ -25,4 +26,9 @@ public interface UsageRule {
      * Get the {@link UsageMethod} of the usage rule on a given state
      */
     UsageMethod getUsageMethod(State state);
+
+    /**
+     * Get the Instant of the free to use
+     */
+    Instant getInstant();
 }

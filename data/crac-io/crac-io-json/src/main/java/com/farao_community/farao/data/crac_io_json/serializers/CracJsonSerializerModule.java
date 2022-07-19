@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
@@ -16,10 +17,8 @@ import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
@@ -32,13 +31,16 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(Crac.class, new CracSerializer());
         this.addSerializer(Contingency.class, new ContingencySerializer());
         this.addSerializer(FlowCnec.class, new FlowCnecSerializer<>());
+        this.addSerializer(AngleCnec.class, new AngleCnecSerializer<>());
         this.addSerializer(BranchThreshold.class, new BranchThresholdSerializer());
+        this.addSerializer(Threshold.class, new ThresholdSerializer());
         this.addSerializer(PstRangeAction.class, new PstRangeActionSerializer());
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
         this.addSerializer(FreeToUse.class, new FreeToUseSerializer());
         this.addSerializer(OnState.class, new OnStateSerializer());
         this.addSerializer(OnFlowConstraint.class, new OnFlowConstraintSerializer());
+        this.addSerializer(OnAngleConstraint.class, new OnAngleConstraintSerializer());
         this.addSerializer(OnFlowConstraintInCountry.class, new OnFlowConstraintInCountrySerializer());
         this.addSerializer(TapRange.class, new TapRangeSerializer());
         this.addSerializer(StandardRange.class, new StandardRangeSerializer());

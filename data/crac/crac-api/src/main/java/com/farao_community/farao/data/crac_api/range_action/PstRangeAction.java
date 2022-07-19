@@ -67,4 +67,9 @@ public interface PstRangeAction extends RangeAction<PstRangeAction> {
      * Convert the angle of the PST designated by the Remedial Action in tap
      */
     int convertAngleToTap(double angle);
+
+    /**
+     * Integrity check for angle
+     */
+    void checkAngle(double angle);
 }
