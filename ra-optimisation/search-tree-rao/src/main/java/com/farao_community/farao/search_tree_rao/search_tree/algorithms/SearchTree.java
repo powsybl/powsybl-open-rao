@@ -269,6 +269,7 @@ public class SearchTree {
                     networkClone = networkPool.getAvailableNetwork();
                 } catch (InterruptedException e) {
                     latch.countDown();
+                    Thread.currentThread().interrupt();
                     throw new FaraoException(e);
                 }
                 try {
@@ -289,14 +290,14 @@ public class SearchTree {
                     }
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                } finally {
-                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-                    latch.countDown();
-                    try {
-                        networkPool.releaseUsedNetwork(networkClone);
-                    } catch (InterruptedException ex) {
-                        throw new FaraoException(ex);
-                    }
+                }
+                TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                latch.countDown();
+                try {
+                    networkPool.releaseUsedNetwork(networkClone);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new FaraoException(ex);
                 }
             })
         );

@@ -248,6 +248,7 @@ public class CastorFullOptimization {
                         networkClone = networkPool.getAvailableNetwork();
                     } catch (InterruptedException e) {
                         latch.countDown();
+                        Thread.currentThread().interrupt();
                         throw new FaraoException(e);
                     }
                     try {
@@ -271,14 +272,14 @@ public class CastorFullOptimization {
                         contingencyScenarioResults.put(curativeState, curativeResult);
                     } catch (Exception e) {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
-                    } finally {
-                        TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingLeaves.decrementAndGet());
-                        latch.countDown();
-                        try {
-                            networkPool.releaseUsedNetwork(networkClone);
-                        } catch (InterruptedException ex) {
-                            throw new FaraoException(ex);
-                        }
+                    }
+                    TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingLeaves.decrementAndGet());
+                    latch.countDown();
+                    try {
+                        networkPool.releaseUsedNetwork(networkClone);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        throw new FaraoException(ex);
                     }
                 })
             );
