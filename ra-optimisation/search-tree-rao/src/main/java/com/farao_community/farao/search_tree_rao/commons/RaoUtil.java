@@ -169,7 +169,7 @@ public final class RaoUtil {
         }
     }
 
-    private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
+    public static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
         return cnec.getLocation(network).stream()
             .filter(Optional::isPresent)
             .map(Optional::get)
