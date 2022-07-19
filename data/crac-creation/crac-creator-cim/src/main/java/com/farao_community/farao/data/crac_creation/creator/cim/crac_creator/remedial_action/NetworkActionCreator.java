@@ -197,7 +197,7 @@ public class NetworkActionCreator {
         if (Objects.isNull(element)) {
             // Check that network element is not half a tie line
             CgmesBranchHelper branchHelper = new CgmesBranchHelper(networkElementId, network);
-            if (branchHelper.getBranch() == null) {
+            if (!branchHelper.isValid()) {
                 throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId));
             }
             networkElementId = branchHelper.getIdInNetwork();

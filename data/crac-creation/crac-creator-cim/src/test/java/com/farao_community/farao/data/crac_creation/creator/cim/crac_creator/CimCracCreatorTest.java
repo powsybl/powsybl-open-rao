@@ -235,14 +235,22 @@ public class CimCracCreatorTest {
     }
 
     @Test
+    public void testImportContingencyOnTieLine() {
+        setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
+
+        assertEquals(1, importedCrac.getContingencies().size());
+        assertContingencyImported("Co-2", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
+    }
+
+    @Test
     public void testImportFakeCnecs() {
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertEquals(10, importedCrac.getFlowCnecs().size());
         assertCnecImported("CNEC-4",
-                Set.of("CNEC-4 - preventive",
-                        "CNEC-4 - Co-1 - curative",
-                        "CNEC-4 - Co-2 - curative"));
+            Set.of("CNEC-4 - preventive",
+                "CNEC-4 - Co-1 - curative",
+                "CNEC-4 - Co-2 - curative"));
     }
 
     @Test
