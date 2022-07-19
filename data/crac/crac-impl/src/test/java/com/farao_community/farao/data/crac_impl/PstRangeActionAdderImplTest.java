@@ -61,12 +61,57 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(networkElementId));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testAddAutoWithoutSpeed() {
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+                .withId("id1")
+                .withOperator("BE")
+                .withNetworkElement(networkElementId)
+                .withGroupId("groupId1")
+                .newTapRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+                .newFreeToUseUsageRule()
+                .withInstant(Instant.AUTO)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(validTapToAngleConversionMap)
+                .add();
+    }
+
+    @Test
+    public void testAddAutoWithSpeed() {
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+                .withId("id1")
+                .withOperator("BE")
+                .withNetworkElement(networkElementId)
+                .withGroupId("groupId1")
+                .withSpeed(123)
+                .newTapRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+                .newFreeToUseUsageRule()
+                .withInstant(Instant.AUTO)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(validTapToAngleConversionMap)
+                .add();
+
+        assertEquals(123, pstRangeAction.getSpeed().get().intValue());
     }
 
     @Test
@@ -89,7 +134,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
@@ -113,7 +158,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(0, pstRangeAction.getRanges().size());
         assertEquals(0, pstRangeAction.getUsageRules().size());
@@ -138,7 +183,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertNull(pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());

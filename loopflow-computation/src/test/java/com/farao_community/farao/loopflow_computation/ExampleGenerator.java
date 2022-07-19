@@ -403,11 +403,11 @@ final class ExampleGenerator {
         SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
 
         // flow results
-        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("FR-BE1"))).thenReturn(30.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("BE1-BE2"))).thenReturn(280.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("FR-DE"))).thenReturn(170.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("BE2-NL"))).thenReturn(30.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("DE-NL"))).thenReturn(170.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-BE1"))).thenReturn(30.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE1-BE2"))).thenReturn(280.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-DE"))).thenReturn(170.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE2-NL"))).thenReturn(30.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("DE-NL"))).thenReturn(170.);
 
         // sensi results
         SensitivityVariableSet glskFr = glsk.getData("10YFR-RTE------C");
@@ -415,30 +415,30 @@ final class ExampleGenerator {
         SensitivityVariableSet glskDe = glsk.getData("10YCB-GERMANY--8");
         SensitivityVariableSet glskNl = glsk.getData("10YNL----------L");
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("FR-BE1"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("FR-BE1"))).thenReturn(-1.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("FR-BE1"))).thenReturn(-0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("FR-BE1"))).thenReturn(-0.8);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getFlowCnec("FR-BE1"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getFlowCnec("FR-BE1"))).thenReturn(-1.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getFlowCnec("FR-BE1"))).thenReturn(-0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getFlowCnec("FR-BE1"))).thenReturn(-0.8);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("BE1-BE2"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("BE1-BE2"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("BE1-BE2"))).thenReturn(-0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("BE1-BE2"))).thenReturn(-0.8);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getFlowCnec("BE1-BE2"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getFlowCnec("BE1-BE2"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getFlowCnec("BE1-BE2"))).thenReturn(-0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getFlowCnec("BE1-BE2"))).thenReturn(-0.8);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("FR-DE"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("FR-DE"))).thenReturn(-0.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("FR-DE"))).thenReturn(-1.6);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("FR-DE"))).thenReturn(-1.2);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getFlowCnec("FR-DE"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getFlowCnec("FR-DE"))).thenReturn(-0.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getFlowCnec("FR-DE"))).thenReturn(-1.6);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getFlowCnec("FR-DE"))).thenReturn(-1.2);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("BE2-NL"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("BE2-NL"))).thenReturn(0.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("BE2-NL"))).thenReturn(-0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("BE2-NL"))).thenReturn(-0.8);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getFlowCnec("BE2-NL"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getFlowCnec("BE2-NL"))).thenReturn(0.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getFlowCnec("BE2-NL"))).thenReturn(-0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getFlowCnec("BE2-NL"))).thenReturn(-0.8);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("DE-NL"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("DE-NL"))).thenReturn(-0.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("DE-NL"))).thenReturn(0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("DE-NL"))).thenReturn(-1.2);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getFlowCnec("DE-NL"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getFlowCnec("DE-NL"))).thenReturn(-0.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getFlowCnec("DE-NL"))).thenReturn(0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getFlowCnec("DE-NL"))).thenReturn(-1.2);
 
         return sensisResults;
     }

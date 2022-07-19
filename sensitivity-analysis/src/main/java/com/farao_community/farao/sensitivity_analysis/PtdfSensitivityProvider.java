@@ -12,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.glsk.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -55,7 +54,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
         cnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty())
-            .map(Cnec::getNetworkElement)
+            .map(FlowCnec::getNetworkElement)
             .distinct()
             .forEach(ne -> mapCountryLinearGlsk.values().stream()
                 .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, ne.getId(),
@@ -76,7 +75,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
             cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingency.getId()))
-                .map(Cnec::getNetworkElement)
+                .map(FlowCnec::getNetworkElement)
                 .distinct()
                 .forEach(ne -> mapCountryLinearGlsk.values().stream()
                     .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, ne.getId(),

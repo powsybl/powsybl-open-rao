@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.PhysicalParameter;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -16,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BranchThresholdAdderImpl extends ThresholdAdderImpl<BranchThresholdAdder> implements BranchThresholdAdder {
+public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchThresholdAdder> implements BranchThresholdAdder {
 
     private final FlowCnecAdderImpl ownerAdder;
     private BranchThresholdRule rule;
@@ -24,6 +26,13 @@ public class BranchThresholdAdderImpl extends ThresholdAdderImpl<BranchThreshold
     BranchThresholdAdderImpl(FlowCnecAdder ownerAdder) {
         Objects.requireNonNull(ownerAdder);
         this.ownerAdder = (FlowCnecAdderImpl) ownerAdder;
+    }
+
+    @Override
+    public BranchThresholdAdderImpl withUnit(Unit unit) {
+        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
+        this.unit = unit;
+        return this;
     }
 
     @Override

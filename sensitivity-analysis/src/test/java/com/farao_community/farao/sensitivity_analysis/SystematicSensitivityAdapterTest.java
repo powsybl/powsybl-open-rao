@@ -40,9 +40,9 @@ public class SystematicSensitivityAdapterTest {
         assertEquals(25, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase")), 1e-3);
         assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2")), 1e-3);
         assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1")), 1e-3);
-        assertEquals(0.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec2basecase")), 1e-3);
-        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec1stateCurativeContingency2")), 1e-3);
-        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec2stateCurativeContingency1")), 1e-3);
+        assertEquals(0.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2basecase")), 1e-3);
+        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec1stateCurativeContingency2")), 1e-3);
+        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1")), 1e-3);
     }
 
     @Test
@@ -82,17 +82,17 @@ public class SystematicSensitivityAdapterTest {
         assertEquals(-20, result.getReferenceFlow(crac.getFlowCnec("cnec1stateCurativeContingency2")), 1e-3);
         assertEquals(25, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase")), 1e-3);
         assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2")), 1e-3);
-        assertEquals(0.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec2basecase")), 1e-3);
-        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec1stateCurativeContingency2")), 1e-3);
+        assertEquals(0.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2basecase")), 1e-3);
+        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec1stateCurativeContingency2")), 1e-3);
 
         // after contingency with CRA, "alternative" results of the MockSensiProvider are expected
         assertEquals(-40, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1")), 1e-3);
         assertEquals(-180, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1")), 1e-3);
-        assertEquals(-2.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec2stateCurativeContingency1")), 1e-3);
+        assertEquals(-2.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1")), 1e-3);
 
         // for outage CNECs, do NOT take CRAs into account
         assertEquals(-20, result.getReferenceFlow(crac.getFlowCnec("cnec2stateOutageContingency1")), 1e-3);
         assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateOutageContingency1")), 1e-3);
-        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getCnec("cnec2stateOutageContingency1")), 1e-3);
+        assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1")), 1e-3);
     }
 }

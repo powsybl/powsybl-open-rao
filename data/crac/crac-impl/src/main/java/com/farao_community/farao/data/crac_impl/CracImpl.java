@@ -9,10 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
@@ -37,6 +34,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, Contingency> contingencies = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
+    private final Map<String, AngleCnec> angleCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, HvdcRangeAction> hvdcRangeActions = new HashMap<>();
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
@@ -79,21 +77,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the NetworkElement is referenced in a Contingency, a Cnec or a RemedialAction
      */
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
-        if (getContingencies().stream()
+        return getContingencies().stream()
             .flatMap(co -> co.getNetworkElements().stream())
-            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
-            return true;
-        } else if (getCnecs().stream()
-            .anyMatch(cnec -> cnec.getNetworkElement().getId().equals(networkElementId))) {
-            return true;
-        } else if (getRemedialActions().stream()
-            .map(RemedialAction::getNetworkElements)
-            .flatMap(Set::stream)
-            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
-            return true;
-        }
-
-        return false;
+            .anyMatch(ne -> ne.getId().equals(networkElementId))
+                || getCnecs().stream()
+                .map(Cnec::getNetworkElements)
+                .flatMap(Set::stream)
+                .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
+                || getRemedialActions().stream()
+                .map(RemedialAction::getNetworkElements)
+                .flatMap(Set::stream)
+                .anyMatch(ne -> ne.getId().equals(networkElementId));
     }
 
     /**
@@ -162,15 +156,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
-        if (getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
-                        && cnec.getState().getContingency().get().getId().equals(contingencyId))) {
-            return true;
-        } else if (getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
-                        .anyMatch(usageMethod -> (usageMethod instanceof OnStateImpl)
-                                && ((OnStateImpl) usageMethod).getContingency().getId().equals(contingencyId))) {
-            return true;
-        }
-        return false;
+        return getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
+                        && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
+                .anyMatch(usageMethod -> (usageMethod instanceof OnStateImpl)
+                        && ((OnStateImpl) usageMethod).getContingency().getId().equals(contingencyId));
     }
 
     //endregion
@@ -257,17 +247,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
      */
     private boolean isStateUsedWithinCrac(String stateId) {
-        if (getCnecs().stream()
-            .anyMatch(cnec -> cnec.getState().getId().equals(stateId))) {
-            return true;
-        } else if (getRemedialActions().stream()
-            .map(RemedialAction::getUsageRules)
-            .flatMap(List::stream)
-            .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId))) {
-            return true;
-        }
-
-        return false;
+        return getCnecs().stream()
+            .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
+                || getRemedialActions().stream()
+                .map(RemedialAction::getUsageRules)
+                .flatMap(List::stream)
+                .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId));
     }
 
     //endregion
@@ -281,34 +266,67 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public AngleCnecAdder newAngleCnec() {
+        return new AngleCnecAdderImpl(this);
+    }
+
+    @Override
     public Set<Cnec> getCnecs() {
-        return new HashSet<>(flowCnecs.values());
+        Set<Cnec> cnecs = new HashSet<>();
+        cnecs.addAll(getFlowCnecs());
+        cnecs.addAll(getAngleCnecs());
+        return cnecs;
     }
 
     @Override
     public Set<Cnec> getCnecs(State state) {
-        return new HashSet<>(getFlowCnecs(state));
+        Set<Cnec> cnecs = new HashSet<>();
+        cnecs.addAll(getFlowCnecs(state));
+        cnecs.addAll(getAngleCnecs(state));
+        return cnecs;
     }
 
     @Override
     public Cnec getCnec(String cnecId) {
-        return getFlowCnec(cnecId);
+        if (flowCnecs.containsKey(cnecId)) {
+            return getFlowCnec(cnecId);
+        } else if (angleCnecs.containsKey(cnecId)) {
+            return getAngleCnec(cnecId);
+        }
+        return null;
     }
 
+    /**
+     * Find a BranchCnec by its id, returns null if the BranchCnec does not exists
+     *
+     * @deprecated consider using getCnec() or getFlowCnec() instead
+     */
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public BranchCnec getBranchCnec(String id) {
         return getFlowCnec(id);
     }
 
+    /**
+     * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     * @deprecated consider using getCnecs() or getFlowCnecs() instead
+     */
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public Set<BranchCnec> getBranchCnecs() {
         return new HashSet<>(flowCnecs.values());
     }
 
+    /**
+     * Gather all the BranchCnecs of a specified State. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     * @deprecated consider using getCnecs() or getFlowCnecs() instead
+     */
     @Override
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     public Set<BranchCnec> getBranchCnecs(State state) {
         return new HashSet<>(getFlowCnecs(state));
     }
@@ -331,9 +349,27 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public AngleCnec getAngleCnec(String angleCnecId) {
+        return angleCnecs.get(angleCnecId);
+    }
+
+    @Override
+    public Set<AngleCnec> getAngleCnecs() {
+        return new HashSet<>(angleCnecs.values());
+    }
+
+    @Override
+    public Set<AngleCnec> getAngleCnecs(State state) {
+        return angleCnecs.values().stream()
+            .filter(cnec -> cnec.getState().equals(state))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
     public void removeCnec(String cnecId) {
         // In the future, if handling multiple Cnec types, we will have to do more things here
         removeFlowCnec(cnecId);
+        removeAngleCnec(cnecId);
     }
 
     @Override
@@ -344,7 +380,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeFlowCnecs(Set<String> flowCnecsIds) {
         Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
-        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(Cnec::getNetworkElement).map(Identifiable::getId).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(cnec -> cnec.getNetworkElement().getId()).collect(Collectors.toSet());
         Set<String> statesToRemove = flowCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
         flowCnecsToRemove.forEach(flowCnecToRemove ->
             flowCnecs.remove(flowCnecToRemove.getId())
@@ -353,8 +389,30 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         safeRemoveStates(statesToRemove);
     }
 
+    @Override
+    public void removeAngleCnec(String angleCnecId) {
+        removeAngleCnecs(Collections.singleton(angleCnecId));
+    }
+
+    @Override
+    public void removeAngleCnecs(Set<String> angleCnecsIds) {
+        Set<AngleCnec> angleCnecsToRemove = angleCnecsIds.stream().map(angleCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = angleCnecsToRemove.stream().map(Cnec::getNetworkElements)
+            .flatMap(Set::stream).map(Identifiable::getId).collect(Collectors.toSet());
+        Set<String> statesToRemove = angleCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        angleCnecsToRemove.forEach(angleCnecToRemove ->
+            angleCnecs.remove(angleCnecToRemove.getId())
+        );
+        safeRemoveNetworkElements(networkElementsToRemove);
+        safeRemoveStates(statesToRemove);
+    }
+
     void addFlowCnec(FlowCnec flowCnec) {
         flowCnecs.put(flowCnec.getId(), flowCnec);
+    }
+
+    void addAngleCnec(AngleCnec angleCnec) {
+        angleCnecs.put(angleCnec.getId(), angleCnec);
     }
 
     // endregion

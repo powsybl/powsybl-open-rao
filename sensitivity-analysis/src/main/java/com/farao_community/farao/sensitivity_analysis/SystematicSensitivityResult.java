@@ -138,7 +138,7 @@ public class SystematicSensitivityResult {
         this.status = status;
     }
 
-    public double getReferenceFlow(Cnec<?> cnec) {
+    public double getReferenceFlow(FlowCnec cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null) {
             return 0.0;
@@ -146,7 +146,7 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
     }
 
-    public double getReferenceIntensity(Cnec<?> cnec) {
+    public double getReferenceIntensity(FlowCnec cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null) {
             return 0.0;
@@ -154,15 +154,15 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
     }
 
-    public double getSensitivityOnFlow(RangeAction<?> rangeAction, Cnec<?> cnec) {
-        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow((FlowCnec) cnec, this);
+    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, this);
     }
 
-    public double getSensitivityOnFlow(SensitivityVariableSet glsk, Cnec<?> cnec) {
+    public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec) {
         return getSensitivityOnFlow(glsk.getId(), cnec);
     }
 
-    public double getSensitivityOnFlow(String variableId, Cnec<?> cnec) {
+    public double getSensitivityOnFlow(String variableId, FlowCnec cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
             !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
@@ -173,7 +173,7 @@ public class SystematicSensitivityResult {
         return sensitivities.getOrDefault(variableId, 0.0);
     }
 
-    @Deprecated
+    @Deprecated (since = "3.6.0")
     public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
         /*
         Should not be useful in the RAO -> sensi on intensity are never used + might crash for
