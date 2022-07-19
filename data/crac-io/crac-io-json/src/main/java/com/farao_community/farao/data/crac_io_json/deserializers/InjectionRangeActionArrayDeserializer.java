@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -37,50 +37,54 @@ public final class InjectionRangeActionArrayDeserializer {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", INJECTION_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            InjectionRangeActionAdder adder = crac.newInjectionRangeAction();
-            List<Extension<RangeAction<?>>> extensions = new ArrayList<>();
+            InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
+            List<Extension<InjectionRangeAction>> extensions = new ArrayList<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
-                        adder.withId(jsonParser.nextTextValue());
+                        injectionRangeActionAdder.withId(jsonParser.nextTextValue());
                         break;
                     case NAME:
-                        adder.withName(jsonParser.nextTextValue());
+                        injectionRangeActionAdder.withName(jsonParser.nextTextValue());
                         break;
                     case OPERATOR:
-                        adder.withOperator(jsonParser.nextTextValue());
+                        injectionRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case FREE_TO_USE_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, adder);
+                        FreeToUseArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, adder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
+                        break;
+                    case ON_ANGLE_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case NETWORK_ELEMENT_IDS_AND_KEYS:
                         jsonParser.nextToken();
-                        deserializeInjectionDistributionKeys(jsonParser, adder, networkElementsNamesPerId);
+                        deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
                         break;
                     case GROUP_ID:
-                        adder.withGroupId(jsonParser.nextTextValue());
+                        injectionRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                         break;
                     case INITIAL_SETPOINT:
                         jsonParser.nextToken();
-                        adder.withInitialSetpoint(jsonParser.getDoubleValue());
+                        injectionRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
                         break;
                     case RANGES:
                         jsonParser.nextToken();
-                        StandardRangeArrayDeserializer.deserialize(jsonParser, adder);
+                        StandardRangeArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -88,7 +92,7 @@ public final class InjectionRangeActionArrayDeserializer {
                         break;
                     case SPEED:
                         jsonParser.nextToken();
-                        adder.withSpeed(jsonParser.getIntValue());
+                        injectionRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
                     default:
                         throw new FaraoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
@@ -96,9 +100,9 @@ public final class InjectionRangeActionArrayDeserializer {
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
-                adder.withInitialSetpoint(0);
+                injectionRangeActionAdder.withInitialSetpoint(0);
             }
-            RangeAction injectionRangeAction = adder.add();
+            InjectionRangeAction injectionRangeAction = injectionRangeActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(injectionRangeAction, extensions);
             }

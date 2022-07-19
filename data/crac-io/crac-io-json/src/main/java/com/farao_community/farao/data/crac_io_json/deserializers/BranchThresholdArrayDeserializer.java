@@ -27,28 +27,28 @@ public final class BranchThresholdArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            BranchThresholdAdder adder = ownerAdder.newThreshold();
+            BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case UNIT:
-                        adder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
+                        branchThresholdAdder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
                         break;
                     case MIN:
                         jsonParser.nextToken();
-                        adder.withMin(jsonParser.getDoubleValue());
+                        branchThresholdAdder.withMin(jsonParser.getDoubleValue());
                         break;
                     case MAX:
                         jsonParser.nextToken();
-                        adder.withMax(jsonParser.getDoubleValue());
+                        branchThresholdAdder.withMax(jsonParser.getDoubleValue());
                         break;
                     case RULE:
-                        adder.withRule(deserializeBranchThresholdRule(jsonParser.nextTextValue()));
+                        branchThresholdAdder.withRule(deserializeBranchThresholdRule(jsonParser.nextTextValue()));
                         break;
                     default:
                         throw new FaraoException("Unexpected field in BranchThreshold: " + jsonParser.getCurrentName());
                 }
             }
-            adder.add();
+            branchThresholdAdder.add();
         }
     }
 }

@@ -8,6 +8,7 @@ package com.farao_community.farao.data.rao_result_impl.utils;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -17,8 +18,7 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 
 /**
@@ -80,8 +80,8 @@ public final class ExhaustiveRaoResultCreation {
          with:
          - XXXX = 1000 for cnec1, 2000 for cnec2, ...
          - YYY = 000 for initial, 100 for after_pra, 200 for after_ara and 300 for after_cra
-         - ZZ = 10 for MW and 20 for AMPERE
-         - A = 0 for flow, 1 for margin, 2 for relativeMargin, 3 for loop-flows and 4 for commercial flow
+         - ZZ = 10 for MW, 20 for AMPERE and 30 for DEGREE
+         - A = 0 for flow, 1 for margin, 2 for relativeMargin, 3 for loop-flows and 4 for commercial flow and 5 for angle
 
          Moreover:
          - only cnec 1 and cnec 2 have loop-flows and commercial flows (in practice, only cross-border CNECs)
@@ -94,6 +94,11 @@ public final class ExhaustiveRaoResultCreation {
         for (FlowCnec cnec : crac.getFlowCnecs()) {
             FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
             fillFlowCnecResult(flowCnecResult, cnec);
+        }
+
+        for (AngleCnec cnec : crac.getAngleCnecs()) {
+            AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(cnec);
+            fillAngleCnecResult(angleCnecResult, cnec);
         }
 
         // -----------------------------
@@ -142,6 +147,11 @@ public final class ExhaustiveRaoResultCreation {
                     // on flow in preventive state, not activated
                     prar.setPreOptimTap(3);
                     prar.setPreOptimSetPoint(1.7);
+                    break;
+                case "pstRange3Id":
+                    // on angle in curative state, not activated
+                    prar.setPreOptimTap(2);
+                    prar.setPreOptimSetPoint(1.3);
                     break;
                 default:
                     // do nothing
@@ -203,6 +213,25 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
+    private static void fillAngleCnecResult(AngleCnecResult angleCnecResult, AngleCnec cnec) {
+
+        double x = 3000;
+
+        ElementaryAngleCnecResult initialEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        fillElementaryResult(initialEacr, x, 100);
+        ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        fillElementaryResult(afterPraEacr, x, 200);
+
+        if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
+            ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+            fillElementaryResult(afterAraEacr, x, 300);
+        }
+        if (cnec.getState().getInstant() == Instant.CURATIVE) {
+            ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+            fillElementaryResult(afterCraEacr, x, 400);
+        }
+    }
+
     private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec) {
 
         elementaryFlowCnecResult.setFlow(x + y + 10, MEGAWATT);
@@ -222,6 +251,10 @@ public final class ExhaustiveRaoResultCreation {
             elementaryFlowCnecResult.setCommercialFlow(x + y + 14, MEGAWATT);
             elementaryFlowCnecResult.setCommercialFlow(x + y + 24, AMPERE);
         }
+    }
 
+    private static void fillElementaryResult(ElementaryAngleCnecResult elementaryAngleCnecResult, double x, double y) {
+        elementaryAngleCnecResult.setAngle(x + y + 35, DEGREE);
+        elementaryAngleCnecResult.setMargin(x + y + 31, DEGREE);
     }
 }

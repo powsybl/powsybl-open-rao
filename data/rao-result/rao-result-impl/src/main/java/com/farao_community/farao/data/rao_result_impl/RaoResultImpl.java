@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class RaoResultImpl implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
+    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final PstRangeActionResult DEFAULT_PSTRANGEACTION_RESULT = new PstRangeActionResult();
     private static final RangeActionResult DEFAULT_STDRANGEACTION_RESULT = new RangeActionResult();
@@ -36,6 +38,7 @@ public class RaoResultImpl implements RaoResult {
 
     private ComputationStatus sensitivityStatus;
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
+    private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<PstRangeAction, PstRangeActionResult> pstRangeActionResults = new HashMap<>();
     private final Map<StandardRangeAction<?>, RangeActionResult> standardRangeActionResults = new HashMap<>();
@@ -56,8 +59,18 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
+    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizationState).getAngle(unit);
+    }
+
+    @Override
     public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(optimizationState).getMargin(unit);
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizationState).getMargin(unit);
     }
 
     @Override
@@ -83,6 +96,11 @@ public class RaoResultImpl implements RaoResult {
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
         flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
+    }
+
+    public AngleCnecResult getAndCreateIfAbsentAngleCnecResult(AngleCnec angleCnec) {
+        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult());
+        return angleCnecResults.get(angleCnec);
     }
 
     public CostResult getAndCreateIfAbsentCostResult(OptimizationState optimizationState) {

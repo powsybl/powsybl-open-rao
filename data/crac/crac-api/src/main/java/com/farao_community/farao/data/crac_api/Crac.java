@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
@@ -161,6 +158,11 @@ public interface Crac extends Identifiable<Crac> {
     FlowCnecAdder newFlowCnec();
 
     /**
+     * Get an {@link AngleCnecAdder} adder, to add an {@link AngleCnec} to the Crac
+     */
+    AngleCnecAdder newAngleCnec();
+
+    /**
      * Gather all the Cnecs present in the Crac. It returns a set because Cnecs must not
      * be duplicated and there is no defined order for Cnecs.
      */
@@ -183,8 +185,8 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
-    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
-    @Deprecated
+    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
+    @Deprecated (since = "3.0.0")
     Set<BranchCnec> getBranchCnecs();
 
     /**
@@ -193,8 +195,8 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
-    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
-    @Deprecated
+    // keep the method (might be useful when we will have other BranchCnec than FlowCnec)
+    @Deprecated (since = "3.0.0")
     Set<BranchCnec> getBranchCnecs(State state);
 
     /**
@@ -202,26 +204,43 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @deprecated consider using getCnec() or getFlowCnec() instead
      */
-    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
-    @Deprecated
+    // keep the method (might be usefuls when we will have other BranchCnec than FlowCnec)
+    @Deprecated (since = "3.0.0")
     BranchCnec getBranchCnec(String branchCnecId);
 
     /**
-     * Gather all the FlowCnec present in the Crac. It returns a set because Cnecs must not
+     * Gather all the FlowCnecs present in the Crac. It returns a set because Cnecs must not
      * be duplicated and there is no defined order for Cnecs.
      */
     Set<FlowCnec> getFlowCnecs();
 
     /**
-     * Gather all the Cnecs of a specified State. It returns a set because Cnecs must not be
+     * Gather all the FlowCnecs of a specified State. It returns a set because Cnecs must not be
      * duplicated and there is no defined order for Cnecs.
      */
     Set<FlowCnec> getFlowCnecs(State state);
 
     /**
-     * Find a FlowCnec by its id, returns null if the FlowCnec does not exists
+     * Find a FlowCnec by its id, returns null if the FlowCnec does not exist.
      */
     FlowCnec getFlowCnec(String flowCnecId);
+
+    /**
+     * Gather all the AngleCnecs present in the Crac. It returns a set because Cnecs must not
+     * be duplicated and there is no defined order for Cnecs.
+     */
+    Set<AngleCnec> getAngleCnecs();
+
+    /**
+     * Gather all the AngleCnecs of a specified State. It returns a set because Cnecs must not be
+     * duplicated and there is no defined order for Cnecs.
+     */
+    Set<AngleCnec> getAngleCnecs(State state);
+
+    /**
+     * Find an AngleCnec by its id, returns null if the AngleCnec does not exist.
+     */
+    AngleCnec getAngleCnec(String angleCnecId);
 
     /**
      * Remove a Cnec - identified by its id - from the Crac
@@ -237,6 +256,16 @@ public interface Crac extends Identifiable<Crac> {
      * Remove a set of FlowCnecs - identified by their id - from the Crac
      */
     void removeFlowCnecs(Set<String> flowCnecsIds);
+
+    /**
+     * Remove an AngleCnec - identified by its id - from the Crac
+     */
+    void removeAngleCnec(String angleCnecId);
+
+    /**
+     * Remove a set of FlowCnecs - identified by their id - from the Crac
+     */
+    void removeAngleCnecs(Set<String> angleCnecsIds);
 
     // Remedial actions management
 

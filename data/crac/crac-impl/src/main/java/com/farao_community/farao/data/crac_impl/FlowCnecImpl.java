@@ -75,7 +75,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                     double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
                     currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
                     currentBound = changeValueSide(currentBound, threshold, side, requestedUnit);
-                    currentBound += changeValueUnit(frm, Unit.MEGAWATT, requestedUnit, side);
+                    currentBound += changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
                     if (currentBound > lowerBound) {
                         lowerBound = currentBound;
                     }
@@ -106,7 +106,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                     double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
                     currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
                     currentBound = changeValueSide(currentBound, threshold, side, requestedUnit);
-                    currentBound -= changeValueUnit(frm, Unit.MEGAWATT, requestedUnit, side);
+                    currentBound -= changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
                     if (currentBound < upperBound) {
                         upperBound = currentBound;
                     }
@@ -166,13 +166,11 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             return false;
         }
         FlowCnecImpl cnec = (FlowCnecImpl) o;
-        return super.equals(cnec) && frm == cnec.frm;
+        return super.equals(cnec);
     }
 
     @Override
     public int hashCode() {
-        int hashCode = super.hashCode();
-        hashCode = 31 * hashCode + (int) frm;
-        return hashCode;
+        return super.hashCode();
     }
 }

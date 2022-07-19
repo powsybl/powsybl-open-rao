@@ -44,7 +44,7 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeNumberField("loop-flow-violation-cost", parameters.getLoopFlowViolationCost());
         jsonGenerator.writeFieldName("loop-flow-countries");
         jsonGenerator.writeStartArray();
-        parameters.getLoopflowCountries().stream().map(country -> country.toString()).sorted().forEach(s -> {
+        parameters.getLoopflowCountries().stream().map(Enum::toString).sorted().forEach(s -> {
             try {
                 jsonGenerator.writeString(s);
             } catch (IOException e) {

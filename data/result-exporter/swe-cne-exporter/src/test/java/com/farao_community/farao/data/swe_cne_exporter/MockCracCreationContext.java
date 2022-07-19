@@ -45,7 +45,7 @@ public class MockCracCreationContext implements StandardCracCreationContext {
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
         List<MockCnecCreationContext> cnecsWithSameNe = mockCnecCreationContexts.stream().filter(creationContext ->
-                creationContext.getFlowCnec().getNetworkElement().equals(flowCnec.getNetworkElement())
+                creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
                 && creationContext.getFlowCnec().getState().getContingency().equals(flowCnec.getState().getContingency())
         ).collect(Collectors.toList());
         if (cnecsWithSameNe.isEmpty()) {
@@ -124,7 +124,7 @@ public class MockCracCreationContext implements StandardCracCreationContext {
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {
                         FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().get().getId(), instant)).stream()
-                            .filter(flowCnec1 -> flowCnec1.getNetworkElement().equals(flowCnec.getNetworkElement()))
+                            .filter(flowCnec1 -> flowCnec1.getNetworkElements().equals(flowCnec.getNetworkElements()))
                             .findFirst()
                             .orElse(flowCnec);
                         map.put(instant, otherBranchCnec.getId());

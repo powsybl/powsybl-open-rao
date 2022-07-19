@@ -126,6 +126,18 @@ public final class ExhaustiveCracCreation {
                 .withMonitored()
                 .add();
 
+        crac.newAngleCnec().withId("angleCnecId")
+                .withName("angleCnecName")
+                .withExportingNetworkElement("eneId", "eneName")
+                .withImportingNetworkElement("ineId", "ineName")
+                .withInstant(Instant.CURATIVE)
+                .withContingency(contingency1Id)
+                .withOperator("operator1")
+                .newThreshold().withUnit(Unit.DEGREE).withMin(-100.).withMax(100.).add()
+                .withReliabilityMargin(10.)
+                .withMonitored()
+                .add();
+
         // network action with one pst set point
         crac.newNetworkAction().withId("pstSetpointRaId")
                 .withName("pstSetpointRaName")
@@ -184,6 +196,18 @@ public final class ExhaustiveCracCreation {
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3prevId").add()
                 .add();
+
+        crac.newPstRangeAction().withId("pstRange3Id")
+            .withName("pstRange3Name")
+            .withOperator("RTE")
+            .withNetworkElement("pst3")
+            .withGroupId("group-3-pst")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+            .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+            .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec("angleCnecId").add()
+            .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange1Id")
                 .withName("hvdcRange1Name")

@@ -8,27 +8,19 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.threshold.ThresholdAdder;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ThresholdAdderImpl<I extends ThresholdAdder<I>> implements ThresholdAdder<I> {
+public abstract class AbstractThresholdAdderImpl<I extends ThresholdAdder<I>> implements ThresholdAdder<I> {
 
     protected Unit unit;
     protected Double max;
     protected Double min;
 
-    ThresholdAdderImpl() {
-    }
-
-    @Override
-    public I withUnit(Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
-        this.unit = unit;
-        return (I) this;
+    AbstractThresholdAdderImpl() {
     }
 
     @Override
@@ -44,9 +36,9 @@ public class ThresholdAdderImpl<I extends ThresholdAdder<I>> implements Threshol
     }
 
     protected void checkThreshold() {
-        AdderUtils.assertAttributeNotNull(this.unit, "BranchThreshold", "Unit", "withUnit()");
+        AdderUtils.assertAttributeNotNull(this.unit, "Threshold", "Unit", "withUnit()");
         if (min == null && max == null) {
-            throw new FaraoException("Cannot add a BranchThreshold without min nor max values. Please use withMin() or withMax().");
+            throw new FaraoException("Cannot add a threshold without min nor max values. Please use withMin() or withMax().");
         }
     }
 }

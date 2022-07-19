@@ -55,9 +55,7 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         CracCreationParameters parameters = new CracCreationParameters();
 
         platformConfig.getOptionalModuleConfig(MODULE_NAME)
-                .ifPresent(config -> {
-                    parameters.setCracFactoryName(config.getStringProperty("crac-factory", DEFAULT_CRAC_FACTORY_NAME));
-                });
+                .ifPresent(config -> parameters.setCracFactoryName(config.getStringProperty("crac-factory", DEFAULT_CRAC_FACTORY_NAME)));
 
         parameters.readExtensions(platformConfig);
         return parameters;

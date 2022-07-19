@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -38,10 +39,15 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
                         double frm,
                         Double nominalVLeft,
                         Double nominalVRight) {
-        super(id, name, networkElement, operator, state, optimized, monitored, frm);
+        super(id, name, Collections.singleton(networkElement), operator, state, optimized, monitored, frm);
         this.thresholds = thresholds;
         this.nominalVoltages[0] = nominalVLeft;
         this.nominalVoltages[1] = nominalVRight;
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return getNetworkElements().iterator().next();
     }
 
     @Override

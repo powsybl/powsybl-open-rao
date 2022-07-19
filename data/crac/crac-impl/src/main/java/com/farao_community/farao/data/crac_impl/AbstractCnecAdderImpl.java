@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -19,8 +21,7 @@ import java.util.Objects;
 public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends AbstractIdentifiableAdder<J> implements CnecAdder<J> {
 
     protected CracImpl owner;
-    protected String networkElementId;
-    protected String networkElementName;
+    protected Map<String, String> networkElementsIdAndName = new HashMap<>();
     protected Instant instant;
     protected String contingencyId;
     protected boolean optimized = false;
@@ -35,7 +36,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     protected void checkCnec() {
         checkId();
-        AdderUtils.assertAttributeNotNull(networkElementId, "Cnec", "network element", "withNetworkElement()");
+        AdderUtils.assertAttributeNotEmpty(networkElementsIdAndName.entrySet(), "Cnec", "network element", "withNetworkElement()");
         AdderUtils.assertAttributeNotNull(instant, "Cnec", "instant", "withInstant()");
 
         if (instant.equals(Instant.PREVENTIVE)) {
@@ -49,7 +50,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
                 throw new FaraoException(String.format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
             }
         }
-        this.owner.addNetworkElement(networkElementId, networkElementName);
+        networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
     }
 
     @Override
@@ -72,13 +73,8 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     @Override
     public J withNetworkElement(String networkElementId, String networkElementName) {
-        if (this.networkElementId != null) {
-            throw new FaraoException("Cannot add multiple network elements for a cnec.");
-        } else {
-            this.networkElementId = networkElementId;
-            this.networkElementName = networkElementName;
-            return (J) this;
-        }
+        this.networkElementsIdAndName.put(networkElementId, networkElementName);
+        return (J) this;
     }
 
     @Override

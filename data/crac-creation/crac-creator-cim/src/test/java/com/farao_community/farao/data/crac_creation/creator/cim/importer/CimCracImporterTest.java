@@ -31,6 +31,6 @@ public class CimCracImporterTest {
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter importer = new CimCracImporter();
         CimCrac cimCrac = importer.importNativeCrac(is);
-        assert cimCrac.getCracDocument().getMRID().equals("CIM_CRAC_DOCUMENT");
+        assertEquals("CIM_CRAC_DOCUMENT", cimCrac.getCracDocument().getMRID());
     }
 }

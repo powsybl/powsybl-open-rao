@@ -88,6 +88,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
+                case ANGLECNEC_RESULTS:
+                    jsonParser.nextToken();
+                    AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
                 case NETWORKACTION_RESULTS:
                     jsonParser.nextToken();
                     NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
