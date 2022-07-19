@@ -464,6 +464,10 @@ public class SearchTree {
         double previousDepthBestCost = previousDepthOptimalLeaf.getCost();
         double newCost = leaf.getCost();
 
+        if (previousDepthBestCost > newCost && stopCriterionReached(leaf)) {
+            return true;
+        }
+
         return previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
