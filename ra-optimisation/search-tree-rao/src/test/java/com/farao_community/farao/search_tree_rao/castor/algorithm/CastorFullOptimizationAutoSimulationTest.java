@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -51,6 +52,7 @@ public class CastorFullOptimizationAutoSimulationTest {
     private State state1;
     private RangeAction<?> ra2;
     private RangeAction<?> ra3;
+    private static final double DOUBLE_TOLERANCE = 0.01;
 
     private CastorFullOptimization castorFullOptimization;
     private RaoInput inputs;
@@ -149,6 +151,15 @@ public class CastorFullOptimizationAutoSimulationTest {
         setUpCracWithAutoRAs();
         assertEquals(1, CastorFullOptimization.gatherFlowCnecs(ra2, state1, crac, network).size());
         assertEquals(1, CastorFullOptimization.gatherFlowCnecs(ra3, state1, crac, network).size());
+    }
+
+    @Test
+    public void testRoundUpAngleToTapWrtInitialSetpoint() {
+        setUpCracWithAutoRAs();
+        double setpoint1 = 0;
+        double setpoint2 = 10;
+        assertEquals(-100.0, CastorFullOptimization.roundUpAngleToTapWrtInitialSetpoint((PstRangeAction) ra2, setpoint1, setpoint2), DOUBLE_TOLERANCE);
+        assertEquals(100.0, CastorFullOptimization.roundUpAngleToTapWrtInitialSetpoint((PstRangeAction) ra2, setpoint2, setpoint1), DOUBLE_TOLERANCE);
     }
 
 }

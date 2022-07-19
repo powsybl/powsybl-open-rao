@@ -752,7 +752,7 @@ public class CastorFullOptimization {
      * This function converts angleToBeRounded in the angle corresponding to the first tap
      * after angleToBeRounded in the direction opposite of initialAngle.
      */
-    public Double roundUpAngleToTapWrtInitialSetpoint(PstRangeAction rangeAction, double angleToBeRounded, double initialAngle) {
+    public static Double roundUpAngleToTapWrtInitialSetpoint(PstRangeAction rangeAction, double angleToBeRounded, double initialAngle) {
         rangeAction.checkAngle(initialAngle);
         rangeAction.checkAngle(angleToBeRounded);
         double direction = Math.signum(angleToBeRounded - initialAngle);
