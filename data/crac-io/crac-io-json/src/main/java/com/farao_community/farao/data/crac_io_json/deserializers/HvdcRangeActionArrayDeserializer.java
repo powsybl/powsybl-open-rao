@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -38,7 +38,7 @@ public final class HvdcRangeActionArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
-            List<Extension<RangeAction>> extensions = new ArrayList<>();
+            List<Extension<HvdcRangeAction>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -101,7 +101,7 @@ public final class HvdcRangeActionArrayDeserializer {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
                 hvdcRangeActionAdder.withInitialSetpoint(0);
             }
-            RangeAction hvdcRangeAction = hvdcRangeActionAdder.add();
+            HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(hvdcRangeAction, extensions);
             }

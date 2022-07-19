@@ -16,12 +16,13 @@ public class ElementaryAngleCnecResult {
 
     private double angle = Double.NaN;
     private double margin = Double.NaN;
+    private static final String ANGLE_IN_DEGREE = "Angle results are only available in DEGREE";
 
     public double getAngle(Unit unit) {
         if (unit.equals(Unit.DEGREE)) {
             return angle;
         } else {
-            throw new FaraoException("Angle results are only available in DEGREE");
+            throw new FaraoException(ANGLE_IN_DEGREE);
         }
     }
 
@@ -29,7 +30,7 @@ public class ElementaryAngleCnecResult {
         if (unit.equals(Unit.DEGREE)) {
             return margin;
         } else {
-            throw new FaraoException("Angle results are only available in DEGREE");
+            throw new FaraoException(ANGLE_IN_DEGREE);
         }
     }
 
@@ -37,7 +38,7 @@ public class ElementaryAngleCnecResult {
         if (unit.equals(Unit.DEGREE)) {
             this.angle = angle;
         } else {
-            throw new FaraoException("Angle results are only available in DEGREE");
+            throw new FaraoException(ANGLE_IN_DEGREE);
         }
     }
 
@@ -45,7 +46,7 @@ public class ElementaryAngleCnecResult {
         if (unit.equals(Unit.DEGREE)) {
             this.margin = margin;
         } else {
-            throw new FaraoException("Angle results are only available in DEGREE");
+            throw new FaraoException(ANGLE_IN_DEGREE);
         }
     }
 }

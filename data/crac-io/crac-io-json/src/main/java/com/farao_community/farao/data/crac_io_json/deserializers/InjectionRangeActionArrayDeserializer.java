@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -38,7 +38,7 @@ public final class InjectionRangeActionArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
-            List<Extension<RangeAction<?>>> extensions = new ArrayList<>();
+            List<Extension<InjectionRangeAction>> extensions = new ArrayList<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
@@ -98,7 +98,7 @@ public final class InjectionRangeActionArrayDeserializer {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
                 injectionRangeActionAdder.withInitialSetpoint(0);
             }
-            RangeAction injectionRangeAction = injectionRangeActionAdder.add();
+            InjectionRangeAction injectionRangeAction = injectionRangeActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(injectionRangeAction, extensions);
             }

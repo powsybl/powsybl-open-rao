@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,7 +40,7 @@ public final class PstRangeActionArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
-            List<Extension<RangeAction>> extensions = new ArrayList<>();
+            List<Extension<PstRangeAction>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -103,7 +103,7 @@ public final class PstRangeActionArrayDeserializer {
                         throw new FaraoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            RangeAction pstRangeAction = pstRangeActionAdder.add();
+            PstRangeAction pstRangeAction = pstRangeActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(pstRangeAction, extensions);
             }

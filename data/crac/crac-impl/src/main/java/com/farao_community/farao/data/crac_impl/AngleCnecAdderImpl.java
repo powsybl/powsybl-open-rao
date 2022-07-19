@@ -28,6 +28,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
     private final Set<Threshold> thresholds = new HashSet<>();
     private String exportingNetworkElementId;
     private String importingNetworkElementId;
+    private static final String CNEC_TYPE = "AngleCnec";
 
     AngleCnecAdderImpl(CracImpl owner) {
         super(owner);
@@ -80,7 +81,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
 
     @Override
     protected String getTypeDescription() {
-        return "AngleCnec";
+        return CNEC_TYPE;
     }
 
     @Override
@@ -131,8 +132,8 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
 
     @Override
     protected void checkCnec() {
-        AdderUtils.assertAttributeNotNull(exportingNetworkElementId, "AngleCnec", "exporting network element", "withExportingNetworkElement()");
-        AdderUtils.assertAttributeNotNull(importingNetworkElementId, "AngleCnec", "importing network element", "withImportingNetworkElement()");
+        AdderUtils.assertAttributeNotNull(exportingNetworkElementId, CNEC_TYPE, "exporting network element", "withExportingNetworkElement()");
+        AdderUtils.assertAttributeNotNull(importingNetworkElementId, CNEC_TYPE, "importing network element", "withImportingNetworkElement()");
         super.checkCnec();
     }
 }
