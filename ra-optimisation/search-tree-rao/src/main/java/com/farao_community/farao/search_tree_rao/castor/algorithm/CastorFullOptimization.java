@@ -432,7 +432,7 @@ public class CastorFullOptimization {
 
         if (appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Automaton state {} has been skipped as no automatons were activated.", automatonState.getId());
-            return new AutomatonPerimeterResultImpl(prePerimeterSensitivityOutput, appliedNetworkActions);
+            return Pair.of(prePerimeterSensitivityOutput, appliedNetworkActions);
         }
 
         // -- Apply
