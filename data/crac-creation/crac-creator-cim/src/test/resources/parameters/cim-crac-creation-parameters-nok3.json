@@ -1,0 +1,17 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CimCracCreatorParameters" : {
+      "range-action-speeds" : [
+        {
+          "range-action-id": "rangeAction1",
+          "speed": 1
+        },
+        {
+          "range-action-id": "rangeAction1",
+          "speed": 2
+        }
+      ]
+    }
+  }
+}

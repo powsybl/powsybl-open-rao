@@ -38,8 +38,8 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int highTapPosition;
 
     PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap) {
-        super(id, name, operator, usageRules, groupId);
+                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
+        super(id, name, operator, usageRules, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
         this.initialTapPosition = initialTap;
@@ -134,15 +134,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
     @Override
     public int convertAngleToTap(double angle) {
-
-        double minAngle = Collections.min(tapToAngleConversionMap.values());
-        double maxAngle = Collections.max(tapToAngleConversionMap.values());
-
-        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
-        if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
-            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
-        }
-
+        checkAngle(angle);
         AtomicReference<Double> smallestAngleDifference = new AtomicReference<>(Double.MAX_VALUE);
         AtomicInteger approximatedTapPosition = new AtomicInteger(0);
 
@@ -154,6 +146,17 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
             }
         });
         return approximatedTapPosition.get();
+    }
+
+    @Override
+    public void checkAngle(double angle) {
+        double minAngle = Collections.min(tapToAngleConversionMap.values());
+        double maxAngle = Collections.max(tapToAngleConversionMap.values());
+
+        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
+        if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
+            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
+        }
     }
 
     private Pair<Integer, Integer> getMinAndMaxTaps(double previousInstantSetPoint) {
