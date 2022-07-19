@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -39,57 +39,61 @@ public final class PstRangeActionArrayDeserializer {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", PST_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            PstRangeActionAdder adder = crac.newPstRangeAction();
-            List<Extension<RangeAction>> extensions = new ArrayList<>();
+            PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
+            List<Extension<PstRangeAction>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
-                        adder.withId(jsonParser.nextTextValue());
+                        pstRangeActionAdder.withId(jsonParser.nextTextValue());
                         break;
                     case NAME:
-                        adder.withName(jsonParser.nextTextValue());
+                        pstRangeActionAdder.withName(jsonParser.nextTextValue());
                         break;
                     case OPERATOR:
-                        adder.withOperator(jsonParser.nextTextValue());
+                        pstRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case FREE_TO_USE_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, adder);
+                        FreeToUseArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, adder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        break;
+                    case ON_ANGLE_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, adder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case NETWORK_ELEMENT_ID:
                         String networkElementId = jsonParser.nextTextValue();
                         if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+                            pstRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
                         } else {
-                            adder.withNetworkElement(networkElementId);
+                            pstRangeActionAdder.withNetworkElement(networkElementId);
                         }
                         break;
                     case GROUP_ID:
-                        adder.withGroupId(jsonParser.nextTextValue());
+                        pstRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                         break;
                     case INITIAL_TAP:
                         jsonParser.nextToken();
-                        adder.withInitialTap(jsonParser.getIntValue());
+                        pstRangeActionAdder.withInitialTap(jsonParser.getIntValue());
                         break;
                     case TAP_TO_ANGLE_CONVERSION_MAP:
                         jsonParser.nextToken();
-                        adder.withTapToAngleConversionMap(readIntToDoubleMap(jsonParser));
+                        pstRangeActionAdder.withTapToAngleConversionMap(readIntToDoubleMap(jsonParser));
                         break;
                     case RANGES:
                         jsonParser.nextToken();
-                        TapRangeArrayDeserializer.deserialize(jsonParser, adder);
+                        TapRangeArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -97,13 +101,13 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case SPEED:
                         jsonParser.nextToken();
-                        adder.withSpeed(jsonParser.getIntValue());
+                        pstRangeActionAdder.withSpeed(jsonParser.getIntValue());
                         break;
                     default:
                         throw new FaraoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            RangeAction pstRangeAction = adder.add();
+            PstRangeAction pstRangeAction = pstRangeActionAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(pstRangeAction, extensions);
             }

@@ -61,7 +61,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
@@ -134,7 +134,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
@@ -158,7 +158,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(0, pstRangeAction.getRanges().size());
         assertEquals(0, pstRangeAction.getUsageRules().size());
@@ -183,7 +183,7 @@ public class PstRangeActionAdderImplTest {
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElement().getId());
         assertNull(pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());

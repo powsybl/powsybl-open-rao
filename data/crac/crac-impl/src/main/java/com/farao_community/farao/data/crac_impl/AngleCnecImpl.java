@@ -1,0 +1,145 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.farao_community.farao.data.crac_impl;
+
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.PhysicalParameter;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
+public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec {
+    private final Set<Threshold> thresholds;
+    private final NetworkElement exportingNetworkElement;
+    private final NetworkElement importingNetworkElement;
+
+    AngleCnecImpl(String id,
+                 String name,
+                 NetworkElement exportingNetworkElement,
+                 NetworkElement importingNetworkElement,
+                 String operator,
+                 State state,
+                 boolean optimized,
+                 boolean monitored,
+                  Set<Threshold> thresholds,
+                 double reliabilityMargin) {
+        super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, state, optimized, monitored, reliabilityMargin);
+        this.thresholds = thresholds;
+        this.exportingNetworkElement = exportingNetworkElement;
+        this.importingNetworkElement = importingNetworkElement;
+    }
+
+    @Override
+    public NetworkElement getExportingNetworkElement() {
+        return exportingNetworkElement;
+    }
+
+    @Override
+    public NetworkElement getImportingNetworkElement() {
+        return importingNetworkElement;
+    }
+
+    @Override
+    public Set<Threshold> getThresholds() {
+        return thresholds;
+    }
+
+    @Override
+    public Optional<Double> getLowerBound(Unit requestedUnit) {
+        if (!requestedUnit.equals(Unit.DEGREE)) {
+            throw new FaraoException("AngleCnec lowerBound can only be requested in DEGREE");
+        }
+
+        Set<Threshold> limitingThresholds = thresholds.stream()
+            .filter(Threshold::limitsByMin)
+            .collect(Collectors.toSet());
+
+        if (!limitingThresholds.isEmpty()) {
+            double lowerBound = Double.NEGATIVE_INFINITY;
+            for (Threshold threshold : limitingThresholds) {
+                double currentBound = threshold.min().orElseThrow() + reliabilityMargin;
+                if (currentBound > lowerBound) {
+                    lowerBound = currentBound;
+                }
+            }
+            return Optional.of(lowerBound);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Double> getUpperBound(Unit requestedUnit) {
+        if (!requestedUnit.equals(Unit.DEGREE)) {
+            throw new FaraoException("AngleCnec upperBound can only be requested in DEGREE");
+        }
+
+        Set<Threshold> limitingThresholds = thresholds.stream()
+            .filter(Threshold::limitsByMax)
+            .collect(Collectors.toSet());
+        if (!limitingThresholds.isEmpty()) {
+            double upperBound = Double.POSITIVE_INFINITY;
+            for (Threshold threshold : limitingThresholds) {
+                double currentBound = threshold.max().orElseThrow() - reliabilityMargin;
+                if (currentBound < upperBound) {
+                    upperBound = currentBound;
+                }
+            }
+            return Optional.of(upperBound);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public double computeMargin(double actualValue, Unit unit) {
+        if (!unit.equals(Unit.DEGREE)) {
+            throw new FaraoException("AngleCnec margin can only be requested in DEGREE");
+        }
+
+        double marginOnLowerBound = actualValue - getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
+        return Math.min(marginOnLowerBound, marginOnUpperBound);
+    }
+
+    @Override
+    public PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.ANGLE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AngleCnecImpl cnec = (AngleCnecImpl) o;
+        return super.equals(cnec)
+            && thresholds.equals(cnec.getThresholds())
+            && exportingNetworkElement.equals(cnec.getExportingNetworkElement())
+            && importingNetworkElement.equals(cnec.getImportingNetworkElement());
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = super.hashCode();
+        hashCode = 31 * hashCode + thresholds.hashCode();
+        hashCode = 31 * hashCode + exportingNetworkElement.hashCode();
+        hashCode = 31 * hashCode + importingNetworkElement.hashCode();
+        return hashCode;
+    }
+}

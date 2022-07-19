@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -48,8 +49,18 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
+    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the rao");
+    }
+
+    @Override
     public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         return initialResult.getMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the rao");
     }
 
     @Override
