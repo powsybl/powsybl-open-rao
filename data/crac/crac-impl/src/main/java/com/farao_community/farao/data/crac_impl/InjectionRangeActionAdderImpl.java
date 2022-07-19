@@ -48,6 +48,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeAction add() {
         checkId();
+        checkAutoUsageRules();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
         }
@@ -65,7 +66,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed);
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }

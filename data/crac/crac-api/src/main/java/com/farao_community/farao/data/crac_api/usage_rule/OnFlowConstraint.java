@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.crac_api.usage_rule;
 
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 
 /**
@@ -21,9 +20,4 @@ public interface OnFlowConstraint extends UsageRule {
      * Get the FlowCnec that should be constrained
      */
     FlowCnec getFlowCnec();
-
-    /**
-     * Get the Instant of the free to use
-     */
-    Instant getInstant();
 }

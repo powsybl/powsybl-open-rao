@@ -6,12 +6,15 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -19,6 +22,7 @@ import java.util.List;
 public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>>  extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
 
     protected String groupId;
+    protected Integer speed;
     protected double initialSetpoint;
     protected List<StandardRange> ranges;
 
@@ -30,6 +34,12 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     @Override
     public T withGroupId(String groupId) {
         this.groupId = groupId;
+        return (T) this;
+    }
+
+    @Override
+    public T withSpeed(Integer speed) {
+        this.speed = speed;
         return (T) this;
     }
 
@@ -46,5 +56,13 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
 
     void addRange(StandardRange standardRange) {
         ranges.add(standardRange);
+    }
+
+    protected void checkAutoUsageRules() {
+        usageRules.forEach(usageRule -> {
+            if (usageRule.getInstant().equals(Instant.AUTO) && Objects.isNull(speed)) {
+                throw new FaraoException("Cannot create an AUTO standard range action without speed defined");
+            }
+        });
     }
 }

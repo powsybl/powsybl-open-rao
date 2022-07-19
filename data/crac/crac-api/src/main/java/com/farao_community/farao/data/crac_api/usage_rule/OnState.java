@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_api.usage_rule;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
 /**
@@ -28,9 +27,4 @@ public interface OnState extends UsageRule {
      * Get the Contingency associated to the state of the OnState usage rule
      */
     Contingency getContingency();
-
-    /**
-     * Get the Instant associated to the state of the OnState usage rule
-     */
-    Instant getInstant();
 }

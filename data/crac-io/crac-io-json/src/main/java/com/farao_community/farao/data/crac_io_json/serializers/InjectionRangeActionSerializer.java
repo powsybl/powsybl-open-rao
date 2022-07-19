@@ -36,6 +36,7 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
         serializeInjectionDistributionKeys(value, gen);
         serializeGroupId(value, gen);
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
+        serializeSpeed(value, gen);
         serializeRanges(value, gen);
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
         gen.writeEndObject();
@@ -57,6 +58,13 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
         Optional<String> groupId = value.getGroupId();
         if (groupId.isPresent()) {
             gen.writeStringField(GROUP_ID, groupId.get());
+        }
+    }
+
+    private void serializeSpeed(InjectionRangeAction value, JsonGenerator gen) throws IOException {
+        Optional<Integer> speed = value.getSpeed();
+        if (speed.isPresent()) {
+            gen.writeNumberField(SPEED, speed.get());
         }
     }
 

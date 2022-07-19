@@ -53,4 +53,9 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
      * same groupId should have the same setpoint.
      */
     Optional<String> getGroupId();
+
+    /**
+     * Get the speed of the Range Action, i.e the time it takes to trigger.
+     */
+    Optional<Integer> getSpeed();
 }

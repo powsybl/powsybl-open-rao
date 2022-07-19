@@ -55,4 +55,13 @@ public abstract class AbstractAlignedRaCracCreationParameters extends AbstractEx
     public List<String> getFailedParseWarnings() {
         return failedParseMessages;
     }
+
+    public boolean areRasAligned(String ra1, String ra2) {
+        for (RangeActionGroup raGroup : raGroups) {
+            if (raGroup.getRangeActionsIds().contains(ra1) && raGroup.getRangeActionsIds().contains(ra2) && !ra1.equals(ra2)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

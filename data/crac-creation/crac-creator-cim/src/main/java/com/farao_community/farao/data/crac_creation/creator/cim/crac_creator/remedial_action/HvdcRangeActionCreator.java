@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -14,6 +15,8 @@ import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.FaraoImportException;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionSeries;
 import com.powsybl.iidm.network.Country;
@@ -39,6 +42,7 @@ public class HvdcRangeActionCreator {
     private final List<String> invalidContingencies;
     private Set<FlowCnec> flowCnecs;
     private Country sharedDomain;
+    private CimCracCreationParameters cimCracCreationParameters;
     private Map<String, HvdcRangeActionAdder> hvdcRangeActionAdders = new HashMap<>();
     private Map<String, List<Integer>> rangeMin = new HashMap<>();
     private Map<String, List<Integer>> rangeMax = new HashMap<>();
@@ -46,13 +50,14 @@ public class HvdcRangeActionCreator {
     private List<String> raSeriesIds = new ArrayList<>();
     private Map<String, FaraoImportException> exceptions = new HashMap<>();
 
-    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, Country sharedDomain) {
+    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
         this.network = network;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
         this.flowCnecs = flowCnecs;
         this.sharedDomain = sharedDomain;
+        this.cimCracCreationParameters =  cimCracCreationParameters;
     }
 
     public void addDirection(RemedialActionSeries remedialActionSeries) {
@@ -141,6 +146,9 @@ public class HvdcRangeActionCreator {
                 return raSeriesIds.stream().map(id ->
                     RemedialActionSeriesCreationContext.notImported(id, e.getImportStatus(), e.getMessage())
                 ).collect(Collectors.toSet());
+            } catch (FaraoException e) {
+                return raSeriesIds.stream().map(id ->
+                        RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
             }
         }
 
@@ -158,6 +166,15 @@ public class HvdcRangeActionCreator {
         String hvdcId = registeredResource.getMRID().getValue();
         checkHvdcNetworkElement(hvdcId);
         hvdcRangeActionAdder.withNetworkElement(hvdcId);
+
+        // Speed
+        if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {
+            for (RangeActionSpeed rangeActionSpeed : cimCracCreationParameters.getRangeActionSpeedSet()) {
+                if (rangeActionSpeed.getRangeActionId().equals(hvdcId)) {
+                    hvdcRangeActionAdder.withSpeed(rangeActionSpeed.getSpeed());
+                }
+            }
+        }
 
         // Usage rules
         RemedialActionSeriesCreator.addUsageRules(CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);

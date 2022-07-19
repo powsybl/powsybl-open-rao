@@ -94,9 +94,9 @@
         }
       ],
       "onStateUsageRules" : [ {
-        "instant" : "curative",
+        "instant" : "auto",
         "contingencyId" : "N-1 NL1-NL3",
-        "usageMethod" : "available"
+        "usageMethod" : "forced"
       } ],
       "ranges": [
         {
@@ -112,7 +112,6 @@
       "name": "PRA_PST_BE_2",
       "operator": "BE",
       "initialTap": 0,
-      "speed": 2,
       "tapToAngleConversionMap" : {
         "-1" : -0.3896097993971608,
         "0" : 0.0,
@@ -155,7 +154,7 @@
         }
       ],
       "onStateUsageRules" : [ {
-        "instant" : "auto",
+        "instant" : "curative",
         "contingencyId" : "N-1 NL1-NL3",
         "usageMethod" : "available"
       } ],
@@ -169,5 +168,22 @@
       "networkElementId": "BBE2AA1  BBE3AA1  1"
     }
   ],
-  "networkActions": []
+  "networkActions": [
+    {
+      "id": "Open line NL1-NL2",
+      "name": "Open line NL1-NL2",
+      "operator": "Elia",
+      "freeToUseUsageRules": [
+        {
+          "usageMethod": "forced",
+          "instant": "auto"
+        }
+      ],
+      "topologicalActions" : [ {
+        "networkElementId": "NNL1AA1  NNL2AA1  1",
+        "actionType": "open"
+      }
+      ]
+    }
+  ]
 }

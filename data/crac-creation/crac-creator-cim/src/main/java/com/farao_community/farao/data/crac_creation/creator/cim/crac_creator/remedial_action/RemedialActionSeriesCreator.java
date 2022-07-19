@@ -261,7 +261,7 @@ public class RemedialActionSeriesCreator {
                 if (Objects.isNull(hvdcRangeActionCreator)) {
                     hvdcRangeActionCreator = new HvdcRangeActionCreator(
                         crac, network,
-                        contingencies, invalidContingencies, flowCnecs, sharedDomain);
+                        contingencies, invalidContingencies, flowCnecs, sharedDomain, cimCracCreationParameters);
                 }
                 hvdcRangeActionCreator.addDirection(remedialActionSeries);
                 return true;

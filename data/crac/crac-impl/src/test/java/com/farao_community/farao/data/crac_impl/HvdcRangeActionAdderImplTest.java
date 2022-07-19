@@ -57,6 +57,49 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
+    public void testAddAuto() {
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+                .withId("id1")
+                .withOperator("BE")
+                .withNetworkElement(networkElementId)
+                .withGroupId("groupId1")
+                .withSpeed(1)
+                .withInitialSetpoint(1)
+                .newRange().withMin(-5).withMax(10).add()
+                .newFreeToUseUsageRule()
+                .withInstant(Instant.AUTO)
+                .withUsageMethod(UsageMethod.FORCED)
+                .add()
+                .add();
+
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(networkElementId, hvdcRangeAction.getNetworkElement().getId());
+        assertEquals("BE", hvdcRangeAction.getOperator());
+        assertEquals(1, hvdcRangeAction.getRanges().size());
+        assertEquals(1, hvdcRangeAction.getUsageRules().size());
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement(networkElementId));
+        assertEquals(1, hvdcRangeAction.getSpeed().get().intValue());
+        assertEquals(1.0, hvdcRangeAction.getInitialSetpoint());
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testAddAutoWithoutSpeed() {
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+                .withId("id1")
+                .withOperator("BE")
+                .withNetworkElement(networkElementId)
+                .withGroupId("groupId1")
+                .withInitialSetpoint(1)
+                .newRange().withMin(-5).withMax(10).add()
+                .newFreeToUseUsageRule()
+                .withInstant(Instant.AUTO)
+                .withUsageMethod(UsageMethod.FORCED)
+                .add()
+                .add();
+    }
+
+    @Test
     public void testAddWithoutGroupId() {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
