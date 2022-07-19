@@ -420,6 +420,22 @@ public class SearchTreeBloomerTest {
         assertTrue(activatedTsos.contains("be"));
     }
 
+    @Test
+    public void testDoNotRemoveCombinationDetectedInRao() {
+        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na2 = Mockito.mock(NetworkAction.class);
+
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class),
+            Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), false, 0,
+            List.of(new NetworkActionCombination(Set.of(na2), true)), pState);
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        List<NetworkActionCombination> result = bloomer.bloom(leaf, Set.of(na1, na2));
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
+        assertTrue(result.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
+    }
+
     private NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
         return crac.newNetworkAction().withId("na - " + networkElementId).withOperator(operator)
             .newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add()

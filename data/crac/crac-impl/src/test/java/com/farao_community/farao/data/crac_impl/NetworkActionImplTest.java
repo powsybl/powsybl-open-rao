@@ -98,4 +98,23 @@ public class NetworkActionImplTest {
         Mockito.when(mockedElementaryAction2.canBeApplied(Mockito.any())).thenReturn(true);
         assertTrue(networkAction.apply(network));
     }
+
+    @Test
+    public void testHasImpactOnNetworkAction() {
+        Network network = Mockito.mock(Network.class);
+        NetworkAction networkAction = new NetworkActionImpl(
+            "id",
+            "name",
+            "operator",
+            List.of(mockedUsageRule1, mockedUsageRule2),
+            Set.of(mockedElementaryAction1, mockedElementaryAction2)
+        );
+
+        Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(true);
+        Mockito.when(mockedElementaryAction2.hasImpactOnNetwork(Mockito.any())).thenReturn(false);
+        assertTrue(networkAction.hasImpactOnNetwork(network));
+
+        Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(false);
+        assertFalse(networkAction.hasImpactOnNetwork(network));
+    }
 }

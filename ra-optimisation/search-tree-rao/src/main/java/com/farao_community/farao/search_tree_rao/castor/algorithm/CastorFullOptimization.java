@@ -943,7 +943,7 @@ public class CastorFullOptimization {
 
         if (raoParameters.getExtension(SearchTreeRaoParameters.class).isSecondPreventiveHintFromFirstPreventive()) {
             // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
-            searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(optimalNetworkActionsInFirstPreventiveRao));
+            searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(optimalNetworkActionsInFirstPreventiveRao, true));
         }
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()

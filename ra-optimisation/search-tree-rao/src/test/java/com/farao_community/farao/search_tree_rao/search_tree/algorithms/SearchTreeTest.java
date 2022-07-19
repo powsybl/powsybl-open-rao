@@ -301,6 +301,24 @@ public class SearchTreeTest {
     }
 
     @Test
+    public void runAndIterateOnTreeWithSlightlyBetterChildLeafAndStopCriterionReached() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.getTargetObjectiveValue()).thenReturn(0.0);
+        searchTreeWithOneChildLeaf();
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+        when(searchTreeParameters.getNetworkActionParameters().getAbsoluteNetworkActionMinimumImpactThreshold()).thenReturn(10.);
+
+        double rootLeafCostAfterOptim = 1.;
+        double childLeafCostAfterOptim = -1.;
+
+        mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
+
+        OptimizationResult result = searchTree.run().get();
+        assertEquals(childLeaf, result);
+    }
+
+    @Test
     public void optimizeRootLeafWithRangeActions() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
