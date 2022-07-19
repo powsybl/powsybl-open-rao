@@ -439,14 +439,13 @@ public class CastorFullOptimization {
                                            Crac crac,
                                            Network network) {
         // UsageMethod is either FORCED or TO_BE_EVALUATED
-        // -- FORCED :
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream()
-                .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                .collect(Collectors.toSet());
-        // -- TO_BE_EVALUATED :
-        if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
+        if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
+            return crac.getFlowCnecs().stream()
+                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
+                    .collect(Collectors.toSet());
+        } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
             // Get flowcnecs constrained by OnFlowConstraint
-            flowCnecs = availableRa.getUsageRules().stream()
+            Set<FlowCnec> flowCnecs = availableRa.getUsageRules().stream()
                     .filter(OnFlowConstraint.class::isInstance)
                     .map(OnFlowConstraint.class::cast)
                     .map(OnFlowConstraint::getFlowCnec)
@@ -460,17 +459,12 @@ public class CastorFullOptimization {
                     .collect(Collectors.toSet());
             flowCnecs.addAll(crac.getFlowCnecs().stream()
                     .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .filter(flowCnec -> {
-                        for (Country country : countries) {
-                            if (RaoUtil.isCnecInCountry(flowCnec, country, network)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    })
+                    .filter(flowCnec -> countries.stream().anyMatch(country -> RaoUtil.isCnecInCountry(flowCnec, country, network)))
                     .collect(Collectors.toSet()));
+            return flowCnecs;
+        } else {
+            throw new FaraoException(String.format("Range action %s has usage method %s although FORCED or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
-        return flowCnecs;
     }
 
     /**
@@ -753,27 +747,19 @@ public class CastorFullOptimization {
      * after angleToBeRounded in the direction opposite of initialAngle.
      */
     public static Double roundUpAngleToTapWrtInitialSetpoint(PstRangeAction rangeAction, double angleToBeRounded, double initialAngle) {
-        rangeAction.checkAngle(initialAngle);
-        rangeAction.checkAngle(angleToBeRounded);
         double direction = Math.signum(angleToBeRounded - initialAngle);
-        TreeMap<Double, Integer> sortedTapToAngleConversionMap = new TreeMap<>();
-        rangeAction.getTapToAngleConversionMap().forEach((tap, angle) -> sortedTapToAngleConversionMap.put(angle, tap));
         if (direction > 0) {
-            for (Double angle : sortedTapToAngleConversionMap.keySet()) {
-                if (angle < angleToBeRounded) {
-                    continue;
-                }
-                return angle;
+            Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle >= angleToBeRounded).min(Double::compareTo);
+            if (roundedAngle.isPresent()) {
+                return roundedAngle.get();
             }
         } else if (direction < 0) {
-            for (Double angle : sortedTapToAngleConversionMap.descendingKeySet()) {
-                if (angle > angleToBeRounded) {
-                    continue;
-                }
-                return angle;
+            Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle <= angleToBeRounded).max(Double::compareTo);
+            if (roundedAngle.isPresent()) {
+                return roundedAngle.get();
             }
         }
-        // else, angleToBeRounded = initialAngle. Get closest tap :
+        // else, min or max was not found or angleToBeRounded = initialAngle. Return closest tap :
         return rangeAction.getTapToAngleConversionMap().get(rangeAction.convertAngleToTap(angleToBeRounded));
     }
 
