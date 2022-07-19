@@ -251,14 +251,14 @@ public class CastorFullOptimization {
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
             AtomicInteger remainingLeaves = new AtomicInteger(stateTree.getContingencyScenarios().size());
-            CountDownLatch latch = new CountDownLatch(stateTree.getContingencyScenarios().size());
+            CountDownLatch contingencyCountDownLatch = new CountDownLatch(stateTree.getContingencyScenarios().size());
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                 networkPool.submit(() -> {
                     Network networkClone = null; //This is where the threads actually wait for available networks
                     try {
                         networkClone = networkPool.getAvailableNetwork();
                     } catch (InterruptedException e) {
-                        latch.countDown();
+                        contingencyCountDownLatch.countDown();
                         Thread.currentThread().interrupt();
                         throw new FaraoException(e);
                     }
@@ -285,7 +285,7 @@ public class CastorFullOptimization {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                     }
                     TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingLeaves.decrementAndGet());
-                    latch.countDown();
+                    contingencyCountDownLatch.countDown();
                     try {
                         networkPool.releaseUsedNetwork(networkClone);
                     } catch (InterruptedException ex) {
@@ -294,7 +294,7 @@ public class CastorFullOptimization {
                     }
                 })
             );
-            boolean success = latch.await(24, TimeUnit.HOURS);
+            boolean success = contingencyCountDownLatch.await(24, TimeUnit.HOURS);
             if (!success) {
                 throw new FaraoException("At least one post-contingency state could not be optimized within the given time (24 hours). This should not happen.");
             }
