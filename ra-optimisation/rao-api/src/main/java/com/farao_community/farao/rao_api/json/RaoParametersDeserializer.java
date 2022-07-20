@@ -167,7 +167,12 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parameters.setForbidCostIncrease(parser.getBooleanValue());
                     break;
                 case "extensions":
-                    extensions = readExtensions(parser, deserializationContext, parameters, extensions);
+                    parser.nextToken();
+                    if (parameters.getExtensions().isEmpty()) {
+                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
+                    } else {
+                        JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
+                    }
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + parser.getCurrentName());
@@ -176,16 +181,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
 
         JsonRaoParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
-    }
-
-    private List<Extension<RaoParameters>> readExtensions(JsonParser parser, DeserializationContext deserializationContext, RaoParameters parameters, List<Extension<RaoParameters>> extensions) throws IOException {
-        parser.nextToken();
-        if (parameters.getExtensions().isEmpty()) {
-            extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
-        } else {
-            JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
-        }
-        return extensions;
     }
 
     private void readFallbackSensitivityParameters(JsonParser parser, RaoParameters parameters) throws IOException {

@@ -33,6 +33,7 @@ public class IteratingLinearOptimizer {
 
     private final IteratingLinearOptimizerInput input;
     private final IteratingLinearOptimizerParameters parameters;
+    private SensitivityComputer sensitivityComputer;
 
     public IteratingLinearOptimizer(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         this.input = input;
@@ -47,7 +48,7 @@ public class IteratingLinearOptimizer {
             input.getRaActivationFromParentLeaf(),
             0);
 
-        SensitivityComputer sensitivityComputer = null;
+        sensitivityComputer = null;
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .buildFromInputsAndParameters(input, parameters);
@@ -81,7 +82,7 @@ public class IteratingLinearOptimizer {
             }
 
             try {
-                sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult);
+                runSensitivityAnalysis(iteration, currentRangeActionActivationResult);
             } catch (SensitivityAnalysisException e) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
@@ -108,7 +109,7 @@ public class IteratingLinearOptimizer {
         return bestResult;
     }
 
-    private SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+    private void runSensitivityAnalysis(int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult);
             sensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates);
@@ -119,7 +120,6 @@ public class IteratingLinearOptimizer {
             }
         }
         runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
-        return sensitivityComputer;
     }
 
     private RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
