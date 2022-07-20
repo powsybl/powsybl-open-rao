@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -82,6 +83,19 @@ public class ImporterRetrocompatibilityTest {
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
 
         testBaseContentOfV1RaoResult(raoResult, crac);
+    }
+
+    @Test
+    public void importAfterV1Point1FieldDeprecationTest() {
+
+        // unused field should throw an exception
+
+        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/rao-result-v1.2-error.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/crac-for-rao-result-v1.1.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+        assertThrows(FaraoException.class, () ->
+            new RaoResultImporter().importRaoResult(raoResultFile, crac));
     }
 
     private void testBaseContentOfV1RaoResult(RaoResult importedRaoResult, Crac crac) {

@@ -106,7 +106,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                 case HVDCRANGEACTION_RESULTS:
                     // used in version <=1.1
                     // now called standardRangeAction as it contains a more generic result object
-                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 && getSubVersionNumber(jsonFileVersion) > 1) {
+                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 || getSubVersionNumber(jsonFileVersion) > 1) {
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s is not supported in file version %s", jsonParser.getCurrentName(), jsonFileVersion));
                     } else {
                         // else, consider HvdcRangeActions as StandardRangeActions
