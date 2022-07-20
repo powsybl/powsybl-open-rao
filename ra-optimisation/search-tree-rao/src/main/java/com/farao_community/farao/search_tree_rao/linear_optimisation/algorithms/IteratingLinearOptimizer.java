@@ -33,7 +33,6 @@ public class IteratingLinearOptimizer {
 
     private final IteratingLinearOptimizerInput input;
     private final IteratingLinearOptimizerParameters parameters;
-    private SensitivityComputer sensitivityComputer;
 
     public IteratingLinearOptimizer(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         this.input = input;
@@ -48,7 +47,7 @@ public class IteratingLinearOptimizer {
             input.getRaActivationFromParentLeaf(),
             0);
 
-        sensitivityComputer = null;
+        SensitivityComputer sensitivityComputer = null;
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .buildFromInputsAndParameters(input, parameters);
@@ -82,7 +81,7 @@ public class IteratingLinearOptimizer {
             }
 
             try {
-                runSensitivityAnalysis(iteration, currentRangeActionActivationResult);
+                sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult);
             } catch (SensitivityAnalysisException e) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
@@ -109,21 +108,24 @@ public class IteratingLinearOptimizer {
         return bestResult;
     }
 
-    private void runSensitivityAnalysis(int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+    private SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+        SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult);
-            sensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates);
+            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates);
         } else {
             applyRangeActions(currentRangeActionActivationResult);
-            if (sensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                sensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions());
+            if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
+                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions());
             }
         }
-        runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.getNetwork(), iteration);
+        return tmpSensitivityComputer;
     }
 
     private RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
         LinearProblemStatus solveStatus;
+        RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
         if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
 
             // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
@@ -131,15 +133,15 @@ public class IteratingLinearOptimizer {
             // be more accurate in the neighboring of the previous solution
 
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
-            linearProblem.updateBetweenMipIteration(currentRangeActionActivationResult);
+            linearProblem.updateBetweenMipIteration(rangeActionActivationResult);
 
             solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationPerimeter());
-                currentRangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult);
+                rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult);
             }
         }
-        return currentRangeActionActivationResult;
+        return rangeActionActivationResult;
     }
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
