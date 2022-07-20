@@ -126,13 +126,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parameters.setMnecConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
                 case "relative-margin-ptdf-boundaries":
-                    if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
-                        List<String> boundaries = new ArrayList<>();
-                        while (parser.nextToken() != JsonToken.END_ARRAY) {
-                            boundaries.add(parser.getValueAsString());
-                        }
-                        parameters.setRelativeMarginPtdfBoundariesFromString(boundaries);
-                    }
+                    readRelativeMarginPtdfBoundaries(parser, parameters);
                     break;
                 case "ptdf-sum-lower-bound":
                     parser.nextToken();
@@ -166,23 +160,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parameters.setDefaultSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getDefaultSensitivityAnalysisParameters()).readValue(parser));
                     break;
                 case "fallback-sensitivity-parameters":
-                    parser.nextToken();
-                    if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
-                        parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
-                    }
-                    parameters.setFallbackSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getFallbackSensitivityAnalysisParameters()).readValue(parser));
+                    readFallbackSensitivityParameters(parser, parameters);
                     break;
                 case "forbid-cost-increase":
                     parser.nextToken();
                     parameters.setForbidCostIncrease(parser.getBooleanValue());
                     break;
                 case "extensions":
-                    parser.nextToken();
-                    if (parameters.getExtensions().isEmpty()) {
-                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
-                    } else {
-                        JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
-                    }
+                    extensions = readExtensions(parser, deserializationContext, parameters, extensions);
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + parser.getCurrentName());
@@ -191,6 +176,34 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
 
         JsonRaoParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
+    }
+
+    private List<Extension<RaoParameters>> readExtensions(JsonParser parser, DeserializationContext deserializationContext, RaoParameters parameters, List<Extension<RaoParameters>> extensions) throws IOException {
+        parser.nextToken();
+        if (parameters.getExtensions().isEmpty()) {
+            extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
+        } else {
+            JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
+        }
+        return extensions;
+    }
+
+    private void readFallbackSensitivityParameters(JsonParser parser, RaoParameters parameters) throws IOException {
+        parser.nextToken();
+        if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
+            parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
+        }
+        parameters.setFallbackSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getFallbackSensitivityAnalysisParameters()).readValue(parser));
+    }
+
+    private void readRelativeMarginPtdfBoundaries(JsonParser parser, RaoParameters parameters) throws IOException {
+        if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
+            List<String> boundaries = new ArrayList<>();
+            while (parser.nextToken() != JsonToken.END_ARRAY) {
+                boundaries.add(parser.getValueAsString());
+            }
+            parameters.setRelativeMarginPtdfBoundariesFromString(boundaries);
+        }
     }
 
     private RaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {

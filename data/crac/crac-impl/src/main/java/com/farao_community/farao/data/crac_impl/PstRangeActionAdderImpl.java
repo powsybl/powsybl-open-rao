@@ -27,6 +27,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINES
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRangeActionAdder> implements PstRangeActionAdder {
+    public static final String PST_RANGE_ACTION = "PstRangeAction";
     private String networkElementId;
     private String networkElementName;
     private List<TapRange> ranges;
@@ -37,7 +38,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
     @Override
     protected String getTypeDescription() {
-        return "PstRangeAction";
+        return PST_RANGE_ACTION;
     }
 
     PstRangeActionAdderImpl(CracImpl owner) {
@@ -90,9 +91,9 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     public PstRangeAction add() {
         checkId();
         checkAutoUsageRules();
-        assertAttributeNotNull(networkElementId, "PstRangeAction", "network element", "withNetworkElement()");
-        assertAttributeNotNull(initialTap, "PstRangeAction", "initial tap", "withInitialTap()");
-        assertAttributeNotNull(tapToAngleConversionMap, "PstRangeAction", "tap to angle conversion map", "withTapToAngleConversionMap()");
+        assertAttributeNotNull(networkElementId, PST_RANGE_ACTION, "network element", "withNetworkElement()");
+        assertAttributeNotNull(initialTap, PST_RANGE_ACTION, "initial tap", "withInitialTap()");
+        assertAttributeNotNull(tapToAngleConversionMap, PST_RANGE_ACTION, "tap to angle conversion map", "withTapToAngleConversionMap()");
 
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));

@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.AbstractAlignedRaCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
@@ -27,7 +28,7 @@ public class CimCracCreationParametersConfigLoader implements CracCreationParame
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setRangeActionGroupsAsString(config.getStringListProperty("range-action-groups", CimCracCreationParameters.getDefaultRaGroupsAsString()));
+            parameters.setRangeActionGroupsAsString(config.getStringListProperty("range-action-groups", AbstractAlignedRaCracCreationParameters.getDefaultRaGroupsAsString()));
         }
         return parameters;
     }

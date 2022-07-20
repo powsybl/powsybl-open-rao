@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public class FailedLinearOptimizationResultImpl implements LinearOptimizationResult {
 
+    public static final String SHOULD_NOT_BE_USED = "Should not be used";
+
     @Override
     public LinearProblemStatus getStatus() {
         return LinearProblemStatus.ABNORMAL;
@@ -35,101 +37,101 @@ public class FailedLinearOptimizationResultImpl implements LinearOptimizationRes
 
     @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Map<FlowCnec, Double> getPtdfZonalSums() {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getFunctionalCost() {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getVirtualCost() {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public RangeActionActivationResult getRangeActionActivationResult()  {
-        throw new FaraoException("Should not be used");
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 }
