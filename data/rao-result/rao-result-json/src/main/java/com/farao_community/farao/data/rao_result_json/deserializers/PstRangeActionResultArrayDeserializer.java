@@ -50,13 +50,7 @@ final class PstRangeActionResultArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
 
                     case PST_NETWORKELEMENT_ID:
-                        // only used in version <=1.1
-                        // keep here for retrocompatibility, but information is not used anymore
-                        if (getPrimaryVersionNumber(jsonFileVersion) > 1 && getSubVersionNumber(jsonFileVersion) > 1) {
-                            throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s in %s in not supported in file version %s", jsonParser.getCurrentName(), PSTRANGEACTION_RESULTS, jsonFileVersion));
-                        } else {
-                            jsonParser.nextTextValue();
-                        }
+                        readPstNetworkElementId(jsonParser, jsonFileVersion);
                         break;
 
                     case INITIAL_TAP:
@@ -93,6 +87,16 @@ final class PstRangeActionResultArrayDeserializer {
                 pstRangeActionResult.setPreOptimTap(afterPraTap);
                 pstRangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
             }
+        }
+    }
+
+    private static void readPstNetworkElementId(JsonParser jsonParser, String jsonFileVersion) throws IOException {
+        // only used in version <=1.1
+        // keep here for retrocompatibility, but information is not used anymore
+        if (getPrimaryVersionNumber(jsonFileVersion) > 1 || getSubVersionNumber(jsonFileVersion) > 1) {
+            throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s in %s in not supported in file version %s", jsonParser.getCurrentName(), PSTRANGEACTION_RESULTS, jsonFileVersion));
+        } else {
+            jsonParser.nextTextValue();
         }
     }
 

@@ -48,12 +48,7 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case NETWORK_ELEMENT_ID:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            flowCnecAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                        } else {
-                            flowCnecAdder.withNetworkElement(networkElementId);
-                        }
+                        readNetworkElementId(jsonParser, networkElementsNamesPerId, flowCnecAdder);
                         break;
                     case OPERATOR:
                         flowCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -71,44 +66,16 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withMonitored(jsonParser.nextBooleanValue());
                         break;
                     case FRM:
-                        //"frm" renamed to "reliabilityMargin" in 1.4
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
-                            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, FRM));
-                        }
-                        jsonParser.nextToken();
-                        flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        readFrm(jsonParser, version, flowCnecAdder);
                         break;
                     case RELIABILITY_MARGIN:
-                        //"frm" renamed to "reliabilityMargin" in 1.4
-                        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
-                            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
-                        }
-                        jsonParser.nextToken();
-                        flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        readReliabilityMargin(jsonParser, version, flowCnecAdder);
                         break;
                     case I_MAX:
-                        jsonParser.nextToken();
-                        Double[] iMax = jsonParser.readValueAs(Double[].class);
-                        if (iMax.length == 1) {
-                            flowCnecAdder.withIMax(iMax[0]);
-                        } else if (iMax.length == 2) {
-                            flowCnecAdder.withIMax(iMax[0], Side.LEFT);
-                            flowCnecAdder.withIMax(iMax[1], Side.RIGHT);
-                        } else if (iMax.length > 2) {
-                            throw new FaraoException("iMax array of a flowCnec cannot contain more than 2 values");
-                        }
+                        readImax(jsonParser, flowCnecAdder);
                         break;
                     case NOMINAL_VOLTAGE:
-                        jsonParser.nextToken();
-                        Double[] nominalV = jsonParser.readValueAs(Double[].class);
-                        if (nominalV.length == 1) {
-                            flowCnecAdder.withNominalVoltage(nominalV[0]);
-                        } else if (nominalV.length == 2) {
-                            flowCnecAdder.withNominalVoltage(nominalV[0], Side.LEFT);
-                            flowCnecAdder.withNominalVoltage(nominalV[1], Side.RIGHT);
-                        } else if (nominalV.length > 2) {
-                            throw new FaraoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
-                        }
+                        readNominalVoltage(jsonParser, flowCnecAdder);
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
@@ -126,6 +93,59 @@ public final class FlowCnecArrayDeserializer {
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
             }
+        }
+    }
+
+    private static void readNominalVoltage(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
+        jsonParser.nextToken();
+        Double[] nominalV = jsonParser.readValueAs(Double[].class);
+        if (nominalV.length == 1) {
+            flowCnecAdder.withNominalVoltage(nominalV[0]);
+        } else if (nominalV.length == 2) {
+            flowCnecAdder.withNominalVoltage(nominalV[0], Side.LEFT);
+            flowCnecAdder.withNominalVoltage(nominalV[1], Side.RIGHT);
+        } else if (nominalV.length > 2) {
+            throw new FaraoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
+        }
+    }
+
+    private static void readImax(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
+        jsonParser.nextToken();
+        Double[] iMax = jsonParser.readValueAs(Double[].class);
+        if (iMax.length == 1) {
+            flowCnecAdder.withIMax(iMax[0]);
+        } else if (iMax.length == 2) {
+            flowCnecAdder.withIMax(iMax[0], Side.LEFT);
+            flowCnecAdder.withIMax(iMax[1], Side.RIGHT);
+        } else if (iMax.length > 2) {
+            throw new FaraoException("iMax array of a flowCnec cannot contain more than 2 values");
+        }
+    }
+
+    private static void readReliabilityMargin(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {
+        //"frm" renamed to "reliabilityMargin" in 1.4
+        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
+            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
+        }
+        jsonParser.nextToken();
+        flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+    }
+
+    private static void readFrm(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {
+        //"frm" renamed to "reliabilityMargin" in 1.4
+        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
+            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, FRM));
+        }
+        jsonParser.nextToken();
+        flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+    }
+
+    private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, FlowCnecAdder flowCnecAdder) throws IOException {
+        String networkElementId = jsonParser.nextTextValue();
+        if (networkElementsNamesPerId.containsKey(networkElementId)) {
+            flowCnecAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+        } else {
+            flowCnecAdder.withNetworkElement(networkElementId);
         }
     }
 }

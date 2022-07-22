@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
+    public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
@@ -98,7 +99,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     public PerimeterResult getPostPreventivePerimeterResult() {
         if (!optimizedState.getInstant().equals(Instant.PREVENTIVE)) {
             // TODO : review this also
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return new PerimeterResultImpl(initialResult, postOptimizationResult);
     }
@@ -178,7 +179,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return false;
     }
@@ -186,7 +187,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.isActivated(networkAction);
     }
@@ -194,7 +195,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getActivatedNetworkActions();
     }
@@ -202,7 +203,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getOptimizedSetpoint(rangeAction, state) != initialResult.getSetpoint(rangeAction);
     }
@@ -210,7 +211,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return initialResult.getTap(pstRangeAction);
     }
@@ -218,7 +219,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getOptimizedTap(pstRangeAction, state);
     }
@@ -226,7 +227,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return initialResult.getSetpoint(rangeAction);
     }
@@ -234,7 +235,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getOptimizedSetpoint(rangeAction, state);
     }
@@ -242,7 +243,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
     }
@@ -250,7 +251,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getOptimizedTapsOnState(state);
 
@@ -259,7 +260,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         if (!state.equals(optimizedState)) {
-            throw new FaraoException("Trying to access perimeter result for the wrong state.");
+            throw new FaraoException(WRONG_STATE);
         }
         return postOptimizationResult.getOptimizedSetpointsOnState(state);
     }

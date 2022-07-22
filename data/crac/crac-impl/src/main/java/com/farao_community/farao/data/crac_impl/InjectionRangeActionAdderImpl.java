@@ -22,11 +22,12 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAdder<InjectionRangeActionAdder> implements InjectionRangeActionAdder {
 
+    public static final String INJECTION_RANGE_ACTION = "InjectionRangeAction";
     private final List<DistributionKeyOnNetworkElement> distributionKeys;
 
     @Override
     protected String getTypeDescription() {
-        return "InjectionRangeAction";
+        return INJECTION_RANGE_ACTION;
     }
 
     InjectionRangeActionAdderImpl(CracImpl owner) {
@@ -55,10 +56,10 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
         // check network elements
         checkNetworkElements();
-        assertAttributeNotEmpty(distributionKeys, "InjectionRangeAction", "injection distribution key", "withNetworkElementAndKey()");
+        assertAttributeNotEmpty(distributionKeys, INJECTION_RANGE_ACTION, "injection distribution key", "withNetworkElementAndKey()");
 
         // check ranges
-        assertAttributeNotEmpty(ranges, "InjectionRangeAction", "range", "newRange()");
+        assertAttributeNotEmpty(ranges, INJECTION_RANGE_ACTION, "range", "newRange()");
 
         // check usage rules
         if (usageRules.isEmpty()) {
@@ -72,7 +73,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     }
 
     private void checkNetworkElements() {
-        distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, "InjectionRangeAction", "network element", "withNetworkElementAndKey()"));
+        distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, INJECTION_RANGE_ACTION, "network element", "withNetworkElementAndKey()"));
     }
 
     private Map<NetworkElement, Double> addNetworkElements() {

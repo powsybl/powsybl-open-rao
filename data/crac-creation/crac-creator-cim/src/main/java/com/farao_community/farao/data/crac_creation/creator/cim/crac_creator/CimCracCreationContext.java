@@ -88,17 +88,21 @@ public class CimCracCreationContext implements CracCreationContext {
                     creationReport.altered(String.format("Monitored_Series \"%s\" was altered : %s.", monitoredSeriesCreationContext.getNativeId(),
                         monitoredSeriesCreationContext.getImportStatusDetail()));
                 }
-                for (MeasurementCreationContext measurementCreationContext : monitoredSeriesCreationContext.getMeasurementCreationContexts()) {
-                    if (!measurementCreationContext.isImported()) {
-                        creationReport.removed(String.format("A Measurement in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesCreationContext.getNativeId(),
-                            measurementCreationContext.getImportStatus(), measurementCreationContext.getImportStatusDetail()));
-                    } else {
-                        for (CnecCreationContext cnecCreationContext : measurementCreationContext.getCnecCreationContexts().values()) {
-                            if (!cnecCreationContext.isImported()) {
-                                creationReport.removed(String.format("A Cnec in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesCreationContext.getNativeId(),
-                                    cnecCreationContext.getImportStatus(), cnecCreationContext.getImportStatusDetail()));
-                            }
-                        }
+                addToReport(monitoredSeriesCreationContext.getMeasurementCreationContexts(), monitoredSeriesCreationContext.getNativeId());
+            }
+        }
+    }
+
+    private void addToReport(Set<MeasurementCreationContext> measurementCreationContexts, String monitoredSeriesNativeId) {
+        for (MeasurementCreationContext measurementCreationContext : measurementCreationContexts) {
+            if (!measurementCreationContext.isImported()) {
+                creationReport.removed(String.format("A Measurement in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesNativeId,
+                    measurementCreationContext.getImportStatus(), measurementCreationContext.getImportStatusDetail()));
+            } else {
+                for (CnecCreationContext cnecCreationContext : measurementCreationContext.getCnecCreationContexts().values()) {
+                    if (!cnecCreationContext.isImported()) {
+                        creationReport.removed(String.format("A Cnec in Monitored_Series \"%s\" was not imported: %s. %s.", monitoredSeriesNativeId,
+                            cnecCreationContext.getImportStatus(), cnecCreationContext.getImportStatusDetail()));
                     }
                 }
             }

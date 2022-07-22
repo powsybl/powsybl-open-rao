@@ -156,6 +156,37 @@ public final class BestTapFinder {
         int closestTap = pstRangeAction.convertAngleToTap(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
 
+        Integer otherTap = findOtherTap(pstRangeAction, angle, closestTap, closestAngle);
+
+        // Default case
+        if (otherTap == null) {
+            return Map.of(closestTap, Double.MAX_VALUE);
+        }
+
+        double otherAngle = pstRangeAction.convertTapToAngle(otherTap);
+        double approxLimitAngle = 0.5 * (closestAngle + otherAngle);
+        if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.15) {
+            // Angle is too close to the limit between two tap positions
+            // Chose the tap that maximizes the margin on the most limiting element
+            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, mostLimitingCnecs, closestAngle, otherAngle, flowResult, sensitivityResult);
+            // Exception: if choosing the tap that is not the closest one to the optimal angle does not improve the margin
+            // enough (current threshold of 10%), then only the closest tap is kept
+            // This is actually a workaround that mitigates adverse effects of this rounding on virtual costs
+            // TODO : we can remove it when we use cost evaluators directly here
+            if (margins.getRight() > margins.getLeft() + 0.1 * Math.abs(margins.getLeft())) {
+                return Map.of(closestTap, margins.getLeft(), otherTap, margins.getRight());
+            }
+        }
+
+        // Default case
+        return Map.of(closestTap, Double.MAX_VALUE);
+    }
+
+    /**
+     * Given a PST, an angle (not equal to a whole tap) and the closest whole tap & angle, this method finds
+     * the other closest tap (+1 or -1) that is also close to the angle
+     */
+    private static Integer findOtherTap(PstRangeAction pstRangeAction, double angle, int closestTap, double closestAngle) {
         Integer otherTap = null;
 
         // We don't have access to min and max tap positions directly
@@ -191,29 +222,7 @@ public final class BestTapFinder {
                 otherTap = closestTap - 1;
             }
         }
-
-        // Default case
-        if (otherTap == null) {
-            return Map.of(closestTap, Double.MAX_VALUE);
-        }
-
-        double otherAngle = pstRangeAction.convertTapToAngle(otherTap);
-        double approxLimitAngle = 0.5 * (closestAngle + otherAngle);
-        if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.15) {
-            // Angle is too close to the limit between two tap positions
-            // Chose the tap that maximizes the margin on the most limiting element
-            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, mostLimitingCnecs, closestAngle, otherAngle, flowResult, sensitivityResult);
-            // Exception: if choosing the tap that is not the closest one to the optimal angle does not improve the margin
-            // enough (current threshold of 10%), then only the closest tap is kept
-            // This is actually a workaround that mitigates adverse effects of this rounding on virtual costs
-            // TODO : we can remove it when we use cost evaluators directly here
-            if (margins.getRight() > margins.getLeft() + 0.1 * Math.abs(margins.getLeft())) {
-                return Map.of(closestTap, margins.getLeft(), otherTap, margins.getRight());
-            }
-        }
-
-        // Default case
-        return Map.of(closestTap, Double.MAX_VALUE);
+        return otherTap;
     }
 
     /**

@@ -34,6 +34,8 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     private static final String OPEN = "open";
     private static final String CLOSE = "close";
 
+    private static final String UNEXPECTED_FIELD = "Unexpected field: %s";
+
     @Override
     public void serialize(CseCracCreationParameters cseParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
@@ -60,7 +62,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                     parameters.setBusBarChangeSwitchesSet(deserializeBusBarChangeSwitchesSet(jsonParser));
                     break;
                 default:
-                    throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new FaraoException(String.format(UNEXPECTED_FIELD, jsonParser.getCurrentName()));
             }
         }
 
@@ -135,7 +137,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                         switchPairs = deserializeSwitchPairIds(jsonParser);
                         break;
                     default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                        throw new FaraoException(String.format(UNEXPECTED_FIELD, jsonParser.getCurrentName()));
                 }
             }
             if (remedialActionId == null) {
@@ -164,7 +166,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                         switchToClose = jsonParser.nextTextValue();
                         break;
                     default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                        throw new FaraoException(String.format(UNEXPECTED_FIELD, jsonParser.getCurrentName()));
                 }
             }
             if (switchToOpen == null || switchToClose == null) {

@@ -52,9 +52,7 @@ public class GeneratorHelper {
             // if bus is not in main component, just look if there is any generator for logging purposes,
             // and go to next bus
             if (!bus.isInMainConnectedComponent()) {
-                if (bus.getGeneratorStream().findAny().isPresent()) {
-                    anyNotConnectedGenerator = true;
-                }
+                anyNotConnectedGenerator = anyNotConnectedGenerator || bus.getGeneratorStream().findAny().isPresent();
                 continue;
             }
 
@@ -82,11 +80,9 @@ public class GeneratorHelper {
 
         if (generator == null) {
             importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
-            if (anyNotConnectedGenerator) {
-                detail = String.format("Buses matching %s in the network do not hold generators connected to the main grid", busIdInCrac);
-            } else {
-                detail = String.format("Buses matching %s in the network do not hold generators", busIdInCrac);
-            }
+            detail = anyNotConnectedGenerator ?
+                String.format("Buses matching %s in the network do not hold generators connected to the main grid", busIdInCrac)
+                : String.format("Buses matching %s in the network do not hold generators", busIdInCrac);
         } else {
             generatorId = generator.getId();
             pMin = generator.getMinP();

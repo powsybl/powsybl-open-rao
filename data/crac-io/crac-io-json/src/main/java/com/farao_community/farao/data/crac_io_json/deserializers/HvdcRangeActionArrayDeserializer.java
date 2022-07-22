@@ -71,12 +71,7 @@ public final class HvdcRangeActionArrayDeserializer {
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case NETWORK_ELEMENT_ID:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            hvdcRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                        } else {
-                            hvdcRangeActionAdder.withNetworkElement(networkElementId);
-                        }
+                        readNetworkElementId(jsonParser, networkElementsNamesPerId, hvdcRangeActionAdder);
                         break;
                     case GROUP_ID:
                         hvdcRangeActionAdder.withGroupId(jsonParser.nextTextValue());
@@ -109,6 +104,15 @@ public final class HvdcRangeActionArrayDeserializer {
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(hvdcRangeAction, extensions);
             }
+        }
+    }
+
+    private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, HvdcRangeActionAdder hvdcRangeActionAdder) throws IOException {
+        String networkElementId = jsonParser.nextTextValue();
+        if (networkElementsNamesPerId.containsKey(networkElementId)) {
+            hvdcRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
+        } else {
+            hvdcRangeActionAdder.withNetworkElement(networkElementId);
         }
     }
 }

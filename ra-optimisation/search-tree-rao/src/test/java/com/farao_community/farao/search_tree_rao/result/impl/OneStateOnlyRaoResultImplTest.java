@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImplest {
+public class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private State optimizedState;
     private PrePerimeterResult initialResult;

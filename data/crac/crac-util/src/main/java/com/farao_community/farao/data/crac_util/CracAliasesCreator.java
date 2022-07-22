@@ -24,6 +24,7 @@ public class CracAliasesCreator {
     private static final int BEGINNING_OF_ELEMENT_NAME = 17;
 
     public CracAliasesCreator() {
+        // nothing to instantiate
     }
 
     public void createAliases(Crac crac, Network network) {

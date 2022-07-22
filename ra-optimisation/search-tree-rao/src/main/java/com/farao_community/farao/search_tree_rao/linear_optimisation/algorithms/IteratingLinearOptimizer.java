@@ -72,21 +72,7 @@ public class IteratingLinearOptimizer {
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationPerimeter());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult);
 
-            if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
-
-                // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
-                // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
-                // be more accurate in the neighboring of the previous solution
-
-                // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
-                linearProblem.updateBetweenMipIteration(currentRangeActionActivationResult);
-
-                solveStatus = solveLinearProblem(linearProblem, iteration);
-                if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
-                    RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationPerimeter());
-                    currentRangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult);
-                }
-            }
+            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult);
 
             if (!hasRemedialActionsChanged(currentRangeActionActivationResult, bestResult, input.getOptimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
@@ -95,18 +81,7 @@ public class IteratingLinearOptimizer {
             }
 
             try {
-                if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
-                    AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult);
-                    sensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates);
-                    runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
-                } else {
-                    applyRangeActions(currentRangeActionActivationResult);
-                    if (sensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                        sensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions());
-                    }
-                    runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
-                }
-
+                sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult);
             } catch (SensitivityAnalysisException e) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
@@ -131,6 +106,42 @@ public class IteratingLinearOptimizer {
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;
+    }
+
+    private SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+        SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
+        if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
+            AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult);
+            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates);
+        } else {
+            applyRangeActions(currentRangeActionActivationResult);
+            if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
+                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions());
+            }
+        }
+        runSensitivityAnalysis(tmpSensitivityComputer, input.getNetwork(), iteration);
+        return tmpSensitivityComputer;
+    }
+
+    private RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+        LinearProblemStatus solveStatus;
+        RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
+        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+
+            // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
+            // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
+            // be more accurate in the neighboring of the previous solution
+
+            // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
+            linearProblem.updateBetweenMipIteration(rangeActionActivationResult);
+
+            solveStatus = solveLinearProblem(linearProblem, iteration);
+            if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
+                RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationPerimeter());
+                rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult);
+            }
+        }
+        return rangeActionActivationResult;
     }
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
