@@ -17,19 +17,19 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
     private String createdAngleCnecId;
     private String contingencyID;
     private String serieId;
-    private ImportStatus importStatus;
-    private String importStatusDetail;
+    private ImportStatus angleCnecImportStatus;
+    private String angleCnecImportStatusDetail;
 
-    private AngleCnecCreationContext(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus importStatus, String importStatusDetail) {
+    private AngleCnecCreationContext(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {
         this.createdAngleCnecId = createdAngleCnecId;
         this.contingencyID = contingencyID;
         this.serieId = serieId;
-        this.importStatus = importStatus;
-        this.importStatusDetail = importStatusDetail;
+        this.angleCnecImportStatus = angleCnecImportStatus;
+        this.angleCnecImportStatusDetail = angleCnecImportStatusDetail;
     }
 
-    static AngleCnecCreationContext notImported(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus importStatus, String importStatusDetail) {
-        return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, importStatus, importStatusDetail);
+    static AngleCnecCreationContext notImported(String createdAngleCnecId, String contingencyID, String serieId, ImportStatus angleCnecImportStatus, String angleCnecImportStatusDetail) {
+        return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, angleCnecImportStatus, angleCnecImportStatusDetail);
     }
 
     static AngleCnecCreationContext imported(String createdAngleCnecId, String contingencyID, String serieId, String alteringDetail) {
@@ -43,7 +43,7 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
 
     @Override
     public boolean isImported() {
-        return importStatus.equals(ImportStatus.IMPORTED);
+        return angleCnecImportStatus.equals(ImportStatus.IMPORTED);
     }
 
     @Override
@@ -53,12 +53,12 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
 
     @Override
     public ImportStatus getImportStatus() {
-        return importStatus;
+        return angleCnecImportStatus;
     }
 
     @Override
     public String getImportStatusDetail() {
-        return importStatusDetail;
+        return angleCnecImportStatusDetail;
     }
 
     public String getContingencyId() {
