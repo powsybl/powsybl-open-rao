@@ -35,29 +35,37 @@ public class BranchBoundsCache {
 
     private static int getIndex(Side side, Unit unit, Bound bound) {
         if (unit.equals(Unit.AMPERE)) {
-            if (side.equals(Side.LEFT)) {
-                if (bound.equals(Bound.LOWER)) {
-                    return 0;
-                } else {
-                    return 3;
-                }
-            } else if (side.equals(Side.RIGHT)) {
-                if (bound.equals(Bound.LOWER)) {
-                    return 1;
-                } else {
-                    return 4;
-                }
-            } else {
-                throw new UnsupportedOperationException(format("Side %s not supported", side));
-            }
+            return getAmpereIndex(side, bound);
         } else if (unit.equals(Unit.MEGAWATT)) {
-            if (bound.equals(Bound.LOWER)) {
-                return 2;
-            } else {
-                return 5;
-            }
+            return getMegawattIndex(bound);
         } else {
             throw new UnsupportedOperationException(format("Unit %s not supported", unit));
+        }
+    }
+
+    private static int getMegawattIndex(Bound bound) {
+        if (bound.equals(Bound.LOWER)) {
+            return 2;
+        } else {
+            return 5;
+        }
+    }
+
+    private static int getAmpereIndex(Side side, Bound bound) {
+        if (side.equals(Side.LEFT)) {
+            if (bound.equals(Bound.LOWER)) {
+                return 0;
+            } else {
+                return 3;
+            }
+        } else if (side.equals(Side.RIGHT)) {
+            if (bound.equals(Bound.LOWER)) {
+                return 1;
+            } else {
+                return 4;
+            }
+        } else {
+            throw new UnsupportedOperationException(format("Side %s not supported", side));
         }
     }
 

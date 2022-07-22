@@ -34,26 +34,34 @@ public final class SwitchPairArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case OPEN_ACTION:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withSwitchToOpen(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                        } else {
-                            adder.withSwitchToOpen(networkElementId);
-                        }
+                        readSwitchToOpen(jsonParser, networkElementsNamesPerId, adder);
                         break;
                     case CLOSE_ACTION:
-                        String networkElementId2 = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId2)) {
-                            adder.withSwitchToClose(networkElementId2, networkElementsNamesPerId.get(networkElementId2));
-                        } else {
-                            adder.withSwitchToClose(networkElementId2);
-                        }
+                        readSwitchToClose(jsonParser, networkElementsNamesPerId, adder);
                         break;
                     default:
                         throw new FaraoException("Unexpected field in SwitchPair: " + jsonParser.getCurrentName());
                 }
             }
             adder.add();
+        }
+    }
+
+    private static void readSwitchToClose(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, SwitchPairAdder adder) throws IOException {
+        String networkElementId2 = jsonParser.nextTextValue();
+        if (networkElementsNamesPerId.containsKey(networkElementId2)) {
+            adder.withSwitchToClose(networkElementId2, networkElementsNamesPerId.get(networkElementId2));
+        } else {
+            adder.withSwitchToClose(networkElementId2);
+        }
+    }
+
+    private static void readSwitchToOpen(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, SwitchPairAdder adder) throws IOException {
+        String networkElementId = jsonParser.nextTextValue();
+        if (networkElementsNamesPerId.containsKey(networkElementId)) {
+            adder.withSwitchToOpen(networkElementId, networkElementsNamesPerId.get(networkElementId));
+        } else {
+            adder.withSwitchToOpen(networkElementId);
         }
     }
 }
