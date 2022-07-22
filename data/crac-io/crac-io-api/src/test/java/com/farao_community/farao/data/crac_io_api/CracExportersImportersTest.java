@@ -8,12 +8,16 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -25,7 +29,8 @@ public class CracExportersImportersTest {
     @Test
     public void testExport() {
         Crac crac = Mockito.mock(Crac.class);
-        CracExporters.exportCrac(crac, "", Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
+        Path path = Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath());
+        assertThrows(NotImplementedException.class, () -> CracExporters.exportCrac(crac, "Mock", path));
     }
 
     @Test

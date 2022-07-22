@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_creation.creator.api.parameters.Range
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
@@ -109,11 +108,9 @@ public class PstRangeActionCreator {
 
             // -- add speed if present
             if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {
-                for (RangeActionSpeed rangeActionSpeed : cimCracCreationParameters.getRangeActionSpeedSet()) {
-                    if (rangeActionSpeed.getRangeActionId().equals(createdRemedialActionId)) {
-                        pstRangeActionAdder.withSpeed(rangeActionSpeed.getSpeed());
-                    }
-                }
+                cimCracCreationParameters.getRangeActionSpeedSet().stream()
+                    .filter(rangeActionSpeed -> rangeActionSpeed.getRangeActionId().equals(createdRemedialActionId))
+                    .forEach(rangeActionSpeed -> pstRangeActionAdder.withSpeed(rangeActionSpeed.getSpeed()));
             }
 
             // --- Resource capacity
