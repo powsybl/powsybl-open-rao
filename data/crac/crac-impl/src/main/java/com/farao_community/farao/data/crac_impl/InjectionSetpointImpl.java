@@ -21,9 +21,10 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class InjectionSetpointImpl implements InjectionSetpoint {
+    private static final double EPSILON = 0.1;
 
-    private NetworkElement networkElement;
-    private double setpoint;
+    private final NetworkElement networkElement;
+    private final double setpoint;
 
     InjectionSetpointImpl(NetworkElement networkElement, double setpoint) {
         this.networkElement = networkElement;
@@ -36,8 +37,22 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     }
 
     @Override
+    public boolean hasImpactOnNetwork(Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
+        if (identifiable instanceof Generator) {
+            return Math.abs(((Generator) identifiable).getTargetP() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof Load) {
+            return Math.abs(((Load) identifiable).getP0() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof DanglingLine) {
+            return Math.abs(((DanglingLine) identifiable).getP0() - setpoint) >= EPSILON;
+        } else {
+            throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
+        }
+    }
+
+    @Override
     public boolean canBeApplied(Network network) {
-        // TODO : we can return false if the network element is already at the target setpoint
+        // TODO : setpoint out of range ?
         return true;
     }
 

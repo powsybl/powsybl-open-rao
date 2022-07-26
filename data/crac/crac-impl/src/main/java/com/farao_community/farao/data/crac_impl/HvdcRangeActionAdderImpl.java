@@ -25,12 +25,13 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<HvdcRangeActionAdder> implements HvdcRangeActionAdder {
 
+    public static final String HVDC_RANGE_ACTION = "HvdcRangeAction";
     private String networkElementId;
     private String networkElementName;
 
     @Override
     protected String getTypeDescription() {
-        return "HvdcRangeAction";
+        return HVDC_RANGE_ACTION;
     }
 
     HvdcRangeActionAdderImpl(CracImpl owner) {
@@ -53,8 +54,9 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     @Override
     public HvdcRangeAction add() {
         checkId();
-        assertAttributeNotNull(networkElementId, "HvdcRangeAction", "network element", "withNetworkElement()");
-        assertAttributeNotEmpty(ranges, "HvdcRangeAction", "range", "newRange()");
+        checkAutoUsageRules();
+        assertAttributeNotNull(networkElementId, HVDC_RANGE_ACTION, "network element", "withNetworkElement()");
+        assertAttributeNotEmpty(ranges, HVDC_RANGE_ACTION, "range", "newRange()");
 
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
@@ -65,7 +67,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed);
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
     }

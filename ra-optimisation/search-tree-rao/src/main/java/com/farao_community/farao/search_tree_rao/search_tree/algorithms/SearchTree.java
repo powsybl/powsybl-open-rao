@@ -264,10 +264,12 @@ public class SearchTree {
         CountDownLatch latch = new CountDownLatch(naCombinations.size());
         naCombinations.forEach(naCombination ->
             networkPool.submit(() -> {
-                Network networkClone = null; //This is where the threads actually wait for available networks
+                Network networkClone = null;
                 try {
-                    networkClone = networkPool.getAvailableNetwork();
+                    networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
                 } catch (InterruptedException e) {
+                    latch.countDown();
+                    Thread.currentThread().interrupt();
                     throw new FaraoException(e);
                 }
                 try {
@@ -288,14 +290,14 @@ public class SearchTree {
                     }
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                } finally {
-                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-                    latch.countDown();
-                    try {
-                        networkPool.releaseUsedNetwork(networkClone);
-                    } catch (InterruptedException ex) {
-                        throw new FaraoException(ex);
-                    }
+                }
+                TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                latch.countDown();
+                try {
+                    networkPool.releaseUsedNetwork(networkClone);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new FaraoException(ex);
                 }
             })
         );
@@ -462,6 +464,10 @@ public class SearchTree {
 
         double previousDepthBestCost = previousDepthOptimalLeaf.getCost();
         double newCost = leaf.getCost();
+
+        if (previousDepthBestCost > newCost && stopCriterionReached(leaf)) {
+            return true;
+        }
 
         return previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact

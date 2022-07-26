@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
@@ -16,9 +17,12 @@ import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import org.junit.Test;
@@ -121,6 +125,25 @@ public class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getHvdcRangeActions().size());
         assertEquals(1, crac.getInjectionRangeActions().size());
         testContentOfV1Point3Crac(crac);
+    }
+
+    @Test
+    public void importV1Point4Test() {
+
+        // JSON file of farao-core v4.0
+        // addition of angle cnecs
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.4.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(3, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point4Crac(crac);
     }
 
     private void testContentOfV1Crac(Crac crac) {
@@ -352,6 +375,37 @@ public class JsonRetrocompatibilityTest {
         assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
         assertEquals(-100, crac.getHvdcRangeAction("hvdcRange2Id").getInitialSetpoint(), 1e-3);
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
+    }
 
+    public void testContentOfV1Point4Crac(Crac crac) {
+
+        testContentOfV1Point1Crac(crac);
+        testContentOfV1Point2Crac(crac);
+        testContentOfV1Point3Crac(crac);
+
+        // test angle cnec
+        AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
+        assertNotNull(angleCnec);
+
+        assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
+        assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
+        assertEquals(CURATIVE, angleCnec.getState().getInstant());
+        assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
+        assertFalse(angleCnec.isOptimized());
+        assertTrue(angleCnec.isMonitored());
+        assertEquals("operator1", angleCnec.getOperator());
+        assertEquals(1, angleCnec.getThresholds().size());
+        Threshold threshold = angleCnec.getThresholds().iterator().next();
+        assertEquals(Unit.DEGREE, threshold.getUnit());
+        assertTrue(threshold.max().isEmpty());
+        assertEquals(-100., threshold.min().orElse(0.0), 1e-3);
+
+        //test onAngleCnec range action
+        RangeAction rangeAction = crac.getRangeAction("pstRange3Id");
+        assertEquals(1, rangeAction.getUsageRules().size());
+        assertTrue(rangeAction.getUsageRules().get(0) instanceof OnAngleConstraint);
+        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) rangeAction.getUsageRules().get(0);
+        assertEquals("angleCnecId", onAngleConstraint.getAngleCnec().getId());
+        assertEquals(CURATIVE, onAngleConstraint.getInstant());
     }
 }

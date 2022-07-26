@@ -31,6 +31,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -277,18 +278,14 @@ public class TRemedialActionAdder {
 
         // ---- add groupId if present
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {
-            String groupId = null;
-            for (RangeActionGroup rangeActionGroup : cseCracCreationParameters.getRangeActionGroups()) {
-                for (String raGroupId : rangeActionGroup.getRangeActionsIds()) {
-                    if (raGroupId.equals(raId)) {
-                        if (groupId != null) {
-                            cseCracCreationContext.getCreationReport().warn(String.format("GroupId already defined to %s for HVDC %s, group %s is ignored (only in HVDC %s).", groupId, raId, rangeActionGroup, raId));
-                        } else {
-                            groupId = rangeActionGroup.toString();
-                            injectionRangeActionAdder.withGroupId(groupId);
-                        }
-                    }
-                }
+            List<RangeActionGroup> groups = cseCracCreationParameters.getRangeActionGroups().stream()
+                .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
+                .collect(Collectors.toList());
+            if (groups.size() == 1) {
+                injectionRangeActionAdder.withGroupId(groups.get(0).toString());
+            } else if (groups.size() > 1) {
+                injectionRangeActionAdder.withGroupId(groups.get(0).toString());
+                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)));
             }
         }
 

@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -23,6 +25,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -33,6 +36,7 @@ import org.xmlunit.diff.Difference;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
 
@@ -52,7 +56,15 @@ public class SweCneTest {
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), new CracCreationParameters());
+
+        Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 1));
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
+
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
         crac = cracCreationContext.getCrac();
         InputStream inputStream = null;
         try {

@@ -24,6 +24,7 @@ public class CracAliasesCreator {
     private static final int BEGINNING_OF_ELEMENT_NAME = 17;
 
     public CracAliasesCreator() {
+        // nothing to instantiate
     }
 
     public void createAliases(Crac crac, Network network) {
@@ -33,7 +34,7 @@ public class CracAliasesCreator {
     public void createAliases(Crac crac, Network network, UcteNodeMatchingRule rule) {
         // List (without duplicates) all the crac elements that need to be found in the network
         Set<String> elementIds = new HashSet<>();
-        crac.getFlowCnecs().forEach(cnec -> elementIds.add(cnec.getNetworkElement().getId()));
+        crac.getFlowCnecs().forEach(cnec -> handleAliases(cnec.getNetworkElements(), elementIds));
         crac.getContingencies().forEach(contingency -> handleAliases(contingency.getNetworkElements(), elementIds));
         crac.getNetworkActions().forEach(networkAction -> handleAliases(networkAction.getNetworkElements(), elementIds));
         crac.getRangeActions().forEach(rangeAction -> handleAliases(rangeAction.getNetworkElements(), elementIds));

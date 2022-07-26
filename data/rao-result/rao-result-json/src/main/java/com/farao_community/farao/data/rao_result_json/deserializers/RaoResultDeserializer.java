@@ -88,6 +88,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
+                case ANGLECNEC_RESULTS:
+                    jsonParser.nextToken();
+                    AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
                 case NETWORKACTION_RESULTS:
                     jsonParser.nextToken();
                     NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
@@ -101,14 +106,16 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                 case HVDCRANGEACTION_RESULTS:
                     // used in version <=1.1
                     // now called standardRangeAction as it contains a more generic result object
-                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 && getSubVersionNumber(jsonFileVersion) > 1) {
+                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 || getSubVersionNumber(jsonFileVersion) > 1) {
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s is not supported in file version %s", jsonParser.getCurrentName(), jsonFileVersion));
+                    } else {
+                        // else, consider HvdcRangeActions as StandardRangeActions
+                        importStandardRangeAction(jsonParser, raoResult, jsonFileVersion);
                     }
-                    // else, considered HvdcRangeActions as StandardRangeActions
+                    break;
 
                 case STANDARDRANGEACTION_RESULTS:
-                    jsonParser.nextToken();
-                    StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+                    importStandardRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
                 default:
@@ -116,6 +123,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
             }
         }
         return raoResult;
+    }
+
+    private void importStandardRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
+        jsonParser.nextToken();
+        StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
     }
 
     private void checkVersion(String raoResultVersion) {

@@ -7,14 +7,14 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.json.SensitivityJson;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,8 +61,8 @@ public class SystematicSensitivityInterfaceTest {
         computationManager = Mockito.mock(ComputationManager.class);
 
         try {
-            defaultParameters = SensitivityJson.createObjectMapper().readValue(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
-            fallbackParameters = SensitivityJson.createObjectMapper().readValue(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
+            defaultParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
+            fallbackParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,7 +85,7 @@ public class SystematicSensitivityInterfaceTest {
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
         assertFalse(systematicSensitivityInterface.isFallback());
-        for (Cnec cnec: crac.getFlowCnecs()) {
+        for (FlowCnec cnec: crac.getFlowCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
                 assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
@@ -139,7 +139,7 @@ public class SystematicSensitivityInterfaceTest {
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
         assertTrue(systematicSensitivityInterface.isFallback());
-        for (Cnec cnec: crac.getFlowCnecs()) {
+        for (FlowCnec cnec: crac.getFlowCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
                 assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);

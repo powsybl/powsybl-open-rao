@@ -103,6 +103,13 @@ public class PstRangeActionCreator {
                 }
             }
 
+            // -- add speed if present
+            if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {
+                cimCracCreationParameters.getRangeActionSpeedSet().stream()
+                    .filter(rangeActionSpeed -> rangeActionSpeed.getRangeActionId().equals(createdRemedialActionId))
+                    .forEach(rangeActionSpeed -> pstRangeActionAdder.withSpeed(rangeActionSpeed.getSpeed()));
+            }
+
             // --- Resource capacity
             defineTapRange(pstRangeActionAdder, pstHelper, rangeType);
             RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);

@@ -9,7 +9,6 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -122,12 +121,12 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         if (Objects.isNull(contingencyId)) {
             networkElements = cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isEmpty())
-                .map(Cnec::getNetworkElement)
+                .map(FlowCnec::getNetworkElement)
                 .collect(Collectors.toSet());
         } else {
             networkElements = cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-                .map(Cnec::getNetworkElement)
+                .map(FlowCnec::getNetworkElement)
                 .collect(Collectors.toSet());
         }
         List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
@@ -142,10 +141,15 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         if (networkIdentifiable instanceof Branch) {
             List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
             if (factorsInMegawatt) {
-                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER));
+                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
             }
             if (factorsInAmpere) {
-                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT));
+                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_1));
+                // For branches with a single voltage level, get max current on both sides
+                Branch<?> branch = (Branch<?>) networkIdentifiable;
+                if (branch.getTerminal1().getVoltageLevel().getNominalV() == branch.getTerminal2().getVoltageLevel().getNominalV()) {
+                    sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_2));
+                }
             }
             return sensitivityFunctions;
         } else {

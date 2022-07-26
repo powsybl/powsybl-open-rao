@@ -20,4 +20,6 @@ public interface StandardRangeActionAdder<T extends StandardRangeActionAdder<T>>
 
     T withInitialSetpoint(double initialSetpoint);
 
+    T withSpeed(Integer speed);
+
 }

@@ -36,6 +36,26 @@ public class PstSetpointImplTest {
     }
 
     @Test
+    public void hasImpactOnNetwork() {
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
+            -9);
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+
+        assertTrue(pstSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    public void hasNoImpactOnNetwork() {
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
+            0);
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+
+        assertFalse(pstSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
     public void applyCenteredOnZero() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),

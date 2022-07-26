@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.json.SensitivityJson;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,13 +126,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parameters.setMnecConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
                 case "relative-margin-ptdf-boundaries":
-                    if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
-                        List<String> boundaries = new ArrayList<>();
-                        while (parser.nextToken() != JsonToken.END_ARRAY) {
-                            boundaries.add(parser.getValueAsString());
-                        }
-                        parameters.setRelativeMarginPtdfBoundariesFromString(boundaries);
-                    }
+                    readRelativeMarginPtdfBoundaries(parser, parameters);
                     break;
                 case "ptdf-sum-lower-bound":
                     parser.nextToken();
@@ -163,14 +157,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "sensitivity-parameters":
                     parser.nextToken();
-                    parameters.setDefaultSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getDefaultSensitivityAnalysisParameters()).readValue(parser));
+                    parameters.setDefaultSensitivityAnalysisParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(parameters.getDefaultSensitivityAnalysisParameters()).readValue(parser));
                     break;
                 case "fallback-sensitivity-parameters":
-                    parser.nextToken();
-                    if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
-                        parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
-                    }
-                    parameters.setFallbackSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getFallbackSensitivityAnalysisParameters()).readValue(parser));
+                    readFallbackSensitivityParameters(parser, parameters);
                     break;
                 case "forbid-cost-increase":
                     parser.nextToken();
@@ -191,6 +181,24 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
 
         JsonRaoParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
+    }
+
+    private void readFallbackSensitivityParameters(JsonParser parser, RaoParameters parameters) throws IOException {
+        parser.nextToken();
+        if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
+            parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
+        }
+        parameters.setFallbackSensitivityAnalysisParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(parameters.getFallbackSensitivityAnalysisParameters()).readValue(parser));
+    }
+
+    private void readRelativeMarginPtdfBoundaries(JsonParser parser, RaoParameters parameters) throws IOException {
+        if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
+            List<String> boundaries = new ArrayList<>();
+            while (parser.nextToken() != JsonToken.END_ARRAY) {
+                boundaries.add(parser.getValueAsString());
+            }
+            parameters.setRelativeMarginPtdfBoundariesFromString(boundaries);
+        }
     }
 
     private RaoParameters.ObjectiveFunction stringToObjectiveFunction(String string) {

@@ -9,6 +9,7 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -44,6 +45,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         serializeNetworkElements(crac, gen);
         serializeContingencies(crac, gen);
         serializeFlowCnecs(crac, gen);
+        serializeAngleCnecs(crac, gen);
         serializePstRangeActions(crac, gen);
         serializeHvdcRangeActions(crac, gen);
         serializeInjectionRangeActions(crac, gen);
@@ -58,9 +60,10 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         Map<String, String> networkElementsNamesPerId = new HashMap<>();
 
         // Get network elements from Cnecs
-        crac.getCnecs().stream().map(Cnec::getNetworkElement)
-                .filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
+        for (Set<NetworkElement> networkElements : crac.getCnecs().stream().map(Cnec::getNetworkElements).collect(Collectors.toSet())) {
+            networkElements.stream().filter(networkElement -> !networkElement.getId().equals(networkElement.getName()))
                 .forEach(networkElement -> networkElementsNamesPerId.put(networkElement.getId(), networkElement.getName()));
+        }
 
         // Get network elements from Contingencies
         crac.getContingencies().stream().map(Contingency::getNetworkElements).flatMap(Set::stream)
@@ -95,6 +98,17 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
                 .collect(Collectors.toList());
         for (FlowCnec flowCnec : sortedListOfCnecs) {
             gen.writeObject(flowCnec);
+        }
+        gen.writeEndArray();
+    }
+
+    private void serializeAngleCnecs(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(ANGLE_CNECS);
+        List<AngleCnec> sortedListOfCnecs = crac.getAngleCnecs().stream()
+            .sorted(Comparator.comparing(AngleCnec::getId))
+            .collect(Collectors.toList());
+        for (AngleCnec angleCnec : sortedListOfCnecs) {
+            gen.writeObject(angleCnec);
         }
         gen.writeEndArray();
     }

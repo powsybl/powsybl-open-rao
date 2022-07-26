@@ -40,10 +40,13 @@ public final class RaoResultJsonConstants {
     public static final String FUNCTIONAL_COST = "functionalCost";
     public static final String VIRTUAL_COSTS = "virtualCost";
 
-    // flowCnecResults
+    // flowCnecResults and angleCnecResults
     public static final String FLOWCNEC_RESULTS = "flowCnecResults";
     public static final String FLOWCNEC_ID = "flowCnecId";
     public static final String FLOW = "flow";
+    public static final String ANGLECNEC_RESULTS = "angleCnecResults";
+    public static final String ANGLECNEC_ID = "angleCnecId";
+    public static final String ANGLE = "angle";
     public static final String MARGIN = "margin";
     public static final String RELATIVE_MARGIN = "relativeMargin";
     public static final String COMMERCIAL_FLOW = "commercialFlow";

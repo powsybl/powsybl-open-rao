@@ -27,16 +27,18 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINES
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRangeActionAdder> implements PstRangeActionAdder {
+    public static final String PST_RANGE_ACTION = "PstRangeAction";
     private String networkElementId;
     private String networkElementName;
     private List<TapRange> ranges;
     private String groupId = null;
     private Integer initialTap = null;
     private Map<Integer, Double> tapToAngleConversionMap;
+    private Integer speed = null;
 
     @Override
     protected String getTypeDescription() {
-        return "PstRangeAction";
+        return PST_RANGE_ACTION;
     }
 
     PstRangeActionAdderImpl(CracImpl owner) {
@@ -75,6 +77,12 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     @Override
+    public PstRangeActionAdder withSpeed(Integer speed) {
+        this.speed = speed;
+        return this;
+    }
+
+    @Override
     public TapRangeAdder newTapRange() {
         return new TapRangeAdderImpl(this);
     }
@@ -82,9 +90,10 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     @Override
     public PstRangeAction add() {
         checkId();
-        assertAttributeNotNull(networkElementId, "PstRangeAction", "network element", "withNetworkElement()");
-        assertAttributeNotNull(initialTap, "PstRangeAction", "initial tap", "withInitialTap()");
-        assertAttributeNotNull(tapToAngleConversionMap, "PstRangeAction", "tap to angle conversion map", "withTapToAngleConversionMap()");
+        checkAutoUsageRules();
+        assertAttributeNotNull(networkElementId, PST_RANGE_ACTION, "network element", "withNetworkElement()");
+        assertAttributeNotNull(initialTap, PST_RANGE_ACTION, "initial tap", "withInitialTap()");
+        assertAttributeNotNull(tapToAngleConversionMap, PST_RANGE_ACTION, "tap to angle conversion map", "withTapToAngleConversionMap()");
 
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
@@ -98,7 +107,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap, speed);
         this.getCrac().addPstRangeAction(pstWithRange);
         return pstWithRange;
     }
@@ -164,5 +173,13 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         if (initialTap > maxTap || initialTap < minTap) {
             throw new FaraoException(String.format("initialTap of PST %s must be included into its tapToAngleConversionMap", id));
         }
+    }
+
+    void checkAutoUsageRules() {
+        usageRules.forEach(usageRule -> {
+            if (usageRule.getInstant().equals(Instant.AUTO) && Objects.isNull(speed)) {
+                throw new FaraoException("Cannot create an AUTO Pst range action without speed defined");
+            }
+        });
     }
 }

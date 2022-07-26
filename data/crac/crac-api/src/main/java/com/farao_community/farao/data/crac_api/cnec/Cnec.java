@@ -12,13 +12,14 @@ import com.farao_community.farao.data.crac_api.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * Interface for Critical Network Element &amp; Contingency
  *
- * A Cnec represents a {@link NetworkElement} that is considered critical in the network.
+ * A Cnec represents a set of {@link NetworkElement} that are considered critical in the network.
  * The {@link PhysicalParameter} of the Cnec is therefore monitored and/or optimized in
  * RAOs relying on the Crac containing this Cnec.
  *
@@ -30,9 +31,9 @@ import java.util.Set;
 public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
 
     /**
-     * Getter of the {@link NetworkElement} on which the {@code Cnec} is defined.
+     * Getter of the set of {@link NetworkElement}s on which the {@code Cnec} is defined.
      */
-    NetworkElement getNetworkElement();
+    Set<NetworkElement> getNetworkElements();
 
     /**
      * Getter of the {@link State} on which the {@code Cnec} is defined.
@@ -80,20 +81,22 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * belong to two countries.
      */
     default Set<Optional<Country>> getLocation(Network network) {
-        return getNetworkElement().getLocation(network);
+        Set<Optional<Country>> locations = new HashSet<>();
+        getNetworkElements().forEach(networkElement -> locations.addAll(networkElement.getLocation(network)));
+        return locations;
     }
 
     /**
      * @deprecated
      * use the method withMonitored() of the {@link CnecAdder} instead
      */
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     void setMonitored(boolean monitored);
 
     /**
      * @deprecated
      * use the method withOptimized() of the {@link CnecAdder} instead
      */
-    @Deprecated
+    @Deprecated (since = "3.0.0")
     void setOptimized(boolean optimized);
 }

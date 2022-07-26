@@ -22,11 +22,12 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAdder<InjectionRangeActionAdder> implements InjectionRangeActionAdder {
 
+    public static final String INJECTION_RANGE_ACTION = "InjectionRangeAction";
     private final List<DistributionKeyOnNetworkElement> distributionKeys;
 
     @Override
     protected String getTypeDescription() {
-        return "InjectionRangeAction";
+        return INJECTION_RANGE_ACTION;
     }
 
     InjectionRangeActionAdderImpl(CracImpl owner) {
@@ -48,16 +49,17 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeAction add() {
         checkId();
+        checkAutoUsageRules();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
         }
 
         // check network elements
         checkNetworkElements();
-        assertAttributeNotEmpty(distributionKeys, "InjectionRangeAction", "injection distribution key", "withNetworkElementAndKey()");
+        assertAttributeNotEmpty(distributionKeys, INJECTION_RANGE_ACTION, "injection distribution key", "withNetworkElementAndKey()");
 
         // check ranges
-        assertAttributeNotEmpty(ranges, "InjectionRangeAction", "range", "newRange()");
+        assertAttributeNotEmpty(ranges, INJECTION_RANGE_ACTION, "range", "newRange()");
 
         // check usage rules
         if (usageRules.isEmpty()) {
@@ -65,13 +67,13 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed);
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }
 
     private void checkNetworkElements() {
-        distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, "InjectionRangeAction", "network element", "withNetworkElementAndKey()"));
+        distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, INJECTION_RANGE_ACTION, "network element", "withNetworkElementAndKey()"));
     }
 
     private Map<NetworkElement, Double> addNetworkElements() {
