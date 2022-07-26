@@ -54,7 +54,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
@@ -248,12 +250,19 @@ public class CastorFullOptimization {
         network.getVariantManager().setWorkingVariant(CONTINGENCY_SCENARIO);
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
+            AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
+            CountDownLatch contingencyCountDownLatch = new CountDownLatch(stateTree.getContingencyScenarios().size());
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                 networkPool.submit(() -> {
+                    Network networkClone = null;
                     try {
-                        // Create a network copy to work on
-                        Network networkClone = networkPool.getAvailableNetwork();
-
+                        networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+                    } catch (InterruptedException e) {
+                        contingencyCountDownLatch.countDown();
+                        Thread.currentThread().interrupt();
+                        throw new FaraoException(e);
+                    }
+                    try {
                         TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
 
                         // Init variables
@@ -272,15 +281,23 @@ public class CastorFullOptimization {
                         OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
                             raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
                         contingencyScenarioResults.put(curativeState, curativeResult);
-                        // Release network copy
-                        networkPool.releaseUsedNetwork(networkClone);
                     } catch (Exception e) {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
+                    }
+                    TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
+                    contingencyCountDownLatch.countDown();
+                    try {
+                        networkPool.releaseUsedNetwork(networkClone);
+                    } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
+                        throw new FaraoException(ex);
                     }
                 })
             );
-            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
+            boolean success = contingencyCountDownLatch.await(24, TimeUnit.HOURS);
+            if (!success) {
+                throw new FaraoException("At least one post-contingency state could not be optimized within the given time (24 hours). This should not happen.");
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -410,8 +427,14 @@ public class CastorFullOptimization {
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
         // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-                .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network))
-                .forEach(appliedNetworkActions::add);
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network))
+            .forEach(appliedNetworkActions::add);
+
+        if (appliedNetworkActions.isEmpty()) {
+            TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
+            return Pair.of(prePerimeterSensitivityOutput, appliedNetworkActions);
+        }
+
         // -- Apply
         appliedNetworkActions.forEach(na -> {
             TECHNICAL_LOGS.debug("Activating automaton {}.", na.getId());
