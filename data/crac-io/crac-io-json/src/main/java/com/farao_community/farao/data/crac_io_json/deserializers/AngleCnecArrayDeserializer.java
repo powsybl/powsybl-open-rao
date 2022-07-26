@@ -48,20 +48,10 @@ public final class AngleCnecArrayDeserializer {
                         angleCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case EXPORTING_NETWORK_ELEMENT_ID:
-                        String exportingNetworkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(exportingNetworkElementId)) {
-                            angleCnecAdder.withExportingNetworkElement(exportingNetworkElementId, networkElementsNamesPerId.get(exportingNetworkElementId));
-                        } else {
-                            angleCnecAdder.withExportingNetworkElement(exportingNetworkElementId);
-                        }
+                        readExportingNetworkElementId(jsonParser, networkElementsNamesPerId, angleCnecAdder);
                         break;
                     case IMPORTING_NETWORK_ELEMENT_ID:
-                        String importingNetworkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(importingNetworkElementId)) {
-                            angleCnecAdder.withImportingNetworkElement(importingNetworkElementId, networkElementsNamesPerId.get(importingNetworkElementId));
-                        } else {
-                            angleCnecAdder.withImportingNetworkElement(importingNetworkElementId);
-                        }
+                        readImportingNetworkElementId(jsonParser, networkElementsNamesPerId, angleCnecAdder);
                         break;
                     case OPERATOR:
                         angleCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -79,20 +69,10 @@ public final class AngleCnecArrayDeserializer {
                         angleCnecAdder.withMonitored(jsonParser.nextBooleanValue());
                         break;
                     case FRM:
-                        //"frm" renamed to "reliabilityMargin" in 1.4
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
-                            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, FRM));
-                        }
-                        jsonParser.nextToken();
-                        angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        readFrm(jsonParser, version, angleCnecAdder);
                         break;
                     case RELIABILITY_MARGIN:
-                        //"frm" renamed to "reliabilityMargin" in 1.4
-                        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
-                            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
-                        }
-                        jsonParser.nextToken();
-                        angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        readReliabilityMargin(jsonParser, version, angleCnecAdder);
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
@@ -110,6 +90,42 @@ public final class AngleCnecArrayDeserializer {
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
             }
+        }
+    }
+
+    private static void readReliabilityMargin(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
+        //"frm" renamed to "reliabilityMargin" in 1.4
+        if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) <= 3) {
+            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, RELIABILITY_MARGIN));
+        }
+        jsonParser.nextToken();
+        angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+    }
+
+    private static void readFrm(JsonParser jsonParser, String version, AngleCnecAdder angleCnecAdder) throws IOException {
+        //"frm" renamed to "reliabilityMargin" in 1.4
+        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 3) {
+            throw new FaraoException(String.format("Unexpected field for version %s : %s", version, FRM));
+        }
+        jsonParser.nextToken();
+        angleCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
+    }
+
+    private static void readImportingNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, AngleCnecAdder angleCnecAdder) throws IOException {
+        String importingNetworkElementId = jsonParser.nextTextValue();
+        if (networkElementsNamesPerId.containsKey(importingNetworkElementId)) {
+            angleCnecAdder.withImportingNetworkElement(importingNetworkElementId, networkElementsNamesPerId.get(importingNetworkElementId));
+        } else {
+            angleCnecAdder.withImportingNetworkElement(importingNetworkElementId);
+        }
+    }
+
+    private static void readExportingNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, AngleCnecAdder angleCnecAdder) throws IOException {
+        String exportingNetworkElementId = jsonParser.nextTextValue();
+        if (networkElementsNamesPerId.containsKey(exportingNetworkElementId)) {
+            angleCnecAdder.withExportingNetworkElement(exportingNetworkElementId, networkElementsNamesPerId.get(exportingNetworkElementId));
+        } else {
+            angleCnecAdder.withExportingNetworkElement(exportingNetworkElementId);
         }
     }
 }

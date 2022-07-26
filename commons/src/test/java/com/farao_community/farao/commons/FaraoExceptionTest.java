@@ -9,6 +9,7 @@ package com.farao_community.farao.commons;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -16,7 +17,8 @@ import static org.junit.Assert.assertEquals;
 public class FaraoExceptionTest {
     @Test
     public void testEmptyException() {
-        new FaraoException();
+        FaraoException e = new FaraoException();
+        assertNull(e.getMessage());
     }
 
     @Test

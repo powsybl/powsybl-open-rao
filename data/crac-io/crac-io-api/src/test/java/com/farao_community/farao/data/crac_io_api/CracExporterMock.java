@@ -3,6 +3,7 @@ package com.farao_community.farao.data.crac_io_api;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.OutputStream;
 
@@ -13,15 +14,16 @@ import java.io.OutputStream;
 public class CracExporterMock implements CracExporter {
 
     public String getFormat() {
-        return "";
+        return "Mock";
     }
 
+    @Override
     public void exportCrac(Crac crac, OutputStream outputStream) {
-
+        throw new NotImplementedException("not implemented");
     }
 
     @Override
     public void exportCrac(Crac crac, Network network, OutputStream outputStream) {
-
+        throw new NotImplementedException("not implemented");
     }
 }
