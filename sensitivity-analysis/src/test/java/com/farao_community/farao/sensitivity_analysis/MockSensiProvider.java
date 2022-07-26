@@ -43,11 +43,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
-                if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                     valueWriter.write(factorIndex.get(), -1, 0.5, 10);
-                } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                     valueWriter.write(factorIndex.get(), -1, 0.25, 25);
-                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
                     valueWriter.write(factorIndex.get(), -1, 0.14, 10);
                 } else {
                     throw new AssertionError();
@@ -61,11 +61,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
-                    if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                         valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, -5, -20);
-                    } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                         valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 5, 200);
-                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
                         valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 6, -20);
                     } else {
                         throw new AssertionError();
@@ -80,11 +80,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
-                if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                     valueWriter.write(factorIndex.get(), -1, 1.5, 110);
-                } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                     valueWriter.write(factorIndex.get(), -1, 1.25, 1100);
-                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
                     valueWriter.write(factorIndex.get(), -1, 1.14, 110);
                 } else {
                     throw new AssertionError();
@@ -98,11 +98,11 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
-                    if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                         valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, -2.5, -40);
-                    } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
                         valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 4.5, 180);
-                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
                         valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 6.6, -40);
                     } else {
                         throw new AssertionError();
