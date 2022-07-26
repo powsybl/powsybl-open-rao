@@ -264,9 +264,9 @@ public class SearchTree {
         CountDownLatch latch = new CountDownLatch(naCombinations.size());
         naCombinations.forEach(naCombination ->
             networkPool.submit(() -> {
-                Network networkClone = null; //This is where the threads actually wait for available networks
+                Network networkClone = null;
                 try {
-                    networkClone = networkPool.getAvailableNetwork();
+                    networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
                 } catch (InterruptedException e) {
                     latch.countDown();
                     Thread.currentThread().interrupt();

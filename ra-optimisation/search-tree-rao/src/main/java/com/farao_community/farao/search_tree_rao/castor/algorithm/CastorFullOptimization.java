@@ -250,13 +250,13 @@ public class CastorFullOptimization {
         network.getVariantManager().setWorkingVariant(CONTINGENCY_SCENARIO);
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
-            AtomicInteger remainingLeaves = new AtomicInteger(stateTree.getContingencyScenarios().size());
+            AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             CountDownLatch contingencyCountDownLatch = new CountDownLatch(stateTree.getContingencyScenarios().size());
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                 networkPool.submit(() -> {
-                    Network networkClone = null; //This is where the threads actually wait for available networks
+                    Network networkClone = null;
                     try {
-                        networkClone = networkPool.getAvailableNetwork();
+                        networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
                     } catch (InterruptedException e) {
                         contingencyCountDownLatch.countDown();
                         Thread.currentThread().interrupt();
@@ -284,7 +284,7 @@ public class CastorFullOptimization {
                     } catch (Exception e) {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                     }
-                    TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingLeaves.decrementAndGet());
+                    TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
                     contingencyCountDownLatch.countDown();
                     try {
                         networkPool.releaseUsedNetwork(networkClone);
@@ -431,7 +431,7 @@ public class CastorFullOptimization {
             .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
-            TECHNICAL_LOGS.info("Automaton state {} has been skipped as no automatons were activated.", automatonState.getId());
+            TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
             return Pair.of(prePerimeterSensitivityOutput, appliedNetworkActions);
         }
 
