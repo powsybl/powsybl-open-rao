@@ -125,14 +125,14 @@ public class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // factors with basecase and contingency
-        assertEquals(4, provider.getBasecaseFactors(network).size());
-        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(6, provider.getBasecaseFactors(network).size());
+        assertEquals(6, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
 
         provider.disableFactorsForBaseCaseSituation();
 
         // factors after disabling basecase
         assertEquals(0, provider.getBasecaseFactors(network).size());
-        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(6, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
     @Test(expected = FaraoException.class)
@@ -172,12 +172,15 @@ public class RangeActionSensitivityProviderTest {
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(4, factorList.size());
+        assertEquals(6, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
@@ -191,12 +194,15 @@ public class RangeActionSensitivityProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(4, factorList.size());
+        assertEquals(6, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
@@ -209,9 +215,9 @@ public class RangeActionSensitivityProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(4, factorList.size());
+        assertEquals(6, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
     }
 
@@ -236,17 +242,26 @@ public class RangeActionSensitivityProviderTest {
 
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
 
-        assertEquals(2, factorList.size());
-        assertTrue((factorList.get(0).getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
-            && factorList.get(0).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
-            && factorList.get(1).getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
-            && factorList.get(1).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER)
-            || (factorList.get(1).getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
-            && factorList.get(1).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
-            && factorList.get(0).getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
-            && factorList.get(0).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER));
+        assertEquals(3, factorList.size());
+
+        assertTrue(factorList.stream().anyMatch(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+        ));
+
+        assertTrue(factorList.stream().anyMatch(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
+                && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+        ));
+
+        assertTrue(factorList.stream().anyMatch(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
+                && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+        ));
+
         assertEquals("BBE2AA11 FFR3AA11 1", factorList.get(0).getVariableId());
         assertEquals("BBE2AA11 FFR3AA11 1", factorList.get(1).getVariableId());
+        assertEquals("BBE2AA11 FFR3AA11 1", factorList.get(2).getVariableId());
     }
 
     @Test

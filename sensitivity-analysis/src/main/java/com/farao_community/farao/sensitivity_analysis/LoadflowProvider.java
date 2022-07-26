@@ -141,10 +141,15 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         if (networkIdentifiable instanceof Branch) {
             List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
             if (factorsInMegawatt) {
-                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER));
+                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
             }
             if (factorsInAmpere) {
-                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT));
+                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_1));
+                // For branches with a single voltage level, get max current on both sides
+                Branch<?> branch = (Branch<?>) networkIdentifiable;
+                if (branch.getTerminal1().getVoltageLevel().getNominalV() == branch.getTerminal2().getVoltageLevel().getNominalV()) {
+                    sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_2));
+                }
             }
             return sensitivityFunctions;
         } else {

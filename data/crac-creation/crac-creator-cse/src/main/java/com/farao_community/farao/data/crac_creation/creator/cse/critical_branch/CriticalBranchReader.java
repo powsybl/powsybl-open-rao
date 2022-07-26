@@ -130,16 +130,16 @@ public class CriticalBranchReader {
         }
         String cnecId = getCnecId(tBranch, tOutage, instant);
         FlowCnecAdder cnecAdder = crac.newFlowCnec()
-                .withId(cnecId)
-                .withName(tBranch.getName().getV())
-                .withInstant(instant)
-                .withContingency(tOutage != null ? tOutage.getV() : null)
-                .withOptimized(true)
-                .withNetworkElement(branchHelper.getIdInNetwork())
-                .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-                .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+            .withId(cnecId)
+            .withName(tBranch.getName().getV())
+            .withInstant(instant)
+            .withContingency(tOutage != null ? tOutage.getV() : null)
+            .withOptimized(true)
+            .withNetworkElement(branchHelper.getIdInNetwork())
+            .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
+            .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
+            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
+            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
 
         addThreshold(cnecAdder, tImax.getV(), tImax.getUnit(), tBranch.getDirection().getV(), isDirectionInverted);
         cnecAdder.add();
@@ -156,8 +156,8 @@ public class CriticalBranchReader {
     private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, String unit, String direction, boolean invert) {
         Unit convertedUnit = convertUnit(unit);
         BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-                .withUnit(convertedUnit);
+            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withUnit(convertedUnit);
         convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, convertedUnit == Unit.PERCENT_IMAX);
         branchThresholdAdder.add();
     }

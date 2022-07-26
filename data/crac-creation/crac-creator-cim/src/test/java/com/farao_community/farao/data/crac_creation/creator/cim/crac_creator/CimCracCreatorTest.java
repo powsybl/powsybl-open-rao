@@ -24,6 +24,9 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.google.common.base.Suppliers;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
@@ -36,11 +39,9 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
@@ -57,12 +58,16 @@ public class CimCracCreatorTest {
 
     @BeforeClass
     public static void loadNetwork() {
-        baseNetwork = Importers.loadNetwork(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString());
+        Properties importParams = new Properties();
+        importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
+        baseNetwork = Importers.loadNetwork(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
     @BeforeClass
     public static void loadHvdcNetwork() {
-        hvdcNetwork = Importers.loadNetwork(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
+        Properties importParams = new Properties();
+        importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
+        hvdcNetwork = Importers.loadNetwork(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
     private void setUp(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {

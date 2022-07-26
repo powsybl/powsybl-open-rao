@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.json.SensitivityJson;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,8 +61,8 @@ public class SystematicSensitivityInterfaceTest {
         computationManager = Mockito.mock(ComputationManager.class);
 
         try {
-            defaultParameters = SensitivityJson.createObjectMapper().readValue(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
-            fallbackParameters = SensitivityJson.createObjectMapper().readValue(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
+            defaultParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
+            fallbackParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(getClass().getResourceAsStream("/FallbackSystematicSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

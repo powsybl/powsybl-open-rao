@@ -26,7 +26,6 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointR
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import groovy.lang.Tuple;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -289,7 +288,7 @@ public class CoreProblemFiller implements ProblemFiller {
             // getRangeActionSetpointVariable from previous instant
             MPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
-            Tuple<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
+            List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
             double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
             double maxAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
             double minRelativeSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(2);
@@ -321,7 +320,7 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private Tuple<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction) {
+    private List<Double> getMinAndMaxAbsoluteAndRelativeSetpoints(RangeAction<?> rangeAction) {
 
         // if relative to previous instant range
         double minAbsoluteSetpoint = Double.NEGATIVE_INFINITY;
@@ -385,7 +384,7 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new NotImplementedException("range action type is not supported yet");
         }
 
-        return Tuple.tuple(minAbsoluteSetpoint, maxAbsoluteSetpoint, minRelativeSetpoint, maxRelativeSetpoint);
+        return List.of(minAbsoluteSetpoint, maxAbsoluteSetpoint, minRelativeSetpoint, maxRelativeSetpoint);
     }
 
     private Set<State> getPreviousStates(State refState) {
