@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
@@ -30,6 +31,7 @@ public class CimCracCreationContext implements CracCreationContext {
     private Crac crac;
     private boolean isCreationSuccessful;
     private Set<CimContingencyCreationContext> contingencyCreationContexts;
+    private Set<AngleCnecCreationContext> angleCnecCreationContexts;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private CracCreationReport creationReport;
@@ -39,6 +41,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.crac = crac;
         creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
+        this.angleCnecCreationContexts = new HashSet<>();
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
@@ -46,6 +49,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
         this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
         this.monitoredSeriesCreationContexts = toCopy.monitoredSeriesCreationContexts;
+        this.angleCnecCreationContexts = new HashSet<>(toCopy.angleCnecCreationContexts);
         this.remedialActionSeriesCreationContexts = new HashSet<>(toCopy.remedialActionSeriesCreationContexts);
         this.creationReport = toCopy.creationReport;
         this.timeStamp = toCopy.timeStamp;
@@ -64,6 +68,7 @@ public class CimCracCreationContext implements CracCreationContext {
     // Only contains contingency creation context report for the moment
     public void buildCreationReport() {
         addToReport(contingencyCreationContexts, "Contingency_Series");
+        addToReport(angleCnecCreationContexts, "AdditionalConstraint_Series");
         addToReport(monitoredSeriesCreationContexts);
         addToReport(remedialActionSeriesCreationContexts, "RemedialAction_Series");
     }
@@ -116,6 +121,18 @@ public class CimCracCreationContext implements CracCreationContext {
 
     public OffsetDateTime getTimeStamp() {
         return timeStamp;
+    }
+
+    public void addAngleCnecCreationContext(AngleCnecCreationContext angleCnecCreationContext) {
+        this.angleCnecCreationContexts.add(angleCnecCreationContext);
+    }
+
+    public Set<AngleCnecCreationContext> getAngleCnecCreationContexts() {
+        return new HashSet<>(angleCnecCreationContexts);
+    }
+
+    public AngleCnecCreationContext getAngleCnecCreationContexts(String seriesId) {
+        return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 
     public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
