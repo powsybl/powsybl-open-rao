@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -41,6 +42,7 @@ public class HvdcRangeActionCreator {
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
     private Set<FlowCnec> flowCnecs;
+    private AngleCnec angleCnec;
     private Country sharedDomain;
     private CimCracCreationParameters cimCracCreationParameters;
     private Map<String, HvdcRangeActionAdder> hvdcRangeActionAdders = new HashMap<>();
@@ -50,12 +52,13 @@ public class HvdcRangeActionCreator {
     private List<String> raSeriesIds = new ArrayList<>();
     private Map<String, FaraoImportException> exceptions = new HashMap<>();
 
-    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
+    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
         this.network = network;
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
         this.flowCnecs = flowCnecs;
+        this.angleCnec = angleCnec;
         this.sharedDomain = sharedDomain;
         this.cimCracCreationParameters =  cimCracCreationParameters;
     }
@@ -177,7 +180,7 @@ public class HvdcRangeActionCreator {
         }
 
         // Usage rules
-        RemedialActionSeriesCreator.addUsageRules(CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
+        RemedialActionSeriesCreator.addUsageRules(CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
         return hvdcRangeActionAdder;
     }

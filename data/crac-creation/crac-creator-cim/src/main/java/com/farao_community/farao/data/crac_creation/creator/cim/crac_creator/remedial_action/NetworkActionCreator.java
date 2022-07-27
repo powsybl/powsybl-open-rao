@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -43,9 +44,10 @@ public class NetworkActionCreator {
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
     private Set<FlowCnec> flowCnecs;
+    private AngleCnec angleCnec;
     private Country sharedDomain;
 
-    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, Country sharedDomain) {
+    public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
         this.crac = crac;
         this.network = network;
         this.createdRemedialActionId = createdRemedialActionId;
@@ -55,6 +57,7 @@ public class NetworkActionCreator {
         this.contingencies = contingencies;
         this.invalidContingencies = invalidContingencies;
         this.flowCnecs = flowCnecs;
+        this.angleCnec = angleCnec;
         this.sharedDomain = sharedDomain;
     }
 
@@ -64,7 +67,7 @@ public class NetworkActionCreator {
             .withName(createdRemedialActionName);
 
         try {
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
             // Elementary actions
             for (RemedialActionRegisteredResource remedialActionRegisteredResource : networkActionRegisteredResources) {

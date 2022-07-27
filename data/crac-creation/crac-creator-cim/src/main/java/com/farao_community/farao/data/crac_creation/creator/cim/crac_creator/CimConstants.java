@@ -23,6 +23,7 @@ public final class CimConstants {
     public static final String CONTINGENCY_SERIES_BUSINESS_TYPE = "B55";
 
     // --- Cnecs
+    // ------ FlowCnecs
     public static final String CNECS_SERIES_BUSINESS_TYPE = "B57";
     public static final String CNECS_MNEC_MARKET_OBJECT_STATUS = "A49";
     public static final String CNECS_OPTIMIZED_MARKET_OBJECT_STATUS = "A52";
@@ -33,6 +34,11 @@ public final class CimConstants {
     public static final String CNECS_AUTO_STATE_MEASUREMENT_TYPE = "A12";
     public static final String CNECS_CURATIVE_STATE_MEASUREMENT_TYPE = "A13";
     public static final String CNECS_PATL_UNIT_SYMBOL = "P1";
+    // ------ AngleCnecs
+    public static final String PHASE_SHIFT_ANGLE = "B87";
+    public static final String DEGREE = "DD";
+    public static final String IMPORTING_ELEMENT = "A46";
+    public static final String EXPORTING_ELEMENT = "A47";
 
     // --- Remedial Actions
     public static final String REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE = "B56";
