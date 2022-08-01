@@ -25,12 +25,13 @@ public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
 
-    public static final String CRAC_IO_VERSION = "1.4";
+    public static final String CRAC_IO_VERSION = "1.5";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
     v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
+    v1.5: addition of VoltageCnecs
      */
 
     // headers
@@ -61,6 +62,8 @@ public final class JsonSerializationConstants {
 
     public static final String ANGLE_CNECS = "angleCnecs";
     public static final String ANGLE_CNEC_ID = "angleCnecId";
+
+    public static final String VOLTAGE_CNECS = "voltageCnecs";
 
     public static final String THRESHOLDS = "thresholds";
     public static final String RELIABILITY_MARGIN = "reliabilityMargin";

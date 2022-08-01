@@ -35,6 +35,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, AngleCnec> angleCnecs = new HashMap<>();
+    private final Map<String, VoltageCnec> voltageCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, HvdcRangeAction> hvdcRangeActions = new HashMap<>();
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
@@ -271,10 +272,16 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public VoltageCnecAdder newVoltageCnec() {
+        return new VoltageCnecAdderImpl(this);
+    }
+
+    @Override
     public Set<Cnec> getCnecs() {
         Set<Cnec> cnecs = new HashSet<>();
         cnecs.addAll(getFlowCnecs());
         cnecs.addAll(getAngleCnecs());
+        cnecs.addAll(getVoltageCnecs());
         return cnecs;
     }
 
@@ -283,6 +290,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Set<Cnec> cnecs = new HashSet<>();
         cnecs.addAll(getFlowCnecs(state));
         cnecs.addAll(getAngleCnecs(state));
+        cnecs.addAll(getVoltageCnecs(state));
         return cnecs;
     }
 
@@ -292,6 +300,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return getFlowCnec(cnecId);
         } else if (angleCnecs.containsKey(cnecId)) {
             return getAngleCnec(cnecId);
+        } else if (voltageCnecs.containsKey(cnecId)) {
+            return getVoltageCnec(cnecId);
         }
         return null;
     }
@@ -366,10 +376,28 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public VoltageCnec getVoltageCnec(String voltageCnecId) {
+        return voltageCnecs.get(voltageCnecId);
+    }
+
+    @Override
+    public Set<VoltageCnec> getVoltageCnecs() {
+        return new HashSet<>(voltageCnecs.values());
+    }
+
+    @Override
+    public Set<VoltageCnec> getVoltageCnecs(State state) {
+        return voltageCnecs.values().stream()
+            .filter(cnec -> cnec.getState().equals(state))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
     public void removeCnec(String cnecId) {
         // In the future, if handling multiple Cnec types, we will have to do more things here
         removeFlowCnec(cnecId);
         removeAngleCnec(cnecId);
+        removeVoltageCnec(cnecId);
     }
 
     @Override
@@ -407,12 +435,33 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         safeRemoveStates(statesToRemove);
     }
 
+    @Override
+    public void removeVoltageCnec(String voltageCnecId) {
+        removeVoltageCnecs(Collections.singleton(voltageCnecId));
+    }
+
+    @Override
+    public void removeVoltageCnecs(Set<String> voltageCnecsIds) {
+        Set<VoltageCnec> voltageCnecsToRemove = voltageCnecsIds.stream().map(voltageCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = voltageCnecsToRemove.stream().map(cnec -> cnec.getNetworkElement().getId()).collect(Collectors.toSet());
+        Set<String> statesToRemove = voltageCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        voltageCnecsToRemove.forEach(voltageCnecToRemove ->
+            voltageCnecs.remove(voltageCnecToRemove.getId())
+        );
+        safeRemoveNetworkElements(networkElementsToRemove);
+        safeRemoveStates(statesToRemove);
+    }
+
     void addFlowCnec(FlowCnec flowCnec) {
         flowCnecs.put(flowCnec.getId(), flowCnec);
     }
 
     void addAngleCnec(AngleCnec angleCnec) {
         angleCnecs.put(angleCnec.getId(), angleCnec);
+    }
+
+    void addVoltageCnec(VoltageCnec voltageCnec) {
+        voltageCnecs.put(voltageCnec.getId(), voltageCnec);
     }
 
     // endregion
