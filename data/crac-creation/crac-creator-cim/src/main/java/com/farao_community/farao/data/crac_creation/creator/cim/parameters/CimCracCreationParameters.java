@@ -15,11 +15,20 @@ import java.util.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CimCracCreationParameters extends AbstractAlignedRaCracCreationParameters {
+    private Set<String> timeseriesMrids;
     private Set<RangeActionSpeed> speedSet = new HashSet<>();
 
     @Override
     public String getName() {
         return "CimCracCreatorParameters";
+    }
+
+    public Set<String> getTimeseriesMrids() {
+        return timeseriesMrids;
+    }
+
+    public void setTimeseriesMrids(Set<String> timeseriesMrids) {
+        this.timeseriesMrids = new HashSet<>(timeseriesMrids);
     }
 
     public void setRemedialActionSpeed(Set<RangeActionSpeed> rangeActionSpeedSet) {

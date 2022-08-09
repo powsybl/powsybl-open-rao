@@ -16,10 +16,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -31,10 +29,12 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     private static final String RANGE_ACTION_SPEEDS = "range-action-speeds";
     private static final String RANGE_ACTION_ID = "range-action-id";
     private static final String SPEED = "speed";
+    private static final String TIMESERIES_MRIDS = "timeseries-mrids";
 
     @Override
     public void serialize(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        serializeTimeseriesMrids(cimParameters, jsonGenerator);
         serializeRangeActionGroups(cimParameters, jsonGenerator);
         serializeRangeActionSpeedSet(cimParameters, jsonGenerator);
         jsonGenerator.writeEndObject();
@@ -49,6 +49,10 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     public CimCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CimCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
+                case TIMESERIES_MRIDS:
+                    jsonParser.nextToken();
+                    parameters.setTimeseriesMrids(jsonParser.readValueAs(Set.class));
+                    break;
                 case RANGE_ACTION_GROUPS:
                     jsonParser.nextToken();
                     parameters.setRangeActionGroupsAsString(jsonParser.readValueAs(ArrayList.class));
@@ -78,6 +82,13 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     @Override
     public Class<? super CimCracCreationParameters> getExtensionClass() {
         return CimCracCreationParameters.class;
+    }
+
+
+    private void serializeTimeseriesMrids(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
+        if (!Objects.isNull(cimParameters.getTimeseriesMrids())) {
+            serializeStringArray(TIMESERIES_MRIDS, cimParameters.getTimeseriesMrids().stream().sorted(String::compareTo).collect(Collectors.toList()), jsonGenerator);
+        }
     }
 
     private void serializeRangeActionGroups(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
