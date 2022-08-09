@@ -71,7 +71,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
             return Set.of(getSubstationCountry(((Switch) ne).getVoltageLevel().getSubstation()));
         } else if (ne instanceof Injection) {
             return Set.of(getSubstationCountry(((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation()));
-        } else if (ne instanceof  Bus) {
+        } else if (ne instanceof Bus) {
             return Set.of(getSubstationCountry(((Bus) ne).getVoltageLevel().getSubstation()));
         } else if (ne instanceof VoltageLevel) {
             return Set.of(getSubstationCountry(((VoltageLevel) ne).getSubstation()));
@@ -79,7 +79,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
             return Set.of(((Substation) ne).getCountry());
         } else if (ne instanceof HvdcLine) {
             return Set.of(getSubstationCountry(((HvdcLine) ne).getConverterStation1().getTerminal().getVoltageLevel().getSubstation()), getSubstationCountry(((HvdcLine) ne).getConverterStation2().getTerminal().getVoltageLevel().getSubstation()));
-        }  else {
+        } else {
             throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
         }
     }

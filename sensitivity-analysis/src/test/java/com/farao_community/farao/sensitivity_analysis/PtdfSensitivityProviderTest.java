@@ -7,6 +7,9 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
@@ -83,5 +86,37 @@ public class PtdfSensitivityProviderTest {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
         assertFalse(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
+    }
+
+    @Test
+    public void testIgnoreCnecOnDanglingLine() {
+        NetworkImportsUtil.addDanglingLine(network);
+
+        FlowCnec cnecPrev = crac.newFlowCnec()
+            .withId("DL CNEC - preventive")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("DL1")
+            .withOptimized()
+            .newThreshold().withRule(BranchThresholdRule.ON_REGULATED_SIDE).withMax(1000.).withUnit(Unit.MEGAWATT).add()
+            .add();
+
+        FlowCnec cnecCur = crac.newFlowCnec()
+            .withId("DL CNEC - curative")
+            .withInstant(Instant.CURATIVE)
+            .withContingency("Contingency FR1 FR3")
+            .withNetworkElement("DL1")
+            .withOptimized()
+            .newThreshold().withRule(BranchThresholdRule.ON_REGULATED_SIDE).withMax(1000.).withUnit(Unit.MEGAWATT).add()
+            .add();
+
+        // MEGAWATT
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, Set.of(cnecPrev, cnecCur), Collections.singleton(Unit.MEGAWATT));
+        assertTrue(ptdfSensitivityProvider.getBasecaseFactors(network).isEmpty());
+        assertTrue(ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).isEmpty());
+
+        // AMPERE
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, Set.of(cnecPrev, cnecCur), Collections.singleton(Unit.AMPERE));
+        assertTrue(ptdfSensitivityProvider.getBasecaseFactors(network).isEmpty());
+        assertTrue(ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).isEmpty());
     }
 }
