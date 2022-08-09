@@ -152,6 +152,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
                 }
             }
             return sensitivityFunctions;
+        } else if (networkIdentifiable instanceof DanglingLine) {
+            // Sensitivity computers do not handle DanglingLines
+            // DanglingLines should be considered as disconnected lines, so we just have to ignore them and the
+            // SystematicSensitivityResult will return a flow and a sensitivity equal to 0
+            return Collections.emptyList();
         } else {
             throw new FaraoException("Unable to create sensitivity function for " + id);
         }

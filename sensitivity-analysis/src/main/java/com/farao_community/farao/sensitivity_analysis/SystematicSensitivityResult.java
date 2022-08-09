@@ -165,8 +165,7 @@ public class SystematicSensitivityResult {
     public double getSensitivityOnFlow(String variableId, FlowCnec cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
-            !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
-            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId)) {
+            !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return 0.0;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());

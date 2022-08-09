@@ -8,6 +8,9 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -86,5 +90,26 @@ public class LoadflowProviderTest {
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+    }
+
+    @Test
+    public void onDanglingLine() {
+        Crac crac = CommonCracCreation.create();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addDanglingLine(network);
+
+        FlowCnec cnec = crac.newFlowCnec()
+            .withId("DL CNEC")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("DL1")
+            .withOptimized()
+            .newThreshold().withRule(BranchThresholdRule.ON_REGULATED_SIDE).withMax(1000.).withUnit(Unit.MEGAWATT).add()
+            .add();
+
+        LoadflowProvider provider = new LoadflowProvider(Set.of(cnec), Collections.singleton(Unit.MEGAWATT));
+
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
+
+        assertTrue(factorList.isEmpty());
     }
 }
