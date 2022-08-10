@@ -32,8 +32,6 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
