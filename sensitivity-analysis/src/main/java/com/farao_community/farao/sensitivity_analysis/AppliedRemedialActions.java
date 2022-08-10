@@ -107,9 +107,7 @@ public class AppliedRemedialActions {
 
     public AppliedRemedialActions copyNetworkActions() {
         AppliedRemedialActions ara = new AppliedRemedialActions();
-        appliedRa.forEach((state, appliedRaOnState) -> {
-            ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions);
-        });
+        appliedRa.forEach((state, appliedRaOnState) -> ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions));
         return ara;
     }
 
