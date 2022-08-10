@@ -119,6 +119,27 @@ public class AppliedRemedialActionsTest {
         AppliedRemedialActions copyAra = originalAra.copy();
         assertFalse(originalAra.isEmpty(network));
         assertFalse(copyAra.isEmpty(network));
+        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", Instant.CURATIVE)).size());
+        assertEquals(1, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", Instant.CURATIVE)).size());
+
+        // reset the original one
+        originalAra = new AppliedRemedialActions();
+        assertTrue(originalAra.isEmpty(network));
+        assertFalse(copyAra.isEmpty(network));
+    }
+
+    @Test
+    public void testCopyNetworkActions() {
+        AppliedRemedialActions originalAra = new AppliedRemedialActions();
+        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
+        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
+
+        // make a copy
+        AppliedRemedialActions copyAra = originalAra.copyNetworkActions();
+        assertFalse(originalAra.isEmpty(network));
+        assertFalse(copyAra.isEmpty(network));
+        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", Instant.CURATIVE)).size());
+        assertEquals(0, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", Instant.CURATIVE)).size());
 
         // reset the original one
         originalAra = new AppliedRemedialActions();
