@@ -167,7 +167,7 @@ public class IteratingLinearOptimizer {
 
         // add RangeAction activated in the following states
         if (optimizationContext instanceof GlobalOptimizationPerimeter) {
-            AppliedRemedialActions appliedRemedialActions = input.getPreOptimizationAppliedRemedialActions().copy();
+            AppliedRemedialActions appliedRemedialActions = input.getPreOptimizationAppliedRemedialActions().copyNetworkActions();
             optimizationContext.getRangeActionsPerState().entrySet().stream()
                 .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state
                 .forEach(e -> e.getValue().forEach(ra -> appliedRemedialActions.addAppliedRangeAction(e.getKey(), ra, rangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()))));
