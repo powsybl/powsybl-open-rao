@@ -18,8 +18,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoInput;
+import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -30,6 +32,8 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -534,6 +538,68 @@ public class CastorFullOptimizationTest {
         appliedRemedialActions.applyOnNetwork(state1, network);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
+    }
+
+    @Test
+    public void smallRaoWithout2P() {
+        // Small RAO without second preventive optimization and only topological actions
+        // Cannot optimize range actions in unit tests (needs OR-Tools installed)
+
+        Network network = Importers.loadNetwork("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(371.88, raoResult.getFunctionalCost(OptimizationState.INITIAL), 1.);
+        assertEquals(493.56, raoResult.getFunctionalCost(OptimizationState.AFTER_PRA), 1.);
+        assertEquals(256.78, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), 1.);
+        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
+    }
+
+    @Test
+    public void smallRaoWith2P() {
+        // Same RAO as before but activating 2P => results should be better
+
+        Network network = Importers.loadNetwork("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
+
+        // Activate 2P
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(371.88, raoResult.getFunctionalCost(OptimizationState.INITIAL), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost(OptimizationState.AFTER_PRA), 1.);
+        assertEquals(-555.91, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), 1.);
+        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
+    }
+
+    @Test
+    public void smallRaoWithGlobal2P() {
+        // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
+
+        Network network = Importers.loadNetwork("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
+
+        // Activate global 2P
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setGlobalOptimizationInSecondPreventive(true);
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(371.88, raoResult.getFunctionalCost(OptimizationState.INITIAL), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost(OptimizationState.AFTER_PRA), 1.);
+        assertEquals(-555.91, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), 1.);
+        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
     }
 
 }
