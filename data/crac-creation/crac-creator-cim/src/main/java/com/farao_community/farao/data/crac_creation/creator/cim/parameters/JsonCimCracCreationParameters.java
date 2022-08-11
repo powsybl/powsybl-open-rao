@@ -85,7 +85,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     }
 
     private void serializeTimeseriesMrids(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
-        if (!Objects.isNull(cimParameters.getTimeseriesMrids())) {
+        if (!cimParameters.getTimeseriesMrids().isEmpty()) {
             serializeStringArray(TIMESERIES_MRIDS, cimParameters.getTimeseriesMrids().stream().sorted(String::compareTo).collect(Collectors.toList()), jsonGenerator);
         }
     }

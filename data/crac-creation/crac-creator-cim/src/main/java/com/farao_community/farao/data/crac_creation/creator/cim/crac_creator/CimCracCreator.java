@@ -49,7 +49,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         CimCracCreationParameters cimCracCreationParameters = parameters.getExtension(CimCracCreationParameters.class);
         if (cimCracCreationParameters != null) {
             cimCracCreationParameters.getFailedParseWarnings().forEach(message -> creationContext.getCreationReport().warn(message));
-            if (cimCracCreationParameters.getTimeseriesMrids() != null) {
+            if (!cimCracCreationParameters.getTimeseriesMrids().isEmpty()) {
                 this.cimTimeSeries.removeIf(ts -> !cimCracCreationParameters.getTimeseriesMrids().contains(ts.getMRID()));
                 cimCracCreationParameters.getTimeseriesMrids().stream()
                     .filter(mrid -> this.cimTimeSeries.stream().map(TimeSeries::getMRID).noneMatch(id -> id.equals(mrid)))
