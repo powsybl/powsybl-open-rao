@@ -88,6 +88,7 @@ public class CimCracCreatorTest {
         List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
         alignedRangeActions.forEach(listAlignedRangeActions -> rangeActionGroups.add(new RangeActionGroup(listAlignedRangeActions)));
         Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
 
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
@@ -103,6 +104,21 @@ public class CimCracCreatorTest {
         CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
+        InputStream is = getClass().getResourceAsStream(fileName);
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+        CimCracCreator cimCracCreator = new CimCracCreator();
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
+        importedCrac = cracCreationContext.getCrac();
+    }
+
+    private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids) {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
@@ -616,5 +632,24 @@ public class CimCracCreatorTest {
         assertRemedialActionNotImported("RA9", INCONSISTENCY_IN_DATA);
         assertAngleCnecNotImported("AngleCnec10", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA10", INCONSISTENCY_IN_DATA);
+    }
+
+    @Test
+    public void testFilterOnTimeseries() {
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Collections.emptySet());
+        assertEquals(2, importedCrac.getContingencies().size());
+
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1", "TimeSeries2", "TimeSeries3"));
+        assertEquals(2, importedCrac.getContingencies().size());
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[WARN] Requested TimeSeries mRID \"TimeSeries3\" in CimCracCreationParameters was not found in the CRAC file.", cracCreationContext.getCreationReport().getReport().get(0));
+
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1"));
+        assertEquals(1, importedCrac.getContingencies().size());
+        assertNotNull(importedCrac.getContingency("Co-1"));
+
+        setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries2"));
+        assertEquals(1, importedCrac.getContingencies().size());
+        assertNotNull(importedCrac.getContingency("Co-2"));
     }
 }
