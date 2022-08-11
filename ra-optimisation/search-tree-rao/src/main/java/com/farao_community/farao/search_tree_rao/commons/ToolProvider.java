@@ -91,8 +91,11 @@ public final class ToolProvider {
             .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(unit))
-            .withAppliedRemedialActions(appliedRemedialActions)
-            .withLoadflow(cnecs, unit.equals(Unit.MEGAWATT) ? Collections.singleton(Unit.MEGAWATT) : Set.of(unit, Unit.MEGAWATT));
+            .withAppliedRemedialActions(appliedRemedialActions);
+
+        if (unit.equals(Unit.AMPERE) || !raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+            builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
+        }
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
