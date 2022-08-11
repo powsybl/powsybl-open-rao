@@ -432,7 +432,7 @@ public class CastorFullOptimization {
 
         // -- Apply
         appliedNetworkActions.forEach(na -> {
-            TECHNICAL_LOGS.debug("Activating automaton {}.", na.getId());
+            TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
             na.apply(network);
         });
 
