@@ -46,7 +46,6 @@ public class JsonCimCracCreationParametersTest {
         assertEquals("rangeAction3 + rangeAction4", cimCracCreationParameters.getRangeActionGroupsAsString().get(0));
         assertEquals("hvdc1 + hvdc2", cimCracCreationParameters.getRangeActionGroupsAsString().get(1));
         assertEquals(1, cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().intValue());
-        assertNull(cimCracCreationParameters.getTimeseriesMrids());
     }
 
     @Test

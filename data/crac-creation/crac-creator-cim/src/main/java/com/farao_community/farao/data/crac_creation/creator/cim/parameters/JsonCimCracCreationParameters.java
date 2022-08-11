@@ -84,12 +84,6 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
         return CimCracCreationParameters.class;
     }
 
-    private void serializeTimeseriesMrids(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
-        if (!Objects.isNull(cimParameters.getTimeseriesMrids())) {
-            serializeStringArray(TIMESERIES_MRIDS, cimParameters.getTimeseriesMrids().stream().sorted(String::compareTo).collect(Collectors.toList()), jsonGenerator);
-        }
-    }
-
     private void serializeRangeActionGroups(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
         serializeStringArray(RANGE_ACTION_GROUPS, cimParameters.getRangeActionGroupsAsString(), jsonGenerator);
     }

@@ -15,7 +15,7 @@ import java.util.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CimCracCreationParameters extends AbstractAlignedRaCracCreationParameters {
-    private Set<String> timeseriesMrids;
+    private Set<String> timeseriesMrids = new HashSet<>();
     private Set<RangeActionSpeed> speedSet = new HashSet<>();
 
     @Override
