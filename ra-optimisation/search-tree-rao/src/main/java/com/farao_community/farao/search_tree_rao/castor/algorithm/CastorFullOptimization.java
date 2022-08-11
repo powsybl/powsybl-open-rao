@@ -49,6 +49,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.apache.commons.lang3.tuple.Pair;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -58,6 +59,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.formatDouble;
@@ -307,6 +309,7 @@ public class CastorFullOptimization {
     // ========================================
     // region simulation at AUTO instant
     // ========================================
+
     /**
      * This function simulates automatons at AUTO instant. First, it simulates topological automatons, then range actions
      * by order of speed.
@@ -374,7 +377,7 @@ public class CastorFullOptimization {
             // Define flowCnecs depending on UsageMethod
             Set<FlowCnec> flowCnecs = gatherFlowCnecs(availableRa, automatonState, crac, network);
             // Shift
-            Pair<PrePerimeterResult,  Map<RangeAction<?>, Double>> postShiftResult = shiftRangeActionsUntilFlowCnecsSecure(alignedRa,
+            Pair<PrePerimeterResult, Map<RangeAction<?>, Double>> postShiftResult = shiftRangeActionsUntilFlowCnecsSecure(alignedRa,
                 flowCnecs,
                 network,
                 preAutoPerimeterSensitivityAnalysis,
@@ -637,7 +640,7 @@ public class CastorFullOptimization {
         }
         if (runSensi) {
             TECHNICAL_LOGS.info("Running sensi after disabling AC emulation.");
-            PrePerimeterResult result =  preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
+            PrePerimeterResult result = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
             RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, result, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
             return result;
         } else {
@@ -655,14 +658,14 @@ public class CastorFullOptimization {
      * This function returns a pair of a prePerimeterResult, and a map of activated range actions during the shift, with their
      * newly computed setpoints, both used to compute an AutomatonPerimeterResult.
      */
-    private Pair<PrePerimeterResult,  Map<RangeAction<?>, Double>> shiftRangeActionsUntilFlowCnecsSecure(List<RangeAction<?>> alignedRangeActions,
-                                                                                                         Set<FlowCnec> flowCnecs,
-                                                                                                         Network network,
-                                                                                                         PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
-                                                                                                         FlowResult initialFlowResult,
-                                                                                                         PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                                                         Unit marginUnit,
-                                                                                                         Set<String> operatorsNotSharingCras) {
+    private Pair<PrePerimeterResult, Map<RangeAction<?>, Double>> shiftRangeActionsUntilFlowCnecsSecure(List<RangeAction<?>> alignedRangeActions,
+                                                                                                        Set<FlowCnec> flowCnecs,
+                                                                                                        Network network,
+                                                                                                        PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
+                                                                                                        FlowResult initialFlowResult,
+                                                                                                        PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                                                        Unit marginUnit,
+                                                                                                        Set<String> operatorsNotSharingCras) {
         Set<FlowCnec> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
