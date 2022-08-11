@@ -36,6 +36,7 @@ import org.xmlunit.diff.Difference;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
@@ -63,6 +64,7 @@ public class SweCneTest {
         CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
 
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
         crac = cracCreationContext.getCrac();

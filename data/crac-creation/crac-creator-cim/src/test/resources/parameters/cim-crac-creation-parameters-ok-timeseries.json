@@ -1,0 +1,9 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CimCracCreatorParameters" : {
+      "timeseries-mrids" : [ "border1", "border2" ],
+      "range-action-groups" : [ "rangeAction3 + rangeAction4", "hvdc1 + hvdc2" ]
+    }
+  }
+}
