@@ -289,8 +289,9 @@ public class MonitoredSeriesCreator {
             branchThresholdAdder.withMin((double) -threshold);
             modifiedCnecId += " - OPPOSITE";
         } else {
-            branchThresholdAdder.withMax((double) threshold);
-            branchThresholdAdder.withMin((double) -threshold);
+            double coefficient = unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1; // FARAO uses relative convention (0 <= threshold <= 1)
+            branchThresholdAdder.withMax(threshold * coefficient);
+            branchThresholdAdder.withMin(-threshold * coefficient);
         }
         branchThresholdAdder.add();
         return modifiedCnecId;
