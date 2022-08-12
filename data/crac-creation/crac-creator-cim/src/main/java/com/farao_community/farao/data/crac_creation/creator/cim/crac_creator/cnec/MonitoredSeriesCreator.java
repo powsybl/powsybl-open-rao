@@ -282,16 +282,16 @@ public class MonitoredSeriesCreator {
             branchThresholdAdder.withRule(BranchThresholdRule.ON_REGULATED_SIDE);
         }
 
+        double coefficient = unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1; // FARAO uses relative convention (0 <= threshold <= 1)
         if (direction.equals(CNECS_DIRECT_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMax((double) threshold);
+            branchThresholdAdder.withMax(coefficient * threshold);
             modifiedCnecId += " - DIRECT";
         } else if (direction.equals(CNECS_OPPOSITE_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMin((double) -threshold);
+            branchThresholdAdder.withMin(coefficient * -threshold);
             modifiedCnecId += " - OPPOSITE";
         } else {
-            double coefficient = unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1; // FARAO uses relative convention (0 <= threshold <= 1)
-            branchThresholdAdder.withMax(threshold * coefficient);
-            branchThresholdAdder.withMin(-threshold * coefficient);
+            branchThresholdAdder.withMax(coefficient * threshold);
+            branchThresholdAdder.withMin(coefficient * -threshold);
         }
         branchThresholdAdder.add();
         return modifiedCnecId;
