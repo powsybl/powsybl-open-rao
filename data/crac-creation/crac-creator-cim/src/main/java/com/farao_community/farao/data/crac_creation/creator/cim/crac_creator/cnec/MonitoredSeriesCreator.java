@@ -157,15 +157,17 @@ public class MonitoredSeriesCreator {
         Instant instant;
         Unit unit;
         String direction;
+        double threshold;
         try {
             instant = getMeasurementInstant(measurement);
             unit = getMeasurementUnit(measurement);
             direction = getMeasurementDirection(measurement);
+            threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue(); // FARAO uses relative convention for %Imax (0 <= threshold <= 1)
         } catch (FaraoException e) {
             return MeasurementCreationContext.notImported(ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
         }
 
-        return addCnecs(cnecId, branchHelper, isMnec, direction, unit, measurement.getAnalogValuesValue(), contingencies, instant);
+        return addCnecs(cnecId, branchHelper, isMnec, direction, unit, threshold, contingencies, instant);
     }
 
     private Instant getMeasurementInstant(Analog measurement) {
@@ -208,7 +210,7 @@ public class MonitoredSeriesCreator {
     }
 
     private MeasurementCreationContext addCnecs(String cnecNativeId, CgmesBranchHelper branchHelper,
-                                                boolean isMnec, String direction, Unit unit, float threshold,
+                                                boolean isMnec, String direction, Unit unit, double threshold,
                                                 List<Contingency> contingencies, Instant instant) {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
         if (instant == Instant.PREVENTIVE) {
@@ -222,7 +224,7 @@ public class MonitoredSeriesCreator {
     }
 
     private void addCnecsOnContingency(String cnecNativeId, CgmesBranchHelper branchHelper,
-                                       boolean isMnec, String direction, Unit unit, float threshold,
+                                       boolean isMnec, String direction, Unit unit, double threshold,
                                        Contingency contingency, Instant instant, MeasurementCreationContext measurementCreationContext) {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
         String contingencyId = Objects.isNull(contingency) ? "" : contingency.getId();
@@ -266,7 +268,7 @@ public class MonitoredSeriesCreator {
         }
     }
 
-    private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, float threshold) {
+    private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, double threshold) {
         BranchThresholdAdder branchThresholdAdder = flowCnecAdder.newThreshold();
         branchThresholdAdder.withUnit(unit);
         String modifiedCnecId = cnecId;
@@ -282,16 +284,15 @@ public class MonitoredSeriesCreator {
             branchThresholdAdder.withRule(BranchThresholdRule.ON_REGULATED_SIDE);
         }
 
-        double coefficient = unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1; // FARAO uses relative convention (0 <= threshold <= 1)
         if (direction.equals(CNECS_DIRECT_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMax(coefficient * threshold);
+            branchThresholdAdder.withMax(threshold);
             modifiedCnecId += " - DIRECT";
         } else if (direction.equals(CNECS_OPPOSITE_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMin(coefficient * -threshold);
+            branchThresholdAdder.withMin(-threshold);
             modifiedCnecId += " - OPPOSITE";
         } else {
-            branchThresholdAdder.withMax(coefficient * threshold);
-            branchThresholdAdder.withMin(coefficient * -threshold);
+            branchThresholdAdder.withMax(threshold);
+            branchThresholdAdder.withMin(-threshold);
         }
         branchThresholdAdder.add();
         return modifiedCnecId;
