@@ -333,11 +333,13 @@ public class CastorFullOptimization {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState, curativeState), raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
         // I) Simulate topological automatons
+        Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
+        flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
         rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
         rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
         PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            crac.getFlowCnecs(),
+            flowCnecsInSensi,
             rangeActionsInSensi,
             raoParameters,
             toolProvider);
@@ -390,17 +392,19 @@ public class CastorFullOptimization {
             rangeActionsWithSetpoint.putAll(postShiftResult.getRight());
         }
 
-        PrePerimeterResult postAutomatonSensitivityAnalysisOutput = runPreCurativeSensitivityComputation(automatonState,
-            curativeState,
-            crac,
-            network,
-            raoParameters,
-            toolProvider,
-            initialFlowResult,
-            operatorsNotSharingCras);
+        if (!activatedRangeActions.isEmpty()) {
+            postAutoResult = runPreCurativeSensitivityComputation(automatonState,
+                curativeState,
+                crac,
+                network,
+                raoParameters,
+                toolProvider,
+                initialFlowResult,
+                operatorsNotSharingCras);
+        }
 
         // Build and return optimization result
-        AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions, activatedRangeActions, rangeActionsWithSetpoint, automatonState);
+        AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(postAutoResult, appliedNetworkActions, activatedRangeActions, rangeActionsWithSetpoint, automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions().size(), automatonPerimeterResultImpl.getActivatedRangeActions(automatonState).size(), null, null, automatonPerimeterResultImpl);
         return automatonPerimeterResultImpl;
