@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_5.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_3.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <mRID>documentId</mRID>
     <revisionNumber>3</revisionNumber>
     <type>B06</type>
