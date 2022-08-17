@@ -163,14 +163,16 @@ public class CimCracCreatorTest {
     private void assertCnecImported(String monitoredSeriesId, Set<String> expectedCnecIds) {
         MonitoredSeriesCreationContext monitoredSeriesCreationContext = cracCreationContext.getMonitoredSeriesCreationContext(monitoredSeriesId);
         assertNotNull(monitoredSeriesCreationContext);
-        Set<String> importedCnecIds = new HashSet<>();
-        monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
-            .filter(MeasurementCreationContext::isImported)
-            .forEach(measurementCreationContext ->
-                measurementCreationContext.getCnecCreationContexts().values().stream()
-                    .filter(CnecCreationContext::isImported)
-                    .forEach(cnecCreationContext ->
-                        importedCnecIds.add(cnecCreationContext.getCreatedCnecId())));
+        Set<String> importedCnecIds =
+            monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
+                .filter(MeasurementCreationContext::isImported)
+                .map(measurementCreationContext ->
+                    measurementCreationContext.getCnecCreationContexts().values().stream()
+                        .filter(CnecCreationContext::isImported)
+                        .map(CnecCreationContext::getCreatedCnecId)
+                        .collect(Collectors.toSet()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
 
         assertEquals(expectedCnecIds, importedCnecIds);
     }
@@ -686,5 +688,22 @@ public class CimCracCreatorTest {
         setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries2"));
         assertEquals(1, importedCrac.getContingencies().size());
         assertNotNull(importedCrac.getContingency("Co-2"));
+    }
+
+    @Test
+    public void testImportCnecsWithSameMsMrid() {
+        setUp("/cracs/CIM_21_2_1_mrid.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+
+        assertEquals(10, importedCrac.getFlowCnecs().size());
+
+        // CNEC 3
+        assertCnecImported("CNEC-2", Set.of("CNEC-3 - preventive", "CNEC-3 - Co-1 - auto", "CNEC-3 - Co-2 - auto"));
+        assertTrue(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-2").isAltered());
+
+        // CNEC 4
+        assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative",
+            "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
+            "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
+        assertFalse(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-4").isAltered());
     }
 }

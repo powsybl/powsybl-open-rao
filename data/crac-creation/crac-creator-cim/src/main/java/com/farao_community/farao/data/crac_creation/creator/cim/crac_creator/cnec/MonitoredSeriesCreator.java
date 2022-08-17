@@ -92,11 +92,11 @@ public class MonitoredSeriesCreator {
         String nativeName = monitoredSeries.getName();
         List<MonitoredRegisteredResource> monitoredRegisteredResources = monitoredSeries.getRegisteredResource();
         if (monitoredRegisteredResources.isEmpty()) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
             return;
         }
         if (monitoredRegisteredResources.size() > 1) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "More than one registered resources"));
             return;
         }
 
@@ -108,7 +108,7 @@ public class MonitoredSeriesCreator {
         //Get network element
         CgmesBranchHelper branchHelper = new CgmesBranchHelper(monitoredRegisteredResource.getMRID().getValue(), network);
         if (!branchHelper.isValid()) {
-            monitoredSeriesCreationContexts.put(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
+            saveMonitoredSeriesCreationContexts(nativeId, MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
                 ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Network element was not found in network: %s", monitoredRegisteredResource.getMRID().getValue())));
             return;
         }
@@ -118,7 +118,7 @@ public class MonitoredSeriesCreator {
         try {
             isMnec = isMnec(optimizationStatus);
         } catch (FaraoException e) {
-            monitoredSeriesCreationContexts.put(nativeId,
+            saveMonitoredSeriesCreationContexts(nativeId,
                 MonitoredSeriesCreationContext.notImported(nativeId, nativeName, resourceId, resourceName,
                     ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())
             );
@@ -133,7 +133,6 @@ public class MonitoredSeriesCreator {
             monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, nativeName, resourceId, resourceName,
                 true, String.format("Contingencies %s not defined in B55s", contingencyList));
         }
-        monitoredSeriesCreationContexts.put(nativeId, monitoredSeriesCreationContext);
 
         // Read measurements
         monitoredRegisteredResource.getMeasurements().forEach(
@@ -141,6 +140,42 @@ public class MonitoredSeriesCreator {
                 createCnecFromMeasurement(measurement, cnecId, isMnec, branchHelper, contingencies)
             )
         );
+
+        saveMonitoredSeriesCreationContexts(nativeId, monitoredSeriesCreationContext);
+    }
+
+    private void saveMonitoredSeriesCreationContexts(String nativeId, MonitoredSeriesCreationContext mscc) {
+        MonitoredSeriesCreationContext newMscc = mscc;
+        if (monitoredSeriesCreationContexts.containsKey(nativeId)) {
+            cracCreationContext.getCreationReport().warn(
+                String.format("Multiple Monitored_Series with same mRID \"%s\" detected; they will be merged.", nativeId)
+            );
+            // TSO can define multiple Monitored_Series with same mRID. Add information from new one to old one
+            MonitoredSeriesCreationContext mscc2 = monitoredSeriesCreationContexts.get(nativeId);
+            ImportStatus importStatus = null;
+            boolean isAltered = false;
+            if (mscc.isImported() == mscc2.isImported()) {
+                importStatus = mscc.getImportStatus();
+            } else {
+                importStatus = ImportStatus.IMPORTED;
+                isAltered = true;
+            }
+            String importStatusDetail =
+                mscc.getImportStatusDetail()
+                    + (mscc.getImportStatusDetail().length() > 0 && mscc2.getImportStatusDetail().length() > 0 ? " - " : "")
+                    + mscc2.getImportStatusDetail();
+            newMscc = new MonitoredSeriesCreationContext(
+                mscc.getNativeId(),
+                mscc.getNativeName(),
+                mscc.getNativeResourceId(),
+                mscc.getNativeResourceName(),
+                importStatus,
+                mscc.isAltered() || mscc2.isAltered() || isAltered,
+                importStatusDetail);
+            newMscc.addMeasurementCreationContexts(mscc.getMeasurementCreationContexts());
+            newMscc.addMeasurementCreationContexts(mscc2.getMeasurementCreationContexts());
+        }
+        monitoredSeriesCreationContexts.put(nativeId, newMscc);
     }
 
     private boolean isMnec(String optimizationStatus) {
@@ -257,15 +292,19 @@ public class MonitoredSeriesCreator {
         flowCnecAdder.withInstant(instant);
         cnecId += " - " + instant.toString();
 
-        if (Objects.nonNull(crac.getFlowCnec(cnecId))) {
-            measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.notImported(
-                ImportStatus.OTHER, String.format("A flow cnec with id %s already exists.", cnecId)
-            ));
-        } else {
-            measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(cnecId));
+        if (Objects.isNull(crac.getFlowCnec(cnecId))) {
             flowCnecAdder.withId(cnecId);
             flowCnecAdder.withName(cnecId).add();
+        } else {
+            // If a CNEC with the same ID has already been created, we assume that the 2 CNECs are the same
+            // (we know network element and state are the same, we assume that thresholds are the same.
+            // This is true if the TSO is consistent in the definition of its CNECs; and two different TSOs can only
+            // share tielines, but those are distinguished by the RIGHT/LEFT label)
+            cracCreationContext.getCreationReport().warn(
+                String.format("Multiple CNECs on same network element (%s) and same state (%s%s%s) have been detected. Only one CNEC will be created.", branchHelper.getBranch().getId(), contingencyId, Objects.isNull(contingency) ? "" : " - ", instant)
+            );
         }
+        measurementCreationContext.addCnecCreationContext(contingencyId, instant, CnecCreationContext.imported(cnecId));
     }
 
     private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, double threshold) {

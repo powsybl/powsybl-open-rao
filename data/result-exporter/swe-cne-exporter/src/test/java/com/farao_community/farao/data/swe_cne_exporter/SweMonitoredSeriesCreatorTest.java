@@ -91,8 +91,15 @@ public class SweMonitoredSeriesCreatorTest {
 
         //monitored series 1 and 2 each have a preventive cnec
         assertEquals(2, basecaseMonitoredSeries.size());
+        assertEquals("ms1Id", basecaseMonitoredSeries.get(0).getMRID());
+        assertEquals("ms2Id", basecaseMonitoredSeries.get(1).getMRID());
         //monitored series 2 and 3 each have three post contingency cnecs, but the OUTAGE and AUTO flows for the third series are equal so are merged
         assertEquals(5, contingencyMonitoredSeries.size());
+        assertEquals("ms2Id", basecaseMonitoredSeries.get(0).getMRID());
+        assertEquals("ms2Id", basecaseMonitoredSeries.get(1).getMRID());
+        assertEquals("ms2Id", basecaseMonitoredSeries.get(2).getMRID());
+        assertEquals("ms3Id", basecaseMonitoredSeries.get(3).getMRID());
+        assertEquals("ms3Id", basecaseMonitoredSeries.get(4).getMRID());
     }
 
     private MonitoredSeriesCreationContext createMSCC(String mrId, String name, String resourceId, String resourceName) {
