@@ -901,6 +901,9 @@ public class CastorFullOptimization {
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO);
 
+        // Get the applied network actions for every contingency perimeter
+        AppliedRemedialActions appliedCras = getAppliedNetworkActionsPostContingency(postContingencyResults);
+
         // Apply 1st preventive results for range actions that are both preventive and curative. This way we are sure
         // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
         // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
@@ -908,10 +911,8 @@ public class CastorFullOptimization {
         if (!parameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) { // keep old behaviour
             remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
             applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
+            addAppliedRangeActionsPostContingency(appliedCras, postContingencyResults, preCurativeSensitivityAnalysisOutput);
         }
-
-        // Get the applied remedial actions for every contingency perimeter
-        AppliedRemedialActions appliedCras = getAppliedRemedialActionsPostContingency(postContingencyResults, preCurativeSensitivityAnalysisOutput);
 
         // Run a first sensitivity computation using initial network and applied CRAs
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras);
@@ -936,15 +937,18 @@ public class CastorFullOptimization {
         return new SecondPreventiveAndCurativesRaoResultImpl(initialOutput, raoInput.getCrac().getPreventiveState(), firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, postContingencyResults, remedialActionsExcluded);
     }
 
-    static AppliedRemedialActions getAppliedRemedialActionsPostContingency(Map<State, OptimizationResult> postContingencyResults, PrePerimeterResult preCurativeResults) {
+    static AppliedRemedialActions getAppliedNetworkActionsPostContingency(Map<State, OptimizationResult> postContingencyResults) {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         postContingencyResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
+        return appliedRemedialActions;
+    }
+
+    static void addAppliedRangeActionsPostContingency(AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults, PrePerimeterResult preCurativeResults) {
         // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
         postContingencyResults.forEach((state, optimizationResult) ->
             (new PerimeterResultImpl(preCurativeResults, optimizationResult)).getActivatedRangeActions(state)
                 .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)))
         );
-        return appliedRemedialActions;
     }
 
     private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, Set<NetworkAction> optimalNetworkActionsInFirstPreventiveRao, AppliedRemedialActions appliedCras) {

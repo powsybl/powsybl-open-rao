@@ -16,8 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -47,6 +46,7 @@ public class JsonCimCracCreationParametersTest {
         assertEquals("rangeAction3 + rangeAction4", cimCracCreationParameters.getRangeActionGroupsAsString().get(0));
         assertEquals("hvdc1 + hvdc2", cimCracCreationParameters.getRangeActionGroupsAsString().get(1));
         assertEquals(1, cimCracCreationParameters.getRangeActionSpeed("rangeAction1").getSpeed().intValue());
+        assertTrue(cimCracCreationParameters.getTimeseriesMrids().isEmpty());
     }
 
     @Test
@@ -117,5 +117,36 @@ public class JsonCimCracCreationParametersTest {
     @Test (expected = FaraoException.class)
     public void importNokTest6() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok-aligned.json"));
+    }
+
+    @Test
+    public void testImportTimeseriesMrid() {
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok-timeseries.json"));
+
+        CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
+        assertNotNull(cimCracCreationParameters);
+
+        assertEquals(Set.of("border1", "border2"), cimCracCreationParameters.getTimeseriesMrids());
+    }
+
+    @Test
+    public void roundTripTestTimeseriesMrid() {
+        // prepare parameters to export
+        CracCreationParameters exportedParameters = new CracCreationParameters();
+        CimCracCreationParameters exportedCimParameters = new CimCracCreationParameters();
+        exportedCimParameters.setTimeseriesMrids(Set.of("ts1", "ts2"));
+        exportedParameters.addExtension(CimCracCreationParameters.class, exportedCimParameters);
+
+        // roundTrip
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        JsonCracCreationParameters.write(exportedParameters, os);
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(is);
+
+        // test re-imported parameters
+        CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
+        assertNotNull(cimCracCreationParameters);
+        assertEquals(Set.of("ts1", "ts2"), cimCracCreationParameters.getTimeseriesMrids());
+
     }
 }
