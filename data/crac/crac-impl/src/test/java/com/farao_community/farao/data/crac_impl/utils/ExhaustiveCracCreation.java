@@ -138,6 +138,17 @@ public final class ExhaustiveCracCreation {
                 .withMonitored()
                 .add();
 
+        crac.newVoltageCnec().withId("voltageCnecId")
+            .withName("voltageCnecName")
+            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
+            .withInstant(Instant.CURATIVE)
+            .withContingency(contingency1Id)
+            .withOperator("operator1")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMin(380.).add()
+            .withReliabilityMargin(1.)
+            .withMonitored()
+            .add();
+
         // network action with one pst set point
         crac.newNetworkAction().withId("pstSetpointRaId")
                 .withName("pstSetpointRaName")

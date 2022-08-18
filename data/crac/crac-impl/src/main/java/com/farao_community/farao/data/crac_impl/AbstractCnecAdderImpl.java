@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -51,6 +53,20 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
             }
         }
         networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
+
+        if (owner.getCnec(id) != null) {
+            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
+        }
+    }
+
+    protected State getState() {
+        State state;
+        if (instant != Instant.PREVENTIVE) {
+            state = owner.addState(owner.getContingency(contingencyId), instant);
+        } else {
+            state = owner.addPreventiveState();
+        }
+        return state;
     }
 
     @Override

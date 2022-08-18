@@ -163,6 +163,11 @@ public interface Crac extends Identifiable<Crac> {
     AngleCnecAdder newAngleCnec();
 
     /**
+     * Get a {@link VoltageCnecAdder} adder, to add a {@link VoltageCnec} to the Crac
+     */
+    VoltageCnecAdder newVoltageCnec();
+
+    /**
      * Gather all the Cnecs present in the Crac. It returns a set because Cnecs must not
      * be duplicated and there is no defined order for Cnecs.
      */
@@ -243,6 +248,23 @@ public interface Crac extends Identifiable<Crac> {
     AngleCnec getAngleCnec(String angleCnecId);
 
     /**
+     * Gather all the VoltageCnecs present in the Crac. It returns a set because Cnecs must not
+     * be duplicated and there is no defined order for Cnecs.
+     */
+    Set<VoltageCnec> getVoltageCnecs();
+
+    /**
+     * Gather all the VoltageCnecs of a specified State. It returns a set because Cnecs must not be
+     * duplicated and there is no defined order for Cnecs.
+     */
+    Set<VoltageCnec> getVoltageCnecs(State state);
+
+    /**
+     * Find a VoltageCnec by its id, returns null if the VoltageCnec does not exist.
+     */
+    VoltageCnec getVoltageCnec(String voltageCnecId);
+
+    /**
      * Remove a Cnec - identified by its id - from the Crac
      */
     void removeCnec(String cnecId);
@@ -263,9 +285,19 @@ public interface Crac extends Identifiable<Crac> {
     void removeAngleCnec(String angleCnecId);
 
     /**
-     * Remove a set of FlowCnecs - identified by their id - from the Crac
+     * Remove a set of AngleCnecs - identified by their id - from the Crac
      */
     void removeAngleCnecs(Set<String> angleCnecsIds);
+
+    /**
+     * Remove a VoltageCnec - identified by its id - from the Crac
+     */
+    void removeVoltageCnec(String voltageCnecId);
+
+    /**
+     * Remove a set of VoltageCnecs - identified by their id - from the Crac
+     */
+    void removeVoltageCnecs(Set<String> voltageCnecsIds);
 
     // Remedial actions management
 

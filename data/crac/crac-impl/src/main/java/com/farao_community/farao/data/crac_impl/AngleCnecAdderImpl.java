@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.*;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.AngleThresholdAdder;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 
@@ -88,22 +88,13 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
     public AngleCnec add() {
         checkCnec();
 
-        if (owner.getCnec(id) != null) {
-            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
-        }
-
         if (optimized) {
             throw new FaraoException(format("Error while adding cnec %s : Farao does not allow the optimization of AngleCnecs.", id));
         }
 
         checkAndInitThresholds();
 
-        State state;
-        if (instant != Instant.PREVENTIVE) {
-            state = owner.addState(owner.getContingency(contingencyId), instant);
-        } else {
-            state = owner.addPreventiveState();
-        }
+        State state = getState();
 
         AngleCnec cnec = new AngleCnecImpl(id, name,
             owner.getNetworkElement(exportingNetworkElementId),

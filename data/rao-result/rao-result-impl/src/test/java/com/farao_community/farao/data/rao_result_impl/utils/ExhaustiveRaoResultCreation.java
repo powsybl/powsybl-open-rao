@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -80,8 +81,8 @@ public final class ExhaustiveRaoResultCreation {
          with:
          - XXXX = 1000 for cnec1, 2000 for cnec2, ...
          - YYY = 000 for initial, 100 for after_pra, 200 for after_ara and 300 for after_cra
-         - ZZ = 10 for MW, 20 for AMPERE and 30 for DEGREE
-         - A = 0 for flow, 1 for margin, 2 for relativeMargin, 3 for loop-flows and 4 for commercial flow and 5 for angle
+         - ZZ = 10 for MW, 20 for AMPERE, 30 for DEGREE and 40 for KILOVOLT
+         - A = 0 for flow, 1 for margin, 2 for relativeMargin, 3 for loop-flows, 4 for commercial flow, 5 for angle and 6 for voltage
 
          Moreover:
          - only cnec 1 and cnec 2 have loop-flows and commercial flows (in practice, only cross-border CNECs)
@@ -99,6 +100,11 @@ public final class ExhaustiveRaoResultCreation {
         for (AngleCnec cnec : crac.getAngleCnecs()) {
             AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(cnec);
             fillAngleCnecResult(angleCnecResult, cnec);
+        }
+
+        for (VoltageCnec cnec : crac.getVoltageCnecs()) {
+            VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(cnec);
+            fillVoltageCnecResult(voltageCnecResult, cnec);
         }
 
         // -----------------------------
@@ -232,6 +238,25 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
+    private static void fillVoltageCnecResult(VoltageCnecResult voltageCnecResult, VoltageCnec cnec) {
+
+        double x = 4000;
+
+        ElementaryVoltageCnecResult initialEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        fillElementaryResult(initialEacr, x, 100);
+        ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        fillElementaryResult(afterPraEacr, x, 200);
+
+        if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
+            ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+            fillElementaryResult(afterAraEacr, x, 300);
+        }
+        if (cnec.getState().getInstant() == Instant.CURATIVE) {
+            ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+            fillElementaryResult(afterCraEacr, x, 400);
+        }
+    }
+
     private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec) {
 
         elementaryFlowCnecResult.setFlow(x + y + 10, MEGAWATT);
@@ -256,5 +281,10 @@ public final class ExhaustiveRaoResultCreation {
     private static void fillElementaryResult(ElementaryAngleCnecResult elementaryAngleCnecResult, double x, double y) {
         elementaryAngleCnecResult.setAngle(x + y + 35, DEGREE);
         elementaryAngleCnecResult.setMargin(x + y + 31, DEGREE);
+    }
+
+    private static void fillElementaryResult(ElementaryVoltageCnecResult elementaryVoltageCnecResult, double x, double y) {
+        elementaryVoltageCnecResult.setVoltage(x + y + 46, KILOVOLT);
+        elementaryVoltageCnecResult.setMargin(x + y + 41, KILOVOLT);
     }
 }
