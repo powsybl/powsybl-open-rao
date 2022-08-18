@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,21 +59,5 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
             gen.writeObject(threshold);
         }
         gen.writeEndArray();
-    }
-
-    private static class ThresholdComparator implements Comparator<Threshold> {
-        @Override
-        public int compare(Threshold o1, Threshold o2) {
-            String unit1 = serializeUnit(o1.getUnit());
-            String unit2 = serializeUnit(o2.getUnit());
-            if (unit1.equals(unit2)) {
-                if (o1.min().isPresent()) {
-                    return -1;
-                }
-                return 1;
-            } else {
-                return unit1.compareTo(unit2);
-            }
-        }
     }
 }

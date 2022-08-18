@@ -394,7 +394,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeCnec(String cnecId) {
-        // In the future, if handling multiple Cnec types, we will have to do more things here
         removeFlowCnec(cnecId);
         removeAngleCnec(cnecId);
         removeVoltageCnec(cnecId);

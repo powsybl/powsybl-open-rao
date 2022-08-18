@@ -8,16 +8,15 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
+import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,22 +86,5 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
             gen.writeObject(threshold);
         }
         gen.writeEndArray();
-    }
-
-    private static class ThresholdComparator implements Comparator<BranchThreshold> {
-        @Override
-        public int compare(BranchThreshold o1, BranchThreshold o2) {
-            // TODO : once all export is done, check on CORE case that the export is deterministic
-            String unit1 = serializeUnit(o1.getUnit());
-            String unit2 = serializeUnit(o2.getUnit());
-            if (unit1.equals(unit2)) {
-                if (o1.min().isPresent()) {
-                    return -1;
-                }
-                return 1;
-            } else {
-                return unit1.compareTo(unit2);
-            }
-        }
     }
 }

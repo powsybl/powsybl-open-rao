@@ -13,10 +13,12 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -67,12 +69,6 @@ public final class JsonSerializationConstants {
 
     public static final String THRESHOLDS = "thresholds";
     public static final String RELIABILITY_MARGIN = "reliabilityMargin";
-    /**
-     * frm has been replaced by reliability_margin
-     *
-     * @deprecated use {@link #RELIABILITY_MARGIN} instead.
-     */
-    @Deprecated (since = "1.4")
     public static final String FRM = "frm";
     public static final String OPTIMIZED = "optimized";
     public static final String MONITORED = "monitored";
@@ -353,6 +349,22 @@ public final class JsonSerializationConstants {
                 return ActionType.CLOSE;
             default:
                 throw new FaraoException(String.format("Unrecognized action type %s", stringValue));
+        }
+    }
+
+    public static class ThresholdComparator implements Comparator<Threshold> {
+        @Override
+        public int compare(Threshold o1, Threshold o2) {
+            String unit1 = serializeUnit(o1.getUnit());
+            String unit2 = serializeUnit(o2.getUnit());
+            if (unit1.equals(unit2)) {
+                if (o1.min().isPresent()) {
+                    return -1;
+                }
+                return 1;
+            } else {
+                return unit1.compareTo(unit2);
+            }
         }
     }
 }

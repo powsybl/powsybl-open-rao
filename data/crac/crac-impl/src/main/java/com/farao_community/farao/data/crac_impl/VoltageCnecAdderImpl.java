@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.*;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.threshold.VoltageThresholdAdder;
 
@@ -59,22 +59,13 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
     public VoltageCnec add() {
         checkCnec();
 
-        if (owner.getCnec(id) != null) {
-            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
-        }
-
         if (optimized) {
             throw new FaraoException(format("Error while adding cnec %s : Farao does not allow the optimization of VoltageCnecs.", id));
         }
 
         checkAndInitThresholds();
 
-        State state;
-        if (instant != Instant.PREVENTIVE) {
-            state = owner.addState(owner.getContingency(contingencyId), instant);
-        } else {
-            state = owner.addPreventiveState();
-        }
+        State state = getState();
 
         VoltageCnec cnec = new VoltageCnecImpl(id, name,
             owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()),

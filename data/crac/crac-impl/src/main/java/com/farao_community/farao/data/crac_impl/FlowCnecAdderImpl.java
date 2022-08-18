@@ -97,19 +97,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     @Override
     public FlowCnec add() {
         checkCnec();
-
-        if (owner.getCnec(id) != null) {
-            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
-        }
-
         checkAndInitThresholds();
-
-        State state;
-        if (instant != Instant.PREVENTIVE) {
-            state = owner.addState(owner.getContingency(contingencyId), instant);
-        } else {
-            state = owner.addPreventiveState();
-        }
+        State state = getState();
 
         FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, state, optimized, monitored,
             thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),
