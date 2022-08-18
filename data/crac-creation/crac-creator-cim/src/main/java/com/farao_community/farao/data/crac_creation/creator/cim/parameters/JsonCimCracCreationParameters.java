@@ -30,6 +30,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     private static final String RANGE_ACTION_ID = "range-action-id";
     private static final String SPEED = "speed";
     private static final String TIMESERIES_MRIDS = "timeseries-mrids";
+    private static final String VOLTAGE_CNECS_CREATION_PARAMETERS = "voltage-cnecs-creation-parameters";
 
     @Override
     public void serialize(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -37,6 +38,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
         serializeTimeseriesMrids(cimParameters, jsonGenerator);
         serializeRangeActionGroups(cimParameters, jsonGenerator);
         serializeRangeActionSpeedSet(cimParameters, jsonGenerator);
+        serializeVoltageCnecsCreationParameters(cimParameters.getVoltageCnecsCreationParameters(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -60,6 +62,10 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                 case RANGE_ACTION_SPEEDS:
                     jsonParser.nextToken();
                     parameters.setRemedialActionSpeed(deserializeRangeActionSpeedSet(jsonParser));
+                    break;
+                case VOLTAGE_CNECS_CREATION_PARAMETERS:
+                    jsonParser.nextToken();
+                    parameters.setVoltageCnecsCreationParameters(JsonVoltageCnecsCreationParameters.deserialize(jsonParser));
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -105,6 +111,13 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                 jsonGenerator.writeEndObject();
             }
             jsonGenerator.writeEndArray();
+        }
+    }
+
+    private void serializeVoltageCnecsCreationParameters(VoltageCnecsCreationParameters voltageCnecsCreationParameters, JsonGenerator jsonGenerator) throws IOException {
+        if (voltageCnecsCreationParameters != null) {
+            jsonGenerator.writeFieldName(VOLTAGE_CNECS_CREATION_PARAMETERS);
+            JsonVoltageCnecsCreationParameters.serialize(voltageCnecsCreationParameters, jsonGenerator);
         }
     }
 

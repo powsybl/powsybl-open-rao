@@ -17,6 +17,7 @@ import java.util.*;
 public class CimCracCreationParameters extends AbstractAlignedRaCracCreationParameters {
     private Set<String> timeseriesMrids = new HashSet<>();
     private Set<RangeActionSpeed> speedSet = new HashSet<>();
+    private VoltageCnecsCreationParameters voltageCnecsCreationParameters = null;
 
     @Override
     public String getName() {
@@ -62,5 +63,13 @@ public class CimCracCreationParameters extends AbstractAlignedRaCracCreationPara
                 }
             }
         }
+    }
+
+    public VoltageCnecsCreationParameters getVoltageCnecsCreationParameters() {
+        return voltageCnecsCreationParameters;
+    }
+
+    public void setVoltageCnecsCreationParameters(VoltageCnecsCreationParameters voltageCnecsCreationParameters) {
+        this.voltageCnecsCreationParameters = voltageCnecsCreationParameters;
     }
 }
