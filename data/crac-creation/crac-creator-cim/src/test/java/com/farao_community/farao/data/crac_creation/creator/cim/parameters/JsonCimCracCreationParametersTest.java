@@ -148,43 +148,5 @@ public class JsonCimCracCreationParametersTest {
         CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
         assertNotNull(cimCracCreationParameters);
         assertEquals(Set.of("ts1", "ts2"), cimCracCreationParameters.getTimeseriesMrids());
-
-    }
-
-    @Test
-    public void testImportVoltageCnecs() {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters.json"));
-
-        CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
-        assertNotNull(cimCracCreationParameters);
-
-        VoltageCnecsCreationParameters vParams = cimCracCreationParameters.getVoltageCnecsCreationParameters();
-        assertNotNull(vParams);
-        assertEquals(Set.of("ne1", "ne2"), vParams.getMonitoredNetworkElements());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().size());
-
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE));
-        assertNull(vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().size());
-        assertEquals(new ThresholdImpl(Unit.KILOVOLT, 180., null), vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().get(200.));
-        assertEquals(new ThresholdImpl(Unit.KILOVOLT, 395., 430.), vParams.getMonitoredStatesAndThresholds().get(Instant.PREVENTIVE).getThresholdPerNominalV().get(400.));
-
-        assertNotNull(vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE));
-        assertEquals(Set.of("N-1 ONE", "N-1 TWO"), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getContingencyNames());
-        assertEquals(2, vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().size());
-        assertEquals(new ThresholdImpl(Unit.KILOVOLT, null, 230.), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().get(210.));
-        assertEquals(new ThresholdImpl(Unit.KILOVOLT, 380., 430.), vParams.getMonitoredStatesAndThresholds().get(Instant.CURATIVE).getThresholdPerNominalV().get(400.));
-    }
-
-    @Test
-    public void roundTripOnVoltageMonitoringParameters() throws IOException {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-for-round-trip.json"));
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        JsonCracCreationParameters.write(importedParameters, os);
-        String exportedString = os.toString();
-
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-for-round-trip.json");
-        assertEquals(new String(inputStream.readAllBytes()), exportedString);
     }
 }

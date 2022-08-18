@@ -40,8 +40,8 @@ public final class JsonVoltageCnecsCreationParameters {
     }
 
     static VoltageCnecsCreationParameters deserialize(JsonParser jsonParser) throws IOException {
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = null;
-        Set<String> monitoredNetworkElements = null;
+        Map<Instant, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = new TreeMap<>();
+        Set<String> monitoredNetworkElements = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
                 case MONITORED_STATES_AND_THRESHOLDS:
@@ -70,7 +70,7 @@ public final class JsonVoltageCnecsCreationParameters {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Instant instant = null;
             Set<String> contingencyNames = null;
-            Map<Double, Threshold> thresholdPerNominalV = null;
+            Map<Double, Threshold> thresholdPerNominalV = new TreeMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
