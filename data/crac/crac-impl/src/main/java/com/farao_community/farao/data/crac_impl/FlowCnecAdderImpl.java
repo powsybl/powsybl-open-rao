@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -97,19 +95,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     @Override
     public FlowCnec add() {
         checkCnec();
-
-        if (owner.getCnec(id) != null) {
-            throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
-        }
-
         checkAndInitThresholds();
-
-        State state;
-        if (instant != Instant.PREVENTIVE) {
-            state = owner.addState(owner.getContingency(contingencyId), instant);
-        } else {
-            state = owner.addPreventiveState();
-        }
+        State state = getState();
 
         FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, state, optimized, monitored,
             thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),

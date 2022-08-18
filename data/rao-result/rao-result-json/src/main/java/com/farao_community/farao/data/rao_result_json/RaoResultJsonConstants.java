@@ -47,6 +47,9 @@ public final class RaoResultJsonConstants {
     public static final String ANGLECNEC_RESULTS = "angleCnecResults";
     public static final String ANGLECNEC_ID = "angleCnecId";
     public static final String ANGLE = "angle";
+    public static final String VOLTAGECNEC_RESULTS = "voltageCnecResults";
+    public static final String VOLTAGECNEC_ID = "voltageCnecId";
+    public static final String VOLTAGE = "voltage";
     public static final String MARGIN = "margin";
     public static final String RELATIVE_MARGIN = "relativeMargin";
     public static final String COMMERCIAL_FLOW = "commercialFlow";

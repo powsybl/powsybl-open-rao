@@ -9,7 +9,9 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
@@ -49,6 +51,7 @@ public class CracImportExportTest {
         assertEquals(2, importedCrac.getContingencies().size());
         assertEquals(7, importedCrac.getFlowCnecs().size());
         assertEquals(1, importedCrac.getAngleCnecs().size());
+        assertEquals(1, importedCrac.getVoltageCnecs().size());
         assertEquals(6, importedCrac.getRangeActions().size());
         assertEquals(4, importedCrac.getNetworkActions().size());
 
@@ -127,16 +130,30 @@ public class CracImportExportTest {
         // ----------------------
         // --- test AngleCnec ---
         // ----------------------
-        assertNotNull(crac.getAngleCnec("angleCnecId"));
-        assertEquals("eneId", crac.getAngleCnec("angleCnecId").getExportingNetworkElement().getId());
-        assertEquals("ineId", crac.getAngleCnec("angleCnecId").getImportingNetworkElement().getId());
-        assertEquals(CURATIVE, crac.getAngleCnec("angleCnecId").getState().getInstant());
-        assertEquals("contingency1Id", crac.getAngleCnec("angleCnecId").getState().getContingency().get().getId());
-        assertFalse(crac.getAngleCnec("angleCnecId").isOptimized());
-        assertTrue(crac.getAngleCnec("angleCnecId").isMonitored());
-        assertEquals("operator1", crac.getAngleCnec("angleCnecId").getOperator());
-        assertEquals(-90., crac.getAngleCnec("angleCnecId").getLowerBound(Unit.DEGREE).orElseThrow(), 1e-3);
-        assertEquals(90., crac.getAngleCnec("angleCnecId").getUpperBound(Unit.DEGREE).orElseThrow(), 1e-3);
+        AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
+        assertNotNull(angleCnec);
+        assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
+        assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
+        assertEquals(CURATIVE, angleCnec.getState().getInstant());
+        assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
+        assertFalse(angleCnec.isOptimized());
+        assertTrue(angleCnec.isMonitored());
+        assertEquals("operator1", angleCnec.getOperator());
+        assertEquals(-90., angleCnec.getLowerBound(Unit.DEGREE).orElseThrow(), 1e-3);
+        assertEquals(90., angleCnec.getUpperBound(Unit.DEGREE).orElseThrow(), 1e-3);
+
+        // ----------------------
+        // --- test VoltageCnec ---
+        // ----------------------
+        VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
+        assertNotNull(voltageCnec);
+        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
+        assertEquals(CURATIVE, voltageCnec.getState().getInstant());
+        assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
+        assertFalse(voltageCnec.isOptimized());
+        assertTrue(voltageCnec.isMonitored());
+        assertEquals("operator1", voltageCnec.getOperator());
+        assertEquals(381, voltageCnec.getLowerBound(Unit.KILOVOLT).orElseThrow(), 1e-3);
 
         // ---------------------------
         // --- test NetworkActions ---
