@@ -135,7 +135,7 @@ public final class JsonVoltageCnecsCreationParameters {
                 throw new FaraoException(String.format("Multiple thresholds for same nominalV (%.1f) defined", nominalV));
             } else {
                 Objects.requireNonNull(unit);
-                map.put(nominalV, new ThresholdImpl(unit, min, max));
+                map.put(nominalV, new VoltageThresholdImpl(unit, min, max));
             }
         }
         return map;

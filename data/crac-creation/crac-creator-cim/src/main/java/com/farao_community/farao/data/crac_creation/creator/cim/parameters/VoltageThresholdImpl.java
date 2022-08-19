@@ -19,13 +19,13 @@ import static java.lang.Math.abs;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class ThresholdImpl implements Threshold {
+public class VoltageThresholdImpl implements Threshold {
 
     protected Unit unit;
     protected Double min;
     protected Double max;
 
-    ThresholdImpl(Unit unit, Double min, Double max) {
+    VoltageThresholdImpl(Unit unit, Double min, Double max) {
         this.unit = unit;
         this.min = min;
         this.max = max;
@@ -64,7 +64,7 @@ public class ThresholdImpl implements Threshold {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ThresholdImpl otherT = (ThresholdImpl) o;
+        VoltageThresholdImpl otherT = (VoltageThresholdImpl) o;
         return ((unit == null && otherT.getUnit() == null) || (unit != null && unit.equals(otherT.getUnit())))
                 && equalsDouble(max, otherT.getMax())
                 && equalsDouble(min, otherT.getMin());
