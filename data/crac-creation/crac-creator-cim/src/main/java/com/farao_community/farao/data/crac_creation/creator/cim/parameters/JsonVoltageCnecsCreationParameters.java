@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -70,7 +69,7 @@ public final class JsonVoltageCnecsCreationParameters {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Instant instant = null;
             Set<String> contingencyNames = null;
-            Map<Double, Threshold> thresholdPerNominalV = new TreeMap<>();
+            Map<Double, VoltageThreshold> thresholdPerNominalV = new TreeMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
@@ -102,8 +101,8 @@ public final class JsonVoltageCnecsCreationParameters {
         return statesAndThresholds;
     }
 
-    private static Map<Double, Threshold> deserializeThresholdsPerNominalV(JsonParser jsonParser) throws IOException, NoSuchFieldException {
-        Map<Double, Threshold> map = new TreeMap<>();
+    private static Map<Double, VoltageThreshold> deserializeThresholdsPerNominalV(JsonParser jsonParser) throws IOException, NoSuchFieldException {
+        Map<Double, VoltageThreshold> map = new TreeMap<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Double nominalV = null;
             Unit unit = null;
@@ -135,7 +134,7 @@ public final class JsonVoltageCnecsCreationParameters {
                 throw new FaraoException(String.format("Multiple thresholds for same nominalV (%.1f) defined", nominalV));
             } else {
                 Objects.requireNonNull(unit);
-                map.put(nominalV, new VoltageThresholdImpl(unit, min, max));
+                map.put(nominalV, new VoltageThreshold(unit, min, max));
             }
         }
         return map;
@@ -160,16 +159,16 @@ public final class JsonVoltageCnecsCreationParameters {
 
             // Thresholds
             jsonGenerator.writeArrayFieldStart(THRESHOLDS_PER_NOMINAL_V);
-            for (Map.Entry<Double, Threshold> thresholdEntry : data.getThresholdPerNominalV().entrySet()) {
+            for (Map.Entry<Double, VoltageThreshold> thresholdEntry : data.getThresholdPerNominalV().entrySet()) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeNumberField(NOMINAL_V, thresholdEntry.getKey());
-                Threshold thresh = thresholdEntry.getValue();
+                VoltageThreshold thresh = thresholdEntry.getValue();
                 jsonGenerator.writeStringField(UNIT, unitToString(thresh.getUnit()));
-                if (thresh.min().isPresent()) {
-                    jsonGenerator.writeNumberField(MIN, thresh.min().get());
+                if (thresh.getMin() != null) {
+                    jsonGenerator.writeNumberField(MIN, thresh.getMin());
                 }
-                if (thresh.max().isPresent()) {
-                    jsonGenerator.writeNumberField(MAX, thresh.max().get());
+                if (thresh.getMax() != null) {
+                    jsonGenerator.writeNumberField(MAX, thresh.getMax());
                 }
                 jsonGenerator.writeEndObject();
             }

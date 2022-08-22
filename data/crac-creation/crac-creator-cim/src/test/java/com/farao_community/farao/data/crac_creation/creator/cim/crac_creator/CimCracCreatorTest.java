@@ -15,29 +15,25 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
+import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageCnecsCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
+import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.*;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
-import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -659,11 +655,11 @@ public class CimCracCreatorTest {
         assertNotNull(importedCrac.getContingency("Co-2"));
     }
 
-    private Threshold mockVoltageThreshold(Double min, Double max) {
-        Threshold threshold = Mockito.mock(Threshold.class);
+    private VoltageThreshold mockVoltageThreshold(Double min, Double max) {
+        VoltageThreshold threshold = Mockito.mock(VoltageThreshold.class);
         Mockito.when(threshold.getUnit()).thenReturn(Unit.KILOVOLT);
-        Mockito.when(threshold.min()).thenReturn(Optional.ofNullable(min));
-        Mockito.when(threshold.max()).thenReturn(Optional.ofNullable(max));
+        Mockito.when(threshold.getMin()).thenReturn(min);
+        Mockito.when(threshold.getMax()).thenReturn(max);
         return threshold;
     }
 

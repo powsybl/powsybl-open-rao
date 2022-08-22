@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
 
 import java.util.Map;
 import java.util.Objects;
@@ -18,9 +17,9 @@ import java.util.Set;
  */
 public class VoltageMonitoredContingenciesAndThresholds {
     private Set<String> contingencyNames;
-    private Map<Double, Threshold> thresholdPerNominalV;
+    private Map<Double, VoltageThreshold> thresholdPerNominalV;
 
-    public VoltageMonitoredContingenciesAndThresholds(Set<String> contingencyNames, Map<Double, Threshold> thresholdPerNominalV) {
+    public VoltageMonitoredContingenciesAndThresholds(Set<String> contingencyNames, Map<Double, VoltageThreshold> thresholdPerNominalV) {
         Objects.requireNonNull(thresholdPerNominalV);
         this.contingencyNames = contingencyNames;
         if (thresholdPerNominalV.isEmpty()) {
@@ -33,7 +32,7 @@ public class VoltageMonitoredContingenciesAndThresholds {
         return contingencyNames;
     }
 
-    public Map<Double, Threshold> getThresholdPerNominalV() {
+    public Map<Double, VoltageThreshold> getThresholdPerNominalV() {
         return thresholdPerNominalV;
     }
 }

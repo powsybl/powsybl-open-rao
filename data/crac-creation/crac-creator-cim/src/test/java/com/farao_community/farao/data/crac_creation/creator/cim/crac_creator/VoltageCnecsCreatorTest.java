@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
@@ -20,6 +19,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.con
 import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageCnecsCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageThreshold;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -93,11 +93,11 @@ public class VoltageCnecsCreatorTest {
         return context;
     }
 
-    private Threshold mockVoltageThreshold(Double min, Double max) {
-        Threshold threshold = Mockito.mock(Threshold.class);
+    private VoltageThreshold mockVoltageThreshold(Double min, Double max) {
+        VoltageThreshold threshold = Mockito.mock(VoltageThreshold.class);
         Mockito.when(threshold.getUnit()).thenReturn(Unit.KILOVOLT);
-        Mockito.when(threshold.min()).thenReturn(Optional.ofNullable(min));
-        Mockito.when(threshold.max()).thenReturn(Optional.ofNullable(max));
+        Mockito.when(threshold.getMin()).thenReturn(min);
+        Mockito.when(threshold.getMax()).thenReturn(max);
         return threshold;
     }
 

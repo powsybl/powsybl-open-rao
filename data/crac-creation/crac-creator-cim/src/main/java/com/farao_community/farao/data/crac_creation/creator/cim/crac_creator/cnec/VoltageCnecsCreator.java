@@ -9,12 +9,12 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cn
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
-import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageCnecsCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageThreshold;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -104,12 +104,12 @@ public class VoltageCnecsCreator {
         return filteredContingencies;
     }
 
-    private void createAndAddCnecs(Map<String, Double> elementsAndNominalV, Instant instant, Set<String> filteredContingencies, Map<Double, Threshold> thresholdPerNominalV) {
+    private void createAndAddCnecs(Map<String, Double> elementsAndNominalV, Instant instant, Set<String> filteredContingencies, Map<Double, VoltageThreshold> thresholdPerNominalV) {
         if (!instant.equals(Instant.PREVENTIVE) && filteredContingencies.isEmpty()) {
             return;
         }
         elementsAndNominalV.forEach((key, value) -> {
-            Threshold threshold = thresholdPerNominalV.get(value);
+            VoltageThreshold threshold = thresholdPerNominalV.get(value);
             if (threshold == null) {
                 cracCreationContext.addVoltageCnecCreationContext(
                     VoltageCnecCreationContext.notImported(networkElementNativeIdPerId.get(key), instant, null, ImportStatus.INCOMPLETE_DATA, String.format("the threshold for its nominalV (%.2f) was not defined.", value))
@@ -124,7 +124,7 @@ public class VoltageCnecsCreator {
         });
     }
 
-    private void createAndAddVoltageCnecs(String networkElementId, Instant instant, String contingencyId, Threshold threshold) {
+    private void createAndAddVoltageCnecs(String networkElementId, Instant instant, String contingencyId, VoltageThreshold threshold) {
         VoltageCnecAdder adder = cracCreationContext.getCrac().newVoltageCnec();
         String cnecId;
         if (contingencyId != null) {
@@ -138,7 +138,7 @@ public class VoltageCnecsCreator {
                 .withNetworkElement(networkElementId)
                 .withInstant(instant)
                 .withMonitored()
-                .newThreshold().withUnit(threshold.getUnit()).withMin(threshold.min().orElse(null)).withMax(threshold.max().orElse(null)).add()
+                .newThreshold().withUnit(threshold.getUnit()).withMin(threshold.getMin()).withMax(threshold.getMax()).add()
                 .add();
             cracCreationContext.addVoltageCnecCreationContext(
                 VoltageCnecCreationContext.imported(networkElementNativeIdPerId.get(networkElementId), instant, contingencyNativeNamePerId.get(contingencyId), cnecId)
