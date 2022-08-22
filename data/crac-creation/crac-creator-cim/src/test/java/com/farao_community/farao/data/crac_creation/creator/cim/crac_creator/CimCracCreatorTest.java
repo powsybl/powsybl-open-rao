@@ -669,14 +669,13 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportVoltageCnecs() {
-
-        Set<String> monitoredElements = Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        Set<String> monitoredElements = Set.of("_d77b61ef-61aa-4b22-95f6-b56ca080788d", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
 
         Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
-            Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(225., mockVoltageThreshold(220., 230.))),
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(225., mockVoltageThreshold(210., 240.))),
-            Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(225., mockVoltageThreshold(200., null))),
-            Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(225., mockVoltageThreshold(null, null)))
+            Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(220., 230.))),
+            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(220., mockVoltageThreshold(210., 240.))),
+            Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null))),
+            Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(220., mockVoltageThreshold(null, null)))
         );
         VoltageCnecsCreationParameters voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
 
@@ -688,14 +687,14 @@ public class CimCracCreatorTest {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork,  OffsetDateTime.parse("2021-04-01T23:00Z"), params);
 
         assertEquals(3, importedCrac.getVoltageCnecs().size());
-        assertNotNull(importedCrac.getVoltageCnec("[VC] _ffbabc27-1ccd-4fdc-b037-e341706c8d29 - preventive"));
-        assertNotNull(importedCrac.getVoltageCnec("[VC] _ffbabc27-1ccd-4fdc-b037-e341706c8d29 - Co-1 - curative"));
-        assertNotNull(importedCrac.getVoltageCnec("[VC] _ffbabc27-1ccd-4fdc-b037-e341706c8d29 - Co-3 - outage"));
+        assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - preventive"));
+        assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-1 - curative"));
+        assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-3 - outage"));
         assertEquals(7, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertEquals(7, cracCreationContext.getCreationReport().getReport().size());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", instant \"all\" and contingency \"all\" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Branch with id _2844585c-0d35-488d-a449-685bcd57afbf was not found in network.."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Different voltage levels on both ends."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _2844585c-0d35-488d-a449-685bcd57afbf is not a voltage level."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _a708c3bc-465d-4fe7-b6ef-6fa6408a62b0 is not a voltage level."));
         assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"all\", instant \"all\" and contingency \"Co-4-name\" was not imported: OTHER. Contingency does not exist in the CRAC or could not be imported."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_ffbabc27-1ccd-4fdc-b037-e341706c8d29\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
     }
 }

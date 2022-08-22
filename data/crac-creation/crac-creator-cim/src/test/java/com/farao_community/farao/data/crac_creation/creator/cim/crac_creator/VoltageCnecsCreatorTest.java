@@ -72,14 +72,14 @@ public class VoltageCnecsCreatorTest {
         // Co-4-name
         // Co-5-name
 
-        network.getIdentifiable("_b58bf21a-096a-4dae-9a01-3f03b60c24c7").addAlias("line2-alias");
-        monitoredElements = Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "line2-alias");
+        network.getIdentifiable("_d77b61ef-61aa-4b22-95f6-b56ca080788d").addAlias("VL2-alias");
+        monitoredElements = Set.of("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "VL2-alias");
 
         monitoredStatesAndThresholds = Map.of(
-            Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(225., mockVoltageThreshold(220., 230.))),
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(225., mockVoltageThreshold(210., 240.))),
-            Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(225., mockVoltageThreshold(200., null))),
-            Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name"), Map.of(225., mockVoltageThreshold(null, 250.)))
+            Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(215., 225.), 400., mockVoltageThreshold(390., 410.))),
+            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(210., 240.), 400., mockVoltageThreshold(null, 450.))),
+            Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null), 400., mockVoltageThreshold(380., 420.))),
+            Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name"), Map.of(220., mockVoltageThreshold(null, 250.), 400., mockVoltageThreshold(370., null)))
         );
 
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
@@ -122,7 +122,7 @@ public class VoltageCnecsCreatorTest {
         // Check that info about generator is saved in context
         assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement(generator).size());
         assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement(generator).iterator().next().isImported());
-        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement(generator).iterator().next().getImportStatus());
+        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement(generator).iterator().next().getImportStatus());
 
         // Check that info about transformer is saved in context
         assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement(transformer).size());
@@ -157,7 +157,7 @@ public class VoltageCnecsCreatorTest {
     public void testNominalVNotDefinedInThreshold() {
         // Nominal V is 225, not defined in thresholds
         monitoredStatesAndThresholds = Map.of(
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(400., mockVoltageThreshold(0., 1000.)))
+            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(100., mockVoltageThreshold(0., 1000.)))
         );
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
@@ -166,20 +166,20 @@ public class VoltageCnecsCreatorTest {
         assertEquals(0, crac.getVoltageCnecs().size());
         assertEquals(2, cracCreationContext.getVoltageCnecCreationContexts().size());
 
-        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_ffbabc27-1ccd-4fdc-b037-e341706c8d29").size());
-        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_ffbabc27-1ccd-4fdc-b037-e341706c8d29").iterator().next().isImported());
-        assertEquals(ImportStatus.INCOMPLETE_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_ffbabc27-1ccd-4fdc-b037-e341706c8d29").iterator().next().getImportStatus());
+        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").size());
+        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().isImported());
+        assertEquals(ImportStatus.INCOMPLETE_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().getImportStatus());
 
-        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("line2-alias").size());
-        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("line2-alias").iterator().next().isImported());
-        assertEquals(ImportStatus.INCOMPLETE_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("line2-alias").iterator().next().getImportStatus());
+        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").size());
+        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().isImported());
+        assertEquals(ImportStatus.INCOMPLETE_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().getImportStatus());
     }
 
     @Test
     public void testWrongThreshold() {
         // unacceptable threshold
         monitoredStatesAndThresholds = Map.of(
-            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(225., mockVoltageThreshold(null, null)))
+            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(null, null), 400., mockVoltageThreshold(null, null)))
         );
         voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
@@ -188,13 +188,13 @@ public class VoltageCnecsCreatorTest {
         assertEquals(0, crac.getVoltageCnecs().size());
         assertEquals(2, cracCreationContext.getVoltageCnecCreationContexts().size());
 
-        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_ffbabc27-1ccd-4fdc-b037-e341706c8d29").size());
-        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_ffbabc27-1ccd-4fdc-b037-e341706c8d29").iterator().next().isImported());
-        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_ffbabc27-1ccd-4fdc-b037-e341706c8d29").iterator().next().getImportStatus());
+        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").size());
+        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().isImported());
+        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().getImportStatus());
 
-        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("line2-alias").size());
-        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("line2-alias").iterator().next().isImported());
-        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("line2-alias").iterator().next().getImportStatus());
+        assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").size());
+        assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().isImported());
+        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().getImportStatus());
     }
 
     private void assertVoltageCnecImported(String nativeNetworkElementId, String networkElementId, Instant instant, String nativeContingencyName, String contingencyId, Double thresholdMin, Double thresholdMax) {
@@ -233,18 +233,18 @@ public class VoltageCnecsCreatorTest {
         assertEquals(12, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertTrue(cracCreationContext.getVoltageCnecCreationContexts().stream().allMatch(VoltageCnecCreationContext::isImported));
 
-        assertVoltageCnecImported("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29", Instant.PREVENTIVE, null, null, 220., 230.);
-        assertVoltageCnecImported("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29", Instant.CURATIVE, "Co-1-name", "Co-1", 210., 240.);
-        assertVoltageCnecImported("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29", Instant.CURATIVE, "Co-2-name", "Co-2", 210., 240.);
-        assertVoltageCnecImported("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29", Instant.CURATIVE, "Co-3-name", "Co-3", 210., 240.);
-        assertVoltageCnecImported("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29", Instant.OUTAGE, "Co-3-name", "Co-3", 200., null);
-        assertVoltageCnecImported("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29", Instant.AUTO, "Co-1-name", "Co-1", null, 250.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.PREVENTIVE, null, null, 390., 410.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.CURATIVE, "Co-1-name", "Co-1", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.CURATIVE, "Co-2-name", "Co-2", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.CURATIVE, "Co-3-name", "Co-3", null, 450.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.OUTAGE, "Co-3-name", "Co-3", 380., 420.);
+        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", Instant.AUTO, "Co-1-name", "Co-1", 370., null);
 
-        assertVoltageCnecImported("line2-alias", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", Instant.PREVENTIVE, null, null, 220., 230.);
-        assertVoltageCnecImported("line2-alias", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", Instant.CURATIVE, "Co-1-name", "Co-1", 210., 240.);
-        assertVoltageCnecImported("line2-alias", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", Instant.CURATIVE, "Co-2-name", "Co-2", 210., 240.);
-        assertVoltageCnecImported("line2-alias", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", Instant.CURATIVE, "Co-3-name", "Co-3", 210., 240.);
-        assertVoltageCnecImported("line2-alias", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", Instant.OUTAGE, "Co-3-name", "Co-3", 200., null);
-        assertVoltageCnecImported("line2-alias", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", Instant.AUTO, "Co-1-name", "Co-1", null, 250.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.PREVENTIVE, null, null, 215., 225.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.CURATIVE, "Co-1-name", "Co-1", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.CURATIVE, "Co-2-name", "Co-2", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.CURATIVE, "Co-3-name", "Co-3", 210., 240.);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.OUTAGE, "Co-3-name", "Co-3", 200., null);
+        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", Instant.AUTO, "Co-1-name", "Co-1", null, 250.);
     }
 }

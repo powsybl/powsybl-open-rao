@@ -15,9 +15,9 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageCnecsCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
-import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,25 +62,20 @@ public class VoltageCnecsCreator {
     private Map<String, Double> filterMonitoredNetworkElementsAndFetchNominalV() {
         Map<String, Double> elementsAndNominalV = new HashMap<>();
         voltageCnecsCreationParameters.getMonitoredNetworkElements().forEach(neId -> {
-                CgmesBranchHelper branchHelper = new CgmesBranchHelper(neId, network);
-                if (!branchHelper.isValid()) {
+                Identifiable<?> identifiable = network.getIdentifiable(neId);
+                if (identifiable == null) {
                     cracCreationContext.addVoltageCnecCreationContext(
-                        VoltageCnecCreationContext.notImported(neId, null, null, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, branchHelper.getInvalidReason())
+                        VoltageCnecCreationContext.notImported(neId, null, null, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("Element %s was not found in the network", neId))
+                    );
+                    return;
+                } else if (!(identifiable instanceof VoltageLevel)) {
+                    cracCreationContext.addVoltageCnecCreationContext(
+                        VoltageCnecCreationContext.notImported(neId, null, null, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Element %s is not a voltage level", neId))
                     );
                     return;
                 }
-                Branch<?> branch = network.getBranch(branchHelper.getIdInNetwork());
-                double nominalV1 = branch.getTerminal1().getVoltageLevel().getNominalV();
-                double nominalV2 = branch.getTerminal2().getVoltageLevel().getNominalV();
-                if (Math.abs(nominalV1 - nominalV2) > 0.1) {
-                    cracCreationContext.addVoltageCnecCreationContext(
-                        VoltageCnecCreationContext.notImported(neId, null, null, ImportStatus.INCONSISTENCY_IN_DATA, "Different voltage levels on both ends")
-                    );
-                    return;
-                }
-                // TODO : other checks ?
-                networkElementNativeIdPerId.put(branchHelper.getIdInNetwork(), neId);
-                elementsAndNominalV.put(branchHelper.getIdInNetwork(), nominalV1);
+                networkElementNativeIdPerId.put(identifiable.getId(), neId);
+                elementsAndNominalV.put(identifiable.getId(), ((VoltageLevel) identifiable).getNominalV());
             }
         );
         return elementsAndNominalV;
