@@ -50,16 +50,20 @@ public class SweRemedialActionSeriesCreatorTest {
     @Test
     public void generateMonitoredSeriesTest() {
         Set<RemedialActionSeriesCreationContext> rasccList = new HashSet<>();
-        rasccList.add(createRascc("networkActionNativeId", Set.of("networkActionCreatedId"), false, "", "", false));
-        rasccList.add(createRascc("pstNativeId", Set.of("pstCreatedId"), true, "pstId", "pstName", false));
-        rasccList.add(createRascc("hvdcFrEs", Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", false));
-        rasccList.add(createRascc("hvdcEsFr", Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", true));
-        rasccList.add(createRascc("hvdcPtEs", Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", false));
-        rasccList.add(createRascc("hvdcEsPt", Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", true));
+        rasccList.add(createRascc("networkActionNativeId", true, Set.of("networkActionCreatedId"), false, "", "", false));
+        rasccList.add(createRascc("networkAction_shouldNotBeExported", false, Set.of("na_missing"), false, "", "", false));
+        rasccList.add(createRascc("pstNativeId", true, Set.of("pstCreatedId"), true, "pstId", "pstName", false));
+        rasccList.add(createRascc("pst_shouldNotBeExported", false, Set.of("pst_missing"), true, "pstId", "pstName", false));
+        rasccList.add(createRascc("hvdcFrEs", true, Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", false));
+        rasccList.add(createRascc("hvdcEsFr", true, Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", true));
+        rasccList.add(createRascc("hvdcPtEs", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", false));
+        rasccList.add(createRascc("hvdcEsPt", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", true));
         Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContexts()).thenReturn(rasccList);
 
         addRemedialActionToCrac("networkActionCreatedId", "networkActionName", NetworkAction.class);
+        addRemedialActionToCrac("na_missing", "networkActionName", NetworkAction.class);
         addRemedialActionToCrac("pstCreatedId", "pstRangeActionName", PstRangeAction.class);
+        addRemedialActionToCrac("pst_missing", "pstRangeActionName", PstRangeAction.class);
         addRemedialActionToCrac("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs1", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcFrEs + hvdcEsFr - 2", "hvdcFrEs2", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs1", HvdcRangeAction.class);
@@ -72,9 +76,11 @@ public class SweRemedialActionSeriesCreatorTest {
         State curativeState = addStateToCrac(Instant.CURATIVE, contingency);
 
         addNetworkActionToRaoResult(preventiveState, "networkActionCreatedId");
+        addNetworkActionToRaoResult(preventiveState, "na_missing");
         addPstRangeActionToRaoResult(preventiveState, "pstCreatedId", 0.6, 2);
         addPstRangeActionToRaoResult(autoState, "pstCreatedId", 0.9, 3);
         addPstRangeActionToRaoResult(curativeState, "pstCreatedId", 0.3, 1);
+        addPstRangeActionToRaoResult(curativeState, "pst_missing", 0.3, 1);
         addHvdcRangeActionToRaoResult(autoState, "hvdcFrEs + hvdcEsFr - 1", 600.0);
         addHvdcRangeActionToRaoResult(autoState, "hvdcFrEs + hvdcEsFr - 2", 600.0);
         addHvdcRangeActionToRaoResult(autoState, "hvdcPtEs + hvdcEsPt - 1", -400.0);
@@ -95,7 +101,7 @@ public class SweRemedialActionSeriesCreatorTest {
 
     }
 
-    private RemedialActionSeriesCreationContext createRascc(String nativeId, Set<String> createdIds, boolean isPst, String pstElementMrid, String pstElementName, boolean isInverted) {
+    private RemedialActionSeriesCreationContext createRascc(String nativeId, boolean isImported, Set<String> createdIds, boolean isPst, String pstElementMrid, String pstElementName, boolean isInverted) {
         RemedialActionSeriesCreationContext rascc;
         if (isPst) {
             rascc = Mockito.mock(PstRangeActionSeriesCreationContext.class);
@@ -107,6 +113,7 @@ public class SweRemedialActionSeriesCreatorTest {
         Mockito.when(rascc.getNativeId()).thenReturn(nativeId);
         Mockito.when(rascc.getCreatedIds()).thenReturn(createdIds);
         Mockito.when(rascc.isInverted()).thenReturn(isInverted);
+        Mockito.when(rascc.isImported()).thenReturn(isImported);
         return rascc;
     }
 

@@ -60,7 +60,7 @@ public class SweCneExporter {
 
             // format the XML output
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, CNE_XSD_2_5);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, CNE_XSD_2_3);
 
             QName qName = new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, CNE_TAG);
             JAXBElement<CriticalNetworkElementMarketDocument> root = new JAXBElement<>(qName, CriticalNetworkElementMarketDocument.class, marketDocument);
@@ -90,7 +90,7 @@ public class SweCneExporter {
             SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 
-            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_5)),
+            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_3)),
                                new StreamSource(getSchemaFile(CODELISTS_XSD)),
                                new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
             Schema schema = factory.newSchema(source);
@@ -99,7 +99,7 @@ public class SweCneExporter {
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
         } catch (IOException | SAXException e) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Exception: %s", e.getMessage());
+            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Exception: {}", e.getMessage());
             return false;
         }
         return true;

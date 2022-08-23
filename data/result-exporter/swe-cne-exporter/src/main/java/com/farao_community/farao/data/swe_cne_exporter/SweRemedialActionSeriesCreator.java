@@ -42,11 +42,14 @@ public class SweRemedialActionSeriesCreator {
 
     public List<RemedialActionSeries> generateRaSeries(Contingency contingency) {
         List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
-        CimCracCreationContext context = cracCreationContext;
         Crac crac = cneHelper.getCrac();
+        List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
+            .filter(RemedialActionSeriesCreationContext::isImported)
+            .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
+            .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
@@ -56,7 +59,7 @@ public class SweRemedialActionSeriesCreator {
             );
         } else {
             //CURATIVE && AUTO
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
@@ -64,7 +67,7 @@ public class SweRemedialActionSeriesCreator {
                     }
                 }
             );
-            context.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
@@ -79,9 +82,13 @@ public class SweRemedialActionSeriesCreator {
     public List<RemedialActionSeries> generateRaSeriesReference(Contingency contingency) {
         List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
         Crac crac = cneHelper.getCrac();
+        List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
+            .filter(RemedialActionSeriesCreationContext::isImported)
+            .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
+            .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
             //PREVENTIVE
-            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
@@ -91,7 +98,7 @@ public class SweRemedialActionSeriesCreator {
             );
         } else {
             //for the B57, in a contingency case, we want all remedial actions with an effect on the cnecs, so PREVENTIVE, CURATIVE && AUTO
-            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getPreventiveState(), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
@@ -99,7 +106,7 @@ public class SweRemedialActionSeriesCreator {
                     }
                 }
             );
-            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.AUTO), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
@@ -107,7 +114,7 @@ public class SweRemedialActionSeriesCreator {
                     }
                 }
             );
-            cracCreationContext.getRemedialActionSeriesCreationContexts().stream().sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId)).forEach(
+            sortedRas.forEach(
                 raSeriesCreationContext -> {
                     RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, Instant.CURATIVE), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {

@@ -27,7 +27,7 @@ public final class MonitoredSeriesCreationContext {
     private final Set<MeasurementCreationContext> measurementCreationContexts;
     private final boolean isAltered;
 
-    private MonitoredSeriesCreationContext(
+    MonitoredSeriesCreationContext(
         String monitoredSeriesId,
         String monitoredSeriesName,
         String registeredResourceId,
@@ -89,6 +89,10 @@ public final class MonitoredSeriesCreationContext {
 
     public void addMeasurementCreationContext(MeasurementCreationContext measurementCreationContext) {
         measurementCreationContexts.add(measurementCreationContext);
+    }
+
+    void addMeasurementCreationContexts(Set<MeasurementCreationContext> measurementCreationContext) {
+        measurementCreationContexts.addAll(measurementCreationContext);
     }
 
     public boolean isAltered() {
