@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -25,35 +25,34 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerializer<I> {
+public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSerializer<I> {
 
     @Override
-    public void serialize(I angleCnec, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(I voltageCnec, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         gen.writeStartObject();
-        gen.writeStringField(ID, angleCnec.getId());
-        gen.writeStringField(NAME, angleCnec.getName());
-        gen.writeStringField(EXPORTING_NETWORK_ELEMENT_ID, angleCnec.getExportingNetworkElement().getId());
-        gen.writeStringField(IMPORTING_NETWORK_ELEMENT_ID, angleCnec.getImportingNetworkElement().getId());
-        gen.writeStringField(OPERATOR, angleCnec.getOperator());
-        gen.writeStringField(INSTANT, serializeInstant(angleCnec.getState().getInstant()));
-        Optional<Contingency> optContingency = angleCnec.getState().getContingency();
+        gen.writeStringField(ID, voltageCnec.getId());
+        gen.writeStringField(NAME, voltageCnec.getName());
+        gen.writeStringField(NETWORK_ELEMENT_ID, voltageCnec.getNetworkElement().getId());
+        gen.writeStringField(OPERATOR, voltageCnec.getOperator());
+        gen.writeStringField(INSTANT, serializeInstant(voltageCnec.getState().getInstant()));
+        Optional<Contingency> optContingency = voltageCnec.getState().getContingency();
         if (optContingency.isPresent()) {
             gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
         }
-        gen.writeObjectField(OPTIMIZED, angleCnec.isOptimized());
-        gen.writeObjectField(MONITORED, angleCnec.isMonitored());
-        gen.writeNumberField(RELIABILITY_MARGIN, angleCnec.getReliabilityMargin());
+        gen.writeObjectField(OPTIMIZED, voltageCnec.isOptimized());
+        gen.writeObjectField(MONITORED, voltageCnec.isMonitored());
+        gen.writeNumberField(RELIABILITY_MARGIN, voltageCnec.getReliabilityMargin());
 
-        serializeThresholds(angleCnec, gen);
+        serializeThresholds(voltageCnec, gen);
 
-        JsonUtil.writeExtensions(angleCnec, gen, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
+        JsonUtil.writeExtensions(voltageCnec, gen, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
     }
 
-    private void serializeThresholds(AngleCnec angleCnec, JsonGenerator gen) throws IOException {
+    private void serializeThresholds(VoltageCnec voltageCnec, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(THRESHOLDS);
-        List<Threshold> sortedListOfThresholds = angleCnec.getThresholds().stream()
+        List<Threshold> sortedListOfThresholds = voltageCnec.getThresholds().stream()
             .sorted(new ThresholdComparator())
             .collect(Collectors.toList());
         for (Threshold threshold: sortedListOfThresholds) {
