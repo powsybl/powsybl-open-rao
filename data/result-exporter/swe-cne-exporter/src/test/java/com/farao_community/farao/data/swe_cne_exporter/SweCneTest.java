@@ -89,7 +89,27 @@ public class SweCneTest {
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
-            compareCneFiles(new ByteArrayInputStream(outputStream.toByteArray()), inputStream);
+            compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
+        } catch (IOException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testValidateSchemaOk() {
+        try {
+            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
+            assertTrue(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
+        } catch (IOException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testValidateSchemaNok() {
+        try {
+            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_wrong.xml").getFile());
+            assertFalse(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
         } catch (IOException e) {
             Assert.fail();
         }
