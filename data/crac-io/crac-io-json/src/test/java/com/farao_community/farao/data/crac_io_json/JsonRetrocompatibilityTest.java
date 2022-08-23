@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
@@ -144,6 +145,26 @@ public class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getHvdcRangeActions().size());
         assertEquals(1, crac.getInjectionRangeActions().size());
         testContentOfV1Point4Crac(crac);
+    }
+
+    @Test
+    public void importV1Point5Test() {
+
+        // JSON file of farao-core v4.1
+        // addition of voltage cnecs
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.5.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(3, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point5Crac(crac);
     }
 
     private void testContentOfV1Crac(Crac crac) {
@@ -407,5 +428,29 @@ public class JsonRetrocompatibilityTest {
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) rangeAction.getUsageRules().get(0);
         assertEquals("angleCnecId", onAngleConstraint.getAngleCnec().getId());
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
+    }
+
+    public void testContentOfV1Point5Crac(Crac crac) {
+
+        testContentOfV1Point1Crac(crac);
+        testContentOfV1Point2Crac(crac);
+        testContentOfV1Point3Crac(crac);
+        testContentOfV1Point4Crac(crac);
+
+        // test voltage cnec
+        VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
+        assertNotNull(voltageCnec);
+
+        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
+        assertEquals(CURATIVE, voltageCnec.getState().getInstant());
+        assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
+        assertFalse(voltageCnec.isOptimized());
+        assertTrue(voltageCnec.isMonitored());
+        assertEquals("operator1", voltageCnec.getOperator());
+        assertEquals(1, voltageCnec.getThresholds().size());
+        Threshold threshold = voltageCnec.getThresholds().iterator().next();
+        assertEquals(Unit.KILOVOLT, threshold.getUnit());
+        assertTrue(threshold.max().isEmpty());
+        assertEquals(380., threshold.min().orElse(0.0), 1e-3);
     }
 }

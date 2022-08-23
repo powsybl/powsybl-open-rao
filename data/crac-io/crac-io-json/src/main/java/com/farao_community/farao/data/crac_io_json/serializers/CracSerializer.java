@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
@@ -46,6 +47,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         serializeContingencies(crac, gen);
         serializeFlowCnecs(crac, gen);
         serializeAngleCnecs(crac, gen);
+        serializeVoltageCnecs(crac, gen);
         serializePstRangeActions(crac, gen);
         serializeHvdcRangeActions(crac, gen);
         serializeInjectionRangeActions(crac, gen);
@@ -109,6 +111,17 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
             .collect(Collectors.toList());
         for (AngleCnec angleCnec : sortedListOfCnecs) {
             gen.writeObject(angleCnec);
+        }
+        gen.writeEndArray();
+    }
+
+    private void serializeVoltageCnecs(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(VOLTAGE_CNECS);
+        List<VoltageCnec> sortedListOfCnecs = crac.getVoltageCnecs().stream()
+            .sorted(Comparator.comparing(VoltageCnec::getId))
+            .collect(Collectors.toList());
+        for (VoltageCnec voltageCnec : sortedListOfCnecs) {
+            gen.writeObject(voltageCnec);
         }
         gen.writeEndArray();
     }

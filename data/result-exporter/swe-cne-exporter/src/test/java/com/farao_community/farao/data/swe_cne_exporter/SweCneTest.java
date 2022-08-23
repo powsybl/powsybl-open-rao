@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -88,7 +89,7 @@ public class SweCneTest {
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
-            compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
+            compareCneFiles(new ByteArrayInputStream(outputStream.toByteArray()), inputStream);
         } catch (IOException e) {
             Assert.fail();
         }

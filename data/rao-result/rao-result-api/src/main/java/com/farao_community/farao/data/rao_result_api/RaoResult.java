@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -54,6 +55,17 @@ public interface RaoResult {
     double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
 
     /**
+     * It gives the voltage on a {@link VoltageCnec} at a given {@link OptimizationState} and in a
+     * given {@link Unit}.
+     *
+     * @param optimizationState: The state of optimization to be studied.
+     * @param voltageCnec: The voltage cnec to be studied.
+     * @param unit: The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
+     * @return The voltage on the cnec at the optimization state in the given unit.
+     */
+    double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit);
+
+    /**
      * It gives the margin on a {@link FlowCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
@@ -76,6 +88,18 @@ public interface RaoResult {
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
     double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
+
+    /**
+     * It gives the margin on a {@link VoltageCnec} at a given {@link OptimizationState} and in a
+     * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
+     * of the given voltage level. If it is negative the cnec is under constraint.
+     *
+     * @param optimizationState: The state of optimization to be studied.
+     * @param voltageCnec: The voltage cnec to be studied.
+     * @param unit: The unit in which the margin is queried. Only accepted for now is KILOVOLT.
+     * @return The margin on the voltage cnec at the optimization state in the given unit.
+     */
+    double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit);
 
     /**
      * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
