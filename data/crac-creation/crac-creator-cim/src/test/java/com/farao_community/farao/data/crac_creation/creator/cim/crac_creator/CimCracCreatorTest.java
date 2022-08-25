@@ -357,10 +357,10 @@ public class CimCracCreatorTest {
     public void testImportPstRangeActions() {
         setUp("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
-        assertRemedialActionImportedWithOperator("PRA_1", "Unknown");
-        assertRemedialActionImportedWithOperator("PRA_1_REE", "REE");
-        assertRemedialActionImportedWithOperator("PRA_1_RTE", "RTE");
-        assertRemedialActionImportedWithOperator("PRA_1_REN", "REN");
+        assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
+        assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
+        assertRemedialActionImportedWithOperator("RTE-PRA_1", "RTE");
+        assertRemedialActionImportedWithOperator("REN-PRA_1", "REN");
         assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_5", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_6", INCONSISTENCY_IN_DATA);
@@ -386,10 +386,10 @@ public class CimCracCreatorTest {
     public void testImportNetworkActions() {
         setUp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
-        assertRemedialActionImportedWithOperator("PRA_1", "Unknown");
-        assertRemedialActionImportedWithOperator("PRA_1_REE", "REE");
-        assertRemedialActionImportedWithOperator("PRA_1_RTE", "RTE");
-        assertRemedialActionImportedWithOperator("PRA_1_REN", "REN");
+        assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
+        assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
+        assertRemedialActionImportedWithOperator("RTE-PRA_1", "RTE");
+        assertRemedialActionImportedWithOperator("REN-PRA_1", "REN");
         // Pst Setpoint
         assertRemedialActionNotImported("PRA_2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_3", INCONSISTENCY_IN_DATA);
@@ -459,8 +459,10 @@ public class CimCracCreatorTest {
         assertRemedialActionNotImported("HVDC-direction91", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC-direction92", INCONSISTENCY_IN_DATA);
 
-        assertHvdcRangeActionImported("HVDC-direction11", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("Unknown"), true);
-        assertHvdcRangeActionImported("HVDC-direction12", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("Unknown"), false);
+        Set<String> createdIds1 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        Set<String> createdIds2 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertHvdcRangeActionImported("HVDC-direction11", createdIds1, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), true);
+        assertHvdcRangeActionImported("HVDC-direction12", createdIds2 , Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), false);
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get());
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
     }

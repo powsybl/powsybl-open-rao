@@ -81,7 +81,7 @@
             </RegisteredResource>
           </RemedialAction_Series>
           <RemedialAction_Series>
-            <mRID>PRA_1_REE</mRID>
+            <mRID>REE-PRA_1</mRID>
             <name>PRA_1</name>
             <businessType>B59</businessType>
             <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
@@ -99,7 +99,7 @@
             </RegisteredResource>
           </RemedialAction_Series>
           <RemedialAction_Series>
-            <mRID>PRA_1_REN</mRID>
+            <mRID>REN-PRA_1</mRID>
             <name>PRA_1</name>
             <businessType>B59</businessType>
             <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
@@ -117,7 +117,7 @@
             </RegisteredResource>
           </RemedialAction_Series>
           <RemedialAction_Series>
-            <mRID>PRA_1_RTE</mRID>
+            <mRID>RTE-PRA_1</mRID>
             <name>PRA_1</name>
             <businessType>B59</businessType>
             <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
