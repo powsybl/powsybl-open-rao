@@ -8,12 +8,14 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class CimConstants {
-    private CimConstants() { }
+    private CimConstants() {
+    }
 
     // --- GENERAL
     public static final String MEGAWATT_UNIT_SYMBOL = "MAW";
@@ -58,7 +60,8 @@ public final class CimConstants {
         }
 
         public String getStatus() {
-            return status; }
+            return status;
+        }
     }
 
     public enum AvailabilityMarketObjectStatus {
@@ -72,7 +75,8 @@ public final class CimConstants {
         }
 
         public String getStatus() {
-            return status; }
+            return status;
+        }
     }
 
     public enum MarketObjectStatus {
@@ -92,7 +96,8 @@ public final class CimConstants {
         }
 
         public String getStatus() {
-            return status; }
+            return status;
+        }
     }
 
     public enum PsrType {
@@ -113,9 +118,18 @@ public final class CimConstants {
         }
 
         public String getStatus() {
-            return status; }
+            return status;
+        }
     }
 
     // ------ PST remedial action
     public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
+
+    public static String readOperator(String remedialActionId) {
+        if (Objects.isNull(remedialActionId)) {
+            return null;
+        } else {
+            return remedialActionId.split("-")[0];
+        }
+    }
 }
