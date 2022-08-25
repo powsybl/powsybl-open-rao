@@ -135,12 +135,14 @@ public class HvdcRangeActionCreator {
 
         Set<String> createdRaIds = new HashSet<>();
         String groupId = hvdcRangeActionAdders.keySet().stream().sorted().collect(Collectors.joining(" + "));
-        for (String neId : rangeMin.keySet()) {
+        for (Map.Entry<String, List<Integer>> rangeEntry : rangeMin.entrySet()) {
+            String neId = rangeEntry.getKey();
             try {
-                Pair<Integer, Integer> minMax = concatenateHvdcRanges(rangeMin.get(neId), rangeMax.get(neId));
+                Pair<Integer, Integer> minMax = concatenateHvdcRanges(rangeEntry.getValue(), rangeMax.get(neId));
                 String remedialActionId = String.join(" + ", raSeriesIds) + " - " + neId;
                 hvdcRangeActionAdders.get(neId)
                     .withId(remedialActionId).withName(remedialActionId)
+                    .withOperator(CimConstants.readOperator(remedialActionId))
                     .withGroupId(groupId)
                     .newRange().withMin(minMax.getLeft()).withMax(minMax.getRight()).add()
                     .add();
