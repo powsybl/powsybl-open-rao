@@ -515,16 +515,13 @@ public class CimCracCreatorTest {
         // PRA_1
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         PstRangeAction pra1 = importedCrac.getPstRangeAction("PRA_1");
-        assertEquals(10, pra1.getUsageRules().size());
+        assertEquals(7, pra1.getUsageRules().size());
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - preventive");
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-1 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-1 - auto");
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-1 - curative");
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
         assertHasOnFlowConstraintUsageRule(pra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, pra1.getRanges().size());
         assertEquals(RangeType.ABSOLUTE, pra1.getRanges().get(0).getRangeType());
@@ -535,12 +532,10 @@ public class CimCracCreatorTest {
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
-        assertEquals(8, praCra1.getUsageRules().size());
+        assertEquals(6, praCra1.getUsageRules().size());
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
@@ -553,11 +548,9 @@ public class CimCracCreatorTest {
         // AUTO_1
         assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
-        assertEquals(4, auto1.getUsageRules().size());
+        assertEquals(2, auto1.getUsageRules().size());
         assertHasOnFlowConstraintUsageRule(auto1, Instant.AUTO, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, Instant.AUTO, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
         assertHasOnFlowConstraintUsageRule(auto1, Instant.AUTO, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
-        assertHasOnFlowConstraintUsageRule(auto1, Instant.AUTO, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertEquals(1, auto1.getRanges().size());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, auto1.getRanges().get(0).getRangeType());
         assertEquals(-10, auto1.getRanges().get(0).getMinTap());
@@ -643,12 +636,10 @@ public class CimCracCreatorTest {
         // PRA_CRA_1
         assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
         PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
-        assertEquals(8, praCra1.getUsageRules().size());
+        assertEquals(6, praCra1.getUsageRules().size());
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - auto");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - outage");
-        assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - auto");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.PREVENTIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-2 - curative");
         assertHasOnFlowConstraintUsageRule(praCra1, Instant.CURATIVE, "GHIOL_QSDFGH_1_220 - Co-one-3 - curative");
