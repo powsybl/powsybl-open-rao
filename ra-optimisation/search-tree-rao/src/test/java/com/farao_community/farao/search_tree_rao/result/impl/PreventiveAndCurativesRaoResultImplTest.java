@@ -576,8 +576,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
         // Test get functional cost
         assertEquals(1000., output.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
         assertEquals(-1050., output.getFunctionalCost(AFTER_PRA), DOUBLE_TOLERANCE);
-        assertEquals(-1020., output.getFunctionalCost(AFTER_ARA), DOUBLE_TOLERANCE);
-        assertEquals(-1020., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
 
         // Test get most limiting elements
         assertNull(output.getMostLimitingElements(INITIAL, 5));

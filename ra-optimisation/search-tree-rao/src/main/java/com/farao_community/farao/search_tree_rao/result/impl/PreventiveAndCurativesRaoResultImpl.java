@@ -165,7 +165,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
-        } else if (optimizationState == OptimizationState.AFTER_PRA) {
+        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
+            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs.getFunctionalCost();
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
@@ -208,7 +209,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     public double getVirtualCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getVirtualCost();
-        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) {
+        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
+            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             return resultsWithPrasForAllCnecs.getVirtualCost();
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost();
