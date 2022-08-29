@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -27,6 +28,7 @@ import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencySce
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     private OptimizationResult autoResult1;
     private OptimizationResult curativeResult1;
     private OptimizationResult curativeResult2;
+    private StateTree stateTree;
 
     @Before
     public void setUp() {
@@ -183,7 +186,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
         mockCnecResults(preCurativeResult, cnec2, 1050, 550, 2050, 1050);
         mockCnecResults(preCurativeResult, cnec1, 5050, 300, 1550, 800);
 
-        StateTree stateTree = mock(StateTree.class);
+        stateTree = mock(StateTree.class);
         BasecaseScenario basecaseScenario = new BasecaseScenario(preventiveState, null);
         Set<ContingencyScenario> contingencyScenarios = Set.of(
             new ContingencyScenario(contingency1, autoState1, curativeState1),
@@ -258,7 +261,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetVirtualCost() {
         assertEquals(100., output.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
-        assertEquals(-120., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
         assertEquals(-125., output.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
         assertEquals(-270., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
     }
@@ -272,8 +275,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
     public void testGetVirtualCostByName() {
         assertEquals(20., output.getVirtualCost(INITIAL, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(80., output.getVirtualCost(INITIAL, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-40., output.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-100., output.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
         assertEquals(-45., output.getVirtualCost(AFTER_ARA, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(-105., output.getVirtualCost(AFTER_ARA, "lf"), DOUBLE_TOLERANCE);
         assertEquals(-110., output.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
@@ -282,11 +285,11 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     public void testGetCostlyElements() {
-        assertNull(output.getCostlyElements(INITIAL, "mnec", 5));
-        assertNull(output.getCostlyElements(INITIAL, "lf", 15));
+        assertEquals(List.of(cnec2), output.getCostlyElements(INITIAL, "mnec", 5));
+        assertEquals(List.of(cnec1), output.getCostlyElements(INITIAL, "lf", 15));
 
-        assertNull(output.getCostlyElements(AFTER_PRA, "mnec", 5));
-        assertNull(output.getCostlyElements(AFTER_PRA, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(AFTER_PRA, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_PRA, "lf", 15));
 
         assertNull(output.getCostlyElements(AFTER_ARA, "mnec", 5));
         assertNull(output.getCostlyElements(AFTER_ARA, "lf", 15));
@@ -310,6 +313,12 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertFalse(output.isActivatedDuringState(curativeState1, networkAction));
         assertFalse(output.isActivatedDuringState(curativeState2, networkAction));
         assertFalse(output.isActivatedDuringState(curativeState3, networkAction));
+
+        assertTrue(output.isActivatedDuringState(preventiveState, (RemedialAction<?>) networkAction));
+        assertFalse(output.isActivatedDuringState(autoState1, (RemedialAction<?>) networkAction));
+        assertFalse(output.isActivatedDuringState(curativeState1, (RemedialAction<?>) networkAction));
+        assertFalse(output.isActivatedDuringState(curativeState2, (RemedialAction<?>) networkAction));
+        assertFalse(output.isActivatedDuringState(curativeState3, (RemedialAction<?>) networkAction));
     }
 
     @Test
@@ -343,6 +352,12 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertFalse(output.isActivatedDuringState(curativeState1, rangeAction));
         assertFalse(output.isActivatedDuringState(curativeState2, rangeAction));
         assertFalse(output.isActivatedDuringState(curativeState3, rangeAction));
+
+        assertTrue(output.isActivatedDuringState(preventiveState, (RemedialAction<?>) rangeAction));
+        assertTrue(output.isActivatedDuringState(autoState1, (RemedialAction<?>) rangeAction));
+        assertFalse(output.isActivatedDuringState(curativeState1, (RemedialAction<?>) rangeAction));
+        assertFalse(output.isActivatedDuringState(curativeState2, (RemedialAction<?>) rangeAction));
+        assertFalse(output.isActivatedDuringState(curativeState3, (RemedialAction<?>) rangeAction));
     }
 
     @Test
@@ -572,9 +587,9 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get virtual cost
         assertEquals(100., output.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
-        assertEquals(-120., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
-        assertEquals(-120., output.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
-        assertEquals(-120., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(-150., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
 
         // Test get virtual cost names
         assertEquals(Set.of("mnec", "lf"), output.getVirtualCostNames());
@@ -582,18 +597,18 @@ public class PreventiveAndCurativesRaoResultImplTest {
         // Test get virtual cost by name
         assertEquals(20., output.getVirtualCost(INITIAL, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(80., output.getVirtualCost(INITIAL, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-40., output.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-100., output.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-40., output.getVirtualCost(AFTER_ARA, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-100., output.getVirtualCost(AFTER_ARA, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-40., output.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-100., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(AFTER_ARA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(AFTER_ARA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-70., output.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-130., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
 
         // Test get costly elements
-        assertNull(output.getCostlyElements(INITIAL, "mnec", 5));
-        assertNull(output.getCostlyElements(INITIAL, "lf", 15));
-        assertNull(output.getCostlyElements(AFTER_PRA, "mnec", 5));
-        assertNull(output.getCostlyElements(AFTER_PRA, "lf", 15));
+        assertEquals(List.of(cnec2), output.getCostlyElements(INITIAL, "mnec", 5));
+        assertEquals(List.of(cnec1), output.getCostlyElements(INITIAL, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(AFTER_PRA, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_PRA, "lf", 15));
         assertNull(output.getCostlyElements(AFTER_ARA, "mnec", 5));
         assertNull(output.getCostlyElements(AFTER_ARA, "lf", 15));
         assertNull(output.getCostlyElements(AFTER_CRA, "mnec", 5));
@@ -784,5 +799,69 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, autoState1));
         assertNull(output.getPerimeterResult(AFTER_CRA, curativeState1));
         assertNull(output.getPerimeterResult(AFTER_CRA, curativeState2));
+    }
+
+    @Test
+    public void testRemedialActionsExcludedFrom2p() {
+        PerimeterResult secondPreventivePerimeterResult = Mockito.mock(PerimeterResult.class);
+        Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive = Set.of(pstRangeAction);
+
+        output = new PreventiveAndCurativesRaoResultImpl(
+            stateTree,
+            initialResult,
+            postPrevResult,
+            secondPreventivePerimeterResult,
+            remedialActionsExcludedFromSecondPreventive,
+            preCurativeResult,
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2));
+
+        when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
+        when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
+        when(secondPreventivePerimeterResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(-1000.);
+        when(secondPreventivePerimeterResult.getOptimizedSetpointsOnState(preventiveState)).thenReturn(Map.of(rangeAction, -1000.));
+
+        assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
+        assertTrue(output.isActivatedDuringState(preventiveState, pstRangeAction));
+        assertTrue(output.isActivated(preventiveState, networkAction));
+        assertEquals(22, output.getPreOptimizationTapOnState(autoState1, pstRangeAction));
+        assertEquals(28.9, output.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(28.9, output.getPreOptimizationSetPointOnState(autoState1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getOptimizedSetPointOnState(preventiveState, rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getPreOptimizationSetPointOnState(autoState1, rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, -1000.), output.getOptimizedSetPointsOnState(preventiveState));
+
+        when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of());
+        when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        assertFalse(output.isActivatedDuringState(preventiveState, rangeAction));
+        assertTrue(output.isActivatedDuringState(preventiveState, pstRangeAction));
+        assertFalse(output.isActivated(preventiveState, networkAction));
+    }
+
+    @Test
+    public void testWithFinalCostEvaluator() {
+        PerimeterResult secondPreventivePerimeterResult = Mockito.mock(PerimeterResult.class);
+        ObjectiveFunctionResult postSecondAraoResults = Mockito.mock(ObjectiveFunctionResult.class);
+        Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive = Set.of(pstRangeAction);
+
+        output = new PreventiveAndCurativesRaoResultImpl(
+            stateTree,
+            initialResult,
+            postPrevResult,
+            secondPreventivePerimeterResult,
+            remedialActionsExcludedFromSecondPreventive,
+            preCurativeResult,
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
+            postSecondAraoResults);
+
+        when(postSecondAraoResults.getFunctionalCost()).thenReturn(123.);
+        mockVirtualCosts(postSecondAraoResults, 456., 400., List.of(cnec2, cnec4), 56., List.of(cnec1, cnec4));
+
+        assertEquals(123., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(456., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(579., output.getCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(400., output.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(56., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(AFTER_CRA, "mnec", 100));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_CRA, "lf", 100));
     }
 }

@@ -259,8 +259,16 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
-        //TODO : store values to be able to merge easily
-        return null;
+        if (optimizationState == OptimizationState.INITIAL) {
+            return initialResult.getCostlyElements(virtualCostName, number);
+        } else if (optimizationState == OptimizationState.AFTER_PRA) {
+            return resultsWithPrasForAllCnecs.getCostlyElements(virtualCostName, number);
+        } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
+            return finalCostEvaluator.getCostlyElements(virtualCostName, number);
+        } else {
+            // TODO : for other cases, store values to be able to merge easily
+            return null;
+        }
     }
 
     @Override
@@ -280,11 +288,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             return false;
         }
         State previousState = getStateOptimizedBefore(state);
-        if (preventiveState.equals(previousState)) {
-            return (remedialActionsExcludedFromSecondPreventive.contains(networkAction) ? firstPreventivePerimeterResult : secondPreventivePerimeterResult).getActivatedNetworkActions().contains(networkAction);
-        } else {
-            return postContingencyResults.get(previousState).getActivatedNetworkActions().contains(networkAction);
-        }
+        return isActivatedDuringState(previousState, networkAction) || wasActivatedBeforeState(previousState, networkAction);
     }
 
     @Override
@@ -324,11 +328,18 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         }
     }
 
+    private void throwIfNotOptimized(State state) {
+        if (!postContingencyResults.containsKey(state)) {
+            throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
+        }
+    }
+
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getTap(pstRangeAction);
         }
+        throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
             return (remedialActionsExcludedFromSecondPreventive.contains(pstRangeAction) ? firstPreventivePerimeterResult : secondPreventivePerimeterResult).getOptimizedTap(pstRangeAction, preventiveState);
@@ -351,6 +362,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getSetpoint(rangeAction);
         }
+        throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
             return (remedialActionsExcludedFromSecondPreventive.contains(rangeAction) ? firstPreventivePerimeterResult : secondPreventivePerimeterResult).getOptimizedSetpoint(rangeAction, preventiveState);
@@ -386,7 +398,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
-            Map<PstRangeAction, Integer> map = secondPreventivePerimeterResult.getOptimizedTapsOnState(state);
+            Map<PstRangeAction, Integer> map = new HashMap<>(secondPreventivePerimeterResult.getOptimizedTapsOnState(state));
             firstPreventivePerimeterResult.getOptimizedTapsOnState(state).entrySet().stream()
                 .filter(entry -> remedialActionsExcludedFromSecondPreventive.contains(entry.getKey()))
                 .forEach(entry -> map.put(entry.getKey(), entry.getValue()));
@@ -399,7 +411,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
-            Map<RangeAction<?>, Double> map = secondPreventivePerimeterResult.getOptimizedSetpointsOnState(state);
+            Map<RangeAction<?>, Double> map = new HashMap<>(secondPreventivePerimeterResult.getOptimizedSetpointsOnState(state));
             firstPreventivePerimeterResult.getOptimizedSetpointsOnState(state).entrySet().stream()
                 .filter(entry -> remedialActionsExcludedFromSecondPreventive.contains(entry.getKey()))
                 .forEach(entry -> map.put(entry.getKey(), entry.getValue()));
@@ -411,14 +423,11 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     private State getStateOptimizedBefore(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return null;
+            throw new FaraoException("No state before preventive.");
         } else if (state.getInstant() == Instant.OUTAGE || state.getInstant() == Instant.AUTO) {
             return preventiveState;
         } else {
             // curative
-            if (!postContingencyResults.containsKey(state)) {
-                throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
-            }
             Contingency contingency = state.getContingency().orElseThrow();
             return postContingencyResults.keySet().stream()
                 .filter(mapState -> mapState.getInstant().equals(Instant.AUTO) && mapState.getContingency().equals(Optional.of(contingency)))
