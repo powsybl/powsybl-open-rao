@@ -48,7 +48,7 @@ public final class JsonVoltageCnecsCreationParameters {
                     try {
                         voltageMonitoringStatesAndThresholds = deserializeStatesAndThresholds(jsonParser);
                     } catch (NoSuchFieldException e) {
-                        throw new IOException("Could not deserialize SwePreprocessorParameters", e);
+                        throw new FaraoException(String.format("Could not deserialize %s", MONITORED_STATES_AND_THRESHOLDS), e);
                     }
                     break;
                 case MONITORED_NETWORK_ELEMENTS:
@@ -57,7 +57,7 @@ public final class JsonVoltageCnecsCreationParameters {
                     });
                     break;
                 default:
-                    throw new IOException("Unexpected field in SwePreprocessorParameters: " + jsonParser.getCurrentName());
+                    throw new FaraoException("Unexpected field in voltage-cnecs-creation-parameters: " + jsonParser.getCurrentName());
             }
         }
         return new VoltageCnecsCreationParameters(voltageMonitoringStatesAndThresholds, monitoredNetworkElements);
@@ -85,15 +85,15 @@ public final class JsonVoltageCnecsCreationParameters {
                         thresholdPerNominalV = deserializeThresholdsPerNominalV(jsonParser);
                         break;
                     default:
-                        throw new NoSuchFieldException("Unexpected field in monitored-states-and-thresholds: " + jsonParser.getCurrentName());
+                        throw new NoSuchFieldException(String.format("Unexpected field in %s: ", MONITORED_STATES_AND_THRESHOLDS) + jsonParser.getCurrentName());
                 }
             }
             Objects.requireNonNull(instant);
             if (instant.equals(Instant.PREVENTIVE) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
-                throw new FaraoException("When monitoring the preventive instant, you cannot define a contingency");
+                throw new FaraoException("When monitoring the preventive instant, no contingency can be defined.");
             }
             if (statesAndThresholds.containsKey(instant)) {
-                throw new FaraoException(String.format("You have already defined thresholds for instant %s.", instant));
+                throw new FaraoException(String.format("A threshold is already defined for instant %s.", instant));
             } else {
                 statesAndThresholds.put(instant, new VoltageMonitoredContingenciesAndThresholds(contingencyNames, thresholdPerNominalV));
             }
@@ -126,11 +126,12 @@ public final class JsonVoltageCnecsCreationParameters {
                         max = jsonParser.getValueAsDouble();
                         break;
                     default:
-                        throw new NoSuchFieldException("Unexpected field in thresholds-per-nominal-v: " + jsonParser.getCurrentName());
+                        throw new NoSuchFieldException(String.format("Unexpected field in %s: ", THRESHOLDS_PER_NOMINAL_V) + jsonParser.getCurrentName());
                 }
             }
-            Objects.requireNonNull(nominalV);
-            if (map.containsKey(nominalV)) {
+            if (nominalV == null) {
+                throw new FaraoException(String.format("Field %s for %s should be defined.", NOMINAL_V, THRESHOLDS_PER_NOMINAL_V));
+            } else if (map.containsKey(nominalV)) {
                 throw new FaraoException(String.format("Multiple thresholds for same nominalV (%.1f) defined", nominalV));
             } else {
                 Objects.requireNonNull(unit);

@@ -10,15 +10,15 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.VoltageCnecsCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.xsd.TimeSeries;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
-import com.farao_community.farao.data.crac_creation.creator.cim.xsd.TimeSeries;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -73,9 +73,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         createContingencies();
         createCnecs();
         createRemedialActions(cimCracCreationParameters);
-        if (cimCracCreationParameters != null) {
-            new VoltageCnecsCreator(cimCracCreationParameters.getVoltageCnecsCreationParameters(), creationContext, network).createAndAddCnecs();
-        }
+        createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
@@ -90,6 +88,12 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
 
     private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters) {
         new RemedialActionSeriesCreator(cimTimeSeries, crac, network, creationContext, cimCracCreationParameters).createAndAddRemedialActionSeries();
+    }
+
+    private void createVoltageCnecs(CimCracCreationParameters cimCracCreationParameters) {
+        if (cimCracCreationParameters != null && cimCracCreationParameters.getVoltageCnecsCreationParameters() != null) {
+            new VoltageCnecsCreator(cimCracCreationParameters.getVoltageCnecsCreationParameters(), creationContext, network).createAndAddCnecs();
+        }
     }
 
     private boolean isInTimeInterval(OffsetDateTime offsetDateTime, String startTime, String endTime) {

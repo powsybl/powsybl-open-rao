@@ -219,13 +219,6 @@ public class VoltageCnecsCreatorTest {
     }
 
     @Test
-    public void testNullParameters() {
-        new VoltageCnecsCreator(null, cracCreationContext, network).createAndAddCnecs();
-        assertEquals(0, crac.getVoltageCnecs().size());
-        assertEquals(0, cracCreationContext.getVoltageCnecCreationContexts().size());
-    }
-
-    @Test
     public void testCreateVoltageCnecsSuccessfully() {
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
 

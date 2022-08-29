@@ -45,10 +45,6 @@ public class VoltageCnecsCreator {
     }
 
     public void createAndAddCnecs() {
-        if (voltageCnecsCreationParameters == null) {
-            return;
-        }
-
         Map<String, Double> elementsAndNominalV = filterMonitoredNetworkElementsAndFetchNominalV();
         for (Map.Entry<Instant, VoltageMonitoredContingenciesAndThresholds> entry : voltageCnecsCreationParameters.getMonitoredStatesAndThresholds().entrySet()) {
             Set<String> filteredContingencies = new HashSet<>();

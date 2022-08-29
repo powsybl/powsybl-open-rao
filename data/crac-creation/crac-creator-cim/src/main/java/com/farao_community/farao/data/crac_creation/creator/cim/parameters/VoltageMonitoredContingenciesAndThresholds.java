@@ -23,7 +23,7 @@ public class VoltageMonitoredContingenciesAndThresholds {
         Objects.requireNonNull(thresholdPerNominalV);
         this.contingencyNames = contingencyNames;
         if (thresholdPerNominalV.isEmpty()) {
-            throw new FaraoException("You should provide at least one threshold");
+            throw new FaraoException("At least one threshold should be defined.");
         }
         this.thresholdPerNominalV = thresholdPerNominalV;
     }

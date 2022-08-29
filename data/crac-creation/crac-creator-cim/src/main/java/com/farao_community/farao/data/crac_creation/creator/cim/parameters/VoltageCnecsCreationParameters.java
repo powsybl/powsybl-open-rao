@@ -28,7 +28,7 @@ public class VoltageCnecsCreationParameters {
         Objects.requireNonNull(monitoredStatesAndThresholds);
         Objects.requireNonNull(monitoredNetworkElements);
         if (monitoredStatesAndThresholds.isEmpty() || monitoredNetworkElements.isEmpty()) {
-            throw new FaraoException("You have to provide at least one monitored element and one monitored state with thresholds.");
+            throw new FaraoException("At least one monitored element and one monitored state with thresholds should be defined.");
         }
         this.monitoredStatesAndThresholds = monitoredStatesAndThresholds;
         this.monitoredNetworkElements = monitoredNetworkElements;

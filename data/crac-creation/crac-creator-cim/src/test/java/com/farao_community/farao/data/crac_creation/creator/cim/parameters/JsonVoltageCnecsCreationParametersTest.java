@@ -56,38 +56,48 @@ public class JsonVoltageCnecsCreationParametersTest {
         assertEquals(new String(inputStream.readAllBytes()), exportedString);
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfPreventiveWithContingencies() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok1.json"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfInstantDefinedMultipleTimes() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok2.json"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfNominalVDefinedMultipleTimes() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok3.json"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfUnitNotKv() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok4.json"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfNoMonitoredElements() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok5.json"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfNoMonitoredStates() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok6.json"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testFailIfNoThresholds() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok7.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testFailIfNoNominalV() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok8.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testFailOnUnexpectedField() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok9.json"));
     }
 }
