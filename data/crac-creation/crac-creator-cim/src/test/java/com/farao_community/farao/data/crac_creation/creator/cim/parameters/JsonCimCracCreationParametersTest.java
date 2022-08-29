@@ -147,6 +147,5 @@ public class JsonCimCracCreationParametersTest {
         CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
         assertNotNull(cimCracCreationParameters);
         assertEquals(Set.of("ts1", "ts2"), cimCracCreationParameters.getTimeseriesMrids());
-
     }
 }

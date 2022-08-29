@@ -68,7 +68,7 @@ public class CimContingencyCreator {
             .withName(cimContingency.getName());
 
         if (cimContingency.getRegisteredResource().isEmpty()) {
-            cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.INCOMPLETE_DATA, "No registered resources"));
             return;
         }
 
@@ -92,9 +92,9 @@ public class CimContingencyCreator {
         if (anyRegisteredResourceOk) {
             contingencyAdder.add();
             String message = allRegisteredResourcesOk ? null : String.format("Some network elements were not found in the network: %s", missingNetworkElements);
-            cimContingencyCreationContexts.add(CimContingencyCreationContext.imported(createdContingencyId, createdContingencyId, !allRegisteredResourcesOk, message));
+            cimContingencyCreationContexts.add(CimContingencyCreationContext.imported(createdContingencyId, cimContingency.getName(), createdContingencyId, !allRegisteredResourcesOk, message));
         } else {
-            cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
+            cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
         }
     }
 
