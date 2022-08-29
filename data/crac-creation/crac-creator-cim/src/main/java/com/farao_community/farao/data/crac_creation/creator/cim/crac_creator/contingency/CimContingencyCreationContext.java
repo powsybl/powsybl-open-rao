@@ -15,30 +15,36 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
  */
 public final class CimContingencyCreationContext implements ElementaryCreationContext {
     private String contingencyID;
+    private String contingencyName;
     private ImportStatus importStatus;
     private String createdContingencyId;
     private String importStatusDetail;
     private boolean isAltered;
 
-    private CimContingencyCreationContext(String contingencyID, ImportStatus importStatus, String createdContingencyID, boolean isAltered, String importStatusDetail) {
+    private CimContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String createdContingencyID, boolean isAltered, String importStatusDetail) {
         this.contingencyID = contingencyID;
+        this.contingencyName = contingencyName;
         this.importStatus = importStatus;
         this.createdContingencyId = createdContingencyID;
         this.isAltered = isAltered;
         this.importStatusDetail = importStatusDetail;
     }
 
-    static CimContingencyCreationContext notImported(String contingencyID, ImportStatus importStatus, String importStatusDetail) {
-        return new CimContingencyCreationContext(contingencyID, importStatus, null, false, importStatusDetail);
+    static CimContingencyCreationContext notImported(String contingencyID, String contingencyName, ImportStatus importStatus, String importStatusDetail) {
+        return new CimContingencyCreationContext(contingencyID, contingencyName, importStatus, null, false, importStatusDetail);
     }
 
-    static CimContingencyCreationContext imported(String contingencyID, String createdContingencyId, boolean isAltered, String alteringDetail) {
-        return new CimContingencyCreationContext(contingencyID, ImportStatus.IMPORTED, createdContingencyId, isAltered, alteringDetail);
+    static CimContingencyCreationContext imported(String contingencyID, String contingencyName, String createdContingencyId, boolean isAltered, String alteringDetail) {
+        return new CimContingencyCreationContext(contingencyID, contingencyName, ImportStatus.IMPORTED, createdContingencyId, isAltered, alteringDetail);
     }
 
     @Override
     public String getNativeId() {
         return contingencyID;
+    }
+
+    public String getNativeName() {
+        return contingencyName;
     }
 
     @Override

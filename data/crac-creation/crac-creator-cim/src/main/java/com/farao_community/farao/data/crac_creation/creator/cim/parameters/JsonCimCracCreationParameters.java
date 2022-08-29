@@ -30,13 +30,15 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     private static final String RANGE_ACTION_ID = "range-action-id";
     private static final String SPEED = "speed";
     private static final String TIMESERIES_MRIDS = "timeseries-mrids";
+    private static final String VOLTAGE_CNECS_CREATION_PARAMETERS = "voltage-cnecs-creation-parameters";
 
     @Override
     public void serialize(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        serializeTimeseriesMrids(cimParameters, jsonGenerator);
-        serializeRangeActionGroups(cimParameters, jsonGenerator);
-        serializeRangeActionSpeedSet(cimParameters, jsonGenerator);
+        serializeTimeseriesMrids(cimParameters.getTimeseriesMrids(), jsonGenerator);
+        serializeRangeActionGroups(cimParameters.getRangeActionGroupsAsString(), jsonGenerator);
+        serializeRangeActionSpeedSet(cimParameters.getRangeActionSpeedSet(), jsonGenerator);
+        serializeVoltageCnecsCreationParameters(cimParameters.getVoltageCnecsCreationParameters(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -61,6 +63,10 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                     jsonParser.nextToken();
                     parameters.setRemedialActionSpeed(deserializeRangeActionSpeedSet(jsonParser));
                     break;
+                case VOLTAGE_CNECS_CREATION_PARAMETERS:
+                    jsonParser.nextToken();
+                    parameters.setVoltageCnecsCreationParameters(JsonVoltageCnecsCreationParameters.deserialize(jsonParser));
+                    break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
@@ -84,27 +90,34 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
         return CimCracCreationParameters.class;
     }
 
-    private void serializeTimeseriesMrids(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
-        if (!cimParameters.getTimeseriesMrids().isEmpty()) {
-            serializeStringArray(TIMESERIES_MRIDS, cimParameters.getTimeseriesMrids().stream().sorted(String::compareTo).collect(Collectors.toList()), jsonGenerator);
+    private void serializeTimeseriesMrids(Set<String> timeseriesMrids, JsonGenerator jsonGenerator) throws IOException {
+        if (!timeseriesMrids.isEmpty()) {
+            serializeStringArray(TIMESERIES_MRIDS, timeseriesMrids.stream().sorted(String::compareTo).collect(Collectors.toList()), jsonGenerator);
         }
     }
 
-    private void serializeRangeActionGroups(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
-        serializeStringArray(RANGE_ACTION_GROUPS, cimParameters.getRangeActionGroupsAsString(), jsonGenerator);
+    private void serializeRangeActionGroups(List<String> rangeActionGroupsAsString, JsonGenerator jsonGenerator) throws IOException {
+        serializeStringArray(RANGE_ACTION_GROUPS, rangeActionGroupsAsString, jsonGenerator);
     }
 
-    private void serializeRangeActionSpeedSet(CimCracCreationParameters cimParameters, JsonGenerator jsonGenerator) throws IOException {
-        if (!cimParameters.getRangeActionSpeedSet().isEmpty()) {
+    private void serializeRangeActionSpeedSet(Set<RangeActionSpeed> rangeActionSpeedSet, JsonGenerator jsonGenerator) throws IOException {
+        if (!rangeActionSpeedSet.isEmpty()) {
             jsonGenerator.writeFieldName(RANGE_ACTION_SPEEDS);
             jsonGenerator.writeStartArray();
-            for (RangeActionSpeed rangeActionSpeeds : cimParameters.getRangeActionSpeedSet()) {
+            for (RangeActionSpeed rangeActionSpeeds : rangeActionSpeedSet) {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField(RANGE_ACTION_ID, rangeActionSpeeds.getRangeActionId());
                 jsonGenerator.writeNumberField(SPEED, rangeActionSpeeds.getSpeed());
                 jsonGenerator.writeEndObject();
             }
             jsonGenerator.writeEndArray();
+        }
+    }
+
+    private void serializeVoltageCnecsCreationParameters(VoltageCnecsCreationParameters voltageCnecsCreationParameters, JsonGenerator jsonGenerator) throws IOException {
+        if (voltageCnecsCreationParameters != null) {
+            jsonGenerator.writeFieldName(VOLTAGE_CNECS_CREATION_PARAMETERS);
+            JsonVoltageCnecsCreationParameters.serialize(voltageCnecsCreationParameters, jsonGenerator);
         }
     }
 

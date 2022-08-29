@@ -1,0 +1,51 @@
+{
+  "crac-factory": "CracImplFactory",
+  "extensions": {
+    "CimCracCreatorParameters": {
+      "voltage-cnecs-creation-parameters": {
+        "monitored-states-and-thresholds": [
+          {
+            "instant": "preventive",
+            "thresholds-per-nominal-v": [
+              {
+                "nominalV": 400,
+                "unit": "kilovolt",
+                "min": 395,
+                "max": 430
+              },
+              {
+                "nominalV": 200,
+                "unit": "kilovolt",
+                "min": 180
+              }
+            ]
+          },
+          {
+            "instant": "CURATIVE",
+            "thresholds-per-nominal-v": [
+              {
+                "nominalV": 400,
+                "unit": "KiloVolt",
+                "min": 380,
+                "max": 430
+              },
+              {
+                "nominalV": 210,
+                "unit": "KILOVOLT",
+                "max": 230
+              }
+            ],
+            "contingency-names": [
+              "N-1 ONE",
+              "N-1 TWO"
+            ]
+          }
+        ],
+        "monitored-network-elements": [
+          "ne1",
+          "ne2"
+        ]
+      }
+    }
+  }
+}
