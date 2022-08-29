@@ -20,7 +20,9 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredRegisteredResource;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
 import com.powsybl.iidm.network.Branch;
 
 import java.util.*;
@@ -75,6 +77,9 @@ public class SweMonitoredSeriesCreator {
     }
 
     public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {
+        if (!cnecCreationContextsMap.containsKey(contingency)) {
+            return Collections.emptyList();
+        }
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
         cnecCreationContextsMap.get(contingency).forEach(
             (monitoredSeriesCC, cnecCCSet) -> monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet))

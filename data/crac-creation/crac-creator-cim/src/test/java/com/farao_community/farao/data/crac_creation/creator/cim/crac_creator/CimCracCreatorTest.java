@@ -12,9 +12,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -83,7 +85,7 @@ public class CimCracCreatorTest {
     private void setUpWithGroupId(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, List<List<String>> alignedRangeActions) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         List<RangeActionGroup> rangeActionGroups = new ArrayList<>();
         alignedRangeActions.forEach(listAlignedRangeActions -> rangeActionGroups.add(new RangeActionGroup(listAlignedRangeActions)));
@@ -101,7 +103,7 @@ public class CimCracCreatorTest {
     private void setUpWithSpeed(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<RangeActionSpeed> rangeActionSpeeds) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
@@ -116,7 +118,7 @@ public class CimCracCreatorTest {
     private void setUpWithTimeseriesMrids(String fileName, Network network, OffsetDateTime parametrableOffsetDateTime, Set<String> timeseriesMrids) {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters  cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
         InputStream is = getClass().getResourceAsStream(fileName);
@@ -162,14 +164,16 @@ public class CimCracCreatorTest {
     private void assertCnecImported(String monitoredSeriesId, Set<String> expectedCnecIds) {
         MonitoredSeriesCreationContext monitoredSeriesCreationContext = cracCreationContext.getMonitoredSeriesCreationContext(monitoredSeriesId);
         assertNotNull(monitoredSeriesCreationContext);
-        Set<String> importedCnecIds = new HashSet<>();
-        monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
-            .filter(MeasurementCreationContext::isImported)
-            .forEach(measurementCreationContext ->
-                measurementCreationContext.getCnecCreationContexts().values().stream()
-                    .filter(CnecCreationContext::isImported)
-                    .forEach(cnecCreationContext ->
-                        importedCnecIds.add(cnecCreationContext.getCreatedCnecId())));
+        Set<String> importedCnecIds =
+            monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
+                .filter(MeasurementCreationContext::isImported)
+                .map(measurementCreationContext ->
+                    measurementCreationContext.getCnecCreationContexts().values().stream()
+                        .filter(CnecCreationContext::isImported)
+                        .map(CnecCreationContext::getCreatedCnecId)
+                        .collect(Collectors.toSet()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
 
         assertEquals(expectedCnecIds, importedCnecIds);
     }
@@ -200,6 +204,13 @@ public class CimCracCreatorTest {
         assertEquals(importStatus, remedialActionSeriesCreationContext.getImportStatus());
     }
 
+    private void assertRemedialActionImportedWithOperator(String remedialActionId, String operator) {
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(remedialActionId);
+        assertNotNull(remedialActionSeriesCreationContext);
+        assertTrue(remedialActionSeriesCreationContext.isImported());
+        assertEquals(operator, importedCrac.getRemedialAction(remedialActionId).getOperator());
+    }
+
     private void assertPstRangeActionImported(String id, String networkElement, boolean isAltered) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
         assertNotNull(remedialActionSeriesCreationContext);
@@ -210,7 +221,7 @@ public class CimCracCreatorTest {
         assertEquals(networkElement, actualNetworkElement);
     }
 
-    private void assertHvdcRangeActionImported(String expectedNativeId, Set<String> expectedCreatedIds, Set<String> expectedNetworkElements, boolean isInverted) {
+    private void assertHvdcRangeActionImported(String expectedNativeId, Set<String> expectedCreatedIds, Set<String> expectedNetworkElements, Set<String> expectedOperators, boolean isInverted) {
         RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(expectedNativeId);
         assertNotNull(remedialActionSeriesCreationContext);
         assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedIds());
@@ -219,6 +230,9 @@ public class CimCracCreatorTest {
         Set<String> actualNetworkElements = new HashSet<>();
         expectedCreatedIds.forEach(createdId -> actualNetworkElements.add(importedCrac.getHvdcRangeAction(createdId).getNetworkElement().toString()));
         assertEquals(actualNetworkElements, expectedNetworkElements);
+        Set<String> actualOperators = new HashSet<>();
+        expectedCreatedIds.forEach(createdId -> actualOperators.add(importedCrac.getHvdcRangeAction(createdId).getOperator()));
+        assertEquals(actualOperators, expectedOperators);
         assertEquals(isInverted, remedialActionSeriesCreationContext.isInverted());
     }
 
@@ -234,26 +248,37 @@ public class CimCracCreatorTest {
 
     private void assertHasOnFlowConstraintUsageRule(RemedialAction<?> ra, Instant instant, String flowCnecId) {
         assertTrue(
-                ra.getUsageRules().stream()
-                        .filter(OnFlowConstraint.class::isInstance)
-                        .map(OnFlowConstraint.class::cast)
-                        .anyMatch(
-                                ur -> ur.getInstant().equals(instant)
-                                        && ur.getFlowCnec().getId().equals(flowCnecId)
-                                        && ur.getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
-                        ));
+            ra.getUsageRules().stream()
+                .filter(OnFlowConstraint.class::isInstance)
+                .map(OnFlowConstraint.class::cast)
+                .anyMatch(
+                    ur -> ur.getInstant().equals(instant)
+                        && ur.getFlowCnec().getId().equals(flowCnecId)
+                        && ur.getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
+                ));
     }
 
     private void assertHasOnAngleUsageRule(String raId, String angleCnecId) {
         RemedialAction ra = importedCrac.getRemedialAction(raId);
         assertTrue(
-                ra.getUsageRules().stream()
-                        .filter(OnAngleConstraint.class::isInstance)
-                        .anyMatch(
-                                ur -> ((OnAngleConstraint) ur).getInstant().equals(Instant.CURATIVE)
-                                        && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
-                                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
-                        ));
+            ra.getUsageRules().stream()
+                .filter(OnAngleConstraint.class::isInstance)
+                .anyMatch(
+                    ur -> ((OnAngleConstraint) ur).getInstant().equals(Instant.CURATIVE)
+                        && ((OnAngleConstraint) ur).getAngleCnec().getId().equals(angleCnecId)
+                        && ((OnAngleConstraint) ur).getUsageMethod().equals(UsageMethod.TO_BE_EVALUATED)
+                ));
+    }
+
+    private void assertHasOneThreshold(String cnecId, Unit unit, double min, double max) {
+        FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
+        assertEquals(1, cnec.getThresholds().size());
+        Threshold threshold = cnec.getThresholds().iterator().next();
+        assertEquals(unit, threshold.getUnit());
+        assertTrue(threshold.limitsByMin());
+        assertEquals(min, threshold.min().get(), 0.0);
+        assertTrue(threshold.limitsByMax());
+        assertEquals(max, threshold.max().get(), 0.0);
     }
 
     @Test
@@ -276,7 +301,7 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportContingencies() {
-        setUp("/cracs/CIM_21_1_1.xml", baseNetwork,  OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         assertEquals(3, importedCrac.getContingencies().size());
         assertContingencyImported("Co-1", "Co-1-name", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
@@ -300,18 +325,43 @@ public class CimCracCreatorTest {
     @Test
     public void testImportFakeCnecs() {
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
-        assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
+
         assertEquals(10, importedCrac.getFlowCnecs().size());
-        assertCnecImported("CNEC-4",
-            Set.of("CNEC-4 - preventive",
-                "CNEC-4 - Co-1 - curative",
-                "CNEC-4 - Co-2 - curative"));
+
+        // CNEC 2
+        assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
+
+        // CNEC 3
+        assertCnecImported("CNEC-3", Set.of("CNEC-3 - preventive", "CNEC-3 - Co-1 - auto", "CNEC-3 - Co-2 - auto"));
+        assertHasOneThreshold("CNEC-3 - preventive", Unit.MEGAWATT, -3, 3);
+        assertHasOneThreshold("CNEC-3 - Co-1 - auto", Unit.AMPERE, -3, 3);
+        assertHasOneThreshold("CNEC-3 - Co-2 - auto", Unit.AMPERE, -3, 3);
+
+        // CNEC 4
+        assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative"));
+        assertHasOneThreshold("CNEC-4 - preventive", Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - Co-1 - curative", Unit.PERCENT_IMAX, -0.04, 0.04);
+        assertHasOneThreshold("CNEC-4 - Co-2 - curative", Unit.PERCENT_IMAX, -0.04, 0.04);
+
+        // CNEC 5
+        assertCnecImported("MNEC-1", Set.of("CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative"));
+        assertHasOneThreshold("CNEC-5 - MONITORED - preventive", Unit.PERCENT_IMAX, -0.05, 0.05);
+        assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", Unit.PERCENT_IMAX, -0.05, 0.05);
+
+        // CNEC 6
+        assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
+        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", Unit.PERCENT_IMAX, -0.06, 0.06);
     }
 
     @Test
     public void testImportPstRangeActions() {
         setUp("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
+        assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
+        assertRemedialActionImportedWithOperator("RTE-PRA_1", "RTE");
+        assertRemedialActionImportedWithOperator("REN-PRA_1", "REN");
         assertRemedialActionNotImported("RA-Series-2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_5", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_6", INCONSISTENCY_IN_DATA);
@@ -330,13 +380,17 @@ public class CimCracCreatorTest {
         assertRemedialActionNotImported("PRA_20", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_21", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
-        assertEquals(2, importedCrac.getPstRangeActions().size());
+        assertEquals(5, importedCrac.getPstRangeActions().size());
     }
 
     @Test
     public void testImportNetworkActions() {
         setUp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
+        assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
+        assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
+        assertRemedialActionImportedWithOperator("RTE-PRA_1", "RTE");
+        assertRemedialActionImportedWithOperator("REN-PRA_1", "REN");
         // Pst Setpoint
         assertRemedialActionNotImported("PRA_2", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_3", INCONSISTENCY_IN_DATA);
@@ -406,8 +460,10 @@ public class CimCracCreatorTest {
         assertRemedialActionNotImported("HVDC-direction91", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC-direction92", INCONSISTENCY_IN_DATA);
 
-        assertHvdcRangeActionImported("HVDC-direction11", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), true);
-        assertHvdcRangeActionImported("HVDC-direction12", Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1"), Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), false);
+        Set<String> createdIds1 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        Set<String> createdIds2 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertHvdcRangeActionImported("HVDC-direction11", createdIds1, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), true);
+        assertHvdcRangeActionImported("HVDC-direction12", createdIds2, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), false);
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get());
         assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
     }
@@ -421,10 +477,10 @@ public class CimCracCreatorTest {
 
     @Test
     public void testImportAlignedRangeActions() {
-        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"),  List.of(List.of("PRA_1", "PRA_22")));
+        setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22")));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
-        assertEquals(2, importedCrac.getPstRangeActions().size());
+        assertEquals(5, importedCrac.getPstRangeActions().size());
         assertTrue(importedCrac.getPstRangeAction("PRA_1").getGroupId().isPresent());
         assertTrue(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
         assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_1").getGroupId().get());
@@ -438,7 +494,7 @@ public class CimCracCreatorTest {
         setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(groupIds));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
-        assertEquals(2, importedCrac.getPstRangeActions().size());
+        assertEquals(5, importedCrac.getPstRangeActions().size());
         assertFalse(importedCrac.getPstRangeAction("PRA_1").getGroupId().isPresent());
         assertFalse(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
     }
@@ -448,7 +504,7 @@ public class CimCracCreatorTest {
         setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22"), List.of("PRA_1")));
         assertRemedialActionNotImported("PRA_1", INCONSISTENCY_IN_DATA);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
-        assertEquals(1, importedCrac.getPstRangeActions().size());
+        assertEquals(4, importedCrac.getPstRangeActions().size());
         assertTrue(importedCrac.getPstRangeAction("PRA_22").getGroupId().isPresent());
         assertEquals("PRA_1 + PRA_22", importedCrac.getPstRangeAction("PRA_22").getGroupId().get());
     }
@@ -653,6 +709,23 @@ public class CimCracCreatorTest {
         setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries2"));
         assertEquals(1, importedCrac.getContingencies().size());
         assertNotNull(importedCrac.getContingency("Co-2"));
+    }
+
+    @Test
+    public void testImportCnecsWithSameMsMrid() {
+        setUp("/cracs/CIM_21_2_1_mrid.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+
+        assertEquals(10, importedCrac.getFlowCnecs().size());
+
+        // CNEC 3
+        assertCnecImported("CNEC-2", Set.of("CNEC-3 - preventive", "CNEC-3 - Co-1 - auto", "CNEC-3 - Co-2 - auto"));
+        assertTrue(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-2").isAltered());
+
+        // CNEC 4
+        assertCnecImported("CNEC-4", Set.of("CNEC-4 - preventive", "CNEC-4 - Co-1 - curative", "CNEC-4 - Co-2 - curative",
+            "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
+            "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
+        assertFalse(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-4").isAltered());
     }
 
     private VoltageThreshold mockVoltageThreshold(Double min, Double max) {
