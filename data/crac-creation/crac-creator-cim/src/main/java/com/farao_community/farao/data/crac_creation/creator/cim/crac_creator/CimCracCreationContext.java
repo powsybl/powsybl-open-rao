@@ -8,13 +8,11 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.*;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 
@@ -23,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -33,6 +32,7 @@ public class CimCracCreationContext implements CracCreationContext {
     private Set<CimContingencyCreationContext> contingencyCreationContexts;
     private Set<AngleCnecCreationContext> angleCnecCreationContexts;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
+    private Set<VoltageCnecCreationContext> voltageCnecCreationContexts;
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private CracCreationReport creationReport;
     private OffsetDateTime timeStamp;
@@ -42,6 +42,7 @@ public class CimCracCreationContext implements CracCreationContext {
         creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.angleCnecCreationContexts = new HashSet<>();
+        this.voltageCnecCreationContexts = new HashSet<>();
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
@@ -50,6 +51,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
         this.monitoredSeriesCreationContexts = toCopy.monitoredSeriesCreationContexts;
         this.angleCnecCreationContexts = new HashSet<>(toCopy.angleCnecCreationContexts);
+        this.voltageCnecCreationContexts = new HashSet<>(toCopy.voltageCnecCreationContexts);
         this.remedialActionSeriesCreationContexts = new HashSet<>(toCopy.remedialActionSeriesCreationContexts);
         this.creationReport = toCopy.creationReport;
         this.timeStamp = toCopy.timeStamp;
@@ -71,6 +73,7 @@ public class CimCracCreationContext implements CracCreationContext {
         addToReport(angleCnecCreationContexts, "AdditionalConstraint_Series");
         addToReport(monitoredSeriesCreationContexts);
         addToReport(remedialActionSeriesCreationContexts, "RemedialAction_Series");
+        addToReport(voltageCnecCreationContexts);
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
@@ -114,6 +117,16 @@ public class CimCracCreationContext implements CracCreationContext {
         }
     }
 
+    private void addToReport(Set<VoltageCnecCreationContext> voltageCnecCreationContexts) {
+        voltageCnecCreationContexts.stream().filter(context -> !context.isImported()).forEach(context -> {
+                String neId = context.getNativeNetworkElementId() != null ? context.getNativeNetworkElementId() : "all";
+                String instant = context.getInstant() != null ? context.getInstant().toString().toLowerCase() : "all";
+                String coName = context.getNativeContingencyName() != null ? context.getNativeContingencyName() : "all";
+                creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()));
+            }
+        );
+    }
+
     @Override
     public CracCreationReport getCreationReport() {
         return creationReport;
@@ -133,6 +146,30 @@ public class CimCracCreationContext implements CracCreationContext {
 
     public AngleCnecCreationContext getAngleCnecCreationContexts(String seriesId) {
         return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
+    }
+
+    public void addVoltageCnecCreationContext(VoltageCnecCreationContext voltageCnecCreationContext) {
+        this.voltageCnecCreationContexts.add(voltageCnecCreationContext);
+    }
+
+    public Set<VoltageCnecCreationContext> getVoltageCnecCreationContexts() {
+        return new HashSet<>(voltageCnecCreationContexts);
+    }
+
+    public VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, Instant instant, String nativeContingencyName) {
+        return voltageCnecCreationContexts.stream().filter(creationContext ->
+            nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId())
+                && instant.equals(creationContext.getInstant())
+                && ((nativeContingencyName == null && creationContext.getNativeContingencyName() == null) || (nativeContingencyName != null && nativeContingencyName.equals(creationContext.getNativeContingencyName())))
+        ).findAny().orElse(null);
+    }
+
+    public Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForNetworkElement(String nativeNetworkElementId) {
+        return voltageCnecCreationContexts.stream().filter(creationContext -> nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId())).collect(Collectors.toSet());
+    }
+
+    public Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForContingency(String nativeContingencyName) {
+        return voltageCnecCreationContexts.stream().filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName())).collect(Collectors.toSet());
     }
 
     public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
@@ -167,8 +204,12 @@ public class CimCracCreationContext implements CracCreationContext {
         return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 
-    public CimContingencyCreationContext getContingencyCreationContext(String contingencyName) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeId().equals(contingencyName)).findAny().orElse(null);
+    public CimContingencyCreationContext getContingencyCreationContextById(String contingencyId) {
+        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeId().equals(contingencyId)).findAny().orElse(null);
+    }
+
+    public CimContingencyCreationContext getContingencyCreationContextByName(String contingencyName) {
+        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeName().equals(contingencyName)).findAny().orElse(null);
     }
 
     CimCracCreationContext creationFailure() {

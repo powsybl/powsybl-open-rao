@@ -1,0 +1,13 @@
+{
+  "crac-factory": "CracImplFactory",
+  "extensions": {
+    "CimCracCreatorParameters": {
+      "voltage-cnecs-creation-parameters": {
+        "monitored-network-elements": [
+          "ne1",
+          "ne2"
+        ]
+      }
+    }
+  }
+}

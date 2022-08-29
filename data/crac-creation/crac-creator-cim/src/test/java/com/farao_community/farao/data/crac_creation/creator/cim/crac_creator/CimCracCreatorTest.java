@@ -21,22 +21,21 @@ import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
+import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
+import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import com.farao_community.farao.data.crac_creation.creator.cim.parameters.*;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
-import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
-import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -130,16 +129,18 @@ public class CimCracCreatorTest {
         importedCrac = cracCreationContext.getCrac();
     }
 
-    private void assertContingencyNotImported(String name, ImportStatus importStatus) {
-        CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContext(name);
+    private void assertContingencyNotImported(String name, String nativeName, ImportStatus importStatus) {
+        CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(name);
         assertNotNull(context);
+        assertEquals(nativeName, context.getNativeName());
         assertFalse(context.isImported());
         assertEquals(importStatus, context.getImportStatus());
     }
 
-    private void assertContingencyImported(String id, Set<String> networkElements, boolean isAltered) {
-        CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContext(id);
+    private void assertContingencyImported(String id, String nativeName, Set<String> networkElements, boolean isAltered) {
+        CimContingencyCreationContext context = cracCreationContext.getContingencyCreationContextById(id);
         assertNotNull(context);
+        assertEquals(nativeName, context.getNativeName());
         assertTrue(context.isImported());
         assertEquals(isAltered, context.isAltered());
         if (isAltered) {
@@ -303,12 +304,12 @@ public class CimCracCreatorTest {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         assertEquals(3, importedCrac.getContingencies().size());
-        assertContingencyImported("Co-1", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
-        assertContingencyImported("Co-2", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
-        assertContingencyImported("Co-3", Set.of("_b58bf21a-096a-4dae-9a01-3f03b60c24c7"), true);
+        assertContingencyImported("Co-1", "Co-1-name", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
+        assertContingencyImported("Co-2", "Co-2-name", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
+        assertContingencyImported("Co-3", "Co-3-name", Set.of("_b58bf21a-096a-4dae-9a01-3f03b60c24c7"), true);
 
-        assertContingencyNotImported("Co-4", ELEMENT_NOT_FOUND_IN_NETWORK);
-        assertContingencyNotImported("Co-5", INCOMPLETE_DATA);
+        assertContingencyNotImported("Co-4", "Co-4-name", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertContingencyNotImported("Co-5", "Co-5-name", INCOMPLETE_DATA);
 
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size()); // 2 fake contingencies, 1 altered
     }
@@ -318,7 +319,7 @@ public class CimCracCreatorTest {
         setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
 
         assertEquals(1, importedCrac.getContingencies().size());
-        assertContingencyImported("Co-2", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
+        assertContingencyImported("Co-2", "Co-2-name", Set.of("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", "_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
     }
 
     @Test
@@ -716,5 +717,44 @@ public class CimCracCreatorTest {
             "CNEC-5 - MONITORED - preventive", "CNEC-5 - MONITORED - Co-1 - curative",
             "CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
         assertFalse(cracCreationContext.getMonitoredSeriesCreationContext("CNEC-4").isAltered());
+    }
+
+    private VoltageThreshold mockVoltageThreshold(Double min, Double max) {
+        VoltageThreshold threshold = Mockito.mock(VoltageThreshold.class);
+        Mockito.when(threshold.getUnit()).thenReturn(Unit.KILOVOLT);
+        Mockito.when(threshold.getMin()).thenReturn(min);
+        Mockito.when(threshold.getMax()).thenReturn(max);
+        return threshold;
+    }
+
+    @Test
+    public void testImportVoltageCnecs() {
+        Set<String> monitoredElements = Set.of("_d77b61ef-61aa-4b22-95f6-b56ca080788d", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+
+        Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
+            Instant.PREVENTIVE, new VoltageMonitoredContingenciesAndThresholds(null, Map.of(220., mockVoltageThreshold(220., 230.))),
+            Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-1-name", "Co-4-name"), Map.of(220., mockVoltageThreshold(210., 240.))),
+            Instant.OUTAGE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(200., null))),
+            Instant.AUTO, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-2-name"), Map.of(220., mockVoltageThreshold(null, null)))
+        );
+        VoltageCnecsCreationParameters voltageCnecsCreationParameters = new VoltageCnecsCreationParameters(monitoredStatesAndThresholds, monitoredElements);
+
+        CracCreationParameters params = new CracCreationParameters();
+        CimCracCreationParameters cimParams = new CimCracCreationParameters();
+        cimParams.setVoltageCnecsCreationParameters(voltageCnecsCreationParameters);
+        params.addExtension(CimCracCreationParameters.class, cimParams);
+
+        setUp("/cracs/CIM_21_1_1.xml", baseNetwork,  OffsetDateTime.parse("2021-04-01T23:00Z"), params);
+
+        assertEquals(3, importedCrac.getVoltageCnecs().size());
+        assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - preventive"));
+        assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-1 - curative"));
+        assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-3 - outage"));
+        assertEquals(7, cracCreationContext.getVoltageCnecCreationContexts().size());
+        assertEquals(7, cracCreationContext.getCreationReport().getReport().size());
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _2844585c-0d35-488d-a449-685bcd57afbf is not a voltage level."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _a708c3bc-465d-4fe7-b6ef-6fa6408a62b0 is not a voltage level."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"all\", instant \"all\" and contingency \"Co-4-name\" was not imported: OTHER. Contingency does not exist in the CRAC or could not be imported."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
     }
 }

@@ -1,0 +1,29 @@
+{
+  "crac-factory": "CracImplFactory",
+  "extensions": {
+    "CimCracCreatorParameters": {
+      "voltage-cnecs-creation-parameters": {
+        "monitored-states-and-thresholds": [
+          {
+            "instant": "CURATIVE",
+            "thresholds-per-nominal-v": [
+              {
+                "unit": "KiloVolt",
+                "min": 380,
+                "max": 430
+              }
+            ],
+            "contingency-names": [
+              "N-1 ONE",
+              "N-1 TWO"
+            ]
+          }
+        ],
+        "monitored-network-elements": [
+          "ne1",
+          "ne2"
+        ]
+      }
+    }
+  }
+}
