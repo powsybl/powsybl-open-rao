@@ -246,7 +246,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getVirtualCost(virtualCostName);
-        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) {
+        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
+            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             return resultsWithPrasForAllCnecs.getVirtualCost(virtualCostName);
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost(virtualCostName);
@@ -263,7 +264,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
-        } else if (optimizationState == OptimizationState.AFTER_PRA) {
+        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
+            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             return resultsWithPrasForAllCnecs.getCostlyElements(virtualCostName, number);
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
             return finalCostEvaluator.getCostlyElements(virtualCostName, number);

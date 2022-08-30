@@ -609,10 +609,10 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(List.of(cnec1), output.getCostlyElements(INITIAL, "lf", 15));
         assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(AFTER_PRA, "mnec", 5));
         assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_PRA, "lf", 15));
-        assertNull(output.getCostlyElements(AFTER_ARA, "mnec", 5));
-        assertNull(output.getCostlyElements(AFTER_ARA, "lf", 15));
-        assertNull(output.getCostlyElements(AFTER_CRA, "mnec", 5));
-        assertNull(output.getCostlyElements(AFTER_CRA, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(AFTER_ARA, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_ARA, "lf", 15));
+        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(AFTER_CRA, "mnec", 5));
+        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_CRA, "lf", 15));
 
         // Test was activated before state
         assertFalse(output.wasActivatedBeforeState(preventiveState, networkAction));
