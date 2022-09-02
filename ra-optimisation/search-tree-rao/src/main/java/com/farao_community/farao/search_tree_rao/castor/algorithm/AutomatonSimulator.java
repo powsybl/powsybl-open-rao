@@ -470,7 +470,7 @@ public final class AutomatonSimulator {
                 rangeAction.apply(network, optimalSetpoint);
                 activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
             }
-            TECHNICAL_LOGS.debug("Shifting setpoint from {number, #.##} to {number, #.##} on range action(s) {} to improve margin on cnec {}} (initial margin : {number, #.##} MW).", initialSetpoint, optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(" ,")), toBeShiftedCnec.getId(), cnecMargin);
+            TECHNICAL_LOGS.debug("Shifting setpoint from {} to {} on range action(s) {} to improve margin on cnec {}} (initial margin : {} MW).", initialSetpoint, optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(" ,")), toBeShiftedCnec.getId(), cnecMargin);
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
             RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), numberLoggedElementsDuringRao);
             flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
