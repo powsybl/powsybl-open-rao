@@ -90,10 +90,14 @@ public class AppliedRemedialActions {
     }
 
     public void applyOnNetwork(State state, Network network) {
-        if (appliedRa.containsKey(state)) {
-            appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
-            appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));
-        }
+        // Apply remedial actions from all states before or equal to given state
+        appliedRa.keySet().stream().filter(stateBefore ->
+            (stateBefore.getInstant().comesBefore(state.getInstant()) || stateBefore.getInstant().equals(state.getInstant()))
+                && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
+            .forEach(stateBefore -> {
+                appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
+                appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));
+            });
     }
 
     public AppliedRemedialActions copy() {

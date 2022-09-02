@@ -29,6 +29,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -161,9 +162,14 @@ public final class RaoUtil {
         if (!onFlowConstraintInCountry.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
             return false;
         } else {
+            Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
+                Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
+                Instant.AUTO, Set.of(Instant.AUTO),
+                Instant.CURATIVE, Set.of(Instant.CURATIVE)
+            );
             // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
             return perimeterCnecs.stream()
-                .filter(cnec -> onFlowConstraintInCountry.getInstant().equals(cnec.getState().getInstant()) || onFlowConstraintInCountry.getInstant().comesBefore(cnec.getState().getInstant()))
+                .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant()).contains(cnec.getState().getInstant()))
                 .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
                 .anyMatch(cnec -> flowResult.getMargin(cnec, Unit.MEGAWATT) <= 0);
         }

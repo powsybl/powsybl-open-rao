@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.contingency.Contingency;
@@ -46,7 +47,7 @@ final class SystematicSensitivityAdapter {
             cnecSensitivityProvider.getVariableSets(),
             sensitivityComputationParameters);
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, false).postTreatIntensities();
+        return new SystematicSensitivityResult().completeData(result, Instant.OUTAGE).postTreatIntensities();
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -82,7 +83,7 @@ final class SystematicSensitivityAdapter {
             allFactorsWithoutRa,
             contingenciesWithoutRa,
             cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), false);
+            sensitivityComputationParameters), Instant.OUTAGE);
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -96,7 +97,7 @@ final class SystematicSensitivityAdapter {
                 throw new FaraoException("Sensitivity analysis with applied RA does not handled preventive RA.");
             }
 
-            TECHNICAL_LOGS.debug("... ({}/{}) curative state {}", counterForLogs, statesWithRa.size() + 1, optContingency.get().getId());
+            TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
 
             String variantForState = RandomizedString.getRandomizedString();
             network.getVariantManager().cloneVariant(workingVariantId, variantForState);
@@ -111,7 +112,7 @@ final class SystematicSensitivityAdapter {
                 cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
                 contingencyList,
                 cnecSensitivityProvider.getVariableSets(),
-                sensitivityComputationParameters), true);
+                sensitivityComputationParameters), state.getInstant());
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }

@@ -71,7 +71,7 @@ public class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE);
 
         // Before postTreating intensities
         assertEquals(-20, result.getReferenceFlow(contingencyCnec), EPSILON);
@@ -91,7 +91,7 @@ public class SystematicSensitivityResultTest {
             rangeActionSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -117,7 +117,7 @@ public class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -135,7 +135,7 @@ public class SystematicSensitivityResultTest {
     public void testFailureSensiResult() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
 
         // Then
         assertFalse(result.isSuccess());

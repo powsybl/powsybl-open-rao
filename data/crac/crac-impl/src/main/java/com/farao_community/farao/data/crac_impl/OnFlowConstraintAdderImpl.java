@@ -60,6 +60,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
             throw new FaraoException(String.format("FlowCnec %s does not exist in crac. Consider adding it first.", flowCnecId));
         }
 
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
+
         OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec);
         owner.addUsageRule(onFlowConstraint);
         return owner;

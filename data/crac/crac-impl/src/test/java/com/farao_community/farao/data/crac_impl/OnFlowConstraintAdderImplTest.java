@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -128,5 +129,58 @@ public class OnFlowConstraintAdderImplTest {
     public void testNoInstantException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
+    }
+
+    private void addCnec(String id, Instant instant) {
+        FlowCnecAdder adder = crac.newFlowCnec()
+            .withId(id)
+            .withNetworkElement(id)
+            .withInstant(instant)
+            .withOptimized(true)
+            .withOperator("operator2")
+            .newThreshold().withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMin(-0.3).withMax(0.3).add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        if (!instant.equals(Instant.PREVENTIVE)) {
+            adder.withContingency("Contingency FR1 FR3");
+        }
+        adder.add();
+    }
+
+    @Test
+    public void testOnConstraintInstantCheck() {
+        // todo : mm chose pour on flow constraint in country, dans le code
+        addCnec("cnec-prev", Instant.PREVENTIVE);
+        addCnec("cnec-out", Instant.OUTAGE);
+        addCnec("cnec-auto", Instant.AUTO);
+        addCnec("cnec-cur", Instant.CURATIVE);
+
+        OnFlowConstraintAdder<NetworkActionAdder> adder;
+
+        // PREVENTIVE RA
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-prev").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-out").add(); // ok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-auto"); // nok
+        assertThrows(FaraoException.class, adder::add);
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-cur").add(); // ok
+
+        // AUTO RA
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-prev"); // nok
+        assertThrows(FaraoException.class, adder::add);
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-out"); // nok
+        assertThrows(FaraoException.class, adder::add);
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-auto").add(); // ok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-cur"); // nok
+        assertThrows(FaraoException.class, adder::add);
+
+        // CURATIVE RA
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-prev"); // nok
+        assertThrows(FaraoException.class, adder::add);
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-out"); // nok
+        assertThrows(FaraoException.class, adder::add);
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-auto"); // nok
+        assertThrows(FaraoException.class, adder::add);
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-cur").add(); // ok
     }
 }
