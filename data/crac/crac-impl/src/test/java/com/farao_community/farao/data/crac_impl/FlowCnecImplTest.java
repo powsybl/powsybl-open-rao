@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.*;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -57,14 +56,14 @@ public class FlowCnecImplTest {
             .withId("cnec-1-id")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.LEFT).add()
             .add();
 
         FlowCnec cnec2 = crac.newFlowCnec()
             .withId("cnec-2-id")
             .withNetworkElement("DDE2AA1  NNL3AA1  1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.LEFT).add()
             .add();
 
         Set<Optional<Country>> countries = cnec1.getLocation(network);
@@ -84,7 +83,7 @@ public class FlowCnecImplTest {
 
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(380.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
             .add();
 
         // bounds on LEFT side
@@ -111,7 +110,7 @@ public class FlowCnecImplTest {
 
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(380.)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-500.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-500.).withSide(Side.RIGHT).add()
             .add();
 
         // bounds on LEFT side
@@ -138,7 +137,7 @@ public class FlowCnecImplTest {
 
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(380.)
-            .newThreshold().withUnit(Unit.AMPERE).withMin(-450.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-450.).withSide(Side.LEFT).add()
             .add();
 
         // bounds on LEFT side
@@ -165,7 +164,7 @@ public class FlowCnecImplTest {
 
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(220.)
-            .newThreshold().withUnit(Unit.AMPERE).withMax(110.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMax(110.).withSide(Side.RIGHT).add()
             .add();
 
         // bounds on LEFT side
@@ -193,7 +192,7 @@ public class FlowCnecImplTest {
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(380.)
             .withIMax(1000.)
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMax(1.1).withRule(BranchThresholdRule.ON_LEFT_SIDE).add() // 1.1 = 110 %
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMax(1.1).withSide(Side.LEFT).add() // 1.1 = 110 %
             .add();
 
         // bounds on LEFT side
@@ -222,7 +221,7 @@ public class FlowCnecImplTest {
             .withNominalVoltage(220.)
             .withIMax(1000., RIGHT)
             .withIMax(0., LEFT) // should not be considered as the threshold is on the right side
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.9).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add() // 0.9 = 90 %
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.9).withSide(Side.RIGHT).add() // 0.9 = 90 %
             .add();
 
         // bounds on LEFT side
@@ -264,7 +263,7 @@ public class FlowCnecImplTest {
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(220., LEFT)
             .withNominalVoltage(380., RIGHT)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
             .add();
 
         // bounds on LEFT side
@@ -292,7 +291,7 @@ public class FlowCnecImplTest {
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(220., LEFT)
             .withNominalVoltage(380., RIGHT)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-600.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-600.).withSide(Side.RIGHT).add()
             .add();
 
         // bounds on LEFT side
@@ -320,7 +319,7 @@ public class FlowCnecImplTest {
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(220., LEFT)
             .withNominalVoltage(380., RIGHT)
-            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withSide(Side.LEFT).add()
             .add();
 
         // bounds on LEFT side
@@ -348,7 +347,7 @@ public class FlowCnecImplTest {
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(220., LEFT)
             .withNominalVoltage(380., RIGHT)
-            .newThreshold().withUnit(Unit.AMPERE).withMax(500.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMax(500.).withSide(Side.RIGHT).add()
             .add();
 
         // bounds on LEFT side
@@ -377,7 +376,7 @@ public class FlowCnecImplTest {
             .withNominalVoltage(220., LEFT)
             .withNominalVoltage(380., RIGHT)
             .withIMax(2000.)
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-1.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-1.).withSide(Side.LEFT).add()
             .add();
 
         // bounds on LEFT side
@@ -407,7 +406,7 @@ public class FlowCnecImplTest {
             .withNominalVoltage(380., RIGHT)
             .withIMax(0., LEFT) // shouldn't be used as threshold is defined on right side
             .withIMax(2000., RIGHT)
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMax(0.25).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withMax(0.25).withSide(Side.RIGHT).add()
             .add();
 
         // bounds on LEFT side
@@ -435,10 +434,10 @@ public class FlowCnecImplTest {
     public void testBranchWithSeveralThresholdsWithLimitingOnLeftOrRightSide() {
 
         FlowCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-300.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-300.).withSide(Side.RIGHT).add()
             .add();
 
         assertEquals(100., cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -451,11 +450,11 @@ public class FlowCnecImplTest {
     public void testBranchWithSeveralThresholdsWithBoth() {
 
         FlowCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-300.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-50.).withMax(150.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-300.).withSide(Side.RIGHT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-50.).withMax(150.).withSide(Side.RIGHT).add()
             .add();
 
         assertEquals(100., cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -470,9 +469,9 @@ public class FlowCnecImplTest {
         FlowCnec cnec = initPreventiveCnecAdder()
             .withNominalVoltage(220., LEFT)
             .withNominalVoltage(380., RIGHT)
-            .newThreshold().withUnit(Unit.AMPERE).withMax(100.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.AMPERE).withMin(-70.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.AMPERE).withMin(-50.).withMax(50.).withRule(BranchThresholdRule.ON_RIGHT_SIDE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMax(100.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-70.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-50.).withMax(50.).withSide(Side.RIGHT).add()
             .add();
 
         assertEquals(86, cnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
@@ -485,8 +484,8 @@ public class FlowCnecImplTest {
     public void unboundedCnecInOppositeDirection() {
 
         FlowCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(200.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(200.).withSide(Side.LEFT).add()
             .add();
 
         assertEquals(200, cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -498,8 +497,8 @@ public class FlowCnecImplTest {
     public void unboundedCnecInDirectDirection() {
 
         FlowCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-500.).withSide(Side.LEFT).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withSide(Side.LEFT).add()
             .add();
 
         assertEquals(-200, cnec.getLowerBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -511,7 +510,7 @@ public class FlowCnecImplTest {
     public void marginsWithNegativeAndPositiveLimits() {
 
         FlowCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMin(-200.).withMax(500.).withSide(Side.LEFT).add()
             .add();
 
         assertEquals(-100, cnec.computeMargin(-300, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -524,8 +523,8 @@ public class FlowCnecImplTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        FlowCnec cnec1 = initPreventiveCnecAdder().newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        FlowCnec cnec2 = initPreventiveCnecAdder().withId("anotherId").newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add().withNominalVoltage(220.).add();
+        FlowCnec cnec1 = initPreventiveCnecAdder().newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.LEFT).add().add();
+        FlowCnec cnec2 = initPreventiveCnecAdder().withId("anotherId").newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withSide(Side.LEFT).add().withNominalVoltage(220.).add();
 
         assertEquals(cnec1, cnec1);
         assertNotEquals(cnec1, cnec2);

@@ -8,7 +8,6 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class PstRangeActionResultTest {
             .withNetworkElement("anyNetworkElement")
             .withContingency("Contingency FR1 FR2")
             .withInstant(OUTAGE)
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
 
         crac.newFlowCnec()
@@ -42,7 +41,7 @@ public class PstRangeActionResultTest {
             .withNetworkElement("anyNetworkElement")
             .withContingency("Contingency FR1 FR3")
             .withInstant(OUTAGE)
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
     }
 

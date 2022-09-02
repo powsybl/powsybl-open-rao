@@ -6,7 +6,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class LoopFlowThresholdAdderImplTest {
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withUnit(Unit.MEGAWATT)
                 .withMax(1000.0)
                 .withMin(-1000.0)

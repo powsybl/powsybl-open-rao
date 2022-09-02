@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
@@ -39,6 +38,7 @@ class CriticalBranchReader {
     private ImportStatus importStatus;
 
     private final CriticalBranchType criticalBranch;
+    private Set<Side> monitoredSides;
     private boolean isBaseCase;
     private boolean isInvertedInNetwork;
     private OutageReader outageReader;
@@ -97,8 +97,9 @@ class CriticalBranchReader {
         return isInvertedInNetwork;
     }
 
-    CriticalBranchReader(CriticalBranchType criticalBranch, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    CriticalBranchReader(CriticalBranchType criticalBranch, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
         this.criticalBranch = criticalBranch;
+        this.monitoredSides = defaultMonitoredSides;
         interpretWithNetwork(ucteNetworkAnalyzer);
     }
 
@@ -114,13 +115,16 @@ class CriticalBranchReader {
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         this.importStatus = ImportStatus.IMPORTED;
         this.ucteCnecElementHelper = new UcteCnecElementHelper(criticalBranch.getBranch().getFrom(),
-                criticalBranch.getBranch().getTo(),
-                criticalBranch.getBranch().getOrder(),
-                criticalBranch.getBranch().getElementName(),
-                ucteNetworkAnalyzer);
+            criticalBranch.getBranch().getTo(),
+            criticalBranch.getBranch().getOrder(),
+            criticalBranch.getBranch().getElementName(),
+            ucteNetworkAnalyzer);
 
         if (ucteCnecElementHelper.isValid()) {
             this.isInvertedInNetwork = ucteCnecElementHelper.isInvertedInNetwork();
+            if (ucteCnecElementHelper.isHalfLine()) {
+                this.monitoredSides = Set.of(Side.fromIidmSide(ucteCnecElementHelper.getHalfLineSide()));
+            }
         } else {
             this.importStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
             this.importStatusDetail = String.format("critical branch %s was removed as %s", criticalBranch.getId(), ucteCnecElementHelper.getInvalidReason());
@@ -192,83 +196,64 @@ class CriticalBranchReader {
 
     private void addPermanentThresholds(FlowCnecAdder cnecAdder) {
         if (!Objects.isNull(criticalBranch.getPermanentImaxFactor())) {
-            addThresholdInPercentImax(cnecAdder, criticalBranch.getPermanentImaxFactor().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getPermanentImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
         } else if (!Objects.isNull(criticalBranch.getImaxFactor())) {
-            addThresholdInPercentImax(cnecAdder, criticalBranch.getImaxFactor().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
         }
 
         if (!Objects.isNull(criticalBranch.getPermanentImaxA())) {
-            addThresholdInAmps(cnecAdder, criticalBranch.getPermanentImaxA().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getPermanentImaxA().doubleValue(), Unit.AMPERE);
         } else if (!Objects.isNull(criticalBranch.getImaxA())) {
-            addThresholdInAmps(cnecAdder, criticalBranch.getImaxA().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
         }
 
         if (Objects.isNull(criticalBranch.getPermanentImaxFactor()) && Objects.isNull(criticalBranch.getImaxFactor())
-                && Objects.isNull(criticalBranch.getPermanentImaxA()) && Objects.isNull(criticalBranch.getImaxA())) {
-            addThresholdInPercentImax(cnecAdder, 1.);
+            && Objects.isNull(criticalBranch.getPermanentImaxA()) && Objects.isNull(criticalBranch.getImaxA())) {
+            addThreshold(cnecAdder, 1., Unit.PERCENT_IMAX);
         }
     }
 
     private void addTemporaryThresholds(FlowCnecAdder cnecAdder) {
         if (!Objects.isNull(criticalBranch.getTemporaryImaxFactor())) {
-            addThresholdInPercentImax(cnecAdder, criticalBranch.getTemporaryImaxFactor().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getTemporaryImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
         } else if (!Objects.isNull(criticalBranch.getImaxFactor())) {
-            addThresholdInPercentImax(cnecAdder, criticalBranch.getImaxFactor().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
         }
 
         if (!Objects.isNull(criticalBranch.getTemporaryImaxA())) {
-            addThresholdInAmps(cnecAdder, criticalBranch.getTemporaryImaxA().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getTemporaryImaxA().doubleValue(), Unit.AMPERE);
         } else if (!Objects.isNull(criticalBranch.getImaxA())) {
-            addThresholdInAmps(cnecAdder, criticalBranch.getImaxA().doubleValue());
+            addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
         }
 
         if (Objects.isNull(criticalBranch.getTemporaryImaxFactor()) && Objects.isNull(criticalBranch.getImaxFactor())
-                && Objects.isNull(criticalBranch.getTemporaryImaxA()) && Objects.isNull(criticalBranch.getImaxA())) {
-            addThresholdInPercentImax(cnecAdder, 1.);
+            && Objects.isNull(criticalBranch.getTemporaryImaxA()) && Objects.isNull(criticalBranch.getImaxA())) {
+            addThreshold(cnecAdder, 1., Unit.PERCENT_IMAX);
         }
     }
 
-    private void addThresholdInAmps(FlowCnecAdder cnecAdder, double amps) {
-        BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-                .withUnit(Unit.AMPERE);
-        addLimitsGivenDirection(amps, branchThresholdAdder);
-        addRule(branchThresholdAdder);
-        branchThresholdAdder.add();
-
-    }
-
-    private void addThresholdInPercentImax(FlowCnecAdder cnecAdder, double percentImax) {
+    private void addThreshold(FlowCnecAdder cnecAdder, double threshold, Unit unit) {
 
         //idea: create threshold in AMPERE instead of PERCENT_IMAX to avoid synchronisation afterwards
         //      can be tricky for transformers
 
-        BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-                .withUnit(Unit.PERCENT_IMAX);
-        addLimitsGivenDirection(percentImax, branchThresholdAdder);
-        addRule(branchThresholdAdder);
-        branchThresholdAdder.add();
-    }
-
-    private void addRule(BranchThresholdAdder branchThresholdAdder) {
-        if (!ucteCnecElementHelper.isHalfLine()) {
-            // default rule for all branches but tie-line
-            branchThresholdAdder.withRule(BranchThresholdRule.ON_REGULATED_SIDE);
-        } else if (ucteCnecElementHelper.getHalfLineSide() == Branch.Side.ONE) {
-            // respecting the side is important for tie-lines as the two sides of a tie-line might not have the same Imax
-            branchThresholdAdder.withRule(BranchThresholdRule.ON_LEFT_SIDE);
-        } else {
-            branchThresholdAdder.withRule(BranchThresholdRule.ON_RIGHT_SIDE);
-        }
+        monitoredSides.forEach(side -> {
+            BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
+                .withUnit(unit)
+                .withSide(side);
+            addLimitsGivenDirection(threshold, branchThresholdAdder);
+            branchThresholdAdder.add();
+        });
     }
 
     private void addLimitsGivenDirection(double positiveLimit, BranchThresholdAdder branchThresholdAdder) {
         if ((DIRECT.contains(criticalBranch.getDirection()) && !ucteCnecElementHelper.isInvertedInNetwork())
-                || (OPPOSITE.contains(criticalBranch.getDirection()) && ucteCnecElementHelper.isInvertedInNetwork())) {
+            || (OPPOSITE.contains(criticalBranch.getDirection()) && ucteCnecElementHelper.isInvertedInNetwork())) {
             branchThresholdAdder.withMax(positiveLimit);
         }
 
         if ((DIRECT.contains(criticalBranch.getDirection()) && ucteCnecElementHelper.isInvertedInNetwork())
-                || (OPPOSITE.contains(criticalBranch.getDirection()) && !ucteCnecElementHelper.isInvertedInNetwork())) {
+            || (OPPOSITE.contains(criticalBranch.getDirection()) && !ucteCnecElementHelper.isInvertedInNetwork())) {
             branchThresholdAdder.withMin(-positiveLimit);
         }
     }
@@ -276,9 +261,9 @@ class CriticalBranchReader {
     private static void addLoopFlowExtension(FlowCnec cnec, CriticalBranchType criticalBranch) {
         if (criticalBranch.getMinRAMfactor() != null && isCrossZonal(criticalBranch.getBranch())) {
             cnec.newExtension(LoopFlowThresholdAdder.class)
-                    .withUnit(Unit.PERCENT_IMAX)
-                    .withValue((100.0 - criticalBranch.getMinRAMfactor().doubleValue()) / 100.)
-                    .add();
+                .withUnit(Unit.PERCENT_IMAX)
+                .withValue((100.0 - criticalBranch.getMinRAMfactor().doubleValue()) / 100.)
+                .add();
         }
     }
 

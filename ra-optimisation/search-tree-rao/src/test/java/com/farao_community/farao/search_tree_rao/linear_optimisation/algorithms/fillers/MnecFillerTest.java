@@ -12,8 +12,8 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
@@ -55,7 +55,7 @@ public class MnecFillerTest extends AbstractFillerTest {
             .withNetworkElement("DDE2AA1  NNL3AA1  1")
             .newThreshold()
                 .withMin(-1000.)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMax(1000.0)
                 .withUnit(Unit.MEGAWATT)
                 .add()
@@ -70,7 +70,7 @@ public class MnecFillerTest extends AbstractFillerTest {
             .withNetworkElement("NNL2AA1  BBE3AA1  1")
             .newThreshold()
                 .withMin(-100.)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMax(100.0)
                 .withUnit(Unit.MEGAWATT)
                 .add()

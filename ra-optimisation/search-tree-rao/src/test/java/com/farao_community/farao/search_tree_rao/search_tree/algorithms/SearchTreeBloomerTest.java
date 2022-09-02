@@ -17,7 +17,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -82,7 +81,7 @@ public class SearchTreeBloomerTest {
             .withOperator("operator1")
             .newThreshold()
             .withUnit(Unit.MEGAWATT)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-1500.)
             .withMax(1500.)
             .add()

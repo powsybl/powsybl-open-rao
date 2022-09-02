@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
@@ -62,7 +61,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         crac.newFlowCnec()
             .withId("Line NL - N - preventive")
             .withNetworkElement("NNL1AA1  NNL2AA1  1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
+            .newThreshold().withSide(Side.LEFT).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
             .withOptimized(true)
             .withInstant(Instant.PREVENTIVE)
             .withOperator("NL")

@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.api.parameters;
 
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -26,13 +27,30 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
 
     static final String MODULE_NAME = "crac-creation-parameters";
     private static final String DEFAULT_CRAC_FACTORY_NAME = CracFactory.findDefault().getName();
+    static final MonitoredLineSide DEFAULT_DEFAULT_MONITORED_LINE_SIDE = MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
 
+    private MonitoredLineSide defaultMonitoredLineSide = DEFAULT_DEFAULT_MONITORED_LINE_SIDE;
     public static interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> { }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
 
     private String cracFactoryName = DEFAULT_CRAC_FACTORY_NAME;
+
+    enum MonitoredLineSide {
+        MONITOR_LINES_ON_LEFT_SIDE(Set.of(Side.LEFT)),
+        MONITOR_LINES_ON_RIGHT_SIDE(Set.of(Side.RIGHT)),
+        MONITOR_LINES_ON_BOTH_SIDES(Set.of(Side.LEFT, Side.RIGHT));
+
+        private Set<Side> monitoredSides;
+        MonitoredLineSide(Set<Side> monitoredSides) {
+            this.monitoredSides = monitoredSides;
+        }
+
+        Set<Side> getMonitoredSides() {
+            return new HashSet<>(monitoredSides);
+        }
+    }
 
     public String getCracFactoryName() {
         return cracFactoryName;
@@ -46,6 +64,18 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         return CracFactory.find(cracFactoryName);
     }
 
+    public Set<Side> getDefaultMonitoredSides() {
+        return defaultMonitoredLineSide.getMonitoredSides();
+    }
+
+    MonitoredLineSide getDefaultMonitoredLineSide() {
+        return defaultMonitoredLineSide;
+    }
+
+    public void setDefaultMonitoredLineSide(MonitoredLineSide defaultMonitoredLineSide) {
+        this.defaultMonitoredLineSide = defaultMonitoredLineSide;
+    }
+
     public static CracCreationParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -55,7 +85,7 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         CracCreationParameters parameters = new CracCreationParameters();
 
         platformConfig.getOptionalModuleConfig(MODULE_NAME)
-                .ifPresent(config -> parameters.setCracFactoryName(config.getStringProperty("crac-factory", DEFAULT_CRAC_FACTORY_NAME)));
+            .ifPresent(config -> parameters.setCracFactoryName(config.getStringProperty("crac-factory", DEFAULT_CRAC_FACTORY_NAME)));
 
         parameters.readExtensions(platformConfig);
         return parameters;

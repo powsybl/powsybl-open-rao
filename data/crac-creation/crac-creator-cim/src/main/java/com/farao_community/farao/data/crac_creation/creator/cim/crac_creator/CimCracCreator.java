@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
@@ -22,6 +23,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -71,7 +73,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         }
 
         createContingencies();
-        createCnecs();
+        createCnecs(parameters.getDefaultMonitoredSides());
         createRemedialActions(cimCracCreationParameters);
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
@@ -82,8 +84,8 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         new CimContingencyCreator(cimTimeSeries, crac, network, creationContext).createAndAddContingencies();
     }
 
-    private void createCnecs() {
-        new MonitoredSeriesCreator(cimTimeSeries, network, creationContext).createAndAddMonitoredSeries();
+    private void createCnecs(Set<Side> defaultMonitoredSides) {
+        new MonitoredSeriesCreator(cimTimeSeries, network, creationContext, defaultMonitoredSides).createAndAddMonitoredSeries();
     }
 
     private void createRemedialActions(CimCracCreationParameters cimCracCreationParameters) {

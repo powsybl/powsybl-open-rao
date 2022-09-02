@@ -140,47 +140,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         }
 
         for (BranchThresholdImpl branchThreshold : thresholds) {
-            checkThresholdRule(branchThreshold);
             checkImax(branchThreshold);
-        }
-    }
-
-    private void checkThresholdRule(BranchThresholdImpl branchThreshold) {
-        switch (branchThreshold.getRule()) {
-            case ON_LEFT_SIDE:
-            case ON_REGULATED_SIDE:
-                // TODO: This is verified only when the network is in UCTE format.
-                //  Make it cleaner when we will have to work with other network format and the ON_REGULATED_SIDE rule
-                branchThreshold.setSide(Side.LEFT);
-                break;
-            case ON_RIGHT_SIDE:
-            case ON_NON_REGULATED_SIDE:
-                // TODO: This is verified only when the network is in UCTE format.
-                //  Make it cleaner when we will have to work with other network format and the ON_NON_REGULATED_SIDE rule
-                branchThreshold.setSide(Side.RIGHT);
-                break;
-            case ON_LOW_VOLTAGE_LEVEL:
-                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight)) {
-                    throw new FaraoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
-                }
-                if (nominalVLeft <= nominalVRight) {
-                    branchThreshold.setSide(Side.LEFT);
-                } else {
-                    branchThreshold.setSide(Side.RIGHT);
-                }
-                break;
-            case ON_HIGH_VOLTAGE_LEVEL:
-                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight)) {
-                    throw new FaraoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
-                }
-                if (nominalVLeft < nominalVRight) {
-                    branchThreshold.setSide(Side.RIGHT);
-                } else {
-                    branchThreshold.setSide(Side.LEFT);
-                }
-                break;
-            default:
-                throw new FaraoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThreshold.getRule()));
         }
     }
 

@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -65,7 +65,7 @@ public class CracCleanerTest {
             .withMonitored(true)
             .newThreshold()
                 .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-500.0)
                 .add()
             .withIMax(5000.)
@@ -80,7 +80,7 @@ public class CracCleanerTest {
             .withMonitored(true)
             .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-0.3)
                 .add()
             .withIMax(5000.)
@@ -96,7 +96,7 @@ public class CracCleanerTest {
             .withMonitored(true)
             .newThreshold()
                 .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-800.)
                 .add()
             .withIMax(5000.)
@@ -112,7 +112,7 @@ public class CracCleanerTest {
             .withMonitored(true)
             .newThreshold()
                 .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-500.)
                 .add()
             .withIMax(5000.)
@@ -230,7 +230,7 @@ public class CracCleanerTest {
                 .withUnit(Unit.MEGAWATT)
                 .withMin(0.0)
                 .withMax(0.0)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -244,7 +244,7 @@ public class CracCleanerTest {
                 .withUnit(Unit.MEGAWATT)
                 .withMin(0.0)
                 .withMax(0.0)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -258,7 +258,7 @@ public class CracCleanerTest {
                 .withUnit(Unit.MEGAWATT)
                 .withMin(0.0)
                 .withMax(0.0)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -272,7 +272,7 @@ public class CracCleanerTest {
                 .withUnit(Unit.MEGAWATT)
                 .withMin(0.0)
                 .withMax(0.0)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 

@@ -12,9 +12,9 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -49,13 +49,13 @@ public class OnFlowConstraintAdderImplTest {
             .withOperator("operator2")
             .newThreshold()
             .withUnit(Unit.MEGAWATT)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-1500.)
             .withMax(1500.)
             .add()
             .newThreshold()
             .withUnit(Unit.PERCENT_IMAX)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-0.3)
             .withMax(0.3)
             .add()
@@ -138,8 +138,8 @@ public class OnFlowConstraintAdderImplTest {
             .withInstant(instant)
             .withOptimized(true)
             .withOperator("operator2")
-            .newThreshold().withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMin(-1500.).withMax(1500.).add()
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMin(-0.3).withMax(0.3).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(Side.LEFT).withMin(-0.3).withMax(0.3).add()
             .withNominalVoltage(380.)
             .withIMax(5000.);
         if (!instant.equals(Instant.PREVENTIVE)) {

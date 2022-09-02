@@ -9,7 +9,6 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -58,13 +57,13 @@ public class SystematicSensitivityAdapterTest {
                 .withOperator("operator2")
                 .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
                 .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()

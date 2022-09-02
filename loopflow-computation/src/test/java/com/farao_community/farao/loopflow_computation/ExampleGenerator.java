@@ -9,7 +9,6 @@ package com.farao_community.farao.loopflow_computation;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -317,7 +316,7 @@ final class ExampleGenerator {
                 .withMin(-200.)
                 .withMax(200.)
                 .withUnit(MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -329,7 +328,7 @@ final class ExampleGenerator {
                 .withMin(-200.)
                 .withMax(200.)
                 .withUnit(MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -341,7 +340,7 @@ final class ExampleGenerator {
                 .withMin(-200.)
                 .withMax(200.)
                 .withUnit(MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -353,7 +352,7 @@ final class ExampleGenerator {
                 .withMin(-200.)
                 .withMax(200.)
                 .withUnit(MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 
@@ -365,7 +364,7 @@ final class ExampleGenerator {
                 .withMin(-200.)
                 .withMax(200.)
                 .withUnit(MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .add()
             .add();
 

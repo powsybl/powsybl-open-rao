@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
@@ -77,7 +76,7 @@ public class AutomatonSimulatorTest {
             .withNetworkElement("cnec-ne")
             .withInstant(Instant.PREVENTIVE)
             .withNominalVoltage(220.)
-            .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         cnec1 = crac.newFlowCnec()
             .withId("cnec1")
@@ -85,7 +84,7 @@ public class AutomatonSimulatorTest {
             .withContingency("contingency1")
             .withInstant(Instant.AUTO)
             .withNominalVoltage(220.)
-            .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         cnec2 = crac.newFlowCnec()
             .withId("cnec2")
@@ -93,7 +92,7 @@ public class AutomatonSimulatorTest {
             .withContingency("contingency1")
             .withInstant(Instant.AUTO)
             .withNominalVoltage(220.)
-            .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         autoState = crac.getState(contingency1, Instant.AUTO);
         ra2 = crac.newPstRangeAction()

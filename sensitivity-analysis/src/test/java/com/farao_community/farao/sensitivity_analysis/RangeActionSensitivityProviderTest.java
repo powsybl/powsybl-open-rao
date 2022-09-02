@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -69,7 +68,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -83,7 +82,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -97,7 +96,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -150,7 +149,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE1AA1  BBE3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()

@@ -10,15 +10,17 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -106,7 +108,8 @@ public final class JsonSerializationConstants {
     public static final String TAP_TO_ANGLE_CONVERSION_MAP = "tapToAngleConversionMap";
 
     public static final String UNIT = "unit";
-    public static final String RULE = "rule";
+    public static final String RULE = "rule"; // retro-compatibility only
+    public static final String SIDE = "side";
     public static final String MIN = "min";
     public static final String MAX = "max";
 
@@ -126,13 +129,17 @@ public final class JsonSerializationConstants {
     public static final String PERCENT_IMAX_UNIT = "percent_imax";
     public static final String TAP_UNIT = "tap";
 
-    // rules
+    // rules, retro-compatibility only
     public static final String ON_LOW_VOLTAGE_LEVEL_RULE = "onLowVoltageLevel";
     public static final String ON_HIGH_VOLTAGE_LEVEL_RULE = "onHighVoltageLevel";
     public static final String ON_NON_REGULATED_SIDE_RULE = "onNonRegulatedSide";
     public static final String ON_REGULATED_SIDE_RULE = "onRegulatedSide";
     public static final String ON_LEFT_SIDE_RULE = "onLeftSide";
     public static final String ON_RIGHT_SIDE_RULE = "onRightSide";
+
+    // threshold side
+    public static final String LEFT_SIDE = "left";
+    public static final String RIGHT_SIDE = "right";
 
     // usage methods
     public static final String UNAVAILABLE_USAGE_METHOD = "unavailable";
@@ -236,43 +243,66 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static String serializeBranchThresholdRule(BranchThresholdRule rule) {
-        switch (rule) {
-            case ON_LOW_VOLTAGE_LEVEL:
-                return ON_LOW_VOLTAGE_LEVEL_RULE;
-            case ON_HIGH_VOLTAGE_LEVEL:
-                return ON_HIGH_VOLTAGE_LEVEL_RULE;
-            case ON_NON_REGULATED_SIDE:
-                return ON_NON_REGULATED_SIDE_RULE;
-            case ON_REGULATED_SIDE:
-                return ON_REGULATED_SIDE_RULE;
-            case ON_LEFT_SIDE:
-                return ON_LEFT_SIDE_RULE;
-            case ON_RIGHT_SIDE:
-                return ON_RIGHT_SIDE_RULE;
+    public static String serializeSide(Side side) {
+        switch (side) {
+            case LEFT:
+                return LEFT_SIDE;
+            case RIGHT:
+                return RIGHT_SIDE;
             default:
-                throw new FaraoException(String.format("Unsupported branch threshold rule %s", rule));
+                throw new FaraoException(String.format("Unsupported side %s", side));
         }
     }
 
-    public static BranchThresholdRule deserializeBranchThresholdRule(String stringValue) {
+    public static Side deserializeSide(String stringValue) {
         switch (stringValue) {
-            case ON_LOW_VOLTAGE_LEVEL_RULE:
-                return BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL;
-            case ON_HIGH_VOLTAGE_LEVEL_RULE:
-                return BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL;
-            case ON_NON_REGULATED_SIDE_RULE:
-                return BranchThresholdRule.ON_NON_REGULATED_SIDE;
-            case ON_REGULATED_SIDE_RULE:
-                return BranchThresholdRule.ON_REGULATED_SIDE;
-            case ON_LEFT_SIDE_RULE:
-                return BranchThresholdRule.ON_LEFT_SIDE;
-            case ON_RIGHT_SIDE_RULE:
-                return BranchThresholdRule.ON_RIGHT_SIDE;
+            case LEFT_SIDE:
+                return Side.LEFT;
+            case RIGHT_SIDE:
+                return Side.RIGHT;
             default:
-                throw new FaraoException(String.format("Unrecognized branch threshold rule %s", stringValue));
+                throw new FaraoException(String.format("Unrecognized side %s", stringValue));
         }
     }
+
+    /**
+     * Converts old BranchThresholdRule to Side
+     * For retro-compatibility purposes only
+     */
+    public static Side convertBranchThresholdRuleToSide(String branchThresholdRule, Pair<Double, Double> nominalV) {
+        switch (branchThresholdRule) {
+            case ON_LEFT_SIDE_RULE:
+            case ON_REGULATED_SIDE_RULE:
+                // This is true only when the network is in UCTE format.
+                return Side.LEFT;
+            case ON_RIGHT_SIDE_RULE:
+            case ON_NON_REGULATED_SIDE_RULE:
+                // This is true only when the network is in UCTE format.
+                return Side.RIGHT;
+            case ON_LOW_VOLTAGE_LEVEL_RULE:
+                if (Objects.isNull(nominalV) || Objects.isNull(nominalV.getLeft()) || Objects.isNull(nominalV.getRight()) || Double.isNaN(nominalV.getLeft()) || Double.isNaN(nominalV.getRight())) {
+                    throw new FaraoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
+                }
+                if (nominalV.getLeft() <= nominalV.getRight()) {
+                    return Side.LEFT;
+                } else {
+                    return Side.RIGHT;
+                }
+            case ON_HIGH_VOLTAGE_LEVEL_RULE:
+                if (Objects.isNull(nominalV) || Objects.isNull(nominalV.getLeft()) || Objects.isNull(nominalV.getRight()) || Double.isNaN(nominalV.getLeft()) || Double.isNaN(nominalV.getRight())) {
+                    throw new FaraoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
+                }
+                if (nominalV.getLeft() < nominalV.getRight()) {
+                    return Side.RIGHT;
+                } else {
+                    return Side.LEFT;
+                }
+            default:
+                throw new FaraoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThresholdRule));
+        }
+    }
+
+
 
     public static String serializeUsageMethod(UsageMethod usageMethod) {
         switch (usageMethod) {

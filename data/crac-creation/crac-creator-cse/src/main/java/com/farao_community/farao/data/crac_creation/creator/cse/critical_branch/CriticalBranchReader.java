@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TBranch;
@@ -42,6 +41,7 @@ public class CriticalBranchReader {
     private boolean isDirectionInverted;
     private final Set<String> remedialActionIds = new HashSet<>();
     private final ImportStatus criticalBranchImportStatus;
+    private Set<Side> monitoredSides;
 
     public String getCriticalBranchName() {
         return criticalBranchName;
@@ -75,7 +75,7 @@ public class CriticalBranchReader {
         return isDirectionInverted;
     }
 
-    public CriticalBranchReader(TBranch tBranch, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public CriticalBranchReader(TBranch tBranch, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
         String outage;
         if (tOutage == null) {
             outage = "basecase";
@@ -110,6 +110,11 @@ public class CriticalBranchReader {
                 importCurativeCnecs(tBranch, branchHelper, tOutage, crac);
             }
         }
+        if (branchHelper.isValid() && branchHelper.isHalfLine()) {
+            this.monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide()));
+        } else {
+            this.monitoredSides = defaultMonitoredSides;
+        }
     }
 
     private void importPreventiveCnec(TBranch tBranch, UcteCnecElementHelper branchHelper, Crac crac) {
@@ -141,7 +146,7 @@ public class CriticalBranchReader {
             .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
             .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
 
-        addThreshold(cnecAdder, tImax.getV(), tImax.getUnit(), tBranch.getDirection().getV(), isDirectionInverted);
+        addThreshold(cnecAdder, tImax.getV(), tImax.getUnit(), tBranch.getDirection().getV(), isDirectionInverted, monitoredSides);
         cnecAdder.add();
         createdCnecIds.put(instant, cnecId);
         storeRemedialActions(tBranch);
@@ -153,13 +158,15 @@ public class CriticalBranchReader {
         );
     }
 
-    private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, String unit, String direction, boolean invert) {
+    private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, String unit, String direction, boolean invert, Set<Side> monitoredSides) {
         Unit convertedUnit = convertUnit(unit);
-        BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-            .withUnit(convertedUnit);
-        convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, convertedUnit == Unit.PERCENT_IMAX);
-        branchThresholdAdder.add();
+        monitoredSides.forEach(side -> {
+            BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
+                .withSide(side)
+                .withUnit(convertedUnit);
+            convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, convertedUnit == Unit.PERCENT_IMAX);
+            branchThresholdAdder.add();
+        });
     }
 
     private static void convertMinMax(BranchThresholdAdder branchThresholdAdder, double positiveLimit, String direction, boolean invert, boolean isPercent) {

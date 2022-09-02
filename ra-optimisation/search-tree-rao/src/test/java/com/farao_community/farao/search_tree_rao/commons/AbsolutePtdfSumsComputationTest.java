@@ -12,7 +12,6 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
@@ -163,7 +162,7 @@ public class AbsolutePtdfSumsComputationTest {
                 .withNetworkElement("NNL2AA1  NNL3AA1  1")
                 .withInstant(PREVENTIVE)
                 .withOptimized(true)
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(1000.).withUnit(Unit.MEGAWATT).add()
+                .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
                 .add();
         crac.newFlowCnec()
                 .withId("cnec1-after-internal-contingency")
@@ -171,7 +170,7 @@ public class AbsolutePtdfSumsComputationTest {
                 .withInstant(CURATIVE)
                 .withContingency("contingency-on-internal-line")
                 .withOptimized(true)
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(1000.).withUnit(Unit.MEGAWATT).add()
+                .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
                 .add();
         crac.newFlowCnec()
                 .withId("cnec1-after-contingency-on-xNode")
@@ -179,7 +178,7 @@ public class AbsolutePtdfSumsComputationTest {
                 .withInstant(CURATIVE)
                 .withContingency("contingency-on-xnode")
                 .withOptimized(true)
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(1000.).withUnit(Unit.MEGAWATT).add()
+                .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
                 .add();
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
                 new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}"));

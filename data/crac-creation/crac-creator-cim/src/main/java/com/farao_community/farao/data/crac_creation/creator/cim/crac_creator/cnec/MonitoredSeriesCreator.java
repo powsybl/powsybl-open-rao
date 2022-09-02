@@ -14,8 +14,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
@@ -39,12 +37,14 @@ public class MonitoredSeriesCreator {
     private final List<TimeSeries> cimTimeSeries;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private CimCracCreationContext cracCreationContext;
+    private Set<Side> defaultMonitoredSides;
 
-    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext) {
+    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = cracCreationContext.getCrac();
         this.network = network;
         this.cracCreationContext = cracCreationContext;
+        this.defaultMonitoredSides = defaultMonitoredSides;
     }
 
     public void createAndAddMonitoredSeries() {
@@ -308,33 +308,42 @@ public class MonitoredSeriesCreator {
     }
 
     private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, double threshold) {
-        BranchThresholdAdder branchThresholdAdder = flowCnecAdder.newThreshold();
-        branchThresholdAdder.withUnit(unit);
         String modifiedCnecId = cnecId;
+
+        Set<Side> monitoredSides = defaultMonitoredSides;
         if (branchHelper.isTieLine()) {
             if (branchHelper.getTieLineSide() == Branch.Side.ONE) {
-                branchThresholdAdder.withRule(BranchThresholdRule.ON_LEFT_SIDE);
                 modifiedCnecId += " - LEFT";
+                monitoredSides = Set.of(Side.LEFT);
             } else {
-                branchThresholdAdder.withRule(BranchThresholdRule.ON_RIGHT_SIDE);
                 modifiedCnecId += " - RIGHT";
+                monitoredSides = Set.of(Side.RIGHT);
             }
-        } else {
-            branchThresholdAdder.withRule(BranchThresholdRule.ON_REGULATED_SIDE);
         }
 
+        Double min = -threshold;
+        Double max = threshold;
         if (direction.equals(CNECS_DIRECT_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMax(threshold);
             modifiedCnecId += " - DIRECT";
+            min = null;
         } else if (direction.equals(CNECS_OPPOSITE_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMin(-threshold);
             modifiedCnecId += " - OPPOSITE";
-        } else {
-            branchThresholdAdder.withMax(threshold);
-            branchThresholdAdder.withMin(-threshold);
+            max = null;
         }
-        branchThresholdAdder.add();
+
+        addThreshold(flowCnecAdder, unit, min, max, monitoredSides);
         return modifiedCnecId;
+    }
+
+    private void addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, Double min, Double max, Set<Side> sides) {
+        sides.forEach(side ->
+            flowCnecAdder.newThreshold()
+                .withUnit(unit)
+                .withSide(side)
+                .withMax(max)
+                .withMin(min)
+                .add()
+        );
     }
 
     private void setNominalVoltage(FlowCnecAdder flowCnecAdder, CgmesBranchHelper branchHelper) {

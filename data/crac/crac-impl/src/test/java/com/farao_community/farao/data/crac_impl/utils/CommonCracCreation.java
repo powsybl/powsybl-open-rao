@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
 
@@ -55,7 +55,7 @@ public final class CommonCracCreation {
             .withOperator("operator1")
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
@@ -72,7 +72,7 @@ public final class CommonCracCreation {
             .withOperator("operator1")
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
@@ -89,7 +89,7 @@ public final class CommonCracCreation {
             .withOperator("operator1")
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
@@ -105,13 +105,13 @@ public final class CommonCracCreation {
             .withOperator("operator2")
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
             .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
@@ -128,13 +128,13 @@ public final class CommonCracCreation {
             .withOperator("operator2")
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
             .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
@@ -152,13 +152,13 @@ public final class CommonCracCreation {
             .withReliabilityMargin(95.)
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
             .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withSide(Side.LEFT)
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
