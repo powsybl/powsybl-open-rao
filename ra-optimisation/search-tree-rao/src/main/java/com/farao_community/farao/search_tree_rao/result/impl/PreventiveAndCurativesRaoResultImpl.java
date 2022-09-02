@@ -230,7 +230,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             virtualCostNames.addAll(initialResult.getVirtualCostNames());
         }
         if (firstPreventivePerimeterResult.getVirtualCostNames() != null) {
-            virtualCostNames.addAll(secondPreventivePerimeterResult.getVirtualCostNames());
+            virtualCostNames.addAll(firstPreventivePerimeterResult.getVirtualCostNames());
         }
         if (secondPreventivePerimeterResult.getVirtualCostNames() != null) {
             virtualCostNames.addAll(secondPreventivePerimeterResult.getVirtualCostNames());
