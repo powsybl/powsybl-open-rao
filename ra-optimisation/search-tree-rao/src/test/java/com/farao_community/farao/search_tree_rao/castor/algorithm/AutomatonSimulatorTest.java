@@ -72,6 +72,13 @@ public class AutomatonSimulatorTest {
             .withId("contingency1")
             .withNetworkElement("contingency1-ne")
             .add();
+        FlowCnec cnecPrev = crac.newFlowCnec()
+            .withId("cnec-prev")
+            .withNetworkElement("cnec-ne")
+            .withInstant(Instant.PREVENTIVE)
+            .withNominalVoltage(220.)
+            .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .add();
         cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("cnec-ne")
@@ -107,7 +114,7 @@ public class AutomatonSimulatorTest {
             .withId("ra4")
             .withNetworkElement("ra4-ne")
             .withSpeed(4)
-            .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec1").add()
+            .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-prev").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 

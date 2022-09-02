@@ -459,7 +459,15 @@ public class RemedialActionSeriesCreator {
     }
 
     private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
-        if (flowCnec.getState().getInstant().comesBefore(instant)) {
+        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
+        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
+        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+        Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
+            Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
+            Instant.AUTO, Set.of(Instant.AUTO),
+            Instant.CURATIVE, Set.of(Instant.CURATIVE)
+        );
+        if (!allowedCnecInstantPerRaInstant.get(instant).contains(flowCnec.getState().getInstant())) {
             return;
         }
         adder.newOnFlowConstraintUsageRule()

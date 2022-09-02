@@ -52,14 +52,16 @@ public class SystematicSensitivityResult {
 
     private SensitivityComputationStatus status;
     private final StateResult nStateResult = new StateResult();
-    private final Map<String, StateResult> postContingencyResults = new HashMap<>();
-    private final Map<String, StateResult> postCraResults = new HashMap<>();
+    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new EnumMap<>(Instant.class);
 
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
+        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
+        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
-    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, boolean afterCra) {
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
 
         if (results == null) {
             this.status = SensitivityComputationStatus.FAILURE;
@@ -68,23 +70,20 @@ public class SystematicSensitivityResult {
         // status set to failure initially, and set to success if we find at least one non NaN value
         this.status =  SensitivityComputationStatus.FAILURE;
 
-        Map<String, StateResult> contingencyResultsToFill = afterCra ? postCraResults : postContingencyResults;
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
-        results.getContingencies().forEach(contingency -> {
+        for (com.powsybl.contingency.Contingency contingency : results.getContingencies()) {
             StateResult contingencyStateResult = new StateResult();
             results.getValues(contingency.getId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors())
             );
-            contingencyResultsToFill.put(contingency.getId(), contingencyStateResult);
-        });
-
+            postContingencyResults.get(instant).put(contingency.getId(), contingencyStateResult);
+        }
         return this;
     }
 
     public SystematicSensitivityResult postTreatIntensities() {
         postTreatIntensitiesOnState(nStateResult);
-        postContingencyResults.values().forEach(this::postTreatIntensitiesOnState);
-        postCraResults.values().forEach(this::postTreatIntensitiesOnState);
+        postContingencyResults.values().forEach(map -> map.values().forEach(this::postTreatIntensitiesOnState));
         return this;
     }
 
@@ -188,10 +187,10 @@ public class SystematicSensitivityResult {
     private StateResult getCnecStateResult(Cnec<?> cnec) {
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
-            if (cnec.getState().getInstant().equals(Instant.CURATIVE) && postCraResults.containsKey(optionalContingency.get().getId())) {
-                return postCraResults.get(optionalContingency.get().getId());
+            if (postContingencyResults.containsKey(cnec.getState().getInstant()) && postContingencyResults.get(cnec.getState().getInstant()).containsKey(optionalContingency.get().getId())) {
+                return postContingencyResults.get(cnec.getState().getInstant()).get(optionalContingency.get().getId());
             } else {
-                return postContingencyResults.get(optionalContingency.get().getId());
+                return postContingencyResults.get(Instant.OUTAGE).get(optionalContingency.get().getId());
             }
         } else {
             return nStateResult;
