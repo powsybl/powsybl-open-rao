@@ -30,7 +30,7 @@ public enum Side {
     }
 
     public static Side fromIidmSide(Branch.Side side) {
-        switch(side) {
+        switch (side) {
             case ONE:
                 return LEFT;
             case TWO:

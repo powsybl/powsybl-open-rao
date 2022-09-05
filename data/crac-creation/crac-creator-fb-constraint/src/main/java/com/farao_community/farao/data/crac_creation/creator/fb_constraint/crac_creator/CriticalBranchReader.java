@@ -43,6 +43,7 @@ class CriticalBranchReader {
     private boolean isInvertedInNetwork;
     private OutageReader outageReader;
     private UcteCnecElementHelper ucteCnecElementHelper;
+    private Side ampereThresholdSide = null;
 
     boolean isCriticialBranchValid() {
         return importStatus.equals(ImportStatus.IMPORTED);
@@ -155,6 +156,17 @@ class CriticalBranchReader {
             this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
             this.importStatusDetail = String.format("critical branch %s was removed as its direction %s is unknown", criticalBranch.getId(), criticalBranch.getDirection());
         }
+
+        initAmpereThresholdSide();
+    }
+
+    private void initAmpereThresholdSide() {
+        if (!ucteCnecElementHelper.isHalfLine()
+            && Math.abs(ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) - ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
+            // For transformers, if unit is absolute amperes, monitor high voltage side
+            ampereThresholdSide = ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) > ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO) ?
+                Side.LEFT : Side.RIGHT;
+        }
     }
 
     private void addCnecWithPermanentThreshold(Crac crac, Instant instant) {
@@ -237,7 +249,9 @@ class CriticalBranchReader {
         //idea: create threshold in AMPERE instead of PERCENT_IMAX to avoid synchronisation afterwards
         //      can be tricky for transformers
 
-        monitoredSides.forEach(side -> {
+        Set<Side> monitoredSidesForThreshold = (unit.equals(Unit.AMPERE) && ampereThresholdSide != null) ?
+            Set.of(ampereThresholdSide) : monitoredSides;
+        monitoredSidesForThreshold.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
                 .withUnit(unit)
                 .withSide(side);

@@ -27,7 +27,8 @@ import java.util.Objects;
  */
 public final class JsonSerializationConstants {
 
-    private JsonSerializationConstants() { }
+    private JsonSerializationConstants() {
+    }
 
     public static final String CRAC_IO_VERSION = "1.5";
     /*
@@ -301,8 +302,6 @@ public final class JsonSerializationConstants {
                 throw new FaraoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThresholdRule));
         }
     }
-
-
 
     public static String serializeUsageMethod(UsageMethod usageMethod) {
         switch (usageMethod) {

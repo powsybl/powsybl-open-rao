@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -71,7 +72,7 @@ public class AutomatonSimulatorTest {
             .withId("contingency1")
             .withNetworkElement("contingency1-ne")
             .add();
-        FlowCnec cnecPrev = crac.newFlowCnec()
+        crac.newFlowCnec()
             .withId("cnec-prev")
             .withNetworkElement("cnec-ne")
             .withInstant(Instant.PREVENTIVE)
@@ -170,7 +171,7 @@ public class AutomatonSimulatorTest {
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
-        // Add a network aciton
+        // Add a network action
         na = crac.newNetworkAction()
             .withId("na")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
@@ -265,7 +266,7 @@ public class AutomatonSimulatorTest {
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(mockedPrePerimeterResult, result);
 
-        // Test on a HVDC with no HvdcAngleDroopActivePowerControl
+        // Test on an HVDC with no HvdcAngleDroopActivePowerControl
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").removeExtension(HvdcAngleDroopActivePowerControl.class);
         result = automatonSimulator.disableACEmulation(List.of(hvdcRa), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult);
         assertEquals(prePerimeterResult, result);

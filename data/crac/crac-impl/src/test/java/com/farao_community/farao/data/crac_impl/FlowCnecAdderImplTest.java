@@ -172,7 +172,7 @@ public class FlowCnecAdderImplTest {
             .withNetworkElement("Network Element ID")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-100.0).add()
             .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+            .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(200.0).withMin(-100.0).add()
             .withOptimized(false)
             .withMonitored(false)
             .withNominalVoltage(380., LEFT)
@@ -190,7 +190,7 @@ public class FlowCnecAdderImplTest {
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
             .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(RIGHT).withMax(100.0).withMin(-100.0).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(RIGHT).withMax(100.0).withMin(-200.0).add()
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(RIGHT).withMax(100.0).withMin(-100.0).add()
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(RIGHT).withMax(1.).withMin(-100.0).add()
             .withOptimized(false)
@@ -381,28 +381,6 @@ public class FlowCnecAdderImplTest {
             .withNetworkElement("Network Element ID")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1000.).add()
             .withNominalVoltage(220., LEFT) // should be defined on both side
-            .withIMax(1000.)
-            .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testThresholdOnHighVoltageLevelButNoNominalVoltage() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.).add()
-            .withNominalVoltage(220., RIGHT) // should be defined on both side
-            .withIMax(1000.)
-            .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testThresholdOnLowVoltageLevelButNoNominalVoltage() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.).add()
-            .withNominalVoltage(220., RIGHT) // should be defined on both side
             .withIMax(1000.)
             .add();
     }

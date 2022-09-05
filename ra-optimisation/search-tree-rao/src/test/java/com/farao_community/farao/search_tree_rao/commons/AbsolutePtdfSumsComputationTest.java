@@ -8,22 +8,22 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
-import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.time.Instant;
@@ -49,43 +49,39 @@ public class AbsolutePtdfSumsComputationTest {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(SensitivityVariableSet.class), Mockito.any(FlowCnec.class)))
             .thenAnswer(
-                new Answer<Double>() {
-                    @Override public Double answer(InvocationOnMock invocation) {
-                        SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
-                        FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
-                        if (branchCnec.getId().contains("cnec1")) {
-                            switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
-                                case "10YFR-RTE------C":
-                                    return 0.1;
-                                case "10YBE----------2":
-                                    return 0.2;
-                                case "10YCB-GERMANY--8":
-                                    return 0.3;
-                                case "22Y201903145---4":
-                                    return 0.4;
-                                case "22Y201903144---9":
-                                    return 0.1;
-                                default:
-                                    return 0.;
-                            }
-                        } else if (branchCnec.getId().contains("cnec2")) {
-                            switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
-                                case "10YFR-RTE------C":
-                                    return 0.3;
-                                case "10YBE----------2":
-                                    return 0.3;
-                                case "10YCB-GERMANY--8":
-                                    return 0.2;
-                                case "22Y201903145---4":
-                                    return 0.1;
-                                case "22Y201903144---9":
-                                    return 0.9;
-                                default:
-                                    return 0.;
-                            }
-                        } else {
-                            return 0.;
+                (Answer<Double>) invocation -> {
+                    SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
+                    FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
+                    if (branchCnec.getId().contains("cnec1")) {
+                        switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                            case "10YFR-RTE------C":
+                            case "22Y201903144---9":
+                                return 0.1;
+                            case "10YBE----------2":
+                                return 0.2;
+                            case "10YCB-GERMANY--8":
+                                return 0.3;
+                            case "22Y201903145---4":
+                                return 0.4;
+                            default:
+                                return 0.;
                         }
+                    } else if (branchCnec.getId().contains("cnec2")) {
+                        switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
+                            case "10YFR-RTE------C":
+                            case "10YBE----------2":
+                                return 0.3;
+                            case "10YCB-GERMANY--8":
+                                return 0.2;
+                            case "22Y201903145---4":
+                                return 0.1;
+                            case "22Y201903144---9":
+                                return 0.9;
+                            default:
+                                return 0.;
+                        }
+                    } else {
+                        return 0.;
                     }
                 });
     }
@@ -127,7 +123,7 @@ public class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{DE}-{BE}"),
                 new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---0}-{DE}+{22Y201903144---1}"), // wrong EIC for Alegro, only {BE}-{DE} will be taken into account
                 new ZoneToZonePtdfDefinition("{FR}-{ES}"), // ES doesn't exist in GLSK map, must be filtered
-                new ZoneToZonePtdfDefinition("{ES}-{DE}")); // ES doesn't exist in GLSK map, muste be filtered
+                new ZoneToZonePtdfDefinition("{ES}-{DE}")); // ES doesn't exist in GLSK map, must be filtered
 
         // compute zToz PTDF sum
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, network);
@@ -180,8 +176,7 @@ public class AbsolutePtdfSumsComputationTest {
                 .withOptimized(true)
                 .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
                 .add();
-        List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
-                new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}"));
+        List<ZoneToZonePtdfDefinition> boundaries = List.of(new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}"));
 
         // compute zToz PTDF sum
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, network);

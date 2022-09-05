@@ -311,14 +311,14 @@ public class MonitoredSeriesCreator {
         String modifiedCnecId = cnecId;
 
         Set<Side> monitoredSides = defaultMonitoredSides;
-        if (branchHelper.isTieLine()) {
-            if (branchHelper.getTieLineSide() == Branch.Side.ONE) {
-                modifiedCnecId += " - LEFT";
-                monitoredSides = Set.of(Side.LEFT);
-            } else {
-                modifiedCnecId += " - RIGHT";
-                monitoredSides = Set.of(Side.RIGHT);
-            }
+        if (branchHelper.isHalfLine()) {
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ?  "LEFT" : "RIGHT");
+            monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
+        } else if (unit.equals(Unit.AMPERE) &&
+            Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {
+            // If unit is absolute amperes, monitor high voltage side
+            monitoredSides = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() > branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV() ?
+                Set.of(Side.LEFT) : Set.of(Side.RIGHT);
         }
 
         Double min = -threshold;

@@ -8,12 +8,12 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
 import static org.junit.Assert.*;
@@ -122,7 +123,7 @@ public class FbConstraintCracCreatorTest {
         assertEquals("BBE2AA1  BBE3AA1  1", crac.getFlowCnec("BE_CBCO_000003 - outage").getNetworkElement().getId());
         assertEquals(150., crac.getFlowCnec("BE_CBCO_000003 - outage").getReliabilityMargin(), 1e-6);
         assertEquals("outage", crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getInstant().toString());
-        assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getContingency().get().getId());
+        assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - outage").getState().getContingency().orElseThrow().getId());
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000003 - curative"));
         assertEquals("[BE-BE] BBE3 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000003 - curative").getName());
@@ -130,7 +131,7 @@ public class FbConstraintCracCreatorTest {
         assertEquals("BBE2AA1  BBE3AA1  1", crac.getFlowCnec("BE_CBCO_000003 - curative").getNetworkElement().getId());
         assertEquals(150., crac.getFlowCnec("BE_CBCO_000003 - curative").getReliabilityMargin(), 1e-6);
         assertEquals("curative", crac.getFlowCnec("BE_CBCO_000003 - curative").getState().getInstant().toString());
-        assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - curative").getState().getContingency().get().getId());
+        assertEquals("BE_CO_00001", crac.getFlowCnec("BE_CBCO_000003 - curative").getState().getContingency().orElseThrow().getId());
 
         // number of critical branches vs. number of Cnecs
         assertEquals(7, creationContext.getBranchCnecCreationContexts().size());  // 2 preventive, 5 curative
@@ -158,7 +159,7 @@ public class FbConstraintCracCreatorTest {
         assertEquals(1, rangeAction.getUsageRules().size());
         assertEquals(UsageMethod.AVAILABLE, rangeAction.getUsageRules().get(0).getUsageMethod());
         assertTrue(rangeAction.getUsageRules().get(0) instanceof FreeToUse);
-        assertEquals(crac.getPreventiveState().getInstant(), ((FreeToUse) rangeAction.getUsageRules().get(0)).getInstant());
+        assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getUsageRules().get(0).getInstant());
         assertTrue(rangeAction.getGroupId().isPresent());
         assertEquals("1", rangeAction.getGroupId().get());
         assertEquals(1, rangeAction.getRanges().size());
@@ -178,7 +179,7 @@ public class FbConstraintCracCreatorTest {
         assertEquals(1, topoPra.getUsageRules().size());
         assertEquals(UsageMethod.AVAILABLE, topoPra.getUsageRules().get(0).getUsageMethod());
         assertTrue(topoPra.getUsageRules().get(0) instanceof FreeToUse);
-        assertEquals(crac.getPreventiveState().getInstant(), ((FreeToUse) topoPra.getUsageRules().get(0)).getInstant());
+        assertEquals(crac.getPreventiveState().getInstant(), topoPra.getUsageRules().get(0).getInstant());
         assertEquals(NetworkActionImpl.class, topoPra.getClass());
         assertEquals(2, topoPra.getElementaryActions().size());
 
@@ -238,8 +239,19 @@ public class FbConstraintCracCreatorTest {
         assertCriticalBranchNotImported("BE_CBCO_000004", NOT_FOR_RAO);
     }
 
+    private void assertHasThresholds(FlowCnec cnec, Set<Side> monitoredSides, Unit unit, Double min, Double max) {
+        assertEquals(monitoredSides.size(), cnec.getThresholds().size());
+        monitoredSides.forEach(side -> assertTrue(cnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getSide().equals(side))));
+        cnec.getThresholds().forEach(branchThreshold -> {
+            assertEquals(unit, branchThreshold.getUnit());
+            assertEquals(min, branchThreshold.min().orElse(null));
+            assertEquals(max, branchThreshold.max().orElse(null));
+        });
+    }
+
     @Test
-    public void importThresholds() {
+    public void importThresholdsOnLeftSide() {
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         Network network = Importers.loadNetwork("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -248,52 +260,99 @@ public class FbConstraintCracCreatorTest {
 
         assertEquals(9, crac.getFlowCnecs().size());
 
-        BranchThreshold threshold;
         // No threshold specification will be set to default relative-100
-        assertEquals(1, crac.getFlowCnec("CBCO_000001 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000001 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.PERCENT_IMAX, threshold.getUnit());
-        assertEquals(1., threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
 
         // ImaxA set to 200
-        assertEquals(1, crac.getFlowCnec("CBCO_000002 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000002 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.AMPERE, threshold.getUnit());
-        assertEquals(200., threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, null, 200.);
 
         // ImaxFactor set to 0.8
-        assertEquals(1, crac.getFlowCnec("CBCO_000003 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000003 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.PERCENT_IMAX, threshold.getUnit());
-        assertEquals(0.8, threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000003 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 0.8);
 
         // PermanentImaxA set to 300
-        assertEquals(1, crac.getFlowCnec("CBCO_000004 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000004 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.AMPERE, threshold.getUnit());
-        assertEquals(300., threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000004 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, null, 300.);
 
         // PermanentImaxFactor set to 1.2
-        assertEquals(1, crac.getFlowCnec("CBCO_000005 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000005 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.PERCENT_IMAX, threshold.getUnit());
-        assertEquals(1.2, threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000005 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.2);
 
         // TemporaryImaxA set to 200 will be set to default relative-100
-        assertEquals(1, crac.getFlowCnec("CBCO_000006 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000006 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.PERCENT_IMAX, threshold.getUnit());
-        assertEquals(1., threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
 
         // TemporaryImaxFactor set to 0.8 will be set to default relative-100
-        assertEquals(1, crac.getFlowCnec("CBCO_000007 - preventive").getThresholds().size());
-        threshold = crac.getFlowCnec("CBCO_000007 - preventive").getThresholds().iterator().next();
-        assertEquals(Unit.PERCENT_IMAX, threshold.getUnit());
-        assertEquals(1., threshold.max().orElseThrow(), 0.1);
+        assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
 
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
         assertEquals(1, crac.getFlowCnec("CBCO_000008 - preventive").getThresholds().size());
         assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(Side.LEFT, Unit.AMPERE).orElseThrow(), 0.1);
+    }
+
+    @Test
+    public void importThresholdsOnRightSide() {
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        Network network = Importers.loadNetwork("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
+        OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
+        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+
+        // No threshold specification will be set to default relative-100
+        assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
+
+        // ImaxA set to 200
+        assertHasThresholds(crac.getFlowCnec("CBCO_000002 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, null, 200.);
+
+        // ImaxFactor set to 0.8
+        assertHasThresholds(crac.getFlowCnec("CBCO_000003 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, null, 0.8);
+
+        // PermanentImaxA set to 300
+        assertHasThresholds(crac.getFlowCnec("CBCO_000004 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, null, 300.);
+
+        // PermanentImaxFactor set to 1.2
+        assertHasThresholds(crac.getFlowCnec("CBCO_000005 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, null, 1.2);
+
+        // TemporaryImaxA set to 200 will be set to default relative-100
+        assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
+
+        // TemporaryImaxFactor set to 0.8 will be set to default relative-100
+        assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
+
+        // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
+        assertEquals(1, crac.getFlowCnec("CBCO_000008 - preventive").getThresholds().size());
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), 0.1);
+    }
+
+    @Test
+    public void importThresholdsOnBothSides() {
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
+        Network network = Importers.loadNetwork("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
+        OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
+        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+
+        // No threshold specification will be set to default relative-100
+        assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
+
+        // ImaxA set to 200
+        assertHasThresholds(crac.getFlowCnec("CBCO_000002 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.AMPERE, null, 200.);
+
+        // ImaxFactor set to 0.8
+        assertHasThresholds(crac.getFlowCnec("CBCO_000003 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, null, 0.8);
+
+        // PermanentImaxA set to 300
+        assertHasThresholds(crac.getFlowCnec("CBCO_000004 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.AMPERE, null, 300.);
+
+        // PermanentImaxFactor set to 1.2
+        assertHasThresholds(crac.getFlowCnec("CBCO_000005 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, null, 1.2);
+
+        // TemporaryImaxA set to 200 will be set to default relative-100
+        assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
+
+        // TemporaryImaxFactor set to 0.8 will be set to default relative-100
+        assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, null, 1.);
+
+        // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
+        assertEquals(2, crac.getFlowCnec("CBCO_000008 - preventive").getThresholds().size());
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(Side.LEFT, Unit.AMPERE).orElseThrow(), 0.1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(Side.RIGHT, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test
@@ -323,7 +382,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testImportHvdcvhOutage() {
+    public void testImportHvdcVhOutage() {
         Network network = Importers.loadNetwork("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/network/TestCase12NodesHvdc.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/hvdcvh-outage.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -485,6 +544,54 @@ public class FbConstraintCracCreatorTest {
 
         assertTrue(creationContext.getRemedialActionCreationContext("RA_BE_0004").isImported());
         assertNotNull(crac.getRemedialAction("RA_BE_0004"));
+    }
+
+    @Test
+    public void importHalflineThresholds() {
+        Network network = Importers.loadNetwork("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/halflines.xml"));
+        OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
+        Crac crac;
+
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+        assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1., null);
+        assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
+
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+        assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1., null);
+        assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
+
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+        assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1., null);
+        assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, null, 1.);
+    }
+
+    @Test
+    public void testTransformerCnecThresholds() {
+        Network network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
+        FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/transformers.xml"));
+        OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
+
+        // CBCO_1 is in %Imax, thresholds should be created depending on default monitored side
+        // CBCO_2 is in A, threshold should be defined on high voltage level side
+
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
+        Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+        assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, -1.0, null);
+        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, -100., null);
+
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+        assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, -1.0, null);
+        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, -100., null);
+
+        parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
+        crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
+        assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1.0, null);
+        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, -100., null);
     }
 }
 

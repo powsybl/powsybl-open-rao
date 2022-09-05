@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -214,7 +215,7 @@ public class SearchTreeBloomerTest {
         Mockito.when(previousLeaf.getRangeActions()).thenReturn(Collections.singleton(raBe1));
         Mockito.when(previousLeaf.getOptimizedSetpoint(raBe1, pState)).thenReturn(5.);
 
-        // filter - max 2 topo in Fr and De
+        // filter - max 2 topo in FR and DE
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "be", 2);
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, maxTopoPerTso, new HashMap<>(), false, 0, new ArrayList<>(), pState);
         List<NetworkActionCombination> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
@@ -223,7 +224,7 @@ public class SearchTreeBloomerTest {
         assertFalse(filteredNaCombination.contains(comb2Fr));
         assertFalse(filteredNaCombination.contains(comb3Be));
 
-        // filter - max 1 topo in Fr
+        // filter - max 1 topo in FR
         maxTopoPerTso = Map.of("fr", 1);
         bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, maxTopoPerTso, new HashMap<>(), false, 0, new ArrayList<>(), pState);
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
@@ -234,7 +235,7 @@ public class SearchTreeBloomerTest {
         assertTrue(filteredNaCombination.contains(comb3Be));
         assertTrue(filteredNaCombination.contains(comb2BeNl));
 
-        // filter - max 1 RA in Fr and max 2 RA in BE
+        // filter - max 1 RA in FR and max 2 RA in BE
         Map<String, Integer> maxRaPerTso = Map.of("fr", 1, "be", 2);
         bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), maxRaPerTso, false, 0, new ArrayList<>(), pState);
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
@@ -244,7 +245,7 @@ public class SearchTreeBloomerTest {
         assertTrue(filteredNaCombination.contains(indNl1));
         assertTrue(filteredNaCombination.contains(comb2BeNl));
 
-        // filter - max 2 topo in Fr, max 0 topo in Nl and max 1 RA in BE
+        // filter - max 2 topo in FR, max 0 topo in Nl and max 1 RA in BE
         maxTopoPerTso = Map.of("fr", 2, "nl", 0);
         maxRaPerTso = Map.of("be", 1);
         bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, maxTopoPerTso, maxRaPerTso, false, 0, new ArrayList<>(), pState);

@@ -29,15 +29,14 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
     private static final String DEFAULT_CRAC_FACTORY_NAME = CracFactory.findDefault().getName();
     static final MonitoredLineSide DEFAULT_DEFAULT_MONITORED_LINE_SIDE = MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
 
-    private MonitoredLineSide defaultMonitoredLineSide = DEFAULT_DEFAULT_MONITORED_LINE_SIDE;
-    public static interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> { }
+    public interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> { }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
 
     private String cracFactoryName = DEFAULT_CRAC_FACTORY_NAME;
 
-    enum MonitoredLineSide {
+    public enum MonitoredLineSide {
         MONITOR_LINES_ON_LEFT_SIDE(Set.of(Side.LEFT)),
         MONITOR_LINES_ON_RIGHT_SIDE(Set.of(Side.RIGHT)),
         MONITOR_LINES_ON_BOTH_SIDES(Set.of(Side.LEFT, Side.RIGHT));
@@ -51,6 +50,8 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
             return new HashSet<>(monitoredSides);
         }
     }
+
+    private MonitoredLineSide defaultMonitoredLineSide = DEFAULT_DEFAULT_MONITORED_LINE_SIDE;
 
     public String getCracFactoryName() {
         return cracFactoryName;

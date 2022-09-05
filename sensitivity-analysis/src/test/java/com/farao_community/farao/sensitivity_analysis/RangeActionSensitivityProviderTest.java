@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -227,7 +228,7 @@ public class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 
         Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
@@ -270,14 +271,14 @@ public class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 
         Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
         NetworkElement line = Mockito.mock(NetworkElement.class);
         Mockito.when(line.getId()).thenReturn("BBE1AA11 BBE2AA11 1");
-        RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> mockHvdcRangeAction = Mockito.mock(RangeAction.class);
         Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(line));
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));

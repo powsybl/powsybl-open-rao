@@ -89,7 +89,10 @@ public class CriticalBranchReader {
             this.isImported = false;
             this.invalidBranchReason = branchHelper.getInvalidReason();
             this.criticalBranchImportStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
-        } else if (tOutage != null && crac.getContingency(tOutage.getV()) == null) {
+            return;
+        }
+        this.monitoredSides = branchHelper.isHalfLine() ? Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide())) : defaultMonitoredSides;
+        if (tOutage != null && crac.getContingency(tOutage.getV()) == null) {
             this.isImported = false;
             this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
             this.invalidBranchReason = String.format("CNEC is defined on outage %s which is not defined", tOutage.getV());
@@ -109,11 +112,6 @@ public class CriticalBranchReader {
                 this.criticalBranchImportStatus = ImportStatus.IMPORTED;
                 importCurativeCnecs(tBranch, branchHelper, tOutage, crac);
             }
-        }
-        if (branchHelper.isValid() && branchHelper.isHalfLine()) {
-            this.monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide()));
-        } else {
-            this.monitoredSides = defaultMonitoredSides;
         }
     }
 
@@ -146,7 +144,15 @@ public class CriticalBranchReader {
             .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
             .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
 
-        addThreshold(cnecAdder, tImax.getV(), tImax.getUnit(), tBranch.getDirection().getV(), isDirectionInverted, monitoredSides);
+        Set<Side> monitoredSidesForThreshold = monitoredSides;
+        Unit unit = convertUnit(tImax.getUnit());
+        // For transformers, if unit is absolute amperes, monitor high voltage side
+        if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
+            Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
+            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) > branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
+                Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+        }
+        addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
         cnecAdder.add();
         createdCnecIds.put(instant, cnecId);
         storeRemedialActions(tBranch);
@@ -158,13 +164,12 @@ public class CriticalBranchReader {
         );
     }
 
-    private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, String unit, String direction, boolean invert, Set<Side> monitoredSides) {
-        Unit convertedUnit = convertUnit(unit);
+    private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, Unit unit, String direction, boolean invert, Set<Side> monitoredSides) {
         monitoredSides.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
                 .withSide(side)
-                .withUnit(convertedUnit);
-            convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, convertedUnit == Unit.PERCENT_IMAX);
+                .withUnit(unit);
+            convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, unit.equals(Unit.PERCENT_IMAX));
             branchThresholdAdder.add();
         });
     }

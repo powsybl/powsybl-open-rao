@@ -6,6 +6,7 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -19,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.mockito.Mockito;
 
-public abstract class AbstractOptmizationPerimeterTest {
+public abstract class AbstractOptimizationPerimeterTest {
 
     protected Network network;
     protected Crac crac;
@@ -110,7 +111,7 @@ public abstract class AbstractOptmizationPerimeterTest {
             .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        // one preventive networkaction on one curative
+        // one preventive network action and one curative
         pNA = crac.newNetworkAction().withId("preventive-na")
             .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()

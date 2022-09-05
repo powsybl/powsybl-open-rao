@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class JsonCracCreationParametersConstants {
+public final class JsonCracCreationParametersConstants {
 
     static final String CRAC_FACTORY = "crac-factory";
 
@@ -19,6 +19,10 @@ public class JsonCracCreationParametersConstants {
     private static final String MONITOR_LINES_ON_LEFT_SIDE_TEXT = "monitor-lines-on-left-side";
     private static final String MONITOR_LINES_ON_RIGHT_SIDE_TEXT = "monitor-lines-on-right-side";
     private static final String MONITOR_LINES_ON_BOTH_SIDES_TEXT = "monitor-lines-on-both-sides";
+
+    private JsonCracCreationParametersConstants() {
+        // should not be instantiated
+    }
 
     static String serializeMonitoredLineSide(CracCreationParameters.MonitoredLineSide monitoredLineSide) {
         switch (monitoredLineSide) {

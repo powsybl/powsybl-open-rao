@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CurativeOptimizationPerimeterTest extends AbstractOptmizationPerimeterTest {
+public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
     @Before
     public void setUp() {
