@@ -125,14 +125,14 @@ public class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // factors with basecase and contingency
-        assertEquals(6, provider.getBasecaseFactors(network).size());
-        assertEquals(6, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(4, provider.getBasecaseFactors(network).size());
+        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
 
         provider.disableFactorsForBaseCaseSituation();
 
         // factors after disabling basecase
         assertEquals(0, provider.getBasecaseFactors(network).size());
-        assertEquals(6, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
     @Test(expected = FaraoException.class)
@@ -165,16 +165,19 @@ public class RangeActionSensitivityProviderTest {
 
     @Test
     public void factorsCracPstWithRange() {
-        Crac crac = CommonCracCreation.createWithPreventivePstRange();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(8, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
@@ -194,30 +197,36 @@ public class RangeActionSensitivityProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
-        assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
-                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
     @Test
     public void cracWithoutRangeActionNorPst() {
-        Crac crac = CommonCracCreation.create();
+        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(8, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
                 && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
     }
 
@@ -229,6 +238,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(Instant.PREVENTIVE)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
 
         Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
@@ -242,10 +252,15 @@ public class RangeActionSensitivityProviderTest {
 
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
 
-        assertEquals(3, factorList.size());
+        assertEquals(4, factorList.size());
 
         assertTrue(factorList.stream().anyMatch(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+        ));
+
+        assertTrue(factorList.stream().anyMatch(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
                 && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
         ));
 

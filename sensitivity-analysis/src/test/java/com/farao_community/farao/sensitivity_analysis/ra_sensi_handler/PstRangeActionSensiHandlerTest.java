@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -39,13 +40,15 @@ public class PstRangeActionSensiHandlerTest {
     @Test
     public void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        FlowCnec anyFLowCnec = crac.getFlowCnec("cnec1basecase");
+        FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(crac.getPstRangeAction("pst"));
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", anyFLowCnec)).thenReturn(14.32);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", flowCnec, Side.LEFT)).thenReturn(14.32);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA1  BBE3AA1  1", flowCnec, Side.RIGHT)).thenReturn(104.32);
 
-        assertEquals(14.32, sensiHandler.getSensitivityOnFlow(anyFLowCnec, sensiResult), 1e-3);
+        assertEquals(14.32, sensiHandler.getSensitivityOnFlow(flowCnec, Side.LEFT, sensiResult), 1e-3);
+        assertEquals(104.32, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
     @Test (expected = FaraoException.class)

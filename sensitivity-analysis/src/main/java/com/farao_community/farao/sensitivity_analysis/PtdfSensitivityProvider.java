@@ -8,6 +8,9 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -20,6 +23,8 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.SensitivityVariableType;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -47,21 +52,13 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
             return factors;
         }
 
-        Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
-
         //According to ContingencyContext doc, contingencyId should be null for preContingency context
         ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
 
-        cnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty())
-            .map(FlowCnec::getNetworkElement)
-            .distinct()
-            .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, ne.getId(),
-                    SensitivityVariableType.INJECTION_ACTIVE_POWER, linearGlsk.getId(),
-                    true, preContingencyContext))
-                .forEach(factors::add));
-        return factors;
+        return getFactors(
+            preContingencyContext,
+            cnecs.stream().filter(cnec -> cnec.getState().getContingency().isEmpty())
+        );
     }
 
     @Override
@@ -69,21 +66,44 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         List<SensitivityFactor> factors = new ArrayList<>();
         for (Contingency contingency : contingencies) {
             String contingencyId = contingency.getId();
-            Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
-
-            ContingencyContext preContingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
-
-            cnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingency.getId()))
-                .map(FlowCnec::getNetworkElement)
-                .distinct()
-                .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                    .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, ne.getId(),
-                        SensitivityVariableType.INJECTION_ACTIVE_POWER, linearGlsk.getId(),
-                        true, preContingencyContext))
-                    .forEach(factors::add));
+            ContingencyContext postContingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
+            factors.addAll(
+                getFactors(
+                    postContingencyContext,
+                    cnecs.stream().filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingency.getId()))
+                ));
         }
         return factors;
+    }
+
+    private List<SensitivityFactor> getFactors(ContingencyContext contingencyContext, Stream<FlowCnec> flowCnecsStream) {
+        Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
+        List<SensitivityFactor> factors = new ArrayList<>();
+        Map<NetworkElement, Set<Side>> networkElementsAndSides = new HashMap<>();
+        flowCnecsStream.forEach(cnec ->
+            networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>())
+                .addAll(cnec.getThresholds().stream().map(BranchThreshold::getSide).collect(Collectors.toSet())));
+        networkElementsAndSides
+            .forEach((ne, sides) ->
+                sides.forEach(side ->
+                    mapCountryLinearGlsk.values().stream()
+                        .map(linearGlsk -> new SensitivityFactor(
+                            sideToActivePowerFunctionType(side),
+                            ne.getId(),
+                            SensitivityVariableType.INJECTION_ACTIVE_POWER,
+                            linearGlsk.getId(),
+                            true,
+                            contingencyContext))
+                        .forEach(factors::add)));
+        return factors;
+    }
+
+    private SensitivityFunctionType sideToActivePowerFunctionType(Side side) {
+        if (side.equals(Side.LEFT)) {
+            return SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
+        } else {
+            return SensitivityFunctionType.BRANCH_ACTIVE_POWER_2;
+        }
     }
 
     @Override

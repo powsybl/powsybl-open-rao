@@ -9,11 +9,14 @@ package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.import12NodesNetwork;
 
@@ -26,11 +29,15 @@ public final class CommonCracCreation {
 
     }
 
-    public static Crac create() {
-        return create(CracFactory.findDefault());
+    public static Crac create(Set<Side> monitoredCnecSides) {
+        return create(CracFactory.findDefault(), monitoredCnecSides);
     }
 
-    public static Crac create(CracFactory cracFactory) {
+    public static Crac create() {
+        return create(CracFactory.findDefault(), Set.of(Side.LEFT));
+    }
+
+    public static Crac create(CracFactory cracFactory, Set<Side> monitoredCnecSides) {
 
         Crac crac = cracFactory.create("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
@@ -47,102 +54,107 @@ public final class CommonCracCreation {
             .add();
 
         // Cnecs
-        crac.newFlowCnec()
+        FlowCnecAdder cnecAdder1 = crac.newFlowCnec()
             .withId("cnec1basecase")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(Instant.PREVENTIVE)
             .withOptimized(true)
             .withOperator("operator1")
-            .newThreshold()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder1.newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-1500.)
                 .withMax(1500.)
-                .add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add();
+                .add());
+        cnecAdder1.add();
 
-        crac.newFlowCnec()
+        FlowCnecAdder cnecAdder2 = crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency1")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(Instant.CURATIVE)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator1")
-            .newThreshold()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder2.newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-1500.)
                 .withMax(1500.)
-                .add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add();
+                .add());
+        cnecAdder2.add();
 
-        crac.newFlowCnec()
+        FlowCnecAdder cnecAdder3 = crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency2")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(Instant.CURATIVE)
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator1")
-            .newThreshold()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder3.newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-1500.)
                 .withMax(1500.)
-                .add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add();
+                .add());
+        cnecAdder3.add();
 
-        crac.newFlowCnec()
+        FlowCnecAdder cnecAdder4 = crac.newFlowCnec()
             .withId("cnec2basecase")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withInstant(Instant.PREVENTIVE)
             .withOptimized(true)
             .withOperator("operator2")
-            .newThreshold()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder4.newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
-            .newThreshold()
+                .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-0.3)
                 .withMax(0.3)
-                .add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add();
+                .add());
+        cnecAdder4.add();
 
-        crac.newFlowCnec()
+        FlowCnecAdder cnecAdder5 = crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withInstant(Instant.CURATIVE)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
-            .newThreshold()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder5.newThreshold()
                 .withUnit(Unit.MEGAWATT)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
-            .newThreshold()
+                .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
-                .withSide(Side.LEFT)
+                .withSide(side)
                 .withMin(-0.3)
                 .withMax(0.3)
-                .add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add();
+                .add());
+        cnecAdder5.add();
 
-        crac.newFlowCnec()
+        FlowCnecAdder cnecAdder6 = crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency2")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withInstant(Instant.CURATIVE)
@@ -150,27 +162,32 @@ public final class CommonCracCreation {
             .withOptimized(true)
             .withOperator("operator2")
             .withReliabilityMargin(95.)
-            .newThreshold()
+            .withNominalVoltage(380.)
+            .withIMax(5000.);
+        monitoredCnecSides.forEach(side ->
+            cnecAdder6.newThreshold()
                 .withUnit(Unit.MEGAWATT)
                 .withSide(Side.LEFT)
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
-            .newThreshold()
+                .newThreshold()
                 .withUnit(Unit.PERCENT_IMAX)
                 .withSide(Side.LEFT)
                 .withMin(-0.3)
                 .withMax(0.3)
-                .add()
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .add();
+                .add());
+        cnecAdder6.add();
 
         return crac;
     }
 
     public static Crac createWithPreventivePstRange() {
-        Crac crac = create();
+        return createWithPreventivePstRange(Set.of(Side.LEFT));
+    }
+
+    public static Crac createWithPreventivePstRange(Set<Side> monitoredCnecSides) {
+        Crac crac = create(monitoredCnecSides);
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
@@ -179,14 +196,14 @@ public final class CommonCracCreation {
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
             .newFreeToUseUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
+            .withInstant(Instant.PREVENTIVE)
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
             .newTapRange()
-                .withRangeType(RangeType.ABSOLUTE)
-                .withMinTap(-16)
-                .withMaxTap(16)
-                .add()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMinTap(-16)
+            .withMaxTap(16)
+            .add()
             .withInitialTap(pstHelper.getInitialTap())
             .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
             .add();
@@ -195,6 +212,10 @@ public final class CommonCracCreation {
     }
 
     public static Crac createWithCurativePstRange() {
+        return createWithCurativePstRange(Set.of(Side.LEFT));
+    }
+
+    public static Crac createWithCurativePstRange(Set<Side> monitoredCnecSides) {
         Crac crac = create();
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
@@ -204,15 +225,15 @@ public final class CommonCracCreation {
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
             .newOnStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withContingency("Contingency FR1 FR3")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
+            .withInstant(Instant.CURATIVE)
+            .withContingency("Contingency FR1 FR3")
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
             .newTapRange()
-                .withRangeType(RangeType.ABSOLUTE)
-                .withMinTap(-16)
-                .withMaxTap(16)
-                .add()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMinTap(-16)
+            .withMaxTap(16)
+            .add()
             .withInitialTap(pstHelper.getInitialTap())
             .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
             .add();

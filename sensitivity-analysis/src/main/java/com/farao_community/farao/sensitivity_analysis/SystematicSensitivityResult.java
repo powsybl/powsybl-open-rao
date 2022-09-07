@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
 import com.powsybl.sensitivity.*;
@@ -22,24 +23,24 @@ import java.util.*;
 public class SystematicSensitivityResult {
 
     private static class StateResult {
-        private final Map<String, Double> referenceFlows = new HashMap<>();
-        private final Map<String, Double> referenceIntensities = new HashMap<>();
-        private final Map<String, Map<String, Double>> flowSensitivities = new HashMap<>();
-        private final Map<String, Map<String, Double>> intensitySensitivities = new HashMap<>();
+        private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
+        private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
+        private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
+        private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
 
-        private Map<String, Double> getReferenceFlows() {
+        private Map<String, Map<Side, Double>> getReferenceFlows() {
             return referenceFlows;
         }
 
-        private Map<String, Double> getReferenceIntensities() {
+        private Map<String, Map<Side, Double>> getReferenceIntensities() {
             return referenceIntensities;
         }
 
-        private Map<String, Map<String, Double>> getFlowSensitivities() {
+        private Map<String, Map<String, Map<Side, Double>>> getFlowSensitivities() {
             return flowSensitivities;
         }
 
-        private Map<String, Map<String, Double>> getIntensitySensitivities() {
+        private Map<String, Map<String, Map<Side, Double>>> getIntensitySensitivities() {
             return intensitySensitivities;
         }
     }
@@ -68,7 +69,7 @@ public class SystematicSensitivityResult {
             return this;
         }
         // status set to failure initially, and set to success if we find at least one non NaN value
-        this.status =  SensitivityComputationStatus.FAILURE;
+        this.status = SensitivityComputationStatus.FAILURE;
 
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
         for (com.powsybl.contingency.Contingency contingency : results.getContingencies()) {
@@ -87,16 +88,26 @@ public class SystematicSensitivityResult {
         return this;
     }
 
+    /**
+     * Sensitivity providers return absolute values for intensities
+     * In case flows are negative, we shall replace this value by its opposite
+     */
     private void postTreatIntensitiesOnState(StateResult stateResult) {
-        stateResult.getReferenceIntensities().forEach((cnecId, value) -> {
-            if (stateResult.getReferenceFlows().containsKey(cnecId) && stateResult.getReferenceFlows().get(cnecId) < 0) {
-                stateResult.getReferenceIntensities().put(cnecId, -value);
-            }
-        });
-        stateResult.getIntensitySensitivities().forEach((cnecId, sensitivities) -> {
-            if (stateResult.getReferenceFlows().containsKey(cnecId) && stateResult.getReferenceFlows().get(cnecId) < 0) {
-                sensitivities.forEach((actionId, sensi) -> sensitivities.put(actionId, -sensi));
-            }
+        Set.of(Side.LEFT, Side.RIGHT).forEach(side -> {
+            stateResult.getReferenceIntensities().forEach((cnecId, sideToIntensity) -> {
+                if (stateResult.getReferenceFlows().containsKey(cnecId)
+                    && stateResult.getReferenceFlows().get(cnecId).containsKey(side)
+                    && stateResult.getReferenceFlows().get(cnecId).get(side) < 0) {
+                    stateResult.getReferenceIntensities().computeIfAbsent(cnecId, k -> new EnumMap<>(Side.class)).put(side, -sideToIntensity.get(side));
+                }
+            });
+            stateResult.getIntensitySensitivities().forEach((cnecId, sensitivities) -> {
+                if (stateResult.getReferenceFlows().containsKey(cnecId)
+                    && stateResult.getReferenceFlows().get(cnecId).containsKey(side)
+                    && stateResult.getReferenceFlows().get(cnecId).get(side) < 0) {
+                    sensitivities.forEach((actionId, sideToSensi) -> sensitivities.computeIfAbsent(actionId, k -> new EnumMap<>(Side.class)).put(side, -sideToSensi.get(side)));
+                }
+            });
         });
     }
 
@@ -111,17 +122,29 @@ public class SystematicSensitivityResult {
             this.status = SensitivityComputationStatus.SUCCESS;
         }
 
-        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1)) {
-            stateResult.getReferenceFlows().putIfAbsent(factor.getFunctionId(), reference);
-            stateResult.getFlowSensitivities().computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
-                .putIfAbsent(factor.getVariableId(), sensitivity);
+        Side side = null;
+        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1)) {
+            side = Side.LEFT;
+        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+            side = Side.RIGHT;
+        }
+
+        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)) {
+            stateResult.getReferenceFlows()
+                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, reference);
+            stateResult.getFlowSensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, sensitivity);
         } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
-            if (!stateResult.getReferenceIntensities().containsKey(factor.getFunctionId())
-                || Math.abs(reference) > Math.abs(stateResult.getReferenceIntensities().get(factor.getFunctionId()))) {
-                stateResult.getReferenceIntensities().put(factor.getFunctionId(), reference);
-            }
-            stateResult.getIntensitySensitivities().computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
-                .putIfAbsent(factor.getVariableId(), sensitivity);
+            stateResult.getReferenceIntensities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, reference);
+            stateResult.getIntensitySensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
+                .putIfAbsent(side, sensitivity);
         }
     }
 
@@ -137,51 +160,41 @@ public class SystematicSensitivityResult {
         this.status = status;
     }
 
-    public double getReferenceFlow(FlowCnec cnec) {
+    public double getReferenceFlow(FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null) {
+        if (stateResult == null ||
+            !stateResult.getReferenceFlows().containsKey(cnec.getNetworkElement().getId())) {
             return 0.0;
         }
-        return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
+        return stateResult.getReferenceFlows().get(cnec.getNetworkElement().getId()).getOrDefault(side, 0.0);
     }
 
-    public double getReferenceIntensity(FlowCnec cnec) {
+    public double getReferenceIntensity(FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null) {
+        if (stateResult == null ||
+            !stateResult.getReferenceIntensities().containsKey(cnec.getNetworkElement().getId())) {
             return 0.0;
         }
-        return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
+        return stateResult.getReferenceIntensities().get(cnec.getNetworkElement().getId()).getOrDefault(side, 0.0);
     }
 
-    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec) {
-        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, this);
+    public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, Side side) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
     }
 
-    public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec) {
-        return getSensitivityOnFlow(glsk.getId(), cnec);
+    public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, Side side) {
+        return getSensitivityOnFlow(glsk.getId(), cnec, side);
     }
 
-    public double getSensitivityOnFlow(String variableId, FlowCnec cnec) {
+    public double getSensitivityOnFlow(String variableId, FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||
             !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
             !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId)) {
             return 0.0;
         }
-        Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-        return sensitivities.getOrDefault(variableId, 0.0);
-    }
-
-    @Deprecated (since = "3.6.0")
-    public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
-        /*
-        Should not be useful in the RAO -> sensi on intensity are never used + might crash for
-        some rangeAction time
-        For now: deprecate the method and make it throw an exception to ensure that is not used in RAO.
-        Later: reprecate the method if it has some purpose ouside of the RAO.
-         */
-
-        throw new UnsupportedOperationException();
+        Map<Side, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).get(variableId);
+        return sensitivities.getOrDefault(side, 0.0);
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {

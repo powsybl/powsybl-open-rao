@@ -27,12 +27,12 @@ import java.util.*;
  */
 public class RangeActionSensitivityProvider extends LoadflowProvider {
     private final Set<RangeAction<?>> rangeActions;
-    private List<SensitivityVariableSet> glsks;
+    private final List<SensitivityVariableSet> glsks;
 
     RangeActionSensitivityProvider(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
         this.rangeActions = rangeActions;
-        glsks = new ArrayList<>();
+        this.glsks = new ArrayList<>();
     }
 
     @Override
@@ -52,10 +52,8 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         //According to ContingencyContext doc, contingencyId should be null for preContingency context
         ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
         sensitivityFunctions.forEach(function ->
-            sensitivityVariables.entrySet().forEach(variable ->
-                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(),
-                    glskIds.contains(variable.getKey()), preContingencyContext))
-            )
+            sensitivityVariables.forEach((key, value) -> factors.add(new SensitivityFactor(function.getValue(), function.getKey(), value, key,
+                glskIds.contains(key), preContingencyContext)))
         );
         return factors;
     }
@@ -74,10 +72,8 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             //According to ContingencyContext doc, contingencyId should be null for preContingency context
             ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
             sensitivityFunctions.forEach(function ->
-                sensitivityVariables.entrySet().forEach(variable ->
-                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(),
-                        glskIds.contains(variable.getKey()), contingencyContext))
-                )
+                sensitivityVariables.forEach((key, value) -> factors.add(new SensitivityFactor(function.getValue(), function.getKey(), value, key,
+                    glskIds.contains(key), contingencyContext)))
             );
         }
         return factors;

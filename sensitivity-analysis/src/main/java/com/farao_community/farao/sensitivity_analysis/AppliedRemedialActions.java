@@ -65,7 +65,7 @@ public class AppliedRemedialActions {
 
     public Set<State> getStatesWithRa(Network network) {
         // state with at least one network action applied
-        // or state with at least one range action whose setpoint is different than the one in the network
+        // or state with at least one range action whose setpoint is different from the one in the network
         return appliedRa.entrySet().stream()
             .filter(stateE -> !stateE.getValue().networkActions.isEmpty() || stateE.getValue().rangeActions.entrySet().stream()
                 .anyMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6))
