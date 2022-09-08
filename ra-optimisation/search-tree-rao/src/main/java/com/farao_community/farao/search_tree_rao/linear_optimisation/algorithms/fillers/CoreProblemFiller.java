@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
@@ -92,7 +93,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildFlowVariables(LinearProblem linearProblem) {
         flowCnecs.forEach(cnec ->
-                linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec)
+                cnec.getMonitoredSides().forEach(side -> linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec, side))
         );
     }
 
@@ -123,38 +124,36 @@ public class CoreProblemFiller implements ProblemFiller {
      * Build one flow constraint for each Cnec c.
      * This constraints link the estimated flow on a Cnec with the impact of the RangeActions
      * on this Cnec.
-     *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void buildFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        flowCnecs.forEach(cnec -> {
+        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, Unit.MEGAWATT);
-            MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
+            double referenceFlow = flowResult.getFlow(cnec, side, Unit.MEGAWATT);
+            MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
 
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
+            MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             if (flowVariable == null) {
-                throw new FaraoException(format("Flow variable on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(format("Flow variable on %s (side %s) has not been defined yet.", cnec.getId(), side));
             }
 
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, raActivationFromParentLeaf);
-        });
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, raActivationFromParentLeaf);
+        }));
     }
 
     /**
      * Update the flow constraints, with the new reference flows and new sensitivities
-     *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        flowCnecs.forEach(cnec -> {
-            double referenceFlow = flowResult.getFlow(cnec, Unit.MEGAWATT);
-            MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
+        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+            double referenceFlow = flowResult.getFlow(cnec, side, Unit.MEGAWATT);
+            MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
             if (flowConstraint == null) {
-                throw new FaraoException(format("Flow constraint on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(format("Flow constraint on %s (side %s) has not been defined yet.", cnec.getId(), side));
             }
 
             //reset bounds
@@ -162,13 +161,13 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, rangeActionActivationResult);
-        });
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, rangeActionActivationResult);
+        }));
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, RangeActionActivationResult rangeActionActivationResult) {
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, RangeActionActivationResult rangeActionActivationResult) {
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
         if (flowVariable == null || flowConstraint == null) {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
@@ -184,7 +183,7 @@ public class CoreProblemFiller implements ProblemFiller {
             for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.contains(rangeAction)) {
-                    addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, flowConstraint, rangeActionActivationResult);
+                    addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, side, flowConstraint, rangeActionActivationResult);
                     alreadyConsideredAction.addAll(getAvailableRangeActionsOnSameAction(rangeAction));
                 }
 
@@ -192,13 +191,13 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, MPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, MPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
         }
 
-        double sensitivity = sensitivityResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
+        double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
 
         if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
             double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
@@ -240,7 +239,6 @@ public class CoreProblemFiller implements ProblemFiller {
      * Build two range action constraints for each RangeAction r.
      * These constraints link the set point variable of the RangeAction with its absolute
      * variation variable.
-     *
      * AV[r] >= S[r] - initialSetPoint[r]     (NEGATIVE)
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
@@ -408,7 +406,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     /**
      * Add in the objective function a penalty cost associated to the RangeAction
-     * activations. This penalty cost prioritizes the solutions which change as less
+     * activations. This penalty cost prioritizes the solutions which change as little
      * as possible the set points of the RangeActions.
      * <p>
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )

@@ -65,7 +65,7 @@ public final class ExhaustiveCracCreation {
                 .withContingency(contingency1Id)
                 .withOperator("operator1")
                 .withOptimized()
-                .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-800.).add()
+                .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-800.).add()
                 .withNominalVoltage(220.)
                 .add();
 
@@ -89,6 +89,7 @@ public final class ExhaustiveCracCreation {
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.RIGHT).add()
                 .withReliabilityMargin(20.)
                 .withMonitored()
                 .add();
@@ -100,6 +101,7 @@ public final class ExhaustiveCracCreation {
                 .withContingency(contingency2Id)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.RIGHT).add()
                 .withReliabilityMargin(20.)
                 .withMonitored()
                 .add();
@@ -110,6 +112,7 @@ public final class ExhaustiveCracCreation {
                 .withContingency(contingency2Id)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.RIGHT).add()
                 .withReliabilityMargin(20.)
                 .withMonitored()
                 .add();

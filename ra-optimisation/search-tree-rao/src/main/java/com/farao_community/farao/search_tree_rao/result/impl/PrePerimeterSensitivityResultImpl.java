@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -36,18 +37,18 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
-        return sensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
-        return sensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
-        return flowResult.getFlow(flowCnec, unit);
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return flowResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
@@ -56,22 +57,22 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     }
 
     @Override
-    public double getLoopFlow(FlowCnec flowCnec, Unit unit) {
-        return flowResult.getLoopFlow(flowCnec, unit);
+    public double getLoopFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return flowResult.getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
-        return flowResult.getCommercialFlow(flowCnec, unit);
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return flowResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
-        return flowResult.getPtdfZonalSum(flowCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+        return flowResult.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return flowResult.getPtdfZonalSums();
     }
 

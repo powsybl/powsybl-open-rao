@@ -8,6 +8,7 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -17,61 +18,84 @@ import static junit.framework.TestCase.assertEquals;
  */
 public class ElementaryFlowCnecResultTest {
 
+    private void assertMarginsAreNan(ElementaryFlowCnecResult elementaryFlowCnecResult, Unit unit) {
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getMargin(unit), 1e-3);
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getRelativeMargin(unit), 1e-3);
+    }
+
+    private void assertFlowsAreNan(ElementaryFlowCnecResult elementaryFlowCnecResult, Unit unit, Side side) {
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getFlow(side, unit), 1e-3);
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getCommercialFlow(side, unit), 1e-3);
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getLoopFlow(side, unit), 1e-3);
+    }
+
     @Test
     public void defaultValuesTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
 
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getFlow(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getMargin(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getRelativeMargin(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getCommercialFlow(Unit.MEGAWATT), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getLoopFlow(Unit.MEGAWATT), 1e-3);
+        assertMarginsAreNan(elementaryFlowCnecResult, Unit.MEGAWATT);
+        assertMarginsAreNan(elementaryFlowCnecResult, Unit.AMPERE);
 
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getFlow(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getMargin(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getRelativeMargin(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getCommercialFlow(Unit.AMPERE), 1e-3);
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getLoopFlow(Unit.AMPERE), 1e-3);
+        assertFlowsAreNan(elementaryFlowCnecResult, Unit.MEGAWATT, Side.LEFT);
+        assertFlowsAreNan(elementaryFlowCnecResult, Unit.MEGAWATT, Side.RIGHT);
+        assertFlowsAreNan(elementaryFlowCnecResult, Unit.AMPERE, Side.LEFT);
+        assertFlowsAreNan(elementaryFlowCnecResult, Unit.AMPERE, Side.RIGHT);
 
-        assertEquals(Double.NaN, elementaryFlowCnecResult.getPtdfZonalSum(), 1e-3);
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getPtdfZonalSum(Side.LEFT), 1e-3);
+        assertEquals(Double.NaN, elementaryFlowCnecResult.getPtdfZonalSum(Side.RIGHT), 1e-3);
     }
 
     @Test
     public void getterAndSetters() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
 
-        elementaryFlowCnecResult.setFlow(100, Unit.MEGAWATT);
+        // Per unit
         elementaryFlowCnecResult.setMargin(101, Unit.MEGAWATT);
         elementaryFlowCnecResult.setRelativeMargin(102, Unit.MEGAWATT);
-        elementaryFlowCnecResult.setCommercialFlow(103, Unit.MEGAWATT);
-        elementaryFlowCnecResult.setLoopFlow(104, Unit.MEGAWATT);
-
-        elementaryFlowCnecResult.setFlow(200, Unit.AMPERE);
         elementaryFlowCnecResult.setMargin(201, Unit.AMPERE);
         elementaryFlowCnecResult.setRelativeMargin(202, Unit.AMPERE);
-        elementaryFlowCnecResult.setCommercialFlow(203, Unit.AMPERE);
-        elementaryFlowCnecResult.setLoopFlow(204, Unit.AMPERE);
-
-        elementaryFlowCnecResult.setPtdfZonalSum(1);
-
-        assertEquals(100, elementaryFlowCnecResult.getFlow(Unit.MEGAWATT), 1e-3);
         assertEquals(101, elementaryFlowCnecResult.getMargin(Unit.MEGAWATT), 1e-3);
         assertEquals(102, elementaryFlowCnecResult.getRelativeMargin(Unit.MEGAWATT), 1e-3);
-        assertEquals(103, elementaryFlowCnecResult.getCommercialFlow(Unit.MEGAWATT), 1e-3);
-        assertEquals(104, elementaryFlowCnecResult.getLoopFlow(Unit.MEGAWATT), 1e-3);
-
-        assertEquals(200, elementaryFlowCnecResult.getFlow(Unit.AMPERE), 1e-3);
         assertEquals(201, elementaryFlowCnecResult.getMargin(Unit.AMPERE), 1e-3);
         assertEquals(202, elementaryFlowCnecResult.getRelativeMargin(Unit.AMPERE), 1e-3);
-        assertEquals(203, elementaryFlowCnecResult.getCommercialFlow(Unit.AMPERE), 1e-3);
-        assertEquals(204, elementaryFlowCnecResult.getLoopFlow(Unit.AMPERE), 1e-3);
 
-        assertEquals(1, elementaryFlowCnecResult.getPtdfZonalSum(), 1e-3);
+        // Per side
+        elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 1);
+        elementaryFlowCnecResult.setPtdfZonalSum(Side.RIGHT, 2);
+        assertEquals(1, elementaryFlowCnecResult.getPtdfZonalSum(Side.LEFT), 1e-3);
+        assertEquals(2, elementaryFlowCnecResult.getPtdfZonalSum(Side.RIGHT), 1e-3);
+
+        // Per unit per side
+        elementaryFlowCnecResult.setFlow(Side.LEFT, 100, Unit.MEGAWATT);
+        elementaryFlowCnecResult.setCommercialFlow(Side.LEFT, 103, Unit.MEGAWATT);
+        elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 104, Unit.MEGAWATT);
+        elementaryFlowCnecResult.setFlow(Side.RIGHT, 105, Unit.MEGAWATT);
+        elementaryFlowCnecResult.setCommercialFlow(Side.RIGHT, 106, Unit.MEGAWATT);
+        elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 107, Unit.MEGAWATT);
+        assertEquals(100, elementaryFlowCnecResult.getFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
+        assertEquals(103, elementaryFlowCnecResult.getCommercialFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
+        assertEquals(104, elementaryFlowCnecResult.getLoopFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
+        assertEquals(105, elementaryFlowCnecResult.getFlow(Side.RIGHT, Unit.MEGAWATT), 1e-3);
+        assertEquals(106, elementaryFlowCnecResult.getCommercialFlow(Side.RIGHT, Unit.MEGAWATT), 1e-3);
+        assertEquals(107, elementaryFlowCnecResult.getLoopFlow(Side.RIGHT, Unit.MEGAWATT), 1e-3);
+
+        elementaryFlowCnecResult.setFlow(Side.LEFT, 200, Unit.AMPERE);
+        elementaryFlowCnecResult.setCommercialFlow(Side.LEFT, 203, Unit.AMPERE);
+        elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 204, Unit.AMPERE);
+        elementaryFlowCnecResult.setFlow(Side.RIGHT, 205, Unit.AMPERE);
+        elementaryFlowCnecResult.setCommercialFlow(Side.RIGHT, 206, Unit.AMPERE);
+        elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 207, Unit.AMPERE);
+        assertEquals(200, elementaryFlowCnecResult.getFlow(Side.LEFT, Unit.AMPERE), 1e-3);
+        assertEquals(203, elementaryFlowCnecResult.getCommercialFlow(Side.LEFT, Unit.AMPERE), 1e-3);
+        assertEquals(204, elementaryFlowCnecResult.getLoopFlow(Side.LEFT, Unit.AMPERE), 1e-3);
+        assertEquals(205, elementaryFlowCnecResult.getFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
+        assertEquals(206, elementaryFlowCnecResult.getCommercialFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
+        assertEquals(207, elementaryFlowCnecResult.getLoopFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
     }
 
     @Test (expected = FaraoException.class)
     public void notAFlowUnitTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
-        elementaryFlowCnecResult.setLoopFlow(100, Unit.KILOVOLT);
+        elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 100, Unit.KILOVOLT);
     }
 }

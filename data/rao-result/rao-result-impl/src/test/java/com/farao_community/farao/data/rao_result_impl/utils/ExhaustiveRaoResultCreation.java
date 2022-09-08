@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -18,6 +19,8 @@ import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
+
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
@@ -205,17 +208,17 @@ public final class ExhaustiveRaoResultCreation {
         boolean isPureMnec = cnec.isMonitored() && !cnec.isOptimized();
 
         ElementaryFlowCnecResult initialEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
-        fillElementaryResult(initialEfcr, x, 100, hasLoopFlow, isPureMnec);
+        fillElementaryResult(initialEfcr, x, 100, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         ElementaryFlowCnecResult afterPraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
-        fillElementaryResult(afterPraEfcr, x, 200, hasLoopFlow, isPureMnec);
+        fillElementaryResult(afterPraEfcr, x, 200, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
 
         if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
             ElementaryFlowCnecResult afterAraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
-            fillElementaryResult(afterAraEfcr, x, 300, hasLoopFlow, isPureMnec);
+            fillElementaryResult(afterAraEfcr, x, 300, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
         if (cnec.getState().getInstant() == Instant.CURATIVE) {
             ElementaryFlowCnecResult afterCraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
-            fillElementaryResult(afterCraEfcr, x, 400, hasLoopFlow, isPureMnec);
+            fillElementaryResult(afterCraEfcr, x, 400, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
     }
 
@@ -257,10 +260,15 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec) {
+    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Set<Side> sides) {
+        sides.forEach(side -> fillElementaryResult(elementaryFlowCnecResult, x, y, hasLoopFlow, isPureMnec, side));
+    }
 
-        elementaryFlowCnecResult.setFlow(x + y + 10, MEGAWATT);
-        elementaryFlowCnecResult.setFlow(x + y + 20, AMPERE);
+    private static void fillElementaryResult(ElementaryFlowCnecResult elementaryFlowCnecResult, double x, double y, boolean hasLoopFlow, boolean isPureMnec, Side side) {
+        double perturb = side.equals(Side.LEFT) ? 0 : 0.5;
+
+        elementaryFlowCnecResult.setFlow(side, perturb + x + y + 10, MEGAWATT);
+        elementaryFlowCnecResult.setFlow(side, perturb + x + y + 20, AMPERE);
 
         elementaryFlowCnecResult.setMargin(x + y + 11, MEGAWATT);
         elementaryFlowCnecResult.setMargin(x + y + 21, AMPERE);
@@ -268,13 +276,13 @@ public final class ExhaustiveRaoResultCreation {
         if (!isPureMnec) {
             elementaryFlowCnecResult.setRelativeMargin(x + y + 12, MEGAWATT);
             elementaryFlowCnecResult.setRelativeMargin(x + y + 22, AMPERE);
-            elementaryFlowCnecResult.setPtdfZonalSum(x / 10000);
+            elementaryFlowCnecResult.setPtdfZonalSum(side, perturb + x / 10000);
         }
         if (hasLoopFlow) {
-            elementaryFlowCnecResult.setLoopFlow(x + y + 13., MEGAWATT);
-            elementaryFlowCnecResult.setLoopFlow(x + y + 23., AMPERE);
-            elementaryFlowCnecResult.setCommercialFlow(x + y + 14, MEGAWATT);
-            elementaryFlowCnecResult.setCommercialFlow(x + y + 24, AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(side, perturb + x + y + 13., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(side, perturb + x + y + 23., AMPERE);
+            elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 14, MEGAWATT);
+            elementaryFlowCnecResult.setCommercialFlow(side, perturb + x + y + 24, AMPERE);
         }
     }
 

@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
@@ -45,9 +46,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     @Override
     public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         double cost = loopflowCnecs
-                .stream()
-                .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
-                .sum();
+            .stream()
+            .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
+            .sum();
 
         if (cost > 0) {
             FaraoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
@@ -65,15 +66,15 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
             sortedElements = loopflowCnecs.stream()
-                    .collect(Collectors.toMap(
-                        Function.identity(),
-                        cnec -> getLoopFlowExcess(flowResult, cnec)
-                    ))
-                    .entrySet().stream()
-                    .filter(entry -> entry.getValue() != 0)
-                    .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                .collect(Collectors.toMap(
+                    Function.identity(),
+                    cnec -> getLoopFlowExcess(flowResult, cnec)
+                ))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() != 0)
+                .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
         }
         Collections.reverse(sortedElements);
 
@@ -81,12 +82,14 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
-        return Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec));
+        return cnec.getMonitoredSides()
+            .stream().map(side -> Math.abs(flowResult.getLoopFlow(cnec, side, Unit.MEGAWATT) - getLoopFlowUpperBound(cnec, side)))
+            .max(Double::compareTo).orElse(0.0);
     }
 
-    private double getLoopFlowUpperBound(FlowCnec cnec) {
+    private double getLoopFlowUpperBound(FlowCnec cnec, Side side) {
         double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, Unit.MEGAWATT);
+        double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, side, Unit.MEGAWATT);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

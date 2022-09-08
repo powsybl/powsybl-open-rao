@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -45,8 +46,8 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return initialResult.getFlow(flowCnec, unit);
+    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return initialResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
@@ -80,18 +81,18 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return initialResult.getCommercialFlow(flowCnec, unit);
+    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return initialResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return initialResult.getLoopFlow(flowCnec, unit);
+    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return initialResult.getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec) {
-        return initialResult.getPtdfZonalSum(flowCnec);
+    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
+        return initialResult.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override

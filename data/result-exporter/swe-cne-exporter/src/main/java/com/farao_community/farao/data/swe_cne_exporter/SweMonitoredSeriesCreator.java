@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredRegisteredResource;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
@@ -87,13 +86,29 @@ public class SweMonitoredSeriesCreator {
         return monitoredSeriesList;
     }
 
+    private double getCnecFlowClosestToThreshold(OptimizationState optimizationState, FlowCnec cnec) {
+        double flow = 0.0;
+        double margin = Double.POSITIVE_INFINITY;
+        for (Side side : cnec.getMonitoredSides()) {
+            double flowOnSide = cneHelper.getRaoResult().getFlow(optimizationState, cnec, side, Unit.AMPERE);
+            if (Double.isNaN(flowOnSide)) {
+                continue;
+            }
+            double marginOnSide = cnec.computeMargin(flowOnSide, side, Unit.AMPERE);
+            if (marginOnSide < margin) {
+                margin = marginOnSide;
+                flow = flowOnSide;
+            }
+        }
+        return flow;
+    }
+
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts) {
-        RaoResult raoResult = cneHelper.getRaoResult();
         Crac crac = cneHelper.getCrac();
         Map<Integer, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
             FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
-            int roundedFlow = (int) Math.round(raoResult.getFlow(OptimizationState.AFTER_CRA, cnec, Unit.AMPERE));
+            int roundedFlow = (int) Math.round(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec));
             if (monitoredSeriesPerFlowValue.containsKey(roundedFlow)) {
                 mergeSeries(monitoredSeriesPerFlowValue.get(roundedFlow), cnec);
             } else {
@@ -110,7 +125,7 @@ public class SweMonitoredSeriesCreator {
         float roundedThreshold = Math.round(Math.min(
             Math.abs(cnec.getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
             Math.abs(cnec.getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
-        threshold.setPositiveFlowIn(cneHelper.getRaoResult().getFlow(OptimizationState.AFTER_CRA, cnec, Unit.AMPERE) >= 0 ?
+        threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec) >= 0 ?
             DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
         threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
 
@@ -131,7 +146,7 @@ public class SweMonitoredSeriesCreator {
         Analog flow = new Analog();
         flow.setMeasurementType(FLOW_MEASUREMENT_TYPE);
         flow.setUnitSymbol(AMP_UNIT_SYMBOL);
-        float roundedFlow = Math.round(cneHelper.getRaoResult().getFlow(OptimizationState.AFTER_CRA, cnec, Unit.AMPERE));
+        float roundedFlow = Math.round(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec));
         flow.setPositiveFlowIn(roundedFlow >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
         flow.setAnalogValuesValue(Math.abs(roundedFlow));
         registeredResource.getMeasurements().add(flow);

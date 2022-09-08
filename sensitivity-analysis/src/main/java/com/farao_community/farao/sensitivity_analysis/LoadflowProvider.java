@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -126,10 +125,9 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         }
 
         Map<String, Set<Side>> networkElementsAndSides = new HashMap<>();
-        flowCnecs.forEach(flowCnec -> {
-            Set<Side> sides = flowCnec.getThresholds().stream().map(BranchThreshold::getSide).collect(Collectors.toSet());
-            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElement().getId(), k -> new HashSet<>()).addAll(sides);
-        });
+        flowCnecs.forEach(flowCnec ->
+            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElement().getId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
+        );
 
         List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();
         networkElementsAndSides.forEach((neId, sides) -> sensitivityFunctions.addAll(cnecToSensitivityFunctions(network, neId, sides)));

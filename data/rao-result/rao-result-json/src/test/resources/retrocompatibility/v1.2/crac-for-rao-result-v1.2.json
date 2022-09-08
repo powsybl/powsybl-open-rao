@@ -35,7 +35,7 @@
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -800.0,
-      "rule" : "onLeftSide"
+      "side" : "right"
     } ]
   }, {
     "id" : "cnec1prevId",
@@ -51,7 +51,7 @@
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -500.0,
-      "rule" : "onRightSide"
+      "side" : "right"
     } ]
   }, {
     "id" : "cnec2prevId",
@@ -67,19 +67,19 @@
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -800.0,
-      "rule" : "onLeftSide"
+      "side" : "right"
     }, {
       "unit" : "ampere",
       "min" : -800.0,
-      "rule" : "onHighVoltageLevel"
+      "side" : "left"
     }, {
       "unit" : "ampere",
       "max" : 1200.0,
-      "rule" : "onLowVoltageLevel"
+      "side" : "right"
     }, {
       "unit" : "percent_imax",
       "min" : -0.3,
-      "rule" : "onLeftSide"
+      "side" : "left"
     } ]
   }, {
     "id" : "cnec3autoId",
@@ -96,7 +96,11 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "rule" : "onLeftSide"
+      "side" : "left"
+    }, {
+      "unit" : "megawatt",
+      "max" : 500.0,
+      "side" : "right"
     } ]
   }, {
     "id" : "cnec3curId",
@@ -113,7 +117,11 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "rule" : "onLeftSide"
+      "side" : "left"
+    }, {
+      "unit" : "megawatt",
+      "max" : 500.0,
+      "side" : "right"
     } ]
   }, {
     "id" : "cnec3prevId",
@@ -129,7 +137,11 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "rule" : "onLeftSide"
+      "side" : "left"
+    }, {
+      "unit" : "megawatt",
+      "max" : 500.0,
+      "side" : "right"
     } ]
   }, {
     "id" : "cnec4prevId",
@@ -145,7 +157,7 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
-      "rule" : "onLeftSide"
+      "side" : "left"
     } ]
   } ],
   "angleCnecs" : [ {
@@ -191,13 +203,13 @@
     "networkElementId" : "pst",
     "initialTap" : 2,
     "tapToAngleConversionMap" : {
+      "3" : 3.0,
+      "2" : 2.5,
+      "1" : 2.0,
       "0" : 1.5,
       "-1" : 1.0,
       "-2" : 0.5,
-      "-3" : 0.0,
-      "3" : 3.0,
-      "2" : 2.5,
-      "1" : 2.0
+      "-3" : 0.0
     },
     "ranges" : [ {
       "min" : 1,
@@ -220,13 +232,13 @@
     "groupId" : "group-1-pst",
     "initialTap" : 1,
     "tapToAngleConversionMap" : {
+      "3" : 3.0,
+      "2" : 2.5,
+      "1" : 2.0,
       "0" : 1.5,
       "-1" : 1.0,
       "-2" : 0.5,
-      "-3" : 0.0,
-      "3" : 3.0,
-      "2" : 2.5,
-      "1" : 2.0
+      "-3" : 0.0
     },
     "ranges" : [ {
       "min" : 1,
@@ -249,13 +261,13 @@
     "groupId" : "group-3-pst",
     "initialTap" : 1,
     "tapToAngleConversionMap" : {
+      "3" : 3.0,
+      "2" : 2.5,
+      "1" : 2.0,
       "0" : 1.5,
       "-1" : 1.0,
       "-2" : 0.5,
-      "-3" : 0.0,
-      "3" : 3.0,
-      "2" : 2.5,
-      "1" : 2.0
+      "-3" : 0.0
     },
     "ranges" : [ {
       "min" : 1,

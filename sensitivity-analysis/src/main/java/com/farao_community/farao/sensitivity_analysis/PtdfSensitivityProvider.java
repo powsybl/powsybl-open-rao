@@ -6,16 +6,15 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.glsk.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
@@ -23,7 +22,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.SensitivityVariableType;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -80,9 +78,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<NetworkElement, Set<Side>> networkElementsAndSides = new HashMap<>();
-        flowCnecsStream.forEach(cnec ->
-            networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>())
-                .addAll(cnec.getThresholds().stream().map(BranchThreshold::getSide).collect(Collectors.toSet())));
+        flowCnecsStream.forEach(cnec -> networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>()).addAll(cnec.getMonitoredSides()));
         networkElementsAndSides
             .forEach((ne, sides) ->
                 sides.forEach(side ->

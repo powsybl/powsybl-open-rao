@@ -23,42 +23,60 @@ public interface FlowResult {
      * It gives the flow on a {@link FlowCnec} and in a given {@link Unit}.
      *
      * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried.
      * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch in the given unit.
      */
-    double getFlow(FlowCnec flowCnec, Unit unit);
+    double getFlow(FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the margin on a {@link FlowCnec} in a given {@link Unit}. It is basically the difference between the
      * flow and the most constraining threshold in the flow direction of the given branch. If it is negative the branch
-     * is under constraint.
+     * is under constraint. If the branch is monitored on both sides, the worst margin is returned.
      *
      * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch in the given unit.
      */
     default double getMargin(FlowCnec flowCnec, Unit unit) {
-        return flowCnec.computeMargin(getFlow(flowCnec, unit), Side.LEFT, unit);
+        return flowCnec.getMonitoredSides().stream()
+            .map(side -> getMargin(flowCnec, side, unit))
+            .min(Double::compareTo).orElseThrow();
+    }
+
+    /**
+     * Computes the margin on a given side
+     */
+    private double getMargin(FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnec.computeMargin(getFlow(flowCnec, side, unit), side, unit);
     }
 
     /**
      * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} in a given
-     * {@link Unit}. If the margin is negative it gives it directly (same value as {@code getMargin} method. If the
+     * {@link Unit}. If the margin is negative it gives it directly (same value as {@code getMargin} method). If the
      * margin is positive it gives this value divided by the sum of the zonal PTDFs on this branch of the studied zone.
      * Zones to include in this computation are defined in the {@link RaoParameters}. If it is negative the branch is
      * under constraint. If the PTDFs are not defined in the computation or the sum of them is null, this method could
-     * return {@code Double.NaN} values.
+     * return {@code Double.NaN} values. If the branch is monitored on both sides, the worst relative margin is returned.
      *
      * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch in the given unit.
      */
     default double getRelativeMargin(FlowCnec flowCnec, Unit unit) {
-        if (Double.isNaN(getPtdfZonalSum(flowCnec)) || getPtdfZonalSum(flowCnec) == 0) {
+        return flowCnec.getMonitoredSides().stream()
+            .map(side -> getRelativeMargin(flowCnec, side, unit))
+            .filter(margin -> !Double.isNaN(margin))
+            .min(Double::compareTo)
+            .orElse(Double.NaN);
+    }
+
+    default double getRelativeMargin(FlowCnec flowCnec, Side side, Unit unit) {
+        if (Double.isNaN(getPtdfZonalSum(flowCnec, side)) || getPtdfZonalSum(flowCnec, side) == 0) {
             return Double.NaN;
         }
-        return getMargin(flowCnec, unit) <= 0 ? getMargin(flowCnec, unit)
-                : getMargin(flowCnec, unit) / getPtdfZonalSum(flowCnec);
+        return getMargin(flowCnec, side, unit) <= 0 ? getMargin(flowCnec, side, unit)
+            : getMargin(flowCnec, side, unit) / getPtdfZonalSum(flowCnec, side);
     }
 
     /**
@@ -67,10 +85,11 @@ public interface FlowResult {
      * could return {@code Double.NaN} values.
      *
      * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried.
      * @param unit: The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch in the given unit.
      */
-    double getCommercialFlow(FlowCnec flowCnec, Unit unit);
+    double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} in a given
@@ -78,11 +97,12 @@ public interface FlowResult {
      * could return {@code Double.NaN} values.
      *
      * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried
      * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch in the given unit.
      */
-    default double getLoopFlow(FlowCnec flowCnec, Unit unit) {
-        return getFlow(flowCnec, unit) - getCommercialFlow(flowCnec, unit);
+    default double getLoopFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return getFlow(flowCnec, side, unit) - getCommercialFlow(flowCnec, side, unit);
     }
 
     /**
@@ -91,16 +111,17 @@ public interface FlowResult {
      * could return {@code Double.NaN} values.
      *
      * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried.
      * @return The sum of the computation areas' zonal PTDFs on the branch.
      */
-    double getPtdfZonalSum(FlowCnec flowCnec);
+    double getPtdfZonalSum(FlowCnec flowCnec, Side side);
 
     /**
-     * It gives a map of the sums of the computation areas' zonal PTDFs for each {@link FlowCnec}. If the computation
-     * does not consider PTDF values or if the {@link RaoParameters} does not define any list of considered areas, this
-     * method could return a map containing {@code Double.NaN} values.
+     * It gives a map of the sums of the computation areas' zonal PTDFs for each {@link FlowCnec}, on each of its
+     * monitored {@link Side}s. If the computation does not consider PTDF values or if the {@link RaoParameters} does
+     * not define any list of considered areas, this method could return a map containing {@code Double.NaN} values.
      *
      * @return A map of the sums of the computation areas' zonal PTDFs on each branch.
      */
-    Map<FlowCnec, Double> getPtdfZonalSums();
+    Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums();
 }

@@ -66,11 +66,13 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         LoopFlowResult results = new LoopFlowResult();
         Map<SensitivityVariableSet, Boolean> isInMainComponentMap = computeIsInMainComponentMap();
         for (FlowCnec flowCnec : flowCnecs) {
-            double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec);
-            double commercialFLow = getGlskStream(flowCnec).filter(entry -> isInMainComponentMap.get(entry.getValue()))
-                .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
-                .sum();
-            results.addCnecResult(flowCnec, refFlow - commercialFLow, commercialFLow, refFlow);
+            flowCnec.getMonitoredSides().forEach(side -> {
+                double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
+                double commercialFLow = getGlskStream(flowCnec).filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                    .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                    .sum();
+                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow);
+            });
         }
         return results;
     }

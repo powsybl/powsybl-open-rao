@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.commons.adapter;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.search_tree_rao.commons.AbsolutePtdfSumsComputation;
@@ -45,30 +46,30 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult) {
         FlowResult ptdfs;
         if (absolutePtdfSumsComputation != null) {
-            Map<FlowCnec, Double> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
+            Map<FlowCnec, Map<Side, Double>> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
             ptdfs = new FlowResult() {
 
                 @Override
-                public double getFlow(FlowCnec flowCnec, Unit unit) {
+                public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+                public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getPtdfZonalSum(FlowCnec flowCnec) {
-                    if (ptdfsMap.containsKey(flowCnec)) {
-                        return ptdfsMap.get(flowCnec);
+                public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+                    if (ptdfsMap.containsKey(flowCnec) && ptdfsMap.get(flowCnec).containsKey(side)) {
+                        return ptdfsMap.get(flowCnec).get(side);
                     } else {
                         throw new FaraoException(String.format("No PTDF zonal sum for cnec %s", flowCnec.getId()));
                     }
                 }
 
                 @Override
-                public Map<FlowCnec, Double> getPtdfZonalSums() {
+                public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
                     return ptdfsMap;
                 }
             };
@@ -84,14 +85,14 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             );
             commercialFlows = new FlowResult() {
                 @Override
-                public double getFlow(FlowCnec flowCnec, Unit unit) {
+                public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+                public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
                     if (unit == Unit.MEGAWATT) {
-                        return loopFlowResult.getCommercialFlow(flowCnec);
+                        return loopFlowResult.getCommercialFlow(flowCnec, side);
                     } else {
                         throw new NotImplementedException();
                     }
@@ -99,12 +100,12 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                 }
 
                 @Override
-                public double getPtdfZonalSum(FlowCnec flowCnec) {
+                public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public Map<FlowCnec, Double> getPtdfZonalSums() {
+                public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
                     throw new NotImplementedException();
                 }
             };

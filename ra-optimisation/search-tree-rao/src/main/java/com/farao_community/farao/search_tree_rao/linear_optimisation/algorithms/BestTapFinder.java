@@ -244,15 +244,18 @@ public final class BestTapFinder {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
         for (FlowCnec flowCnec : flowCnecs) {
-            double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, pstRangeAction, MEGAWATT);
-            double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
-            double referenceFlow = flowResult.getFlow(flowCnec, MEGAWATT);
+            for (Side side : flowCnec.getMonitoredSides()) {
+                // TODO : test new behaviour with sides
+                double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
+                double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
+                double referenceFlow = flowResult.getFlow(flowCnec, side, MEGAWATT);
 
-            double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
-            double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
+                double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
+                double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
 
-            minMargin1 = Math.min(minMargin1, flowCnec.computeMargin(flow1, Side.LEFT, MEGAWATT));
-            minMargin2 = Math.min(minMargin2, flowCnec.computeMargin(flow2, Side.LEFT, MEGAWATT));
+                minMargin1 = Math.min(minMargin1, flowCnec.computeMargin(flow1, side, MEGAWATT));
+                minMargin2 = Math.min(minMargin2, flowCnec.computeMargin(flow2, side, MEGAWATT));
+            }
         }
         return Pair.of(minMargin1, minMargin2);
     }
