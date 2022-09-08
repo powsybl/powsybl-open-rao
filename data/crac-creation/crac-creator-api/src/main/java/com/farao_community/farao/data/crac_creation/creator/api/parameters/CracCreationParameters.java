@@ -27,7 +27,7 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
 
     static final String MODULE_NAME = "crac-creation-parameters";
     private static final String DEFAULT_CRAC_FACTORY_NAME = CracFactory.findDefault().getName();
-    static final MonitoredLineSide DEFAULT_DEFAULT_MONITORED_LINE_SIDE = MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
+    static final MonitoredLineSide DEFAULT_DEFAULT_MONITORED_LINE_SIDE = MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES; // TODO : discuss if this should rather be LEFT_SIDE
 
     public interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> { }
 
