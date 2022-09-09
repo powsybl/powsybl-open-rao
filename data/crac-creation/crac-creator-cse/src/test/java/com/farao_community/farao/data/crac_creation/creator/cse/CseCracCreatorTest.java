@@ -24,6 +24,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonC
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.InjectionRangeActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CseCriticalBranchCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.outage.CseOutageCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.remedial_action.CsePstCreationContext;
@@ -180,6 +181,20 @@ public class CseCracCreatorTest {
         assertTrue(cnec1context.getContingencyId().isEmpty());
         assertEquals(1, cnec1context.getCreatedCnecsIds().size());
         assertEquals("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive", cnec1context.getCreatedCnecsIds().get(Instant.PREVENTIVE));
+    }
+
+    @Test
+    public void checkOptimizedParameterAccordingToSelected() {
+        setUp("/cracs/cse_crac_1.xml");
+        BranchCnecCreationContext cnec1context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_1 - NNL2AA1  - NNL3AA1  - basecase");
+        BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_2 - NNL1AA1  - NNL3AA1  - basecase");
+        BranchCnecCreationContext cnec3context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_3 - NNL1AA1  - NNL2AA1  - basecase");
+        assertFalse(((CseCriticalBranchCreationContext) cnec1context).isSelected());
+        assertTrue(((CseCriticalBranchCreationContext) cnec2context).isSelected());
+        assertTrue(((CseCriticalBranchCreationContext) cnec3context).isSelected());
+        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
     }
 
     @Test

@@ -26,6 +26,7 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
     private final boolean isImported;
     private final Map<Instant, String> createdCnecIds;
     private final boolean isDirectionInverted;
+    private final boolean selected;
     private final String invalidBranchReason;
     private final ImportStatus criticalBranchImportStatus;
 
@@ -79,6 +80,10 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
         return createdCnecIds;
     }
 
+    public boolean isSelected() {
+        return selected;
+    }
+
     CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
         this.criticalBranchName = criticalBranchReader.getCriticalBranchName();
         this.nativeBranch = criticalBranchReader.getNativeBranch();
@@ -87,6 +92,7 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
         this.createdCnecIds = criticalBranchReader.getCreatedCnecIds();
         this.contingencyId = criticalBranchReader.getContingencyId();
         this.isDirectionInverted = criticalBranchReader.isDirectionInverted();
+        this.selected = criticalBranchReader.isSelected();
         this.invalidBranchReason = criticalBranchReader.getInvalidBranchReason();
         this.criticalBranchImportStatus = criticalBranchReader.getImportStatus();
     }
