@@ -183,6 +183,17 @@ public class CseCracCreatorTest {
     }
 
     @Test
+    public void checkOptimizedParameterAccordingToSelected() {
+        setUp("/cracs/cse_crac_1.xml");
+        BranchCnecCreationContext cnec1context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_1 - NNL2AA1  - NNL3AA1  - basecase");
+        BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_2 - NNL1AA1  - NNL3AA1  - basecase");
+        BranchCnecCreationContext cnec3context = cracCreationContext.getBranchCnecCreationContext("basecase_branch_3 - NNL1AA1  - NNL2AA1  - basecase");
+        assertFalse(importedCrac.getCnec(cnec1context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec2context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
+        assertTrue(importedCrac.getCnec(cnec3context.getCreatedCnecsIds().get(Instant.PREVENTIVE)).isOptimized());
+    }
+
+    @Test
     public void createCurativeCnecs() {
         setUp("/cracs/cse_crac_1.xml");
         BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("French line 1 - FFR1AA1  - FFR2AA1  - outage_1");

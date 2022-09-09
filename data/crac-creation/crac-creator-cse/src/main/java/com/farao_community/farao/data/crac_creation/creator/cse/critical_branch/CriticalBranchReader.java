@@ -40,6 +40,7 @@ public class CriticalBranchReader {
     private final boolean isImported;
     private String invalidBranchReason;
     private boolean isDirectionInverted;
+    private boolean selected;
     private final Set<String> remedialActionIds = new HashSet<>();
     private final ImportStatus criticalBranchImportStatus;
 
@@ -75,6 +76,10 @@ public class CriticalBranchReader {
         return isDirectionInverted;
     }
 
+    public boolean isSelected() {
+        return selected;
+    }
+
     public CriticalBranchReader(TBranch tBranch, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         String outage;
         if (tOutage == null) {
@@ -96,6 +101,7 @@ public class CriticalBranchReader {
         } else {
             this.isImported = true;
             this.isDirectionInverted = branchHelper.isInvertedInNetwork();
+            this.selected = isSelected(tBranch);
             if (tOutage == null) {
                 // preventive
                 this.isBaseCase = true;
@@ -134,7 +140,7 @@ public class CriticalBranchReader {
             .withName(tBranch.getName().getV())
             .withInstant(instant)
             .withContingency(tOutage != null ? tOutage.getV() : null)
-            .withOptimized(true)
+            .withOptimized(selected)
             .withNetworkElement(branchHelper.getIdInNetwork())
             .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
             .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
@@ -191,6 +197,11 @@ public class CriticalBranchReader {
             default:
                 return Unit.AMPERE;
         }
+    }
+
+    // In case it is not specified we consider it as selected
+    private static boolean isSelected(TBranch tBranch) {
+        return tBranch.getSelected() == null || "true".equals(tBranch.getSelected().getV());
     }
 
     public Set<String> getRemedialActionIds() {

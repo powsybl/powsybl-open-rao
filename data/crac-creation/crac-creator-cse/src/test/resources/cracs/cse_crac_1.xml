@@ -159,6 +159,7 @@
                     <Order v="1"/>
                     <Imax unit="A" v="4000"/>
                     <Direction v="DIRECT"/>
+                    <Selected v="false"/>
                 </Branch>
                 <Branch>
                     <Name v="basecase_branch_2"/>
@@ -167,6 +168,7 @@
                     <Order v="1"/>
                     <Imax unit="A" v="4000"/>
                     <Direction v="OPPOSITE"/>
+                    <Selected v="true"/>
                 </Branch>
                 <Branch>
                     <Name v="basecase_branch_3"/>
