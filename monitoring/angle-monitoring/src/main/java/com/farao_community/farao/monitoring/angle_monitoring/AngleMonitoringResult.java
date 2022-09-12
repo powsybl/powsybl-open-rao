@@ -13,9 +13,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -109,6 +107,26 @@ public class AngleMonitoringResult {
             throw new FaraoException(String.format("AngleMonitoringResult was defined %s times with AngleCnec %s and state %s", angles.size(), angleCnec.toString(), state.getId()));
         } else {
             return angles.iterator().next();
+        }
+    }
+
+    public List<String> printConstraints() {
+        List<String> constraints = new ArrayList<>();
+        angleCnecsWithAngle.stream().forEach(angleResult -> {
+            if (AngleMonitoring.checkThresholds(angleResult.getAngleCnec(), angleResult.getAngle())) {
+                constraints.add(String.format("AngleCnec %s (with importing network element %s and exporting network element %s)" +
+                                " at state %s has an angle of %.0f °.",
+                        angleResult.getAngleCnec().getId(),
+                        angleResult.getAngleCnec().getImportingNetworkElement().getId(),
+                        angleResult.getAngleCnec().getExportingNetworkElement().getId(),
+                        angleResult.getState().getId(),
+                        angleResult.getAngle()));
+            }
+        });
+        if (constraints.isEmpty()) {
+            return List.of("All AngleCnecs are secure.");
+        } else {
+            return constraints;
         }
     }
 }

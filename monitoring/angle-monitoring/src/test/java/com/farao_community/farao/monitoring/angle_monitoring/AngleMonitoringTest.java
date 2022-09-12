@@ -12,6 +12,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
@@ -21,11 +26,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -43,14 +46,39 @@ public class AngleMonitoringTest {
     private LoadFlowParameters loadFlowParameters;
     private Map<Country, Set<ScalableNetworkElement>> glsks;
     private AngleMonitoringResult angleMonitoringResult;
+    private AngleCnec acPrev;
+    private AngleCnec acCur1;
+    private NetworkAction naOpenL1Prev;
+    private NetworkAction naOpenL1Cur;
+    private NetworkAction naInjectionCur;
 
     @Before
     public void setUp() {
-        //network = Importers.loadNetwork("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
-        network = Importers.loadNetwork("testSimpleNetwork.xiidm", getClass().getResourceAsStream("/testSimpleNetwork.xiidm"));
+        network = Importers.loadNetwork("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
+        //network = Importers.loadNetwork("testSimpleNetwork.xiidm", getClass().getResourceAsStream("/testSimpleNetwork.xiidm"));
         crac = CracFactory.findDefault().create("test-crac");
 
         crac.newContingency().withId("coL1").withNetworkElement("L1").add();
+        crac.newContingency().withId("coL2").withNetworkElement("L2").add();
+        crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
+
+        acPrev = addAngleCnec("acPrev", Instant.PREVENTIVE, null, "VL1", "VL2", -200., 500.);
+        acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", "VL1", "VL2", -200., 500.);
+
+        naOpenL1Prev = crac.newNetworkAction()
+                .withId("Open L1 - 1")
+                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+                .newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec(acPrev.getId()).add()
+                .add();
+        naOpenL1Cur = crac.newNetworkAction()
+                .withId("Open L1 - 2")
+                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
+                .add();
+        naInjectionCur = crac.newNetworkAction()
+                .with("naInjectionCur")
+                .newInjectionSetPoint().withNetworkElement("").
+
 
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
@@ -89,8 +117,10 @@ public class AngleMonitoringTest {
 
     @Test
     public void test1() {
-        addAngleCnec("angleCnec1", Instant.PREVENTIVE, null, "VL1", "VL2", -200., 500.);
+        //when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1Prev));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coL1", Instant.CURATIVE))).thenReturn(Set.of(naOpenL1Cur));
         runAngleMonitoring();
-        assertTrue(angleMonitoringResult.isSecure());
+        angleMonitoringResult.printConstraints().forEach(subConstraint -> System.out.println(subConstraint));
+        assertFalse(angleMonitoringResult.isSecure());
     }
 }

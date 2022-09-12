@@ -146,11 +146,7 @@ public class AngleMonitoring {
         Map<AngleCnec, Double> angleValues = new ConcurrentHashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
         for (Map.Entry<AngleCnec, Double> angleCnecWithAngle : angleValues.entrySet()) {
             AngleCnec angleCnec = angleCnecWithAngle.getKey();
-            Double angle = angleCnecWithAngle.getValue();
-            if (angleCnec.getThresholds().stream()
-                    .anyMatch(threshold -> threshold.limitsByMax() && angle != null && angle > threshold.max().orElseThrow())
-                    || angleCnec.getThresholds().stream()
-                    .anyMatch(threshold -> threshold.limitsByMin() && angle != null && angle < threshold.min().orElseThrow())) {
+            if (checkThresholds(angleCnec, angleCnecWithAngle.getValue())) {
                 // 2) For AngleCnecs with angle overshoot, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getAngleCnecNetworkActions(state, angleCnec);
                 // and apply them
@@ -170,9 +166,20 @@ public class AngleMonitoring {
         }
         // 4) Re-compute all angle values
         Map<AngleCnec, Double> newAngleValues = new ConcurrentHashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
+        AngleMonitoringResult.Status status = AngleMonitoringResult.Status.SECURE;
+        if (newAngleValues.keySet().stream().anyMatch(angleCnec -> checkThresholds(angleCnec, newAngleValues.get(angleCnec)))) {
+            status = AngleMonitoringResult.Status.UNSECURE;
+        }
         Set<AngleMonitoringResult.AngleResult> result = new HashSet<>();
         newAngleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, state, angleResult)));
-        return new AngleMonitoringResult(result, Map.of(state, appliedNetworkActions), AngleMonitoringResult.Status.SECURE);
+        return new AngleMonitoringResult(result, Map.of(state, appliedNetworkActions), status);
+    }
+
+    public static boolean checkThresholds(AngleCnec angleCnec, Double angle) {
+        return angleCnec.getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMax() && angle != null && angle > threshold.max().orElseThrow())
+                || angleCnec.getThresholds().stream()
+                .anyMatch(threshold -> threshold.limitsByMin() && angle != null && angle < threshold.min().orElseThrow());
     }
 
     private Set<NetworkAction> applyNetworkActions(Network networkClone, String angleCnecId, Set<NetworkAction> availableNetworkActions) {
