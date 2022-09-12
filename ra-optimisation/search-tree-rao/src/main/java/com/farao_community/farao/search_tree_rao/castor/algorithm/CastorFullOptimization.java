@@ -161,7 +161,7 @@ public class CastorFullOptimization {
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
 
         mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
-        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults, mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
+        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
             mergedRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
         } else {
             BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
@@ -340,7 +340,7 @@ public class CastorFullOptimization {
      * This function decides if a 2nd preventive RAO should be run. It checks the user parameter first, then takes the
      * decision depending on the curative RAO results and the curative RAO stop criterion.
      */
-    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> curativeRaoResults, RaoResult postFirstRaoResult, Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds) {
+    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Collection<OptimizationResult> curativeRaoResults, RaoResult postFirstRaoResult, Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds) {
         if (raoParameters.getExtension(SearchTreeRaoParameters.class) == null
             || raoParameters.getExtension(SearchTreeRaoParameters.class).getSecondPreventiveOptimizationCondition().equals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.DISABLED)) {
             return false;
@@ -363,13 +363,13 @@ public class CastorFullOptimization {
                 return true;
             case SECURE:
                 // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                return isAnyResultUnsecure(curativeRaoResults.values());
+                return isAnyResultUnsecure(curativeRaoResults);
             case PREVENTIVE_OBJECTIVE:
-                // Run 2nd preventive RAO if one perimeter of the curative optimization has a worse cost than the preventive perimeter
-                return isAnyCurativeWorseThanPreventive(raoParameters, firstPreventiveResult, curativeRaoResults.values());
+                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
+                return isFinalCostWorseThanPreventive(raoParameters, firstPreventiveResult, postFirstRaoResult);
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                // Run 2nd preventive RAO if one perimeter of the curative optimization has a worse cost than the preventive perimeter or is unsecure
-                return isAnyResultUnsecure(curativeRaoResults.values()) || isAnyCurativeWorseThanPreventive(raoParameters, firstPreventiveResult, curativeRaoResults.values());
+                // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
+                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(raoParameters, firstPreventiveResult, postFirstRaoResult);
             default:
                 throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeRaoStopCriterion));
         }
@@ -383,12 +383,11 @@ public class CastorFullOptimization {
     }
 
     /**
-     * Returns true if any curative result has an objective function value superior to the preventive's + the minimum
-     * needed improvement as per the RAO parameters
+     * Returns true if final cost (after PRAO + ARAO + CRAO) is worse than the cost at the end of the preventive perimeter
      */
-    private static boolean isAnyCurativeWorseThanPreventive(RaoParameters raoParameters, OptimizationResult preventiveResult, Collection<OptimizationResult> curativeRaoResults) {
+    private static boolean isFinalCostWorseThanPreventive(RaoParameters raoParameters, OptimizationResult preventiveResult, RaoResult postFirstRaoResult) {
         double minExpectedImprovement = raoParameters.getExtension(SearchTreeRaoParameters.class).getCurativeRaoMinObjImprovement();
-        return curativeRaoResults.stream().anyMatch(optimizationResult -> optimizationResult.getCost() > preventiveResult.getCost() - minExpectedImprovement);
+        return postFirstRaoResult.getCost(OptimizationState.AFTER_CRA) > preventiveResult.getCost() - minExpectedImprovement;
     }
 
     private RaoResult runSecondPreventiveAndAutoRao(RaoInput raoInput,
