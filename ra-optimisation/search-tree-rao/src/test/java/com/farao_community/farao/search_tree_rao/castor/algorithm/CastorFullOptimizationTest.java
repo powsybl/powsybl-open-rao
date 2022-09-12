@@ -41,10 +41,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
@@ -130,54 +127,58 @@ public class CastorFullOptimizationTest {
     @Test
     public void testShouldRunSecondPreventiveRaoSimple() {
         RaoParameters parameters = new RaoParameters();
-        State state1 = Mockito.mock(State.class);
-        State state2 = Mockito.mock(State.class);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         // No SearchTreeRaoParameters extension
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
 
         // Deactivated in parameters
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.DISABLED);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
 
         // CurativeRaoStopCriterion.MIN_OBJECTIVE
         searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
 
         // CurativeRaoStopCriterion.SECURE, secure case
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
         Mockito.doReturn(-1.).when(optimizationResult1).getFunctionalCost();
         Mockito.doReturn(-10.).when(optimizationResult2).getFunctionalCost();
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        Mockito.doReturn(0.).when(optimizationResult1).getVirtualCost();
+        Mockito.doReturn(0.).when(optimizationResult2).getVirtualCost();
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
         // CurativeRaoStopCriterion.SECURE, unsecure case 1
         Mockito.doReturn(0.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
         // CurativeRaoStopCriterion.SECURE, unsecure case 2
         Mockito.doReturn(5.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
+        // CurativeRaoStopCriterion.SECURE, unsecure case 3
+        Mockito.doReturn(-10.).when(optimizationResult1).getFunctionalCost();
+        Mockito.doReturn(9.).when(optimizationResult1).getVirtualCost();
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
     }
 
     private void setCost(OptimizationResult optimizationResultMock, double cost) {
         when(optimizationResultMock.getFunctionalCost()).thenReturn(cost);
+        when(optimizationResultMock.getVirtualCost()).thenReturn(0.);
         when(optimizationResultMock.getCost()).thenReturn(cost);
     }
 
     @Test
     public void testShouldRunSecondPreventiveRaoAdvanced() {
         RaoParameters parameters = new RaoParameters();
-        State state1 = Mockito.mock(State.class);
-        State state2 = Mockito.mock(State.class);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        RaoResult postFirstPreventiveRaoResult = Mockito.mock(RaoResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
@@ -187,45 +188,48 @@ public class CastorFullOptimizationTest {
         // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE);
         setCost(preventiveResult, -100.);
-        setCost(optimizationResult1, -200.);
-        setCost(optimizationResult2, -300.);
-        // case 1 : all curatives are better than preventive (cost < preventive cost - minObjImprovement)
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
-        // case 2 : one curative has cost = preventive cost - minObjImprovement
-        setCost(optimizationResult1, -110.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
-        // case 3 : one curative has cost > preventive cost - minObjImprovement
-        setCost(optimizationResult1, -109.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-200.);
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        // case 2 : final cost = preventive cost - minObjImprovement
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-110.);
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
+        // case 3 : final cost > preventive cost - minObjImprovement
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-109.);
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
 
         // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         // case 1 : all curatives are better than preventive (cost <= preventive cost - minObjImprovement), SECURE
         setCost(optimizationResult1, -200.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        setCost(optimizationResult2, -300.);
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-200.);
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         setCost(optimizationResult1, -110.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-110.);
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         // case 2 : all curatives are better than preventive (cost < preventive cost - minObjImprovement), UNSECURE
         setCost(preventiveResult, 1000.);
         setCost(optimizationResult1, 0.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(0.);
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         setCost(optimizationResult1, 10.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(10.);
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         // case 3 : one curative has cost > preventive cost - minObjImprovement, SECURE
         setCost(preventiveResult, -100.);
         setCost(optimizationResult1, -109.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+        when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-109.);
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
     }
 
     @Test
     public void testShouldRunSecondPreventiveRaoTime() {
         RaoParameters parameters = new RaoParameters();
-        State state1 = Mockito.mock(State.class);
-        State state2 = Mockito.mock(State.class);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
@@ -233,42 +237,39 @@ public class CastorFullOptimizationTest {
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
 
         // Enough time
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 100));
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 199));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 100));
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 199));
 
         // Not enough time
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 201));
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 400));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 201));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 400));
     }
 
     @Test
     public void testShouldRunSecondPreventiveRaoCostIncrease() {
         RaoParameters parameters = new RaoParameters();
-        State state1 = Mockito.mock(State.class);
-        State state2 = Mockito.mock(State.class);
-        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE);
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
 
-        when(initialResult.getCost()).thenReturn(-100.);
-        when(preventiveResult.getCost()).thenReturn(-10.);
-        when(optimizationResult1.getCost()).thenReturn(-120.);
-        when(optimizationResult2.getCost()).thenReturn(-130.);
+        RaoResult postFirstRaoResult = Mockito.mock(RaoResult.class);
+        when(postFirstRaoResult.getCost(OptimizationState.INITIAL)).thenReturn(-100.);
+        when(postFirstRaoResult.getCost(OptimizationState.AFTER_PRA)).thenReturn(-10.);
+        when(postFirstRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-120.);
 
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, initialResult, preventiveResult, curativeResults, null, 0));
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
 
-        when(optimizationResult2.getCost()).thenReturn(-100.);
-        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, initialResult, preventiveResult, curativeResults, null, 0));
+        when(postFirstRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-100.);
+        assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
 
-        when(optimizationResult2.getCost()).thenReturn(-95.);
-        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, initialResult, preventiveResult, curativeResults, null, 0));
+        when(postFirstRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-95.);
+        assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
     }
 
     private void setUpCracWithRAs() {
