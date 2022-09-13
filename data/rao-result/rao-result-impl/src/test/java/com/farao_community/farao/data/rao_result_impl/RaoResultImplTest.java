@@ -90,8 +90,10 @@ public class RaoResultImplTest {
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
 
         PstRangeActionResult pstRangeActionResult = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pst);
-        pstRangeActionResult.setPreOptimTap(3);
-        pstRangeActionResult.setPreOptimSetPoint(2.3);
+        pstRangeActionResult.setInitialTap(3);
+        pstRangeActionResult.setInitialSetpoint(2.3);
+        pstRangeActionResult.setPostPraTap(33);
+        pstRangeActionResult.setPostPraSetpoint(32.3);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -7, -3.2);
 
         CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(INITIAL);
