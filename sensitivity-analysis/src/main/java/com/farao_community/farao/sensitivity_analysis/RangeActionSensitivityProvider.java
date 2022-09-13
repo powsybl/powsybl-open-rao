@@ -107,14 +107,14 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         Map<String, Float> positiveGlskMap = injectionRangeActionSensiHandler.getPositiveGlskMap();
         Map<String, Float> negativeGlskMap = injectionRangeActionSensiHandler.getNegativeGlskMap();
 
-        if (!positiveGlskMap.isEmpty()) {
+        if (!positiveGlskMap.isEmpty() && glsks.stream().noneMatch(variable -> variable.getId().equals(injectionRangeActionSensiHandler.getPositiveGlskMapId()))) {
             List<WeightedSensitivityVariable> positiveGlsk = injectionRangeActionSensiHandler.rescaleGlskMap(positiveGlskMap);
             sensitivityVariables.put(injectionRangeActionSensiHandler.getPositiveGlskMapId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
             glsks.add(new SensitivityVariableSet(injectionRangeActionSensiHandler.getPositiveGlskMapId(), positiveGlsk));
             glskIds.add(injectionRangeActionSensiHandler.getPositiveGlskMapId());
         }
 
-        if (!negativeGlskMap.isEmpty()) {
+        if (!negativeGlskMap.isEmpty() && glsks.stream().noneMatch(variable -> variable.getId().equals(injectionRangeActionSensiHandler.getNegativeGlskMapId()))) {
             List<WeightedSensitivityVariable> negativeGlsk = injectionRangeActionSensiHandler.rescaleGlskMap(negativeGlskMap);
             sensitivityVariables.put(injectionRangeActionSensiHandler.getNegativeGlskMapId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
             glsks.add(new SensitivityVariableSet(injectionRangeActionSensiHandler.getNegativeGlskMapId(), negativeGlsk));
