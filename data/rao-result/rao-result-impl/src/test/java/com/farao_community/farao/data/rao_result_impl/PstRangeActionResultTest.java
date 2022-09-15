@@ -50,32 +50,30 @@ public class PstRangeActionResultTest {
     public void defaultValuesTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
-        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimSetpoint());
-
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", OUTAGE)));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", OUTAGE)));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", CURATIVE)));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", CURATIVE)));
 
+        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getPreventiveState()));
+        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", OUTAGE)));
+        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", OUTAGE)));
+        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", CURATIVE)));
+        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
+
         assertEquals(Double.NaN, pstRangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()));
         assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
-    }
-
-    @Test (expected = NullPointerException.class)
-    public void defaultValuesGetTapTest() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
-
-        // no default value possible, as a int is expected in all the methods of a RaoResult expecting a tap
-        pstRangeActionResult.getPreOptimTap();
     }
 
     @Test
     public void pstActivatedInPreventiveTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
-        pstRangeActionResult.setPreOptimTap(3);
-        pstRangeActionResult.setPreOptimSetPoint(0.3);
+        pstRangeActionResult.setInitialTap(3);
+        pstRangeActionResult.setInitialSetpoint(0.3);
+        pstRangeActionResult.setPostPraTap(33);
+        pstRangeActionResult.setPostPraSetpoint(0.33);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), 16, 1.6);
 
         //is activated
@@ -85,9 +83,6 @@ public class PstRangeActionResultTest {
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", CURATIVE)));
 
         // initial values
-
-        assertEquals(3, pstRangeActionResult.getPreOptimTap());
-        assertEquals(0.3, pstRangeActionResult.getPreOptimSetpoint(), 1e-3);
 
         // preventive state
         assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getPreventiveState()));
@@ -112,8 +107,10 @@ public class PstRangeActionResultTest {
     public void pstActivatedInCurativeTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
-        pstRangeActionResult.setPreOptimTap(3);
-        pstRangeActionResult.setPreOptimSetPoint(0.3);
+        pstRangeActionResult.setInitialTap(3);
+        pstRangeActionResult.setInitialSetpoint(0.3);
+        pstRangeActionResult.setPostPraTap(33);
+        pstRangeActionResult.setPostPraSetpoint(0.33);
         pstRangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", CURATIVE), -16, -1.6);
 
         //is activated
@@ -122,42 +119,39 @@ public class PstRangeActionResultTest {
         assertTrue(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", CURATIVE)));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", CURATIVE)));
 
-        // initial values
-
-        assertEquals(3, pstRangeActionResult.getPreOptimTap());
-        assertEquals(0.3, pstRangeActionResult.getPreOptimSetpoint(), 1e-3);
-
         // preventive state
         assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getPreventiveState()));
         assertEquals(0.3, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
-        assertEquals(3, pstRangeActionResult.getOptimizedTapOnState(crac.getPreventiveState()));
-        assertEquals(0.3, pstRangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
+        assertEquals(33, pstRangeActionResult.getOptimizedTapOnState(crac.getPreventiveState()));
+        assertEquals(0.33, pstRangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);
 
         // outage state
-        assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getState("Contingency FR1 FR2", OUTAGE)));
-        assertEquals(0.3, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", OUTAGE)), 1e-3);
-        assertEquals(3, pstRangeActionResult.getOptimizedTapOnState(crac.getState("Contingency FR1 FR2", OUTAGE)));
-        assertEquals(0.3, pstRangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", OUTAGE)), 1e-3);
+        assertEquals(33, pstRangeActionResult.getPreOptimizedTapOnState(crac.getState("Contingency FR1 FR2", OUTAGE)));
+        assertEquals(0.33, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", OUTAGE)), 1e-3);
+        assertEquals(33, pstRangeActionResult.getOptimizedTapOnState(crac.getState("Contingency FR1 FR2", OUTAGE)));
+        assertEquals(0.33, pstRangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", OUTAGE)), 1e-3);
 
         // curative state
-        assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getState("Contingency FR1 FR2", CURATIVE)));
-        assertEquals(0.3, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", CURATIVE)), 1e-3);
+        assertEquals(33, pstRangeActionResult.getPreOptimizedTapOnState(crac.getState("Contingency FR1 FR2", CURATIVE)));
+        assertEquals(0.33, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", CURATIVE)), 1e-3);
         assertEquals(-16, pstRangeActionResult.getOptimizedTapOnState(crac.getState("Contingency FR1 FR2", CURATIVE)));
         assertEquals(-1.6, pstRangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR2", CURATIVE)), 1e-3);
 
         // other curative state (not activated
-        assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
-        assertEquals(0.3, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)), 1e-3);
-        assertEquals(3, pstRangeActionResult.getOptimizedTapOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
-        assertEquals(0.3, pstRangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)), 1e-3);
+        assertEquals(33, pstRangeActionResult.getPreOptimizedTapOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
+        assertEquals(0.33, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)), 1e-3);
+        assertEquals(33, pstRangeActionResult.getOptimizedTapOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
+        assertEquals(0.33, pstRangeActionResult.getOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)), 1e-3);
     }
 
     @Test
     public void pstActivatedInPreventiveAndCurative() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
-        pstRangeActionResult.setPreOptimTap(3);
-        pstRangeActionResult.setPreOptimSetPoint(0.3);
+        pstRangeActionResult.setInitialTap(3);
+        pstRangeActionResult.setInitialSetpoint(0.3);
+        pstRangeActionResult.setPostPraTap(33);
+        pstRangeActionResult.setPostPraSetpoint(0.33);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), 16, 1.6);
         pstRangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", CURATIVE), -16, -1.6);
 
@@ -167,11 +161,6 @@ public class PstRangeActionResultTest {
         assertTrue(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", CURATIVE)));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", CURATIVE)));
         assertEquals(2, pstRangeActionResult.getStatesWithActivation().size());
-
-        // initial values
-
-        assertEquals(3, pstRangeActionResult.getPreOptimTap());
-        assertEquals(0.3, pstRangeActionResult.getPreOptimSetpoint(), 1e-3);
 
         // preventive state
         assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getPreventiveState()));

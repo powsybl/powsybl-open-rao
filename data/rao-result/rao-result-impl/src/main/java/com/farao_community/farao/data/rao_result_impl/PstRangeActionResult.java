@@ -18,26 +18,24 @@ import java.util.Objects;
  */
 public class PstRangeActionResult extends RangeActionResult {
 
-    private Integer preOptimTap;
+    private int initialTap;
+    private Integer postPraTap;
     private final Map<State, Integer> tapPerState;
 
     public PstRangeActionResult() {
         super();
-        preOptimTap = null;
         tapPerState = new HashMap<>();
-    }
-
-    public int getPreOptimTap() {
-        return preOptimTap;
     }
 
     public int getPreOptimizedTapOnState(State state) {
         // does not handle RA applicable on OUTAGE instant
         // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState)) {
+        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && tapPerState.containsKey(preventiveState)) {
             return tapPerState.get(preventiveState);
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && postPraTap != null) {
+            return postPraTap;
         }
-        return preOptimTap;
+        return initialTap;
     }
 
     public int getOptimizedTapOnState(State state) {
@@ -45,14 +43,12 @@ public class PstRangeActionResult extends RangeActionResult {
         // does only handle RA applicable in PREVENTIVE and CURATIVE instant
         if (tapPerState.containsKey(state)) {
             return tapPerState.get(state);
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState)) {
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && tapPerState.containsKey(preventiveState)) {
             return tapPerState.get(preventiveState);
+        } else if (postPraTap != null) {
+            return postPraTap;
         }
-        return preOptimTap;
-    }
-
-    public void setPreOptimTap(int preOptimTap) {
-        this.preOptimTap = preOptimTap;
+        return initialTap;
     }
 
     public void addActivationForState(State state, int tap, double setpoint) {
@@ -61,5 +57,13 @@ public class PstRangeActionResult extends RangeActionResult {
         if (state.isPreventive()) {
             preventiveState = state;
         }
+    }
+
+    public void setInitialTap(int initialTap) {
+        this.initialTap = initialTap;
+    }
+
+    public void setPostPraTap(int postPraTap) {
+        this.postPraTap = postPraTap;
     }
 }
