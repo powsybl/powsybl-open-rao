@@ -145,19 +145,19 @@ public final class ExhaustiveRaoResultCreation {
             switch (pstRangeAction.getId()) {
                 case "pstRange1Id":
                     // free to use preventive, activated
-                    prar.setPreOptimTap(0);
-                    prar.setPreOptimSetPoint(0);
+                    prar.setInitialTap(0);
+                    prar.setInitialSetpoint(0);
                     prar.addActivationForState(crac.getPreventiveState(), -7, -3.2);
                     break;
                 case "pstRange2Id":
                     // on flow in preventive state, not activated
-                    prar.setPreOptimTap(3);
-                    prar.setPreOptimSetPoint(1.7);
+                    prar.setInitialTap(3);
+                    prar.setInitialSetpoint(1.7);
                     break;
                 case "pstRange3Id":
                     // on angle in curative state, not activated
-                    prar.setPreOptimTap(2);
-                    prar.setPreOptimSetPoint(1.3);
+                    prar.setInitialTap(2);
+                    prar.setInitialSetpoint(1.3);
                     break;
                 default:
                     // do nothing
@@ -174,12 +174,12 @@ public final class ExhaustiveRaoResultCreation {
             switch (hvdcRangeAction.getId()) {
                 case "hvdcRange1Id":
                     // free to use preventive, activated
-                    hrar.setPreOptimSetPoint(0);
+                    hrar.setInitialSetpoint(0);
                     hrar.addActivationForState(crac.getPreventiveState(), -1000);
                     break;
                 case "hvdcRange2Id":
                     // activated for two curative states
-                    hrar.setPreOptimSetPoint(-100);
+                    hrar.setInitialSetpoint(-100);
                     hrar.addActivationForState(crac.getState("contingency1Id", Instant.CURATIVE), 100);
                     hrar.addActivationForState(crac.getState("contingency2Id", Instant.CURATIVE), 400);
                     break;
@@ -192,7 +192,7 @@ public final class ExhaustiveRaoResultCreation {
         // --- InjectionRangeAction results ---
         // ------------------------------------
         RangeActionResult irar = raoResult.getAndCreateIfAbsentRangeActionResult(crac.getInjectionRangeAction("injectionRange1Id"));
-        irar.setPreOptimSetPoint(100);
+        irar.setInitialSetpoint(100);
         irar.addActivationForState(crac.getState("contingency1Id", Instant.CURATIVE), -300);
 
         return raoResult;
