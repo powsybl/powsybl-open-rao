@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -85,6 +86,15 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        Map<String, HvdcRangeAction> hvdcs = new HashMap<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            hvdcs.putAll(cnecSensitivityProvider.getHvdcs());
+        }
+        return hvdcs;
+    }
+
+    @Override
     public List<Contingency> getContingencies(Network network) {
         //using a set to avoid duplicates
         Set<Contingency> contingencies = new HashSet<>();
@@ -92,6 +102,6 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
             contingencies.addAll(cnecSensitivityProvider.getContingencies(network));
         }
         return new ArrayList<>(contingencies);
-
     }
+
 }

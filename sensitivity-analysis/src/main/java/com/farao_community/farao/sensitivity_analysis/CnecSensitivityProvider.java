@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -15,6 +16,7 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,4 +37,6 @@ public interface CnecSensitivityProvider extends ContingenciesProvider {
     List<SensitivityFactor> getAllFactors(Network network);
 
     List<SensitivityVariableSet> getVariableSets();
+
+    Map<String, HvdcRangeAction> getHvdcs();
 }

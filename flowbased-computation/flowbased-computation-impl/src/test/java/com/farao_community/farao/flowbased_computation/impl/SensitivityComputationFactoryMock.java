@@ -146,21 +146,21 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
         return expectedPtdfByBranch;
     }
 
-    private void writePreContingencySensitivityValues(SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter) {
+    private void writePreContingencySensitivityValues(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
-                valueWriter.write(factorIndex.get(), -1, preContingencyPtdf.get(functionId).get(variableId), preContingencyFref.get(functionId));
+                resultWriter.writeSensitivityValue(factorIndex.get(), -1, preContingencyPtdf.get(functionId).get(variableId), preContingencyFref.get(functionId));
             }
             factorIndex.set(factorIndex.get() + 1);
         });
     }
 
-    private void writePostContingencySensitivityValues(Contingency contingency, int contingencyIndex, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter) {
+    private void writePostContingencySensitivityValues(Contingency contingency, int contingencyIndex, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingency.getId())) {
-                valueWriter.write(factorIndex.get(), contingencyIndex, postContingencyPtdf.get(functionId).get(variableId), postContingencyFref.get(functionId));
+                resultWriter.writeSensitivityValue(factorIndex.get(), contingencyIndex, postContingencyPtdf.get(functionId).get(variableId), postContingencyFref.get(functionId));
             }
             factorIndex.set(factorIndex.get() + 1);
         });
@@ -177,11 +177,12 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityValueWriter sensitivityValueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
         return CompletableFuture.runAsync(() -> {
-            writePreContingencySensitivityValues(sensitivityFactorReader, sensitivityValueWriter);
+            writePreContingencySensitivityValues(sensitivityFactorReader, sensitivityResultWriter);
             for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-                writePostContingencySensitivityValues(contingencies.get(contingencyIndex), contingencyIndex, sensitivityFactorReader, sensitivityValueWriter);
+                writePostContingencySensitivityValues(contingencies.get(contingencyIndex), contingencyIndex, sensitivityFactorReader, sensitivityResultWriter);
+                sensitivityResultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.CONVERGED);
             }
         }, computationManager.getExecutor());
     }

@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -83,6 +84,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return new ArrayList<>();
     }
 
+    @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        return new HashMap<>();
+    }
+
     private boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
         return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
             twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
@@ -138,17 +144,21 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         String id = networkElement.getId();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
 
-        if (networkIdentifiable instanceof Branch) {
+        if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
             List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
             if (factorsInMegawatt) {
                 sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
             }
             if (factorsInAmpere) {
                 sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_1));
-                // For branches with a single voltage level, get max current on both sides
-                Branch<?> branch = (Branch<?>) networkIdentifiable;
-                if (branch.getTerminal1().getVoltageLevel().getNominalV() == branch.getTerminal2().getVoltageLevel().getNominalV()) {
+                // For branches with a single voltage level and for dangling lines, get max current on both sides
+                if (networkIdentifiable instanceof DanglingLine) {
                     sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_2));
+                } else {
+                    Branch<?> branch = (Branch<?>) networkIdentifiable;
+                    if (branch.getTerminal1().getVoltageLevel().getNominalV() == branch.getTerminal2().getVoltageLevel().getNominalV()) {
+                        sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_2));
+                    }
                 }
             }
             return sensitivityFunctions;

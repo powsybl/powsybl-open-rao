@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -89,5 +90,10 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     @Override
     public List<SensitivityVariableSet> getVariableSets() {
         return new ArrayList<>(glsk.getDataPerZone().values());
+    }
+
+    @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        return new HashMap<>();
     }
 }

@@ -47,7 +47,7 @@ final class SystematicSensitivityAdapter {
             cnecSensitivityProvider.getVariableSets(),
             sensitivityComputationParameters);
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, Instant.OUTAGE).postTreatIntensities();
+        return new SystematicSensitivityResult().completeData(result, Instant.OUTAGE).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -120,6 +120,6 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        return result.postTreatIntensities();
+        return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 }
