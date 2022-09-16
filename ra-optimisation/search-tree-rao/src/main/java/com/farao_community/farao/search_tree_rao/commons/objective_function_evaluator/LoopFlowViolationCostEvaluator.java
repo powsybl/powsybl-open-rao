@@ -83,7 +83,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
         return cnec.getMonitoredSides()
-            .stream().map(side -> Math.abs(flowResult.getLoopFlow(cnec, side, Unit.MEGAWATT) - getLoopFlowUpperBound(cnec, side)))
+            .stream().map(side -> Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, side, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec, side)))
             .max(Double::compareTo).orElse(0.0);
     }
 

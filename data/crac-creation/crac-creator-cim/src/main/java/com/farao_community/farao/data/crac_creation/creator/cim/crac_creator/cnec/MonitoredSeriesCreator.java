@@ -317,7 +317,7 @@ public class MonitoredSeriesCreator {
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {
             // If unit is absolute amperes, monitor high voltage side
-            monitoredSides = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() > branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV() ?
+            monitoredSides = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() <= branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV() ?
                 Set.of(Side.LEFT) : Set.of(Side.RIGHT);
         }
 

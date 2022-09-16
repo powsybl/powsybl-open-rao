@@ -581,17 +581,17 @@ public class FbConstraintCracCreatorTest {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         Crac crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.LEFT, Side.RIGHT), Unit.PERCENT_IMAX, -1.0, null);
-        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, -100., null);
+        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, -100., null);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.LEFT), Unit.PERCENT_IMAX, -1.0, null);
-        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, -100., null);
+        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, -100., null);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
         crac = new FbConstraintCracCreator().createCrac(fbConstraint, network, timestamp, parameters).getCrac();
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(Side.RIGHT), Unit.PERCENT_IMAX, -1.0, null);
-        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.RIGHT), Unit.AMPERE, -100., null);
+        assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(Side.LEFT), Unit.AMPERE, -100., null);
     }
 }
 

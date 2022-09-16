@@ -149,7 +149,7 @@ public class CriticalBranchReader {
         // For transformers, if unit is absolute amperes, monitor high voltage side
         if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
-            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) > branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
+            monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) <= branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
                 Set.of(Side.LEFT) : Set.of(Side.RIGHT);
         }
         addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);

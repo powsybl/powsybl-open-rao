@@ -64,7 +64,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                     if (ptdfsMap.containsKey(flowCnec) && ptdfsMap.get(flowCnec).containsKey(side)) {
                         return ptdfsMap.get(flowCnec).get(side);
                     } else {
-                        throw new FaraoException(String.format("No PTDF zonal sum for cnec %s", flowCnec.getId()));
+                        throw new FaraoException(String.format("No PTDF zonal sum for cnec %s (side %s)", flowCnec.getId(), side));
                     }
                 }
 

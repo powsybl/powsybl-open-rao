@@ -164,7 +164,7 @@ class CriticalBranchReader {
         if (!ucteCnecElementHelper.isHalfLine()
             && Math.abs(ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) - ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
             // For transformers, if unit is absolute amperes, monitor high voltage side
-            ampereThresholdSide = ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) > ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO) ?
+            ampereThresholdSide = ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) <= ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO) ?
                 Side.LEFT : Side.RIGHT;
         }
     }

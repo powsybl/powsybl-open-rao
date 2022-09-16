@@ -21,9 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -51,7 +48,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     @Override
     public Double getIMax(Side side) {
-        if (side.equals(LEFT)) {
+        if (side.equals(Side.LEFT)) {
             return iMax[0];
         } else {
             return iMax[1];
@@ -67,6 +64,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
                     .filter(Threshold::limitsByMin)
+                    .filter(branchThreshold -> branchThreshold.getSide().equals(side))
                     .collect(Collectors.toSet());
 
             if (!limitingThresholds.isEmpty()) {
@@ -74,7 +72,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
                     currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound = changeValueSide(currentBound, threshold, side, requestedUnit);
                     currentBound += changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
                     if (currentBound > lowerBound) {
                         lowerBound = currentBound;
@@ -99,13 +96,13 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         if (!bounds.isUpperBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
                     .filter(Threshold::limitsByMax)
+                    .filter(branchThreshold -> branchThreshold.getSide().equals(side))
                     .collect(Collectors.toSet());
             if (!limitingThresholds.isEmpty()) {
                 double upperBound = Double.POSITIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
                     double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
                     currentBound = changeValueUnit(currentBound, threshold.getUnit(), requestedUnit, threshold.getSide());
-                    currentBound = changeValueSide(currentBound, threshold, side, requestedUnit);
                     currentBound -= changeValueUnit(reliabilityMargin, Unit.MEGAWATT, requestedUnit, side);
                     if (currentBound < upperBound) {
                         upperBound = currentBound;
@@ -137,19 +134,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             }
             return value * conversionFactor;
         }
-    }
-
-    private double changeValueSide(double thresholdValue, BranchThreshold threshold, Side requestedSide, Unit requestedUnit) {
-        if (!threshold.getSide().equals(requestedSide)
-                && requestedUnit.equals(Unit.AMPERE)
-                && !getNominalVoltage(LEFT).equals(getNominalVoltage(RIGHT))) {
-            return changeValueSide(thresholdValue, threshold.getSide(), requestedSide);
-        }
-        return thresholdValue;
-    }
-
-    private double changeValueSide(double value, Side oldSide, Side newSide) {
-        return value * getNominalVoltage(oldSide) / getNominalVoltage(newSide);
     }
 
     @Override

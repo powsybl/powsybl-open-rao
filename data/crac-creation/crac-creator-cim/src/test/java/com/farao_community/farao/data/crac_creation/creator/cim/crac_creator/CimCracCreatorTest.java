@@ -860,24 +860,24 @@ public class CimCracCreatorTest {
         assertHasTwoThresholds("OJLJJ_5_400_220 - preventive", Unit.PERCENT_IMAX, -1., 1.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_2 - outage", Unit.MEGAWATT, -1000., 1000.);
         assertHasTwoThresholds("OJLJJ_5_400_220 - CO_3 - outage", Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.LEFT, Unit.AMPERE, -2000., 2000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.LEFT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
         assertHasOneThreshold("OJLJJ_5_400_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1., 1.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", Side.LEFT, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", Side.LEFT, Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.LEFT, Unit.AMPERE, -2000., 2000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.LEFT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
 
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
         assertHasOneThreshold("OJLJJ_5_400_220 - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -1., 1.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", Side.RIGHT, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", Side.RIGHT, Unit.MEGAWATT, -1000., 1000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.LEFT, Unit.AMPERE, -2000., 2000.);
-        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.LEFT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
+        assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
     }
 
 }
