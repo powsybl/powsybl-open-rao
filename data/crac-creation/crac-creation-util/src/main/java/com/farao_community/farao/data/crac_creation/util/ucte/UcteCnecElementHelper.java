@@ -19,8 +19,7 @@ import static com.farao_community.farao.data.crac_creation.util.ucte.UcteConnect
 import static java.lang.String.format;
 
 /**
- * UcteCnecElementHelper is a utility class which manages CNECs defined with the UCTE convention
- *
+ * UcteCnecElementHelper is a utility class which manages CNECs defined with the UCTE convention.
  * This utility class has been designed so as to be used in CRAC creators whose format
  * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
@@ -146,8 +145,8 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
             checkBranchNominalVoltage((TieLine) networkElement);
             checkTieLineCurrentLimits((TieLine) networkElement);
         } else if (networkElement instanceof Branch) {
-            checkBranchNominalVoltage((Branch) networkElement);
-            checkBranchCurrentLimits((Branch) networkElement);
+            checkBranchNominalVoltage((Branch<?>) networkElement);
+            checkBranchCurrentLimits((Branch<?>) networkElement);
         } else if (networkElement instanceof DanglingLine) {
             checkDanglingLineNominalVoltage((DanglingLine) networkElement);
             checkDanglingLineCurrentLimits((DanglingLine) networkElement);
@@ -155,11 +154,11 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
-        if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE))) {
-            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        if (tieLine.getCurrentLimits(Branch.Side.ONE).isPresent()) {
+            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit();
         }
-        if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
-            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
+        if (tieLine.getCurrentLimits(Branch.Side.TWO).isPresent()) {
+            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit();
         }
         if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
             invalidate(format("couldn't identify current limits of tie-line (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
@@ -177,26 +176,26 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     protected void checkBranchCurrentLimits(Branch<?> branch) {
-        if (!Objects.isNull(branch.getCurrentLimits1())) {
-            this.currentLimitLeft = branch.getCurrentLimits1().getPermanentLimit();
+        if (branch.getCurrentLimits1().isPresent()) {
+            this.currentLimitLeft = branch.getCurrentLimits1().orElseThrow().getPermanentLimit();
         }
-        if (!Objects.isNull(branch.getCurrentLimits2())) {
-            this.currentLimitRight = branch.getCurrentLimits2().getPermanentLimit();
+        if (branch.getCurrentLimits2().isPresent()) {
+            this.currentLimitRight = branch.getCurrentLimits2().orElseThrow().getPermanentLimit();
         }
-        if (Objects.isNull(branch.getCurrentLimits1()) && !Objects.isNull(branch.getCurrentLimits2())) {
+        if (branch.getCurrentLimits1().isEmpty() && branch.getCurrentLimits2().isPresent()) {
             this.currentLimitLeft = currentLimitRight * nominalVoltageRight / nominalVoltageLeft;
         }
-        if (!Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
+        if (branch.getCurrentLimits1().isPresent() && branch.getCurrentLimits2().isEmpty()) {
             this.currentLimitRight = currentLimitLeft * nominalVoltageLeft / nominalVoltageRight;
         }
-        if (Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
+        if (branch.getCurrentLimits1().isEmpty() && branch.getCurrentLimits2().isEmpty()) {
             invalidate(format("couldn't identify current limits of branch (%s, networkBranchId: %s)", connectableId, branch.getId()));
         }
     }
 
     protected void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
-        if (!Objects.isNull(danglingLine.getCurrentLimits())) {
-            this.currentLimitLeft = danglingLine.getCurrentLimits().getPermanentLimit();
+        if (danglingLine.getCurrentLimits().isPresent()) {
+            this.currentLimitLeft = danglingLine.getCurrentLimits().orElseThrow().getPermanentLimit();
             this.currentLimitRight = currentLimitLeft;
         } else {
             invalidate(format("couldn't identify current limits of dangling line (%s, networkDanglingLineId: %s)", connectableId, danglingLine.getId()));

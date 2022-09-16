@@ -67,40 +67,40 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     private Map<String, Map<String, Double>> getPreContingencyPtdf() {
         Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
         expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", 0.375),
-                        entry("10YBE----------2", -0.375),
-                        entry("10YCB-GERMANY--8", 0.125),
-                        entry("10YNL----------L", -0.125)
+            Stream.of(
+                    entry("10YFR-RTE------C", 0.375),
+                    entry("10YBE----------2", -0.375),
+                    entry("10YCB-GERMANY--8", 0.125),
+                    entry("10YNL----------L", -0.125)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", 0.375),
-                        entry("10YBE----------2", 0.125),
-                        entry("10YCB-GERMANY--8", -0.375),
-                        entry("10YNL----------L", -0.125)
+            Stream.of(
+                    entry("10YFR-RTE------C", 0.375),
+                    entry("10YBE----------2", 0.125),
+                    entry("10YCB-GERMANY--8", -0.375),
+                    entry("10YNL----------L", -0.125)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", 0.125),
-                        entry("10YBE----------2", 0.375),
-                        entry("10YCB-GERMANY--8", -0.125),
-                        entry("10YNL----------L", -0.375)
+            Stream.of(
+                    entry("10YFR-RTE------C", 0.125),
+                    entry("10YBE----------2", 0.375),
+                    entry("10YCB-GERMANY--8", -0.125),
+                    entry("10YNL----------L", -0.375)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", 0.125),
-                        entry("10YBE----------2", -0.125),
-                        entry("10YCB-GERMANY--8", 0.375),
-                        entry("10YNL----------L", -0.375)
+            Stream.of(
+                    entry("10YFR-RTE------C", 0.125),
+                    entry("10YBE----------2", -0.125),
+                    entry("10YCB-GERMANY--8", 0.375),
+                    entry("10YNL----------L", -0.375)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         return expectedPtdfByBranch;
     }
@@ -108,59 +108,59 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     private Map<String, Map<String, Double>> getPostContingencyPtdf() {
         Map<String, Map<String, Double>> expectedPtdfByBranch = new HashMap<>();
         expectedPtdfByBranch.put("FR-BE", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", Double.NaN),
-                        entry("10YBE----------2", Double.NaN),
-                        entry("10YCB-GERMANY--8", Double.NaN),
-                        entry("10YNL----------L", Double.NaN)
+            Stream.of(
+                    entry("10YFR-RTE------C", Double.NaN),
+                    entry("10YBE----------2", Double.NaN),
+                    entry("10YCB-GERMANY--8", Double.NaN),
+                    entry("10YNL----------L", Double.NaN)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         expectedPtdfByBranch.put("FR-DE", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", 0.75),
-                        entry("10YBE----------2", -0.25),
-                        entry("10YCB-GERMANY--8", -0.25),
-                        entry("10YNL----------L", -0.25)
+            Stream.of(
+                    entry("10YFR-RTE------C", 0.75),
+                    entry("10YBE----------2", -0.25),
+                    entry("10YCB-GERMANY--8", -0.25),
+                    entry("10YNL----------L", -0.25)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         expectedPtdfByBranch.put("BE-NL", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", -0.25),
-                        entry("10YBE----------2", 0.75),
-                        entry("10YCB-GERMANY--8", -0.25),
-                        entry("10YNL----------L", -0.25)
+            Stream.of(
+                    entry("10YFR-RTE------C", -0.25),
+                    entry("10YBE----------2", 0.75),
+                    entry("10YCB-GERMANY--8", -0.25),
+                    entry("10YNL----------L", -0.25)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         expectedPtdfByBranch.put("DE-NL", Collections.unmodifiableMap(
-                Stream.of(
-                        entry("10YFR-RTE------C", 0.5),
-                        entry("10YBE----------2", -0.5),
-                        entry("10YCB-GERMANY--8", 0.5),
-                        entry("10YNL----------L", -0.5)
+            Stream.of(
+                    entry("10YFR-RTE------C", 0.5),
+                    entry("10YBE----------2", -0.5),
+                    entry("10YCB-GERMANY--8", 0.5),
+                    entry("10YNL----------L", -0.5)
                 )
-                        .collect(entriesToMap())
+                .collect(entriesToMap())
         ));
         return expectedPtdfByBranch;
     }
 
-    private void writePreContingencySensitivityValues(SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter) {
+    private void writePreContingencySensitivityValues(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
-                valueWriter.write(factorIndex.get(), -1, preContingencyPtdf.get(functionId).get(variableId), preContingencyFref.get(functionId));
+                resultWriter.writeSensitivityValue(factorIndex.get(), -1, preContingencyPtdf.get(functionId).get(variableId), preContingencyFref.get(functionId));
             }
             factorIndex.set(factorIndex.get() + 1);
         });
     }
 
-    private void writePostContingencySensitivityValues(Contingency contingency, int contingencyIndex, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter) {
+    private void writePostContingencySensitivityValues(Contingency contingency, int contingencyIndex, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingency.getId())) {
-                valueWriter.write(factorIndex.get(), contingencyIndex, postContingencyPtdf.get(functionId).get(variableId), postContingencyFref.get(functionId));
+                resultWriter.writeSensitivityValue(factorIndex.get(), contingencyIndex, postContingencyPtdf.get(functionId).get(variableId), postContingencyFref.get(functionId));
             }
             factorIndex.set(factorIndex.get() + 1);
         });
@@ -177,11 +177,12 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityValueWriter sensitivityValueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
         return CompletableFuture.runAsync(() -> {
-            writePreContingencySensitivityValues(sensitivityFactorReader, sensitivityValueWriter);
+            writePreContingencySensitivityValues(sensitivityFactorReader, sensitivityResultWriter);
             for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-                writePostContingencySensitivityValues(contingencies.get(contingencyIndex), contingencyIndex, sensitivityFactorReader, sensitivityValueWriter);
+                writePostContingencySensitivityValues(contingencies.get(contingencyIndex), contingencyIndex, sensitivityFactorReader, sensitivityResultWriter);
+                sensitivityResultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
             }
         }, computationManager.getExecutor());
     }

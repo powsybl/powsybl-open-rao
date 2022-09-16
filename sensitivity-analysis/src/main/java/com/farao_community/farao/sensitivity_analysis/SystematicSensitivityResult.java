@@ -72,12 +72,12 @@ public class SystematicSensitivityResult {
         this.status = SensitivityComputationStatus.FAILURE;
 
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
-        for (com.powsybl.contingency.Contingency contingency : results.getContingencies()) {
+        for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
             StateResult contingencyStateResult = new StateResult();
-            results.getValues(contingency.getId()).forEach(sensitivityValue ->
+            results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors())
             );
-            postContingencyResults.get(instant).put(contingency.getId(), contingencyStateResult);
+            postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
         return this;
     }
