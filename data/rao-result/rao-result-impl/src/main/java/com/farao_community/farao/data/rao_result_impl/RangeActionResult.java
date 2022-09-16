@@ -15,26 +15,24 @@ import java.util.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RangeActionResult {
-    protected double preOptimSetpoint;
+    protected double initialSetpoint = Double.NaN;
+    protected double postPraSetpoint = Double.NaN;
     protected Map<State, Double> setpointPerState;
     protected State preventiveState = null;
 
     public RangeActionResult() {
-        preOptimSetpoint = Double.NaN;
         setpointPerState = new HashMap<>();
-    }
-
-    public double getPreOptimSetpoint() {
-        return preOptimSetpoint;
     }
 
     public double getPreOptimizedSetpointOnState(State state) {
         // does not handle RA applicable on OUTAGE instant
         // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState)) {
+        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && setpointPerState.containsKey(preventiveState)) {
             return setpointPerState.get(preventiveState);
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && !Double.isNaN(postPraSetpoint)) {
+            return postPraSetpoint;
         }
-        return preOptimSetpoint;
+        return initialSetpoint;
     }
 
     public double getOptimizedSetpointOnState(State state) {
@@ -42,10 +40,12 @@ public class RangeActionResult {
         // does only handle RA applicable in PREVENTIVE and CURATIVE instant
         if (setpointPerState.containsKey(state)) {
             return setpointPerState.get(state);
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState)) {
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && setpointPerState.containsKey(preventiveState)) {
             return setpointPerState.get(preventiveState);
+        } else if (!Double.isNaN(postPraSetpoint)) {
+            return postPraSetpoint;
         }
-        return preOptimSetpoint;
+        return initialSetpoint;
     }
 
     public boolean isActivatedDuringState(State state) {
@@ -56,14 +56,18 @@ public class RangeActionResult {
         return setpointPerState.keySet();
     }
 
-    public void setPreOptimSetPoint(double setpoint) {
-        this.preOptimSetpoint = setpoint;
-    }
-
     public void addActivationForState(State state, double setpoint) {
         setpointPerState.put(state, setpoint);
         if (state.isPreventive()) {
             preventiveState = state;
         }
+    }
+
+    public void setInitialSetpoint(double initialSetpoint) {
+        this.initialSetpoint = initialSetpoint;
+    }
+
+    public void setPostPraSetpoint(Double postPraSetpoint) {
+        this.postPraSetpoint = postPraSetpoint;
     }
 }
