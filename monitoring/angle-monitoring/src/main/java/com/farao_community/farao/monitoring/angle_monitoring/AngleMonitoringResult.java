@@ -30,9 +30,9 @@ public class AngleMonitoringResult {
     }
 
     /**
-     * Utility class to hold the results of topo actions simulation
+     * Utility class to hold results for a single angleCnec - state duo
      */
-    static class AngleResult {
+    public static class AngleResult {
         private final AngleCnec angleCnec;
         private final State state;
         private final Double angle;
@@ -54,6 +54,11 @@ public class AngleMonitoringResult {
         public AngleCnec getAngleCnec() {
             return angleCnec;
         }
+
+        public String getId()  {
+            return angleCnec.getId();
+        }
+
     }
 
     private final Set<AngleResult> angleCnecsWithAngle;
@@ -83,8 +88,15 @@ public class AngleMonitoringResult {
         return appliedCras.getOrDefault(state, Collections.emptySet());
     }
 
-    public Set<String> getAppliedCraIds(State state) {
-        return appliedCras.get(state).stream().map(NetworkAction::getId).collect(Collectors.toSet());
+    public Set<String> getAppliedCras(String stateId) {
+        Set<State> states = appliedCras.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
+        if (states.isEmpty()) {
+            return Collections.emptySet();
+        } else if (states.size() > 1) {
+            throw new FaraoException(String.format("%s states share the same id : %s.", states.size(), stateId));
+        } else {
+            return appliedCras.get(states.iterator().next()).stream().map(NetworkAction::getId).collect(Collectors.toSet());
+        }
     }
 
     public Set<AngleResult> getAngleCnecsWithAngle() {
@@ -111,11 +123,14 @@ public class AngleMonitoringResult {
     }
 
     public List<String> printConstraints() {
+        if (isUnknown()) {
+            return List.of("Unknown status on AngleCnecs.");
+        }
         List<String> constraints = new ArrayList<>();
         angleCnecsWithAngle.stream().forEach(angleResult -> {
-            if (AngleMonitoring.checkThresholds(angleResult.getAngleCnec(), angleResult.getAngle())) {
+            if (AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle())) {
                 constraints.add(String.format("AngleCnec %s (with importing network element %s and exporting network element %s)" +
-                                " at state %s has an angle of %.0f °.",
+                                " at state %s has an angle of %.0f°.",
                         angleResult.getAngleCnec().getId(),
                         angleResult.getAngleCnec().getImportingNetworkElement().getId(),
                         angleResult.getAngleCnec().getExportingNetworkElement().getId(),

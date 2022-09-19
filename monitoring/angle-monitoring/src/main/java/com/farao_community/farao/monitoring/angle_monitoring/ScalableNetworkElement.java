@@ -10,18 +10,19 @@ package com.farao_community.farao.monitoring.angle_monitoring;
 import java.util.Objects;
 
 /**
+ * A scalable network element is a building block to compute proportional Scalables
+ * of type ScalableType.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class ScalableNetworkElement {
     private final String id;
-    private final Float percentage;
+    private Float percentage;
     private final ScalableType scalableType;
 
     public enum ScalableType {
         GENERATOR,
-        LOAD,
-        UNHANDLED
+        LOAD
     }
 
     ScalableNetworkElement(String id, Float percentage, ScalableType scalableType) {
@@ -36,6 +37,10 @@ public class ScalableNetworkElement {
 
     public Float getPercentage() {
         return percentage;
+    }
+
+    public void setPercentage(Float newPercentage) {
+        percentage = newPercentage;
     }
 
     public String getId() {

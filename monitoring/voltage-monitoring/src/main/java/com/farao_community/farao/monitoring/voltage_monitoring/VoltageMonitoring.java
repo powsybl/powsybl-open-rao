@@ -77,6 +77,8 @@ public class VoltageMonitoring {
                             applyOptimalRemedialActions(state, networkClone);
                             voltageValues.putAll(computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters));
                         } catch (Exception e) {
+                            stateCountDownLatch.countDown();
+                            Thread.currentThread().interrupt();
                             throw new FaraoException(CONTINGENCY_ERROR, e);
                         }
                         stateCountDownLatch.countDown();

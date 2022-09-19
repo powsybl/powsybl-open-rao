@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
- * A redispatch action is a network action that consists in
+ * A redispatch action collects a quantity of power to be redispatched (powerToBeRedispatched) in country (countryName)
+ * according to proportional glsks that exclude networkElementsToBeExcluded.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -37,10 +38,20 @@ public class RedispatchAction {
 
     }
 
+    /**
+     * Returns a proportional scalable defined from ScalableNetworkElements (glsks), after filtering networkElementsToBeExcluded
+     * and reproportionalized percentages when necessary
+     */
     private Scalable defineProportionalGlsk() {
         // Filter out network elements that have to be excluded
         Set<ScalableNetworkElement> filteredGlsks = glsks.stream()
-                .filter(glsk -> networkElementsToBeExcluded.contains(glsk.getId())).collect(Collectors.toSet());
+                .filter(glsk -> !networkElementsToBeExcluded.contains(glsk.getId())).collect(Collectors.toSet());
+
+        if (filteredGlsks.size() != glsks.size()) {
+            BUSINESS_WARNS.warn("%s scalable network elements have been filtered.", glsks.size() - filteredGlsks.size());
+            Double sumPercentages = filteredGlsks.stream().mapToDouble(ScalableNetworkElement::getPercentage).sum();
+            filteredGlsks.forEach(glsk -> glsk.setPercentage((float) (glsk.getPercentage() / sumPercentages * 100.)));
+        }
 
         // Define proportionalGlsk
         List<Scalable> scalables = new ArrayList<>();
@@ -59,8 +70,11 @@ public class RedispatchAction {
         return Scalable.proportional(percentages, scalables);
     }
 
+    /**
+     * Scales powerToBeRedispatched on network.
+     */
     public void apply(Network network) {
         double redispatchedPower = defineProportionalGlsk().scale(network, powerToBeRedispatched);
-        BUSINESS_WARNS.info("Scaling for country {}: asked={}, done={}", countryName, powerToBeRedispatched, redispatchedPower);
+        BUSINESS_WARNS.warn("Scaling for country {}: asked={}, done={}", countryName, powerToBeRedispatched, redispatchedPower);
     }
 }

@@ -87,6 +87,18 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.farao-community.farao</groupId>
+            <artifactId>farao-crac-creator-cim</artifactId>
+            <version>4.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.farao-community.farao</groupId>
+            <artifactId>farao-crac-creator-cim</artifactId>
+            <version>4.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
