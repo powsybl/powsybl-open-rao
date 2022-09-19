@@ -171,11 +171,6 @@ public class TRemedialActionAdder {
             int pstInitialTap = pstHelper.getInitialTap();
             Map<Integer, Double> conversionMap = pstHelper.getTapToAngleConversionMap();
 
-            // Check if transformer is inverted in network, and invert range
-            boolean isInverted = !pstHelper.isInvertedInNetwork(); // POWSYBL actually inverts transformers usually
-            int minTap = isInverted ? -tRemedialAction.getPstRange().getMax().getV() : tRemedialAction.getPstRange().getMin().getV();
-            int maxTap = isInverted ? -tRemedialAction.getPstRange().getMin().getV() : tRemedialAction.getPstRange().getMax().getV();
-
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
                 .withId(id)
                 .withName(tRemedialAction.getName().getV())
@@ -184,14 +179,17 @@ public class TRemedialActionAdder {
                 .withInitialTap(pstInitialTap)
                 .withTapToAngleConversionMap(conversionMap)
                 .newTapRange()
-                .withMinTap(minTap)
-                .withMaxTap(maxTap)
+                .withMinTap(tRemedialAction.getPstRange().getMin().getV())
+                .withMaxTap(tRemedialAction.getPstRange().getMax().getV())
                 .withRangeType(convertRangeType(tRemedialAction.getPstRange().getVariationType()))
                 .add();
 
             addUsageRules(pstRangeActionAdder, tRemedialAction);
             pstRangeActionAdder.add();
             String nativeNetworkElementId = String.format("%1$-8s %2$-8s %3$s", pstHelper.getOriginalFrom(), pstHelper.getOriginalTo(), pstHelper.getSuffix());
+
+            // Check if transformer is inverted in network
+            boolean isInverted = !pstHelper.isInvertedInNetwork(); // POWSYBL actually inverts transformers usually
             String inversionDetail = isInverted ? "PST was inverted to match POWSYBL convention" : null;
             cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.imported(tRemedialAction, nativeNetworkElementId, id, isInverted, inversionDetail));
         });
