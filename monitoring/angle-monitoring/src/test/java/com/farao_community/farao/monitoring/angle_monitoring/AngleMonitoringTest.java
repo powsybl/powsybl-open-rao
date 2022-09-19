@@ -147,6 +147,7 @@ public class AngleMonitoringTest {
 
     @Test
     public void testUnknownAngleMonitoring() {
+        // LoadFlow diverges
         setUpCracFactory("networkKO.xiidm");
         mockCurativeStates();
         runAngleMonitoring();
