@@ -48,7 +48,7 @@ public class RedispatchAction {
                 .filter(glsk -> !networkElementsToBeExcluded.contains(glsk.getId())).collect(Collectors.toSet());
 
         if (filteredGlsks.size() != glsks.size()) {
-            BUSINESS_WARNS.warn("%s scalable network elements have been filtered.", glsks.size() - filteredGlsks.size());
+            BUSINESS_WARNS.warn("{}} scalable network elements have been filtered in country {}.", glsks.size() - filteredGlsks.size(), countryName);
             Double sumPercentages = filteredGlsks.stream().mapToDouble(ScalableNetworkElement::getPercentage).sum();
             filteredGlsks.forEach(glsk -> glsk.setPercentage((float) (glsk.getPercentage() / sumPercentages * 100.)));
         }
