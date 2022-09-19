@@ -151,7 +151,7 @@ public class AngleMonitoring {
         boolean loadFlowIsOk = computeLoadFlow(networkClone);
         if (!loadFlowIsOk) {
             Set<AngleMonitoringResult.AngleResult> result = new HashSet<>();
-            crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, state, Double.NaN)));
+            crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, Double.NaN)));
             return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNKNOWN);
         }
         Map<AngleCnec, Double> angleValues = new ConcurrentHashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
@@ -171,7 +171,7 @@ public class AngleMonitoring {
             loadFlowIsOk = computeLoadFlow(networkClone);
             if (!loadFlowIsOk) {
                 Set<AngleMonitoringResult.AngleResult> result = new HashSet<>();
-                angleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, state, angleResult)));
+                angleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, angleResult)));
                 return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNSECURE);
             }
         }
@@ -182,7 +182,7 @@ public class AngleMonitoring {
             status = AngleMonitoringResult.Status.UNSECURE;
         }
         Set<AngleMonitoringResult.AngleResult> result = new HashSet<>();
-        newAngleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, state, angleResult)));
+        newAngleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, angleResult)));
         return new AngleMonitoringResult(result, Map.of(state, appliedNetworkActions), status);
     }
 

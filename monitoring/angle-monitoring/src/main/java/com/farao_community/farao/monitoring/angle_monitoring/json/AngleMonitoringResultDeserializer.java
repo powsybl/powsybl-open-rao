@@ -122,7 +122,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
                     angleResult.getState().equals(state))) {
                 throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant.toString(), contingencyId));
             }
-            angleResults.add(new AngleMonitoringResult.AngleResult(angleCnec, state, quantity));
+            angleResults.add(new AngleMonitoringResult.AngleResult(angleCnec, quantity));
         }
     }
 

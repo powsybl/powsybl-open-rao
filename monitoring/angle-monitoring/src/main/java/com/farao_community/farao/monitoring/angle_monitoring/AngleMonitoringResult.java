@@ -30,16 +30,14 @@ public class AngleMonitoringResult {
     }
 
     /**
-     * Utility class to hold results for a single angleCnec - state duo
+     * Utility class to hold results for a single angleCnec
      */
     public static class AngleResult {
         private final AngleCnec angleCnec;
-        private final State state;
         private final Double angle;
 
-        public AngleResult(AngleCnec angleCnec, State state, Double angle) {
+        public AngleResult(AngleCnec angleCnec, Double angle) {
             this.angleCnec = angleCnec;
-            this.state = state;
             this.angle = angle;
         }
 
@@ -47,12 +45,12 @@ public class AngleMonitoringResult {
             return angle;
         }
 
-        public State getState() {
-            return state;
-        }
-
         public AngleCnec getAngleCnec() {
             return angleCnec;
+        }
+
+        public State getState() {
+            return angleCnec.getState();
         }
 
         public String getId()  {
