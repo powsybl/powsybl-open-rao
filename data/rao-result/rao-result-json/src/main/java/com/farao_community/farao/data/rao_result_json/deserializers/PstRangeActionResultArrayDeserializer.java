@@ -44,8 +44,6 @@ final class PstRangeActionResultArrayDeserializer {
             }
 
             PstRangeActionResult pstRangeActionResult = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
-            Integer afterPraTap = null;
-            Double afterPraSetpoint = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
@@ -55,22 +53,22 @@ final class PstRangeActionResultArrayDeserializer {
 
                     case INITIAL_TAP:
                         jsonParser.nextToken();
-                        pstRangeActionResult.setPreOptimTap(jsonParser.getIntValue());
+                        pstRangeActionResult.setInitialTap(jsonParser.getIntValue());
                         break;
 
                     case INITIAL_SETPOINT:
                         jsonParser.nextToken();
-                        pstRangeActionResult.setPreOptimSetPoint(jsonParser.getDoubleValue());
+                        pstRangeActionResult.setInitialSetpoint(jsonParser.getDoubleValue());
                         break;
 
                     case AFTER_PRA_TAP:
                         jsonParser.nextToken();
-                        afterPraTap = jsonParser.getIntValue();
+                        pstRangeActionResult.setPostPraTap(jsonParser.getIntValue());
                         break;
 
                     case AFTER_PRA_SETPOINT:
                         jsonParser.nextToken();
-                        afterPraSetpoint = jsonParser.getDoubleValue();
+                        pstRangeActionResult.setPostPraSetpoint(jsonParser.getDoubleValue());
                         break;
 
                     case STATES_ACTIVATED:
@@ -81,11 +79,6 @@ final class PstRangeActionResultArrayDeserializer {
                     default:
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
-            }
-            // Do this at the end: for PSTs with afterPraTap and afterPraSetpoint, initial tap/setpoint should be set to afterPra values
-            if (afterPraTap != null && afterPraSetpoint != null) {
-                pstRangeActionResult.setPreOptimTap(afterPraTap);
-                pstRangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
             }
         }
     }

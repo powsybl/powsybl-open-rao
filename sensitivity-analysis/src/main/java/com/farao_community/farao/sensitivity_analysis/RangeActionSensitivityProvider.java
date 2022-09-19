@@ -27,12 +27,12 @@ import java.util.*;
  */
 public class RangeActionSensitivityProvider extends LoadflowProvider {
     private final Set<RangeAction<?>> rangeActions;
-    private List<SensitivityVariableSet> glsks;
+    private final Map<String, SensitivityVariableSet> glsks;
 
     RangeActionSensitivityProvider(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
         this.rangeActions = rangeActions;
-        glsks = new ArrayList<>();
+        glsks = new HashMap<>();
     }
 
     @Override
@@ -110,20 +110,21 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         if (!positiveGlskMap.isEmpty()) {
             List<WeightedSensitivityVariable> positiveGlsk = injectionRangeActionSensiHandler.rescaleGlskMap(positiveGlskMap);
             sensitivityVariables.put(injectionRangeActionSensiHandler.getPositiveGlskMapId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
-            glsks.add(new SensitivityVariableSet(injectionRangeActionSensiHandler.getPositiveGlskMapId(), positiveGlsk));
+            glsks.putIfAbsent(injectionRangeActionSensiHandler.getPositiveGlskMapId(), new SensitivityVariableSet(injectionRangeActionSensiHandler.getPositiveGlskMapId(), positiveGlsk));
             glskIds.add(injectionRangeActionSensiHandler.getPositiveGlskMapId());
+
         }
 
         if (!negativeGlskMap.isEmpty()) {
             List<WeightedSensitivityVariable> negativeGlsk = injectionRangeActionSensiHandler.rescaleGlskMap(negativeGlskMap);
             sensitivityVariables.put(injectionRangeActionSensiHandler.getNegativeGlskMapId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
-            glsks.add(new SensitivityVariableSet(injectionRangeActionSensiHandler.getNegativeGlskMapId(), negativeGlsk));
+            glsks.putIfAbsent(injectionRangeActionSensiHandler.getNegativeGlskMapId(), new SensitivityVariableSet(injectionRangeActionSensiHandler.getNegativeGlskMapId(), negativeGlsk));
             glskIds.add(injectionRangeActionSensiHandler.getNegativeGlskMapId());
         }
     }
 
     @Override
     public List<SensitivityVariableSet> getVariableSets() {
-        return glsks;
+        return new ArrayList<>(glsks.values());
     }
 }

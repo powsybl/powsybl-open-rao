@@ -49,7 +49,6 @@ final class StandardRangeActionResultArrayDeserializer {
             }
 
             RangeActionResult rangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(rangeAction);
-            Double afterPraSetpoint = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
@@ -59,12 +58,12 @@ final class StandardRangeActionResultArrayDeserializer {
 
                     case INITIAL_SETPOINT:
                         jsonParser.nextToken();
-                        rangeActionResult.setPreOptimSetPoint(jsonParser.getDoubleValue());
+                        rangeActionResult.setInitialSetpoint(jsonParser.getDoubleValue());
                         break;
 
                     case AFTER_PRA_SETPOINT:
                         jsonParser.nextToken();
-                        afterPraSetpoint = jsonParser.getDoubleValue();
+                        rangeActionResult.setPostPraSetpoint(jsonParser.getDoubleValue());
                         break;
 
                     case STATES_ACTIVATED:
@@ -75,10 +74,6 @@ final class StandardRangeActionResultArrayDeserializer {
                     default:
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", STANDARDRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
-            }
-            // Do this at the end: for rangeAction with afterPraSetpoint, initial setpoint should be set to afterPra values
-            if (afterPraSetpoint != null) {
-                rangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
             }
         }
     }
