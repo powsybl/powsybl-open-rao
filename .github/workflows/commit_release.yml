@@ -36,6 +36,7 @@ jobs:
       - name: Commit release version update
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
+          branch: release-v${{ github.event.inputs.releaseVersion }}
           commit_message: Prepare release ${{ github.event.inputs.releaseVersion }}
 
       - name: Change Maven version to next version
@@ -44,6 +45,7 @@ jobs:
       - name: Commit release version update
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
+          branch: release-v${{ github.event.inputs.releaseVersion }}
           commit_message: Prepare next dev version ${{ github.event.inputs.nextVersion }}-SNAPSHOT
 
       - name: Create release pull request
