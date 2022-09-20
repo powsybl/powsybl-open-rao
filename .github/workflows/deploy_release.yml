@@ -1,4 +1,4 @@
-name: Release job
+name: Deploy release
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  release:
+  deploy-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

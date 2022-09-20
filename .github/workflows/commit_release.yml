@@ -1,4 +1,4 @@
-name: Release job
+name: Commit release
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
         required: true
 
 jobs:
-  release:
+  commit-release:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
