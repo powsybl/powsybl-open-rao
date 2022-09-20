@@ -26,29 +26,29 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityValueWriter sensitivityValueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
         return CompletableFuture.runAsync(() -> {
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
             if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
                 // used for most of the tests
-                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityValueWriter, contingencies);
+                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies);
             } else {
                 // used for tests with already applied RangeActions in Curative states
-                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityValueWriter, contingencies);
+                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies);
             }
         }, computationManager.getExecutor());
     }
 
-    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies) {
+    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
                 if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                    valueWriter.write(factorIndex.get(), -1, 0.5, 10);
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.5, 10);
                 } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                    valueWriter.write(factorIndex.get(), -1, 0.25, 25);
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.25, 25);
                 } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
-                    valueWriter.write(factorIndex.get(), -1, 0.14, 10);
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.14, 10);
                 } else {
                     throw new AssertionError();
                 }
@@ -62,30 +62,31 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
                     if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, -5, -20);
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -5, -20);
                     } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 5, 200);
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 5, 200);
                     } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
-                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 6, -20);
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 6, -20);
                     } else {
                         throw new AssertionError();
                     }
+                    resultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });
         }
     }
 
-    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies) {
+    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies) {
         AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
                 if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                    valueWriter.write(factorIndex.get(), -1, 1.5, 110);
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 1.5, 110);
                 } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                    valueWriter.write(factorIndex.get(), -1, 1.25, 1100);
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 1.25, 1100);
                 } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
-                    valueWriter.write(factorIndex.get(), -1, 1.14, 110);
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 1.14, 110);
                 } else {
                     throw new AssertionError();
                 }
@@ -99,14 +100,15 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
                     if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, -2.5, -40);
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, -2.5, -40);
                     } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
-                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 4.5, 180);
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 4.5, 180);
                     } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
-                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 6.6, -40);
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 6.6, -40);
                     } else {
                         throw new AssertionError();
                     }
+                    resultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });

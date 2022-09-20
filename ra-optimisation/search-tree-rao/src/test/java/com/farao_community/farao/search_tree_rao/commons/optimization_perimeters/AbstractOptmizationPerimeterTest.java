@@ -69,7 +69,8 @@ public abstract class AbstractOptmizationPerimeterTest {
             .withContingency("outage-1")
             .withMonitored(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .add().newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
+            .add();
+        oCnec1.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
 
         oCnec2 = crac.newFlowCnec()
             .withId("cnec-co-outage-2")
@@ -96,7 +97,8 @@ public abstract class AbstractOptmizationPerimeterTest {
             .withContingency("outage-2")
             .withOptimized(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-            .add().newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
+            .add();
+        cCnec2.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
 
         // one preventive range action and one curative
         pRA = crac.newInjectionRangeAction().withId("preventive-ra")
