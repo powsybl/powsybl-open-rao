@@ -9,8 +9,6 @@ package com.farao_community.farao.monitoring.angle_monitoring;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
@@ -46,7 +44,6 @@ import static org.mockito.Mockito.when;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class CimAngleMonitoringTest {
-    private static final double ANGLE_TOLERANCE = 0.5;
     private int numberOfLoadFlowsInParallel = 2;
 
     private Network network;
@@ -55,10 +52,6 @@ public class CimAngleMonitoringTest {
     private LoadFlowParameters loadFlowParameters;
     private Map<Country, Set<ScalableNetworkElement>> glsks;
     private AngleMonitoringResult angleMonitoringResult;
-    private AngleCnec acPrev;
-    private AngleCnec acCur1;
-    private NetworkAction naOpenL1Prev;
-    private NetworkAction naOpenL1Cur;
 
     @Before
     public void generalSetUp() {

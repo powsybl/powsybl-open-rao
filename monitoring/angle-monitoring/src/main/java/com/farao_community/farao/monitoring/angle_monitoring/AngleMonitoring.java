@@ -25,7 +25,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -51,8 +50,6 @@ public class AngleMonitoring {
     private final LoadFlowParameters loadFlowParameters;
 
     private CopyOnWriteArrayList<AngleMonitoringResult> stateSpecificResults;
-    private ConcurrentHashMap<Country, Double> powerToBeRedispatched;
-    private Set<String> networkElementsToBeExcluded;
 
     public AngleMonitoring(Crac crac, Network network, RaoResult raoResult, Map<Country, Set<ScalableNetworkElement>> glsks, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.crac = Objects.requireNonNull(crac);
@@ -69,8 +66,6 @@ public class AngleMonitoring {
      */
     public AngleMonitoringResult run(int numberOfLoadFlowsInParallel) throws FaraoException {
         stateSpecificResults = new CopyOnWriteArrayList<>();
-        powerToBeRedispatched = new ConcurrentHashMap<>();
-        networkElementsToBeExcluded = new HashSet<>();
 
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
@@ -145,8 +140,8 @@ public class AngleMonitoring {
      */
     private AngleMonitoringResult monitorAngleCnecs(State state, Network networkClone) {
         Set<NetworkAction> appliedNetworkActions = new HashSet<>();
-        networkElementsToBeExcluded.clear();
-        powerToBeRedispatched.clear();
+        Set<String> networkElementsToBeExcluded = new HashSet<>();
+        Map<Country, Double> powerToBeRedispatched = new HashMap<>();
         // 1) Compute angles for all AngleCnecs
         boolean loadFlowIsOk = computeLoadFlow(networkClone);
         if (!loadFlowIsOk) {
@@ -154,18 +149,18 @@ public class AngleMonitoring {
             crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, Double.NaN)));
             return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNKNOWN);
         }
-        Map<AngleCnec, Double> angleValues = new ConcurrentHashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
+        Map<AngleCnec, Double> angleValues = new HashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
         for (Map.Entry<AngleCnec, Double> angleCnecWithAngle : angleValues.entrySet()) {
             AngleCnec angleCnec = angleCnecWithAngle.getKey();
             if (thresholdOvershoot(angleCnec, angleCnecWithAngle.getValue())) {
                 // 2) For AngleCnecs with angle overshoot, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getAngleCnecNetworkActions(state, angleCnec);
                 // and apply them
-                appliedNetworkActions.addAll(applyNetworkActions(networkClone, angleCnec.getId(), availableNetworkActions));
+                appliedNetworkActions.addAll(applyNetworkActions(networkClone, angleCnec.getId(), availableNetworkActions, networkElementsToBeExcluded, powerToBeRedispatched));
             }
         }
         // 3) Redispatch to compensate the loss of generation/ load
-        redispatchNetworkActions(networkClone);
+        redispatchNetworkActions(networkClone, powerToBeRedispatched, networkElementsToBeExcluded);
         // Recompute LoadFlow
         if (!appliedNetworkActions.isEmpty()) {
             loadFlowIsOk = computeLoadFlow(networkClone);
@@ -176,7 +171,7 @@ public class AngleMonitoring {
             }
         }
         // 4) Re-compute all angle values
-        Map<AngleCnec, Double> newAngleValues = new ConcurrentHashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
+        Map<AngleCnec, Double> newAngleValues = new HashMap<>(computeAngles(crac.getAngleCnecs(state), networkClone));
         AngleMonitoringResult.Status status = AngleMonitoringResult.Status.SECURE;
         if (newAngleValues.keySet().stream().anyMatch(angleCnec -> thresholdOvershoot(angleCnec, newAngleValues.get(angleCnec)))) {
             status = AngleMonitoringResult.Status.UNSECURE;
@@ -251,11 +246,11 @@ public class AngleMonitoring {
      * Applies network actions not filtered by checkElementaryActionAndStoreInjection to network
      * Returns applied network actions.
      */
-    private Set<NetworkAction> applyNetworkActions(Network networkClone, String angleCnecId, Set<NetworkAction> availableNetworkActions) {
+    private Set<NetworkAction> applyNetworkActions(Network networkClone, String angleCnecId, Set<NetworkAction> availableNetworkActions, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched) {
         Set<NetworkAction> appliedNetworkActions = new HashSet<>();
         for (NetworkAction na : availableNetworkActions) {
             for (ElementaryAction ea : na.getElementaryActions()) {
-                if (!checkElementaryActionAndStoreInjection(ea, networkClone, angleCnecId, na.getId())) {
+                if (!checkElementaryActionAndStoreInjection(ea, networkClone, angleCnecId, na.getId(), networkElementsToBeExcluded, powerToBeRedispatched)) {
                     break;
                 }
             }
@@ -271,7 +266,7 @@ public class AngleMonitoring {
      * 2) Stores applied injections on network
      * Returns false if network action must be filtered.
      */
-    private boolean checkElementaryActionAndStoreInjection(ElementaryAction ea, Network networkClone, String angleCnecId, String naId) {
+    private boolean checkElementaryActionAndStoreInjection(ElementaryAction ea, Network networkClone, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched) {
         if (!(ea instanceof InjectionSetpoint)) {
             BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
             return false;
@@ -319,7 +314,7 @@ public class AngleMonitoring {
     /**
      * Redispatches the net sum (generation - load) of power generations & loads, according to proportional glsks.
      */
-    private void redispatchNetworkActions(Network networkClone) {
+    private void redispatchNetworkActions(Network networkClone, Map<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded) {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
             new RedispatchAction(redispatchPower.getKey().name(), redispatchPower.getValue(), networkElementsToBeExcluded, glsks.get(redispatchPower.getKey())).apply(networkClone);
