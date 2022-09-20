@@ -248,14 +248,18 @@ public class AngleMonitoring {
      */
     private Set<NetworkAction> applyNetworkActions(Network networkClone, String angleCnecId, Set<NetworkAction> availableNetworkActions, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched) {
         Set<NetworkAction> appliedNetworkActions = new HashSet<>();
+        boolean networkActionOk = true;
         for (NetworkAction na : availableNetworkActions) {
             for (ElementaryAction ea : na.getElementaryActions()) {
-                if (!checkElementaryActionAndStoreInjection(ea, networkClone, angleCnecId, na.getId(), networkElementsToBeExcluded, powerToBeRedispatched)) {
+                networkActionOk = networkActionOk && checkElementaryActionAndStoreInjection(ea, networkClone, angleCnecId, na.getId(), networkElementsToBeExcluded, powerToBeRedispatched);
+                if (!networkActionOk) {
                     break;
                 }
             }
-            na.apply(networkClone);
-            appliedNetworkActions.add(na);
+            if (networkActionOk) {
+                na.apply(networkClone);
+                appliedNetworkActions.add(na);
+            }
         }
         return appliedNetworkActions;
     }
@@ -267,6 +271,7 @@ public class AngleMonitoring {
      * Returns false if network action must be filtered.
      */
     private boolean checkElementaryActionAndStoreInjection(ElementaryAction ea, Network networkClone, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched) {
+        Map<Country, Double> temporaryPowerToBeRedispatched = powerToBeRedispatched;
         if (!(ea instanceof InjectionSetpoint)) {
             BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
             return false;
@@ -285,9 +290,9 @@ public class AngleMonitoring {
             } else {
                 checkGlsks(country.get(), naId, angleCnecId);
                 if (ne instanceof Generator) {
-                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP(), Double::sum);
+                    temporaryPowerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP(), Double::sum);
                 } else if (ne instanceof Load) {
-                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0(), Double::sum);
+                    temporaryPowerToBeRedispatched.merge(country.get(), -((Load) ne).getP0(), Double::sum);
                 } else {
                     BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
                     return false;
@@ -295,6 +300,7 @@ public class AngleMonitoring {
                 networkElementsToBeExcluded.add(ne.getId());
             }
         }
+        powerToBeRedispatched.putAll(temporaryPowerToBeRedispatched);
         return true;
     }
 
