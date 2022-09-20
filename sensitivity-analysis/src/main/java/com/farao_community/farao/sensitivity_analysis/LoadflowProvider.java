@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -85,6 +86,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
             twoWindingsTransformer.getPhaseTapChanger() != null;
     }
 
+    @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        return new HashMap<>();
+    }
+
     private boolean willBeKeptInSensi(Generator gen) {
         return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
@@ -136,7 +142,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<Side> sides) {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
-        if (networkIdentifiable instanceof Branch) {
+        if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
             return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).collect(Collectors.toList());
         } else {
             throw new FaraoException("Unable to create sensitivity function for " + networkElementId);

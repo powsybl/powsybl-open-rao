@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -92,6 +93,11 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
                             contingencyContext))
                         .forEach(factors::add)));
         return factors;
+    }
+
+    @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        return new HashMap<>();
     }
 
     private SensitivityFunctionType sideToActivePowerFunctionType(Side side) {

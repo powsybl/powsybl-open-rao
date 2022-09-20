@@ -21,6 +21,7 @@ import com.powsybl.sensitivity.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -122,5 +123,15 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     @Override
     public List<SensitivityVariableSet> getVariableSets() {
         return new ArrayList<>(glsks.values());
+    }
+
+    @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        return rangeActions.stream()
+            .filter(HvdcRangeAction.class::isInstance)
+            .collect(Collectors.toMap(
+                rangeAction -> ((HvdcRangeAction) rangeAction).getNetworkElement().getId(),
+                HvdcRangeAction.class::cast,
+                (existing, replacement) -> existing));
     }
 }

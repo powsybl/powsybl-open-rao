@@ -11,8 +11,11 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
@@ -117,6 +120,38 @@ public class SystematicSensitivityResult {
             });
     }
 
+    public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
+        postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
+        postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        return this;
+    }
+
+    private void postTreatHvdcsOnState(Network network, Map<String, HvdcRangeAction> hvdcRangeActions, StateResult stateResult) {
+        hvdcRangeActions.forEach((networkElementId, hvdcRangeAction) -> {
+            HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
+            if (hvdcLine.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) {
+                stateResult.getFlowSensitivities().forEach((cnecId, cnecFlowSensis) -> {
+                    if (cnecFlowSensis.containsKey(networkElementId)) {
+                        cnecFlowSensis.put(networkElementId, invertMapValues(cnecFlowSensis.get(networkElementId)));
+                    }
+                });
+                stateResult.getIntensitySensitivities().forEach((cnecId, cnecIntensitySensis) -> {
+                    if (cnecIntensitySensis.containsKey(networkElementId)) {
+                        cnecIntensitySensis.put(networkElementId, invertMapValues(cnecIntensitySensis.get(networkElementId)));
+                    }
+                });
+            }
+        });
+    }
+
+    private Map<Side, Double> invertMapValues(Map<Side, Double> map) {
+        Map<Side, Double> invertedMap = new EnumMap<>(Side.class);
+        map.forEach((key, value) -> invertedMap.put(key, -value));
+        return invertedMap;
+    }
+
     private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors) {
         double reference = value.getFunctionReference();
         double sensitivity = value.getValue();
@@ -150,10 +185,10 @@ public class SystematicSensitivityResult {
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(Side.class))
                 .putIfAbsent(side, reference);
-            stateResult.getIntensitySensitivities()
+            /*stateResult.getIntensitySensitivities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
                 .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(Side.class))
-                .putIfAbsent(side, sensitivity);
+                .putIfAbsent(side, sensitivity);*/
         }
     }
 
