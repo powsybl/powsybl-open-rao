@@ -214,14 +214,16 @@ public final class RaoUtil {
     public static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
         double max = 0;
         for (FlowCnec flowCnec : flowCnecs) {
-            if (flowCnec.isOptimized()) {
-                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
+            for (Side side : flowCnec.getMonitoredSides()) {
+                if (flowCnec.isOptimized()) {
+                    Optional<Double> minFlow = flowCnec.getLowerBound(side, MEGAWATT);
+                    if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
+                        max = Math.abs(minFlow.get());
+                    }
+                    Optional<Double> maxFlow = flowCnec.getUpperBound(side, MEGAWATT);
+                    if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
+                        max = Math.abs(maxFlow.get());
+                    }
                 }
             }
         }
