@@ -416,7 +416,7 @@ public class CseCracCreatorTest {
         assertTrue(pstContext.isImported());
         assertEquals("ra_2", pstContext.getNativeId());
         assertEquals("PST_ra_2_BBE2AA1  BBE3AA1  1", pstContext.getCreatedRAId());
-        assertTrue(pstContext.isInverted());
+        assertFalse(pstContext.isInverted());
         assertFalse(pstContext.isAltered());
         assertEquals("BBE3AA1  BBE2AA1  1", pstContext.getNativeNetworkElementId());
         pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedRAId());

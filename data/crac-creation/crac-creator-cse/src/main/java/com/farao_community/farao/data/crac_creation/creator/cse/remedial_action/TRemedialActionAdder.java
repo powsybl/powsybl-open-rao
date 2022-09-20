@@ -187,11 +187,7 @@ public class TRemedialActionAdder {
             addUsageRules(pstRangeActionAdder, tRemedialAction);
             pstRangeActionAdder.add();
             String nativeNetworkElementId = String.format("%1$-8s %2$-8s %3$s", pstHelper.getOriginalFrom(), pstHelper.getOriginalTo(), pstHelper.getSuffix());
-
-            // Check if transformer is inverted in network
-            boolean isInverted = !pstHelper.isInvertedInNetwork(); // POWSYBL actually inverts transformers usually
-            String inversionDetail = isInverted ? "PST was inverted to match POWSYBL convention" : null;
-            cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.imported(tRemedialAction, nativeNetworkElementId, id, isInverted, inversionDetail));
+            cseCracCreationContext.addRemedialActionCreationContext(CsePstCreationContext.imported(tRemedialAction, nativeNetworkElementId, id, false, null));
         });
     }
 
