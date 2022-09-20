@@ -25,6 +25,8 @@ jobs:
 
       - name: Change Maven version to release version
         run: |
+          git config user.name 'Farao GitHub Actions'
+          git config user.email 'farao-community@rte-france.com'
           mvn --batch-mode versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.releaseVersion }}
           git commit -am "Prepare release ${{ github.event.inputs.releaseVersion }}"
           mvn --batch-mode versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.nextVersion }}-SNAPSHOT
