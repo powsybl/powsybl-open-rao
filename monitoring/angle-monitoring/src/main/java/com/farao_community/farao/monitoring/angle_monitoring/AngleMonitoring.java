@@ -8,10 +8,7 @@
 package com.farao_community.farao.monitoring.angle_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
@@ -21,6 +18,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -132,8 +130,13 @@ public class AngleMonitoring {
      */
     private void applyOptimalRemedialActionsOnContingencyState(State state, Network networkClone) {
         if (state.getInstant().equals(Instant.CURATIVE)) {
-            crac.getStates(state.getContingency().get()).forEach(contingencyState ->
-                applyOptimalRemedialActions(state, networkClone));
+            Optional<Contingency> contingency = state.getContingency();
+            if (contingency.isPresent()) {
+                crac.getStates(contingency.get()).forEach(contingencyState ->
+                        applyOptimalRemedialActions(state, networkClone));
+            } else {
+                throw new FaraoException(String.format("Curative state %s was defined without a contingency", state.getId()));
+            }
         } else {
             applyOptimalRemedialActions(state, networkClone);
         }

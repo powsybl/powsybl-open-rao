@@ -8,6 +8,7 @@
 package com.farao_community.farao.monitoring.voltage_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -24,6 +25,7 @@ import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -104,8 +106,14 @@ public class VoltageMonitoring {
 
     private void applyOptimalRemedialActionsOnContingencyState(State state, Network networkClone) {
         if (state.getInstant().equals(Instant.CURATIVE)) {
-            crac.getStates(state.getContingency().get()).forEach(contingencyState ->
-                    applyOptimalRemedialActions(state, networkClone));
+            Optional<Contingency> contingency = state.getContingency();
+            if (contingency.isPresent()) {
+                crac.getStates(contingency.get()).forEach(contingencyState ->
+                        applyOptimalRemedialActions(state, networkClone));
+            } else {
+                throw new FaraoException(String.format("Curative state %s was defined without a contingency", state.getId()));
+
+            }
         } else {
             applyOptimalRemedialActions(state, networkClone);
         }
