@@ -27,8 +27,8 @@
   "solver-specific-parameters" : null,
   "pst-optimization-approximation" : "CONTINUOUS",
   "forbid-cost-increase" : false,
-  "load-flow-provider" : "Hades2",
-  "sensitivity-provider" : "Sensi2",
+  "load-flow-provider" : "OpenLoadFlow",
+  "sensitivity-provider" : "OpenLoadFlow",
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
