@@ -49,6 +49,10 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                     resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.25, 25);
                 } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
                     resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.14, 10);
+                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.34, 30);
+                } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
+                    resultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.44, 40);
                 } else {
                     throw new AssertionError();
                 }
@@ -67,6 +71,10 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                         resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 5, 200);
                     } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
                         resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 6, -20);
+                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1 && variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 7, -25);
+                    } else if ((functionType == SensitivityFunctionType.BRANCH_CURRENT_1 || functionType == SensitivityFunctionType.BRANCH_CURRENT_2) && variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
+                        resultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 8, -30);
                     } else {
                         throw new AssertionError();
                     }

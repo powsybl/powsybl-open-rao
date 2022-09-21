@@ -171,10 +171,10 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
         if (tieLine.getCurrentLimits(Branch.Side.ONE).isPresent()) {
-            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).get().getPermanentLimit();
+            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit();
         }
         if (tieLine.getCurrentLimits(Branch.Side.TWO).isPresent()) {
-            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).get().getPermanentLimit();
+            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit();
         }
         if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
             invalidate(String.format("couldn't identify current limits of tie-line (%s, networkTieLineId: %s)", branchId, tieLine.getId()));
@@ -183,10 +183,10 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
     private void checkBranchCurrentLimits(Branch<?> branch) {
         if (branch.getCurrentLimits1().isPresent()) {
-            this.currentLimitLeft = branch.getCurrentLimits1().get().getPermanentLimit();
+            this.currentLimitLeft = branch.getCurrentLimits1().orElseThrow().getPermanentLimit();
         }
         if (branch.getCurrentLimits2().isPresent()) {
-            this.currentLimitRight = branch.getCurrentLimits2().get().getPermanentLimit();
+            this.currentLimitRight = branch.getCurrentLimits2().orElseThrow().getPermanentLimit();
         }
         if (branch.getCurrentLimits1().isEmpty() && branch.getCurrentLimits2().isPresent()) {
             this.currentLimitLeft = currentLimitRight * nominalVoltageRight / nominalVoltageLeft;
@@ -201,7 +201,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
     private void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
         if (danglingLine.getCurrentLimits().isPresent()) {
-            this.currentLimitLeft = danglingLine.getCurrentLimits().get().getPermanentLimit();
+            this.currentLimitLeft = danglingLine.getCurrentLimits().orElseThrow().getPermanentLimit();
             this.currentLimitRight = currentLimitLeft;
         } else {
             invalidate(String.format("couldn't identify current limits of dangling line (%s, networkDanglingLineId: %s)", branchId, danglingLine.getId()));

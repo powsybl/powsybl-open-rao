@@ -363,15 +363,15 @@ public class MonitoredSeriesCreator {
     private Double getCurrentLimit(Branch<?> branch, Branch.Side side) {
 
         if (branch.getCurrentLimits(side).isPresent()) {
-            return branch.getCurrentLimits(side).get().getPermanentLimit();
+            return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
         }
 
         if (side == Branch.Side.ONE && branch.getCurrentLimits(Branch.Side.TWO).isPresent()) {
-            return branch.getCurrentLimits(Branch.Side.TWO).get().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
+            return branch.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
         }
 
         if (side == Branch.Side.TWO && branch.getCurrentLimits(Branch.Side.ONE).isPresent()) {
-            return branch.getCurrentLimits(Branch.Side.ONE).get().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
+            return branch.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
         }
 
         return null;
