@@ -16,10 +16,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.*;
@@ -36,11 +33,11 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
     @Override
     public void serialize(AngleMonitoringResult angleMonitoringResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-
         jsonGenerator.writeStringField(TYPE, ANGLE_MONITORING_RESULT);
         jsonGenerator.writeStringField(STATUS, angleMonitoringResult.getStatus().toString());
+        // ANGLE_VALUES
         jsonGenerator.writeArrayFieldStart(ANGLE_VALUES);
-        for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle()) {
+        for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle().stream().sorted(Comparator.comparing(AngleMonitoringResult.AngleResult::getId)).collect(Collectors.toList())) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, angleResult.getState().getInstant().toString());
             Optional<Contingency> optContingency = angleResult.getState().getContingency();
@@ -52,6 +49,7 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
+        // APPLIED_CRAS
         jsonGenerator.writeArrayFieldStart(APPLIED_CRAS);
         for (Map.Entry<State, Set<NetworkAction>> entry : angleMonitoringResult.getAppliedCras().entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
                 .collect(Collectors.toList())) {
@@ -62,7 +60,7 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
                 jsonGenerator.writeStringField(CONTINGENCY, optContingency.get().getId());
             }
             jsonGenerator.writeArrayFieldStart(REMEDIAL_ACTIONS);
-            for (NetworkAction networkAction : entry.getValue()) {
+            for (NetworkAction networkAction : entry.getValue().stream().sorted(Comparator.comparing(NetworkAction::getId)).collect(Collectors.toList())) {
                 jsonGenerator.writeString(networkAction.getId());
             }
             jsonGenerator.writeEndArray();

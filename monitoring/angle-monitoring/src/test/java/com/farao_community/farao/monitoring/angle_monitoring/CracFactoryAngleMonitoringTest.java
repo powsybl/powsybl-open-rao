@@ -115,6 +115,13 @@ public class CracFactoryAngleMonitoringTest {
     }
 
     @Test
+    public void testNoAngleCnecsDefined() {
+        setUpCracFactory("network.xiidm");
+        runAngleMonitoring();
+        assertTrue(angleMonitoringResult.isSecure());
+    }
+
+    @Test
     public void testPreventiveStateOnly() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
@@ -179,7 +186,7 @@ public class CracFactoryAngleMonitoringTest {
         glsks.put(Country.FR, frScalable);
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnknown());
-        assertTrue(angleMonitoringResult.getAppliedCras().isEmpty());
+        angleMonitoringResult.getAppliedCras().values().stream().noneMatch(networkActions -> !networkActions.isEmpty());
         assertEquals(angleMonitoringResult.printConstraints(), List.of("Unknown status on AngleCnecs."));
     }
 
@@ -197,7 +204,7 @@ public class CracFactoryAngleMonitoringTest {
         glsks.put(Country.NL, frScalable);
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnknown());
-        assertTrue(angleMonitoringResult.getAppliedCras().isEmpty());
+        angleMonitoringResult.getAppliedCras().values().stream().noneMatch(networkActions -> !networkActions.isEmpty());
         assertEquals(angleMonitoringResult.printConstraints(), List.of("Unknown status on AngleCnecs."));
     }
 

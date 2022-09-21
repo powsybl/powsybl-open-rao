@@ -9,6 +9,7 @@ package com.farao_community.farao.monitoring.voltage_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
@@ -74,7 +75,7 @@ public class VoltageMonitoring {
                         }
                         try {
                             state.getContingency().orElseThrow().apply(networkClone, null);
-                            applyOptimalRemedialActions(state, networkClone);
+                            applyOptimalRemedialActionsOnContingencyState(state, networkClone);
                             voltageValues.putAll(computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters));
                         } catch (Exception e) {
                             stateCountDownLatch.countDown();
@@ -99,6 +100,15 @@ public class VoltageMonitoring {
             Thread.currentThread().interrupt();
         }
         return new VoltageMonitoringResult(voltageValues);
+    }
+
+    private void applyOptimalRemedialActionsOnContingencyState(State state, Network networkClone) {
+        if (state.getInstant().equals(Instant.CURATIVE)) {
+            crac.getStates(state.getContingency().get()).forEach(contingencyState ->
+                    applyOptimalRemedialActions(state, networkClone));
+        } else {
+            applyOptimalRemedialActions(state, networkClone);
+        }
     }
 
     private void applyOptimalRemedialActions(State state, Network network) {

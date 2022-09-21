@@ -56,7 +56,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             status = readStatus(jsonParser);
         }
 
-        Set<AngleMonitoringResult.AngleResult> angleResults = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
+        Set<AngleMonitoringResult.AngleResult> angleResults = new HashSet<>();
         Map<State, Set<NetworkAction>> appliedCras = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             if (jsonParser.getCurrentName().equals(ANGLE_VALUES)) {
@@ -74,14 +74,10 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
 
     private AngleMonitoringResult.Status readStatus(JsonParser jsonParser) throws IOException {
         String statusString = jsonParser.nextTextValue();
-        if (statusString.equals(AngleMonitoringResult.Status.SECURE.toString())) {
-            return AngleMonitoringResult.Status.SECURE;
-        } else if (statusString.equals(AngleMonitoringResult.Status.UNKNOWN.toString())) {
-            return AngleMonitoringResult.Status.UNKNOWN;
-        } else if (statusString.equals(AngleMonitoringResult.Status.UNSECURE.toString())) {
-            return AngleMonitoringResult.Status.UNSECURE;
-        } else {
-            throw new FaraoException("Unexpected status: " + statusString);
+        try {
+            return AngleMonitoringResult.Status.valueOf(statusString);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unhandled status : %s", statusString));
         }
     }
 
@@ -130,7 +126,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String contingencyId = null;
             Instant instant = null;
-            Set<String> remedialActionIds = new TreeSet<>();
+            Set<String> remedialActionIds = new HashSet<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
@@ -141,7 +137,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
                         break;
                     case REMEDIAL_ACTIONS:
                         jsonParser.nextToken();
-                        remedialActionIds = jsonParser.readValueAs(new TypeReference<TreeSet<String>>() {
+                        remedialActionIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
                         });
                         break;
                     default:
