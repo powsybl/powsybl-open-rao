@@ -17,6 +17,12 @@ public interface FlowCnec extends BranchCnec<FlowCnec> {
      */
     Double getIMax(Side side);
 
+    /**
+     * Says if a FlowCnec's NetworkElement is connected in a Network
+     *
+     * @param network: the network to look into
+     * @return true if the CNEC is connected
+     */
     boolean isConnected(Network network);
 
 }
