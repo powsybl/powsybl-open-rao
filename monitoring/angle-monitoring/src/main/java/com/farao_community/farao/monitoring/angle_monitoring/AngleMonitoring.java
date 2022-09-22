@@ -265,8 +265,8 @@ public class AngleMonitoring {
     private Set<NetworkAction> applyNetworkActions(Network networkClone, String angleCnecId, Set<NetworkAction> availableNetworkActions, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched) {
         Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(NetworkAction::getId));
         boolean networkActionOk = false;
-        Map<Country, Double> tempPowerToBeRedispatched = powerToBeRedispatched;
         for (NetworkAction na : availableNetworkActions) {
+            Map<Country, Double> tempPowerToBeRedispatched = new HashMap<>(powerToBeRedispatched);
             for (ElementaryAction ea : na.getElementaryActions()) {
                 networkActionOk = checkElementaryActionAndStoreInjection(ea, networkClone, angleCnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched);
                 if (!networkActionOk) {
@@ -307,9 +307,9 @@ public class AngleMonitoring {
             } else {
                 checkGlsks(country.get(), naId, angleCnecId);
                 if (ne instanceof Generator) {
-                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP(), Double::sum);
+                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
                 } else if (ne instanceof Load) {
-                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0(), Double::sum);
+                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
                 } else {
                     BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
                     return false;
@@ -317,7 +317,6 @@ public class AngleMonitoring {
                 networkElementsToBeExcluded.add(ne.getId());
             }
         }
-        powerToBeRedispatched.putAll(powerToBeRedispatched);
         return true;
     }
 
