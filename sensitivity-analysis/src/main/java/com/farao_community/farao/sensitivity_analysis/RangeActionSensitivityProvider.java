@@ -69,7 +69,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             Set<String> glskIds = new HashSet<>();
             fillSensitivityVariablesAndGlskIds(network, sensitivityVariables, glskIds);
 
-            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingency);
+            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
 
             //According to ContingencyContext doc, contingencyId should be null for preContingency context
             ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);

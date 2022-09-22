@@ -8,13 +8,10 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -26,10 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -40,7 +36,7 @@ public class LoadflowProviderTest {
     public void inAmpereAndMegawatt() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -62,7 +58,7 @@ public class LoadflowProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal2().getVoltageLevel().setNominalV(200);
 
-        LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnec1basecase")), Stream.of(Unit.AMPERE).collect(Collectors.toSet()));
+        LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnec1basecase")), Set.of(Unit.AMPERE));
 
         // When nominalV on side 1 & side 2 are not the same, only use side 1 factor
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
@@ -94,19 +90,69 @@ public class LoadflowProviderTest {
     }
 
     @Test
-    public void filterCnecsMonitoredOnTheirOwnOutage() {
-        // Do not generate factor on a FlowCnec for a contingency on its own network element
-        Crac crac = CracFactory.findDefault().create("crac");
-        String contingencyId = "contingency";
-        crac.newContingency().withId(contingencyId).withNetworkElement("BBE2AA1  FFR3AA1  1").withNetworkElement("FFR1AA1  FFR3AA1  1").add();
-        FlowCnec flowCnec = crac.newFlowCnec().withId("cnec").withNetworkElement("BBE2AA1  FFR3AA1  1").withContingency(contingencyId).withInstant(Instant.OUTAGE)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+    public void filterDisconnectedFlowCnecs() {
+        // Do not generate factor on a FlowCnec that is disconnected in the network
+        Crac crac = CommonCracCreation.create();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        String contingencyId = "Contingency FR1 FR3";
+
+        LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnec1basecase"), crac.getFlowCnec("cnec1stateCurativeContingency1")), Collections.singleton(Unit.MEGAWATT));
+
+        // Line is still connected
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
+        assertEquals(1, factorList.size());
+        factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, new ArrayList<>())));
+        assertEquals(1, factorList.size());
+        assertEquals(1, provider.getContingencies(network).size());
+
+        // Disconnect Terminal1
+        network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().disconnect();
+        factorList = provider.getBasecaseFactors(network);
+        assertTrue(factorList.isEmpty());
+        factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, new ArrayList<>())));
+        assertTrue(factorList.isEmpty());
+        assertTrue(provider.getContingencies(network).isEmpty());
+
+        // Reconnect Terminal1 and disconnect Terminal2
+        network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().connect();
+        network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal2().disconnect();
+        factorList = provider.getBasecaseFactors(network);
+        assertTrue(factorList.isEmpty());
+        factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, new ArrayList<>())));
+        assertTrue(factorList.isEmpty());
+        assertTrue(provider.getContingencies(network).isEmpty());
+    }
+
+    @Test
+    public void filterDisconnectedFlowCnecOnDanglingLine() {
+        // Do not generate factor on a FlowCnec that is disconnected in the network
+        Crac crac = CommonCracCreation.create();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addDanglingLine(network);
+        String contingencyId = "Contingency FR1 FR3";
+
+        crac.newFlowCnec().withId("cnecOnDlBasecase").withInstant(Instant.PREVENTIVE).withNetworkElement("DL1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .add();
+        crac.newFlowCnec().withId("cnecOnDlCurative").withInstant(Instant.CURATIVE).withContingency(contingencyId).withNetworkElement("DL1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
 
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(Set.of(flowCnec), Collections.singleton(Unit.MEGAWATT));
+        LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnecOnDlBasecase"), crac.getFlowCnec("cnecOnDlCurative")), Collections.singleton(Unit.MEGAWATT));
 
-        List<SensitivityFactor> factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, List.of(new BranchContingency("BBE2AA1  FFR3AA1  1"), new BranchContingency("FFR1AA1  FFR3AA1  1")))));
-        assertEquals(0, factorList.size());
+        // Line is still connected
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
+        assertEquals(1, factorList.size());
+        factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, new ArrayList<>())));
+        assertEquals(1, factorList.size());
+        assertEquals(1, provider.getContingencies(network).size());
+
+        // Disconnect dangling line
+        network.getDanglingLine("DL1").getTerminal().disconnect();
+        factorList = provider.getBasecaseFactors(network);
+        assertTrue(factorList.isEmpty());
+        factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, new ArrayList<>())));
+        assertTrue(factorList.isEmpty());
+        assertTrue(provider.getContingencies(network).isEmpty());
     }
 }
