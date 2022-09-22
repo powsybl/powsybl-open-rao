@@ -8,8 +8,13 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -86,5 +91,22 @@ public class LoadflowProviderTest {
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+    }
+
+    @Test
+    public void filterCnecsMonitoredOnTheirOwnOutage() {
+        // Do not generate factor on a FlowCnec for a contingency on its own network element
+        Crac crac = CracFactory.findDefault().create("crac");
+        String contingencyId = "contingency";
+        crac.newContingency().withId(contingencyId).withNetworkElement("BBE2AA1  FFR3AA1  1").withNetworkElement("FFR1AA1  FFR3AA1  1").add();
+        FlowCnec flowCnec = crac.newFlowCnec().withId("cnec").withNetworkElement("BBE2AA1  FFR3AA1  1").withContingency(contingencyId).withInstant(Instant.OUTAGE)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .add();
+
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        LoadflowProvider provider = new LoadflowProvider(Set.of(flowCnec), Collections.singleton(Unit.MEGAWATT));
+
+        List<SensitivityFactor> factorList = provider.getContingencyFactors(network, List.of(new Contingency(contingencyId, List.of(new BranchContingency("BBE2AA1  FFR3AA1  1"), new BranchContingency("FFR1AA1  FFR3AA1  1")))));
+        assertEquals(0, factorList.size());
     }
 }

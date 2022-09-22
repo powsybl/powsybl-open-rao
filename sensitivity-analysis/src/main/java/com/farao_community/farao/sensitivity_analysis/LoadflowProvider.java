@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
@@ -46,7 +47,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         Map<String, SensitivityVariableType> sensitivityVariables = new LinkedHashMap<>();
         addDefaultSensitivityVariable(network, sensitivityVariables);
 
-        List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, null);
+        List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = getSensitivityFunctions(network, null);
 
         //According to ContingencyContext doc, contingencyId should be null for preContingency context
         ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
@@ -66,7 +67,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
             Map<String, SensitivityVariableType> sensitivityVariables = new LinkedHashMap<>();
             addDefaultSensitivityVariable(network, sensitivityVariables);
 
-            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
+            List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = getSensitivityFunctions(network, contingency);
 
             ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
             sensitivityFunctions.forEach(function ->
@@ -116,20 +117,21 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
     }
 
-    List<Pair<String, SensitivityFunctionType> > getSensitivityFunctions(Network network, String contingencyId) {
+    List<Pair<String, SensitivityFunctionType>> getSensitivityFunctions(Network network, Contingency contingency) {
         Set<NetworkElement> networkElements;
-        if (Objects.isNull(contingencyId)) {
+        if (Objects.isNull(contingency)) {
             networkElements = cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isEmpty())
                 .map(FlowCnec::getNetworkElement)
                 .collect(Collectors.toSet());
         } else {
             networkElements = cnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingency.getId()))
+                .filter(cnec -> contingency.getElements().stream().map(ContingencyElement::getId).noneMatch(contingencyElement -> contingencyElement.equals(cnec.getNetworkElement().getId())))
                 .map(FlowCnec::getNetworkElement)
                 .collect(Collectors.toSet());
         }
-        List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
+        List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();
         networkElements.forEach(networkElement -> sensitivityFunctions.addAll(cnecToSensitivityFunctions(network, networkElement)));
         return sensitivityFunctions;
     }
@@ -139,7 +141,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
 
         if (networkIdentifiable instanceof Branch) {
-            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
+            List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();
             if (factorsInMegawatt) {
                 sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
             }
