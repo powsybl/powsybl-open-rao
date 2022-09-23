@@ -126,6 +126,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                     } else {
                         throw new AssertionError();
                     }
+                    resultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });
@@ -217,6 +218,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                                 throw new AssertionError();
                         }
                     }
+                    resultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });

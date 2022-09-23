@@ -6,7 +6,7 @@
 
     <groupId>com.farao-community.farao</groupId>
     <artifactId>farao-core</artifactId>
-    <version>4.2.0-SNAPSHOT</version>
+    <version>4.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>FARAO</name>
@@ -121,7 +121,7 @@
         <maven.compiler.version>3.8.1</maven.compiler.version>
         <maven.dependency.version>3.1.2</maven.dependency.version>
         <maven.deploy.version>2.8.2</maven.deploy.version>
-        <maven.gpg.version>1.6</maven.gpg.version>
+        <maven.gpg.version>3.0.1</maven.gpg.version>
         <maven.jacoco.version>0.8.5</maven.jacoco.version>
         <maven.jar.version>3.2.0</maven.jar.version>
         <maven.javadoc.version>3.2.0</maven.javadoc.version>
@@ -132,8 +132,8 @@
         <mockito.version>3.5.10</mockito.version>
         <mockito.inline.version>2.13.0</mockito.inline.version>
         <powermock.version>2.0.7</powermock.version>
-        <powsybl.core.version>4.10.0</powsybl.core.version>
-        <powsybl.glsk.version>1.5.2</powsybl.glsk.version>
+        <powsybl.core.version>4.10.1</powsybl.core.version>
+        <powsybl.glsk.version>1.6.0</powsybl.glsk.version>
         <powsybl.openloadflow.version>0.23.1</powsybl.openloadflow.version>
         <slf4j.version>1.7.30</slf4j.version>
         <threeten.version>1.5.0</threeten.version>

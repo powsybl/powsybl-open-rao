@@ -123,10 +123,12 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         if (Objects.isNull(contingencyId)) {
             flowCnecs = cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                .filter(cnec -> cnec.isConnected(network))
                 .collect(Collectors.toSet());
         } else {
             flowCnecs = cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                .filter(cnec -> cnec.isConnected(network))
                 .collect(Collectors.toSet());
         }
 

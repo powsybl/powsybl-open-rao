@@ -16,6 +16,10 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Optional;
 import java.util.Set;
@@ -134,6 +138,15 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             }
             return value * conversionFactor;
         }
+    }
+
+    public boolean isConnected(Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(getNetworkElement().getId());
+        if (identifiable instanceof Connectable) {
+            Connectable<?> connectable = (Connectable<?>) identifiable;
+            return connectable.getTerminals().stream().allMatch(Terminal::isConnected);
+        }
+        return true; // by default
     }
 
     @Override
