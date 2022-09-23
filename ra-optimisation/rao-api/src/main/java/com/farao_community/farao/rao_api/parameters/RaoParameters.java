@@ -110,8 +110,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
     public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
     public static final boolean DEFAULT_FORBID_COST_INCREASE = false;
-    public static final String DEFAULT_LOADFLOW_PROVIDER = "Hades2";
-    public static final String DEFAULT_SENSITIVITY_PROVIDER = "Sensi2";
+    public static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
+    public static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;

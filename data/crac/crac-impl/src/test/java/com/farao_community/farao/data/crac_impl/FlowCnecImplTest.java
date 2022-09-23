@@ -535,4 +535,50 @@ public class FlowCnecImplTest {
         assertEquals(cnec1.hashCode(), cnec1.hashCode());
         assertNotEquals(cnec1.hashCode(), cnec2.hashCode());
     }
+
+    @Test
+    public void testIsConnected() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addDanglingLine(network);
+
+        // Branch
+        FlowCnec cnec1 = crac.newFlowCnec()
+            .withId("cnec-1-id")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .add();
+        assertTrue(cnec1.isConnected(network));
+
+        network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal1().disconnect();
+        assertFalse(cnec1.isConnected(network));
+
+        network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal1().connect();
+        network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal2().disconnect();
+        assertFalse(cnec1.isConnected(network));
+
+        // DanglingLine
+        FlowCnec cnec2 = crac.newFlowCnec()
+            .withId("cnec-2-id")
+            .withNetworkElement("DL1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .add();
+        assertTrue(cnec2.isConnected(network));
+
+        network.getDanglingLine("DL1").getTerminal().disconnect();
+        assertFalse(cnec2.isConnected(network));
+
+        // Generator
+        FlowCnec cnec3 = crac.newFlowCnec()
+            .withId("cnec-3-id")
+            .withNetworkElement("BBE2AA1 _generator")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .add();
+        assertTrue(cnec3.isConnected(network));
+
+        network.getGenerator("BBE2AA1 _generator").getTerminal().disconnect();
+        assertFalse(cnec3.isConnected(network));
+    }
 }

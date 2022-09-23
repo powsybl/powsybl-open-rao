@@ -7,6 +7,9 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -14,6 +17,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.junit.Before;
@@ -23,6 +28,7 @@ import org.mockito.Mockito;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,6 +44,7 @@ public class SystematicSensitivityResultTest {
     private FlowCnec nStateCnec;
     private FlowCnec contingencyCnec;
     private RangeAction rangeAction;
+    private HvdcRangeAction hvdcRangeAction;
     private SensitivityVariableSet linearGlsk;
 
     private RangeActionSensitivityProvider rangeActionSensitivityProvider;
@@ -139,6 +146,83 @@ public class SystematicSensitivityResultTest {
 
         // Then
         assertFalse(result.isSuccess());
+    }
+
+    private void setUpForHvdc() {
+        Crac crac = CracFactory.findDefault().create("test-crac");
+        crac.newContingency()
+            .withId("co")
+            .withNetworkElement("NNL2AA11 BBE3AA11 1")
+            .add();
+        nStateCnec = crac.newFlowCnec()
+            .withId("cnec-prev")
+            .withNetworkElement("BBE1AA11 FFR5AA11 1")
+            .withInstant(com.farao_community.farao.data.crac_api.Instant.PREVENTIVE)
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .add();
+        contingencyCnec = crac.newFlowCnec()
+            .withId("cnec-cur")
+            .withNetworkElement("BBE1AA11 FFR5AA11 1")
+            .withContingency("co")
+            .withInstant(com.farao_community.farao.data.crac_api.Instant.OUTAGE)
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .add();
+        hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("hvdc-ra")
+            .withNetworkElement("BBE2AA11 FFR3AA11 1")
+            .newRange().withMin(-1000.).withMax(1000.).add()
+            .add();
+
+        network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testPostTreatHvdcNoEffect() {
+        setUpForHvdc();
+        Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            rangeActionSensitivityProvider.getAllFactors(network),
+            rangeActionSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult()
+            .completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE)
+            .postTreatIntensities()
+            .postTreatHvdcs(network, hvdcs);
+
+        assertEquals(30., result.getReferenceFlow(nStateCnec), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec), EPSILON);
+        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec), EPSILON);
+
+        assertEquals(-25., result.getReferenceFlow(contingencyCnec), EPSILON);
+        assertEquals(30., result.getReferenceIntensity(contingencyCnec), EPSILON);
+        assertEquals(7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec), EPSILON);
+    }
+
+    @Test
+    public void testPostTreatHvdcInvert() {
+        setUpForHvdc();
+        Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
+        network.getHvdcLine("BBE2AA11 FFR3AA11 1").setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            rangeActionSensitivityProvider.getAllFactors(network),
+            rangeActionSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult()
+            .completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE)
+            .postTreatIntensities()
+            .postTreatHvdcs(network, hvdcs);
+
+        assertEquals(30., result.getReferenceFlow(nStateCnec), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec), EPSILON);
+        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec), EPSILON);
+
+        assertEquals(-25., result.getReferenceFlow(contingencyCnec), EPSILON);
+        assertEquals(30., result.getReferenceIntensity(contingencyCnec), EPSILON);
+        assertEquals(-7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec), EPSILON);
     }
 
 }

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Test;
@@ -88,7 +89,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonRaoParameters::write, AbstractConverterTest::compareTxt, "/RaoParametersWithExtension.json");
+        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::compareTxt, "/RaoParametersWithExtension.json");
     }
 
     @Test
