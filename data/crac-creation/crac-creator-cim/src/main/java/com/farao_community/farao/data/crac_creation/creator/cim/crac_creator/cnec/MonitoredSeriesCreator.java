@@ -362,16 +362,16 @@ public class MonitoredSeriesCreator {
     // This uses the same logic as the UcteCnecElementHelper which is used for CBCO cnec import for instance
     private Double getCurrentLimit(Branch<?> branch, Branch.Side side) {
 
-        if (!Objects.isNull(branch.getCurrentLimits(side))) {
-            return branch.getCurrentLimits(side).getPermanentLimit();
+        if (branch.getCurrentLimits(side).isPresent()) {
+            return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
         }
 
-        if (side == Branch.Side.ONE && Objects.nonNull(branch.getCurrentLimits(Branch.Side.TWO))) {
-            return branch.getCurrentLimits(Branch.Side.TWO).getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
+        if (side == Branch.Side.ONE && branch.getCurrentLimits(Branch.Side.TWO).isPresent()) {
+            return branch.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
         }
 
-        if (side == Branch.Side.TWO && Objects.nonNull(branch.getCurrentLimits(Branch.Side.ONE))) {
-            return branch.getCurrentLimits(Branch.Side.ONE).getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
+        if (side == Branch.Side.TWO && branch.getCurrentLimits(Branch.Side.ONE).isPresent()) {
+            return branch.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
         }
 
         return null;
