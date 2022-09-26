@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-data</artifactId>
-        <version>4.1.2-SNAPSHOT</version>
+        <version>4.1.2</version>
     </parent>
 
     <artifactId>farao-refprog</artifactId>
-    <version>4.1.2-SNAPSHOT</version>
+    <version>4.1.2</version>
     <packaging>pom</packaging>
     <name>RefProg related modules</name>
     <description>Module that regroups all features related to RefProg file</description>
