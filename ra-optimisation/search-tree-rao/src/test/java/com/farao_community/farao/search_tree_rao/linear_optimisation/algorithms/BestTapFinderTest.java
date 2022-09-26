@@ -117,7 +117,8 @@ public class BestTapFinderTest {
                 startingSetPoint,
                 List.of(cnec1, cnec2),
                 flowResult,
-                sensitivityResult
+                sensitivityResult,
+                Unit.MEGAWATT
         );
     }
 
@@ -129,7 +130,8 @@ public class BestTapFinderTest {
                 rangeActionSetpointResult,
                 List.of(cnec1, cnec2),
                 flowResult,
-                sensitivityResult
+                sensitivityResult,
+                Unit.MEGAWATT
         );
     }
 
@@ -179,24 +181,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapNotIncreasingEnoughTheMinMargin() {
+    public void testMarginsWithOtherTapIncreasingTheMinMargin() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is still 1, and the next tap increase the margin but not enough (>10%) so it is not considered
-        double startingSetPoint = 1.5;
-        setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
-        setMarginsForTap(pstRangeAction, 1, 100, 120);
-        setMarginsForTap(pstRangeAction, 2, 150, 110);
-
-        Map<Integer, Double> marginsForBestTaps = computeMinMarginsForBestTaps(startingSetPoint);
-
-        assertEquals(1, marginsForBestTaps.size());
-        assertEquals(Double.MAX_VALUE, marginsForBestTaps.get(1), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMargin() {
-        // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is still 1, and the other tap increases the margin enough (>10%) so it is considered
+        // The closest tap is still 1, and the other tap increases the margin so it is considered
         double startingSetPoint = 1.5;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
         setMarginsForTap(pstRangeAction, 1, 100, 120);
@@ -210,9 +197,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMarginWithNegativeMargins() {
+    public void testMarginsWithOtherTapIncreasingTheMinMarginWithNegativeMargins() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is still 1, and the next tap increase the margin but not enough (>10%) so it is not considered
+        // The closest tap is still 1, and the next tap increase the margin so it is considered
         double startingSetPoint = 1.5;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
         setMarginsForTap(pstRangeAction, 1, -200, -250);
@@ -226,9 +213,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMarginOnUpperBound() {
+    public void testMarginsWithOtherTapIncreasingTheMinMarginOnUpperBound() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is 2 which is the upper bound, and the other tap increases the margin enough (>10%) so it is considered
+        // The closest tap is 2 which is the upper bound, and the other tap increases the margin so it is considered
         double startingSetPoint = 1.7;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 2);
         setMarginsForTap(pstRangeAction, 1, 140, 150);
@@ -242,9 +229,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMarginOnLowerBound() {
+    public void testMarginsWithOtherTapIncreasingTheMinMarginOnLowerBound() {
         // Set point is close enough to the middle of the range between tap -1 and -2, so we consider the two taps
-        // The closest tap is -2 which is the lower bound, and the other tap increases the margin enough (>10%) so it is considered
+        // The closest tap is -2 which is the lower bound, and the other tap increases the margin so it is considered
         double startingSetPoint = -1.7;
         setClosestTapPosition(pstRangeAction, startingSetPoint, -2);
         setMarginsForTap(pstRangeAction, -1, 140, 150);
