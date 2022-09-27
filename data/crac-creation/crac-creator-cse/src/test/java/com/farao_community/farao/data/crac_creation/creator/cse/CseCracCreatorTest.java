@@ -410,21 +410,21 @@ public class CseCracCreatorTest {
         assertEquals(-2, pstRangeAction.getRanges().get(0).getMinTap());
         assertEquals(10, pstRangeAction.getRanges().get(0).getMaxTap());
 
-        // ra_2 should be inverted
+        // ra_2 should be inverted but range remains the same (just aligns on network direction)
         assertTrue(cracCreationContext.getRemedialActionCreationContext("ra_2") instanceof CsePstCreationContext);
         pstContext = (CsePstCreationContext) cracCreationContext.getRemedialActionCreationContext("ra_2");
         assertTrue(pstContext.isImported());
         assertEquals("ra_2", pstContext.getNativeId());
         assertEquals("PST_ra_2_BBE2AA1  BBE3AA1  1", pstContext.getCreatedRAId());
-        assertTrue(pstContext.isInverted());
+        assertFalse(pstContext.isInverted());
         assertFalse(pstContext.isAltered());
         assertEquals("BBE3AA1  BBE2AA1  1", pstContext.getNativeNetworkElementId());
         pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedRAId());
         assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
-        assertEquals(-10, pstRangeAction.getRanges().get(0).getMinTap());
-        assertEquals(2, pstRangeAction.getRanges().get(0).getMaxTap());
+        assertEquals(-2, pstRangeAction.getRanges().get(0).getMinTap());
+        assertEquals(10, pstRangeAction.getRanges().get(0).getMaxTap());
     }
 
     @Test

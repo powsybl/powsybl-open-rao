@@ -5,7 +5,7 @@
     <parent>
         <artifactId>farao-monitoring</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>4.1.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-cim</artifactId>
-            <version>${powsybl.entsoe.version}</version>
+            <version>${powsybl.glsk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
