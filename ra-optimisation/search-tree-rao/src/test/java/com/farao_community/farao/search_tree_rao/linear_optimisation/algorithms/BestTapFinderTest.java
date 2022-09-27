@@ -28,6 +28,8 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,8 +46,7 @@ public class BestTapFinderTest {
 
     private Network network;
     private RangeActionActivationResult rangeActionActivationResult;
-    private FlowResult flowResult;
-    private SensitivityResult sensitivityResult;
+    private LinearOptimizationResult linearOptimizationResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private PstRangeAction pstRangeAction;
@@ -55,14 +56,15 @@ public class BestTapFinderTest {
 
     @Before
     public void setUp() {
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         network = Mockito.mock(Network.class);
 
-        flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        linearOptimizationResult = mock(LinearOptimizationResult.class);
+        when(linearOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
+
+        when(linearOptimizationResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
+        when(linearOptimizationResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         pstRangeAction = createPst();
@@ -77,8 +79,8 @@ public class BestTapFinderTest {
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
-        when(sensitivityResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
-        when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
+        when(linearOptimizationResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
+        when(linearOptimizationResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {
@@ -115,9 +117,8 @@ public class BestTapFinderTest {
                 network,
                 pstRangeAction,
                 startingSetPoint,
-                List.of(cnec1, cnec2),
-                flowResult,
-                sensitivityResult
+                linearOptimizationResult,
+                Unit.MEGAWATT
         );
     }
 
@@ -127,9 +128,8 @@ public class BestTapFinderTest {
                 network,
                 optimizationPerimeter,
                 rangeActionSetpointResult,
-                List.of(cnec1, cnec2),
-                flowResult,
-                sensitivityResult
+                linearOptimizationResult,
+                Unit.MEGAWATT
         );
     }
 
@@ -179,24 +179,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapNotIncreasingEnoughTheMinMargin() {
+    public void testMarginsWithOtherTapIncreasingTheMinMargin() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is still 1, and the next tap increase the margin but not enough (>10%) so it is not considered
-        double startingSetPoint = 1.5;
-        setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
-        setMarginsForTap(pstRangeAction, 1, 100, 120);
-        setMarginsForTap(pstRangeAction, 2, 150, 110);
-
-        Map<Integer, Double> marginsForBestTaps = computeMinMarginsForBestTaps(startingSetPoint);
-
-        assertEquals(1, marginsForBestTaps.size());
-        assertEquals(Double.MAX_VALUE, marginsForBestTaps.get(1), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMargin() {
-        // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is still 1, and the other tap increases the margin enough (>10%) so it is considered
+        // The closest tap is still 1, and the other tap increases the margin so it is considered
         double startingSetPoint = 1.5;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
         setMarginsForTap(pstRangeAction, 1, 100, 120);
@@ -210,9 +195,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMarginWithNegativeMargins() {
+    public void testMarginsWithOtherTapIncreasingTheMinMarginWithNegativeMargins() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is still 1, and the next tap increase the margin but not enough (>10%) so it is not considered
+        // The closest tap is still 1, and the next tap increase the margin so it is considered
         double startingSetPoint = 1.5;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
         setMarginsForTap(pstRangeAction, 1, -200, -250);
@@ -226,9 +211,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMarginOnUpperBound() {
+    public void testMarginsWithOtherTapIncreasingTheMinMarginOnUpperBound() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
-        // The closest tap is 2 which is the upper bound, and the other tap increases the margin enough (>10%) so it is considered
+        // The closest tap is 2 which is the upper bound, and the other tap increases the margin so it is considered
         double startingSetPoint = 1.7;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 2);
         setMarginsForTap(pstRangeAction, 1, 140, 150);
@@ -242,9 +227,9 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingEnoughTheMinMarginOnLowerBound() {
+    public void testMarginsWithOtherTapIncreasingTheMinMarginOnLowerBound() {
         // Set point is close enough to the middle of the range between tap -1 and -2, so we consider the two taps
-        // The closest tap is -2 which is the lower bound, and the other tap increases the margin enough (>10%) so it is considered
+        // The closest tap is -2 which is the lower bound, and the other tap increases the margin so it is considered
         double startingSetPoint = -1.7;
         setClosestTapPosition(pstRangeAction, startingSetPoint, -2);
         setMarginsForTap(pstRangeAction, -1, 140, 150);
