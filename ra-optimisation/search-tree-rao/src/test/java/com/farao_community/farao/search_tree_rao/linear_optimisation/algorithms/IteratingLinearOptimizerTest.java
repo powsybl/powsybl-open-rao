@@ -61,18 +61,14 @@ import static org.mockito.Mockito.*;
 public class IteratingLinearOptimizerTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
 
-    private RangeAction rangeAction;
+    private RangeAction<?> rangeAction;
 
     private ObjectiveFunction objectiveFunction;
-    private SystematicSensitivityInterface systematicSensitivityInterface;
 
     private LinearProblem linearProblem;
     private Network network;
-    private FlowResult flowResult;
-    private SensitivityResult sensitivityResult;
     private RangeActionSetpointResult rangeActionSetpointResult;
     private RangeActionActivationResult rangeActionActivationResult;
-    private BranchResultAdapter branchResultAdapter;
     private SensitivityComputer sensitivityComputer;
     private IteratingLinearOptimizer optimizer;
     private State optimizedState;
@@ -88,13 +84,13 @@ public class IteratingLinearOptimizerTest {
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
 
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
+        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         SensitivityResultAdapter sensitivityResultAdapter = Mockito.mock(SensitivityResultAdapter.class);
 
         input = Mockito.mock(IteratingLinearOptimizerInput.class);
         when(input.getObjectiveFunction()).thenReturn(objectiveFunction);
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(input.getPreOptimizationSensitivityResult()).thenReturn(sensitivityResult);
+        SensitivityResult sensitivityResult1 = Mockito.mock(SensitivityResult.class);
+        when(input.getPreOptimizationSensitivityResult()).thenReturn(sensitivityResult1);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
@@ -116,12 +112,11 @@ public class IteratingLinearOptimizerTest {
         linearProblem = Mockito.mock(LinearProblem.class);
         network = Mockito.mock(Network.class);
         when(input.getNetwork()).thenReturn(network);
-        this.flowResult = Mockito.mock(FlowResult.class);
         rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(rangeAction, 0.));
         when(input.getPrePerimeterSetpoints()).thenReturn(rangeActionSetpointResult);
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
-        branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
+        BranchResultAdapter branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
@@ -129,7 +124,7 @@ public class IteratingLinearOptimizerTest {
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(branchResultAdapter.getResult(sensi)).thenReturn(flowResult);
         when(sensitivityComputer.getBranchResult()).thenReturn(flowResult);
-        when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
+        when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult1);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(sensitivityResultAdapter.getResult(sensi)).thenReturn(sensitivityResult);
