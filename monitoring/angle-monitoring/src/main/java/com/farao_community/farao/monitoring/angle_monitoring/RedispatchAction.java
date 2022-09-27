@@ -7,74 +7,61 @@
 
 package com.farao_community.farao.monitoring.angle_monitoring;
 
-import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.GlskRegisteredResource;
+import com.powsybl.glsk.api.GlskShiftKey;
+import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * A redispatch action collects a quantity of power to be redispatched (powerToBeRedispatched) in country (countryName)
- * according to proportional glsks that exclude networkElementsToBeExcluded.
+ * according to merit order glsks that exclude networkElementsToBeExcluded.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RedispatchAction {
-
+    private final Network network;
     private final String countryName;
     private final double powerToBeRedispatched;
     private final Set<String> networkElementsToBeExcluded;
-    private final Set<ScalableNetworkElement> glsks;
+    private final GlskPoint glskPoint;
 
-    RedispatchAction(String countryName, double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, Set<ScalableNetworkElement> glsks) {
+    RedispatchAction(Network network, String countryName, double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, GlskPoint glskPoint) {
+        this.network = network;
         this.countryName = countryName;
         this.powerToBeRedispatched = powerToBeRedispatched; // positive for generation, negative for load
         this.networkElementsToBeExcluded = networkElementsToBeExcluded;
-        this.glsks = glsks;
+        this.glskPoint = Objects.requireNonNull(glskPoint);
 
     }
 
-    /**
-     * Returns a proportional scalable defined from ScalableNetworkElements (glsks), after filtering networkElementsToBeExcluded
-     * and reproportionalized percentages when necessary
-     */
-    private Scalable defineProportionalGlsk() {
-        // Filter out network elements that have to be excluded
-        Set<ScalableNetworkElement> filteredGlsks = glsks.stream()
-                .filter(glsk -> !networkElementsToBeExcluded.contains(glsk.getId())).collect(Collectors.toSet());
-
-        if (filteredGlsks.size() != glsks.size()) {
-            BUSINESS_WARNS.warn("{} scalable network elements have been filtered in country {}.", glsks.size() - filteredGlsks.size(), countryName);
-            Double sumPercentages = filteredGlsks.stream().mapToDouble(ScalableNetworkElement::getPercentage).sum();
-            filteredGlsks.forEach(glsk -> glsk.setPercentage((float) (glsk.getPercentage() / sumPercentages * 100.)));
-        }
-
-        // Define proportionalGlsk
-        List<Scalable> scalables = new ArrayList<>();
-        List<Float> percentages = new ArrayList<>();
-        for (ScalableNetworkElement glsk : filteredGlsks) {
-            if (glsk.getScalableType().equals(ScalableNetworkElement.ScalableType.GENERATOR)) {
-                scalables.add(Scalable.onGenerator(glsk.getId()));
-                percentages.add(glsk.getPercentage());
-            } else if (glsk.getScalableType().equals(ScalableNetworkElement.ScalableType.LOAD)) {
-                scalables.add(Scalable.onLoad(glsk.getId()));
-                percentages.add(glsk.getPercentage());
-            } else {
-                BUSINESS_WARNS.warn("Unhandled type of scalable for scalable {}.", glsk.getId());
+    // TODO : integrate this filter on scalables in powsybl
+    private void filterGlskPoint() {
+        for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
+            List<GlskRegisteredResource> filteredRegisteredResourceList = new ArrayList<>(glskShiftKey.getRegisteredResourceArrayList());
+            for (GlskRegisteredResource glskRegisteredResource : glskShiftKey.getRegisteredResourceArrayList()) {
+                // PROBLEM : all contain only 1 registeredResource
+                if (networkElementsToBeExcluded.contains(glskRegisteredResource.getmRID())) {
+                    glskRegisteredResource.setmRID("UNKNOWN ID - TEMPORARY FILTERING");
+                }
             }
+            glskShiftKey.setRegisteredResourceArrayList(filteredRegisteredResourceList);
         }
-        return Scalable.proportional(percentages, scalables);
     }
 
     /**
      * Scales powerToBeRedispatched on network.
      */
-    public void apply(Network network) {
-        double redispatchedPower = defineProportionalGlsk().scale(network, powerToBeRedispatched);
+    public void apply() {
+        filterGlskPoint();
+        double redispatchedPower = GlskPointScalableConverter.convert(network, glskPoint).scale(network, powerToBeRedispatched);
         BUSINESS_WARNS.warn("Scaling for country {}: asked={}, done={}", countryName, powerToBeRedispatched, redispatchedPower);
     }
 }

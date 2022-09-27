@@ -17,9 +17,9 @@ import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCrac
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class CimAngleMonitoringTest {
     private Crac crac;
     private RaoResult raoResult;
     private LoadFlowParameters loadFlowParameters;
-    private Map<Country, Set<ScalableNetworkElement>> glsks;
+    private CimGlskDocument cimGlskDocument;
     private AngleMonitoringResult angleMonitoringResult;
 
     @Before
@@ -74,26 +74,11 @@ public class CimAngleMonitoringTest {
         CimCracCreationContext cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         crac = cracCreationContext.getCrac();
 
-        // GLSKs
-        Set<ScalableNetworkElement> nLScalable = Set.of(new ScalableNetworkElement("_2844585c-0d35-488d-a449-685bcd57afbf", 10f, ScalableNetworkElement.ScalableType.GENERATOR),
-                new ScalableNetworkElement("_1dc9afba-23b5-41a0-8540-b479ed8baf4b", 5f, ScalableNetworkElement.ScalableType.GENERATOR),
-                new ScalableNetworkElement("_9c3b8f97-7972-477d-9dc8-87365cc0ad0e", 40f, ScalableNetworkElement.ScalableType.GENERATOR),
-                new ScalableNetworkElement("_69add5b4-70bd-4360-8a93-286256c0d38b", 20f, ScalableNetworkElement.ScalableType.LOAD),
-                new ScalableNetworkElement("_b1e03a8f-6a11-4454-af58-4a4a680e857f", 20f, ScalableNetworkElement.ScalableType.LOAD),
-                new ScalableNetworkElement("_25ab1b5b-6803-47e2-805a-ab7b2072e034", 5f, ScalableNetworkElement.ScalableType.LOAD));
-
-        Set<ScalableNetworkElement> beScalable = Set.of(new ScalableNetworkElement("_550ebe0d-f2b2-48c1-991f-cebea43a21aa", 5f, ScalableNetworkElement.ScalableType.GENERATOR),
-                new ScalableNetworkElement("_3a3b27be-b18b-4385-b557-6735d733baf0", 20f, ScalableNetworkElement.ScalableType.GENERATOR),
-                new ScalableNetworkElement("_1c6beed6-1acf-42e7-ba55-0cc9f04bddd8", 35f, ScalableNetworkElement.ScalableType.LOAD),
-                new ScalableNetworkElement("_cb459405-cc14-4215-a45c-416789205904", 30f, ScalableNetworkElement.ScalableType.LOAD),
-                new ScalableNetworkElement("_b1480a00-b427-4001-a26c-51954d2bb7e9", 10f, ScalableNetworkElement.ScalableType.LOAD));
-        glsks = new HashMap<>();
-        glsks.put(Country.BE, beScalable);
-        glsks.put(Country.NL, nLScalable);
+        cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridtest.xml"));
     }
 
     private void runAngleMonitoring() {
-        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, glsks, "OpenLoadFlow", loadFlowParameters).run(numberOfLoadFlowsInParallel);
+        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, "OpenLoadFlow", loadFlowParameters).run(numberOfLoadFlowsInParallel);
     }
 
     @Test
@@ -103,6 +88,6 @@ public class CimAngleMonitoringTest {
         assertEquals(Set.of("AngleCnec1", "AngleCnec2"), crac.getAngleCnecs().stream().map(Identifiable::getId).collect(Collectors.toSet()));
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 240°."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 270°."));
     }
 }

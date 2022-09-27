@@ -17,6 +17,10 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
+import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.cim.CimGlskDocument;
+import com.powsybl.glsk.cim.CimGlskPoint;
+import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.loadflow.LoadFlow;
@@ -43,17 +47,18 @@ public class AngleMonitoring {
     private final Crac crac;
     private final Network network;
     private final RaoResult raoResult;
-    private final Map<Country, Set<ScalableNetworkElement>> glsks;
+    private final CimGlskDocument cimGlskDocument;
     private final String loadFlowProvider;
     private final LoadFlowParameters loadFlowParameters;
 
     private List<AngleMonitoringResult> stateSpecificResults;
+    private Set<Country> glskCountries;
 
-    public AngleMonitoring(Crac crac, Network network, RaoResult raoResult, Map<Country, Set<ScalableNetworkElement>> glsks, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+    public AngleMonitoring(Crac crac, Network network, RaoResult raoResult, CimGlskDocument cimGlskDocument, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.crac = Objects.requireNonNull(crac);
         this.network = Objects.requireNonNull(network);
         this.raoResult = Objects.requireNonNull(raoResult);
-        this.glsks = Objects.requireNonNull(glsks);
+        this.cimGlskDocument = Objects.requireNonNull(cimGlskDocument);
         this.loadFlowProvider = loadFlowProvider;
         this.loadFlowParameters = loadFlowParameters;
     }
@@ -64,6 +69,7 @@ public class AngleMonitoring {
      */
     public AngleMonitoringResult run(int numberOfLoadFlowsInParallel) throws FaraoException {
         stateSpecificResults = new ArrayList<>();
+        loadGlskCountries();
 
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
@@ -324,22 +330,26 @@ public class AngleMonitoring {
      * Checks glsks are correctly defined on country
      */
     private void checkGlsks(Country country, String naId, String angleCnecId) {
-        if (!glsks.containsKey(country)) {
+        if (!glskCountries.contains(country)) {
             throw new FaraoException(String.format("INFEASIBLE Angle Monitoring : Glsks were not defined for country %s. Remedial action %s of AngleCnec %s is ignored.", country.getName(), naId, angleCnecId));
-        }
-        if (glsks.get(country).stream().mapToDouble(ScalableNetworkElement::getPercentage).sum() != 100.) {
-            throw new FaraoException(String.format("INFEASIBLE Angle Monitoring : Glsks were ill defined for country %s : %,.2f%% were defined.", country.getName(), glsks.get(country).stream().mapToDouble(ScalableNetworkElement::getPercentage).sum()));
         }
     }
 
     // ---------------  3) Redispatch to compensate the loss of generation/ load --------
     /**
-     * Redispatches the net sum (generation - load) of power generations & loads, according to proportional glsks.
+     * Redispatches the net sum (generation - load) of power generations & loads, according to merit order glsks.
      */
     private void redispatchNetworkActions(Network networkClone, Map<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded) {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
-            new RedispatchAction(redispatchPower.getKey().name(), redispatchPower.getValue(), networkElementsToBeExcluded, glsks.get(redispatchPower.getKey())).apply(networkClone);
+            Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
+                    .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry()))
+                    .map(CimGlskPoint.class::cast)
+                    .collect(Collectors.toSet());
+            if (countryGlskPoints.size() > 1) {
+                throw new FaraoException(String.format("> 1 (%s) glskPoints defined for country %s", countryGlskPoints.size(), redispatchPower.getKey().getName()));
+            }
+            new RedispatchAction(networkClone, redispatchPower.getKey().name(), redispatchPower.getValue(), networkElementsToBeExcluded, countryGlskPoints.iterator().next()).apply();
         }
     }
 
@@ -390,6 +400,13 @@ public class AngleMonitoring {
         TreeSet<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
         crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, Double.NaN)));
         return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNKNOWN);
+    }
+
+    private void loadGlskCountries() {
+        glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
+        for (GlskPoint glskPoint : cimGlskDocument.getGlskPoints()) {
+            glskCountries.add(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry());
+        }
     }
 }
 

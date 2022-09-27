@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class CracFactoryAngleMonitoringTest {
     private Crac crac;
     private RaoResult raoResult;
     private LoadFlowParameters loadFlowParameters;
-    private Map<Country, Set<ScalableNetworkElement>> glsks;
+    private CimGlskDocument cimGlskDocument;
     private AngleMonitoringResult angleMonitoringResult;
     private AngleCnec acPrev;
     private AngleCnec acCur1;
@@ -64,10 +64,7 @@ public class CracFactoryAngleMonitoringTest {
     public void setUpCracFactory(String networkFileName) {
         network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         crac = CracFactory.findDefault().create("test-crac");
-
-        Set<ScalableNetworkElement> frScalable = Set.of(new ScalableNetworkElement("G1", 100f, ScalableNetworkElement.ScalableType.GENERATOR));
-        glsks = new HashMap<>();
-        glsks.put(Country.FR, frScalable);
+        cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml"));
     }
 
     public void mockPreventiveState() {
@@ -99,7 +96,7 @@ public class CracFactoryAngleMonitoringTest {
     }
 
     private void runAngleMonitoring() {
-        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, glsks, "OpenLoadFlow", loadFlowParameters).run(numberOfLoadFlowsInParallel);
+        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, "OpenLoadFlow", loadFlowParameters).run(numberOfLoadFlowsInParallel);
     }
 
     @Test
@@ -172,49 +169,13 @@ public class CracFactoryAngleMonitoringTest {
         assertEquals(angleMonitoringResult.printConstraints(), List.of("All AngleCnecs are secure."));
     }
 
-    @Test
-    public void testWrongGlskPercentage() {
-        setUpCracFactory("network.xiidm");
-        mockCurativeStates();
-        naL1Cur = crac.newNetworkAction()
-                .withId("Open L1 - 2")
-                .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
-                .add();
-        Set<ScalableNetworkElement> frScalable = Set.of(new ScalableNetworkElement("G1", 140f, ScalableNetworkElement.ScalableType.GENERATOR));
-        glsks = new HashMap<>();
-        glsks.put(Country.FR, frScalable);
-        runAngleMonitoring();
-        assertTrue(angleMonitoringResult.isUnknown());
-        angleMonitoringResult.getAppliedCras().values().stream().noneMatch(networkActions -> !networkActions.isEmpty());
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("Unknown status on AngleCnecs."));
-    }
-
-    @Test
-    public void testWrongGlskCountry() {
-        setUpCracFactory("network.xiidm");
-        mockCurativeStates();
-        naL1Cur = crac.newNetworkAction()
-                .withId("Open L1 - 2")
-                .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
-                .add();
-        Set<ScalableNetworkElement> frScalable = Set.of(new ScalableNetworkElement("G1", 100f, ScalableNetworkElement.ScalableType.GENERATOR));
-        glsks = new HashMap<>();
-        glsks.put(Country.NL, frScalable);
-        runAngleMonitoring();
-        assertTrue(angleMonitoringResult.isUnknown());
-        angleMonitoringResult.getAppliedCras().values().stream().noneMatch(networkActions -> !networkActions.isEmpty());
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("Unknown status on AngleCnecs."));
-    }
-
     @Test (expected = FaraoException.class)
     public void testGetAngleExceptions1() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
         mockCurativeStates();
-        double angleValue = angleMonitoringResult.getAngle(acCur1, acCur1.getState(), Unit.DEGREE);
+        angleMonitoringResult.getAngle(acCur1, acCur1.getState(), Unit.DEGREE);
     }
 
     @Test (expected = FaraoException.class)
@@ -222,6 +183,6 @@ public class CracFactoryAngleMonitoringTest {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
-        double angleValue = angleMonitoringResult.getAngle(acPrev, acPrev.getState(), Unit.KILOVOLT);
+        angleMonitoringResult.getAngle(acPrev, acPrev.getState(), Unit.KILOVOLT);
     }
 }
