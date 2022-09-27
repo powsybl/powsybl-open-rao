@@ -74,7 +74,7 @@ public class CimAngleMonitoringTest {
         CimCracCreationContext cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         crac = cracCreationContext.getCrac();
 
-        cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridtest.xml"));
+        cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridTest.xml"));
     }
 
     private void runAngleMonitoring() {
