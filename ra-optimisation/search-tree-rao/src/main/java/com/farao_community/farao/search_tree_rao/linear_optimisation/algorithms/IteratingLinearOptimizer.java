@@ -220,9 +220,7 @@ public class IteratingLinearOptimizer {
             input.getNetwork(),
             input.getOptimizationPerimeter(),
             input.getPrePerimeterSetpoints(),
-            previousResult.getObjectiveFunctionResult().getMostLimitingElements(10),
-            previousResult.getBranchResult(),
-            previousResult.getSensitivityResult(),
+            previousResult,
             parameters.getObjectiveFunctionUnit()
         );
     }

@@ -28,6 +28,8 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,8 +46,7 @@ public class BestTapFinderTest {
 
     private Network network;
     private RangeActionActivationResult rangeActionActivationResult;
-    private FlowResult flowResult;
-    private SensitivityResult sensitivityResult;
+    private LinearOptimizationResult linearOptimizationResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private PstRangeAction pstRangeAction;
@@ -55,14 +56,15 @@ public class BestTapFinderTest {
 
     @Before
     public void setUp() {
-        sensitivityResult = Mockito.mock(SensitivityResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         network = Mockito.mock(Network.class);
 
-        flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        linearOptimizationResult = mock(LinearOptimizationResult.class);
+        when(linearOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
+
+        when(linearOptimizationResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
+        when(linearOptimizationResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         pstRangeAction = createPst();
@@ -77,8 +79,8 @@ public class BestTapFinderTest {
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
-        when(sensitivityResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
-        when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
+        when(linearOptimizationResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
+        when(linearOptimizationResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {
@@ -115,9 +117,7 @@ public class BestTapFinderTest {
                 network,
                 pstRangeAction,
                 startingSetPoint,
-                List.of(cnec1, cnec2),
-                flowResult,
-                sensitivityResult,
+                linearOptimizationResult,
                 Unit.MEGAWATT
         );
     }
@@ -128,9 +128,7 @@ public class BestTapFinderTest {
                 network,
                 optimizationPerimeter,
                 rangeActionSetpointResult,
-                List.of(cnec1, cnec2),
-                flowResult,
-                sensitivityResult,
+                linearOptimizationResult,
                 Unit.MEGAWATT
         );
     }
