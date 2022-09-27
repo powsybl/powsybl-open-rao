@@ -545,7 +545,7 @@ public class FlowCnecImplTest {
             .withId("cnec-1-id")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(LEFT).add()
             .add();
         assertTrue(cnec1.isConnected(network));
 
@@ -561,7 +561,7 @@ public class FlowCnecImplTest {
             .withId("cnec-2-id")
             .withNetworkElement("DL1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(LEFT).add()
             .add();
         assertTrue(cnec2.isConnected(network));
 
@@ -573,7 +573,7 @@ public class FlowCnecImplTest {
             .withId("cnec-3-id")
             .withNetworkElement("BBE2AA1 _generator")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(LEFT).add()
             .add();
         assertTrue(cnec3.isConnected(network));
 

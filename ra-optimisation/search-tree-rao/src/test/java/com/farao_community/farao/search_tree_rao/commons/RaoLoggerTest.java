@@ -100,7 +100,7 @@ public class RaoLoggerTest {
         when(flowResult.getRelativeMargin(cnec, Unit.MEGAWATT)).thenReturn(relMarginMw);
         when(flowResult.getMargin(cnec, Unit.AMPERE)).thenReturn(marginA);
         when(flowResult.getRelativeMargin(cnec, Unit.AMPERE)).thenReturn(relMarginA);
-        when(flowResult.getPtdfZonalSum(cnec)).thenReturn(ptdf);
+        //when(flowResult.getPtdfZonalSum(cnec)).thenReturn(ptdf);
     }
 
     private String absoluteMarginLog(int order, double margin, Unit unit, FlowCnec cnec) {

@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.any;*/
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
  */
 public class LoopFlowComputationImplTest {
 
-    private static final double DOUBLE_TOLERANCE = 0.1;
+    /*private static final double DOUBLE_TOLERANCE = 0.1;
     private Crac crac;
 
     @Before
@@ -227,5 +227,5 @@ public class LoopFlowComputationImplTest {
         assertEquals(30., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL")), DOUBLE_TOLERANCE);
         assertEquals(170., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE")), DOUBLE_TOLERANCE);
         assertEquals(170., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL")), DOUBLE_TOLERANCE);
-    }
+    }*/
 }

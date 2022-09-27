@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
-import ch.qos.logback.classic.Logger;
+/*import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.FaraoException;
@@ -51,16 +51,16 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
+/*@RunWith(PowerMockRunner.class)
 @PrepareForTest({IteratingLinearOptimizer.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
+@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})*/
 public class LeafTest {
-    private static final double DOUBLE_TOLERANCE = 1e-3;
+    /*private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private NetworkAction na1;
     private NetworkAction na2;
@@ -763,5 +763,5 @@ public class LeafTest {
         when(linearOptimizationResult.getVirtualCost()).thenReturn(59.5);
 
         assertEquals("Root leaf, no range action(s) activated, cost: -100.50 (functional: -160.00, virtual: 59.50)", leaf.toString());
-    }
+    }*/
 }

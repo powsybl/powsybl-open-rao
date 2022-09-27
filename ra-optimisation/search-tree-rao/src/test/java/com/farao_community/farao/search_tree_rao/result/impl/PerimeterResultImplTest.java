@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -28,13 +28,13 @@ import java.util.Set;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PerimeterResultImplTest {
-    private static final double DOUBLE_TOLERANCE = 1e-3;
+    /*private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private PerimeterResultImpl perimeterResultImpl;
     private RangeActionSetpointResult prePerimeterRangeActionActivationResult;
@@ -226,5 +226,5 @@ public class PerimeterResultImplTest {
     public void testGetSensitivityValueOnGlsk() {
         assertEquals(0., perimeterResultImpl.getSensitivityValue(flowCnec1, mock(SensitivityVariableSet.class), Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(0., perimeterResultImpl.getSensitivityValue(flowCnec1, mock(SensitivityVariableSet.class), Unit.AMPERE), DOUBLE_TOLERANCE);
-    }
+    }*/
 }

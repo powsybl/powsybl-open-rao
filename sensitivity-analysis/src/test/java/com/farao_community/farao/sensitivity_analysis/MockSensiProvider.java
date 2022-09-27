@@ -126,7 +126,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                     } else {
                         throw new AssertionError();
                     }
-                    resultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
+                    sensitivityResultWriter.writeContingencyStatus(finalContingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
             });

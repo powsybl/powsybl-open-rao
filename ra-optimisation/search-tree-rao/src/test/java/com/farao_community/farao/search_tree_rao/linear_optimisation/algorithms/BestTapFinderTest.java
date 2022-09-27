@@ -61,8 +61,8 @@ public class BestTapFinderTest {
         network = Mockito.mock(Network.class);
 
         flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        //when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
+        //when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         pstRangeAction = createPst();
@@ -77,8 +77,8 @@ public class BestTapFinderTest {
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
-        when(sensitivityResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
-        when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
+        //when(sensitivityResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
+        //when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {

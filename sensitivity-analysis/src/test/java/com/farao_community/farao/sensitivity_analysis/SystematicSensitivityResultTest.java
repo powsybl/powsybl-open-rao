@@ -171,14 +171,14 @@ public class SystematicSensitivityResultTest {
             .withId("cnec-prev")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(com.farao_community.farao.data.crac_api.Instant.PREVENTIVE)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
         contingencyCnec = crac.newFlowCnec()
             .withId("cnec-cur")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withContingency("co")
             .withInstant(com.farao_community.farao.data.crac_api.Instant.OUTAGE)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
         hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-ra")
@@ -205,13 +205,13 @@ public class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        assertEquals(30., result.getReferenceFlow(nStateCnec), EPSILON);
-        assertEquals(40., result.getReferenceIntensity(nStateCnec), EPSILON);
-        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT), EPSILON);
 
-        assertEquals(-25., result.getReferenceFlow(contingencyCnec), EPSILON);
-        assertEquals(30., result.getReferenceIntensity(contingencyCnec), EPSILON);
-        assertEquals(7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec), EPSILON);
+        assertEquals(-25., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(30., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT), EPSILON);
     }
 
     @Test
@@ -229,13 +229,13 @@ public class SystematicSensitivityResultTest {
             .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
-        assertEquals(30., result.getReferenceFlow(nStateCnec), EPSILON);
-        assertEquals(40., result.getReferenceIntensity(nStateCnec), EPSILON);
-        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec), EPSILON);
+        assertEquals(30., result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
+        assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT), EPSILON);
 
-        assertEquals(-25., result.getReferenceFlow(contingencyCnec), EPSILON);
-        assertEquals(30., result.getReferenceIntensity(contingencyCnec), EPSILON);
-        assertEquals(-7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec), EPSILON);
+        assertEquals(-25., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(30., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(-7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT), EPSILON);
     }
 
 }

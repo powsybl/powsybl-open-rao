@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -39,13 +39,13 @@ import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PreventiveAndCurativesRaoResultImplTest {
-    private static final double DOUBLE_TOLERANCE = 1e-3;
+    /*private static final double DOUBLE_TOLERANCE = 1e-3;
     private PrePerimeterResult initialResult;
     private PerimeterResult postPrevResult;
     private PrePerimeterResult preCurativeResult;
@@ -863,5 +863,5 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(56., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(AFTER_CRA, "mnec", 100));
         assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_CRA, "lf", 100));
-    }
+    }*/
 }

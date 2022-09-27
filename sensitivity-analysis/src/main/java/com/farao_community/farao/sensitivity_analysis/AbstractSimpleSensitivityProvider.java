@@ -71,8 +71,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     @Override
     public List<Contingency> getContingencies(Network network) {
         Set<com.farao_community.farao.data.crac_api.Contingency> cracContingencies = cnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isPresent())
-            .filter(cnec -> cnec.isConnected(network))
+            .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.isConnected(network))
             .map(cnec -> cnec.getState().getContingency().get())
             .collect(Collectors.toSet());
         return cracContingencies.stream()

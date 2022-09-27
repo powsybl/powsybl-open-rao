@@ -402,7 +402,7 @@ final class ExampleGenerator {
     static SystematicSensitivityResult systematicSensitivityResult(Crac crac, ZonalData<SensitivityVariableSet> glsk) {
         SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
 
-        // flow results
+       /* // flow results
         Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-BE1"))).thenReturn(30.);
         Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("BE1-BE2"))).thenReturn(280.);
         Mockito.when(sensisResults.getReferenceFlow(crac.getFlowCnec("FR-DE"))).thenReturn(170.);
@@ -439,7 +439,7 @@ final class ExampleGenerator {
         Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getFlowCnec("DE-NL"))).thenReturn(-0.5);
         Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getFlowCnec("DE-NL"))).thenReturn(0.4);
         Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getFlowCnec("DE-NL"))).thenReturn(-1.2);
-
+*/
         return sensisResults;
     }
 }

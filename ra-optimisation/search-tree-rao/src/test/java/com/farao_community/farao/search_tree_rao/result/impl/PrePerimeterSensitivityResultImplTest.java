@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.Unit;
+/*import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -24,13 +24,13 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PrePerimeterSensitivityResultImplTest {
-    private static final double DOUBLE_TOLERANCE = 0.01;
+    /*private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
     public void testBasicReturns() {
@@ -106,6 +106,6 @@ public class PrePerimeterSensitivityResultImplTest {
         assert output.getMostLimitingElements(10).isEmpty();
         assert output.getVirtualCostNames().isEmpty();
         assert output.getCostlyElements("mock", 10).isEmpty();
-    }
+    }*/
 
 }

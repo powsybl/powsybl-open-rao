@@ -5,7 +5,7 @@
     <parent>
         <artifactId>farao-core</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>4.1.2-SNAPSHOT</version>
+        <version>4.1.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -103,12 +103,6 @@
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-open-loadflow</artifactId>
-            <version>0.23.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

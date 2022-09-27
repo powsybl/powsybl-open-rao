@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -36,13 +36,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.*;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class AutomatonSimulatorTest {
-    private AutomatonSimulator automatonSimulator;
+    /*private AutomatonSimulator automatonSimulator;
 
     private Crac crac;
     private Network network;
@@ -482,5 +482,5 @@ public class AutomatonSimulatorTest {
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
         assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
-    }
+    }*/
 }

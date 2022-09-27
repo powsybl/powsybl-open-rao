@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -33,15 +33,15 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
+//@RunWith(PowerMockRunner.class)
 public class CoreProblemFillerTest extends AbstractFillerTest {
-    private LinearProblem linearProblem;
+    /*private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
     // some additional data
@@ -542,5 +542,5 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.ub(), DOUBLE_TOLERANCE);
-    }
+    }*/
 }

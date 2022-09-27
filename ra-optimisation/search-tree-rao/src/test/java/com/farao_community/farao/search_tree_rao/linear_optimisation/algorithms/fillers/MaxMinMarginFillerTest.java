@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -31,15 +31,15 @@ import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.*;*/
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
+//@RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
-    private LinearProblem linearProblem;
+    /*private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
 
@@ -194,6 +194,6 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem.addFlowVariable(0.0, 0.0, cnec1);
         linearProblem.addFlowVariable(0.0, 0.0, cnec2);
         linearProblem.fill(flowResult, sensitivityResult);
-    }
+    }*/
 }
 

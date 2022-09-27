@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.Unit;
+/*import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -23,13 +23,13 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UnoptimizedRaoResultImplTest {
-    private PrePerimeterResult initialResult;
+    /*private PrePerimeterResult initialResult;
     private UnoptimizedRaoResultImpl output;
     private FlowCnec flowCnec;
     private static final double DOUBLE_TOLERANCE = 1e-6;
@@ -259,5 +259,5 @@ public class UnoptimizedRaoResultImplTest {
     public void testGetActivatedRangeActionsDuringState() {
         State state1 = Mockito.mock(State.class);
         assertTrue(output.getActivatedRangeActionsDuringState(state1).isEmpty());
-    }
+    }*/
 }

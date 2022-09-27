@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
@@ -22,13 +22,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class FlowResultImplTest {
-    private static final double DOUBLE_TOLERANCE = 0.01;
+    /*private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
     FlowCnec loopFlowCnec;
@@ -93,5 +93,5 @@ public class FlowResultImplTest {
         assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, Unit.DEGREE));
         assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, Unit.PERCENT_IMAX));
         assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, Unit.TAP));
-    }
+    }*/
 }

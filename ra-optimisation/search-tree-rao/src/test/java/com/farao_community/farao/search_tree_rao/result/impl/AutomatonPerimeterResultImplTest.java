@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -27,13 +27,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.*;
-import static com.farao_community.farao.commons.Unit.*;
+import static com.farao_community.farao.commons.Unit.*;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class AutomatonPerimeterResultImplTest {
-    private static final double DOUBLE_TOLERANCE = 1e-3;
+    /*private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private State state1;
     private FlowCnec cnec1;
@@ -213,5 +213,5 @@ public class AutomatonPerimeterResultImplTest {
         assertEquals(1000., result.getSensitivityValue(cnec1, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(200., result.getSensitivityValue(cnec2, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(2000., result.getSensitivityValue(cnec2, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
-    }
+    }*/
 }

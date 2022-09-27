@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.Unit;
+/*import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -35,14 +35,14 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
+//@RunWith(PowerMockRunner.class)
 public class MnecFillerTest extends AbstractFillerTest {
-    private LinearProblem linearProblem;
+    /*private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private FlowCnec mnec1;
     private FlowCnec mnec2;
@@ -191,5 +191,5 @@ public class MnecFillerTest extends AbstractFillerTest {
             MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
             assertEquals(10.0 / 0.658179, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         });
-    }
+    }*/
 }

@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.commons.Unit;
+/*import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -37,14 +37,14 @@ import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
+//@RunWith(PowerMockRunner.class)
 public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
-    private static final double MAX_ABS_THRESHOLD = 1000;
+    /*private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -245,5 +245,5 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         MPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
-    }
+    }*/
 }

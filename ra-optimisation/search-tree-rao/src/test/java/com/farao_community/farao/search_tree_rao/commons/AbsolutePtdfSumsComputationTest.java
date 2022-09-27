@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons;
 
-import com.farao_community.farao.commons.EICode;
+/*import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
@@ -33,13 +33,13 @@ import java.util.Map;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;*/
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class AbsolutePtdfSumsComputationTest {
-    private static final double DOUBLE_TOLERANCE = 0.001;
+    /*private static final double DOUBLE_TOLERANCE = 0.001;
 
     private SystematicSensitivityResult systematicSensitivityResult;
 
@@ -186,5 +186,5 @@ public class AbsolutePtdfSumsComputationTest {
         assertEquals(0.1, ptdfSums.get(crac.getFlowCnec("cnec1-in-basecase")), DOUBLE_TOLERANCE); // abs(0.2 - 0.1)
         assertEquals(0.1, ptdfSums.get(crac.getFlowCnec("cnec1-after-internal-contingency")), DOUBLE_TOLERANCE); // abs(0.2 - 0.1)
         assertEquals(0.2, ptdfSums.get(crac.getFlowCnec("cnec1-after-contingency-on-xNode")), DOUBLE_TOLERANCE); // abs(0.2 - 0.0) PTDF of virtual hub is now 0
-    }
+    }*/
 }

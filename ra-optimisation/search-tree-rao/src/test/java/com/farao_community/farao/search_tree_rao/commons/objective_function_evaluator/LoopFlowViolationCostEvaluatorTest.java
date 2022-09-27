@@ -59,11 +59,11 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void setInitialLoopFLow(FlowCnec branchCnec, double initialLoopFLow) {
-        when(initialLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
+        //when(initialLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
     }
 
     private void setCurrentLoopFLow(FlowCnec branchCnec, double currentLoopFlow) {
-        when(currentLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
+        //when(currentLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
     }
 
     private void setAcceptableAugmentationInMW(double acceptableAugmentationInMW) {

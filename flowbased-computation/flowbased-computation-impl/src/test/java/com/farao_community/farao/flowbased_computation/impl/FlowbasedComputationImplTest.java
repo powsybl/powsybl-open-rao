@@ -30,9 +30,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
+/*import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
+import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;*/
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.INITIAL;
 import static org.junit.Assert.*;
 
@@ -254,7 +254,7 @@ public class FlowbasedComputationImplTest {
             flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
             ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(INITIAL);
 
-            elementaryFlowCnecResult.setFlow(100., MEGAWATT);
+            /*elementaryFlowCnecResult.setFlow(100., MEGAWATT);
             elementaryFlowCnecResult.setMargin(101., MEGAWATT);
             elementaryFlowCnecResult.setRelativeMargin(102., MEGAWATT);
             elementaryFlowCnecResult.setLoopFlow(103., MEGAWATT);
@@ -281,7 +281,7 @@ public class FlowbasedComputationImplTest {
             elementaryFlowCnecResult.setRelativeMargin(212., AMPERE);
             elementaryFlowCnecResult.setLoopFlow(213., AMPERE);
 
-            elementaryFlowCnecResult.setPtdfZonalSum(0.1);
+            elementaryFlowCnecResult.setPtdfZonalSum(0.1);*/
         });
 
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", Instant.CURATIVE));

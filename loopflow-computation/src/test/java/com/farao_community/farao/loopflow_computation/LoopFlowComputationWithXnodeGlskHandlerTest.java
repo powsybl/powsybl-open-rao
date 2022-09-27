@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.EICode;
+/*import com.farao_community.farao.commons.EICode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -21,13 +21,13 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertEquals;*/
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LoopFlowComputationWithXnodeGlskHandlerTest {
-    private static final double DOUBLE_TOLERANCE = 0.01;
+    /*private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Network mockNetwork() {
         Network network = Mockito.mock(Network.class);
@@ -103,5 +103,5 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         assertEquals(2000. * 0.5 + 600. * (-1.2), loopFlowResult.getCommercialFlow(preventiveCnec), DOUBLE_TOLERANCE);
         assertEquals(2000. * (-1.8) + 600. * 2.3, loopFlowResult.getCommercialFlow(cnecAfterClassicContingency), DOUBLE_TOLERANCE);
         assertEquals(2000. * 1.5, loopFlowResult.getCommercialFlow(cnecAfterDanglingContingency), DOUBLE_TOLERANCE);
-    }
+    }*/
 }
