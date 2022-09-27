@@ -67,7 +67,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            Unit.MEGAWATT);
     }
 
     private void createMaxMinMarginFiller(Unit unit) {

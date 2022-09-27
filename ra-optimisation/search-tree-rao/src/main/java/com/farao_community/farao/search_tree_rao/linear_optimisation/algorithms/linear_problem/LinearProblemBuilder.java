@@ -144,7 +144,8 @@ public class LinearProblemBuilder {
             inputs.getOptimizationPerimeter(),
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
-            parameters.getRangeActionParameters()
+            parameters.getRangeActionParameters(),
+            parameters.getObjectiveFunctionUnit()
         );
     }
 

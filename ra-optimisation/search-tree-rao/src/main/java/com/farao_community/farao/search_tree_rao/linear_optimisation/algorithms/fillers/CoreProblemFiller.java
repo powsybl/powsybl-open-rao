@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
@@ -47,17 +48,20 @@ public class CoreProblemFiller implements ProblemFiller {
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final RangeActionParameters rangeActionParameters;
+    private final Unit unit;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionActivationResult raActivationFromParentLeaf,
-                             RangeActionParameters rangeActionParameters) {
+                             RangeActionParameters rangeActionParameters,
+                             Unit unit) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
         this.rangeActionParameters = rangeActionParameters;
+        this.unit = unit;
     }
 
     @Override
@@ -129,7 +133,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         flowCnecs.forEach(cnec -> {
             // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, Unit.MEGAWATT);
+            double referenceFlow = flowResult.getFlow(cnec, unit) * RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, unit, Unit.MEGAWATT);
             MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
@@ -151,7 +155,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         flowCnecs.forEach(cnec -> {
-            double referenceFlow = flowResult.getFlow(cnec, Unit.MEGAWATT);
+            double referenceFlow = flowResult.getFlow(cnec, unit) * RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, unit, Unit.MEGAWATT);
             MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
                 throw new FaraoException(format("Flow constraint on %s has not been defined yet.", cnec.getId()));

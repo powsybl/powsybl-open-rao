@@ -91,7 +91,8 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-            rangeActionParameters);
+            rangeActionParameters,
+            MEGAWATT);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {

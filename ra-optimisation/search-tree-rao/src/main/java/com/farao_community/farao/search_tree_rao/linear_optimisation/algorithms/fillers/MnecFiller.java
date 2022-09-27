@@ -77,7 +77,7 @@ public class MnecFiller implements ProblemFiller {
 
     private void buildMnecMarginConstraints(LinearProblem linearProblem) {
         getMonitoredCnecs().forEach(mnec -> {
-                double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, MEGAWATT);
+                double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, unit) * RaoUtil.getFlowUnitMultiplier(mnec, Side.LEFT, unit, MEGAWATT);
 
                 MPVariable flowVariable = linearProblem.getFlowVariable(mnec);
 
