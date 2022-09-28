@@ -27,6 +27,7 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +54,7 @@ public class AngleMonitoring {
 
     private List<AngleMonitoringResult> stateSpecificResults;
     private Set<Country> glskCountries;
+    private OffsetDateTime glskOffsetDateTime;
 
     public AngleMonitoring(Crac crac, Network network, RaoResult raoResult, CimGlskDocument cimGlskDocument, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.crac = Objects.requireNonNull(crac);
@@ -67,7 +69,8 @@ public class AngleMonitoring {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an AngleMonitoringResult
      */
-    public AngleMonitoringResult run(int numberOfLoadFlowsInParallel) throws FaraoException {
+    public AngleMonitoringResult run(int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws FaraoException {
+        this.glskOffsetDateTime = glskOffsetDateTime;
         stateSpecificResults = new ArrayList<>();
         loadGlskCountries();
 
@@ -343,7 +346,8 @@ public class AngleMonitoring {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
             Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
-                    .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry()))
+                    .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry())
+                    && isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
                     .map(CimGlskPoint.class::cast)
                     .collect(Collectors.toSet());
             if (countryGlskPoints.size() > 1) {
@@ -407,6 +411,12 @@ public class AngleMonitoring {
         for (GlskPoint glskPoint : cimGlskDocument.getGlskPoints()) {
             glskCountries.add(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry());
         }
+    }
+
+    private boolean isInTimeInterval(OffsetDateTime offsetDateTime, String startTime, String endTime) {
+        OffsetDateTime startTimeGlskPoint = OffsetDateTime.parse(startTime);
+        OffsetDateTime endTimeGlskPoint = OffsetDateTime.parse(endTime);
+        return !offsetDateTime.isBefore(startTimeGlskPoint) && offsetDateTime.isBefore(endTimeGlskPoint);
     }
 }
 

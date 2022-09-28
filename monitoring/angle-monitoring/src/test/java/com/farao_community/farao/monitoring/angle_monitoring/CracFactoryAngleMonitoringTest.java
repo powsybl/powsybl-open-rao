@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class CracFactoryAngleMonitoringTest {
     private static final double ANGLE_TOLERANCE = 0.5;
     private int numberOfLoadFlowsInParallel = 2;
-
+    private OffsetDateTime glskOffsetDateTime = OffsetDateTime.parse("2017-04-12T02:30Z");
     private Network network;
     private Crac crac;
     private RaoResult raoResult;
@@ -96,7 +97,7 @@ public class CracFactoryAngleMonitoringTest {
     }
 
     private void runAngleMonitoring() {
-        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, "OpenLoadFlow", loadFlowParameters).run(numberOfLoadFlowsInParallel);
+        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument, "OpenLoadFlow", loadFlowParameters).run(numberOfLoadFlowsInParallel, glskOffsetDateTime);
     }
 
     @Test
