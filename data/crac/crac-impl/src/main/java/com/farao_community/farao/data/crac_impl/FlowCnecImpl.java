@@ -67,9 +67,9 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
-                    .filter(Threshold::limitsByMin)
-                    .filter(branchThreshold -> branchThreshold.getSide().equals(side))
-                    .collect(Collectors.toSet());
+                .filter(Threshold::limitsByMin)
+                .filter(branchThreshold -> branchThreshold.getSide().equals(side))
+                .collect(Collectors.toSet());
 
             if (!limitingThresholds.isEmpty()) {
                 double lowerBound = Double.NEGATIVE_INFINITY;
@@ -99,9 +99,9 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         if (!bounds.isUpperBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
-                    .filter(Threshold::limitsByMax)
-                    .filter(branchThreshold -> branchThreshold.getSide().equals(side))
-                    .collect(Collectors.toSet());
+                .filter(Threshold::limitsByMax)
+                .filter(branchThreshold -> branchThreshold.getSide().equals(side))
+                .collect(Collectors.toSet());
             if (!limitingThresholds.isEmpty()) {
                 double upperBound = Double.POSITIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
@@ -138,15 +138,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             }
             return value * conversionFactor;
         }
-    }
-
-    public boolean isConnected(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(getNetworkElement().getId());
-        if (identifiable instanceof Connectable) {
-            Connectable<?> connectable = (Connectable<?>) identifiable;
-            return connectable.getTerminals().stream().allMatch(Terminal::isConnected);
-        }
-        return true; // by default
     }
 
     public boolean isConnected(Network network) {

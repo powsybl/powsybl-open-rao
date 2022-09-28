@@ -192,32 +192,6 @@ public class SystematicSensitivityResult {
         }
     }
 
-    public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
-        postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
-        postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        return this;
-    }
-
-    private void postTreatHvdcsOnState(Network network, Map<String, HvdcRangeAction> hvdcRangeActions, StateResult stateResult) {
-        hvdcRangeActions.forEach((networkElementId, hvdcRangeAction) -> {
-            HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
-            if (hvdcLine.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) {
-                stateResult.getFlowSensitivities().forEach((cnecId, cnecFlowSensis) -> {
-                    if (cnecFlowSensis.containsKey(networkElementId)) {
-                        cnecFlowSensis.put(networkElementId, -cnecFlowSensis.get(networkElementId));
-                    }
-                });
-                stateResult.getIntensitySensitivities().forEach((cnecId, cnecIntensitySensis) -> {
-                    if (cnecIntensitySensis.containsKey(networkElementId)) {
-                        cnecIntensitySensis.put(networkElementId, -cnecIntensitySensis.get(networkElementId));
-                    }
-                });
-            }
-        });
-    }
-
     public boolean isSuccess() {
         return status != SensitivityComputationStatus.FAILURE;
     }

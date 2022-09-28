@@ -109,7 +109,7 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in MEGAWATT for Injection range actions</li>
      * </ul>
      *
-     * Build one absolute variable variable AV[r] for each RangeAction r
+     * Build one absolute variation variable AV[r] for each RangeAction r
      * This variable describes the absolute difference between the range action setpoint
      * and its initial value. It is given in the same unit as S[r].
      *
@@ -125,7 +125,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     /**
      * Build one flow constraint for each Cnec c.
-     * This constraints link the estimated flow on a Cnec with the impact of the RangeActions
+     * These constraints link the estimated flow on a Cnec with the impact of the RangeActions
      * on this Cnec.
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
@@ -152,9 +152,9 @@ public class CoreProblemFiller implements ProblemFiller {
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        flowCnecs.forEach(cnec -> {
-            double referenceFlow = flowResult.getFlow(cnec, unit) * RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, unit, Unit.MEGAWATT);
-            MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
+        flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
             if (flowConstraint == null) {
                 throw new FaraoException(format("Flow constraint on %s (side %s) has not been defined yet.", cnec.getId(), side));
             }
