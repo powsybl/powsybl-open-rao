@@ -8,18 +8,17 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,8 +42,8 @@ public final class BestTapFinder {
      * It is a little smarter than just rounding the optimal angle to the closest tap position:
      * if the optimal angle is close to the limit between two tap positions, it will chose the one that maximizes the
      * minimum margin on the 10 most limiting elements (pre-optim)
-     * Exception: if choosing the tap that is not the closest one to the optimal angle does not improve the margin
-     * enough (current threshold of 10%), then the closest tap is kept
+     * If virtual costs are an important part of the optimization, it is highly recommended to use APPROXIMATED_INTEGERS
+     * taps in the linear optimization, rather than relying on the best tap finder to round the taps.
      *
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
@@ -52,12 +51,11 @@ public final class BestTapFinder {
                                                     Network network,
                                                     OptimizationPerimeter optimizationContext,
                                                     RangeActionSetpointResult prePerimeterSetpoint,
-                                                    List<FlowCnec> mostLimitingCnecs,
-                                                    FlowResult flowResult,
-                                                    SensitivityResult sensitivityResult) {
+                                                    LinearOptimizationResult linearOptimizationResult,
+                                                    Unit unit) {
 
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
-        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, mostLimitingCnecs, flowResult, sensitivityResult, roundedResult);
+        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
         roundOtherRa(linearProblemResult, optimizationContext, roundedResult);
         return roundedResult;
     }
@@ -65,10 +63,9 @@ public final class BestTapFinder {
     private static void findBestTapOfPstRangeActions(RangeActionActivationResult linearProblemResult,
                                                      Network network,
                                                      OptimizationPerimeter optimizationContext,
-                                                     List<FlowCnec> mostLimitingCnecs,
-                                                     FlowResult flowResult,
-                                                     SensitivityResult sensitivityResult,
-                                                     RangeActionActivationResultImpl roundedResult) {
+                                                     LinearOptimizationResult linearOptimizationResult,
+                                                     RangeActionActivationResultImpl roundedResult,
+                                                     Unit unit) {
 
         for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 
@@ -77,7 +74,7 @@ public final class BestTapFinder {
             optimizationContext.getRangeActionsPerState().get(state).stream()
                 .filter(PstRangeAction.class::isInstance)
                 .map(PstRangeAction.class::cast)
-                .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), mostLimitingCnecs, flowResult, sensitivityResult)));
+                .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), linearOptimizationResult, unit)));
 
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
@@ -139,20 +136,18 @@ public final class BestTapFinder {
      * the closest tap is returned. The margin is not computed but replaced with Double.MAX_VALUE
      * - if the angle is not close enough to the limit between two tap positions, only the closest tap is returned
      * with a Double.MAX_VALUE margin
-     * - if the second closest tap position does not improve the margin enough (10% threshold), then only the closest
-     * tap is returned with a Double.MAX_VALUE margin
      *
-     * @param pstRangeAction:    the PstRangeAction for which we need the best taps and margins
-     * @param angle:             the optimal angle computed by the linear problem
-     * @param mostLimitingCnecs: the cnecs upon which we compute the minimum margin
+     * @param pstRangeAction:           the PstRangeAction for which we need the best taps and margins
+     * @param angle:                    the optimal angle computed by the linear problem
+     * @param linearOptimizationResult: allows to get flow & sensitivity values, as well as most limiting flow CNECs
+     * @param unit:                     the unit of the evaluators (MW or A)
      * @return a map containing the minimum margin for each best tap position (one or two taps)
      */
     static Map<Integer, Double> computeMinMarginsForBestTaps(Network network,
                                                              PstRangeAction pstRangeAction,
                                                              double angle,
-                                                             List<FlowCnec> mostLimitingCnecs,
-                                                             FlowResult flowResult,
-                                                             SensitivityResult sensitivityResult) {
+                                                             LinearOptimizationResult linearOptimizationResult,
+                                                             Unit unit) {
         int closestTap = pstRangeAction.convertAngleToTap(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
 
@@ -168,12 +163,8 @@ public final class BestTapFinder {
         if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.15) {
             // Angle is too close to the limit between two tap positions
             // Chose the tap that maximizes the margin on the most limiting element
-            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, mostLimitingCnecs, closestAngle, otherAngle, flowResult, sensitivityResult);
-            // Exception: if choosing the tap that is not the closest one to the optimal angle does not improve the margin
-            // enough (current threshold of 10%), then only the closest tap is kept
-            // This is actually a workaround that mitigates adverse effects of this rounding on virtual costs
-            // TODO : we can remove it when we use cost evaluators directly here
-            if (margins.getRight() > margins.getLeft() + 0.1 * Math.abs(margins.getLeft())) {
+            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, closestAngle, otherAngle, linearOptimizationResult, unit);
+            if (margins.getRight() > margins.getLeft()) {
                 return Map.of(closestTap, margins.getLeft(), otherTap, margins.getRight());
             }
         }
@@ -228,27 +219,27 @@ public final class BestTapFinder {
     /**
      * This method estimates the minimum margin upon a given set of cnecs, for two angles of a given PST
      *
-     * @param pstRangeAction: the PstRangeAction that we should test on two angles
-     * @param flowCnecs:      the set of cnecs to compute the minimum margin
-     * @param angle1:         the first angle for the PST
-     * @param angle2:         the second angle for the PST
+     * @param pstRangeAction:           the PstRangeAction that we should test on two angles
+     * @param angle1:                   the first angle for the PST
+     * @param angle2:                   the second angle for the PST
+     * @param linearOptimizationResult: allows to get flow & sensitivity values, as well as most limiting flow CNECs
+     * @param unit:                     the unit of the evalutors (MW or A)
      * @return a pair of two minimum margins (margin for angle1, margin for angle2)
      */
     static Pair<Double, Double> computeMinMargins(Network network,
                                                   PstRangeAction pstRangeAction,
-                                                  List<FlowCnec> flowCnecs,
                                                   double angle1,
                                                   double angle2,
-                                                  FlowResult flowResult,
-                                                  SensitivityResult sensitivityResult) {
+                                                  LinearOptimizationResult linearOptimizationResult,
+                                                  Unit unit) {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
-        for (FlowCnec flowCnec : flowCnecs) {
+        for (FlowCnec flowCnec : linearOptimizationResult.getMostLimitingElements(10)) {
             for (Side side : flowCnec.getMonitoredSides()) {
                 // TODO : test new behaviour with sides
-                double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
+                double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
-                double referenceFlow = flowResult.getFlow(flowCnec, side, MEGAWATT);
+                double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
 
                 double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
                 double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
