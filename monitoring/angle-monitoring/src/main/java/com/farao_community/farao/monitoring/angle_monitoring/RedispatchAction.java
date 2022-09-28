@@ -47,7 +47,6 @@ public class RedispatchAction {
         for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
             List<GlskRegisteredResource> filteredRegisteredResourceList = new ArrayList<>(glskShiftKey.getRegisteredResourceArrayList());
             for (GlskRegisteredResource glskRegisteredResource : glskShiftKey.getRegisteredResourceArrayList()) {
-                // PROBLEM : all contain only 1 registeredResource
                 if (networkElementsToBeExcluded.contains(glskRegisteredResource.getmRID())) {
                     glskRegisteredResource.setmRID("UNKNOWN ID - TEMPORARY FILTERING");
                 }

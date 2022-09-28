@@ -31,19 +31,6 @@
 					<mktPSRType.psrType>A01</mktPSRType.psrType>
 					<flowDirection.direction>A01</flowDirection.direction>
 					<measurement_Unit.name>MAW</measurement_Unit.name>
-					<attributeInstanceComponent.position>1</attributeInstanceComponent.position>
-					<RegisteredResource>
-						<mRID codingScheme="A02">_3a3b27be-b18b-4385-b557-6735d733baf0</mRID>
-						<name>FFR1AA1 _generator</name>
-						<resourceCapacity.maximumCapacity>2001</resourceCapacity.maximumCapacity>
-						<resourceCapacity.minimumCapacity>-401</resourceCapacity.minimumCapacity>
-					</RegisteredResource>
-				</SKBlock_TimeSeries>
-				<SKBlock_TimeSeries>
-					<businessType>B45</businessType>
-					<mktPSRType.psrType>A01</mktPSRType.psrType>
-					<flowDirection.direction>A01</flowDirection.direction>
-					<measurement_Unit.name>MAW</measurement_Unit.name>
 					<attributeInstanceComponent.position>2</attributeInstanceComponent.position>
 					<RegisteredResource>
 						<mRID codingScheme="A02">_550ebe0d-f2b2-48c1-991f-cebea43a21aa</mRID>
