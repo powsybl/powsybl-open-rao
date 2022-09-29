@@ -45,7 +45,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
-        jsonGenerator.writeObjectField("unoptimized-cnecs-in-series-with-psts", searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPsts());
+        jsonGenerator.writeObjectField("unoptimized-cnecs-in-series-with-psts", searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds());
         jsonGenerator.writeObjectField("second-preventive-optimization-condition", searchTreeRaoParameters.getSecondPreventiveOptimizationCondition());
         jsonGenerator.writeBooleanField("global-opt-in-second-preventive", searchTreeRaoParameters.isGlobalOptimizationInSecondPreventive());
         jsonGenerator.writeBooleanField("second-preventive-hint-from-first-preventive", searchTreeRaoParameters.isSecondPreventiveHintFromFirstPreventive());
@@ -127,7 +127,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                     break;
                 case "unoptimized-cnecs-in-series-with-psts":
                     jsonParser.nextToken();
-                    parameters.setUnoptimizedCnecsInSeriesWithPsts(readStringToStringMap(jsonParser));
+                    parameters.setUnoptimizedCnecsInSeriesWithPstsIds(readStringToStringMap(jsonParser));
                     break;
                 case "second-preventive-optimization-condition":
                     parameters.setSecondPreventiveOptimizationCondition(getSecondPreventiveRaoConditionFromString(jsonParser.nextTextValue()));
