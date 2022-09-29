@@ -6,9 +6,10 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-/*import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
@@ -31,15 +32,15 @@ import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;*/
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-//@RunWith(PowerMockRunner.class)
+@RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
-    /*private LinearProblem linearProblem;
+    private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
 
@@ -89,7 +90,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         buildLinearProblem();
 
-        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
@@ -97,8 +98,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertNotNull(minimumMargin);
 
         // check minimum margin constraints
-        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -131,7 +132,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.AMPERE);
         buildLinearProblem();
 
-        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
@@ -139,8 +140,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertNotNull(minimumMargin);
 
         // check minimum margin constraints
-        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        MPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-LinearProblem.infinity(), cnec1BelowThreshold.lb(), DOUBLE_TOLERANCE);
@@ -192,9 +193,9 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         // FlowVariables present , but not the absoluteRangeActionVariables present,
         // This should work since range actions can be filtered out by the CoreProblemFiller if their number
         // exceeds the max-pst-per-tso parameter
-        linearProblem.addFlowVariable(0.0, 0.0, cnec1);
-        linearProblem.addFlowVariable(0.0, 0.0, cnec2);
+        linearProblem.addFlowVariable(0.0, 0.0, cnec1, Side.LEFT);
+        linearProblem.addFlowVariable(0.0, 0.0, cnec2, Side.RIGHT);
         linearProblem.fill(flowResult, sensitivityResult);
-    }*/
+    }
 }
 

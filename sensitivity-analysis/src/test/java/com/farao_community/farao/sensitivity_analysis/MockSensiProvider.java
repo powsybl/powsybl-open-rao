@@ -77,6 +77,23 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                         default:
                             throw new AssertionError();
                     }
+                } else if (variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
+                    switch (functionType) {
+                        case BRANCH_ACTIVE_POWER_1:
+                            sensitivityResultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.34, 30);
+                            break;
+                        case BRANCH_ACTIVE_POWER_2:
+                            sensitivityResultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.35, 35);
+                            break;
+                        case BRANCH_CURRENT_1:
+                            sensitivityResultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.44, 40);
+                            break;
+                        case BRANCH_CURRENT_2:
+                            sensitivityResultWriter.writeSensitivityValue(factorIndex.get(), -1, 0.49, 45);
+                            break;
+                        default:
+                            throw new AssertionError();
+                    }
                 } else {
                     throw new AssertionError();
                 }
@@ -119,6 +136,23 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                                 break;
                             case BRANCH_CURRENT_2:
                                 sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 17, 45);
+                                break;
+                            default:
+                                throw new AssertionError();
+                        }
+                    } else if (variableType == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER) {
+                        switch (functionType) {
+                            case BRANCH_ACTIVE_POWER_1:
+                                sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 7, -25);
+                                break;
+                            case BRANCH_ACTIVE_POWER_2:
+                                sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 7.5, -26);
+                                break;
+                            case BRANCH_CURRENT_1:
+                                sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 8, -30);
+                                break;
+                            case BRANCH_CURRENT_2:
+                                sensitivityResultWriter.writeSensitivityValue(factorIndexContingency.get(), finalContingencyIndex, 8.5, -31);
                                 break;
                             default:
                                 throw new AssertionError();

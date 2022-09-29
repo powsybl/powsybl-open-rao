@@ -105,7 +105,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         // the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, MEGAWATT);
+            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, MEGAWATT);
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             if (flowVariable == null) {

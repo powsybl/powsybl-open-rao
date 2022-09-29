@@ -7,8 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-/*import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -18,13 +17,15 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;*/
+import static org.powermock.api.mockito.PowerMockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.commons.Unit.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class SensitivityResultImplTest {
-    /*private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
     public void testSensitivitiesOnRangeAction() {
@@ -33,18 +34,16 @@ public class SensitivityResultImplTest {
                 systematicSensitivityResult
         );
 
-        RangeAction rangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(8.);
-        when(systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(10.);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec, LEFT)).thenReturn(8.);
 
-        assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(10, sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.KILOVOLT));
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.DEGREE));
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.PERCENT_IMAX));
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.TAP));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, KILOVOLT));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
     }
 
     @Test
@@ -56,10 +55,10 @@ public class SensitivityResultImplTest {
 
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec)).thenReturn(8.);
+        when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec, LEFT)).thenReturn(8.);
 
-        assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, linearGlsk, Unit.AMPERE));
+        assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, AMPERE));
     }
 
     @Test
@@ -75,5 +74,5 @@ public class SensitivityResultImplTest {
         assertEquals(ComputationStatus.FALLBACK, sensitivityResultImpl.getSensitivityStatus());
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, sensitivityResultImpl.getSensitivityStatus());
-    }*/
+    }
 }

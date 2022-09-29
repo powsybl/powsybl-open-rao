@@ -315,20 +315,20 @@ public final class LinearProblem {
     }
 
     //Begin MaxLoopFlowFiller section
-    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, BoundExtension lbOrUb) {
-        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, lbOrUb));
+    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, Side side, BoundExtension lbOrUb) {
+        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, side, lbOrUb));
     }
 
-    public MPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, BoundExtension lbOrUb) {
-        return solver.getConstraint(maxLoopFlowConstraintId(cnec, lbOrUb));
+    public MPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, Side side, BoundExtension lbOrUb) {
+        return solver.getConstraint(maxLoopFlowConstraintId(cnec, side, lbOrUb));
     }
 
-    public MPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec) {
-        return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec));
+    public MPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, Side side) {
+        return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec, side));
     }
 
-    public MPVariable getLoopflowViolationVariable(FlowCnec cnec) {
-        return solver.getVariable(loopflowViolationVariableId(cnec));
+    public MPVariable getLoopflowViolationVariable(FlowCnec cnec, Side side) {
+        return solver.getVariable(loopflowViolationVariableId(cnec, side));
     }
 
     public MPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, Side side) {

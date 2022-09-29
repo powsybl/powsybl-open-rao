@@ -7,13 +7,13 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-/*import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -39,13 +39,16 @@ import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;*/
+import static org.mockito.Mockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.farao_community.farao.commons.Unit.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PreventiveAndCurativesRaoResultImplTest {
-    /*private static final double DOUBLE_TOLERANCE = 1e-3;
+    private static final double DOUBLE_TOLERANCE = 1e-3;
     private PrePerimeterResult initialResult;
     private PerimeterResult postPrevResult;
     private PrePerimeterResult preCurativeResult;
@@ -204,11 +207,11 @@ public class PreventiveAndCurativesRaoResultImplTest {
     }
 
     private void mockCnecResults(FlowResult flowResult, FlowCnec cnec, double marginMw, double marginA, double relMarginMw, double relMarginA) {
-        when(flowResult.getMargin(cnec, Unit.MEGAWATT)).thenReturn(marginMw);
-        when(flowResult.getMargin(cnec, Unit.AMPERE)).thenReturn(marginA);
-        when(flowResult.getRelativeMargin(cnec, Unit.MEGAWATT)).thenReturn(relMarginMw);
-        when(flowResult.getRelativeMargin(cnec, Unit.AMPERE)).thenReturn(relMarginA);
-        when(flowResult.getPtdfZonalSum(cnec)).thenReturn(1.);
+        when(flowResult.getMargin(cnec, MEGAWATT)).thenReturn(marginMw);
+        when(flowResult.getMargin(cnec, AMPERE)).thenReturn(marginA);
+        when(flowResult.getRelativeMargin(cnec, MEGAWATT)).thenReturn(relMarginMw);
+        when(flowResult.getRelativeMargin(cnec, AMPERE)).thenReturn(relMarginA);
+        when(flowResult.getPtdfZonalSum(cnec, Side.LEFT)).thenReturn(1.);
     }
 
     private void mockVirtualCosts(ObjectiveFunctionResult objectiveFunctionResult, double virtualCost, double mnecCost, List<FlowCnec> mnecCostlyElements, double lfCost, List<FlowCnec> lfCostlyElements) {
@@ -451,70 +454,70 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     public void testGetFlow() {
-        when(initialResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
-        assertEquals(10., output.getFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getFlow(AFTER_CRA, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetMargin() {
-        when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
-        assertEquals(10., output.getMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getMargin(AFTER_PRA, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getMargin(AFTER_CRA, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetRelativeMargin() {
-        when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getRelativeMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
-        assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getRelativeMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getRelativeMargin(AFTER_CRA, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetCommercialFlow() {
-        when(initialResult.getCommercialFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getCommercialFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(curativeResult1.getCommercialFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getCommercialFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(curativeResult1.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState1);
-        assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getCommercialFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getCommercialFlow(AFTER_CRA, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetLoopFlow() {
-        when(initialResult.getLoopFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getLoopFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(curativeResult2.getFlow(cnec3, Unit.MEGAWATT)).thenReturn(90.);
-        when(curativeResult2.getCommercialFlow(cnec3, Unit.MEGAWATT)).thenReturn(60.);
+        when(initialResult.getLoopFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(curativeResult2.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(90.);
+        when(curativeResult2.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(60.);
         when(cnec3.getState()).thenReturn(curativeState2);
-        assertEquals(10., output.getLoopFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getLoopFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getLoopFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getLoopFlow(AFTER_CRA, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetPtdfZonalSum() {
-        when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(10.);
-        when(postPrevResult.getPtdfZonalSum(cnec2)).thenReturn(20.);
-        when(autoResult1.getPtdfZonalSum(cnec1auto)).thenReturn(25.);
-        when(curativeResult2.getPtdfZonalSum(cnec3)).thenReturn(30.);
+        when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(10.);
+        when(postPrevResult.getPtdfZonalSum(cnec2, RIGHT)).thenReturn(20.);
+        when(autoResult1.getPtdfZonalSum(cnec1auto, LEFT)).thenReturn(25.);
+        when(curativeResult2.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
-        assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1, LEFT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -522,11 +525,11 @@ public class PreventiveAndCurativesRaoResultImplTest {
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(Instant.OUTAGE);
 
-        when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(1.);
-        when(postPrevResult.getPtdfZonalSum(cnec1)).thenReturn(2.);
-        when(autoResult1.getPtdfZonalSum(cnec1)).thenReturn(3.);
-        when(curativeResult1.getPtdfZonalSum(cnec1)).thenReturn(4.);
-        when(curativeResult2.getPtdfZonalSum(cnec1)).thenReturn(5.);
+        when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(1.);
+        when(postPrevResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(2.);
+        when(autoResult1.getPtdfZonalSum(cnec1, LEFT)).thenReturn(3.);
+        when(curativeResult1.getPtdfZonalSum(cnec1, LEFT)).thenReturn(4.);
+        when(curativeResult2.getPtdfZonalSum(cnec1, LEFT)).thenReturn(5.);
 
         PerimeterResult perimeterResult;
 
@@ -539,23 +542,23 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // AFTER_PRA
         perimeterResult = output.getPerimeterResult(AFTER_PRA, preventiveState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, outageState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, autoState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, curativeState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, curativeState2);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
         // AFTER_ARA
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_ARA, preventiveState));
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_ARA, outageState));
         perimeterResult = output.getPerimeterResult(AFTER_ARA, autoState1);
-        assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_ARA, curativeState1);
-        assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         assertNull(output.getPerimeterResult(AFTER_ARA, curativeState2));
 
         // AFTER_CRA
@@ -563,9 +566,9 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, outageState));
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, autoState1));
         perimeterResult = output.getPerimeterResult(AFTER_CRA, curativeState1);
-        assertEquals(4., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(4., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_CRA, curativeState2);
-        assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -699,58 +702,58 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState3));
 
         // Test get flow
-        when(initialResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
-        assertEquals(10., output.getFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getFlow(AFTER_CRA, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get margin
-        when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
-        assertEquals(10., output.getMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getMargin(AFTER_PRA, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getMargin(AFTER_CRA, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get relative margin
-        when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getRelativeMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
-        assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getRelativeMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getRelativeMargin(AFTER_CRA, cnec3, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get commercial flow
-        when(initialResult.getCommercialFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getCommercialFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getCommercialFlow(cnec3, Unit.MEGAWATT)).thenReturn(25.);
+        when(initialResult.getCommercialFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState1);
-        assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(25., output.getCommercialFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(25., output.getCommercialFlow(AFTER_CRA, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get loopflow
-        when(initialResult.getLoopFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getLoopFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
-        when(postPrevResult.getLoopFlow(cnec3, Unit.MEGAWATT)).thenReturn(25.);
+        when(initialResult.getLoopFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(postPrevResult.getLoopFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState2);
-        assertEquals(10., output.getLoopFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(25., output.getLoopFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getLoopFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(25., output.getLoopFlow(AFTER_CRA, cnec3, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         // Test get ptdf zonal sum
-        when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(10.);
-        when(postPrevResult.getPtdfZonalSum(cnec2)).thenReturn(20.);
-        when(postPrevResult.getPtdfZonalSum(cnec3)).thenReturn(30.);
+        when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(10.);
+        when(postPrevResult.getPtdfZonalSum(cnec2, RIGHT)).thenReturn(20.);
+        when(postPrevResult.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
-        assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1), DOUBLE_TOLERANCE);
-        assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2), DOUBLE_TOLERANCE);
-        assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3), DOUBLE_TOLERANCE);
+        assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1, LEFT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -761,11 +764,11 @@ public class PreventiveAndCurativesRaoResultImplTest {
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(Instant.OUTAGE);
 
-        when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(1.);
-        when(postPrevResult.getPtdfZonalSum(cnec1)).thenReturn(2.);
-        when(autoResult1.getPtdfZonalSum(cnec1)).thenReturn(3.);
-        when(curativeResult1.getPtdfZonalSum(cnec1)).thenReturn(4.);
-        when(curativeResult2.getPtdfZonalSum(cnec1)).thenReturn(5.);
+        when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(1.);
+        when(postPrevResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(2.);
+        when(autoResult1.getPtdfZonalSum(cnec1, LEFT)).thenReturn(3.);
+        when(curativeResult1.getPtdfZonalSum(cnec1, LEFT)).thenReturn(4.);
+        when(curativeResult2.getPtdfZonalSum(cnec1, LEFT)).thenReturn(5.);
 
         PerimeterResult perimeterResult;
 
@@ -778,15 +781,15 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // AFTER_PRA
         perimeterResult = output.getPerimeterResult(AFTER_PRA, preventiveState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, outageState);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, autoState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, curativeState1);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_PRA, curativeState2);
-        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
 
         // AFTER_ARA
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_ARA, preventiveState));
@@ -863,5 +866,5 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(56., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(AFTER_CRA, "mnec", 100));
         assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_CRA, "lf", 100));
-    }*/
+    }
 }

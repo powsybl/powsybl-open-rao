@@ -57,6 +57,11 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     }
 
     @Override
+    public double getRelativeMargin(FlowCnec flowCnec, Side side, Unit unit) {
+        return flowResult.getRelativeMargin(flowCnec, side, unit);
+    }
+
+    @Override
     public double getLoopFlow(FlowCnec flowCnec, Side side, Unit unit) {
         return flowResult.getLoopFlow(flowCnec, side, unit);
     }

@@ -148,12 +148,12 @@ public final class LinearProblemIdGenerator {
         return MIN_RELATIVE_MARGIN + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxLoopFlowConstraintId(FlowCnec flowCnec, LinearProblem.BoundExtension lbOrUb) {
-        return flowCnec.getId() + SEPARATOR + MAX_LOOPFLOW + lbOrUb.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxLoopFlowConstraintId(FlowCnec flowCnec, Side side, LinearProblem.BoundExtension lbOrUb) {
+        return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), MAX_LOOPFLOW, lbOrUb.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
-    public static String loopflowViolationVariableId(FlowCnec flowCnec) {
-        return flowCnec.getId() + SEPARATOR + LOOPFLOWVIOLATION + SEPARATOR + VARIABLE_SUFFIX;
+    public static String loopflowViolationVariableId(FlowCnec flowCnec, Side side) {
+        return String.join(SEPARATOR, flowCnec.getId(), side.toString().toLowerCase(), LOOPFLOWVIOLATION, VARIABLE_SUFFIX);
     }
 
     public static String mnecViolationVariableId(FlowCnec mnec, Side side) {

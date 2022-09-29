@@ -84,15 +84,15 @@ public class SystematicSensitivityResultTest {
         // Before postTreating intensities
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(200, result.getReferenceIntensity(contingencyCnec, Side.LEFT), EPSILON);
-        assertEquals(-25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
         assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
 
         // After postTreating intensities
         result.postTreatIntensities();
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(-200, result.getReferenceIntensity(contingencyCnec, Side.LEFT), EPSILON);
-        assertEquals(-25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(-205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
     }
 
     @Test
@@ -112,17 +112,17 @@ public class SystematicSensitivityResultTest {
         assertEquals(10, result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(25, result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec, Side.LEFT), EPSILON);
-        assertEquals(15, result.getReferenceFlow(nStateCnec, Side.RIGHT), EPSILON);
-        assertEquals(30, result.getReferenceIntensity(nStateCnec, Side.RIGHT), EPSILON);
-        assertEquals(0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, Side.RIGHT), EPSILON);
+        assertEquals(-15, result.getReferenceFlow(nStateCnec, Side.RIGHT), EPSILON);
+        assertEquals(-30, result.getReferenceIntensity(nStateCnec, Side.RIGHT), EPSILON);
+        assertEquals(-0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, Side.RIGHT), EPSILON);
 
         //  after contingency
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(-200, result.getReferenceIntensity(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, Side.LEFT), EPSILON);
-        assertEquals(-25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(-205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(-5.5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(5.5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, Side.RIGHT), EPSILON);
     }
 
     @Test
@@ -141,14 +141,14 @@ public class SystematicSensitivityResultTest {
         //  in basecase
         assertEquals(10, result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(0.140, result.getSensitivityOnFlow(linearGlsk, nStateCnec, Side.LEFT), EPSILON);
-        assertEquals(15, result.getReferenceFlow(nStateCnec, Side.RIGHT), EPSILON);
-        assertEquals(0.19, result.getSensitivityOnFlow(linearGlsk, nStateCnec, Side.RIGHT), EPSILON);
+        assertEquals(-15, result.getReferenceFlow(nStateCnec, Side.RIGHT), EPSILON);
+        assertEquals(-0.19, result.getSensitivityOnFlow(linearGlsk, nStateCnec, Side.RIGHT), EPSILON);
 
         //  after contingency
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, Side.LEFT), EPSILON);
         assertEquals(6, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, Side.LEFT), EPSILON);
-        assertEquals(-25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(6.5, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(-6.5, result.getSensitivityOnFlow(linearGlsk, contingencyCnec, Side.RIGHT), EPSILON);
     }
 
     @Test
@@ -209,9 +209,9 @@ public class SystematicSensitivityResultTest {
         assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT), EPSILON);
 
-        assertEquals(-25., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(30., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(26., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(-7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT), EPSILON);
     }
 
     @Test
@@ -233,9 +233,9 @@ public class SystematicSensitivityResultTest {
         assertEquals(40., result.getReferenceIntensity(nStateCnec, Side.LEFT), EPSILON);
         assertEquals(-0.34, result.getSensitivityOnFlow(hvdcRangeAction, nStateCnec, Side.LEFT), EPSILON);
 
-        assertEquals(-25., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(30., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
-        assertEquals(-7., result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(26., result.getReferenceFlow(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(-31., result.getReferenceIntensity(contingencyCnec, Side.RIGHT), EPSILON);
+        assertEquals(7.5, result.getSensitivityOnFlow(hvdcRangeAction, contingencyCnec, Side.RIGHT), EPSILON);
     }
 
 }

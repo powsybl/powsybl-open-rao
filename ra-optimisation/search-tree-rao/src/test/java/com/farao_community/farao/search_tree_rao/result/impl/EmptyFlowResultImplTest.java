@@ -7,25 +7,30 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-/*import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertTrue;*/
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class EmptyFlowResultImplTest {
-    /*@Test
+    @Test
     public void testBasicReturns() {
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         EmptyFlowResultImpl branchResult = new EmptyFlowResultImpl();
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Unit.AMPERE)));
-        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Unit.MEGAWATT)));
-        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec)));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.RIGHT, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)));
+        assertTrue(Double.isNaN(branchResult.getFlow(cnec, Side.RIGHT, Unit.AMPERE)));
+        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Side.RIGHT, Unit.MEGAWATT)));
+        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, Side.LEFT)));
+        assertTrue(Double.isNaN(branchResult.getPtdfZonalSum(cnec, Side.RIGHT)));
         assertTrue(branchResult.getPtdfZonalSums().isEmpty());
-    }*/
+    }
 }

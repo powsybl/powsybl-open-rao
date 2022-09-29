@@ -98,7 +98,7 @@ public abstract class AbstractOptimizationPerimeterTest {
             .withOptimized(true)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(Side.LEFT).add()
             .add();
-        oCnec2.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
+        cCnec2.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.MEGAWATT).withValue(100.).add();
 
         // one preventive range action and one curative
         pRA = crac.newInjectionRangeAction().withId("preventive-ra")

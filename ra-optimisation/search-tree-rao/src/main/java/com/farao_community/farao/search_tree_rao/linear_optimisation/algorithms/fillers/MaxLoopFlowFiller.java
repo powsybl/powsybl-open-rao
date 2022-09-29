@@ -108,26 +108,30 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
                     LinearProblem.infinity(),
-                    cnec
+                    cnec,
+                    side
                 );
 
                 // build constraint which defines the loopFlow :
                 // - MaxLoopFlow + commercialFlow <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
                 // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
+                // loopflowViolationVariable is divided by number of monitored sides to not increase its effect on the objective function
 
                 MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     LinearProblem.infinity(),
                     cnec,
+                    side,
                     LinearProblem.BoundExtension.LOWER_BOUND
                 );
                 positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
-                positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
+                positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1.0 / cnec.getMonitoredSides().size());
 
                 MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -LinearProblem.infinity(),
                     loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     cnec,
+                    side,
                     LinearProblem.BoundExtension.UPPER_BOUND
                 );
                 negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
@@ -150,20 +154,19 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
         for (FlowCnec loopFlowCnec : getLoopFlowCnecs()) {
             for (Side side : loopFlowCnec.getMonitoredSides()) {
-
                 double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec, side);
                 if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
                     continue;
                 }
                 double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, side, Unit.MEGAWATT);
 
-                MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.LOWER_BOUND);
+                MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.LOWER_BOUND);
                 if (positiveLoopflowViolationConstraint == null) {
                     throw new FaraoException(String.format("Positive LoopFlow violation constraint on %s (side %s) has not been defined yet.", loopFlowCnec.getId(), side));
                 }
                 positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
 
-                MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.UPPER_BOUND);
+                MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.UPPER_BOUND);
                 if (negativeLoopflowViolationConstraint == null) {
                     throw new FaraoException(String.format("Negative LoopFlow violation constraint on %s (side %s) has not been defined yet.", loopFlowCnec.getId(), side));
                 }
