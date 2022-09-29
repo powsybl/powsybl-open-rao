@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.parameters;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -55,6 +56,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
     static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
+    static final Map<String, String> DEFAULT_UNOPTIMIZED_CNECS_IN_SERIES_WITH_PSTS = new HashMap<>();
     static final SecondPreventiveRaoCondition DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = SecondPreventiveRaoCondition.DISABLED;
     static final boolean DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE = false;
     static final List<List<String>> DEFAULT_NETWORK_ACTION_ID_COMBINATIONS = new ArrayList<>();
@@ -76,6 +78,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
+    private Map<String, String> unoptimizedCnecsInSeriesWithPsts = DEFAULT_UNOPTIMIZED_CNECS_IN_SERIES_WITH_PSTS;
     private SecondPreventiveRaoCondition secondPreventiveOptimizationCondition = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
     private boolean globalOptimizationInSecondPreventive = DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE;
     private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
@@ -250,7 +253,25 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setCurativeRaoOptimizeOperatorsNotSharingCras(boolean curativeRaoOptimizeOperatorsNotSharingCras) {
+        if (!getUnoptimizedCnecsInSeriesWithPsts().isEmpty()) {
+            throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
+        }
         this.curativeRaoOptimizeOperatorsNotSharingCras = curativeRaoOptimizeOperatorsNotSharingCras;
+    }
+
+    public Map<String, String> getUnoptimizedCnecsInSeriesWithPsts() {
+        return unoptimizedCnecsInSeriesWithPsts;
+    }
+
+    public void setUnoptimizedCnecsInSeriesWithPsts(Map<String, String> unoptimizedCnecsInSeriesWithPsts) {
+        if (!getCurativeRaoOptimizeOperatorsNotSharingCras()) {
+            throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
+        }
+        if (Objects.isNull(unoptimizedCnecsInSeriesWithPsts)) {
+            this.unoptimizedCnecsInSeriesWithPsts = new HashMap<>();
+        } else {
+            this.unoptimizedCnecsInSeriesWithPsts = unoptimizedCnecsInSeriesWithPsts;
+        }
     }
 
     public SecondPreventiveRaoCondition getSecondPreventiveOptimizationCondition() {

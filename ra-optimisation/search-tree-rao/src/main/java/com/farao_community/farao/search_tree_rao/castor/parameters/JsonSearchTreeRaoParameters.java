@@ -45,6 +45,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
+        jsonGenerator.writeObjectField("unoptimized-cnecs-in-series-with-psts", searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPsts());
         jsonGenerator.writeObjectField("second-preventive-optimization-condition", searchTreeRaoParameters.getSecondPreventiveOptimizationCondition());
         jsonGenerator.writeBooleanField("global-opt-in-second-preventive", searchTreeRaoParameters.isGlobalOptimizationInSecondPreventive());
         jsonGenerator.writeBooleanField("second-preventive-hint-from-first-preventive", searchTreeRaoParameters.isSecondPreventiveHintFromFirstPreventive());
@@ -124,6 +125,10 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "curative-rao-optimize-operators-not-sharing-cras":
                     parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(jsonParser.getValueAsBoolean());
                     break;
+                case "unoptimized-cnecs-in-series-with-psts":
+                    jsonParser.nextToken();
+                    parameters.setUnoptimizedCnecsInSeriesWithPsts(readStringToStringMap(jsonParser));
+                    break;
                 case "second-preventive-optimization-condition":
                     parameters.setSecondPreventiveOptimizationCondition(getSecondPreventiveRaoConditionFromString(jsonParser.nextTextValue()));
                     break;
@@ -153,6 +158,17 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
             }
             if ((int) o2 < 0) {
                 throw new FaraoException("Unexpected negative integer!");
+            }
+        });
+        return map;
+    }
+
+    private Map<String, String> readStringToStringMap(JsonParser jsonParser) throws IOException {
+        HashMap<String, String> map = jsonParser.readValueAs(HashMap.class);
+        // Check types
+        map.forEach((Object o, Object o2) -> {
+            if (!(o instanceof String) || !(o2 instanceof String)) {
+                throw new FaraoException("Unexpected key or value type in a Map<String, String> parameter!");
             }
         });
         return map;

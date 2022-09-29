@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.parameters;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +81,9 @@ public class SearchTreeRaoParametersTest {
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
 
+        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPsts());
+        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPsts().isEmpty());
+
         // using setters
         parameters.setMaxCurativeRaPerTso(Map.of("fr", 2));
         parameters.setMaxCurativeRaPerTso(null);
@@ -94,6 +99,11 @@ public class SearchTreeRaoParametersTest {
         parameters.setMaxCurativeTopoPerTso(null);
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
+
+        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+        parameters.setUnoptimizedCnecsInSeriesWithPsts(null);
+        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPsts());
+        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPsts().isEmpty());
     }
 
     @Test
@@ -150,5 +160,36 @@ public class SearchTreeRaoParametersTest {
         parameters.setMaxCurativeTso(2);
         parameters.setMaxCurativeTso(-2);
         assertEquals(0, parameters.getMaxCurativeTso());
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testIncompatibleParameters1() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testIncompatibleParameters2() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+    }
+
+    @Test
+    public void testIncompatibleParameters3() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
+        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+        assertEquals(Map.of("cnec1", "pst1"), parameters.getUnoptimizedCnecsInSeriesWithPsts());
+    }
+
+    @Test
+    public void testIncompatibleParameters4() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setUnoptimizedCnecsInSeriesWithPsts(null);
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+        assertEquals(Collections.emptyMap(), parameters.getUnoptimizedCnecsInSeriesWithPsts());
+
     }
 }

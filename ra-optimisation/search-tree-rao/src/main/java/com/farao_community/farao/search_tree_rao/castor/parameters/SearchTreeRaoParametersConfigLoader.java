@@ -40,11 +40,13 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             parameters.setCurativeRaoMinObjImprovement(config.getDoubleProperty("curative-rao-min-obj-improvement", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT));
             parameters.setMaxCurativeRa(config.getIntProperty("max-curative-ra", SearchTreeRaoParameters.DEFAULT_MAX_CURATIVE_RA));
             parameters.setMaxCurativeTso(config.getIntProperty("max-curative-tso", SearchTreeRaoParameters.DEFAULT_MAX_CURATIVE_TSO));
-            // TODO : read the following three parameters when it's possible in ModuleConfig
+            // TODO : read the following four parameters when it's possible in ModuleConfig
             logMapReadError(config, "max-curative-topo-per-tso");
             logMapReadError(config, "max-curative-pst-per-tso");
             logMapReadError(config, "max-curative-ra-per-tso");
+            logMapReadError(config, "unoptimized-cnecs-in-series-with-psts");
             parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(config.getBooleanProperty("curative-rao-optimize-operators-not-sharing-cras", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS));
+
             parameters.setSecondPreventiveOptimizationCondition(config.getEnumProperty("second-preventive-optimization-condition", SearchTreeRaoParameters.SecondPreventiveRaoCondition.class, SearchTreeRaoParameters.DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION));
             parameters.setGlobalOptimizationInSecondPreventive(config.getBooleanProperty("global-opt-in-second-preventive", SearchTreeRaoParameters.DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE));
             parameters.setSecondPreventiveHintFromFirstPreventive(config.getBooleanProperty("second-preventive-hint-from-first-preventive", SearchTreeRaoParameters.DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE));
