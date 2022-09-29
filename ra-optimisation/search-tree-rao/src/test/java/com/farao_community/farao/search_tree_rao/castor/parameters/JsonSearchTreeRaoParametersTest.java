@@ -38,7 +38,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeTso(2);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("RTE", 5));
         parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
-        parameters.getExtension(SearchTreeRaoParameters.class).setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+        parameters.getExtension(SearchTreeRaoParameters.class).setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
         parameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getExtension(SearchTreeRaoParameters.class).setGlobalOptimizationInSecondPreventive(true);
         parameters.getExtension(SearchTreeRaoParameters.class).setNetworkActionIdCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
@@ -72,7 +72,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
         assertFalse(extension.getCurativeRaoOptimizeOperatorsNotSharingCras());
-        assertTrue(extension.getUnoptimizedCnecsInSeriesWithPsts().isEmpty());
+        assertTrue(extension.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty());
         assertEquals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE, extension.getSecondPreventiveOptimizationCondition());
         assertTrue(extension.isSecondPreventiveHintFromFirstPreventive());
 

@@ -7,10 +7,16 @@
 package com.farao_community.farao.search_tree_rao.castor.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
@@ -24,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -81,8 +86,8 @@ public class SearchTreeRaoParametersTest {
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
 
-        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPsts());
-        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPsts().isEmpty());
+        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
+        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty());
 
         // using setters
         parameters.setMaxCurativeRaPerTso(Map.of("fr", 2));
@@ -100,10 +105,10 @@ public class SearchTreeRaoParametersTest {
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
 
-        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
-        parameters.setUnoptimizedCnecsInSeriesWithPsts(null);
-        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPsts());
-        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPsts().isEmpty());
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(null);
+        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
+        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty());
     }
 
     @Test
@@ -150,6 +155,68 @@ public class SearchTreeRaoParametersTest {
     }
 
     @Test
+    public void testUnoptimizedCnecsInSeriesWithPsts() {
+
+        Crac crac = CracFactory.findDefault().create("crac");
+
+        crac.newFlowCnec().withId("flowCnec-1")
+                .withNetworkElement("ne1Id")
+                .withInstant(Instant.PREVENTIVE)
+                .withOperator("operator1")
+                .withOptimized()
+                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withIMax(1000., Side.RIGHT)
+                .withNominalVoltage(220.)
+                .add();
+
+        crac.newContingency().withId("co2").withNetworkElement("ne22").add();
+
+        crac.newFlowCnec().withId("flowCnec-2")
+                .withNetworkElement("ne2Id")
+                .withInstant(Instant.CURATIVE)
+                .withContingency("co2")
+                .withOperator("operator1")
+                .withOptimized()
+                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withIMax(1000., Side.RIGHT)
+                .withNominalVoltage(220.)
+                .add();
+
+        crac.newPstRangeAction().withId("pstRange1Id")
+                .withName("pstRange1Name")
+                .withOperator("RTE")
+                .withNetworkElement("pst")
+                .withInitialTap(2)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .add();
+
+        crac.newPstRangeAction().withId("pstRange2Id")
+                .withName("pstRange2Name")
+                .withOperator("RTE")
+                .withNetworkElement("pst2")
+                .withGroupId("group-1-pst")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .add();
+
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("flowCnec-1", "pstRange1Id",
+                "flowCnec-2", "fakeId",
+                "fakeId", "pstRange2Id"));
+        Map<FlowCnec, PstRangeAction> map = parameters.getUnoptimizedCnecsInSeriesWithPsts(crac);
+        assertEquals(3, parameters.getUnoptimizedCnecsInSeriesWithPstsIds().size());
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(crac.getFlowCnec("flowCnec-1")));
+        assertEquals(crac.getPstRangeAction("pstRange1Id"), map.get(crac.getFlowCnec("flowCnec-1")));
+        assertFalse(map.containsKey(crac.getFlowCnec("flowCnec-2")));
+    }
+
+    @Test
     public void testIllegalValues() {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
 
@@ -165,7 +232,7 @@ public class SearchTreeRaoParametersTest {
     @Test (expected = FaraoException.class)
     public void testIncompatibleParameters1() {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
-        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
         parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
     }
 
@@ -173,23 +240,23 @@ public class SearchTreeRaoParametersTest {
     public void testIncompatibleParameters2() {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
         parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
-        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
     }
 
     @Test
     public void testIncompatibleParameters3() {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
         parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
-        parameters.setUnoptimizedCnecsInSeriesWithPsts(Map.of("cnec1", "pst1"));
-        assertEquals(Map.of("cnec1", "pst1"), parameters.getUnoptimizedCnecsInSeriesWithPsts());
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
+        assertEquals(Map.of("cnec1", "pst1"), parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
     }
 
     @Test
     public void testIncompatibleParameters4() {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
-        parameters.setUnoptimizedCnecsInSeriesWithPsts(null);
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(null);
         parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
-        assertEquals(Collections.emptyMap(), parameters.getUnoptimizedCnecsInSeriesWithPsts());
+        assertEquals(Collections.emptyMap(), parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
 
     }
 }

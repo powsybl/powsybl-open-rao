@@ -8,7 +8,9 @@ package com.farao_community.farao.search_tree_rao.castor.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -78,7 +80,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
-    private Map<String, String> unoptimizedCnecsInSeriesWithPsts = DEFAULT_UNOPTIMIZED_CNECS_IN_SERIES_WITH_PSTS;
+    private Map<String, String> unoptimizedCnecsInSeriesWithPstsIds = DEFAULT_UNOPTIMIZED_CNECS_IN_SERIES_WITH_PSTS;
+    private Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts = null;
     private SecondPreventiveRaoCondition secondPreventiveOptimizationCondition = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
     private boolean globalOptimizationInSecondPreventive = DEFAULT_GLOBAL_OPT_IN_SECOND_PREVENTIVE;
     private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
@@ -253,25 +256,51 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setCurativeRaoOptimizeOperatorsNotSharingCras(boolean curativeRaoOptimizeOperatorsNotSharingCras) {
-        if (!getUnoptimizedCnecsInSeriesWithPsts().isEmpty()) {
+        if (!getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
             throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
         }
         this.curativeRaoOptimizeOperatorsNotSharingCras = curativeRaoOptimizeOperatorsNotSharingCras;
     }
 
-    public Map<String, String> getUnoptimizedCnecsInSeriesWithPsts() {
+    public Map<String, String> getUnoptimizedCnecsInSeriesWithPstsIds() {
+        return unoptimizedCnecsInSeriesWithPstsIds;
+    }
+
+    public Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPsts(Crac crac) {
+        if (Objects.isNull(unoptimizedCnecsInSeriesWithPsts)) {
+            unoptimizedCnecsInSeriesWithPsts = getUnoptimizedCnecsInSeriesWithPstsFromIds(unoptimizedCnecsInSeriesWithPstsIds, crac);
+        }
         return unoptimizedCnecsInSeriesWithPsts;
     }
 
-    public void setUnoptimizedCnecsInSeriesWithPsts(Map<String, String> unoptimizedCnecsInSeriesWithPsts) {
+    public void setUnoptimizedCnecsInSeriesWithPstsIds(Map<String, String> unoptimizedCnecsInSeriesWithPsts) {
         if (!getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
         }
         if (Objects.isNull(unoptimizedCnecsInSeriesWithPsts)) {
-            this.unoptimizedCnecsInSeriesWithPsts = new HashMap<>();
+            this.unoptimizedCnecsInSeriesWithPstsIds = new HashMap<>();
         } else {
-            this.unoptimizedCnecsInSeriesWithPsts = unoptimizedCnecsInSeriesWithPsts;
+            this.unoptimizedCnecsInSeriesWithPstsIds = unoptimizedCnecsInSeriesWithPsts;
         }
+    }
+
+    private Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPstsFromIds(Map<String, String> ids, Crac crac) {
+        Map<FlowCnec, PstRangeAction> mapOfUnoptimizedCnecsAndPsts = new HashMap<>();
+        for (Map.Entry<String, String> cnecPstIds : ids.entrySet()) {
+            FlowCnec flowCnec = crac.getFlowCnec(cnecPstIds.getKey());
+            if (Objects.isNull(flowCnec)) {
+                BUSINESS_WARNS.warn("Unknown flow cnec id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecPstIds.getKey());
+                continue;
+            }
+            PstRangeAction pstRangeAction = crac.getPstRangeAction(cnecPstIds.getValue());
+            if (Objects.isNull(pstRangeAction)) {
+                BUSINESS_WARNS.warn("Unknown pst range action id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecPstIds.getValue());
+                continue;
+            }
+            mapOfUnoptimizedCnecsAndPsts.put(flowCnec, pstRangeAction);
+        }
+        return mapOfUnoptimizedCnecsAndPsts;
+
     }
 
     public SecondPreventiveRaoCondition getSecondPreventiveOptimizationCondition() {
