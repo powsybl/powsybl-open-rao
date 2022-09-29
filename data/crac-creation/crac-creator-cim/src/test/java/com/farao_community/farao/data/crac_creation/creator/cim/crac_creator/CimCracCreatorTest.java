@@ -35,8 +35,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -64,7 +63,7 @@ public class CimCracCreatorTest {
     public static void loadNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        baseNetwork = Importers.loadNetwork(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        baseNetwork = Importers.loadNetwork(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid_missingImax.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
     @BeforeClass
@@ -785,7 +784,7 @@ public class CimCracCreatorTest {
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
 
-        assertEquals(10, importedCrac.getFlowCnecs().size());
+        assertEquals(8, importedCrac.getFlowCnecs().size());
 
         // CNEC 2
         assertCnecNotImported("CNEC-2", ELEMENT_NOT_FOUND_IN_NETWORK);
@@ -807,10 +806,8 @@ public class CimCracCreatorTest {
         assertHasOneThreshold("CNEC-5 - MONITORED - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -0.05, 0.05);
         assertHasOneThreshold("CNEC-5 - MONITORED - Co-1 - curative", Side.RIGHT, Unit.PERCENT_IMAX, -0.05, 0.05);
 
-        // CNEC 6
-        assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
-        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", Side.RIGHT, Unit.PERCENT_IMAX, -0.06, 0.06);
-        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", Side.RIGHT, Unit.PERCENT_IMAX, -0.06, 0.06);
+        // CNEC 6 - Cannot be imported because has no Imax on right side
+        assertCnecNotImported("MNEC-2", OTHER);
     }
 
     @Test
@@ -841,10 +838,10 @@ public class CimCracCreatorTest {
         assertHasTwoThresholds("CNEC-5 - MONITORED - preventive", Unit.PERCENT_IMAX, -0.05, 0.05);
         assertHasTwoThresholds("CNEC-5 - MONITORED - Co-1 - curative", Unit.PERCENT_IMAX, -0.05, 0.05);
 
-        // CNEC 6
+        // CNEC 6 - Only one threshold because has only Imax on LEFT side in network
         assertCnecImported("MNEC-2", Set.of("CNEC-6 - MONITORED - preventive", "CNEC-6 - MONITORED - Co-1 - outage"));
-        assertHasTwoThresholds("CNEC-6 - MONITORED - preventive", Unit.PERCENT_IMAX, -0.06, 0.06);
-        assertHasTwoThresholds("CNEC-6 - MONITORED - Co-1 - outage", Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - preventive", Side.LEFT, Unit.PERCENT_IMAX, -0.06, 0.06);
+        assertHasOneThreshold("CNEC-6 - MONITORED - Co-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -0.06, 0.06);
     }
 
     @Test
@@ -879,5 +876,4 @@ public class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
     }
-
 }

@@ -45,9 +45,16 @@ public interface FlowResult {
     }
 
     /**
-     * Computes the margin on a given side
+     * It gives the margin on a {@link FlowCnec} at a given {@link Side} in a given {@link Unit}. It is the difference
+     * between the flow and the most constraining threshold in the flow direction of the given branch.
+     * If it is negative the branch is under constraint.
+     *
+     * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried.
+     * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @return The margin on the branch in the given unit.
      */
-    private double getMargin(FlowCnec flowCnec, Side side, Unit unit) {
+    default double getMargin(FlowCnec flowCnec, Side side, Unit unit) {
         return flowCnec.computeMargin(getFlow(flowCnec, side, unit), side, unit);
     }
 

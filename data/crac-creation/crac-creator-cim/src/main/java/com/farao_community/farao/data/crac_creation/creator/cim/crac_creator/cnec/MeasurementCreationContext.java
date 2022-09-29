@@ -16,8 +16,8 @@ import org.apache.commons.collections4.map.MultiKeyMap;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class MeasurementCreationContext {
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
+    private ImportStatus importStatus;
+    private String importStatusDetail;
     private final MultiKeyMap<Object, CnecCreationContext> cnecCreationContexts;
 
     private MeasurementCreationContext(ImportStatus importStatus, String importStatusDetail) {
@@ -53,6 +53,13 @@ public final class MeasurementCreationContext {
     public void addCnecCreationContext(String contingencyId, Instant instant, CnecCreationContext cnecCreationContext) {
         MultiKey<Object> key = new MultiKey<>(contingencyId, instant);
         cnecCreationContexts.put(key, cnecCreationContext);
+        if (cnecCreationContexts.values().stream().anyMatch(CnecCreationContext::isImported)) {
+            this.importStatus = ImportStatus.IMPORTED;
+            this.importStatusDetail = null;
+        } else {
+            this.importStatus = ImportStatus.OTHER;
+            this.importStatusDetail = "None of the CNECs could be created";
+        }
     }
 }
 

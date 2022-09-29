@@ -37,8 +37,8 @@ public class MonitoredSeriesCreator {
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
-    private CimCracCreationContext cracCreationContext;
-    private Set<Side> defaultMonitoredSides;
+    private final CimCracCreationContext cracCreationContext;
+    private final Set<Side> defaultMonitoredSides;
 
     public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
         this.cimTimeSeries = cimTimeSeries;
@@ -267,9 +267,10 @@ public class MonitoredSeriesCreator {
 
         flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId());
 
-        String cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
+        String cnecId = null;
 
         try {
+            cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
             setNominalVoltage(flowCnecAdder, branchHelper);
             setCurrentsLimit(flowCnecAdder, branchHelper);
         } catch (FaraoException e) {
@@ -322,8 +323,10 @@ public class MonitoredSeriesCreator {
                 Set.of(Side.LEFT) : Set.of(Side.RIGHT);
         } else if (unit.equals(Unit.PERCENT_IMAX)) {
             // If unit is %Imax, check that Imax exists
-            // TODO : add unit test for this
             monitoredSides = monitoredSides.stream().filter(side -> hasCurrentLimit(branchHelper.getBranch(), side.iidmSide())).collect(Collectors.toSet());
+            if (monitoredSides.isEmpty()) {
+                throw new FaraoException(String.format("Cannot create any PERCENT_IMAX threshold on branch %s, as it holds no current limit at the wanted side", branchHelper.getIdInNetwork()));
+            }
         }
 
         Double min = -threshold;
