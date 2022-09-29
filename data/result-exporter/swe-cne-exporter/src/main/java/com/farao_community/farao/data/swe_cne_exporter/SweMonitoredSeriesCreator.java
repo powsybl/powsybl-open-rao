@@ -122,9 +122,10 @@ public class SweMonitoredSeriesCreator {
         Analog threshold = new Analog();
         threshold.setMeasurementType(getThresholdMeasurementType(cnec));
         threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
+        Side side = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : cnec.getMonitoredSides().iterator().next();
         float roundedThreshold = Math.round(Math.min(
-            Math.abs(cnec.getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
-            Math.abs(cnec.getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
+            Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
+            Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
         threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec) >= 0 ?
             DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
         threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
@@ -154,9 +155,10 @@ public class SweMonitoredSeriesCreator {
         Analog threshold = new Analog();
         threshold.setMeasurementType(getThresholdMeasurementType(cnec));
         threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
+        Side side = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : cnec.getMonitoredSides().iterator().next();
         float roundedThreshold = Math.round(Math.min(
-            Math.abs(cnec.getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
-            Math.abs(cnec.getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
+            Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
+            Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
         threshold.setPositiveFlowIn(roundedFlow >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
         threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
         registeredResource.getMeasurements().add(threshold);

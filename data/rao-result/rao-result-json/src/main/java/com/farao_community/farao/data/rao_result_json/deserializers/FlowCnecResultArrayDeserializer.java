@@ -94,9 +94,10 @@ final class FlowCnecResultArrayDeserializer {
                     break;
                 case ZONAL_PTDF_SUM:
                     checkSideHandlingVersion(jsonFileVersion, ZONAL_PTDF_SUM);
-                    // For older versions, suppose side LEFT is used
+                    // For older versions, suppose both sides are used
                     jsonParser.nextToken();
                     eFlowCnecResult.setPtdfZonalSum(Side.LEFT, jsonParser.getDoubleValue());
+                    eFlowCnecResult.setPtdfZonalSum(Side.RIGHT, jsonParser.getDoubleValue());
                     break;
                 default:
                     throw new FaraoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
@@ -125,21 +126,24 @@ final class FlowCnecResultArrayDeserializer {
                     break;
                 case FLOW:
                     checkSideHandlingVersion(jsonFileVersion, FLOW);
-                    // For older versions, suppose side LEFT is used
+                    // For older versions, suppose both sides are used
                     jsonParser.nextToken();
                     eFlowCnecResult.setFlow(Side.LEFT, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setFlow(Side.RIGHT, jsonParser.getDoubleValue(), unit);
                     break;
                 case COMMERCIAL_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, COMMERCIAL_FLOW);
-                    // For older versions, suppose side LEFT is used
+                    // For older versions, suppose both sides are used
                     jsonParser.nextToken();
                     eFlowCnecResult.setCommercialFlow(Side.LEFT, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setCommercialFlow(Side.RIGHT, jsonParser.getDoubleValue(), unit);
                     break;
                 case LOOP_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, LOOP_FLOW);
-                    // For older versions, suppose side LEFT is used
+                    // For older versions, suppose both sides are used
                     jsonParser.nextToken();
                     eFlowCnecResult.setLoopFlow(Side.LEFT, jsonParser.getDoubleValue(), unit);
+                    eFlowCnecResult.setLoopFlow(Side.RIGHT, jsonParser.getDoubleValue(), unit);
                     break;
                 default:
                     throw new FaraoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));

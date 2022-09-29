@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getContingencyFromCrac;
@@ -316,9 +317,13 @@ public class MonitoredSeriesCreator {
             monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {
-            // If unit is absolute amperes, monitor high voltage side
+            // If unit is absolute amperes, monitor low voltage side
             monitoredSides = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() <= branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV() ?
                 Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+        } else if (unit.equals(Unit.PERCENT_IMAX)) {
+            // If unit is %Imax, check that Imax exists
+            // TODO : add unit test for this
+            monitoredSides = monitoredSides.stream().filter(side -> hasCurrentLimit(branchHelper.getBranch(), side.iidmSide())).collect(Collectors.toSet());
         }
 
         Double min = -threshold;
@@ -371,18 +376,22 @@ public class MonitoredSeriesCreator {
     // This uses the same logic as the UcteCnecElementHelper which is used for CBCO cnec import for instance
     private Double getCurrentLimit(Branch<?> branch, Branch.Side side) {
 
-        if (branch.getCurrentLimits(side).isPresent()) {
+        if (hasCurrentLimit(branch, side)) {
             return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
         }
 
-        if (side == Branch.Side.ONE && branch.getCurrentLimits(Branch.Side.TWO).isPresent()) {
+        if (side == Branch.Side.ONE && hasCurrentLimit(branch, Branch.Side.TWO)) {
             return branch.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
         }
 
-        if (side == Branch.Side.TWO && branch.getCurrentLimits(Branch.Side.ONE).isPresent()) {
+        if (side == Branch.Side.TWO && hasCurrentLimit(branch, Branch.Side.ONE)) {
             return branch.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
         }
 
         return null;
+    }
+
+    private boolean hasCurrentLimit(Branch<?> branch, Branch.Side side) {
+        return branch.getCurrentLimits(side).isPresent();
     }
 }
