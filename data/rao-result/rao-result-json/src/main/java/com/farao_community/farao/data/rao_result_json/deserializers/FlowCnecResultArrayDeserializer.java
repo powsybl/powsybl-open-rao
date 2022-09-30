@@ -174,7 +174,10 @@ final class FlowCnecResultArrayDeserializer {
                     break;
                 case ZONAL_PTDF_SUM:
                     jsonParser.nextToken();
-                    eFlowCnecResult.setPtdfZonalSum(side, jsonParser.getDoubleValue()); //  TODO : accept this only for MEGAWATT ?
+                    if (!unit.equals(Unit.MEGAWATT)) {
+                        throw new FaraoException(String.format("%s can only be defined in the MEGAWATT section", ZONAL_PTDF_SUM));
+                    }
+                    eFlowCnecResult.setPtdfZonalSum(side, jsonParser.getDoubleValue());
                     break;
                 default:
                     throw new FaraoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.getCurrentName()));

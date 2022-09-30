@@ -39,7 +39,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.initialFlowResult = initialFlowResult;
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
-        this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs);
+        this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs, MEGAWATT);
     }
 
     @Override

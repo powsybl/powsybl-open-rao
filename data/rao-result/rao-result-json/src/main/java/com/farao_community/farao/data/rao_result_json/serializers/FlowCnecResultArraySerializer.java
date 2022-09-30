@@ -104,7 +104,7 @@ final class FlowCnecResultArraySerializer {
         double flow = safeGetFlow(raoResult, flowCnec, side, optState, unit);
         double loopFlow = safeGetLoopFlow(raoResult, flowCnec, side, optState, unit);
         double commercialFlow = safeGetCommercialFlow(raoResult, flowCnec, side, optState, unit);
-        double ptdfZonalSum = safeGetPtdfZonalSum(raoResult, flowCnec, side, optState); // TODO : only for MEGAWATT ?
+        double ptdfZonalSum = safeGetPtdfZonalSum(raoResult, flowCnec, side, optState);
 
         if (Double.isNaN(flow) && Double.isNaN(loopFlow) && Double.isNaN(commercialFlow) && Double.isNaN(ptdfZonalSum)) {
             return;
@@ -149,7 +149,7 @@ final class FlowCnecResultArraySerializer {
         return !Double.isNaN(safeGetFlow(raoResult, flowCnec, side, optState, unit)) ||
             !Double.isNaN(safeGetLoopFlow(raoResult, flowCnec, side, optState, unit)) ||
             !Double.isNaN(safeGetCommercialFlow(raoResult, flowCnec, side, optState, unit)) ||
-            !Double.isNaN(safeGetPtdfZonalSum(raoResult, flowCnec, side, optState)); // TODO : activate this only for MEGAWATT ?
+            (!Double.isNaN(safeGetPtdfZonalSum(raoResult, flowCnec, side, optState)) && unit.equals(MEGAWATT));
     }
 
     private static double safeGetFlow(RaoResult raoResult, FlowCnec flowCnec, Side side, OptimizationState optState, Unit unit) {
