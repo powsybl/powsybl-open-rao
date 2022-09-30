@@ -11,7 +11,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.FaraoException;
-//import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.RaoBusinessLogs;
 import com.farao_community.farao.commons.logs.TechnicalLogs;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -355,8 +354,6 @@ public class SearchTreeTest {
 
         FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
         when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
-        //when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction1, Unit.MEGAWATT)).thenReturn(1.);
-        //when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction2, Unit.MEGAWATT)).thenReturn(2.);
     }
 
     private void mockRootLeafCost(double cost) throws Exception {
