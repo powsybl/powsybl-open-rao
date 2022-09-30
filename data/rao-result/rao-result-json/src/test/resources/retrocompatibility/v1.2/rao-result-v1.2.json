@@ -52,8 +52,7 @@
         "rightSide" : {
           "flow" : 1120.5,
           "loopFlow" : 1123.5,
-          "commercialFlow" : 1124.5,
-          "zonalPtdfSum" : 0.6
+          "commercialFlow" : 1124.5
         }
       }
     },
@@ -74,8 +73,7 @@
         "rightSide" : {
           "flow" : 1220.5,
           "loopFlow" : 1223.5,
-          "commercialFlow" : 1224.5,
-          "zonalPtdfSum" : 0.6
+          "commercialFlow" : 1224.5
         }
       }
     }
@@ -98,8 +96,7 @@
         "rightSide" : {
           "flow" : 1120.5,
           "loopFlow" : 1123.5,
-          "commercialFlow" : 1124.5,
-          "zonalPtdfSum" : 0.6
+          "commercialFlow" : 1124.5
         }
       }
     },
@@ -120,8 +117,7 @@
         "rightSide" : {
           "flow" : 1220.5,
           "loopFlow" : 1223.5,
-          "commercialFlow" : 1224.5,
-          "zonalPtdfSum" : 0.6
+          "commercialFlow" : 1224.5
         }
       }
     }
@@ -150,14 +146,12 @@
         "rightSide" : {
           "flow" : 2120.5,
           "loopFlow" : 2123.5,
-          "commercialFlow" : 2124.5,
-          "zonalPtdfSum" : 0.7
+          "commercialFlow" : 2124.5
         },
         "leftSide" : {
           "flow" : 2120.0,
           "loopFlow" : 2123.0,
-          "commercialFlow" : 2124.0,
-          "zonalPtdfSum" : 0.2
+          "commercialFlow" : 2124.0
         }
       }
     },
@@ -184,14 +178,12 @@
         "rightSide" : {
           "flow" : 2220.5,
           "loopFlow" : 2223.5,
-          "commercialFlow" : 2224.5,
-          "zonalPtdfSum" : 0.7
+          "commercialFlow" : 2224.5
         },
         "leftSide" : {
           "flow" : 2220.0,
           "loopFlow" : 2223.0,
-          "commercialFlow" : 2224.0,
-          "zonalPtdfSum" : 0.2
+          "commercialFlow" : 2224.0
         }
       }
     }
@@ -396,8 +388,7 @@
         "margin" : 4121.0,
         "relativeMargin" : 4122.0,
         "leftSide" : {
-          "flow" : 4120.0,
-          "zonalPtdfSum" : 0.4
+          "flow" : 4120.0
         }
       }
     },
@@ -414,8 +405,7 @@
         "margin" : 4221.0,
         "relativeMargin" : 4222.0,
         "leftSide" : {
-          "flow" : 4220.0,
-          "zonalPtdfSum" : 0.4
+          "flow" : 4220.0
         }
       }
     }

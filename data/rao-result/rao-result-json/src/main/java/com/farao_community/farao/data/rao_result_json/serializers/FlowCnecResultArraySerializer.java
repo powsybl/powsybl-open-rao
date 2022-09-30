@@ -106,7 +106,7 @@ final class FlowCnecResultArraySerializer {
         double commercialFlow = safeGetCommercialFlow(raoResult, flowCnec, side, optState, unit);
         double ptdfZonalSum = safeGetPtdfZonalSum(raoResult, flowCnec, side, optState);
 
-        if (Double.isNaN(flow) && Double.isNaN(loopFlow) && Double.isNaN(commercialFlow) && Double.isNaN(ptdfZonalSum)) {
+        if (Double.isNaN(flow) && Double.isNaN(loopFlow) && Double.isNaN(commercialFlow) && (!unit.equals(MEGAWATT) || Double.isNaN(ptdfZonalSum))) {
             return;
         }
 
@@ -120,7 +120,7 @@ final class FlowCnecResultArraySerializer {
         if (!Double.isNaN(commercialFlow)) {
             jsonGenerator.writeNumberField(COMMERCIAL_FLOW, commercialFlow);
         }
-        if (!Double.isNaN(ptdfZonalSum)) {
+        if (unit.equals(MEGAWATT) && !Double.isNaN(ptdfZonalSum)) {
             jsonGenerator.writeNumberField(ZONAL_PTDF_SUM, ptdfZonalSum);
         }
         jsonGenerator.writeEndObject();
