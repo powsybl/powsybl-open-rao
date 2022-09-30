@@ -8,11 +8,14 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,23 +23,23 @@ import java.util.Set;
  */
 public class UnoptimizedCnecParameters {
     private final Set<String> operatorNotToOptimize;
-    private final double highestThresholdValue;
+    private final Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts;
 
-    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, double highestThresholdValue) {
+    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts) {
         this.operatorNotToOptimize = operatorNotToOptimize;
-        this.highestThresholdValue = highestThresholdValue;
+        this.unoptimizedCnecsInSeriesWithPsts = unoptimizedCnecsInSeriesWithPsts;
+    }
+
+    public Map<FlowCnec, PstRangeAction>  getUnoptimizedCnecsInSeriesWithPsts() {
+        return unoptimizedCnecsInSeriesWithPsts;
     }
 
     public Set<String> getOperatorsNotToOptimize() {
         return operatorNotToOptimize;
     }
 
-    public double getHighestThresholdValue() {
-        return highestThresholdValue;
-    }
-
-    public static UnoptimizedCnecParameters build(RaoParameters raoParameters, Set<String> operatorsNotSharingCras, Set<FlowCnec> flowCnecs) {
-
+    // unoptimizedCnecsInSeriesWithPsts and operatorNotToOptimize cannot be activated together.
+    public static UnoptimizedCnecParameters build(RaoParameters raoParameters, Set<String> operatorsNotSharingCras, Crac crac) {
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters == null) {
             throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
@@ -45,7 +48,11 @@ public class UnoptimizedCnecParameters {
         if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             return new UnoptimizedCnecParameters(
                 operatorsNotSharingCras,
-                RaoUtil.getLargestCnecThreshold(flowCnecs));
+                null);
+        } else if (!searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
+            return new UnoptimizedCnecParameters(
+                    null,
+                    searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPsts(crac));
         } else {
             return null;
         }

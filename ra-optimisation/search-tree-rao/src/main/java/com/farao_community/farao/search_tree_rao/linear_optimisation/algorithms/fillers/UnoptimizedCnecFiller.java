@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
@@ -38,6 +39,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
+    private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap;
+    private UnoptimizedCnecFillerRule selectedRule;
 
     public UnoptimizedCnecFiller(Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
@@ -47,15 +50,32 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs);
+        this.flowCnecPstRangeActionMap = unoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts();
+    }
+
+    private enum UnoptimizedCnecFillerRule {
+        MARGIN_DECREASE,
+        PST_LIMITATION;
+    }
+
+    private void selectUnoptimizedCnecFillerRule() {
+        if (!flowCnecPstRangeActionMap.isEmpty()) {
+            selectedRule = UnoptimizedCnecFillerRule.PST_LIMITATION;
+        } else {
+            selectedRule = UnoptimizedCnecFillerRule.MARGIN_DECREASE;
+        }
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        // define UnoptimizedCnecFillerRule
+        selectUnoptimizedCnecFillerRule();
+
         // build variables
-        buildMarginDecreaseVariables(linearProblem);
+        buildOptimizeCnecVariables(linearProblem);
 
         // build constraints
-        buildMarginDecreaseConstraints(linearProblem);
+        buildOptimizeCnecConstraints(linearProblem);
 
         // update minimum margin objective function constraints
         updateMinimumMarginConstraints(linearProblem);
@@ -72,30 +92,44 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     }
 
     /**
-     * This method defines, for each CNEC belonging to a TSO that does not share RAs in the given perimeter, a binary variable
-     * The binary variable should detect the decrease of the margin on the given CNEC compared to the preperimeter margin
+     * This method defines a binary variable that detects the decrease of the margin on the given CNEC compared to the preperimeter margin
      * The variable should be equal to 1 if there is a decrease
      */
-    private void buildMarginDecreaseVariables(LinearProblem linearProblem) {
-        getFlowCnecs().forEach(linearProblem::addMarginDecreaseBinaryVariable);
+    private void buildOptimizeCnecVariables(LinearProblem linearProblem) {
+        getFlowCnecs().forEach(linearProblem::addOptimizeCnecBinaryVariable);
     }
 
+    /**
+     * Gathers flow cnecs that can be unoptimized depending on the ongoing UnoptimizedCnecFillerRule.
+     */
     private Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs.stream()
-            .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
-            .collect(Collectors.toSet());
+        if (selectedRule.equals(UnoptimizedCnecFillerRule.MARGIN_DECREASE)) {
+            return flowCnecs.stream()
+                    .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
+                    .collect(Collectors.toSet());
+        } else {
+            return flowCnecPstRangeActionMap.keySet();
+        }
+    }
+
+    private void buildOptimizeCnecConstraints(LinearProblem linearProblem) {
+        if (selectedRule.equals(UnoptimizedCnecFillerRule.MARGIN_DECREASE)) {
+            buildOptimizeCnecConstraintsForTsosThatDoNotShareRas(LinearProblem linearProblem);
+        } else {
+            buildOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem);
+        }
     }
 
     /**
      * This method defines, for each CNEC belonging to a TSO that does not share RAs in the given perimeter, a constraint
-     * The constraint defines the behaviour of the binary variable "margin decrease"
+     * The constraint defines the behaviour of the binary variable "optimize cnec""
      * margin >= margin_preperimeter - margin_decrease * bigM
      * => (1) -flow + margin_decrease * bigM >= margin_preperimeter - maxFlow
      * and (2) flow + margin_decrease * bigM >= margin_preperimeter + minFlow
      * bigM is computed to be equal to the maximum margin decrease possible, which is the amount that decreases the
      * cnec's margin to the initial worst margin
      */
-    private void buildMarginDecreaseConstraints(LinearProblem linearProblem) {
+    private void buildOptimizeCnecConstraintsForTsosThatDoNotShareRas(LinearProblem linearProblem) {
         double worstMarginDecrease = 20 * highestThresholdValue;
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or
         // the search tree rao is degrading the situation
@@ -107,7 +141,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             if (flowVariable == null) {
                 throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s", cnec.getId()));
             }
-            MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
+            MPVariable marginDecreaseBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
             if (marginDecreaseBinaryVariable == null) {
                 throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));
             }
@@ -118,7 +152,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
 
             if (minFlow.isPresent()) {
-                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(
+                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addOptimizeCnecConstraint(
                         prePerimeterMargin + minFlow.get(),
                         LinearProblem.infinity(), cnec,
                         LinearProblem.MarginExtension.BELOW_THRESHOLD
@@ -128,7 +162,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(
+                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addOptimizeCnecConstraint(
                         prePerimeterMargin - maxFlow.get(),
                         LinearProblem.infinity(), cnec,
                         LinearProblem.MarginExtension.ABOVE_THRESHOLD

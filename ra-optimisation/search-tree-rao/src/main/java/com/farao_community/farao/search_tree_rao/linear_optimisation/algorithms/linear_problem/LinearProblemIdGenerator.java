@@ -36,7 +36,7 @@ public final class LinearProblemIdGenerator {
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
-    private static final String MARGIN_DECREASE = "margindecrease";
+    private static final String OPTIMIZE_CNEC = "optimizecnec";
     private static final String MAX_RA = "maxra";
     private static final String MAX_TSO = "maxtso";
     private static final String MAX_RA_PER_TSO = "maxrapertso";
@@ -163,12 +163,12 @@ public final class LinearProblemIdGenerator {
         return mnec.getId() + SEPARATOR + MNEC_FLOW + belowOrAboveThreshold.toString().toLowerCase()  + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String marginDecreaseVariableId(FlowCnec flowCnec) {
-        return flowCnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + VARIABLE_SUFFIX;
+    public static String optimizeCnecBinaryVariableId(FlowCnec flowCnec) {
+        return flowCnec.getId() + SEPARATOR + OPTIMIZE_CNEC + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String marginDecreaseConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
-        return flowCnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String optimizeCnecConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
+        return flowCnec.getId() + SEPARATOR + OPTIMIZE_CNEC + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String maxRaConstraintId(State state) {
