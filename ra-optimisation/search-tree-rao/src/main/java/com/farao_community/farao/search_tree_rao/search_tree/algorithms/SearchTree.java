@@ -290,7 +290,6 @@ public class SearchTree {
                     }
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                    e.printStackTrace();
                 }
                 TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                 latch.countDown();
