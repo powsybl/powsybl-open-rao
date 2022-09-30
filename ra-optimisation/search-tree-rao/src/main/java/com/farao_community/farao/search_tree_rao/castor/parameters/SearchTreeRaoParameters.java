@@ -299,7 +299,11 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
             }
             mapOfUnoptimizedCnecsAndPsts.put(flowCnec, pstRangeAction);
         }
-        return mapOfUnoptimizedCnecsAndPsts;
+        if (mapOfUnoptimizedCnecsAndPsts.isEmpty()) {
+            return null;
+        } else {
+            return mapOfUnoptimizedCnecsAndPsts;
+        }
 
     }
 

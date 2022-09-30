@@ -206,7 +206,7 @@ public class CastorFullOptimization {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
             .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), optPerimeter.getFlowCnecs()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
             .build();
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
@@ -314,7 +314,7 @@ public class CastorFullOptimization {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(curativeTreeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), optPerimeter.getFlowCnecs()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
             .build();
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
@@ -539,7 +539,7 @@ public class CastorFullOptimization {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
             .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), optPerimeter.getFlowCnecs()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
             .build();
 
         if (raoParameters.getExtension(SearchTreeRaoParameters.class).isSecondPreventiveHintFromFirstPreventive()) {

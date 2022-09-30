@@ -7,7 +7,9 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
@@ -23,11 +25,11 @@ import static org.junit.Assert.*;
  */
 public class UnoptimizedCnecParametersTest {
 
-    private Set<FlowCnec> flowCnecs;
+    private Crac crac;
 
     @Before
     public void setUp() {
-        flowCnecs = ExhaustiveCracCreation.create().getFlowCnecs();
+       crac = new CracImpl("test-crac");;
     }
 
     @Test
@@ -36,11 +38,10 @@ public class UnoptimizedCnecParametersTest {
         raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
 
-        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), flowCnecs);
+        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
 
         assertNotNull(ocp);
         assertEquals(Set.of("BE"), ocp.getOperatorsNotToOptimize());
-        assertEquals(500.0, ocp.getHighestThresholdValue(), 1e-6);
     }
 
     @Test
@@ -49,13 +50,13 @@ public class UnoptimizedCnecParametersTest {
         raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
 
-        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), flowCnecs);
+        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
         assertNull(ocp);
     }
 
     @Test (expected = FaraoException.class)
     public void buildFromRaoParametersWithMissingSearchTreeRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
-        UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), flowCnecs);
+        UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
     }
 }
