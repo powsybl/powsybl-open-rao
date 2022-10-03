@@ -135,7 +135,7 @@ public class VoltageMonitoring {
 
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         voltageCnecs.forEach(vc -> {
-            VoltageLevel voltageLevel = (VoltageLevel) network.getIdentifiable(vc.getNetworkElement().getId());
+            VoltageLevel voltageLevel = network.getVoltageLevel(vc.getNetworkElement().getId());
             Set<Double> voltages = voltageLevel.getBusView().getBusStream().map(Bus::getV).collect(Collectors.toSet());
             voltagePerCnec.put(vc, new ExtremeVoltageValues(voltages));
         });

@@ -105,41 +105,39 @@ public class AngleMonitoringResult {
         return appliedCras;
     }
 
-    public double getAngle(AngleCnec angleCnec, State state, Unit unit) {
+    public double getAngle(AngleCnec angleCnec, Unit unit) {
         if (!unit.equals(Unit.DEGREE)) {
             throw new FaraoException(String.format("Unhandled unit %s for AngleCnec %s", unit.toString(), angleCnec.toString()));
         }
-        Set<Double> angles = angleCnecsWithAngle.stream().filter(angleResult -> angleResult.getAngleCnec().equals(angleCnec) && angleResult.getState().equals(state))
+        Set<Double> angles = angleCnecsWithAngle.stream().filter(angleResult -> angleResult.getAngleCnec().equals(angleCnec))
                 .map(AngleResult::getAngle).collect(Collectors.toSet());
         if (angles.isEmpty()) {
-            throw new FaraoException(String.format("AngleMonitoringResult was not defined with AngleCnec %s and state %s", angleCnec.toString(), state.getId()));
+            throw new FaraoException(String.format("AngleMonitoringResult was not defined with AngleCnec %s and state %s", angleCnec.toString(), angleCnec.getState().getId()));
         } else if (angles.size() > 1) {
-            throw new FaraoException(String.format("AngleMonitoringResult was defined %s times with AngleCnec %s and state %s", angles.size(), angleCnec.toString(), state.getId()));
+            throw new FaraoException(String.format("AngleMonitoringResult was defined %s times with AngleCnec %s and state %s", angles.size(), angleCnec.toString(), angleCnec.getState().getId()));
         } else {
             return angles.iterator().next();
         }
     }
 
     public List<String> printConstraints() {
+        if (isSecure()) {
+            return List.of("All AngleCnecs are secure.");
+        }
         if (isUnknown()) {
             return List.of("Unknown status on AngleCnecs.");
         }
         List<String> constraints = new ArrayList<>();
-        angleCnecsWithAngle.stream().forEach(angleResult -> {
-            if (AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle())) {
+        angleCnecsWithAngle.stream().filter(angleResult ->
+            AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle()))
+                    .forEach(angleResult ->
                 constraints.add(String.format("AngleCnec %s (with importing network element %s and exporting network element %s)" +
                                 " at state %s has an angle of %.0f°.",
                         angleResult.getAngleCnec().getId(),
                         angleResult.getAngleCnec().getImportingNetworkElement().getId(),
                         angleResult.getAngleCnec().getExportingNetworkElement().getId(),
                         angleResult.getState().getId(),
-                        angleResult.getAngle()));
-            }
-        });
-        if (constraints.isEmpty()) {
-            return List.of("All AngleCnecs are secure.");
-        } else {
-            return constraints;
-        }
+                        angleResult.getAngle())));
+        return constraints;
     }
 }

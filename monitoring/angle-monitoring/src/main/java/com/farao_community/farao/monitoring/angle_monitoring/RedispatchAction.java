@@ -22,20 +22,16 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINES
 
 /**
  * A redispatch action collects a quantity of power to be redispatched (powerToBeRedispatched) in country (countryName)
- * according to merit order glsks that exclude networkElementsToBeExcluded.
+ * according to glsks that exclude networkElementsToBeExcluded.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RedispatchAction {
-    private final Network network;
-    private final String countryName;
     private final double powerToBeRedispatched;
     private final Set<String> networkElementsToBeExcluded;
     private final GlskPoint glskPoint;
 
-    RedispatchAction(Network network, String countryName, double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, GlskPoint glskPoint) {
-        this.network = network;
-        this.countryName = countryName;
+    RedispatchAction(double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, GlskPoint glskPoint) {
         this.powerToBeRedispatched = powerToBeRedispatched; // positive for generation, negative for load
         this.networkElementsToBeExcluded = networkElementsToBeExcluded;
         this.glskPoint = Objects.requireNonNull(glskPoint);
@@ -58,9 +54,9 @@ public class RedispatchAction {
     /**
      * Scales powerToBeRedispatched on network.
      */
-    public void apply() {
+    public void apply(Network network) {
         filterGlskPoint();
         double redispatchedPower = GlskPointScalableConverter.convert(network, glskPoint).scale(network, powerToBeRedispatched);
-        BUSINESS_WARNS.warn("Scaling for country {}: asked={}, done={}", countryName, powerToBeRedispatched, redispatchedPower);
+        BUSINESS_WARNS.warn("Scaling : asked={}, done={}", powerToBeRedispatched, redispatchedPower);
     }
 }

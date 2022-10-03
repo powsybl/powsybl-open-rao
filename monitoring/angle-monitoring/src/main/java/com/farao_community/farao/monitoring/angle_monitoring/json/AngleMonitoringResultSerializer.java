@@ -33,10 +33,22 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
     @Override
     public void serialize(AngleMonitoringResult angleMonitoringResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+
         jsonGenerator.writeStringField(TYPE, ANGLE_MONITORING_RESULT);
         jsonGenerator.writeStringField(STATUS, angleMonitoringResult.getStatus().toString());
         // ANGLE_VALUES
         jsonGenerator.writeArrayFieldStart(ANGLE_VALUES);
+        serializeAngleValues(angleMonitoringResult, jsonGenerator);
+        jsonGenerator.writeEndArray();
+        // APPLIED_CRAS
+        jsonGenerator.writeArrayFieldStart(APPLIED_CRAS);
+        serializeAppliedCras(angleMonitoringResult, jsonGenerator);
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeAngleValues(AngleMonitoringResult angleMonitoringResult, JsonGenerator jsonGenerator) throws IOException {
         for (AngleMonitoringResult.AngleResult angleResult : angleMonitoringResult.getAngleCnecsWithAngle().stream().sorted(Comparator.comparing(AngleMonitoringResult.AngleResult::getId)).collect(Collectors.toList())) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, angleResult.getState().getInstant().toString());
@@ -48,9 +60,9 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
             jsonGenerator.writeNumberField(QUANTITY, angleResult.getAngle());
             jsonGenerator.writeEndObject();
         }
-        jsonGenerator.writeEndArray();
-        // APPLIED_CRAS
-        jsonGenerator.writeArrayFieldStart(APPLIED_CRAS);
+    }
+
+    private void serializeAppliedCras(AngleMonitoringResult angleMonitoringResult, JsonGenerator jsonGenerator) throws IOException {
         for (Map.Entry<State, Set<NetworkAction>> entry : angleMonitoringResult.getAppliedCras().entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
                 .collect(Collectors.toList())) {
             jsonGenerator.writeStartObject();
