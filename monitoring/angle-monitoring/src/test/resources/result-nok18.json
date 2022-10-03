@@ -1,0 +1,22 @@
+{
+  "type" : "ANGLE_MONITORING_RESULT",
+  "status" : "SECURE",
+  "angle-cnec-quantities-in-degrees" : [ {
+    "cnec-id" : "ac1",
+    "instant" : "preventive",
+    "quantity" : 2.0
+  }, {
+    "instant" : "auto",
+    "contingency" : "co1",
+    "cnec-id" : "ac2",
+    "quantity" : 4.0
+  } ],
+  "applied-cras" : [ {
+    "instant" : "curative",
+    "contingency" : "co1",
+    "remedial-actions" : [ "na2" ]
+  }, {
+    "instant" : "preventive",
+    "remedial-actions" : [ "na1" ]
+  } ]
+}
