@@ -110,6 +110,7 @@ public class SystematicSensitivityResult {
 
         if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
             reference = 0.;
+            sensitivity = 0.;
         } else {
             this.status = SensitivityComputationStatus.SUCCESS;
         }
