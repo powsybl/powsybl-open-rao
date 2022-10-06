@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -33,6 +35,8 @@ public class MnecViolationCostEvaluatorTest {
     private FlowCnec pureCnec;
     private FlowResult initialFlowResult;
     private FlowResult currentFlowResult;
+    private RangeActionActivationResult rangeActionActivationResult;
+    private SensitivityResult sensitivityResult;
     private MnecViolationCostEvaluator evaluator1;
     private MnecViolationCostEvaluator evaluator2;
 
@@ -50,6 +54,8 @@ public class MnecViolationCostEvaluatorTest {
 
         initialFlowResult = Mockito.mock(FlowResult.class);
         currentFlowResult = Mockito.mock(FlowResult.class);
+        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        sensitivityResult = Mockito.mock(SensitivityResult.class);
 
         evaluator1 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
@@ -103,7 +109,7 @@ public class MnecViolationCostEvaluatorTest {
     public void getCostlyElements() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10);
 
-        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentFlowResult, 5);
+        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentFlowResult, rangeActionActivationResult, sensitivityResult, 5);
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
@@ -113,7 +119,7 @@ public class MnecViolationCostEvaluatorTest {
     public void getCostlyElementsWithLimitedElements() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10);
 
-        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentFlowResult, 1);
+        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentFlowResult,  rangeActionActivationResult, sensitivityResult, 1);
         assertEquals(1, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
     }
@@ -122,7 +128,7 @@ public class MnecViolationCostEvaluatorTest {
     public void getCostlyElementsWithNoCostlyElements() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithNoCosts();
 
-        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentFlowResult, 5);
+        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentFlowResult,  rangeActionActivationResult, sensitivityResult, 5);
         assertEquals(0, costlyElements.size());
     }
 
@@ -130,7 +136,7 @@ public class MnecViolationCostEvaluatorTest {
     public void computeCostWithTooLowCost() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10);
 
-        assertEquals(0, evaluator.computeCost(currentFlowResult, Mockito.mock(ComputationStatus.class)), 1e-12);
+        assertEquals(0, evaluator.computeCost(currentFlowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)), 1e-12);
     }
 
     @Test
@@ -155,13 +161,13 @@ public class MnecViolationCostEvaluatorTest {
 
         assertEquals(
                 expectedCostWithEval1,
-                evaluator1.computeCost(currentFlowResult, Mockito.mock(ComputationStatus.class)),
+                evaluator1.computeCost(currentFlowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)),
                 DOUBLE_TOLERANCE
         );
 
         assertEquals(
                 expectedCostWithEval2,
-                evaluator2.computeCost(currentFlowResult, Mockito.mock(ComputationStatus.class)),
+                evaluator2.computeCost(currentFlowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)),
                 DOUBLE_TOLERANCE
         );
     }

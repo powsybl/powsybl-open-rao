@@ -10,6 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,10 +26,14 @@ public class SensitivityFallbackOvercostEvaluatorTest {
 
     private FlowResult flowResult;
     private SensitivityFallbackOvercostEvaluator evaluator;
+    private RangeActionActivationResult rangeActionActivationResult;
+    private SensitivityResult sensitivityResult;
 
     @Before
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
+        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        sensitivityResult = Mockito.mock(SensitivityResult.class);
     }
 
     @Test
@@ -45,26 +51,26 @@ public class SensitivityFallbackOvercostEvaluatorTest {
     @Test
     public void testWithNullCost() {
         evaluator = new SensitivityFallbackOvercostEvaluator(0);
-        assertEquals(0, evaluator.computeCost(flowResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(0, evaluator.computeCost(flowResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testWithCost() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
-        assertEquals(0, evaluator.computeCost(flowResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(10, evaluator.computeCost(flowResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
+        assertEquals(10, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
     }
 
     @Test (expected = FaraoException.class)
     public void testFailure() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
-        evaluator.computeCost(flowResult, ComputationStatus.FAILURE);
+        evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE);
     }
 
     @Test
     public void testGetCostlyElements() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
-        assertEquals(0, evaluator.getCostlyElements(flowResult, 5).size());
+        assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5).size());
     }
 }

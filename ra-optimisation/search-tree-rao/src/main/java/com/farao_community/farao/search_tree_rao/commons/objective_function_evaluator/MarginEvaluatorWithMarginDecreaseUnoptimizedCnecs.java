@@ -10,6 +10,8 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.*;
 
@@ -19,24 +21,24 @@ import java.util.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MarginEvaluatorWithUnoptimizedCnecs implements MarginEvaluator {
+public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs implements MarginEvaluator {
     private final MarginEvaluator marginEvaluator;
     private final Set<String> countriesNotToOptimize;
     private final FlowResult prePerimeterFlowResult;
 
-    public MarginEvaluatorWithUnoptimizedCnecs(MarginEvaluator marginEvaluator,
-                                               Set<String> countriesNotToOptimize,
-                                               FlowResult prePerimeterFlowResult) {
+    public MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(MarginEvaluator marginEvaluator,
+                                                             Set<String> countriesNotToOptimize,
+                                                             FlowResult prePerimeterFlowResult) {
         this.marginEvaluator = marginEvaluator;
         this.countriesNotToOptimize = countriesNotToOptimize;
         this.prePerimeterFlowResult = prePerimeterFlowResult;
     }
 
     @Override
-    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Unit unit) {
-        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, unit);
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit);
         if (countriesNotToOptimize.contains(flowCnec.getOperator())) {
-            double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, unit);
+            double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit);
             if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
                 return Double.MAX_VALUE;
             }

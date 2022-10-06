@@ -211,7 +211,7 @@ public class IteratingLinearOptimizer {
                                                                RangeActionActivationResult rangeActionActivation,
                                                                int nbOfIterations) {
         return new IteratingLinearOptimizationResultImpl(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionActivation, flowResult,
-            input.getObjectiveFunction().evaluate(flowResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
+            input.getObjectiveFunction().evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
     private RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult) {

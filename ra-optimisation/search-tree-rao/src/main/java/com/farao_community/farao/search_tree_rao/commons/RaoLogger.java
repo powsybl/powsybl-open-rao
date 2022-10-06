@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -19,13 +20,13 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
-import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
+import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,16 +42,19 @@ public final class RaoLogger {
     }
 
     public static void logSensitivityAnalysisResults(String prefix,
-                                              ObjectiveFunction objectiveFunction,
-                                              PrePerimeterResult sensitivityAnalysisResult,
-                                              RaoParameters raoParameters,
-                                              int numberOfLoggedLimitingElements) {
+                                                     ObjectiveFunction objectiveFunction,
+                                                     Crac crac,
+                                                     Network network,
+                                                     PrePerimeterResult sensitivityAnalysisResult,
+                                                     RaoParameters raoParameters,
+                                                     int numberOfLoggedLimitingElements) {
 
         if (!BUSINESS_LOGS.isInfoEnabled()) {
             return;
         }
 
-        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions())),
+                sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
             formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
