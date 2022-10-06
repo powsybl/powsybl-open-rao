@@ -155,7 +155,7 @@ public class Leaf implements OptimizationResult {
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, preOptimSensitivityResult.getSensitivityStatus());
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationsFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
             return;
         }
 
@@ -164,7 +164,7 @@ public class Leaf implements OptimizationResult {
             sensitivityComputer.compute(network);
             preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
             preOptimFlowResult = sensitivityComputer.getBranchResult();
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, preOptimSensitivityResult.getSensitivityStatus());
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationsFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
             status = Status.EVALUATED;
         } catch (FaraoException e) {
             BUSINESS_WARNS.warn("Failed to evaluate leaf: {}", e.getMessage());

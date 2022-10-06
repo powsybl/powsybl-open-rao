@@ -184,6 +184,7 @@ public class LinearProblemBuilder {
 
     private ProblemFiller buildUnoptimizedCnecFiller() {
         return new UnoptimizedCnecFiller(
+                inputs.getOptimizationPerimeter(),
             inputs.getOptimizationPerimeter().getFlowCnecs(),
             inputs.getPrePerimeterFlowResult(),
             parameters.getUnoptimizedCnecParameters()

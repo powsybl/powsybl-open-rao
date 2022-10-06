@@ -9,8 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +22,8 @@ import java.util.Set;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
+    private final RangeActionActivationResult rangeActionActivationResult;
+    private final SensitivityResult sensitivityResult;
     private final ComputationStatus sensitivityStatus;
     private boolean areCostComputed;
     private Double functionalCost;
@@ -30,9 +31,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
+                                       RangeActionActivationResult rangeActionActivationResult,
+                                       SensitivityResult sensitivityResult,
                                        ComputationStatus sensitivityStatus) {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
+        this.rangeActionActivationResult = rangeActionActivationResult;
+        this.sensitivityResult = sensitivityResult;
         this.sensitivityStatus = sensitivityStatus;
         this.areCostComputed = false;
     }
@@ -47,7 +52,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        return objectiveFunction.getMostLimitingElements(flowResult, number);
+        return objectiveFunction.getMostLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
     }
 
     @Override
@@ -76,13 +81,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        return objectiveFunction.getCostlyElements(flowResult, virtualCostName, number);
+        return objectiveFunction.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, virtualCostName, number);
     }
 
     private void computeCosts() {
-        functionalCost = objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        functionalCost = objectiveFunction.getFunctionalCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
         virtualCosts = new HashMap<>();
-        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, sensitivityStatus, vcn)));
+        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn)));
         areCostComputed = true;
     }
 }

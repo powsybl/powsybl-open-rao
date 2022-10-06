@@ -10,6 +10,8 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -33,6 +35,8 @@ public class MinMarginEvaluatorTest {
     private FlowCnec cnec3;
     private FlowCnec pureMnec;
     private FlowResult flowResult;
+    private RangeActionActivationResult rangeActionActivationResult;
+    private SensitivityResult sensitivityResult;
     private MarginEvaluator marginEvaluator;
     private MinMarginEvaluator minMarginEvaluator;
 
@@ -51,12 +55,15 @@ public class MinMarginEvaluatorTest {
         when(pureMnec.isMonitored()).thenReturn(true);
         when(pureMnec.isOptimized()).thenReturn(false);
 
+        rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        sensitivityResult = Mockito.mock(SensitivityResult.class);
+
         marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
-        when(marginEvaluator.getMargin(flowResult, cnec1, MEGAWATT)).thenReturn(-150.);
-        when(marginEvaluator.getMargin(flowResult, cnec2, MEGAWATT)).thenReturn(200.);
-        when(marginEvaluator.getMargin(flowResult, cnec3, MEGAWATT)).thenReturn(-250.);
-        when(marginEvaluator.getMargin(flowResult, pureMnec, MEGAWATT)).thenReturn(50.);
+        when(marginEvaluator.getMargin(flowResult, cnec1, rangeActionActivationResult, sensitivityResult, MEGAWATT)).thenReturn(-150.);
+        when(marginEvaluator.getMargin(flowResult, cnec2, rangeActionActivationResult, sensitivityResult, MEGAWATT)).thenReturn(200.);
+        when(marginEvaluator.getMargin(flowResult, cnec3, rangeActionActivationResult, sensitivityResult, MEGAWATT)).thenReturn(-250.);
+        when(marginEvaluator.getMargin(flowResult, pureMnec, rangeActionActivationResult, sensitivityResult, MEGAWATT)).thenReturn(50.);
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(cnec1, cnec2, cnec3, pureMnec), MEGAWATT, marginEvaluator);
     }
@@ -73,7 +80,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getMostLimitingElements() {
-        List<FlowCnec> costlyElements = minMarginEvaluator.getCostlyElements(flowResult, 5);
+        List<FlowCnec> costlyElements = minMarginEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5);
         assertEquals(3, costlyElements.size());
         assertSame(cnec3, costlyElements.get(0));
         assertSame(cnec1, costlyElements.get(1));
@@ -82,7 +89,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getMostLimitingElementsWithLimitedElements() {
-        List<FlowCnec> costlyElements = minMarginEvaluator.getCostlyElements(flowResult, 2);
+        List<FlowCnec> costlyElements = minMarginEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 2);
         assertEquals(2, costlyElements.size());
         assertSame(cnec3, costlyElements.get(0));
         assertSame(cnec1, costlyElements.get(1));
@@ -90,12 +97,12 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getMostLimitingElement() {
-        assertSame(cnec3, minMarginEvaluator.getMostLimitingElement(flowResult));
+        assertSame(cnec3, minMarginEvaluator.getMostLimitingElement(flowResult, rangeActionActivationResult, sensitivityResult));
     }
 
     @Test
     public void computeCost() {
-        assertEquals(250., minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -111,13 +118,13 @@ public class MinMarginEvaluatorTest {
 
         MarginEvaluator marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
-        when(marginEvaluator.getMargin(flowResult, mnec1, MEGAWATT)).thenReturn(-150.);
-        when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
+        when(marginEvaluator.getMargin(flowResult, mnec1, rangeActionActivationResult, sensitivityResult, MEGAWATT)).thenReturn(-150.);
+        when(marginEvaluator.getMargin(flowResult, mnec2, rangeActionActivationResult, sensitivityResult, MEGAWATT)).thenReturn(200.);
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
-        assertTrue(minMarginEvaluator.getCostlyElements(flowResult, 10).isEmpty());
-        assertNull(minMarginEvaluator.getMostLimitingElement(flowResult));
-        assertEquals(-2000, minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
+        assertTrue(minMarginEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 10).isEmpty());
+        assertNull(minMarginEvaluator.getMostLimitingElement(flowResult, rangeActionActivationResult, sensitivityResult));
+        assertEquals(-2000, minMarginEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
@@ -127,11 +134,11 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void testAllCnecsUnoptimized() {
-        when(marginEvaluator.getMargin(eq(flowResult), any(), eq(MEGAWATT))).thenReturn(Double.MAX_VALUE);
+        when(marginEvaluator.getMargin(eq(flowResult), any(), any(), any(), eq(MEGAWATT))).thenReturn(Double.MAX_VALUE);
         mockCnecThresholds(cnec1, 1000);
         mockCnecThresholds(cnec2, 2000);
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
-        assertEquals(-4000., minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(-4000., minMarginEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
     }
 }

@@ -185,7 +185,7 @@ public class SearchTreeRaoParametersTest {
         crac.newPstRangeAction().withId("pstRange1Id")
                 .withName("pstRange1Name")
                 .withOperator("RTE")
-                .withNetworkElement("pst")
+                .withNetworkElement("pst1")
                 .withInitialTap(2)
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
@@ -205,15 +205,31 @@ public class SearchTreeRaoParametersTest {
                 .add();
 
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
-        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("flowCnec-1", "pstRange1Id",
-                "flowCnec-2", "fakeId",
-                "fakeId", "pstRange2Id"));
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("ne1Id", "pst1",
+                "ne2Id", "fakeId",
+                "fakeId", "pst2"));
         Map<FlowCnec, PstRangeAction> map = parameters.getUnoptimizedCnecsInSeriesWithPsts(crac);
         assertEquals(3, parameters.getUnoptimizedCnecsInSeriesWithPstsIds().size());
         assertEquals(1, map.size());
         assertTrue(map.containsKey(crac.getFlowCnec("flowCnec-1")));
         assertEquals(crac.getPstRangeAction("pstRange1Id"), map.get(crac.getFlowCnec("flowCnec-1")));
         assertFalse(map.containsKey(crac.getFlowCnec("flowCnec-2")));
+
+        // Add pst with same networkElement to crac
+        crac.newPstRangeAction().withId("pstRange3Id")
+                .withName("pstRange3Name")
+                .withOperator("RTE")
+                .withNetworkElement("pst2")
+                .withGroupId("group-1-pst")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .add();
+        SearchTreeRaoParameters newParameters = new SearchTreeRaoParameters();
+        newParameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("ne1Id", "pst2"));
+        Map<FlowCnec, PstRangeAction> newMap = newParameters.getUnoptimizedCnecsInSeriesWithPsts(crac);
+        assertEquals(0, newMap.size());
     }
 
     @Test

@@ -16,6 +16,7 @@ import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombinatio
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
@@ -266,6 +267,10 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         return unoptimizedCnecsInSeriesWithPstsIds;
     }
 
+    public Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPsts() {
+        return unoptimizedCnecsInSeriesWithPsts;
+    }
+
     public Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPsts(Crac crac) {
         if (Objects.isNull(unoptimizedCnecsInSeriesWithPsts)) {
             unoptimizedCnecsInSeriesWithPsts = getUnoptimizedCnecsInSeriesWithPstsFromIds(unoptimizedCnecsInSeriesWithPstsIds, crac);
@@ -286,25 +291,30 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     private Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPstsFromIds(Map<String, String> ids, Crac crac) {
         Map<FlowCnec, PstRangeAction> mapOfUnoptimizedCnecsAndPsts = new HashMap<>();
-        for (Map.Entry<String, String> cnecPstIds : ids.entrySet()) {
-            FlowCnec flowCnec = crac.getFlowCnec(cnecPstIds.getKey());
-            if (Objects.isNull(flowCnec)) {
-                BUSINESS_WARNS.warn("Unknown flow cnec id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecPstIds.getKey());
-                continue;
-            }
-            PstRangeAction pstRangeAction = crac.getPstRangeAction(cnecPstIds.getValue());
-            if (Objects.isNull(pstRangeAction)) {
-                BUSINESS_WARNS.warn("Unknown pst range action id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecPstIds.getValue());
-                continue;
-            }
-            mapOfUnoptimizedCnecsAndPsts.put(flowCnec, pstRangeAction);
-        }
-        if (mapOfUnoptimizedCnecsAndPsts.isEmpty()) {
-            return null;
-        } else {
-            return mapOfUnoptimizedCnecsAndPsts;
-        }
+        // Create map elements for all cnecs with network element id in ids.keySet()
+        for (Map.Entry<String, String> entrySet : ids.entrySet()) {
+            String cnecId = entrySet.getKey();
+            String pstId = entrySet.getValue();
 
+            Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> flowCnec.getNetworkElement().getId().equals(cnecId)).collect(Collectors.toSet());
+            Set<PstRangeAction> pstRangeActions = crac.getPstRangeActions().stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(pstId)).collect(Collectors.toSet());
+
+            if (flowCnecs.isEmpty()) {
+                BUSINESS_WARNS.warn("Unknown flow cnec id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecId);
+                continue;
+            }
+            if (pstRangeActions.isEmpty()) {
+                BUSINESS_WARNS.warn("Unknown pst range action id in unoptimized-cnecs-in-series-with-psts parameter: {}", pstId);
+                continue;
+            }
+            if (pstRangeActions.size() > 1) {
+                BUSINESS_WARNS.warn("{} pst range actions are defined with network element {} instead of 1", pstRangeActions.size(), pstId);
+                continue;
+            }
+
+            flowCnecs.forEach(flowCnec -> mapOfUnoptimizedCnecsAndPsts.put(flowCnec, pstRangeActions.iterator().next()));
+        }
+        return mapOfUnoptimizedCnecsAndPsts;
     }
 
     public SecondPreventiveRaoCondition getSecondPreventiveOptimizationCondition() {

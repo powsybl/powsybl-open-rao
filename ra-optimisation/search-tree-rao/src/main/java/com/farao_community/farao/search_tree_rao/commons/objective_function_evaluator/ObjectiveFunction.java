@@ -15,8 +15,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,25 +32,25 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, ComputationStatus sensitivityStatus) {
-        return new ObjectiveFunctionResultImpl(this, flowResult, sensitivityStatus);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return new ObjectiveFunctionResultImpl(this, flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }
 
     public static ObjectiveFunctionBuilder create() {
         return new ObjectiveFunctionBuilder();
     }
 
-    public double getFunctionalCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCost(flowResult, sensitivityStatus);
+    public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }
 
-    public List<FlowCnec> getMostLimitingElements(FlowResult flowResult, int number) {
-        return functionalCostEvaluator.getCostlyElements(flowResult, number);
+    public List<FlowCnec> getMostLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
+        return functionalCostEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
     }
 
-    public double getVirtualCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
+    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
         return virtualCostEvaluators.stream()
-                .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, sensitivityStatus))
+                .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
                 .sum();
     }
 
@@ -59,20 +58,20 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public double getVirtualCost(FlowResult flowResult, ComputationStatus sensitivityStatus, String virtualCostName) {
+    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
         return virtualCostEvaluators.stream()
                 .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
                 .findAny()
-                .map(costEvaluator -> costEvaluator.computeCost(flowResult, sensitivityStatus))
+                .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
                 .orElse(Double.NaN);
     }
 
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, String virtualCostName, int number) {
         Optional<CostEvaluator> optionalCostEvaluator =  virtualCostEvaluators.stream()
                 .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
                 .findAny();
         if (optionalCostEvaluator.isPresent()) {
-            return optionalCostEvaluator.get().getCostlyElements(flowResult, number);
+            return optionalCostEvaluator.get().getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
         } else {
             return Collections.emptyList();
         }
@@ -88,9 +87,9 @@ public final class ObjectiveFunction {
             // min margin objective function
             MarginEvaluator marginEvaluator;
             if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
-                marginEvaluator = FlowResult::getRelativeMargin;
+                marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
-                marginEvaluator = FlowResult::getMargin;
+                marginEvaluator = new BasicMinMarginEvaluator();
             }
             this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
 
@@ -98,11 +97,12 @@ public final class ObjectiveFunction {
         }
 
         public ObjectiveFunction build(Set<FlowCnec> flowCnecs,
-                                              Set<FlowCnec> loopFlowCnecs,
-                                              FlowResult initialFlowResult,
-                                              FlowResult prePerimeterFlowResult,
-                                              Set<String> operatorsNotToOptimizeInCurative,
-                                              RaoParameters raoParameters) {
+                                       Set<FlowCnec> loopFlowCnecs,
+                                       FlowResult initialFlowResult,
+                                       FlowResult prePerimeterFlowResult,
+                                       RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
+                                       Set<String> operatorsNotToOptimizeInCurative,
+                                       RaoParameters raoParameters) {
 
             SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
             if (searchTreeRaoParameters == null) {
@@ -112,18 +112,23 @@ public final class ObjectiveFunction {
             // min margin objective function
             MarginEvaluator marginEvaluator;
             if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
-                marginEvaluator = FlowResult::getRelativeMargin;
+                marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
-                marginEvaluator = FlowResult::getMargin;
+                marginEvaluator = new BasicMinMarginEvaluator();
             }
 
+            // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
             if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
 
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
-                    new MarginEvaluatorWithUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
+                    new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
+                // Unoptimized cnecs in series with psts
+            } else if (!searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPsts(), prePerimeterRangeActionSetpointResult)));
 
-            } else {
+            } else  {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
             }
 
