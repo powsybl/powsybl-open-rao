@@ -43,13 +43,14 @@ import static java.lang.String.format;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class UnoptimizedCnecFiller implements ProblemFiller {
+    public static final String BINARY_VARIABLE_NOT_CREATED = "Optimize cnec binary variable has not yet been created for Cnec %s";
     private final OptimizationPerimeter optimizationContext;
     private final Set<FlowCnec> flowCnecs;
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
     private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap;
-    public UnoptimizedCnecFillerRule selectedRule;
+    private UnoptimizedCnecFillerRule selectedRule;
 
     public UnoptimizedCnecFiller(OptimizationPerimeter optimizationContext,
                                  Set<FlowCnec> flowCnecs,
@@ -164,7 +165,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             }
             MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
             if (optimizeCnecBinaryVariable == null) {
-                throw new FaraoException(String.format("Optimize cnec binary variable has not yet been created for Cnec %s", cnec.getId()));
+                throw new FaraoException(String.format(BINARY_VARIABLE_NOT_CREATED, cnec.getId()));
             }
 
             Optional<Double> minFlow;
@@ -212,20 +213,16 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         getFlowCnecs().forEach(cnec -> {
             // Flow variable
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
-            if (flowVariable == null) {
-                throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s", cnec.getId()));
-            }
+            checkVariableCreation(flowVariable, "Flow variable has not yet been created for Cnec %s", cnec.getId());
+
             // Optimize cnec binary variable
             MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
-            if (optimizeCnecBinaryVariable == null) {
-                throw new FaraoException(String.format("Optimize cnec binary variable has not yet been created for Cnec %s", cnec.getId()));
-            }
+            checkVariableCreation(optimizeCnecBinaryVariable, BINARY_VARIABLE_NOT_CREATED, cnec.getId());
 
             State state = getLastStateWithRangeActionAvailableForCnec(cnec);
             MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecPstRangeActionMap.get(cnec), state);
-            if (setPointVariable == null) {
-                throw new FaraoException(format("Range action variable for %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec.getId())));
-            }
+            checkVariableCreation(setPointVariable, "Range action variable for PST %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec).getId()));
+
             double maxSetpoint = setPointVariable.ub();
             double minSetpoint = setPointVariable.lb();
             double sensitivity = sensitivityResult.getSensitivityValue(cnec, flowCnecPstRangeActionMap.get(cnec), Unit.MEGAWATT);
@@ -282,6 +279,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
             }
         });
+    }
+
+    private void checkVariableCreation(MPVariable variable, String errorMessage, String id) {
+        if (variable == null) {
+            throw new FaraoException(String.format(errorMessage, id));
+        }
     }
 
     /**
@@ -343,7 +346,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         getFlowCnecs().forEach(cnec -> {
             MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
             if (optimizeCnecBinaryVariable == null) {
-                throw new FaraoException(String.format("Optimize cnec binary variable has not yet been created for Cnec %s", cnec.getId()));
+                throw new FaraoException(String.format(BINARY_VARIABLE_NOT_CREATED, cnec.getId()));
             }
             updateMinimumMarginConstraint(
                     linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD),
