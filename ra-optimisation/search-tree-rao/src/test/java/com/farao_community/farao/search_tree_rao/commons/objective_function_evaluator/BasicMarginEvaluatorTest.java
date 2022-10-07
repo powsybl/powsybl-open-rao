@@ -15,8 +15,6 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
