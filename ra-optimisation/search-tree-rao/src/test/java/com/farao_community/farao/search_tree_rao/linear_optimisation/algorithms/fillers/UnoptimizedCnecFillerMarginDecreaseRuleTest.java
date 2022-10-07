@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
+public class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
