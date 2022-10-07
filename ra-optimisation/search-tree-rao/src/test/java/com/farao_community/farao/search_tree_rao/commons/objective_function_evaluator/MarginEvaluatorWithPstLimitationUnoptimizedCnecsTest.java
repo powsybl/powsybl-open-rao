@@ -33,7 +33,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
 
     private final FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
     private final FlowResult currentFlowResult = Mockito.mock(FlowResult.class);
-    private final FlowResult prePerimeterFlowResult = Mockito.mock(FlowResult.class);
     private final RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
     private final SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
 

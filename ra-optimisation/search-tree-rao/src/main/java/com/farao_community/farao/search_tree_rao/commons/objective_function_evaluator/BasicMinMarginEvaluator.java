@@ -21,6 +21,7 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 public class BasicMinMarginEvaluator implements MarginEvaluator {
 
     public BasicMinMarginEvaluator() {
+        // do nothing : only getMargin is useful in this class
     }
 
     @Override
