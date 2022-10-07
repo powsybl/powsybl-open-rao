@@ -299,22 +299,29 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
             Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> flowCnec.getNetworkElement().getId().equals(cnecId)).collect(Collectors.toSet());
             Set<PstRangeAction> pstRangeActions = crac.getPstRangeActions().stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(pstId)).collect(Collectors.toSet());
 
-            if (flowCnecs.isEmpty()) {
-                BUSINESS_WARNS.warn("Unknown flow cnec id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecId);
-                continue;
-            }
-            if (pstRangeActions.isEmpty()) {
-                BUSINESS_WARNS.warn("Unknown pst range action id in unoptimized-cnecs-in-series-with-psts parameter: {}", pstId);
-                continue;
-            }
-            if (pstRangeActions.size() > 1) {
-                BUSINESS_WARNS.warn("{} pst range actions are defined with network element {} instead of 1", pstRangeActions.size(), pstId);
+            if (skipEntry(flowCnecs, pstRangeActions, cnecId, pstId)) {
                 continue;
             }
 
             flowCnecs.forEach(flowCnec -> mapOfUnoptimizedCnecsAndPsts.put(flowCnec, pstRangeActions.iterator().next()));
         }
         return mapOfUnoptimizedCnecsAndPsts;
+    }
+
+    private boolean skipEntry(Set<FlowCnec> flowCnecs, Set<PstRangeAction> pstRangeActions, String cnecId, String pstId) {
+        if (flowCnecs.isEmpty()) {
+            BUSINESS_WARNS.warn("Unknown flow cnec id in unoptimized-cnecs-in-series-with-psts parameter: {}", cnecId);
+            return true;
+        }
+        if (pstRangeActions.isEmpty()) {
+            BUSINESS_WARNS.warn("Unknown pst range action id in unoptimized-cnecs-in-series-with-psts parameter: {}", pstId);
+            return true;
+        }
+        if (pstRangeActions.size() > 1) {
+            BUSINESS_WARNS.warn("{} pst range actions are defined with network element {} instead of 1", pstRangeActions.size(), pstId);
+            return true;
+        }
+        return false;
     }
 
     public SecondPreventiveRaoCondition getSecondPreventiveOptimizationCondition() {
