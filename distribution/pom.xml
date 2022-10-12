@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-core</artifactId>
-        <version>4.1.4-SNAPSHOT</version>
+        <version>4.1.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>farao-distribution</artifactId>
@@ -17,6 +17,11 @@
 
     <dependencies>
         <!-- farao-core dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-angle-monitoring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-core-cne-exporter</artifactId>
@@ -140,6 +145,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-voltage-monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
 
