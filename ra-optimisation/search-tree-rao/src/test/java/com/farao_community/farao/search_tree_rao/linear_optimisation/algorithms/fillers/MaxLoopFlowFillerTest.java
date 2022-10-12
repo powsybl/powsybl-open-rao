@@ -137,6 +137,9 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), 0.1);
         assertEquals(1, loopFlowConstraintLb.getCoefficient(flowVariable), 0.1);
+
+        // violation cost
+        assertEquals(10., linearProblem.getObjective().getCoefficient(linearProblem.getLoopflowViolationVariable(cnec1, Side.LEFT)), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -264,5 +267,9 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         flowVariable = linearProblem.getFlowVariable(cnecOn2sides, Side.RIGHT);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), 0.1);
         assertEquals(1, loopFlowConstraintLb.getCoefficient(flowVariable), 0.1);
+
+        // violation cost
+        assertEquals(10. / 2, linearProblem.getObjective().getCoefficient(linearProblem.getLoopflowViolationVariable(cnecOn2sides, Side.LEFT)), DOUBLE_TOLERANCE);
+        assertEquals(10. / 2, linearProblem.getObjective().getCoefficient(linearProblem.getLoopflowViolationVariable(cnecOn2sides, Side.RIGHT)), DOUBLE_TOLERANCE);
     }
 }

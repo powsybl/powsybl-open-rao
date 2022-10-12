@@ -426,7 +426,7 @@ public final class AutomatonSimulator {
         Set<Pair<FlowCnec, Side>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
-        LinkedHashMap<FlowCnec, Set<Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
 
         // -- Define setpoint bounds
         // Aligned range actions have the same setpoint :
@@ -437,53 +437,52 @@ public final class AutomatonSimulator {
         int iteration = 0; // security measure
         double direction = 0;
         while (!flowCnecsWithNegativeMargin.isEmpty()) {
-            FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.keySet().iterator().next();
-            for (Side side : flowCnecsWithNegativeMargin.get(toBeShiftedCnec)) {
-                double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
-                double optimalSetpoint = currentSetpoint;
-                double initialMargin = 0.;
-                double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit(), MEGAWATT);
-                double cnecFlow = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit());
-                double cnecMargin = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit());
-                // Aligned range actions have the same setpoint :
-                double sensitivityValue = 0;
-                for (RangeAction<?> rangeAction : alignedRangeActions) {
-                    sensitivityValue += automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
-                }
-                // if sensi is null, move on to next cnec with negative margin
-                if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
-                    flowCnecsToBeExcluded.add(Pair.of(toBeShiftedCnec, side));
-                    flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
-                    continue;
-                }
-
-                double optimalSetpointForSide = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
-                if (Math.abs(currentSetpoint - optimalSetpointForSide) > Math.abs(currentSetpoint - optimalSetpoint)) {
-                    optimalSetpoint = optimalSetpointForSide;
-                    initialMargin = cnecMargin;
-                }
-
-                // On first iteration, define direction
-                if (iteration == 0) {
-                    direction = Math.signum(optimalSetpoint - currentSetpoint);
-                }
-                // Compare direction with previous shift
-                // If direction == 0, then the RA is at one of its bounds
-                if (direction == 0 || (direction != Math.signum(optimalSetpoint - currentSetpoint)) || iteration > MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT) {
-                    return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
-                }
-
-                for (RangeAction<?> rangeAction : alignedRangeActions) {
-                    rangeAction.apply(network, optimalSetpoint);
-                    activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
-                }
-                TECHNICAL_LOGS.debug("Shifting setpoint from {} to {} on range action(s) {} to improve margin on cnec {} on side {}} (initial margin : {} MW).", initialSetpoint, optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(" ,")), toBeShiftedCnec.getId(), side, initialMargin);
-                automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
-                RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), numberLoggedElementsDuringRao);
-                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
-
-                iteration++;
+            FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.get(0).getLeft();
+            Side side = flowCnecsWithNegativeMargin.get(0).getRight();
+            double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
+            double optimalSetpoint = currentSetpoint;
+            double initialMargin = 0.;
+            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit(), MEGAWATT);
+            double cnecFlow = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit());
+            double cnecMargin = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit());
+            // Aligned range actions have the same setpoint :
+            double sensitivityValue = 0;
+            for (RangeAction<?> rangeAction : alignedRangeActions) {
+                sensitivityValue += automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
             }
+            // if sensi is null, move on to next cnec with negative margin
+            if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
+                flowCnecsToBeExcluded.add(Pair.of(toBeShiftedCnec, side));
+                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+                continue;
+            }
+
+            double optimalSetpointForSide = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
+            if (Math.abs(currentSetpoint - optimalSetpointForSide) > Math.abs(currentSetpoint - optimalSetpoint)) {
+                optimalSetpoint = optimalSetpointForSide;
+                initialMargin = cnecMargin;
+            }
+
+            // On first iteration, define direction
+            if (iteration == 0) {
+                direction = Math.signum(optimalSetpoint - currentSetpoint);
+            }
+            // Compare direction with previous shift
+            // If direction == 0, then the RA is at one of its bounds
+            if (direction == 0 || (direction != Math.signum(optimalSetpoint - currentSetpoint)) || iteration > MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT) {
+                return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
+            }
+
+            for (RangeAction<?> rangeAction : alignedRangeActions) {
+                rangeAction.apply(network, optimalSetpoint);
+                activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
+            }
+            TECHNICAL_LOGS.debug("Shifting setpoint from {} to {} on range action(s) {} to improve margin on cnec {} on side {}} (initial margin : {} MW).", initialSetpoint, optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(" ,")), toBeShiftedCnec.getId(), side, initialMargin);
+            automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), numberLoggedElementsDuringRao);
+            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+
+            iteration++;
         }
         return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
     }
@@ -491,21 +490,22 @@ public final class AutomatonSimulator {
     /**
      * This function builds a list of cnecs with negative margin, except cnecs in cnecsToBeExcluded.
      * N.B : margin is retrieved in MEGAWATT as only the sign matters.
-     * Returns a sorted list of FlowCnecs with negative margin.
+     * Returns a sorted list of FlowCnecs-Side pairs with negative margins.
      */
-    LinkedHashMap<FlowCnec, Set<Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> cnecs,
-                                                                                      Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
-                                                                                      PrePerimeterResult prePerimeterSensitivityOutput) {
-        LinkedHashMap<FlowCnec, Set<Side>> cnecsAndSides = new LinkedHashMap<>();
-        cnecs.stream().sorted(Comparator.comparing(flowCnec -> prePerimeterSensitivityOutput.getMargin(flowCnec, MEGAWATT)))
-            .forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
-                if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) &&
-                    prePerimeterSensitivityOutput.getMargin(flowCnec, side, MEGAWATT) < 0) {
-                    cnecsAndSides.computeIfAbsent(flowCnec, k -> new HashSet<>()).add(side);
-                }
-            })
-        );
-        return cnecsAndSides;
+    List<Pair<FlowCnec, Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
+                                                                              Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
+                                                                              PrePerimeterResult prePerimeterSensitivityOutput) {
+        Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
+        flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
+            double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, MEGAWATT);
+            if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+                cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
+            }
+        }));
+        return cnecsAndMargins.entrySet().stream()
+                .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     /**

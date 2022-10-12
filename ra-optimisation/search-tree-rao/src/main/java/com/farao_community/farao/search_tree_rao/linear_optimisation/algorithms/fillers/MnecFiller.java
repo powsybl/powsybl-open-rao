@@ -113,7 +113,7 @@ public class MnecFiller implements ProblemFiller {
         getMonitoredCnecs().stream().filter(FlowCnec::isMonitored).forEach(mnec ->
             mnec.getMonitoredSides().forEach(side ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec, side),
-                    RaoUtil.getFlowUnitMultiplier(mnec, side, MEGAWATT, unit) * mnecViolationCost)
+                    RaoUtil.getFlowUnitMultiplier(mnec, side, MEGAWATT, unit) * mnecViolationCost / mnec.getMonitoredSides().size())
             ));
     }
 }

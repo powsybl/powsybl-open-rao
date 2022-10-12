@@ -141,11 +141,11 @@ final class FlowCnecResultArraySerializer {
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, FlowCnec flowCnec, OptimizationState optState, Unit unit) {
         return !Double.isNaN(safeGetMargin(raoResult, flowCnec, optState, unit)) ||
             !Double.isNaN(safeGetRelativeMargin(raoResult, flowCnec, optState, unit)) ||
-            containsAnyFlowResultForOptimizationState(raoResult, flowCnec, Side.LEFT, optState, unit) ||
-            containsAnyFlowResultForOptimizationState(raoResult, flowCnec, Side.RIGHT, optState, unit);
+            containsAnyResultForOptimizationStateAndSide(raoResult, flowCnec, Side.LEFT, optState, unit) ||
+            containsAnyResultForOptimizationStateAndSide(raoResult, flowCnec, Side.RIGHT, optState, unit);
     }
 
-    private static boolean containsAnyFlowResultForOptimizationState(RaoResult raoResult, FlowCnec flowCnec, Side side, OptimizationState optState, Unit unit) {
+    private static boolean containsAnyResultForOptimizationStateAndSide(RaoResult raoResult, FlowCnec flowCnec, Side side, OptimizationState optState, Unit unit) {
         return !Double.isNaN(safeGetFlow(raoResult, flowCnec, side, optState, unit)) ||
             !Double.isNaN(safeGetLoopFlow(raoResult, flowCnec, side, optState, unit)) ||
             !Double.isNaN(safeGetCommercialFlow(raoResult, flowCnec, side, optState, unit)) ||

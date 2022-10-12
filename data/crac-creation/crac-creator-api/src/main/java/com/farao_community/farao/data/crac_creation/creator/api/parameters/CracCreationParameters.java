@@ -41,13 +41,13 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         MONITOR_LINES_ON_RIGHT_SIDE(Set.of(Side.RIGHT)),
         MONITOR_LINES_ON_BOTH_SIDES(Set.of(Side.LEFT, Side.RIGHT));
 
-        private Set<Side> monitoredSides;
+        private final Set<Side> monitoredSides;
         MonitoredLineSide(Set<Side> monitoredSides) {
             this.monitoredSides = monitoredSides;
         }
 
         Set<Side> getMonitoredSides() {
-            return new HashSet<>(monitoredSides);
+            return monitoredSides;
         }
     }
 
