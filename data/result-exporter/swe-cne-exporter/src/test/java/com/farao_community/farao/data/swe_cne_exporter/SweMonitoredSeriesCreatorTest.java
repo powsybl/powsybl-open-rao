@@ -183,6 +183,10 @@ public class SweMonitoredSeriesCreatorTest {
             cnecId = mscc.getNativeName() + " - " + instant;
         }
         FlowCnec flowCnec = crac.getFlowCnec(cnecId);
-        Mockito.when(raoResult.getFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.AMPERE)).thenReturn(flow);
+        Mockito.when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT, Side.RIGHT));
+        Mockito.when(raoResult.getFlow(OptimizationState.AFTER_CRA, flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(flow);
+        Mockito.when(raoResult.getFlow(OptimizationState.AFTER_CRA, flowCnec, Side.RIGHT, Unit.AMPERE)).thenReturn(flow + 10);
+        Mockito.when(flowCnec.computeMargin(flow, Side.LEFT, Unit.AMPERE)).thenReturn(1000 - flow);
+        Mockito.when(flowCnec.computeMargin(flow, Side.RIGHT, Unit.AMPERE)).thenReturn(1100 - flow);
     }
 }

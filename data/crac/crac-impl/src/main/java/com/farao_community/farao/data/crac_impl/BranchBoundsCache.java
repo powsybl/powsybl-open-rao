@@ -11,9 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -30,42 +28,32 @@ public class BranchBoundsCache {
         UPPER
     }
 
-    private List<Boolean> boundsComputed = Arrays.asList(false, false, false, false, false, false);
-    private List<Double> boundValues = Arrays.asList(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    private List<Boolean> boundsComputed = Arrays.asList(false, false, false, false, false, false, false, false);
+    private List<Double> boundValues = Arrays.asList(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
     private static int getIndex(Side side, Unit unit, Bound bound) {
         if (unit.equals(Unit.AMPERE)) {
             return getAmpereIndex(side, bound);
         } else if (unit.equals(Unit.MEGAWATT)) {
-            return getMegawattIndex(bound);
+            return getMegawattIndex(side, bound);
         } else {
             throw new UnsupportedOperationException(format("Unit %s not supported", unit));
         }
     }
 
-    private static int getMegawattIndex(Bound bound) {
+    private static int getMegawattIndex(Side side, Bound bound) {
         if (bound.equals(Bound.LOWER)) {
-            return 2;
+            return side.equals(Side.LEFT) ? 0 : 1;
         } else {
-            return 5;
+            return side.equals(Side.LEFT) ? 2 : 3;
         }
     }
 
     private static int getAmpereIndex(Side side, Bound bound) {
-        if (side.equals(Side.LEFT)) {
-            if (bound.equals(Bound.LOWER)) {
-                return 0;
-            } else {
-                return 3;
-            }
-        } else if (side.equals(Side.RIGHT)) {
-            if (bound.equals(Bound.LOWER)) {
-                return 1;
-            } else {
-                return 4;
-            }
+        if (bound.equals(Bound.LOWER)) {
+            return side.equals(Side.LEFT) ? 4 : 5;
         } else {
-            throw new UnsupportedOperationException(format("Side %s not supported", side));
+            return side.equals(Side.LEFT) ? 6 : 7;
         }
     }
 
@@ -99,9 +87,5 @@ public class BranchBoundsCache {
     public void setUpperBound(Double upperBound, Side side, Unit unit) {
         boundValues.set(getIndex(side, unit, Bound.UPPER), upperBound);
         boundsComputed.set(getIndex(side, unit, Bound.UPPER), true);
-    }
-
-    public void resetBounds() {
-        Collections.fill(boundsComputed, false);
     }
 }

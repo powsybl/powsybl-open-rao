@@ -14,8 +14,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
@@ -25,6 +23,7 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.getContingencyFromCrac;
@@ -38,13 +37,15 @@ public class MonitoredSeriesCreator {
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
-    private CimCracCreationContext cracCreationContext;
+    private final CimCracCreationContext cracCreationContext;
+    private final Set<Side> defaultMonitoredSides;
 
-    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext) {
+    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = cracCreationContext.getCrac();
         this.network = network;
         this.cracCreationContext = cracCreationContext;
+        this.defaultMonitoredSides = defaultMonitoredSides;
     }
 
     public void createAndAddMonitoredSeries() {
@@ -266,9 +267,10 @@ public class MonitoredSeriesCreator {
 
         flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId());
 
-        String cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
+        String cnecId = null;
 
         try {
+            cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
             setNominalVoltage(flowCnecAdder, branchHelper);
             setCurrentsLimit(flowCnecAdder, branchHelper);
         } catch (FaraoException e) {
@@ -308,33 +310,48 @@ public class MonitoredSeriesCreator {
     }
 
     private String addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, CgmesBranchHelper branchHelper, String cnecId, String direction, double threshold) {
-        BranchThresholdAdder branchThresholdAdder = flowCnecAdder.newThreshold();
-        branchThresholdAdder.withUnit(unit);
         String modifiedCnecId = cnecId;
-        if (branchHelper.isTieLine()) {
-            if (branchHelper.getTieLineSide() == Branch.Side.ONE) {
-                branchThresholdAdder.withRule(BranchThresholdRule.ON_LEFT_SIDE);
-                modifiedCnecId += " - LEFT";
-            } else {
-                branchThresholdAdder.withRule(BranchThresholdRule.ON_RIGHT_SIDE);
-                modifiedCnecId += " - RIGHT";
+
+        Set<Side> monitoredSides = defaultMonitoredSides;
+        if (branchHelper.isHalfLine()) {
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ?  "LEFT" : "RIGHT");
+            monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
+        } else if (unit.equals(Unit.AMPERE) &&
+            Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {
+            // If unit is absolute amperes, monitor low voltage side
+            monitoredSides = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() <= branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV() ?
+                Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+        } else if (unit.equals(Unit.PERCENT_IMAX)) {
+            // If unit is %Imax, check that Imax exists
+            monitoredSides = monitoredSides.stream().filter(side -> hasCurrentLimit(branchHelper.getBranch(), side.iidmSide())).collect(Collectors.toSet());
+            if (monitoredSides.isEmpty()) {
+                throw new FaraoException(String.format("Cannot create any PERCENT_IMAX threshold on branch %s, as it holds no current limit at the wanted side", branchHelper.getIdInNetwork()));
             }
-        } else {
-            branchThresholdAdder.withRule(BranchThresholdRule.ON_REGULATED_SIDE);
         }
 
+        Double min = -threshold;
+        Double max = threshold;
         if (direction.equals(CNECS_DIRECT_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMax(threshold);
             modifiedCnecId += " - DIRECT";
+            min = null;
         } else if (direction.equals(CNECS_OPPOSITE_DIRECTION_FLOW)) {
-            branchThresholdAdder.withMin(-threshold);
             modifiedCnecId += " - OPPOSITE";
-        } else {
-            branchThresholdAdder.withMax(threshold);
-            branchThresholdAdder.withMin(-threshold);
+            max = null;
         }
-        branchThresholdAdder.add();
+
+        addThreshold(flowCnecAdder, unit, min, max, monitoredSides);
         return modifiedCnecId;
+    }
+
+    private void addThreshold(FlowCnecAdder flowCnecAdder, Unit unit, Double min, Double max, Set<Side> sides) {
+        sides.forEach(side ->
+            flowCnecAdder.newThreshold()
+                .withUnit(unit)
+                .withSide(side)
+                .withMax(max)
+                .withMin(min)
+                .add()
+        );
     }
 
     private void setNominalVoltage(FlowCnecAdder flowCnecAdder, CgmesBranchHelper branchHelper) {
@@ -362,18 +379,22 @@ public class MonitoredSeriesCreator {
     // This uses the same logic as the UcteCnecElementHelper which is used for CBCO cnec import for instance
     private Double getCurrentLimit(Branch<?> branch, Branch.Side side) {
 
-        if (branch.getCurrentLimits(side).isPresent()) {
+        if (hasCurrentLimit(branch, side)) {
             return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
         }
 
-        if (side == Branch.Side.ONE && branch.getCurrentLimits(Branch.Side.TWO).isPresent()) {
+        if (side == Branch.Side.ONE && hasCurrentLimit(branch, Branch.Side.TWO)) {
             return branch.getCurrentLimits(Branch.Side.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
         }
 
-        if (side == Branch.Side.TWO && branch.getCurrentLimits(Branch.Side.ONE).isPresent()) {
+        if (side == Branch.Side.TWO && hasCurrentLimit(branch, Branch.Side.ONE)) {
             return branch.getCurrentLimits(Branch.Side.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
         }
 
         return null;
+    }
+
+    private boolean hasCurrentLimit(Branch<?> branch, Branch.Side side) {
+        return branch.getCurrentLimits(side).isPresent();
     }
 }

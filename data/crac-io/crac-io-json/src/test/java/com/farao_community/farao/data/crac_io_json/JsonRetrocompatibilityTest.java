@@ -20,7 +20,6 @@ import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
@@ -236,10 +235,16 @@ public class JsonRetrocompatibilityTest {
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
         BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
         assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(BranchThresholdRule.ON_LEFT_SIDE, threshold.getRule());
+        assertEquals(Side.LEFT, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+        assertEquals(3, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
+            .anyMatch(thr -> thr.getSide().equals(Side.LEFT) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
+        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
+            .anyMatch(thr -> thr.getSide().equals(Side.LEFT) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
+        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
+            .anyMatch(thr -> thr.getSide().equals(Side.RIGHT) && thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
 
         // ---------------------------
         // --- test NetworkActions ---

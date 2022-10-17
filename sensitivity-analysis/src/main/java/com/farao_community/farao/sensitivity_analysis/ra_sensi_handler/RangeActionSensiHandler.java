@@ -7,6 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -20,7 +21,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface RangeActionSensiHandler {
 
-    double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult);
+    double getSensitivityOnFlow(FlowCnec cnec, Side side, SystematicSensitivityResult sensitivityResult);
 
     void checkConsistency(Network network);
 

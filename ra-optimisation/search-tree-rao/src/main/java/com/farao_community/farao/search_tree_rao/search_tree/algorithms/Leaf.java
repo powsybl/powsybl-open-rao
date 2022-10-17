@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -332,40 +333,40 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getFlow(flowCnec, unit);
+            return preOptimFlowResult.getFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getFlow(flowCnec, unit);
+            return postOptimResult.getFlow(flowCnec, side, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getCommercialFlow(flowCnec, unit);
+            return preOptimFlowResult.getCommercialFlow(flowCnec, side, unit);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getCommercialFlow(flowCnec, unit);
+            return postOptimResult.getCommercialFlow(flowCnec, side, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
         if (status == Status.EVALUATED) {
-            return preOptimFlowResult.getPtdfZonalSum(flowCnec);
+            return preOptimFlowResult.getPtdfZonalSum(flowCnec, side);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getPtdfZonalSum(flowCnec);
+            return postOptimResult.getPtdfZonalSum(flowCnec, side);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getPtdfZonalSums();
         } else if (status == Status.OPTIMIZED) {
@@ -531,23 +532,23 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
             (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
-            return preOptimSensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);
+            return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getSensitivityValue(flowCnec, rangeAction, unit);
+            return postOptimResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
         if (status == Status.EVALUATED) {
-            return preOptimSensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
+            return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getSensitivityValue(flowCnec, linearGlsk, unit);
+            return postOptimResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }

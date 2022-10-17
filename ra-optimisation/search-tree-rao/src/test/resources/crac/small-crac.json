@@ -22,7 +22,7 @@
         "unit": "megawatt",
         "max": 750,
         "min" : -750,
-        "rule" : "onLeftSide"
+        "rule" : "onRightSide"
       } ],
       "contingencyId": "N-1 NL1-NL3",
       "instant" : "curative",

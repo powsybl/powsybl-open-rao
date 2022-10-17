@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,7 @@ public final class RaoResultJsonConstants {
 
     private RaoResultJsonConstants() { }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.1";
+    public static final String RAO_RESULT_IO_VERSION = "1.2";
 
     // header
     public static final String TYPE = "type";
@@ -89,6 +90,10 @@ public final class RaoResultJsonConstants {
     public static final String KILOVOLT_UNIT = "kilovolt";
     public static final String PERCENT_IMAX_UNIT = "percent_imax";
     public static final String TAP_UNIT = "tap";
+
+    // branch side
+    public static final String LEFT_SIDE = "leftSide";
+    public static final String RIGHT_SIDE = "rightSide";
 
     // optimization states
     public static final String INITIAL_OPT_STATE = "initial";
@@ -155,6 +160,29 @@ public final class RaoResultJsonConstants {
                 return Unit.TAP;
             default:
                 throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
+        }
+    }
+
+    // serialization of enums
+    public static String serializeSide(Side side) {
+        switch (side) {
+            case LEFT:
+                return LEFT_SIDE;
+            case RIGHT:
+                return RIGHT_SIDE;
+            default:
+                throw new FaraoException(String.format("Unsupported side %s", side));
+        }
+    }
+
+    public static Side deserializeSide(String stringValue) {
+        switch (stringValue) {
+            case LEFT_SIDE:
+                return Side.LEFT;
+            case RIGHT_SIDE:
+                return Side.RIGHT;
+            default:
+                throw new FaraoException(String.format("Unrecognized side %s", stringValue));
         }
     }
 

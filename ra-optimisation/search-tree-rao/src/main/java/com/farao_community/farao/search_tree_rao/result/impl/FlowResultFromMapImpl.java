@@ -16,7 +16,6 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -25,25 +24,25 @@ import static java.lang.String.format;
  */
 public class FlowResultFromMapImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private final Map<FlowCnec, Double> commercialFlows;
-    private final Map<FlowCnec, Double> ptdfZonalSums;
+    private final Map<FlowCnec, Map<Side, Double>> commercialFlows;
+    private final Map<FlowCnec, Map<Side, Double>> ptdfZonalSums;
 
     public FlowResultFromMapImpl(SystematicSensitivityResult systematicSensitivityResult,
-                                 Map<FlowCnec, Double> commercialFlows,
-                                 Map<FlowCnec, Double> ptdfZonalSums) {
+                                 Map<FlowCnec, Map<Side, Double>> commercialFlows,
+                                 Map<FlowCnec, Map<Side, Double>> ptdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
         this.commercialFlows = commercialFlows;
         this.ptdfZonalSums = ptdfZonalSums;
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getReferenceFlow(flowCnec);
+            return systematicSensitivityResult.getReferenceFlow(flowCnec, side);
         } else if (unit == Unit.AMPERE) {
-            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec);
+            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side);
             if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec) * RaoUtil.getFlowUnitMultiplier(flowCnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE);
+                return systematicSensitivityResult.getReferenceFlow(flowCnec, side) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
             }
@@ -53,23 +52,26 @@ public class FlowResultFromMapImpl implements FlowResult {
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
-        if (unit == Unit.MEGAWATT) {
-            return Optional.ofNullable(commercialFlows.get(flowCnec))
-                    .orElseThrow(() -> new FaraoException(format("No commercial flow on the CNEC %s", flowCnec.getName())));
-        } else {
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        if (unit != Unit.MEGAWATT) {
             throw new FaraoException("Commercial flows only in MW.");
         }
+        if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side)) {
+            throw new FaraoException(format("No commercial flow on the CNEC %s on side %s", flowCnec.getName(), side));
+        }
+        return commercialFlows.get(flowCnec).get(side);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
-        return Optional.ofNullable(ptdfZonalSums.get(flowCnec))
-                .orElseThrow(() -> new FaraoException(format("No PTDF computed on the CNEC %s", flowCnec.getName())));
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+        if (!ptdfZonalSums.containsKey(flowCnec) || !ptdfZonalSums.get(flowCnec).containsKey(side)) {
+            throw new FaraoException(format("No PTDF computed on the CNEC %s on side %s", flowCnec.getName(), side));
+        }
+        return ptdfZonalSums.get(flowCnec).get(side);
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return ptdfZonalSums;
     }
 }

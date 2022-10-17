@@ -8,6 +8,7 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -18,6 +19,7 @@ import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,6 +63,9 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         FlowCnec preventiveCnec = Mockito.mock(FlowCnec.class);
         FlowCnec cnecAfterClassicContingency = Mockito.mock(FlowCnec.class);
         FlowCnec cnecAfterDanglingContingency = Mockito.mock(FlowCnec.class);
+        Mockito.when(preventiveCnec.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
+        Mockito.when(cnecAfterClassicContingency.getMonitoredSides()).thenReturn(Collections.singleton(Side.RIGHT));
+        Mockito.when(cnecAfterDanglingContingency.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
         SensitivityVariableSet classicLinearGlsk = Mockito.mock(SensitivityVariableSet.class);
         SensitivityVariableSet virtualHubLinearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Mockito.when(xnodeGlskHandler.isLinearGlskValidForCnec(preventiveCnec, classicLinearGlsk)).thenReturn(true);
@@ -71,12 +76,12 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         Mockito.when(xnodeGlskHandler.isLinearGlskValidForCnec(cnecAfterDanglingContingency, virtualHubLinearGlsk)).thenReturn(false);
 
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, preventiveCnec)).thenReturn(0.5);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, preventiveCnec)).thenReturn(-1.2);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, cnecAfterClassicContingency)).thenReturn(-1.8);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, cnecAfterClassicContingency)).thenReturn(2.3);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, cnecAfterDanglingContingency)).thenReturn(1.5);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, cnecAfterDanglingContingency)).thenReturn(4.2);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, preventiveCnec, Side.LEFT)).thenReturn(0.5);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, preventiveCnec, Side.LEFT)).thenReturn(-1.2);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, cnecAfterClassicContingency, Side.RIGHT)).thenReturn(-1.8);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, cnecAfterClassicContingency, Side.RIGHT)).thenReturn(2.3);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, cnecAfterDanglingContingency, Side.LEFT)).thenReturn(1.5);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, cnecAfterDanglingContingency, Side.LEFT)).thenReturn(4.2);
 
         Mockito.when(classicLinearGlsk.getVariablesById()).thenReturn(Map.of("gen", new WeightedSensitivityVariable("gen", 10f)));
         Mockito.when(virtualHubLinearGlsk.getVariablesById()).thenReturn(Map.of("load", new WeightedSensitivityVariable("load", 10f)));
@@ -100,8 +105,8 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
                 Set.of(preventiveCnec, cnecAfterClassicContingency, cnecAfterDanglingContingency)
         );
 
-        assertEquals(2000. * 0.5 + 600. * (-1.2), loopFlowResult.getCommercialFlow(preventiveCnec), DOUBLE_TOLERANCE);
-        assertEquals(2000. * (-1.8) + 600. * 2.3, loopFlowResult.getCommercialFlow(cnecAfterClassicContingency), DOUBLE_TOLERANCE);
-        assertEquals(2000. * 1.5, loopFlowResult.getCommercialFlow(cnecAfterDanglingContingency), DOUBLE_TOLERANCE);
+        assertEquals(2000. * 0.5 + 600. * (-1.2), loopFlowResult.getCommercialFlow(preventiveCnec, Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(2000. * (-1.8) + 600. * 2.3, loopFlowResult.getCommercialFlow(cnecAfterClassicContingency, Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(2000. * 1.5, loopFlowResult.getCommercialFlow(cnecAfterDanglingContingency, Side.LEFT), DOUBLE_TOLERANCE);
     }
 }

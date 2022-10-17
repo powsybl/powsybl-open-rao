@@ -423,10 +423,10 @@ public final class AutomatonSimulator {
                                                                                                 Network network,
                                                                                                 PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
                                                                                                 PrePerimeterResult prePerimeterSensitivityOutput) {
-        Set<FlowCnec> flowCnecsToBeExcluded = new HashSet<>();
+        Set<Pair<FlowCnec, Side>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
-        List<FlowCnec> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
 
         // -- Define setpoint bounds
         // Aligned range actions have the same setpoint :
@@ -437,24 +437,31 @@ public final class AutomatonSimulator {
         int iteration = 0; // security measure
         double direction = 0;
         while (!flowCnecsWithNegativeMargin.isEmpty()) {
-            FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.get(0);
-            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, Side.LEFT, raoParameters.getObjectiveFunction().getUnit(), MEGAWATT);
-            double cnecFlow = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, raoParameters.getObjectiveFunction().getUnit());
-            double cnecMargin = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, raoParameters.getObjectiveFunction().getUnit());
-            // Aligned range actions have the same setpoint :
+            FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.get(0).getLeft();
+            Side side = flowCnecsWithNegativeMargin.get(0).getRight();
             double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
+            double optimalSetpoint = currentSetpoint;
+            double initialMargin = 0.;
+            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit(), MEGAWATT);
+            double cnecFlow = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit());
+            double cnecMargin = unitConversionCoefficient * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, raoParameters.getObjectiveFunction().getUnit());
+            // Aligned range actions have the same setpoint :
             double sensitivityValue = 0;
             for (RangeAction<?> rangeAction : alignedRangeActions) {
-                sensitivityValue += automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, rangeAction, MEGAWATT);
+                sensitivityValue += automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
             }
             // if sensi is null, move on to next cnec with negative margin
             if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
-                flowCnecsToBeExcluded.add(toBeShiftedCnec);
+                flowCnecsToBeExcluded.add(Pair.of(toBeShiftedCnec, side));
                 flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
                 continue;
             }
 
-            double optimalSetpoint = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
+            double optimalSetpointForSide = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
+            if (Math.abs(currentSetpoint - optimalSetpointForSide) > Math.abs(currentSetpoint - optimalSetpoint)) {
+                optimalSetpoint = optimalSetpointForSide;
+                initialMargin = cnecMargin;
+            }
 
             // On first iteration, define direction
             if (iteration == 0) {
@@ -470,7 +477,7 @@ public final class AutomatonSimulator {
                 rangeAction.apply(network, optimalSetpoint);
                 activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
             }
-            TECHNICAL_LOGS.debug("Shifting setpoint from {} to {} on range action(s) {} to improve margin on cnec {}} (initial margin : {} MW).", initialSetpoint, optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(" ,")), toBeShiftedCnec.getId(), cnecMargin);
+            TECHNICAL_LOGS.debug("Shifting setpoint from {} to {} on range action(s) {} to improve margin on cnec {} on side {}} (initial margin : {} MW).", initialSetpoint, optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(" ,")), toBeShiftedCnec.getId(), side, initialMargin);
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null);
             RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), numberLoggedElementsDuringRao);
             flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
@@ -483,16 +490,22 @@ public final class AutomatonSimulator {
     /**
      * This function builds a list of cnecs with negative margin, except cnecs in cnecsToBeExcluded.
      * N.B : margin is retrieved in MEGAWATT as only the sign matters.
-     * Returns a sorted list of FlowCnecs with negative margin.
+     * Returns a sorted list of FlowCnecs-Side pairs with negative margins.
      */
-    List<FlowCnec> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> cnecs,
-                                                                  Set<FlowCnec> cnecsToBeExcluded,
-                                                                  PrePerimeterResult prePerimeterSensitivityOutput) {
-        return cnecs.stream()
-            .filter(flowCnec -> !cnecsToBeExcluded.contains(flowCnec))
-            .filter(flowCnec -> prePerimeterSensitivityOutput.getMargin(flowCnec, MEGAWATT) < 0)
-            .sorted(Comparator.comparing(flowCnec -> prePerimeterSensitivityOutput.getMargin(flowCnec, MEGAWATT)))
-            .collect(Collectors.toList());
+    List<Pair<FlowCnec, Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
+                                                                              Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
+                                                                              PrePerimeterResult prePerimeterSensitivityOutput) {
+        Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
+        flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
+            double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, MEGAWATT);
+            if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+                cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
+            }
+        }));
+        return cnecsAndMargins.entrySet().stream()
+                .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     /**

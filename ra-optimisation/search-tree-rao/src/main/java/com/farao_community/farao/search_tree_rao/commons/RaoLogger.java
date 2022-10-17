@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -134,18 +135,32 @@ public final class RaoLogger {
             double cnecMargin = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, unit) : flowResult.getMargin(cnec, unit);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec)) : "";
+            Side mostConstrainedSide = getMostConstrainedSide(cnec, flowResult, objectiveFunction);
+            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec, mostConstrainedSide)) : "";
             summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
-                i + 1,
-                isRelativeMargin,
-                cnecMargin,
-                unit,
-                ptdfIfRelative,
-                cnecNetworkElementName,
-                cnecStateId,
-                cnec.getId()));
+                    i + 1,
+                    isRelativeMargin,
+                    cnecMargin,
+                    unit,
+                    ptdfIfRelative,
+                    cnecNetworkElementName,
+                    cnecStateId,
+                    cnec.getId()));
         }
         return summary;
+    }
+
+    private static Side getMostConstrainedSide(FlowCnec cnec,
+                                               FlowResult flowResult,
+                                               RaoParameters.ObjectiveFunction objectiveFunction) {
+        if (cnec.getMonitoredSides().size() == 1) {
+            return cnec.getMonitoredSides().iterator().next();
+        }
+        Unit unit = objectiveFunction.getUnit();
+        boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
+        double marginLeft = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, Side.LEFT, unit) : flowResult.getMargin(cnec, Side.LEFT, unit);
+        double marginRight = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, Side.RIGHT, unit) : flowResult.getMargin(cnec, Side.RIGHT, unit);
+        return marginRight < marginLeft ? Side.RIGHT : Side.LEFT;
     }
 
     public static void logMostLimitingElementsResults(FaraoLogger logger,

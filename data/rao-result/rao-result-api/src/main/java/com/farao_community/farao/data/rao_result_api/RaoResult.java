@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -38,10 +39,11 @@ public interface RaoResult {
      *
      * @param optimizationState: The state of optimization to be studied.
      * @param flowCnec: The branch to be studied.
+     * @param side: The side of the branch to be queried.
      * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
+    double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link OptimizationState} and in a
@@ -126,7 +128,7 @@ public interface RaoResult {
      * @param unit: The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
+    double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -138,7 +140,7 @@ public interface RaoResult {
      * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
+    double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
@@ -149,7 +151,7 @@ public interface RaoResult {
      * @param flowCnec: The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec);
+    double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side);
 
     /**
      * It gives the global cost of the situation at a given {@link OptimizationState} according to the objective

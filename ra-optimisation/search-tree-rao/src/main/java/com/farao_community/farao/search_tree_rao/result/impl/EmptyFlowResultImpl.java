@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 
 import java.util.Collections;
@@ -20,22 +21,22 @@ import java.util.Map;
 public class EmptyFlowResultImpl implements FlowResult {
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         return Double.NaN;
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
         return Double.NaN;
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
         return Double.NaN;
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return Collections.emptyMap();
     }
 }

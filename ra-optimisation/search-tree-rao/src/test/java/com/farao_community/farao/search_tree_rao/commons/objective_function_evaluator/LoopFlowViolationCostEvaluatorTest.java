@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
@@ -41,10 +42,12 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void setUp() {
         LoopFlowThreshold cnec1Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec1 = Mockito.mock(FlowCnec.class);
+        when(cnec1.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(cnec1Extension);
 
         LoopFlowThreshold cnec2Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec2 = Mockito.mock(FlowCnec.class);
+        when(cnec2.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
@@ -59,11 +62,11 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void setInitialLoopFLow(FlowCnec branchCnec, double initialLoopFLow) {
-        when(initialLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
+        when(initialLoopFlows.getLoopFlow(branchCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
     }
 
     private void setCurrentLoopFLow(FlowCnec branchCnec, double currentLoopFlow) {
-        when(currentLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
+        when(currentLoopFlows.getLoopFlow(branchCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
     }
 
     private void setAcceptableAugmentationInMW(double acceptableAugmentationInMW) {

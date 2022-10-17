@@ -52,7 +52,7 @@ public class AppliedRemedialActionsTest {
         // check object
         assertFalse(appliedRemedialActions.isEmpty(network));
         assertEquals(1, appliedRemedialActions.getStatesWithRa(network).size());
-        assertEquals("Contingency FR1 FR3", appliedRemedialActions.getStatesWithRa(network).iterator().next().getContingency().get().getId());
+        assertEquals("Contingency FR1 FR3", appliedRemedialActions.getStatesWithRa(network).iterator().next().getContingency().orElseThrow().getId());
 
         // apply remedial actions on network
         assertTrue(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());

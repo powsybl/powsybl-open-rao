@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 
@@ -25,7 +26,7 @@ public final class BranchThresholdArrayDeserializer {
     private BranchThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -42,7 +43,14 @@ public final class BranchThresholdArrayDeserializer {
                         branchThresholdAdder.withMax(jsonParser.getDoubleValue());
                         break;
                     case RULE:
-                        branchThresholdAdder.withRule(deserializeBranchThresholdRule(jsonParser.nextTextValue()));
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new FaraoException("Branch threshold rule is not handled since CRAC version 1.6");
+                        } else {
+                            branchThresholdAdder.withSide(convertBranchThresholdRuleToSide(jsonParser.nextTextValue(), nominalV));
+                        }
+                        break;
+                    case SIDE:
+                        branchThresholdAdder.withSide(deserializeSide(jsonParser.nextTextValue()));
                         break;
                     default:
                         throw new FaraoException("Unexpected field in BranchThreshold: " + jsonParser.getCurrentName());

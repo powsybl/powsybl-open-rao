@@ -183,13 +183,13 @@
               </Measurements>
               <Measurements>
                 <measurementType>A07</measurementType>
-                <unitSymbol>P1</unitSymbol>
-                <analogValues.value>100.0</analogValues.value>
+                <unitSymbol>MAW</unitSymbol>
+                <analogValues.value>1000.0</analogValues.value>
               </Measurements>
               <Measurements>
                 <measurementType>A13</measurementType>
-                <unitSymbol>P1</unitSymbol>
-                <analogValues.value>100.0</analogValues.value>
+                <unitSymbol>AMP</unitSymbol>
+                <analogValues.value>2000.0</analogValues.value>
               </Measurements>
             </RegisteredResource>
           </Monitored_Series>

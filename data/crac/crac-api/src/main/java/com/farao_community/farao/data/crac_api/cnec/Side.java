@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api.cnec;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.iidm.network.Branch;
 
 /**
@@ -26,5 +27,16 @@ public enum Side {
 
     public Branch.Side iidmSide() {
         return iidmSide;
+    }
+
+    public static Side fromIidmSide(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return LEFT;
+            case TWO:
+                return RIGHT;
+            default:
+                throw new FaraoException(String.format("Unhandled iidm side: %s", side));
+        }
     }
 }

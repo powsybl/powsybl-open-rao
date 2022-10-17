@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
@@ -90,49 +91,55 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearProblem linearProblem, FlowResult flowResult) {
 
         for (FlowCnec cnec : getLoopFlowCnecs()) {
+            for (Side side : cnec.getMonitoredSides()) {
 
-            // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
-            double loopFlowUpperBound = getLoopFlowUpperBound(cnec);
-            if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
-                continue;
-            }
+                // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
+                double loopFlowUpperBound = getLoopFlowUpperBound(cnec, side);
+                if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
+                    continue;
+                }
 
-            // get loop-flow variable
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
-            if (Objects.isNull(flowVariable)) {
-                throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
-            }
+                // get loop-flow variable
+                MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+                if (Objects.isNull(flowVariable)) {
+                    throw new FaraoException(String.format("Flow variable on %s (side %s) has not been defined yet.", cnec.getId(), side));
+                }
 
-            MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
+                MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
                     LinearProblem.infinity(),
-                    cnec
-            );
+                    cnec,
+                    side
+                );
 
-            // build constraint which defines the loopFlow :
-            // - MaxLoopFlow + commercialFlow <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
-            // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
+                // build constraint which defines the loopFlow :
+                // - MaxLoopFlow + commercialFlow <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
+                // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
+                // loopflowViolationVariable is divided by number of monitored sides to not increase its effect on the objective function
 
-            MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, Unit.MEGAWATT),
+                MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
+                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     LinearProblem.infinity(),
                     cnec,
+                    side,
                     LinearProblem.BoundExtension.LOWER_BOUND
-            );
-            positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
-            positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
+                );
+                positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
+                positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1.0);
 
-            MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
+                MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -LinearProblem.infinity(),
-                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, Unit.MEGAWATT),
+                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
                     cnec,
+                    side,
                     LinearProblem.BoundExtension.UPPER_BOUND
-            );
-            negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
-            negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
+                );
+                negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
+                negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
 
-            //update objective function with loopflowViolationCost
-            linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost);
+                //update objective function with loopflowViolationCost
+                linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost / cnec.getMonitoredSides().size());
+            }
         }
     }
 
@@ -146,31 +153,32 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         }
 
         for (FlowCnec loopFlowCnec : getLoopFlowCnecs()) {
+            for (Side side : loopFlowCnec.getMonitoredSides()) {
+                double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec, side);
+                if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
+                    continue;
+                }
+                double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, side, Unit.MEGAWATT);
 
-            double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec);
-            if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
-                continue;
-            }
-            double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT);
+                MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.LOWER_BOUND);
+                if (positiveLoopflowViolationConstraint == null) {
+                    throw new FaraoException(String.format("Positive LoopFlow violation constraint on %s (side %s) has not been defined yet.", loopFlowCnec.getId(), side));
+                }
+                positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
 
-            MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.LOWER_BOUND);
-            if (positiveLoopflowViolationConstraint == null) {
-                throw new FaraoException(String.format("Positive LoopFlow violation constraint on %s has not been defined yet.", loopFlowCnec.getId()));
+                MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, side, LinearProblem.BoundExtension.UPPER_BOUND);
+                if (negativeLoopflowViolationConstraint == null) {
+                    throw new FaraoException(String.format("Negative LoopFlow violation constraint on %s (side %s) has not been defined yet.", loopFlowCnec.getId(), side));
+                }
+                negativeLoopflowViolationConstraint.setUb(loopFlowUpperBound + commercialFlow);
             }
-            positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
-
-            MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.UPPER_BOUND);
-            if (negativeLoopflowViolationConstraint == null) {
-                throw new FaraoException(String.format("Negative LoopFlow violation constraint on %s has not been defined yet.", loopFlowCnec.getId()));
-            }
-            negativeLoopflowViolationConstraint.setUb(loopFlowUpperBound + commercialFlow);
         }
     }
 
-    private double getLoopFlowUpperBound(FlowCnec loopFlowCnec) {
+    private double getLoopFlowUpperBound(FlowCnec loopFlowCnec, Side side) {
         double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, Unit.MEGAWATT);
-        //add a tiny bit of slack to the threshold to avoid the rounding causing infeasibilities
+        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, side, Unit.MEGAWATT);
+        //add a tiny bit of slack to the threshold to avoid the rounding causing infeasibility
         return Math.max(Math.abs(initialLoopFlow),
             Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient) + 0.01;
     }

@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParametersConstants.*;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -38,8 +40,11 @@ public class CracCreationParametersDeserializer extends StdDeserializer<CracCrea
         List<Extension<CracCreationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "crac-factory":
+                case CRAC_FACTORY:
                     parameters.setCracFactoryName(parser.nextTextValue());
+                    break;
+                case DEFAULT_MONITORED_LINE_SIDE:
+                    parameters.setDefaultMonitoredLineSide(deserializeMonitoredLineSide(parser.nextTextValue()));
                     break;
                 case "extensions":
                     parser.nextToken();

@@ -13,6 +13,8 @@ import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
+import static com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParametersConstants.*;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -25,7 +27,8 @@ public class CracCreationParametersSerializer extends StdSerializer<CracCreation
     @Override
     public void serialize(CracCreationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("crac-factory", parameters.getCracFactoryName());
+        jsonGenerator.writeStringField(CRAC_FACTORY, parameters.getCracFactoryName());
+        jsonGenerator.writeStringField(DEFAULT_MONITORED_LINE_SIDE, serializeMonitoredLineSide(parameters.getDefaultMonitoredLineSide()));
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonCracCreationParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();
     }

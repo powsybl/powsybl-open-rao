@@ -104,10 +104,10 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     @Override
     public void apply(Network network, double targetSetpoint) {
-        if (targetSetpoint > 0) {
-            getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-        } else {
+        if (targetSetpoint < 0) {
             getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        } else {
+            getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         }
         getHvdcLine(network).setActivePowerSetpoint(Math.abs(targetSetpoint));
     }

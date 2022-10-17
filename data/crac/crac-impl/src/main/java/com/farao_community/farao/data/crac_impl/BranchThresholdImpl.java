@@ -8,12 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.fasterxml.jackson.annotation.*;
-
-import java.util.Objects;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
 /**
  * Limits of a flow (in MEGAWATT or AMPERE) through a branch.
@@ -32,26 +28,15 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
     /**
      * Direction in which the flow is monitored
      */
-    protected final BranchThresholdRule rule;
 
-    BranchThresholdImpl(Unit unit, Double min, Double max, BranchThresholdRule rule) {
+    BranchThresholdImpl(Side side, Unit unit, Double min, Double max) {
         super(unit, min, max);
-        this.rule = rule;
-    }
-
-    @Override
-    public Side getSide() {
-        Objects.requireNonNull(side, "Side has not been defined.");
-        return side;
-    }
-
-    void setSide(Side side) {
         this.side = side;
     }
 
     @Override
-    public BranchThresholdRule getRule() {
-        return rule;
+    public Side getSide() {
+        return side;
     }
 
     @Override
@@ -66,12 +51,12 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
         BranchThresholdImpl otherT = (BranchThresholdImpl) o;
 
         return super.equals(otherT)
-                && rule.equals(otherT.getRule());
+                && side.equals(otherT.getSide());
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
-                + 31 * rule.hashCode();
+                + 31 * side.hashCode();
     }
 }

@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -19,6 +20,7 @@ import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 import java.util.Map;
@@ -35,22 +37,22 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
-        return optimizationResult.getFlow(flowCnec, unit);
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return optimizationResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
-        return optimizationResult.getCommercialFlow(flowCnec, unit);
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return optimizationResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
-        return optimizationResult.getPtdfZonalSum(flowCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+        return optimizationResult.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return optimizationResult.getPtdfZonalSums();
     }
 
@@ -177,12 +179,12 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
-        return 0;
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+        throw new NotImplementedException("This method is not implemented");
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
-        return 0;
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+        throw new NotImplementedException("This method is not implemented");
     }
 }

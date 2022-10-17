@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
@@ -36,7 +36,7 @@ public class JsonLoopFlowThresholdImplImportExportTest {
                 .withId("cnec1")
                 .withNetworkElement("ne1")
                 .withInstant(Instant.PREVENTIVE)
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withNominalVoltage(380.)
                 .add()
                 .newExtension(LoopFlowThresholdAdder.class).withValue(100).withUnit(Unit.AMPERE).add();
@@ -45,7 +45,7 @@ public class JsonLoopFlowThresholdImplImportExportTest {
                 .withId("cnec2")
                 .withNetworkElement("ne2")
                 .withInstant(Instant.PREVENTIVE)
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
                 .withNominalVoltage(380.)
                 .withIMax(5000.)
                 .add()
@@ -55,7 +55,7 @@ public class JsonLoopFlowThresholdImplImportExportTest {
                 .withId("cnec3")
                 .withNetworkElement("ne3")
                 .withInstant(Instant.PREVENTIVE)
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
+                .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
                 .add();
 
         // export Crac

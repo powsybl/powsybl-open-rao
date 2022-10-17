@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -254,34 +255,34 @@ public class FlowbasedComputationImplTest {
             flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
             ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(INITIAL);
 
-            elementaryFlowCnecResult.setFlow(100., MEGAWATT);
+            elementaryFlowCnecResult.setFlow(Side.LEFT, 100., MEGAWATT);
             elementaryFlowCnecResult.setMargin(101., MEGAWATT);
             elementaryFlowCnecResult.setRelativeMargin(102., MEGAWATT);
-            elementaryFlowCnecResult.setLoopFlow(103., MEGAWATT);
-            elementaryFlowCnecResult.setCommercialFlow(104., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 103., MEGAWATT);
+            elementaryFlowCnecResult.setCommercialFlow(Side.LEFT, 104., MEGAWATT);
 
-            elementaryFlowCnecResult.setFlow(110., AMPERE);
+            elementaryFlowCnecResult.setFlow(Side.LEFT, 110., AMPERE);
             elementaryFlowCnecResult.setMargin(111., AMPERE);
             elementaryFlowCnecResult.setRelativeMargin(112., AMPERE);
-            elementaryFlowCnecResult.setLoopFlow(113., AMPERE);
-            elementaryFlowCnecResult.setCommercialFlow(114., AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 113., AMPERE);
+            elementaryFlowCnecResult.setCommercialFlow(Side.LEFT, 114., AMPERE);
 
-            elementaryFlowCnecResult.setPtdfZonalSum(0.1);
+            elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
             flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
             elementaryFlowCnecResult = flowCnecResult.getResult(AFTER_CRA);
 
-            elementaryFlowCnecResult.setFlow(200., MEGAWATT);
+            elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
             elementaryFlowCnecResult.setMargin(201., MEGAWATT);
             elementaryFlowCnecResult.setRelativeMargin(202., MEGAWATT);
-            elementaryFlowCnecResult.setLoopFlow(203., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 203., MEGAWATT);
 
-            elementaryFlowCnecResult.setFlow(210., AMPERE);
+            elementaryFlowCnecResult.setFlow(Side.LEFT, 210., AMPERE);
             elementaryFlowCnecResult.setMargin(211., AMPERE);
             elementaryFlowCnecResult.setRelativeMargin(212., AMPERE);
-            elementaryFlowCnecResult.setLoopFlow(213., AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(Side.LEFT, 213., AMPERE);
 
-            elementaryFlowCnecResult.setPtdfZonalSum(0.1);
+            elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
         });
 
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", Instant.CURATIVE));

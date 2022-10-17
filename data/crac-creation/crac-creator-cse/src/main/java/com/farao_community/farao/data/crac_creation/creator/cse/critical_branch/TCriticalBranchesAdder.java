@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cse.critical_branch;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
@@ -22,12 +23,14 @@ public class TCriticalBranchesAdder {
     private final UcteNetworkAnalyzer ucteNetworkAnalyzer;
     private final CseCracCreationContext cseCracCreationContext;
     private final Map<String, Set<String>> remedialActionsForCnecsMap = new HashMap<>(); // contains for each RA the set of CNEC IDs for which it can be activated
+    private final Set<Side> defaultMonitoredSides;
 
-    public TCriticalBranchesAdder(TCRACSeries tcracSeries, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, CseCracCreationContext cseCracCreationContext) {
+    public TCriticalBranchesAdder(TCRACSeries tcracSeries, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, CseCracCreationContext cseCracCreationContext, Set<Side> defaultMonitoredSides) {
         this.tcracSeries = tcracSeries;
         this.crac = crac;
         this.ucteNetworkAnalyzer = ucteNetworkAnalyzer;
         this.cseCracCreationContext = cseCracCreationContext;
+        this.defaultMonitoredSides = defaultMonitoredSides;
     }
 
     public void add() {
@@ -56,7 +59,7 @@ public class TCriticalBranchesAdder {
     }
 
     private void addBranch(TBranch tBranch, TOutage tOutage) {
-        CriticalBranchReader criticalBranchReader = new CriticalBranchReader(tBranch, tOutage, crac, ucteNetworkAnalyzer);
+        CriticalBranchReader criticalBranchReader = new CriticalBranchReader(tBranch, tOutage, crac, ucteNetworkAnalyzer, defaultMonitoredSides);
         cseCracCreationContext.addCriticalBranchCreationContext(new CseCriticalBranchCreationContext(criticalBranchReader));
         addRemedialActionsForCnecs(criticalBranchReader.getCreatedCnecIds().values(), criticalBranchReader.getRemedialActionIds());
     }

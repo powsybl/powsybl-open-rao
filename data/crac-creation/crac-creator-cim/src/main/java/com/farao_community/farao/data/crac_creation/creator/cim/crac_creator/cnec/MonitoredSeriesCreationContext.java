@@ -22,8 +22,8 @@ public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesName;
     private final String registeredResourceId;
     private final String registeredResourceName;
-    private final ImportStatus importStatus;
-    private final String importStatusDetail;
+    private ImportStatus importStatus;
+    private String importStatusDetail;
     private final Set<MeasurementCreationContext> measurementCreationContexts;
     private final boolean isAltered;
 
@@ -88,11 +88,18 @@ public final class MonitoredSeriesCreationContext {
     }
 
     public void addMeasurementCreationContext(MeasurementCreationContext measurementCreationContext) {
-        measurementCreationContexts.add(measurementCreationContext);
+        addMeasurementCreationContexts(Set.of(measurementCreationContext));
     }
 
-    void addMeasurementCreationContexts(Set<MeasurementCreationContext> measurementCreationContext) {
-        measurementCreationContexts.addAll(measurementCreationContext);
+    void addMeasurementCreationContexts(Set<MeasurementCreationContext> measurementCreationContexts) {
+        this.measurementCreationContexts.addAll(measurementCreationContexts);
+        if (this.measurementCreationContexts.stream().anyMatch(MeasurementCreationContext::isImported)) {
+            this.importStatus = ImportStatus.IMPORTED;
+            this.importStatusDetail = "";
+        } else {
+            this.importStatus = ImportStatus.OTHER;
+            this.importStatusDetail = "None of the measurements could be imported";
+        }
     }
 
     public boolean isAltered() {

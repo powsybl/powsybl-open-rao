@@ -64,7 +64,6 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
 
     @Override
     public Double getNominalVoltage(Side side) {
-        //checkSynchronized(format("access voltage levels of branch cnec %s", getId()));
         return nominalVoltages[side.equals(Side.LEFT) ? 0 : 1];
     }
 

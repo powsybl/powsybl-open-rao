@@ -18,10 +18,10 @@ import com.farao_community.farao.data.core_cne_exporter.xsd.RemedialActionSeries
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -67,7 +67,7 @@ public class CoreCneRemedialActionsCreatorTest {
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withContingency("contingency-id")
                 .withInstant(Instant.CURATIVE)
-                .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withRule(BranchThresholdRule.ON_NON_REGULATED_SIDE).add()
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(100.).withSide(Side.RIGHT).add()
                 .add();
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();

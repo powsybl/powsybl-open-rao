@@ -32,7 +32,7 @@ public class BranchThresholdSerializer extends AbstractJsonSerializer<BranchThre
         if (max.isPresent()) {
             gen.writeNumberField(MAX, max.get());
         }
-        gen.writeStringField(RULE, serializeBranchThresholdRule(value.getRule()));
+        gen.writeStringField(SIDE, serializeSide(value.getSide()));
         gen.writeEndObject();
     }
 

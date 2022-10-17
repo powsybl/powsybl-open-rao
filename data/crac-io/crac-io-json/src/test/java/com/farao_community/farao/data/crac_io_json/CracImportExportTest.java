@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
@@ -122,7 +121,7 @@ public class CracImportExportTest {
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
         BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
         assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(BranchThresholdRule.ON_LEFT_SIDE, threshold.getRule());
+        assertEquals(Side.LEFT, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
         assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());

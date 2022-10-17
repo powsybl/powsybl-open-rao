@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
@@ -62,8 +63,8 @@ public class PrePerimeterSensitivityAnalysisTest {
         cnec = Mockito.mock(FlowCnec.class);
 
         optimizationResult = Mockito.mock(OptimizationResult.class);
-        when(optimizationResult.getPtdfZonalSums()).thenReturn(Map.of(cnec, 0.1));
-        when(optimizationResult.getCommercialFlow(cnec, Unit.MEGAWATT)).thenReturn(150.);
+        when(optimizationResult.getPtdfZonalSums()).thenReturn(Map.of(cnec, Map.of(Side.LEFT, 0.1)));
+        when(optimizationResult.getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(150.);
 
         toolProvider = Mockito.mock(ToolProvider.class);
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
@@ -132,8 +133,8 @@ public class PrePerimeterSensitivityAnalysisTest {
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
-        assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getCommercialFlow(cnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
+        assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -145,6 +146,6 @@ public class PrePerimeterSensitivityAnalysisTest {
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, optimizationResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
+        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
     }
 }

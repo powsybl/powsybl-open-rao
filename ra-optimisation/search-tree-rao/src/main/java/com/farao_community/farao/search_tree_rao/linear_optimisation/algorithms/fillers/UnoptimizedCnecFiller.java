@@ -10,17 +10,19 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -46,7 +48,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.flowCnecs.addAll(flowCnecs);
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
-        this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs);
+        this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
     }
 
     @Override
@@ -77,7 +79,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      * The variable should be equal to 1 if there is a decrease
      */
     private void buildMarginDecreaseVariables(LinearProblem linearProblem) {
-        getFlowCnecs().forEach(linearProblem::addMarginDecreaseBinaryVariable);
+        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
+            linearProblem.addMarginDecreaseBinaryVariable(cnec, side)
+        ));
     }
 
     private Set<FlowCnec> getFlowCnecs() {
@@ -100,27 +104,27 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or
         // the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
-        getFlowCnecs().forEach(cnec -> {
-            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, MEGAWATT);
+        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, MEGAWATT);
 
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
+            MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             if (flowVariable == null) {
-                throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s", cnec.getId()));
+                throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
             }
-            MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
+            MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec, side);
             if (marginDecreaseBinaryVariable == null) {
-                throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));
+                throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
             }
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-            maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
+            minFlow = cnec.getLowerBound(side, MEGAWATT);
+            maxFlow = cnec.getUpperBound(side, MEGAWATT);
 
             if (minFlow.isPresent()) {
                 MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(
                         prePerimeterMargin + minFlow.get(),
-                        LinearProblem.infinity(), cnec,
+                        LinearProblem.infinity(), cnec, side,
                         LinearProblem.MarginExtension.BELOW_THRESHOLD
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
@@ -130,13 +134,13 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             if (maxFlow.isPresent()) {
                 MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(
                         prePerimeterMargin - maxFlow.get(),
-                        LinearProblem.infinity(), cnec,
+                        LinearProblem.infinity(), cnec, side,
                         LinearProblem.MarginExtension.ABOVE_THRESHOLD
                 );
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
                 decreaseMinmumThresholdMargin.setCoefficient(marginDecreaseBinaryVariable, worstMarginDecrease);
             }
-        });
+        }));
     }
 
     /**
@@ -154,32 +158,32 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         }
 
         double bigM = 2 * highestThresholdValue;
-        getFlowCnecs().forEach(cnec -> {
-            MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
+        getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+            MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec, side);
             if (marginDecreaseBinaryVariable == null) {
-                throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));
+                throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
             }
             updateMinimumMarginConstraint(
-                    linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD),
+                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
                     marginDecreaseBinaryVariable,
                     bigM
             );
             updateMinimumMarginConstraint(
-                    linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
+                    linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
                     marginDecreaseBinaryVariable,
                     bigM
             );
             updateMinimumMarginConstraint(
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD),
+                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
                     marginDecreaseBinaryVariable,
                     bigM
             );
             updateMinimumMarginConstraint(
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
+                    linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
                     marginDecreaseBinaryVariable,
                     bigM
             );
-        });
+        }));
     }
 
     /**

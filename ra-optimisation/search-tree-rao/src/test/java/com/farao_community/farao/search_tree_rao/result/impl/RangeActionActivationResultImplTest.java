@@ -11,8 +11,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -48,7 +48,7 @@ public class RangeActionActivationResultImplTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .withInstant(Instant.OUTAGE)
             .withContingency("Contingency FR1 FR3")
-            .newThreshold().withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMin(-1500.).withMax(1500.).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
             .add();
 
         pState = crac.getPreventiveState();

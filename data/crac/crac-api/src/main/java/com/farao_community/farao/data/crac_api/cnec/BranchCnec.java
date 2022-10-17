@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Specific type of {@link Cnec} that is defined on a branch of the network.
@@ -91,4 +92,11 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * {@code reliabilityMargin} into account.
      */
     double computeMargin(double actualValue, Side side, Unit unit);
+
+    /**
+     * Getter of the one or two {@link Side}s on which the {@code Cnec} is defined.
+     */
+    default Set<Side> getMonitoredSides() {
+        return getThresholds().stream().map(BranchThreshold::getSide).collect(Collectors.toUnmodifiableSet());
+    }
 }

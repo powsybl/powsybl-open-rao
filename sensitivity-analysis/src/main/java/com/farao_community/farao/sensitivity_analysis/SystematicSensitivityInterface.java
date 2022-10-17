@@ -46,7 +46,7 @@ public final class SystematicSensitivityInterface {
     private CnecSensitivityProvider cnecSensitivityProvider;
 
     /**
-     * A boolean indicating whether or not the fallback mode of the sensitivity analysis
+     * A boolean indicating whether the fallback mode of the sensitivity analysis
      * engine is active.
      */
     private boolean fallbackMode = false;
@@ -63,7 +63,7 @@ public final class SystematicSensitivityInterface {
         private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
         private SensitivityAnalysisParameters fallbackParameters;
-        private MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
+        private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
 

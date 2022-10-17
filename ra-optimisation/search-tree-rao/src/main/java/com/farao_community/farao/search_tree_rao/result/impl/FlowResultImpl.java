@@ -34,13 +34,13 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getReferenceFlow(flowCnec);
+            return systematicSensitivityResult.getReferenceFlow(flowCnec, side);
         } else if (unit == Unit.AMPERE) {
-            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec);
+            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec, side);
             if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
-                return systematicSensitivityResult.getReferenceFlow(flowCnec) * RaoUtil.getFlowUnitMultiplier(flowCnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE);
+                return systematicSensitivityResult.getReferenceFlow(flowCnec, side) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
             }
@@ -50,21 +50,21 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return fixedCommercialFlows.getCommercialFlow(flowCnec, unit);
+            return fixedCommercialFlows.getCommercialFlow(flowCnec, side, unit);
         } else {
             throw new FaraoException("Commercial flows only in MW.");
         }
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
-        return fixedPtdfs.getPtdfZonalSum(flowCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+        return fixedPtdfs.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return fixedPtdfs.getPtdfZonalSums();
     }
 }

@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -60,7 +61,7 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         List<OutageReader> outageReaders = new ArrayList<>();
 
         // read Critical Branches information
-        readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders);
+        readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, cracCreatorParameters.getDefaultMonitoredSides());
 
         // read Complex Variants information
         readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders);
@@ -74,12 +75,12 @@ public class FbConstraintCracCreator implements CracCreator<FbConstraint, FbCons
         outageReaders.forEach(or -> or.addContingency(crac));
     }
 
-    private void readCriticalBranches(FbConstraint fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders) {
+    private void readCriticalBranches(FbConstraint fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<Side> defaultMonitoredSides) {
         List<CriticalBranchType> criticalBranchForTimeStamp = selectCriticalBranchesForTimeStamp(fbConstraintDocument.getDocument(), offsetDateTime);
 
         if (!isEmpty(criticalBranchForTimeStamp)) {
             List<CriticalBranchReader> criticalBranchReaders = criticalBranchForTimeStamp.stream()
-                .map(cb -> new CriticalBranchReader(cb, ucteNetworkAnalyzer))
+                .map(cb -> new CriticalBranchReader(cb, ucteNetworkAnalyzer, defaultMonitoredSides))
                 .collect(Collectors.toList());
 
             outageReaders.addAll(criticalBranchReaders.stream()

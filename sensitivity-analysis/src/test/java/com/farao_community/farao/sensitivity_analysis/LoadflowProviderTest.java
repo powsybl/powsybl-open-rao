@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -33,16 +33,36 @@ import static org.junit.Assert.assertTrue;
 public class LoadflowProviderTest {
 
     @Test
-    public void inAmpereAndMegawatt() {
-        Crac crac = CommonCracCreation.create();
+    public void inAmpereAndMegawattOnOneSide() {
+        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+    }
+
+    @Test
+    public void inAmpereAndMegawattOnTwoSides() {
+        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        // Common Crac contains 6 CNEC (2 network element) and 1 range action
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
+        assertEquals(8, factorList.size());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
@@ -132,10 +152,10 @@ public class LoadflowProviderTest {
         String contingencyId = "Contingency FR1 FR3";
 
         crac.newFlowCnec().withId("cnecOnDlBasecase").withInstant(Instant.PREVENTIVE).withNetworkElement("DL1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
         crac.newFlowCnec().withId("cnecOnDlCurative").withInstant(Instant.CURATIVE).withContingency(contingencyId).withNetworkElement("DL1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
 
         LoadflowProvider provider = new LoadflowProvider(Set.of(crac.getFlowCnec("cnecOnDlBasecase"), crac.getFlowCnec("cnecOnDlCurative")), Collections.singleton(Unit.MEGAWATT));

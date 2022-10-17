@@ -19,8 +19,7 @@ import static com.farao_community.farao.data.crac_creation.util.ucte.UcteConnect
 import static java.lang.String.format;
 
 /**
- * UcteCnecElementHelper is a utility class which manages CNECs defined with the UCTE convention
- *
+ * UcteCnecElementHelper is a utility class which manages CNECs defined with the UCTE convention.
  * This utility class has been designed so as to be used in CRAC creators whose format
  * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
@@ -146,8 +145,8 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
             checkBranchNominalVoltage((TieLine) networkElement);
             checkTieLineCurrentLimits((TieLine) networkElement);
         } else if (networkElement instanceof Branch) {
-            checkBranchNominalVoltage((Branch) networkElement);
-            checkBranchCurrentLimits((Branch) networkElement);
+            checkBranchNominalVoltage((Branch<?>) networkElement);
+            checkBranchCurrentLimits((Branch<?>) networkElement);
         } else if (networkElement instanceof DanglingLine) {
             checkDanglingLineNominalVoltage((DanglingLine) networkElement);
             checkDanglingLineCurrentLimits((DanglingLine) networkElement);

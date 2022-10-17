@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
@@ -92,6 +93,7 @@ public class RaoLoggerTest {
         when(cnec.getId()).thenReturn(cnecId);
         mockCnecFlowResult(flowResult, cnec, marginMw, relMarginMw, marginA, relMarginA, ptdf);
         mockCnecFlowResult(basecaseOptimResult, cnec, marginMw, relMarginMw, marginA, relMarginA, ptdf);
+        when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         return cnec;
     }
 
@@ -100,7 +102,7 @@ public class RaoLoggerTest {
         when(flowResult.getRelativeMargin(cnec, Unit.MEGAWATT)).thenReturn(relMarginMw);
         when(flowResult.getMargin(cnec, Unit.AMPERE)).thenReturn(marginA);
         when(flowResult.getRelativeMargin(cnec, Unit.AMPERE)).thenReturn(relMarginA);
-        when(flowResult.getPtdfZonalSum(cnec)).thenReturn(ptdf);
+        when(flowResult.getPtdfZonalSum(cnec, Side.LEFT)).thenReturn(ptdf);
     }
 
     private String absoluteMarginLog(int order, double margin, Unit unit, FlowCnec cnec) {

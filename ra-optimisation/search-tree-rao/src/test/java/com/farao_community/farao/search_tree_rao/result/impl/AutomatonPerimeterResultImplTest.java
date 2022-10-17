@@ -28,6 +28,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.*;
 import static com.farao_community.farao.commons.Unit.*;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -42,7 +44,7 @@ public class AutomatonPerimeterResultImplTest {
     private NetworkAction networkAction2;
     private PstRangeAction pstRangeActionShifted;
     private HvdcRangeAction hvdcRangeActionShifted;
-    private RangeAction unshiftedRangeAction;
+    private RangeAction<?> unshiftedRangeAction;
     private Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private AutomatonPerimeterResultImpl result;
     private PrePerimeterResult postAutoSensitivity;
@@ -73,30 +75,30 @@ public class AutomatonPerimeterResultImplTest {
 
     @Test
     public void testGetFlow() {
-        when(postAutoSensitivity.getFlow(cnec1, AMPERE)).thenReturn(10.);
-        when(postAutoSensitivity.getFlow(cnec1, MEGAWATT)).thenReturn(100.);
-        assertEquals(10., result.getFlow(cnec1, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., result.getFlow(cnec1, MEGAWATT), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getFlow(cnec1, RIGHT, AMPERE)).thenReturn(10.);
+        when(postAutoSensitivity.getFlow(cnec1, RIGHT, MEGAWATT)).thenReturn(100.);
+        assertEquals(10., result.getFlow(cnec1, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., result.getFlow(cnec1, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetCommercialFlow() {
-        when(postAutoSensitivity.getCommercialFlow(cnec1, AMPERE)).thenReturn(10.);
-        when(postAutoSensitivity.getCommercialFlow(cnec1, MEGAWATT)).thenReturn(100.);
-        assertEquals(10., result.getCommercialFlow(cnec1, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., result.getCommercialFlow(cnec1, MEGAWATT), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getCommercialFlow(cnec1, RIGHT, AMPERE)).thenReturn(10.);
+        when(postAutoSensitivity.getCommercialFlow(cnec1, RIGHT, MEGAWATT)).thenReturn(100.);
+        assertEquals(10., result.getCommercialFlow(cnec1, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., result.getCommercialFlow(cnec1, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetPtdfZonalSum() {
-        when(postAutoSensitivity.getPtdfZonalSum(cnec1)).thenReturn(10.);
-        assertEquals(10., result.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getPtdfZonalSum(cnec1, RIGHT)).thenReturn(10.);
+        assertEquals(10., result.getPtdfZonalSum(cnec1, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetPtdfZonalSums() {
-        when(postAutoSensitivity.getPtdfZonalSums()).thenReturn(Map.of(cnec1, 0.1));
-        assertEquals(Map.of(cnec1, 0.1), result.getPtdfZonalSums());
+        when(postAutoSensitivity.getPtdfZonalSums()).thenReturn(Map.of(cnec1, Map.of(RIGHT, 0.1)));
+        assertEquals(Map.of(cnec1, Map.of(RIGHT, 0.1)), result.getPtdfZonalSums());
     }
 
     @Test
@@ -173,8 +175,8 @@ public class AutomatonPerimeterResultImplTest {
         assertEquals(1., result.getOptimizedSetpoint(pstRangeActionShifted, state1), DOUBLE_TOLERANCE);
         assertEquals(2., result.getOptimizedSetpoint(hvdcRangeActionShifted, state1), DOUBLE_TOLERANCE);
         assertEquals(3., result.getOptimizedSetpoint(unshiftedRangeAction, state1), DOUBLE_TOLERANCE);
-        assertTrue(rangeActionsWithSetpoint.equals(result.getOptimizedSetpointsOnState(state1)));
-        assertTrue(Map.of(pstRangeActionShifted, 55).equals(result.getOptimizedTapsOnState(state1)));
+        assertEquals(rangeActionsWithSetpoint, result.getOptimizedSetpointsOnState(state1));
+        assertEquals(Map.of(pstRangeActionShifted, 55), result.getOptimizedTapsOnState(state1));
     }
 
     @Test
@@ -192,26 +194,26 @@ public class AutomatonPerimeterResultImplTest {
     @Test
     public void testGetSensitivityOnRangeAction() {
         RangeAction<?> rangeAction = mock(RangeAction.class);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, rangeAction, MEGAWATT)).thenReturn(100.);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, rangeAction, AMPERE)).thenReturn(1000.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, rangeAction, MEGAWATT)).thenReturn(200.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, rangeAction, AMPERE)).thenReturn(2000.);
-        assertEquals(100., result.getSensitivityValue(cnec1, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., result.getSensitivityValue(cnec1, rangeAction, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(200., result.getSensitivityValue(cnec2, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(2000., result.getSensitivityValue(cnec2, rangeAction, AMPERE), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, rangeAction, MEGAWATT)).thenReturn(100.);
+        when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, rangeAction, AMPERE)).thenReturn(1000.);
+        when(postAutoSensitivity.getSensitivityValue(cnec2, LEFT, rangeAction, MEGAWATT)).thenReturn(200.);
+        when(postAutoSensitivity.getSensitivityValue(cnec2, LEFT, rangeAction, AMPERE)).thenReturn(2000.);
+        assertEquals(100., result.getSensitivityValue(cnec1, RIGHT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., result.getSensitivityValue(cnec1, RIGHT, rangeAction, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200., result.getSensitivityValue(cnec2, LEFT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(2000., result.getSensitivityValue(cnec2, LEFT, rangeAction, AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetSensitivityOnLinearGlsk() {
         SensitivityVariableSet linearGlsk = mock(SensitivityVariableSet.class);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, linearGlsk, MEGAWATT)).thenReturn(100.);
-        when(postAutoSensitivity.getSensitivityValue(cnec1, linearGlsk, AMPERE)).thenReturn(1000.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, linearGlsk, MEGAWATT)).thenReturn(200.);
-        when(postAutoSensitivity.getSensitivityValue(cnec2, linearGlsk, AMPERE)).thenReturn(2000.);
-        assertEquals(100., result.getSensitivityValue(cnec1, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., result.getSensitivityValue(cnec1, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(200., result.getSensitivityValue(cnec2, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(2000., result.getSensitivityValue(cnec2, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
+        when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, linearGlsk, MEGAWATT)).thenReturn(100.);
+        when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, linearGlsk, AMPERE)).thenReturn(1000.);
+        when(postAutoSensitivity.getSensitivityValue(cnec2, LEFT, linearGlsk, MEGAWATT)).thenReturn(200.);
+        when(postAutoSensitivity.getSensitivityValue(cnec2, LEFT, linearGlsk, AMPERE)).thenReturn(2000.);
+        assertEquals(100., result.getSensitivityValue(cnec1, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., result.getSensitivityValue(cnec1, RIGHT, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200., result.getSensitivityValue(cnec2, LEFT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(2000., result.getSensitivityValue(cnec2, LEFT, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
     }
 }
