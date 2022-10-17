@@ -221,7 +221,7 @@ public final class CoreCneCnecsCreator {
         if (resultState.equals(OptimizationState.AFTER_CRA) && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
             resultState = OptimizationState.AFTER_PRA;
         }
-        return cneHelper.getRaoResult().getFlow(resultState, cnec, unit);
+        return cneHelper.getRaoResult().getFlow(resultState, cnec, Side.LEFT, unit);
     }
 
     private double getCnecMargin(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
@@ -238,7 +238,7 @@ public final class CoreCneCnecsCreator {
         if (resultState.equals(OptimizationState.AFTER_CRA) && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
             resultState = OptimizationState.AFTER_PRA;
         }
-        return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec) : absoluteMargin;
+        return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, Side.LEFT) : absoluteMargin;
     }
 
     private Analog createFlowMeasurement(FlowCnec cnec, OptimizationState optimizationState, Unit unit, boolean shouldInvertBranchDirection) {
@@ -333,7 +333,7 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createPtdfZonalSumMeasurement(FlowCnec cnec) {
-        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(OptimizationState.INITIAL, cnec);
+        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(OptimizationState.INITIAL, cnec, Side.LEFT);
         return newPtdfMeasurement(SUM_PTDF_MEASUREMENT_TYPE, absPtdfSum);
     }
 
@@ -344,7 +344,7 @@ public final class CoreCneCnecsCreator {
         }
         List<Analog> measurements = new ArrayList<>();
         try {
-            double loopflow = cneHelper.getRaoResult().getLoopFlow(resultOptimState, cnec, Unit.MEGAWATT);
+            double loopflow = cneHelper.getRaoResult().getLoopFlow(resultOptimState, cnec, Side.LEFT, Unit.MEGAWATT);
             LoopFlowThreshold loopFlowExtension = cnec.getExtension(LoopFlowThreshold.class);
             if (!Objects.isNull(loopFlowExtension) && !Double.isNaN(loopflow)) {
                 double invert = shouldInvertBranchDirection ? -1 : 1;

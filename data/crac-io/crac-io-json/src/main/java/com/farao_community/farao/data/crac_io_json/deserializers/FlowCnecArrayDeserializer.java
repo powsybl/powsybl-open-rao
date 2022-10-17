@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,6 +40,7 @@ public final class FlowCnecArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
             List<Extension<FlowCnec>> extensions = new ArrayList<>();
+            Pair<Double, Double> nominalV = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -75,11 +77,11 @@ public final class FlowCnecArrayDeserializer {
                         readImax(jsonParser, flowCnecAdder);
                         break;
                     case NOMINAL_VOLTAGE:
-                        readNominalVoltage(jsonParser, flowCnecAdder);
+                        nominalV = readNominalVoltage(jsonParser, flowCnecAdder);
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder);
+                        BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
@@ -96,17 +98,20 @@ public final class FlowCnecArrayDeserializer {
         }
     }
 
-    private static void readNominalVoltage(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
+    private static Pair<Double, Double> readNominalVoltage(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
         jsonParser.nextToken();
         Double[] nominalV = jsonParser.readValueAs(Double[].class);
         if (nominalV.length == 1) {
             flowCnecAdder.withNominalVoltage(nominalV[0]);
+            return Pair.of(nominalV[0], nominalV[0]);
         } else if (nominalV.length == 2) {
             flowCnecAdder.withNominalVoltage(nominalV[0], Side.LEFT);
             flowCnecAdder.withNominalVoltage(nominalV[1], Side.RIGHT);
+            return Pair.of(nominalV[0], nominalV[1]);
         } else if (nominalV.length > 2) {
             throw new FaraoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
         }
+        return null;
     }
 
     private static void readImax(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {

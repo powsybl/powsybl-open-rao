@@ -7,6 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -24,8 +25,8 @@ public class PstRangeActionSensiHandler implements RangeActionSensiHandler {
     }
 
     @Override
-    public double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnFlow(pstRangeAction.getNetworkElement().getId(), cnec);
+    public double getSensitivityOnFlow(FlowCnec cnec, Side side, SystematicSensitivityResult sensitivityResult) {
+        return sensitivityResult.getSensitivityOnFlow(pstRangeAction.getNetworkElement().getId(), cnec, side);
     }
 
     @Override

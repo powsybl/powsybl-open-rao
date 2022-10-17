@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -123,13 +124,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertNotNull(flowVariable);
         assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -137,11 +138,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2 does not exist
-        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
         assertNull(flowVariable2);
 
         // check flow constraint for cnec2 does not exist
-        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
         assertNull(flowConstraint2);
 
         // check absolute variation constraints
@@ -183,13 +184,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertNotNull(flowVariable);
         assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * 0, flowConstraint.lb(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * 0, flowConstraint.ub(), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
@@ -197,11 +198,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(0, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE); // sensitivity filtered (= 0)
 
         // check flow variable for cnec2 does not exist
-        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
         assertNull(flowVariable2);
 
         // check flow constraint for cnec2 does not exist
-        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
         assertNull(flowConstraint2);
 
         // check absolute variation constraints
@@ -243,21 +244,21 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(LinearProblem.infinity(), absoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1 does not exist
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertNull(flowVariable);
 
         // check flow constraint for cnec1 does not exist
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         assertNull(flowConstraint);
 
         // check flow variable for cnec2
-        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
         assertNotNull(flowVariable2);
         assertEquals(-LinearProblem.infinity(), flowVariable2.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable2.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec2
-        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -316,13 +317,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(LinearProblem.infinity(), curAbsoluteVariationVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec1
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertNotNull(flowVariable);
         assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT1 - initialAlpha * SENSI_CNEC1_IT1, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -330,13 +331,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT1, flowConstraint.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2
-        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
         assertNotNull(flowVariable2);
         assertEquals(-LinearProblem.infinity(), flowVariable2.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable2.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec2
-        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT1 - initialAlpha * SENSI_CNEC2_IT1, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -384,10 +385,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
-        when(sensitivityResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
-        when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
+        when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
+        when(flowResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
+        when(sensitivityResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
+        when(sensitivityResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
         // update the problem
         RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
@@ -407,13 +408,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
         // check flow variable for cnec1
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertNotNull(flowVariable);
         assertEquals(-LinearProblem.infinity(), flowVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec1
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         assertNotNull(flowConstraint);
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC1_IT2 - currentAlpha * SENSI_CNEC1_IT2, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -421,11 +422,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC1_IT2, flowConstraint.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check flow variable for cnec2 does not exist
-        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
         assertNull(flowVariable2);
 
         // check flow constraint for cnec2 does not exist
-        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
         assertNull(flowConstraint2);
 
         // check the number of variables and constraints
@@ -452,21 +453,21 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
         // check flow variable for cnec1 does not exist
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
+        MPVariable flowVariable = linearProblem.getFlowVariable(cnec1, Side.LEFT);
         assertNull(flowVariable);
 
         // check flow constraint for cnec1 does not exist
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         assertNull(flowConstraint);
 
         // check flow variable for cnec2
-        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2);
+        MPVariable flowVariable2 = linearProblem.getFlowVariable(cnec2, Side.RIGHT);
         assertNotNull(flowVariable2);
         assertEquals(-LinearProblem.infinity(), flowVariable2.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), flowVariable2.ub(), DOUBLE_TOLERANCE);
 
         // check flow constraint for cnec2
-        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2);
+        MPConstraint flowConstraint2 = linearProblem.getFlowConstraint(cnec2, Side.RIGHT);
         assertNotNull(flowConstraint2);
         assertEquals(REF_FLOW_CNEC2_IT2 - currentAlpha * SENSI_CNEC2_IT2, flowConstraint2.lb(), DOUBLE_TOLERANCE);
         assertEquals(REF_FLOW_CNEC2_IT2 - currentAlpha * SENSI_CNEC2_IT2, flowConstraint2.ub(), DOUBLE_TOLERANCE);
@@ -517,12 +518,12 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     public void testSensitivityFilter1() {
         MPConstraint flowConstraint;
         MPVariable rangeActionSetpoint;
-        when(flowResult.getPtdfZonalSum(cnec1)).thenReturn(0.5);
+        when(flowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
 
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState());
-        flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
@@ -533,13 +534,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     public void testSensitivityFilter2() {
         MPConstraint flowConstraint;
         MPVariable rangeActionSetpoint;
-        when(flowResult.getPtdfZonalSum(cnec1)).thenReturn(0.5);
+        when(flowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
 
         // (sensi = 2) > 1/.5 should not be filtered
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
+        when(flowResult.getMargin(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState());
-        flowConstraint = linearProblem.getFlowConstraint(cnec1);
+        flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.lb(), DOUBLE_TOLERANCE);

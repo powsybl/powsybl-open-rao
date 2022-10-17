@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -45,7 +46,7 @@ public class HvdcRangeActionSensiHandlerTest {
     @Test
     public void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.create();
-        FlowCnec anyFLowCnec = crac.getFlowCnec("cnec1basecase");
+        FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
@@ -55,9 +56,11 @@ public class HvdcRangeActionSensiHandlerTest {
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", anyFLowCnec)).thenReturn(-12.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", flowCnec, Side.LEFT)).thenReturn(-12.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("BBE2AA11 FFR3AA11 1", flowCnec, Side.RIGHT)).thenReturn(-10.56);
 
-        assertEquals(-12.56, sensiHandler.getSensitivityOnFlow(anyFLowCnec, sensiResult), 1e-3);
+        assertEquals(-12.56, sensiHandler.getSensitivityOnFlow(flowCnec, Side.LEFT, sensiResult), 1e-3);
+        assertEquals(-10.56, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
     @Test (expected = FaraoException.class)

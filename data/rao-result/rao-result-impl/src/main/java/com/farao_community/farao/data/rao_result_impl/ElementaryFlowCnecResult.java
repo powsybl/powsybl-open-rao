@@ -9,6 +9,7 @@ package com.farao_community.farao.data.rao_result_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -21,23 +22,26 @@ public class ElementaryFlowCnecResult {
     private static final FlowCnecResultPerUnit DEFAULT_RESULT = new FlowCnecResultPerUnit();
 
     private final Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
-    private double ptdfZonalSum;
+    private final Map<Side, Double> ptdfZonalSum;
 
     private static class FlowCnecResultPerUnit {
-        private double flow = Double.NaN;
+        private final Map<Side, Double> flow = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
         private double margin = Double.NaN;
         private double relativeMargin = Double.NaN;
-        private double loopFlow = Double.NaN;
-        private double commercialFlow = Double.NaN;
+        private final Map<Side, Double> loopFlow = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
+        private final Map<Side, Double> commercialFlow = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
     }
 
     ElementaryFlowCnecResult() {
         this.resultPerUnit = new EnumMap<>(Unit.class);
-        this.ptdfZonalSum = Double.NaN;
+        this.ptdfZonalSum = new EnumMap<>(Map.of(Side.LEFT, Double.NaN, Side.RIGHT, Double.NaN));
     }
 
-    public double getFlow(Unit unit) {
-        return resultPerUnit.getOrDefault(unit, DEFAULT_RESULT).flow;
+    public double getFlow(Side side, Unit unit) {
+        if (!resultPerUnit.containsKey(unit)) {
+            return DEFAULT_RESULT.flow.get(side);
+        }
+        return resultPerUnit.get(unit).flow.getOrDefault(side, DEFAULT_RESULT.flow.get(side));
     }
 
     public double getMargin(Unit unit) {
@@ -48,21 +52,27 @@ public class ElementaryFlowCnecResult {
         return resultPerUnit.getOrDefault(unit, DEFAULT_RESULT).relativeMargin;
     }
 
-    public double getLoopFlow(Unit unit) {
-        return resultPerUnit.getOrDefault(unit, DEFAULT_RESULT).loopFlow;
+    public double getLoopFlow(Side side, Unit unit) {
+        if (!resultPerUnit.containsKey(unit)) {
+            return DEFAULT_RESULT.loopFlow.get(side);
+        }
+        return resultPerUnit.get(unit).loopFlow.getOrDefault(side, DEFAULT_RESULT.loopFlow.get(side));
     }
 
-    public double getCommercialFlow(Unit unit) {
-        return resultPerUnit.getOrDefault(unit, DEFAULT_RESULT).commercialFlow;
+    public double getCommercialFlow(Side side, Unit unit) {
+        if (!resultPerUnit.containsKey(unit)) {
+            return DEFAULT_RESULT.commercialFlow.get(side);
+        }
+        return resultPerUnit.get(unit).commercialFlow.getOrDefault(side, DEFAULT_RESULT.commercialFlow.get(side));
     }
 
-    public double getPtdfZonalSum() {
-        return ptdfZonalSum;
+    public double getPtdfZonalSum(Side side) {
+        return ptdfZonalSum.get(side);
     }
 
-    public void setFlow(double flow, Unit unit) {
+    public void setFlow(Side side, double flow, Unit unit) {
         setMapForUnitIfNecessary(unit);
-        resultPerUnit.get(unit).flow = flow;
+        resultPerUnit.get(unit).flow.put(side, flow);
     }
 
     public void setMargin(double margin, Unit unit) {
@@ -75,18 +85,18 @@ public class ElementaryFlowCnecResult {
         resultPerUnit.get(unit).relativeMargin = relativeMargin;
     }
 
-    public void setLoopFlow(double loopFlow, Unit unit) {
+    public void setLoopFlow(Side side, double loopFlow, Unit unit) {
         setMapForUnitIfNecessary(unit);
-        resultPerUnit.get(unit).loopFlow = loopFlow;
+        resultPerUnit.get(unit).loopFlow.put(side, loopFlow);
     }
 
-    public void setCommercialFlow(double commercialFlow, Unit unit) {
+    public void setCommercialFlow(Side side, double commercialFlow, Unit unit) {
         setMapForUnitIfNecessary(unit);
-        resultPerUnit.get(unit).commercialFlow = commercialFlow;
+        resultPerUnit.get(unit).commercialFlow.put(side, commercialFlow);
     }
 
-    public void setPtdfZonalSum(double ptdfZonalSum) {
-        this.ptdfZonalSum = ptdfZonalSum;
+    public void setPtdfZonalSum(Side side, double ptdfZonalSum) {
+        this.ptdfZonalSum.put(side, ptdfZonalSum);
     }
 
     private void setMapForUnitIfNecessary(Unit unit) {

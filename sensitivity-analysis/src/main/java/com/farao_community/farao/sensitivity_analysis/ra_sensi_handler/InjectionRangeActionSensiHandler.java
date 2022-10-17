@@ -7,6 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -34,9 +35,9 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
     }
 
     @Override
-    public double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec) * getKeySum(getPositiveGlskMap())
-                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec) * getKeySum(getNegativeGlskMap());
+    public double getSensitivityOnFlow(FlowCnec cnec, Side side, SystematicSensitivityResult sensitivityResult) {
+        return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec, side) * getKeySum(getPositiveGlskMap())
+                - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec, side) * getKeySum(getNegativeGlskMap());
     }
 
     @Override

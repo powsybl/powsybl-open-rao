@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PreventiveOptimizationPerimeterTest extends AbstractOptmizationPerimeterTest {
+public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
     @Before
     public void setUp() {

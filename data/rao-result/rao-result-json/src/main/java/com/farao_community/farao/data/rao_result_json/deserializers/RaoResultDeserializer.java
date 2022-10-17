@@ -85,7 +85,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case FLOWCNEC_RESULTS:
                     jsonParser.nextToken();
-                    FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                     break;
 
                 case ANGLECNEC_RESULTS:

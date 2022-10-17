@@ -20,7 +20,7 @@ public class CgmesBranchHelper implements ElementHelper {
     private final String mrId;
 
     private Branch.Side tieLineSide = null;
-    private boolean isTieLine = false;
+    private boolean isHalfLine = false;
 
     private Branch<?> branch = null;
 
@@ -36,8 +36,8 @@ public class CgmesBranchHelper implements ElementHelper {
         interpret(network);
     }
 
-    public boolean isTieLine() {
-        return isTieLine;
+    public boolean isHalfLine() {
+        return isHalfLine;
     }
 
     public Branch.Side getTieLineSide() {
@@ -51,16 +51,17 @@ public class CgmesBranchHelper implements ElementHelper {
     protected void interpret(Network network) {
         branch = network.getBranch(mrId);
         if (Objects.isNull(branch)) {
+            // check if it's a half line
             for (Line line : network.getLines()) {
                 if (line.isTieLine()) {
                     TieLine tieLine = (TieLine) line;
                     if (tieLine.getHalf1().getId().equals(mrId)) {
-                        isTieLine = true;
+                        isHalfLine = true;
                         tieLineSide = Branch.Side.ONE;
                         branch = line;
                         return;
                     } else if (tieLine.getHalf2().getId().equals(mrId)) {
-                        isTieLine = true;
+                        isHalfLine = true;
                         tieLineSide = Branch.Side.TWO;
                         branch = line;
                         return;

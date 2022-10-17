@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -48,22 +49,22 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public double getFlow(FlowCnec flowCnec, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, unit);
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getCommercialFlow(flowCnec, unit);
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(FlowCnec flowCnec) {
-        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSum(flowCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
+        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
-    public Map<FlowCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSums();
     }
 
@@ -151,13 +152,13 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, rangeAction, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
-        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, linearGlsk, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
 
     private void checkState(State state) {

@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -130,10 +130,10 @@ public class PtdfSensitivityProviderTest {
         String contingencyId = "Contingency FR1 FR3";
 
         crac.newFlowCnec().withId("cnecOnDlBasecase").withInstant(Instant.PREVENTIVE).withNetworkElement("DL1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
         crac.newFlowCnec().withId("cnecOnDlCurative").withInstant(Instant.CURATIVE).withContingency(contingencyId).withNetworkElement("DL1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
 
         PtdfSensitivityProvider provider = new PtdfSensitivityProvider(glskMock, Set.of(crac.getFlowCnec("cnecOnDlBasecase"), crac.getFlowCnec("cnecOnDlCurative")), Set.of(Unit.MEGAWATT));

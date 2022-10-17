@@ -13,9 +13,9 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -69,7 +69,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -83,7 +83,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -97,7 +97,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -125,14 +125,14 @@ public class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // factors with basecase and contingency
-        assertEquals(6, provider.getBasecaseFactors(network).size());
-        assertEquals(6, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(4, provider.getBasecaseFactors(network).size());
+        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
 
         provider.disableFactorsForBaseCaseSituation();
 
         // factors after disabling basecase
         assertEquals(0, provider.getBasecaseFactors(network).size());
-        assertEquals(6, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
     @Test(expected = FaraoException.class)
@@ -150,7 +150,7 @@ public class RangeActionSensitivityProviderTest {
             .withNetworkElement("BBE1AA1  BBE3AA1  1")
             .newThreshold()
             .withUnit(Unit.AMPERE)
-            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withSide(Side.LEFT)
             .withMin(-10.)
             .withMax(10.)
             .add()
@@ -165,16 +165,19 @@ public class RangeActionSensitivityProviderTest {
 
     @Test
     public void factorsCracPstWithRange() {
-        Crac crac = CommonCracCreation.createWithPreventivePstRange();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(8, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
@@ -194,30 +197,36 @@ public class RangeActionSensitivityProviderTest {
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
-        assertEquals(2, factorList.stream().filter(factor ->
-            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
-                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
     @Test
     public void cracWithoutRangeActionNorPst() {
-        Crac crac = CommonCracCreation.create();
+        Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
-        assertEquals(6, factorList.size());
+        assertEquals(8, factorList.size());
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_1
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT_2
                 && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
     }
 
@@ -228,7 +237,8 @@ public class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
 
         Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
@@ -242,10 +252,15 @@ public class RangeActionSensitivityProviderTest {
 
         List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
 
-        assertEquals(3, factorList.size());
+        assertEquals(4, factorList.size());
 
         assertTrue(factorList.stream().anyMatch(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_1
+                && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+        ));
+
+        assertTrue(factorList.stream().anyMatch(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER_2
                 && factor.getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
         ));
 
@@ -271,14 +286,14 @@ public class RangeActionSensitivityProviderTest {
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withInstant(Instant.PREVENTIVE)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 
         Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
         NetworkElement line = Mockito.mock(NetworkElement.class);
         Mockito.when(line.getId()).thenReturn("BBE1AA11 BBE2AA11 1");
-        RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
+        RangeAction<?> mockHvdcRangeAction = Mockito.mock(RangeAction.class);
         Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(line));
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -329,10 +344,10 @@ public class RangeActionSensitivityProviderTest {
         String contingencyId = "Contingency FR1 FR3";
 
         crac.newFlowCnec().withId("cnecOnDlBasecase").withInstant(Instant.PREVENTIVE).withNetworkElement("DL1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.LEFT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
         crac.newFlowCnec().withId("cnecOnDlCurative").withInstant(Instant.CURATIVE).withContingency(contingencyId).withNetworkElement("DL1")
-            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMax(1000.).add()
+            .newThreshold().withSide(Side.RIGHT).withUnit(Unit.MEGAWATT).withMax(1000.).add()
             .add();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), Set.of(crac.getFlowCnec("cnecOnDlBasecase"), crac.getFlowCnec("cnecOnDlCurative")), Collections.singleton(Unit.MEGAWATT));

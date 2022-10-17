@@ -10,8 +10,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 
 import java.util.Objects;
 
@@ -21,7 +21,7 @@ import java.util.Objects;
 public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchThresholdAdder> implements BranchThresholdAdder {
 
     private final FlowCnecAdderImpl ownerAdder;
-    private BranchThresholdRule rule;
+    private Side side;
 
     BranchThresholdAdderImpl(FlowCnecAdder ownerAdder) {
         Objects.requireNonNull(ownerAdder);
@@ -36,17 +36,17 @@ public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchT
     }
 
     @Override
-    public BranchThresholdAdder withRule(BranchThresholdRule rule) {
-        this.rule = rule;
+    public BranchThresholdAdder withSide(Side side) {
+        this.side = side;
         return this;
     }
 
     @Override
     public FlowCnecAdder add() {
         super.checkThreshold();
-        AdderUtils.assertAttributeNotNull(this.rule, "BranchThreshold", "Rule", "withRule()");
+        AdderUtils.assertAttributeNotNull(this.side, "BranchThreshold", "Side", "withSide()");
 
-        ownerAdder.addThreshold(new BranchThresholdImpl(unit, min, max, rule));
+        ownerAdder.addThreshold(new BranchThresholdImpl(side, unit, min, max));
         return ownerAdder;
     }
 }

@@ -7,14 +7,13 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -22,29 +21,26 @@ import static org.junit.Assert.assertFalse;
 public class LoopFlowResultTest {
 
     private final static double DOUBLE_TOLERANCE = 0.01;
-    private Cnec cnec;
+    private BranchCnec<?> cnec;
 
     @Before
     public void setUp() {
-        cnec = Mockito.mock(Cnec.class);
+        cnec = Mockito.mock(BranchCnec.class);
     }
 
     @Test
     public void loopFlowResultTest() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, 1., 2., 3.);
-        assertTrue(loopFlowResult.containValues(cnec));
-        assertEquals(1., loopFlowResult.getLoopFlow(cnec), DOUBLE_TOLERANCE);
-        assertEquals(2., loopFlowResult.getCommercialFlow(cnec), DOUBLE_TOLERANCE);
-        assertEquals(3., loopFlowResult.getReferenceFlow(cnec), DOUBLE_TOLERANCE);
-
-        assertFalse(loopFlowResult.containValues(Mockito.mock(Cnec.class)));
+        loopFlowResult.addCnecResult(cnec, Side.RIGHT, 1., 2., 3.);
+        assertEquals(1., loopFlowResult.getLoopFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(2., loopFlowResult.getCommercialFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(3., loopFlowResult.getReferenceFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
     public void loopFlowResultCnecNotFound() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.getLoopFlow(cnec);
+        loopFlowResult.getLoopFlow(cnec, Side.RIGHT);
     }
 }
 

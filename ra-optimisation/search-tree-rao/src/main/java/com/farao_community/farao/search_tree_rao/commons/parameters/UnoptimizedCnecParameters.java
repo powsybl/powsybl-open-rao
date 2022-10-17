@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
@@ -45,7 +46,7 @@ public class UnoptimizedCnecParameters {
         if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             return new UnoptimizedCnecParameters(
                 operatorsNotSharingCras,
-                RaoUtil.getLargestCnecThreshold(flowCnecs));
+                RaoUtil.getLargestCnecThreshold(flowCnecs, Unit.MEGAWATT));
         } else {
             return null;
         }

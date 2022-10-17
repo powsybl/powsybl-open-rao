@@ -9,11 +9,11 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
@@ -68,22 +68,19 @@ public class CastorFullOptimizationTest {
     private NetworkAction na1;
 
     private CastorFullOptimization castorFullOptimization;
-    private RaoInput inputs;
-    private RaoParameters raoParameters;
-    private java.time.Instant instant;
 
     @Before
     public void setup() {
         Network network = Importers.loadNetwork("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
-        inputs = Mockito.mock(RaoInput.class);
+        RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
         when(inputs.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
         when(inputs.getCrac()).thenReturn(crac);
-        raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        instant = Mockito.mock(java.time.Instant.class);
+        java.time.Instant instant = Mockito.mock(java.time.Instant.class);
         castorFullOptimization = new CastorFullOptimization(inputs, raoParameters, instant);
     }
 
@@ -288,7 +285,7 @@ public class CastorFullOptimizationTest {
             .withContingency("contingency1")
             .withInstant(Instant.CURATIVE)
             .withNominalVoltage(220.)
-            .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
         // ra1 : preventive only
         ra1 = crac.newPstRangeAction()
@@ -330,7 +327,7 @@ public class CastorFullOptimizationTest {
             .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
-        // ra6 : preventive and curative (onFlowConsrtaint)
+        // ra6 : preventive and curative (onFlowConstraint)
         ra6 = crac.newPstRangeAction()
             .withId("ra6")
             .withNetworkElement("ra6-ne")

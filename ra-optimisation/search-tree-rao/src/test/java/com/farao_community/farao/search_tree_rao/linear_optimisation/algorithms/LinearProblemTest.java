@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -18,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationDirectionExtension.*;
@@ -50,6 +52,7 @@ public class LinearProblemTest {
 
         rangeAction = Mockito.mock(PstRangeAction.class);
         cnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnec.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
         state = Mockito.mock(State.class);
 
         Mockito.when(rangeAction.getId()).thenReturn(RANGE_ACTION_ID);
@@ -59,20 +62,20 @@ public class LinearProblemTest {
 
     @Test
     public void flowVariableTest() {
-        assertNull(linearProblem.getFlowVariable(cnec));
-        linearProblem.addFlowVariable(LB, UB, cnec);
-        assertNotNull(linearProblem.getFlowVariable(cnec));
-        assertEquals(LB, linearProblem.getFlowVariable(cnec).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getFlowVariable(cnec).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
+        linearProblem.addFlowVariable(LB, UB, cnec, Side.LEFT);
+        assertNotNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
+        assertEquals(LB, linearProblem.getFlowVariable(cnec, Side.LEFT).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getFlowVariable(cnec, Side.LEFT).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void flowConstraintTest() {
-        assertNull(linearProblem.getFlowConstraint(cnec));
-        linearProblem.addFlowConstraint(LB, UB, cnec);
-        assertNotNull(linearProblem.getFlowConstraint(cnec));
-        assertEquals(LB, linearProblem.getFlowConstraint(cnec).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getFlowConstraint(cnec).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
+        linearProblem.addFlowConstraint(LB, UB, cnec, Side.LEFT);
+        assertNotNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
+        assertEquals(LB, linearProblem.getFlowConstraint(cnec, Side.LEFT).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getFlowConstraint(cnec, Side.LEFT).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -159,14 +162,14 @@ public class LinearProblemTest {
 
     @Test
     public void minimumMarginConstraintTest() {
-        assertNull(linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
-        assertNull(linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
-        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        assertEquals(LB, linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
+        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
+        assertEquals(LB, linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -201,14 +204,14 @@ public class LinearProblemTest {
 
     @Test
     public void maxLoopFlowConstraintTest() {
-        assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.UPPER_BOUND));
-        assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.LOWER_BOUND));
+        assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND));
+        assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND));
 
-        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, LinearProblem.BoundExtension.UPPER_BOUND);
-        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, LinearProblem.BoundExtension.LOWER_BOUND);
+        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND);
+        linearProblem.addMaxLoopFlowConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND);
 
-        assertEquals(LB, linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.UPPER_BOUND).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.UPPER_BOUND).ub(), DOUBLE_TOLERANCE);
+        assertEquals(LB, linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test

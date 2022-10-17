@@ -266,6 +266,60 @@
       "zonalPtdfSum" : 0.4
     }
   } ],
+  "angleCnecResults" : [ {
+    "angleCnecId" : "angleCnecId",
+    "initial" : {
+      "degree" : {
+        "angle" : 3135.0,
+        "margin" : 3131.0
+      }
+    },
+    "afterPRA" : {
+      "degree" : {
+        "angle" : 3235.0,
+        "margin" : 3231.0
+      }
+    },
+    "afterARA" : {
+      "degree" : {
+        "angle" : 3335.0,
+        "margin" : 3331.0
+      }
+    },
+    "afterCRA" : {
+      "degree" : {
+        "angle" : 3435.0,
+        "margin" : 3431.0
+      }
+    }
+  } ],
+  "voltageCnecResults" : [ {
+    "voltageCnecId" : "voltageCnecId",
+    "initial" : {
+      "kilovolt" : {
+        "voltage" : 4146.0,
+        "margin" : 4141.0
+      }
+    },
+    "afterPRA" : {
+      "kilovolt" : {
+        "voltage" : 4246.0,
+        "margin" : 4241.0
+      }
+    },
+    "afterARA" : {
+      "kilovolt" : {
+        "voltage" : 4346.0,
+        "margin" : 4341.0
+      }
+    },
+    "afterCRA" : {
+      "kilovolt" : {
+        "voltage" : 4446.0,
+        "margin" : 4441.0
+      }
+    }
+  } ],
   "networkActionResults" : [ {
     "networkActionId" : "complexNetworkActionId",
     "activatedStates" : [ {
@@ -289,7 +343,6 @@
   } ],
   "pstRangeActionResults" : [ {
     "pstRangeActionId" : "pstRange1Id",
-    "pstNetworkElementId" : "pst",
     "initialTap" : 0,
     "initialSetpoint" : 0.0,
     "activatedStates" : [ {
@@ -299,22 +352,24 @@
     } ]
   }, {
     "pstRangeActionId" : "pstRange2Id",
-    "pstNetworkElementId" : "pst2",
     "initialTap" : 3,
     "initialSetpoint" : 1.7,
     "activatedStates" : [ ]
+  }, {
+    "pstRangeActionId" : "pstRange3Id",
+    "initialTap" : 2,
+    "initialSetpoint" : 1.3,
+    "activatedStates" : [ ]
   } ],
-  "hvdcRangeActionResults" : [ {
-    "hvdcRangeActionId" : "hvdcRange1Id",
-    "hvdcNetworkElementId" : "hvdc",
+  "standardRangeActionResults" : [ {
+    "rangeActionId" : "hvdcRange1Id",
     "initialSetpoint" : 0.0,
     "activatedStates" : [ {
       "instant" : "preventive",
       "setpoint" : -1000.0
     } ]
   }, {
-    "hvdcRangeActionId" : "hvdcRange2Id",
-    "hvdcNetworkElementId" : "hvdc2",
+    "rangeActionId" : "hvdcRange2Id",
     "initialSetpoint" : -100.0,
     "activatedStates" : [ {
       "instant" : "curative",
@@ -324,6 +379,14 @@
       "instant" : "curative",
       "contingency" : "contingency2Id",
       "setpoint" : 400.0
+    } ]
+  }, {
+    "rangeActionId" : "injectionRange1Id",
+    "initialSetpoint" : 100.0,
+    "activatedStates" : [ {
+      "instant" : "curative",
+      "contingency" : "contingency1Id",
+      "setpoint" : -300.0
     } ]
   } ]
 }

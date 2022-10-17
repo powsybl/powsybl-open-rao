@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -24,6 +23,9 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.commons.Unit.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -51,92 +53,92 @@ public class UnoptimizedRaoResultImplTest {
 
     @Test
     public void testGetFlow() {
-        when(initialResult.getFlow(flowCnec, Unit.AMPERE)).thenReturn(100.);
-        when(initialResult.getFlow(flowCnec, Unit.MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getFlow(flowCnec, LEFT, AMPERE)).thenReturn(100.);
+        when(initialResult.getFlow(flowCnec, LEFT, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getFlow(OptimizationState.INITIAL, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getFlow(OptimizationState.AFTER_PRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getFlow(OptimizationState.AFTER_ARA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(OptimizationState.INITIAL, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(OptimizationState.AFTER_PRA, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(OptimizationState.AFTER_ARA, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getFlow(OptimizationState.AFTER_CRA, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getFlow(OptimizationState.INITIAL, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getFlow(OptimizationState.AFTER_PRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getFlow(OptimizationState.AFTER_ARA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(OptimizationState.INITIAL, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(OptimizationState.AFTER_PRA, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(OptimizationState.AFTER_ARA, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getFlow(OptimizationState.AFTER_CRA, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetMargin() {
-        when(initialResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(100.);
-        when(initialResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getMargin(flowCnec, AMPERE)).thenReturn(100.);
+        when(initialResult.getMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getMargin(OptimizationState.INITIAL, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getMargin(OptimizationState.AFTER_PRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getMargin(OptimizationState.AFTER_ARA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getMargin(OptimizationState.AFTER_CRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getMargin(OptimizationState.INITIAL, flowCnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getMargin(OptimizationState.AFTER_PRA, flowCnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getMargin(OptimizationState.AFTER_ARA, flowCnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getMargin(OptimizationState.AFTER_CRA, flowCnec, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getMargin(OptimizationState.INITIAL, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getMargin(OptimizationState.AFTER_PRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getMargin(OptimizationState.AFTER_ARA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getMargin(OptimizationState.AFTER_CRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(OptimizationState.INITIAL, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(OptimizationState.AFTER_PRA, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(OptimizationState.AFTER_ARA, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(OptimizationState.AFTER_CRA, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetRelativeMargin() {
-        when(initialResult.getRelativeMargin(flowCnec, Unit.AMPERE)).thenReturn(100.);
-        when(initialResult.getRelativeMargin(flowCnec, Unit.MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getRelativeMargin(flowCnec, AMPERE)).thenReturn(100.);
+        when(initialResult.getRelativeMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getRelativeMargin(OptimizationState.INITIAL, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getRelativeMargin(OptimizationState.AFTER_PRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getRelativeMargin(OptimizationState.AFTER_ARA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getRelativeMargin(OptimizationState.AFTER_CRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getRelativeMargin(OptimizationState.INITIAL, flowCnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getRelativeMargin(OptimizationState.AFTER_PRA, flowCnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getRelativeMargin(OptimizationState.AFTER_ARA, flowCnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getRelativeMargin(OptimizationState.AFTER_CRA, flowCnec, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getRelativeMargin(OptimizationState.INITIAL, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_PRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_ARA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_CRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(OptimizationState.INITIAL, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_PRA, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_ARA, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_CRA, flowCnec, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetCommercialFlow() {
-        when(initialResult.getCommercialFlow(flowCnec, Unit.AMPERE)).thenReturn(100.);
-        when(initialResult.getCommercialFlow(flowCnec, Unit.MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getCommercialFlow(flowCnec, RIGHT, AMPERE)).thenReturn(100.);
+        when(initialResult.getCommercialFlow(flowCnec, RIGHT, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getCommercialFlow(OptimizationState.INITIAL, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getCommercialFlow(OptimizationState.AFTER_PRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getCommercialFlow(OptimizationState.AFTER_ARA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getCommercialFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(OptimizationState.INITIAL, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(OptimizationState.AFTER_PRA, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(OptimizationState.AFTER_ARA, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getCommercialFlow(OptimizationState.AFTER_CRA, flowCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getCommercialFlow(OptimizationState.INITIAL, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getCommercialFlow(OptimizationState.AFTER_PRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getCommercialFlow(OptimizationState.AFTER_ARA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getCommercialFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(OptimizationState.INITIAL, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(OptimizationState.AFTER_PRA, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(OptimizationState.AFTER_ARA, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getCommercialFlow(OptimizationState.AFTER_CRA, flowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetLoopFlow() {
-        when(initialResult.getLoopFlow(flowCnec, Unit.AMPERE)).thenReturn(100.);
-        when(initialResult.getLoopFlow(flowCnec, Unit.MEGAWATT)).thenReturn(1000.);
+        when(initialResult.getLoopFlow(flowCnec, LEFT, AMPERE)).thenReturn(100.);
+        when(initialResult.getLoopFlow(flowCnec, LEFT, MEGAWATT)).thenReturn(1000.);
 
-        assertEquals(100., output.getLoopFlow(OptimizationState.INITIAL, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getLoopFlow(OptimizationState.AFTER_PRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getLoopFlow(OptimizationState.AFTER_ARA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getLoopFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(OptimizationState.INITIAL, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(OptimizationState.AFTER_PRA, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(OptimizationState.AFTER_ARA, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getLoopFlow(OptimizationState.AFTER_CRA, flowCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(1000., output.getLoopFlow(OptimizationState.INITIAL, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getLoopFlow(OptimizationState.AFTER_PRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getLoopFlow(OptimizationState.AFTER_ARA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getLoopFlow(OptimizationState.AFTER_CRA, flowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(OptimizationState.INITIAL, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(OptimizationState.AFTER_PRA, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(OptimizationState.AFTER_ARA, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getLoopFlow(OptimizationState.AFTER_CRA, flowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetPtdfZonalSum() {
-        when(initialResult.getPtdfZonalSum(flowCnec)).thenReturn(100.);
+        when(initialResult.getPtdfZonalSum(flowCnec, RIGHT)).thenReturn(100.);
 
-        assertEquals(100., output.getPtdfZonalSum(OptimizationState.INITIAL, flowCnec), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getPtdfZonalSum(OptimizationState.AFTER_PRA, flowCnec), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getPtdfZonalSum(OptimizationState.AFTER_ARA, flowCnec), DOUBLE_TOLERANCE);
-        assertEquals(100., output.getPtdfZonalSum(OptimizationState.AFTER_CRA, flowCnec), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(OptimizationState.INITIAL, flowCnec, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(OptimizationState.AFTER_PRA, flowCnec, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(OptimizationState.AFTER_ARA, flowCnec, RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(100., output.getPtdfZonalSum(OptimizationState.AFTER_CRA, flowCnec, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test

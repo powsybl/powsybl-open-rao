@@ -57,14 +57,16 @@ public class BestTapFinderTest {
     @Before
     public void setUp() {
         cnec1 = Mockito.mock(FlowCnec.class);
+        when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));
         cnec2 = Mockito.mock(FlowCnec.class);
+        when(cnec2.getMonitoredSides()).thenReturn(Collections.singleton(Side.RIGHT));
         network = Mockito.mock(Network.class);
 
         linearOptimizationResult = mock(LinearOptimizationResult.class);
         when(linearOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2));
 
-        when(linearOptimizationResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(linearOptimizationResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        when(linearOptimizationResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
+        when(linearOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         pstRangeAction = createPst();
@@ -79,8 +81,8 @@ public class BestTapFinderTest {
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
-        when(linearOptimizationResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
-        when(linearOptimizationResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
+        when(linearOptimizationResult.getSensitivityValue(cnec1, Side.LEFT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_1);
+        when(linearOptimizationResult.getSensitivityValue(cnec2, Side.RIGHT, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_2);
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {
@@ -109,27 +111,27 @@ public class BestTapFinderTest {
 
     private void mockMarginOnCnec2(PstRangeAction pstRangeAction, int tap, double margin) {
         double flow = REF_FLOW_2 + (pstRangeAction.convertTapToAngle(tap) - INITIAL_PST_SET_POINT) * SENSI_2;
-        when(cnec2.computeMargin(flow, Side.LEFT, Unit.MEGAWATT)).thenReturn(margin);
+        when(cnec2.computeMargin(flow, Side.RIGHT, Unit.MEGAWATT)).thenReturn(margin);
     }
 
     private Map<Integer, Double> computeMinMarginsForBestTaps(double startingSetPoint) {
         return BestTapFinder.computeMinMarginsForBestTaps(
-                network,
-                pstRangeAction,
-                startingSetPoint,
-                linearOptimizationResult,
-                Unit.MEGAWATT
+            network,
+            pstRangeAction,
+            startingSetPoint,
+            linearOptimizationResult,
+            Unit.MEGAWATT
         );
     }
 
     private RangeActionActivationResult computeUpdatedRangeActionResult() {
         return BestTapFinder.round(
-                rangeActionActivationResult,
-                network,
-                optimizationPerimeter,
-                rangeActionSetpointResult,
-                linearOptimizationResult,
-                Unit.MEGAWATT
+            rangeActionActivationResult,
+            network,
+            optimizationPerimeter,
+            rangeActionSetpointResult,
+            linearOptimizationResult,
+            Unit.MEGAWATT
         );
     }
 
@@ -277,7 +279,7 @@ public class BestTapFinderTest {
         setMarginsForTap(pstRangeAction, 1, 140, 150); // Tap 1 should be selected because min margin is 140
         setMarginsForTap(pstRangeAction, 2, 150, 120);
 
-        RangeAction activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
+        RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
@@ -306,7 +308,7 @@ public class BestTapFinderTest {
         setMarginsForTap(pstRangeAction, 1, 120, 150);
         setMarginsForTap(pstRangeAction, 2, 150, 140); // Tap 2 should be selected because min margin is 140
 
-        RangeAction activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
+        RangeAction<?> activatedRangeActionOtherThanPst = Mockito.mock(RangeAction.class);
         when(activatedRangeActionOtherThanPst.getId()).thenReturn("notPst");
         when(activatedRangeActionOtherThanPst.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
@@ -323,7 +325,7 @@ public class BestTapFinderTest {
 
         RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
 
-        assertEquals(2.5,  updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(2.5, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
         assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
@@ -353,7 +355,7 @@ public class BestTapFinderTest {
 
         RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75,  updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
         assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
     }
 
@@ -390,7 +392,7 @@ public class BestTapFinderTest {
 
         RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
 
-        assertEquals(2.5,  updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(2.5, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
         assertEquals(0, updatedRangeActionActivationResult.getOptimizedSetpoint(pstGroup1, optimizedState), DOUBLE_TOLERANCE);
         assertEquals(0, updatedRangeActionActivationResult.getOptimizedSetpoint(pstGroup2, optimizedState), DOUBLE_TOLERANCE);
     }

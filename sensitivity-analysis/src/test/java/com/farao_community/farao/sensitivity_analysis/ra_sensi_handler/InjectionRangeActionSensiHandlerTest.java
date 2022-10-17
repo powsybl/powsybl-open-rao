@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -48,7 +49,7 @@ public class InjectionRangeActionSensiHandlerTest {
     @Test
     public void getSensitivityOnFlowSimpleTest() {
         Crac crac = CommonCracCreation.create();
-        FlowCnec anyFLowCnec = crac.getFlowCnec("cnec1basecase");
+        FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE2AA12_generator")
                 .newRange().withMin(-1000).withMax(1000).add()
@@ -58,15 +59,17 @@ public class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", anyFLowCnec)).thenReturn(-1.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, Side.LEFT)).thenReturn(-1.56);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, Side.RIGHT)).thenReturn(-0.56);
 
-        assertEquals(-1.56, sensiHandler.getSensitivityOnFlow(anyFLowCnec, sensiResult), 1e-3);
+        assertEquals(-1.56, sensiHandler.getSensitivityOnFlow(flowCnec, Side.LEFT, sensiResult), 1e-3);
+        assertEquals(-0.56, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
     @Test
     public void getSensitivityOnFlowComplexTest() {
         Crac crac = CommonCracCreation.create();
-        FlowCnec anyFLowCnec = crac.getFlowCnec("cnec1basecase");
+        FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_load")
@@ -79,10 +82,13 @@ public class InjectionRangeActionSensiHandlerTest {
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
         SystematicSensitivityResult sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", anyFLowCnec)).thenReturn(4.);
-        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", anyFLowCnec)).thenReturn(7.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, Side.LEFT)).thenReturn(4.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, Side.LEFT)).thenReturn(7.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-positiveInjections", flowCnec, Side.RIGHT)).thenReturn(10.);
+        Mockito.when(sensiResult.getSensitivityOnFlow("injectionRangeId-negativeInjections", flowCnec, Side.RIGHT)).thenReturn(30.);
 
-        assertEquals(4 * 0.8 - 7 * 0.5, sensiHandler.getSensitivityOnFlow(anyFLowCnec, sensiResult), 1e-3);
+        assertEquals(4 * 0.8 - 7 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, Side.LEFT, sensiResult), 1e-3);
+        assertEquals(10 * 0.8 - 30 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
     @Test (expected = FaraoException.class)

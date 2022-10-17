@@ -42,7 +42,7 @@ public class CgmesBranchHelperTest {
         cgmesBranchHelper = new CgmesBranchHelper("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", network);
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
-        assertFalse(cgmesBranchHelper.isTieLine());
+        assertFalse(cgmesBranchHelper.isHalfLine());
         assertEquals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", cgmesBranchHelper.getIdInNetwork());
     }
 
@@ -51,7 +51,7 @@ public class CgmesBranchHelperTest {
         cgmesBranchHelper = new CgmesBranchHelper("_b18cd1aa-7808-49b9-a7cf-605eaf07b006", network);
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
-        assertTrue(cgmesBranchHelper.isTieLine());
+        assertTrue(cgmesBranchHelper.isHalfLine());
         assertSame(Branch.Side.ONE, cgmesBranchHelper.getTieLineSide());
         assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }
@@ -61,7 +61,7 @@ public class CgmesBranchHelperTest {
         cgmesBranchHelper = new CgmesBranchHelper("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", network);
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
-        assertTrue(cgmesBranchHelper.isTieLine());
+        assertTrue(cgmesBranchHelper.isHalfLine());
         assertSame(Branch.Side.TWO, cgmesBranchHelper.getTieLineSide());
         assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }

@@ -9,7 +9,7 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
@@ -52,7 +52,7 @@ public class XnodeGlskHandlerTest {
             .withNetworkElement("anyNetworkElement")
             .withInstant(Instant.PREVENTIVE)
             .newThreshold()
-                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withSide(Side.RIGHT)
                 .withUnit(Unit.MEGAWATT)
                 .withMax(1000.0)
                 .add()
@@ -64,7 +64,7 @@ public class XnodeGlskHandlerTest {
             .withInstant(Instant.OUTAGE)
             .withContingency("internalBranch")
                 .newThreshold()
-                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withSide(Side.RIGHT)
                 .withUnit(Unit.MEGAWATT)
                 .withMax(1000.0)
                 .add()
@@ -76,7 +76,7 @@ public class XnodeGlskHandlerTest {
             .withInstant(Instant.OUTAGE)
             .withContingency("danglingLine")
             .newThreshold()
-                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withSide(Side.RIGHT)
                 .withUnit(Unit.MEGAWATT)
                 .withMax(1000.0)
                 .add()

@@ -8,8 +8,9 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
@@ -51,9 +52,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         //According to ContingencyContext doc, contingencyId should be null for preContingency context
         ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
         sensitivityFunctions.forEach(function ->
-            sensitivityVariables.entrySet().forEach(variable ->
-                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, preContingencyContext))
-            )
+            sensitivityVariables.forEach((key, value) -> factors.add(new SensitivityFactor(function.getValue(), function.getKey(), value, key, false, preContingencyContext)))
         );
         return factors;
     }
@@ -70,9 +69,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
             ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
             sensitivityFunctions.forEach(function ->
-                sensitivityVariables.entrySet().forEach(variable ->
-                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, contingencyContext))
-                )
+                sensitivityVariables.forEach((key, value) -> factors.add(new SensitivityFactor(function.getValue(), function.getKey(), value, key, false, contingencyContext)))
             );
         }
         return factors;
@@ -87,6 +84,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
             twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
             twoWindingsTransformer.getPhaseTapChanger() != null;
+    }
+
+    @Override
+    public Map<String, HvdcRangeAction> getHvdcs() {
+        return new HashMap<>();
     }
 
     private boolean willBeKeptInSensi(Generator gen) {
@@ -117,50 +119,51 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     }
 
     List<Pair<String, SensitivityFunctionType>> getSensitivityFunctions(Network network, String contingencyId) {
-        Set<NetworkElement> networkElements;
+        Set<FlowCnec> flowCnecs;
         if (Objects.isNull(contingencyId)) {
-            networkElements = cnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isEmpty())
-                .filter(cnec -> cnec.isConnected(network))
-                .map(FlowCnec::getNetworkElement)
+            flowCnecs = cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty() && cnec.isConnected(network))
                 .collect(Collectors.toSet());
         } else {
-            networkElements = cnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-                .filter(cnec -> cnec.isConnected(network))
-                .map(FlowCnec::getNetworkElement)
+            flowCnecs = cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId) && cnec.isConnected(network))
                 .collect(Collectors.toSet());
         }
+
+        Map<String, Set<Side>> networkElementsAndSides = new HashMap<>();
+        flowCnecs.forEach(flowCnec ->
+            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElement().getId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
+        );
+
         List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();
-        networkElements.forEach(networkElement -> sensitivityFunctions.addAll(cnecToSensitivityFunctions(network, networkElement)));
+        networkElementsAndSides.forEach((neId, sides) -> sensitivityFunctions.addAll(cnecToSensitivityFunctions(network, neId, sides)));
         return sensitivityFunctions;
     }
 
-    private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
-        String id = networkElement.getId();
-        Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
-
+    private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<Side> sides) {
+        Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
         if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
-            List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();
-            if (factorsInMegawatt) {
-                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
-            }
-            if (factorsInAmpere) {
-                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_1));
-                // For branches with a single voltage level and for dangling lines, get max current on both sides
-                if (networkIdentifiable instanceof DanglingLine) {
-                    sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_2));
-                } else {
-                    Branch<?> branch = (Branch<?>) networkIdentifiable;
-                    if (branch.getTerminal1().getVoltageLevel().getNominalV() == branch.getTerminal2().getVoltageLevel().getNominalV()) {
-                        sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT_2));
-                    }
-                }
-            }
-            return sensitivityFunctions;
+            return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).collect(Collectors.toList());
         } else {
-            throw new FaraoException("Unable to create sensitivity function for " + id);
+            throw new FaraoException("Unable to create sensitivity function for " + networkElementId);
         }
+    }
+
+    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<Side> sides) {
+        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
+        if (factorsInMegawatt && sides.contains(Side.LEFT)) {
+            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+        }
+        if (factorsInMegawatt && sides.contains(Side.RIGHT)) {
+            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+        }
+        if (factorsInAmpere && sides.contains(Side.LEFT)) {
+            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
+        }
+        if (factorsInAmpere && sides.contains(Side.RIGHT)) {
+            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
+        }
+        return sensitivityFunctionTypes;
     }
 
 }

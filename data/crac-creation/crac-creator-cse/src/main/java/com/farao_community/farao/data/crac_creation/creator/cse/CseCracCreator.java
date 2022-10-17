@@ -67,7 +67,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             // Add outages
             new TOutageAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext).add();
             // Add critical branches
-            TCriticalBranchesAdder tCriticalBranchesAdder = new TCriticalBranchesAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext);
+            TCriticalBranchesAdder tCriticalBranchesAdder = new TCriticalBranchesAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext, cracCreationParameters.getDefaultMonitoredSides());
             tCriticalBranchesAdder.add();
             // Add remedial actions
             new TRemedialActionAdder(tcracSeries, crac, network, ucteNetworkAnalyzer, tCriticalBranchesAdder.getRemedialActionsForCnecsMap(), creationContext, cseCracCreationParameters).add();
