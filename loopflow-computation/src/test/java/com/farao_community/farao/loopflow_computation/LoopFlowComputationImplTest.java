@@ -72,7 +72,7 @@ public class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(true)).when(load).getTerminal();
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs());
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(200., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
@@ -209,7 +209,7 @@ public class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs());
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(30., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(280., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
