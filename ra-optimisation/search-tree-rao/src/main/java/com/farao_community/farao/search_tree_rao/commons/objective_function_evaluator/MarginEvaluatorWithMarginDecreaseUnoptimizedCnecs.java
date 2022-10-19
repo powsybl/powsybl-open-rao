@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 import java.util.*;
 
@@ -40,6 +41,7 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs implements Margin
         if (countriesNotToOptimize.contains(flowCnec.getOperator())) {
             double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit);
             if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
+                TECHNICAL_LOGS.debug("FlowCnec {} does not participate in the definition of the minimum margin (operators not to optimize)", flowCnec.getId());
                 return Double.MAX_VALUE;
             }
         }
