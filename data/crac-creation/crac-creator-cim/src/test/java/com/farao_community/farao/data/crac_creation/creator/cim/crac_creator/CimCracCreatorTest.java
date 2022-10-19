@@ -876,4 +876,28 @@ public class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", Side.RIGHT, Unit.AMPERE, -2000., 2000.);
     }
+
+    @Test
+    public void testCreateTwiceWithSameNativeCrac() {
+        // Check that CracCreator does not consume CimCrac and make it unusable again
+        InputStream is = getClass().getResourceAsStream("/cracs/CIM_2_timeseries.xml");
+        CimCracImporter cracImporter = new CimCracImporter();
+        CimCrac cimCrac = cracImporter.importNativeCrac(is);
+
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
+        cracCreationParameters = Mockito.spy(cracCreationParameters);
+        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
+        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
+
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Set.of("TimeSeries1"));
+        Crac crac1 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters).getCrac();
+        assertEquals(1, crac1.getContingencies().size());
+        assertNotNull(crac1.getContingency("Co-1"));
+
+        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Set.of("TimeSeries2"));
+        Crac crac2 = new CimCracCreator().createCrac(cimCrac, baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters).getCrac();
+        assertEquals(1, crac2.getContingencies().size());
+        assertNotNull(crac2.getContingency("Co-2"));
+    }
 }
