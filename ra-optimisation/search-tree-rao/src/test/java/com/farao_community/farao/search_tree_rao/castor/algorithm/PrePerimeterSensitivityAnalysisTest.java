@@ -70,6 +70,8 @@ public class PrePerimeterSensitivityAnalysisTest {
 
         rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
 
+        rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
+
         toolProvider = Mockito.mock(ToolProvider.class);
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(Mockito.mock(AbsolutePtdfSumsComputation.class));
