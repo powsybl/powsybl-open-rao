@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
@@ -164,7 +163,7 @@ public class SearchTreeRaoParametersTest {
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator1")
                 .withOptimized()
-                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withIMax(1000., Side.RIGHT)
                 .withNominalVoltage(220.)
                 .add();
@@ -177,7 +176,7 @@ public class SearchTreeRaoParametersTest {
                 .withContingency("co2")
                 .withOperator("operator1")
                 .withOptimized()
-                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withIMax(1000., Side.RIGHT)
                 .withNominalVoltage(220.)
                 .add();

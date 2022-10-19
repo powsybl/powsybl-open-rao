@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -27,5 +28,10 @@ public class BasicRelativeMarginEvaluator implements MarginEvaluator {
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
         return flowResult.getRelativeMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+        return flowResult.getRelativeMargin(flowCnec, side, unit);
     }
 }

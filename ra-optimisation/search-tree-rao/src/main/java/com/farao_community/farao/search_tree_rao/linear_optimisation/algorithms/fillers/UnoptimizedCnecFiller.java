@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -17,21 +16,15 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -49,9 +42,9 @@ import static java.lang.String.format;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class UnoptimizedCnecFiller implements ProblemFiller {
-    public static final String BINARY_VARIABLE_NOT_CREATED = "Optimize cnec binary variable has not yet been created for Cnec %s";
+    public static final String VARIABLE_NOT_CREATED = "%s variable has not yet been created for Cnec %s (side %s)";
+    public static final String OPTIMIZE_CNEC_BINARY = "Optimize cnec binary";
     private final OptimizationPerimeter optimizationContext;
-    public static final String BINARY_VARIABLE_NOT_CREATED = "Optimize cnec binary variable has not yet been created for Cnec %s";
     private final Set<FlowCnec> flowCnecs;
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
@@ -141,7 +134,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         if (selectedRule.equals(UnoptimizedCnecFillerRule.MARGIN_DECREASE)) {
             buildOptimizeCnecConstraintsForTsosThatDoNotShareRas(linearProblem);
         } else {
-            buildOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem);
+            buildOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult);
         }
     }
 
@@ -170,11 +163,11 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             if (flowVariable == null) {
-                throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
+                throw new FaraoException(String.format(VARIABLE_NOT_CREATED, "Flow", cnec.getId(), side));
             }
-            MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
+            MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             if (optimizeCnecBinaryVariable == null) {
-                throw new FaraoException(String.format(BINARY_VARIABLE_NOT_CREATED, cnec.getId()));
+                throw new FaraoException(String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
             }
 
             Optional<Double> minFlow;
@@ -208,15 +201,15 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // Flow variable
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-            checkVariableCreation(flowVariable, "Flow variable has not yet been created for Cnec %s", cnec.getId());
+            checkVariableCreation(flowVariable, String.format(VARIABLE_NOT_CREATED, "Flow", cnec.getId(), side));
 
             // Optimize cnec binary variable
             MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
-            checkVariableCreation(optimizeCnecBinaryVariable, BINARY_VARIABLE_NOT_CREATED, cnec.getId());
+            checkVariableCreation(optimizeCnecBinaryVariable, String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
 
-            State state = getLastStateWithRangeActionAvailableForCnec(cnec, side);
+            State state = getLastStateWithRangeActionAvailableForCnec(cnec);
             MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecPstRangeActionMap.get(cnec), state);
-            checkVariableCreation(setPointVariable, "Range action variable for PST %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec).getId());
+            checkVariableCreation(setPointVariable, String.format("Range action variable for PST %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec).getId()));
 
             double maxSetpoint = setPointVariable.ub();
             double minSetpoint = setPointVariable.lb();
@@ -231,10 +224,11 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     extendSetpointBounds = linearProblem.addOptimizeCnecConstraint(
                             -LinearProblem.infinity(),
                             LinearProblem.infinity(), cnec,
+                            side,
                             LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     extendSetpointBounds.setCoefficient(flowVariable, 1);
                 } else {
-                    extendSetpointBounds = linearProblem.getOptimizeCnecConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                    extendSetpointBounds = linearProblem.getOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     if (extendSetpointBounds == null) {
                         throw new FaraoException(String.format("Optimize cnec constraint on cnec %s above threshold has not been defined yet.", cnec.getId()));
                     }
@@ -253,145 +247,11 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 if (buildConstraint) {
                     extendSetpointBounds = linearProblem.addOptimizeCnecConstraint(
                             -LinearProblem.infinity(),
-                            LinearProblem.infinity(), cnec,
+                            LinearProblem.infinity(), cnec, side,
                             LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     extendSetpointBounds.setCoefficient(flowVariable, -1);
                 } else {
-                    extendSetpointBounds = linearProblem.getOptimizeCnecConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                    if (extendSetpointBounds == null) {
-                        throw new FaraoException(String.format("Optimize cnec constraint on cnec %s below threshold has not been defined yet.", cnec.getId()));
-                    }
-                }
-                extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
-                if (sensitivity >= 0) {
-                    extendSetpointBounds.setLb(-maxSetpoint * sensitivity - maxFlow.get());
-                    extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * sensitivity);
-                } else {
-                    extendSetpointBounds.setLb(-minSetpoint * sensitivity - maxFlow.get());
-                    extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, -bigM * sensitivity);
-                }
-                decreaseMinmumThresholdMargin.setCoefficient(optimizeCnecBinaryVariable, worstMarginDecrease);
-            }
-        });
-    }
-
-    private void checkVariableCreation(MPVariable variable, String errorMessage, String id) {
-        if (variable == null) {
-            throw new FaraoException(String.format(errorMessage, id));
-        }
-    }
-
-    /**
-     * This method defines, for each CNEC parameterized as in series with a pst in the given perimeter, a constraint
-     * The constraint defines the behaviour of the binary variable optimize cnec
-     * As long as a there are enough setpoints on the pst left to absorb the margin deficit, the cnec should not
-     * participate in the definition of the minimum margin (i.e. the binary variable optimize cnec is 0)
-     * When sensitivity >= 0 :
-     *      (1) setpoint <= maxSetpoint - -(maxFlow - flow)/sensitivity + bigM * optimize_cnec
-     *      (2) setpoint >= minSetpoint + -(flow - minFlow)/sensitivity - bigM * optimize_cnec
-     * * When sensitivity < 0 :
-     *      (1) setpoint <= maxSetpoint - -(flow - minFlow)/-sensitivity + bigM * optimize_cnec
-     *      (2) setpoint >= minSetpoint + -(maxFlow - flow)/-sensitivity - bigM * optimize_cnec
-     * bigM is computed to allow the PST to reach its bounds with optimize_cnec set to 1 :
-     * bigM = maxSetpoint - minSetpoint
-     */
-    private void buildOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult) {
-        defineOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult, true);
-    }
-
-    private void updateOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult) {
-        defineOptimizeCnecConstraintsForCnecsInSeriesWithPsts(linearProblem, sensitivityResult, false);
-    }
-
-    private State getLastStateWithRangeActionAvailableForCnec(FlowCnec cnec) {
-        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
-                .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-                .collect(Collectors.toList());
-
-        for (State state : statesBeforeCnec) {
-            // Only consider the last instant on which rangeAction is available
-            for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
-                if (!rangeAction.equals(flowCnecPstRangeActionMap.get(cnec))) {
-                    continue;
-                }
-                if (!(rangeAction instanceof PstRangeAction)) {
-                    throw new FaraoException(format("Range action %s in series with cnec %s is not a PstRangeAction", rangeAction.getId(), cnec.getId()));
-                }
-                return state;
-            }
-        }
-        throw new FaraoException(format("Range action %s is not optimized on any state before cnec %s", flowCnecPstRangeActionMap.get(cnec).getId(), cnec.getId()));
-    }
-
-
-    /**
-     * This method defines, for each CNEC parameterized as in series with a pst in the given perimeter, a constraint
-     * The constraint defines the behaviour of the binary variable optimize cnec
-     * As long as a there are enough setpoints on the pst left to absorb the margin deficit, the cnec should not
-     * participate in the definition of the minimum margin (i.e. the binary variable optimize cnec is 0)
-     * When sensitivity >= 0 :
-     *      (1) setpoint <= maxSetpoint - -(maxFlow - flow)/sensitivity + bigM * optimize_cnec
-     *      (2) setpoint >= minSetpoint + -(flow - minFlow)/sensitivity - bigM * optimize_cnec
-     * * When sensitivity < 0 :
-     *      (1) setpoint <= maxSetpoint - -(flow - minFlow)/-sensitivity + bigM * optimize_cnec
-     *      (2) setpoint >= minSetpoint + -(maxFlow - flow)/-sensitivity - bigM * optimize_cnec
-     * bigM is computed to allow the PST to reach its bounds with optimize_cnec set to 1 :
-     * bigM = maxSetpoint - minSetpoint
-     */
-    private void defineOptimizeCnecConstraintsForCnecsInSeriesWithPsts(LinearProblem linearProblem, SensitivityResult sensitivityResult, boolean buildConstraint) {
-        getFlowCnecs().forEach(cnec -> {
-            // Flow variable
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
-            checkVariableCreation(flowVariable, "Flow variable has not yet been created for Cnec %s", cnec.getId());
-
-            // Optimize cnec binary variable
-            MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
-            checkVariableCreation(optimizeCnecBinaryVariable, BINARY_VARIABLE_NOT_CREATED, cnec.getId());
-
-            State state = getLastStateWithRangeActionAvailableForCnec(cnec);
-            MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecPstRangeActionMap.get(cnec), state);
-            checkVariableCreation(setPointVariable, "Range action variable for PST %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec).getId());
-
-            double maxSetpoint = setPointVariable.ub();
-            double minSetpoint = setPointVariable.lb();
-            double sensitivity = sensitivityResult.getSensitivityValue(cnec, flowCnecPstRangeActionMap.get(cnec), Unit.MEGAWATT);
-            Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-            Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double bigM = maxSetpoint - minSetpoint;
-
-            if (minFlow.isPresent()) {
-                MPConstraint extendSetpointBounds;
-                if (buildConstraint) {
-                    extendSetpointBounds = linearProblem.addOptimizeCnecConstraint(
-                            -LinearProblem.infinity(),
-                            LinearProblem.infinity(), cnec,
-                            LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                    extendSetpointBounds.setCoefficient(flowVariable, 1);
-                } else {
-                    extendSetpointBounds = linearProblem.getOptimizeCnecConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                    if (extendSetpointBounds == null) {
-                        throw new FaraoException(String.format("Optimize cnec constraint on cnec %s above threshold has not been defined yet.", cnec.getId()));
-                    }
-                }
-                extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
-                if (sensitivity >= 0) {
-                    extendSetpointBounds.setLb(minSetpoint * sensitivity + minFlow.get());
-                    extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * sensitivity);
-                } else {
-                    extendSetpointBounds.setLb(maxSetpoint * sensitivity + minFlow.get());
-                    extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, -bigM * sensitivity);
-                }
-            }
-            if (maxFlow.isPresent()) {
-                MPConstraint extendSetpointBounds;
-                if (buildConstraint) {
-                    extendSetpointBounds = linearProblem.addOptimizeCnecConstraint(
-                            -LinearProblem.infinity(),
-                            LinearProblem.infinity(), cnec,
-                            LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                    extendSetpointBounds.setCoefficient(flowVariable, -1);
-                } else {
-                    extendSetpointBounds = linearProblem.getOptimizeCnecConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                    extendSetpointBounds = linearProblem.getOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     if (extendSetpointBounds == null) {
                         throw new FaraoException(String.format("Optimize cnec constraint on cnec %s below threshold has not been defined yet.", cnec.getId()));
                     }
@@ -405,12 +265,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, -bigM * sensitivity);
                 }
             }
-        });
+        }));
     }
 
-    private void checkVariableCreation(MPVariable variable, String errorMessage, String id) {
+    private void checkVariableCreation(MPVariable variable, String errorMessage) {
         if (variable == null) {
-            throw new FaraoException(String.format(errorMessage, id));
+            throw new FaraoException(errorMessage);
         }
     }
 
@@ -473,41 +333,29 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             MPVariable optimizeCnecBinaryVariable  = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             if (optimizeCnecBinaryVariable  == null) {
-                throw new FaraoException(String.format(BINARY_VARIABLE_NOT_CREATED, cnec.getId(), side));
-        getFlowCnecs().forEach(cnec -> {
-            MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec);
-            if (optimizeCnecBinaryVariable == null) {
-                throw new FaraoException(String.format(BINARY_VARIABLE_NOT_CREATED, cnec.getId()));
+                throw new FaraoException(String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
             }
             updateMinimumMarginConstraint(
                     linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
-                    optimizeCnecBinaryVariable,
-                    linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD),
                     optimizeCnecBinaryVariable,
                     bigM
             );
             updateMinimumMarginConstraint(
                     linearProblem.getMinimumMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
                     optimizeCnecBinaryVariable,
-                    linearProblem.getMinimumMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
-                    optimizeCnecBinaryVariable,
                     bigM
             );
             updateMinimumMarginConstraint(
                     linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD),
-                    optimizeCnecBinaryVariable,
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD),
                     optimizeCnecBinaryVariable,
                     bigM
             );
             updateMinimumMarginConstraint(
                     linearProblem.getMinimumRelativeMarginConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
                     optimizeCnecBinaryVariable,
-                    linearProblem.getMinimumRelativeMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD),
-                    optimizeCnecBinaryVariable,
                     bigM
             );
-        });
+        }));
     }
 
     /**

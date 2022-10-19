@@ -15,6 +15,7 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 import java.util.Map;
@@ -39,16 +40,27 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit);
+        return flowCnec.getMonitoredSides().stream()
+                .map(side -> getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit))
+                .min(Double::compareTo).orElseThrow();
+    }
+
+    @Override
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
+        return computeMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit, newMargin);
+    }
+
+    private double computeMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit, double newMargin) {
         if (flowCnecPstRangeActionMap.containsKey(flowCnec)) {
             PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
-            double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, pstRangeAction, Unit.MEGAWATT);
+            double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
             double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
             double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
             // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
             double currentSetpoint = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, flowCnec.getState());
-            double aboveThresholdMargin = flowCnec.getUpperBound(Side.LEFT, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, unit);
-            double belowThresholdMargin = flowResult.getFlow(flowCnec, unit) - flowCnec.getLowerBound(Side.LEFT, unit).orElse(Double.NEGATIVE_INFINITY);
+            double aboveThresholdMargin = flowCnec.getUpperBound(Side.LEFT, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
+            double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(Side.LEFT, unit).orElse(Double.NEGATIVE_INFINITY);
 
             double aboveThresholdConstraint;
             double belowThresholdConsraint;
@@ -61,7 +73,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
             }
 
             if (aboveThresholdConstraint > 0 && belowThresholdConsraint > 0) {
-                TECHNICAL_LOGS.debug("FlowCnec {} does not participate in the definition of the minimum margin (in series with pst)", flowCnec.getId());
+                TECHNICAL_LOGS.debug("FlowCnec {} with side {} does not participate in the definition of the minimum margin (in series with pst)", flowCnec.getId(), side);
                 return Double.MAX_VALUE;
             }
         }
