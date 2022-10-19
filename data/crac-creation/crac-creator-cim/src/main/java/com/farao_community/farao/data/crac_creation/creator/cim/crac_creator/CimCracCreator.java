@@ -22,6 +22,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         // Set attributes
         this.crac = parameters.getCracFactory().create(cimCrac.getCracDocument().getMRID());
         this.network = network;
-        this.cimTimeSeries = cimCrac.getCracDocument().getTimeSeries();
+        this.cimTimeSeries = new ArrayList<>(cimCrac.getCracDocument().getTimeSeries());
         this.creationContext = new CimCracCreationContext(crac, offsetDateTime);
 
         // Get warning messages from parameters parsing
