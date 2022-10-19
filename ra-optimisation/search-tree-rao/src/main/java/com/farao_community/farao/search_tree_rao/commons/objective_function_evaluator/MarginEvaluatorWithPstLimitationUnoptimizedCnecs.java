@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,13 +15,14 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 import java.util.Map;
 
 /**
  * It enables to evaluate the absolute or relative minimal margin as a cost
  *
- * @author Godelaine de Montmorillon
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginEvaluator {
     private final MarginEvaluator marginEvaluator;
@@ -60,6 +61,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
             }
 
             if (aboveThresholdConstraint > 0 && belowThresholdConsraint > 0) {
+                TECHNICAL_LOGS.debug("FlowCnec {} does not participate in the definition of the minimum margin (in series with pst)", flowCnec.getId());
                 return Double.MAX_VALUE;
             }
         }

@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
  */
 public final class FillersUtil {
     private FillersUtil() {
-
     }
 
     public static Set<State> getPreviousStates(State refState, OptimizationPerimeter optimizationContext) {
