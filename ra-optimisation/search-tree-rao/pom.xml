@@ -92,7 +92,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-open-loadflow</artifactId>
-            <version>${powsybl.openloadflow.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
