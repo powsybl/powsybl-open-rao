@@ -45,8 +45,8 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs implements Margin
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit);
-        double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit);
+        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
+        double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
         return computeMargin(flowCnec, side, newMargin, prePerimeterMargin);
     }
 

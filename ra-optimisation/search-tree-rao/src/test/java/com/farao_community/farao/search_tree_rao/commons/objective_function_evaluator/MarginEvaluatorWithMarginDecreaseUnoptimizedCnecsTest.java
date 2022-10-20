@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -39,10 +40,14 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
                     prePerimeterFlowResult
             );
 
+    @Before
+    public void setUp() {
+        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
+    }
+
     @Test
     public void getMarginInMegawattOnOptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("NL");
-        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
 
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
@@ -52,7 +57,6 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     public void getMarginInAmpereOnOptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("NL");
-        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(50.);
 
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec,  rangeActionActivationResult, sensitivityResult, Unit.AMPERE);
@@ -62,7 +66,6 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     public void getMarginInMegawattOnConstrainedUnoptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("FR");
-        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
         when(prePerimeterFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(400.);
 
@@ -73,7 +76,6 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     public void getMarginInMegawattOnUnconstrainedUnoptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("FR");
-        when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
         when(prePerimeterFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(100.);
 
