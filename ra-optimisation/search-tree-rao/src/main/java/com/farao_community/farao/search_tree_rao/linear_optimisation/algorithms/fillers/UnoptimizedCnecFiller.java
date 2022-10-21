@@ -233,12 +233,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                         throw new FaraoException(String.format("Optimize cnec constraint on cnec %s above threshold has not been defined yet.", cnec.getId()));
                     }
                 }
-                extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
+                extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
                 if (sensitivity >= 0) {
-                    extendSetpointBounds.setLb(minSetpoint * sensitivity + minFlow.get());
+                    extendSetpointBounds.setLb(-maxSetpoint * sensitivity + minFlow.get());
                     extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * sensitivity);
                 } else {
-                    extendSetpointBounds.setLb(maxSetpoint * sensitivity + minFlow.get());
+                    extendSetpointBounds.setLb(-minSetpoint * sensitivity + minFlow.get());
                     extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, -bigM * sensitivity);
                 }
             }
@@ -256,12 +256,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                         throw new FaraoException(String.format("Optimize cnec constraint on cnec %s below threshold has not been defined yet.", cnec.getId()));
                     }
                 }
-                extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
+                extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
                 if (sensitivity >= 0) {
-                    extendSetpointBounds.setLb(-maxSetpoint * sensitivity - maxFlow.get());
+                    extendSetpointBounds.setLb(minSetpoint * sensitivity - maxFlow.get());
                     extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * sensitivity);
                 } else {
-                    extendSetpointBounds.setLb(-minSetpoint * sensitivity - maxFlow.get());
+                    extendSetpointBounds.setLb(maxSetpoint * sensitivity - maxFlow.get());
                     extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, -bigM * sensitivity);
                 }
             }

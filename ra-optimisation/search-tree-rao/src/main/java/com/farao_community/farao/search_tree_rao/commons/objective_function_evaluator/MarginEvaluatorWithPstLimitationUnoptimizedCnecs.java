@@ -16,8 +16,6 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivatio
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
-
 import java.util.Map;
 
 /**
@@ -65,15 +63,14 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
             double aboveThresholdConstraint;
             double belowThresholdConsraint;
             if (sensitivity >= 0) {
-                aboveThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
-                belowThresholdConsraint = sensitivity * (currentSetpoint - minSetpoint) + belowThresholdMargin;
+                aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
+                belowThresholdConsraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
             } else {
-                aboveThresholdConstraint = sensitivity * (minSetpoint - currentSetpoint) + aboveThresholdMargin;
-                belowThresholdConsraint = sensitivity * (currentSetpoint - maxSetpoint) + belowThresholdMargin;
+                aboveThresholdConstraint = sensitivity * (currentSetpoint - maxSetpoint) + aboveThresholdMargin;
+                belowThresholdConsraint = sensitivity * (minSetpoint - currentSetpoint) + belowThresholdMargin;
             }
 
             if (aboveThresholdConstraint > 0 && belowThresholdConsraint > 0) {
-                TECHNICAL_LOGS.debug("FlowCnec {} with side {} does not participate in the definition of the minimum margin (in series with pst)", flowCnec.getId(), side);
                 return Double.MAX_VALUE;
             }
         }

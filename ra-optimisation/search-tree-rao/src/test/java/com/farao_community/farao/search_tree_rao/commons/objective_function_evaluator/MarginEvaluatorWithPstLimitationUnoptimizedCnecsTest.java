@@ -65,8 +65,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     @Test
     public void unoptimizedCnecTest1() {
         // Sensi > 0
-        // AboveThresholdConstraint OK
-        // BelowThresholdConstraint OK
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(50.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
@@ -82,8 +80,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     @Test
     public void unoptimizedCnecTest2() {
         // Sensi > 0
-        // AboveThresholdConstraint OK
-        // BelowThresholdConstraint NOK
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
@@ -99,8 +95,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     @Test
     public void unoptimizedCnecTest3() {
         // Sensi > 0
-        // AboveThresholdConstraint NOK
-        // BelowThresholdConstraint OK
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
@@ -116,8 +110,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     @Test
     public void unoptimizedCnecTest4() {
         // Sensi < 0
-        // AboveThresholdConstraint OK
-        // BelowThresholdConstraint OK
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-1.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
@@ -133,8 +125,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     @Test
     public void unoptimizedCnecTest5() {
         // Sensi < 0
-        // AboveThresholdConstraint OK
-        // BelowThresholdConstraint NOK
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
@@ -149,8 +139,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     @Test
     public void unoptimizedCnecTest6() {
         // Sensi < 0
-        // AboveThresholdConstraint NOK
-        // BelowThresholdConstraint OK
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
