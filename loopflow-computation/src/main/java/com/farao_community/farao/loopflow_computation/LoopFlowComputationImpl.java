@@ -21,10 +21,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -36,35 +33,31 @@ import static java.util.Objects.requireNonNull;
 public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ZonalData<SensitivityVariableSet> glsk;
     protected ReferenceProgram referenceProgram;
-    protected Network network;
     protected Map<EICode, SensitivityVariableSet> glskMap;
 
-    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, Network network) {
+    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
-        this.network = network;
         this.glskMap = buildRefProgGlskMap();
     }
 
     @Override
     public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
-        this.network = network;
-
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName(sensitivityProvider)
-            .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
-            .build();
+                .withSensitivityProviderName(sensitivityProvider)
+                .withDefaultParameters(sensitivityAnalysisParameters)
+                .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .build();
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, flowCnecs);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, flowCnecs, network);
     }
 
     @Override
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<FlowCnec> flowCnecs) {
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<FlowCnec> flowCnecs, Network network) {
         LoopFlowResult results = new LoopFlowResult();
-        Map<SensitivityVariableSet, Boolean> isInMainComponentMap = computeIsInMainComponentMap();
+        Map<SensitivityVariableSet, Boolean> isInMainComponentMap = computeIsInMainComponentMap(network);
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
                 double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
@@ -77,7 +70,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         return results;
     }
 
-    private Map<SensitivityVariableSet, Boolean> computeIsInMainComponentMap() {
+    private Map<SensitivityVariableSet, Boolean> computeIsInMainComponentMap(Network network) {
         Map<SensitivityVariableSet, Boolean> map = new HashMap<>();
         glskMap.values().forEach(linearGlsk -> map.putIfAbsent(linearGlsk, isInMainComponent(linearGlsk, network)));
         return map;

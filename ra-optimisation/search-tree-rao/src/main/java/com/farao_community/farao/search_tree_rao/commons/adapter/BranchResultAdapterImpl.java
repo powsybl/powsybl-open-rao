@@ -18,6 +18,7 @@ import com.farao_community.farao.search_tree_rao.result.impl.FlowResultImpl;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.impl.EmptyFlowResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Map;
@@ -43,7 +44,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     }
 
     @Override
-    public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult) {
+    public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult, Network network) {
         FlowResult ptdfs;
         if (absolutePtdfSumsComputation != null) {
             Map<FlowCnec, Map<Side, Double>> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
@@ -81,7 +82,8 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         if (loopFlowComputation != null) {
             LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(
                     systematicSensitivityResult,
-                    loopFlowCnecs
+                    loopFlowCnecs,
+                    network
             );
             commercialFlows = new FlowResult() {
                 @Override

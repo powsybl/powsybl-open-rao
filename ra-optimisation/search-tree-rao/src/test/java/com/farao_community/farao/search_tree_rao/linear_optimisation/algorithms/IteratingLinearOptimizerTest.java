@@ -122,8 +122,8 @@ public class IteratingLinearOptimizerTest {
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
         when(systematicSensitivityInterface.run(network)).thenReturn(sensi);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
-        when(branchResultAdapter.getResult(sensi)).thenReturn(flowResult);
-        when(sensitivityComputer.getBranchResult()).thenReturn(flowResult);
+        when(branchResultAdapter.getResult(sensi, network)).thenReturn(flowResult);
+        when(sensitivityComputer.getBranchResult(network)).thenReturn(flowResult);
         when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult1);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);

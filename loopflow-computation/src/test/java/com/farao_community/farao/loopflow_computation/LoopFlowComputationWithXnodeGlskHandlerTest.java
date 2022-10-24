@@ -102,7 +102,8 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
 
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(
                 systematicSensitivityResult,
-                Set.of(preventiveCnec, cnecAfterClassicContingency, cnecAfterDanglingContingency)
+                Set.of(preventiveCnec, cnecAfterClassicContingency, cnecAfterDanglingContingency),
+                network
         );
 
         assertEquals(2000. * 0.5 + 600. * (-1.2), loopFlowResult.getCommercialFlow(preventiveCnec, Side.LEFT), DOUBLE_TOLERANCE);
