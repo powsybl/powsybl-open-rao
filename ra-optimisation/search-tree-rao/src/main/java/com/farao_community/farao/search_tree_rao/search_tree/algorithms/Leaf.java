@@ -164,7 +164,7 @@ public class Leaf implements OptimizationResult {
             TECHNICAL_LOGS.debug("Evaluating {}", this);
             sensitivityComputer.compute(network);
             preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
-            preOptimFlowResult = sensitivityComputer.getBranchResult();
+            preOptimFlowResult = sensitivityComputer.getBranchResult(network);
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationsFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
             status = Status.EVALUATED;
         } catch (FaraoException e) {
