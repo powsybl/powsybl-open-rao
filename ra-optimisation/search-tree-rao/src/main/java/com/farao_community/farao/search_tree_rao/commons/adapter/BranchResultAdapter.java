@@ -9,11 +9,12 @@ package com.farao_community.farao.search_tree_rao.commons.adapter;
 
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Network;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface BranchResultAdapter {
 
-    FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult);
+    FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult, Network network);
 }

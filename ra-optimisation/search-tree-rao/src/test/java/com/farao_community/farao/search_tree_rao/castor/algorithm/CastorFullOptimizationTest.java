@@ -71,7 +71,7 @@ public class CastorFullOptimizationTest {
 
     @Before
     public void setup() {
-        Network network = Importers.loadNetwork("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
+        network = Importers.loadNetwork("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
         RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
@@ -100,7 +100,7 @@ public class CastorFullOptimizationTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
-        Mockito.when(sensitivityComputer.getBranchResult()).thenReturn(Mockito.mock(FlowResult.class));
+        Mockito.when(sensitivityComputer.getBranchResult(network)).thenReturn(Mockito.mock(FlowResult.class));
 
         Leaf leaf = Mockito.mock(Leaf.class);
         when(leaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);

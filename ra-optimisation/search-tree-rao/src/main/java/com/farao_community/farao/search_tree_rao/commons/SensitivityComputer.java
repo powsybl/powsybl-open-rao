@@ -46,8 +46,8 @@ public final class SensitivityComputer {
         }
     }
 
-    public FlowResult getBranchResult() {
-        return branchResultAdapter.getResult(result);
+    public FlowResult getBranchResult(Network network) {
+        return branchResultAdapter.getResult(result, network);
     }
 
     public SensitivityResult getSensitivityResult() {

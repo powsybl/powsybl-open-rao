@@ -17,6 +17,7 @@ import com.farao_community.farao.search_tree_rao.commons.AbsolutePtdfSumsComputa
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.impl.FlowResultFromMapImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -38,6 +39,7 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 public class FlowResultAdapterImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
+    private Network network;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private SystematicSensitivityResult systematicSensitivityResult;
@@ -51,6 +53,7 @@ public class FlowResultAdapterImplTest {
         when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(RIGHT));
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         branchResultAdpaterBuilder = BranchResultAdapterImpl.create();
+        network = Mockito.mock(Network.class);
     }
 
     @Test
@@ -62,7 +65,7 @@ public class FlowResultAdapterImplTest {
         when(systematicSensitivityResult.getReferenceIntensity(cnec1, LEFT)).thenReturn(58.);
         when(systematicSensitivityResult.getReferenceFlow(cnec2, RIGHT)).thenReturn(500.);
         when(systematicSensitivityResult.getReferenceIntensity(cnec2, RIGHT)).thenReturn(235.);
-        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult);
+        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(200., flowResult.getFlow(cnec1, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(58., flowResult.getFlow(cnec1, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
@@ -78,7 +81,7 @@ public class FlowResultAdapterImplTest {
             .withPtdfsResults(fixedPtdfFlowResult)
             .build();
 
-        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult);
+        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
     }
@@ -92,7 +95,7 @@ public class FlowResultAdapterImplTest {
                 .withCommercialFlowsResults(commercialFlowFlowResult)
                 .build();
 
-        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult);
+        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -107,10 +110,10 @@ public class FlowResultAdapterImplTest {
                 .build();
 
         LoopFlowResult loopFlowResult = Mockito.mock(LoopFlowResult.class);
-        when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(systematicSensitivityResult, Set.of(cnec2)))
+        when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(systematicSensitivityResult, Set.of(cnec2), network))
                 .thenReturn(loopFlowResult);
         when(loopFlowResult.getCommercialFlow(cnec2, RIGHT)).thenReturn(300.);
-        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult);
+        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -124,7 +127,7 @@ public class FlowResultAdapterImplTest {
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .withPtdfsResults(absolutePtdfSumsComputation, Set.of(cnec1, cnec2))
                 .build();
-        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult);
+        FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
         assertEquals(1.63, flowResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         assertEquals(0.57, flowResult.getPtdfZonalSum(cnec2, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(ptdfZonalSums, flowResult.getPtdfZonalSums());

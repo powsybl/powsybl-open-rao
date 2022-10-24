@@ -189,7 +189,7 @@ public class LeafTest {
         SensitivityResult expectedSensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityComputer.getSensitivityResult()).thenReturn(expectedSensitivityResult);
         when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);
-        when(sensitivityComputer.getBranchResult()).thenReturn(expectedFlowResult);
+        when(sensitivityComputer.getBranchResult(network)).thenReturn(expectedFlowResult);
         ObjectiveFunctionResult expectedObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         when(costEvaluatorMock.evaluate(any(), any())).thenReturn(expectedObjectiveFunctionResult);
         when(expectedObjectiveFunctionResult.getFunctionalCost()).thenReturn(expectedCost / 2);
@@ -322,7 +322,7 @@ public class LeafTest {
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
 
         FlowResult flowResult = Mockito.mock(FlowResult.class);
-        when(sensitivityComputer.getBranchResult()).thenReturn(flowResult);
+        when(sensitivityComputer.getBranchResult(network)).thenReturn(flowResult);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
 
         double expectedFlow = 3.;

@@ -88,7 +88,7 @@ public class IteratingLinearOptimizer {
             }
 
             IteratingLinearOptimizationResultImpl currentResult = createResult(
-                sensitivityComputer.getBranchResult(),
+                sensitivityComputer.getBranchResult(input.getNetwork()),
                 sensitivityComputer.getSensitivityResult(),
                 currentRangeActionActivationResult,
                 iteration
