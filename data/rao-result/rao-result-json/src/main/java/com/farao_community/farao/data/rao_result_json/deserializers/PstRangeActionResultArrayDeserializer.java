@@ -9,7 +9,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.rao_result_impl.PstRangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -71,6 +70,11 @@ final class PstRangeActionResultArrayDeserializer {
                         pstRangeActionResult.setPostPraSetpoint(jsonParser.getDoubleValue());
                         break;
 
+                    case AFTER_ARA_TAPS_SETPOINTS:
+                        jsonParser.nextToken();
+                        deserializeAfterAraResults(jsonParser, pstRangeActionResult, crac);
+                        break;
+
                     case STATES_ACTIVATED:
                         jsonParser.nextToken();
                         deserializeResultsPerStates(jsonParser, pstRangeActionResult, crac);
@@ -94,44 +98,12 @@ final class PstRangeActionResultArrayDeserializer {
     }
 
     private static void deserializeResultsPerStates(JsonParser jsonParser, PstRangeActionResult pstRangeActionResult, Crac crac) throws IOException {
+        RangeActionResultsDeserializationUtils.deserializeTapAndSetpointPerState(jsonParser, crac, true, PSTRANGEACTION_RESULTS)
+                .forEach((key, value) -> pstRangeActionResult.addActivationForState(key, value.getFirst(), value.getSecond()));
+    }
 
-        Instant instant = null;
-        String contingencyId = null;
-        Double setpoint = null;
-        Integer tap = null;
-
-        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
-
-                    case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
-                        break;
-
-                    case CONTINGENCY_ID:
-                        contingencyId = jsonParser.nextTextValue();
-                        break;
-
-                    case TAP:
-                        jsonParser.nextToken();
-                        tap = jsonParser.getIntValue();
-                        break;
-
-                    case SETPOINT:
-                        jsonParser.nextToken();
-                        setpoint = jsonParser.getDoubleValue();
-                        break;
-
-                    default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
-                }
-            }
-
-            if (setpoint == null || tap == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: tap and setpoint are required in %s", PSTRANGEACTION_RESULTS));
-            }
-            pstRangeActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, PSTRANGEACTION_RESULTS), tap, setpoint);
-
-        }
+    private static void deserializeAfterAraResults(JsonParser jsonParser, PstRangeActionResult pstRangeActionResult, Crac crac) throws IOException {
+        RangeActionResultsDeserializationUtils.deserializeTapAndSetpointPerState(jsonParser, crac, true, PSTRANGEACTION_RESULTS)
+                .forEach((key, value) -> pstRangeActionResult.addPostAraResult(key, value.getFirst(), value.getSecond()));
     }
 }

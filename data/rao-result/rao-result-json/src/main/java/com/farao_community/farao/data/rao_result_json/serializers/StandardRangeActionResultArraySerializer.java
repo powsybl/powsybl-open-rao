@@ -7,8 +7,8 @@
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
@@ -18,15 +18,15 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.jgrapht.alg.util.Pair;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.serializers.RangeActionResultsSerializationUtils.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -45,7 +45,7 @@ final class StandardRangeActionResultArraySerializer {
                 .collect(Collectors.toList());
 
         jsonGenerator.writeArrayFieldStart(STANDARDRANGEACTION_RESULTS);
-        for (StandardRangeAction rangeAction : sortedListOfRangeActions) {
+        for (StandardRangeAction<?> rangeAction : sortedListOfRangeActions) {
             serializeRangeActionResult(rangeAction, raoResult, crac, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
@@ -62,32 +62,19 @@ final class StandardRangeActionResultArraySerializer {
             jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
-        // TODO : should we also do this for AUTO RAs if they exist in curative too?
-        addAfterPraValuesForPurelyCurativeRas(rangeAction, raoResult, crac, jsonGenerator);
+        addAfterPraValuesForNonPreventiveRas(rangeAction, raoResult, crac, jsonGenerator);
+        addAfterAraValuesForCurativeRas(rangeAction, raoResult, crac, jsonGenerator);
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
                 .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
                 .sorted(STATE_COMPARATOR)
                 .collect(Collectors.toList());
 
-        jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.STATES_ACTIVATED);
-        for (State state : statesWhenRangeActionIsActivated) {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+        Map<State, Pair<Integer, Double>> activatedSetpoints = statesWhenRangeActionIsActivated.stream().collect(Collectors.toMap(
+                Function.identity(), state -> Pair.of(null, safeGetOptimizedSetpoint(raoResult, state, rangeAction))
+        ));
+        writeStateToTapAndSetpointArray(jsonGenerator, activatedSetpoints, RaoResultJsonConstants.STATES_ACTIVATED);
 
-            Optional<Contingency> optContingency = state.getContingency();
-            if (optContingency.isPresent()) {
-                jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
-            }
-
-            Double setpoint = safeGetOptimizedSetpoint(raoResult, state, rangeAction);
-
-            if (!Double.isNaN(setpoint)) {
-                jsonGenerator.writeNumberField(SETPOINT, setpoint);
-            }
-            jsonGenerator.writeEndObject();
-        }
-        jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
 
@@ -101,29 +88,13 @@ final class StandardRangeActionResultArraySerializer {
         }
     }
 
-    private static Double safeGetPreOptimizedSetpoint(RaoResult raoResult, State state, RangeAction<?> rangeAction) {
-        try {
-            return raoResult.getPreOptimizationSetPointOnState(state, rangeAction);
-        } catch (FaraoException e) {
-            return Double.NaN;
-        }
-    }
-
-    private static Double safeGetOptimizedSetpoint(RaoResult raoResult, State state, RangeAction<?> rangeAction) {
-        try {
-            return raoResult.getOptimizedSetPointOnState(state, rangeAction);
-        } catch (FaraoException e) {
-            return Double.NaN;
-        }
-    }
-
     /**
-     * If range action is purely curative, it might have an associated preventive RA on the same network element
+     * If range action is not preventive, it might have an associated preventive RA on the same network element
      * In this case, this method exports its post-pra setpoint values
      */
-    static void addAfterPraValuesForPurelyCurativeRas(StandardRangeAction<?> rangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
-        if (isRangeActionCurative(rangeAction, crac) && !isRangeActionPreventive(rangeAction, crac)) {
-            StandardRangeAction<?> pra = getSimilarPreventiveRangeAction(rangeAction, crac);
+    static void addAfterPraValuesForNonPreventiveRas(StandardRangeAction<?> rangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+        if ((isRangeActionAuto(rangeAction, crac) || isRangeActionCurative(rangeAction, crac)) && !isRangeActionPreventive(rangeAction, crac)) {
+            StandardRangeAction<?> pra = getSimilarRangeActionAvailableAtOtherState(rangeAction, crac.getPreventiveState(), crac);
             if (pra != null) {
                 Double afterPraSetpoint = safeGetOptimizedSetpoint(raoResult, crac.getPreventiveState(), pra);
                 if (!Double.isNaN(afterPraSetpoint)) {
@@ -133,24 +104,27 @@ final class StandardRangeActionResultArraySerializer {
         }
     }
 
-    static boolean isRangeActionPreventive(RangeAction<?> rangeAction, Crac crac) {
-        return isRangeActionAvailableInState(rangeAction, crac.getPreventiveState(), crac);
+    /**
+     * If range action is curative, it might have an associated automatic RA on the same network element
+     * In this case, this method exports its post-ara setpoint values
+     */
+    static void addAfterAraValuesForCurativeRas(StandardRangeAction<?> rangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+        if (!isRangeActionCurative(rangeAction, crac) || isRangeActionAuto(rangeAction, crac)) {
+            return;
+        }
+        Map<State, Pair<Integer, Double>> postAraSetpoints = new HashMap<>();
+        crac.getStates(Instant.AUTO).forEach(
+            autoState -> {
+                StandardRangeAction<?> ara = getSimilarRangeActionAvailableAtOtherState(rangeAction, autoState, crac);
+                if (Objects.nonNull(ara)) {
+                    postAraSetpoints.put(autoState, Pair.of(null, safeGetOptimizedSetpoint(raoResult, autoState, ara)));
+                }
+            });
+        writeStateToTapAndSetpointArray(jsonGenerator, postAraSetpoints, AFTER_ARA_SETPOINTS);
     }
 
-    static boolean isRangeActionCurative(RangeAction<?> rangeAction, Crac crac) {
-        return crac.getStates().stream()
-                .filter(state -> !state.equals(crac.getPreventiveState()))
-                .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
-    }
-
-    static boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state, Crac crac) {
-        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
-        return rangeActionsForState.contains(rangeAction);
-    }
-
-    static StandardRangeAction<?> getSimilarPreventiveRangeAction(StandardRangeAction<?> rangeAction, Crac crac) {
-
-        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+    static StandardRangeAction<?> getSimilarRangeActionAvailableAtOtherState(StandardRangeAction<?> rangeAction, State otherState, Crac crac) {
+        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(otherState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
 
         if (rangeAction instanceof HvdcRangeAction) {
             return rangeActionsForState.stream()
@@ -161,7 +135,6 @@ final class StandardRangeActionResultArraySerializer {
                     .findFirst().orElse(null);
 
         } else if (rangeAction instanceof InjectionRangeAction) {
-
             return rangeActionsForState.stream()
                     .filter(InjectionRangeAction.class::isInstance)
                     .filter(otherRangeAction -> !otherRangeAction.equals(rangeAction))
@@ -174,7 +147,6 @@ final class StandardRangeActionResultArraySerializer {
     }
 
     private static boolean hasSameNetworkElementAndKeys(InjectionRangeAction rangeAction, InjectionRangeAction otherRangeAction) {
-
         if (!rangeAction.getInjectionDistributionKeys().keySet().equals(otherRangeAction.getInjectionDistributionKeys().keySet())) {
             return false;
         }

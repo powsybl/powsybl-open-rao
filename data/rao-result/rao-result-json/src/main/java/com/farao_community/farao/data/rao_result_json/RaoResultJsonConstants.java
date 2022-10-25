@@ -73,6 +73,8 @@ public final class RaoResultJsonConstants {
     public static final String INITIAL_SETPOINT = "initialSetpoint";
     public static final String AFTER_PRA_TAP = "afterPraTap";
     public static final String AFTER_PRA_SETPOINT = "afterPraSetpoint";
+    public static final String AFTER_ARA_TAPS_SETPOINTS = "afterAraTapsAndSetpoints";
+    public static final String AFTER_ARA_SETPOINTS = "afterAraSetpoints";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
 

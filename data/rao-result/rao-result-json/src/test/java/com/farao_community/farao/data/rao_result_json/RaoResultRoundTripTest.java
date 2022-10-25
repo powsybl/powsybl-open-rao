@@ -6,7 +6,9 @@
  */
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
@@ -17,19 +19,23 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
-import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_impl.PstRangeActionResult;
+import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.farao_community.farao.data.rao_result_impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.commons.Unit.KILOVOLT;
+import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 
@@ -50,9 +56,6 @@ public class RaoResultRoundTripTest {
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new RaoResultExporter().export(raoResult, crac, outputStream);
-
-        ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
-        CracExporters.exportCrac(crac, "Json", outputStream2);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -367,5 +370,71 @@ public class RaoResultRoundTripTest {
         assertEquals(4341., importedRaoResult.getMargin(AFTER_ARA, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4446., importedRaoResult.getVoltage(AFTER_CRA, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4441., importedRaoResult.getMargin(AFTER_CRA, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testRoundTripPostAraResultsForCurativeRas() {
+        Crac crac = CracFactory.findDefault().create("crac");
+        PstRangeAction pstAuto = crac.newPstRangeAction().withId("pst-auto").withNetworkElement("pst").withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.))
+                .withSpeed(1)
+                .newFreeToUseUsageRule().withInstant(AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .add();
+        PstRangeAction pstCur = crac.newPstRangeAction().withId("pst-cur").withNetworkElement("pst").withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.))
+                .newFreeToUseUsageRule().withInstant(CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+        HvdcRangeAction hvdcAuto = crac.newHvdcRangeAction().withId("hvdc-auto").withNetworkElement("hvdc")
+                .withSpeed(1)
+                .newFreeToUseUsageRule().withInstant(AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .newRange().withMin(0).withMax(10).add()
+                .add();
+        HvdcRangeAction hvdcCur = crac.newHvdcRangeAction().withId("hvdc-cur").withNetworkElement("hvdc")
+                .newFreeToUseUsageRule().withInstant(CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newRange().withMin(0).withMax(10).add()
+                .add();
+
+        // dummy flow cnecs
+        crac.newContingency().withId("contingency").withNetworkElement("co-ne").add();
+        crac.newFlowCnec().withId("dummy-preventive").withInstant(PREVENTIVE).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+        crac.newFlowCnec().withId("dummy-auto").withContingency("contingency").withInstant(AUTO).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+        crac.newFlowCnec().withId("dummy-cur").withContingency("contingency").withInstant(CURATIVE).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+
+        State autoState = crac.getState("contingency", AUTO);
+        State curativeState = crac.getState("contingency", CURATIVE);
+
+        RaoResultImpl raoResult = new RaoResultImpl();
+        ((PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto)).addActivationForState(autoState, 1, 10.);
+        ((PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstCur)).addActivationForState(curativeState, 2, 20.);
+        raoResult.getAndCreateIfAbsentRangeActionResult(hvdcAuto).addActivationForState(autoState, 100);
+        raoResult.getAndCreateIfAbsentRangeActionResult(hvdcCur).addActivationForState(curativeState, 200);
+        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+
+        // export RaoResult
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, outputStream);
+
+        // import RaoResult
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+
+        // PST
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(autoState, pstAuto));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(autoState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(autoState, pstCur));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(autoState, pstCur), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(curativeState, pstCur));
+        assertEquals(20., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstCur), DOUBLE_TOLERANCE);
+
+        // HVDC
+        assertEquals(100., importedRaoResult.getOptimizedSetPointOnState(autoState, hvdcAuto), DOUBLE_TOLERANCE);
+        assertEquals(100., importedRaoResult.getOptimizedSetPointOnState(autoState, hvdcCur), DOUBLE_TOLERANCE);
+        assertEquals(200., importedRaoResult.getOptimizedSetPointOnState(curativeState, hvdcCur), DOUBLE_TOLERANCE);
     }
 }

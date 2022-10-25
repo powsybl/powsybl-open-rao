@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
 import java.util.HashMap;
@@ -20,35 +19,38 @@ public class PstRangeActionResult extends RangeActionResult {
 
     private int initialTap;
     private Integer postPraTap;
+    private final Map<State, Integer> postAraTaps;
     private final Map<State, Integer> tapPerState;
 
     public PstRangeActionResult() {
         super();
+        postAraTaps = new HashMap<>();
         tapPerState = new HashMap<>();
     }
 
     public int getPreOptimizedTapOnState(State state) {
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && tapPerState.containsKey(preventiveState)) {
-            return tapPerState.get(preventiveState);
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && postPraTap != null) {
-            return postPraTap;
+        if (state.isPreventive()) {
+            return initialTap;
+        } else {
+            return getOptimizedTapOnState(stateBefore(state));
         }
-        return initialTap;
     }
 
     public int getOptimizedTapOnState(State state) {
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
         if (tapPerState.containsKey(state)) {
             return tapPerState.get(state);
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && tapPerState.containsKey(preventiveState)) {
-            return tapPerState.get(preventiveState);
-        } else if (postPraTap != null) {
-            return postPraTap;
         }
-        return initialTap;
+        if (postAraTaps.containsKey(state)) {
+            return postAraTaps.get(state);
+        }
+        if (Objects.isNull(state) || state.isPreventive()) { // preventiveState can be null
+            if (Objects.nonNull(postPraTap)) {
+                return postPraTap;
+            } else {
+                return initialTap;
+            }
+        }
+        return getOptimizedTapOnState(stateBefore(state));
     }
 
     public void addActivationForState(State state, int tap, double setpoint) {
@@ -57,6 +59,11 @@ public class PstRangeActionResult extends RangeActionResult {
         if (state.isPreventive()) {
             preventiveState = state;
         }
+    }
+
+    public void addPostAraResult(State state, int tap, double setpoint) {
+        postAraTaps.put(state, tap);
+        postAraSetpoints.put(state, setpoint);
     }
 
     public void setInitialTap(int initialTap) {

@@ -7,8 +7,8 @@
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -16,15 +16,15 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.jgrapht.alg.util.Pair;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.serializers.RangeActionResultsSerializationUtils.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -48,7 +48,6 @@ final class PstRangeActionResultArraySerializer {
     }
 
     private static void serializeRangeActionResult(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
-
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(PSTRANGEACTION_ID, pstRangeAction.getId());
 
@@ -62,36 +61,19 @@ final class PstRangeActionResultArraySerializer {
             jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
-        // TODO : should we also do this for AUTO PSTs if they exist in curative too?
-        addAfterPraValuesForPurelyCurativePsts(pstRangeAction, raoResult, crac, jsonGenerator);
+        addAfterPraValuesForNonPreventivePsts(pstRangeAction, raoResult, crac, jsonGenerator);
+        addAfterAraValuesForCurativePsts(pstRangeAction, raoResult, crac, jsonGenerator);
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
                 .filter(state -> safeIsActivatedDuringState(raoResult, state, pstRangeAction))
                 .sorted(STATE_COMPARATOR)
                 .collect(Collectors.toList());
 
-        jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.STATES_ACTIVATED);
-        for (State state : statesWhenRangeActionIsActivated) {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+        Map<State, Pair<Integer, Double>> activatedTapsAndSetpoints = statesWhenRangeActionIsActivated.stream().collect(Collectors.toMap(
+                Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, pstRangeAction), safeGetOptimizedSetpoint(raoResult, state, pstRangeAction))
+        ));
+        writeStateToTapAndSetpointArray(jsonGenerator, activatedTapsAndSetpoints, RaoResultJsonConstants.STATES_ACTIVATED);
 
-            Optional<Contingency> optContingency = state.getContingency();
-            if (optContingency.isPresent()) {
-                jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
-            }
-
-            Integer tap = safeGetOptimizedTap(raoResult, state, pstRangeAction);
-            Double setpoint = safeGetOptimizedSetpoint(raoResult, state, pstRangeAction);
-
-            if (tap != null) {
-                jsonGenerator.writeNumberField(TAP, tap);
-            }
-            if (!Double.isNaN(setpoint)) {
-                jsonGenerator.writeNumberField(SETPOINT, setpoint);
-            }
-            jsonGenerator.writeEndObject();
-        }
-        jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
 
@@ -121,29 +103,13 @@ final class PstRangeActionResultArraySerializer {
         }
     }
 
-    private static Double safeGetPreOptimizedSetpoint(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
-        try {
-            return raoResult.getPreOptimizationSetPointOnState(state, pstRangeAction);
-        } catch (FaraoException e) {
-            return Double.NaN;
-        }
-    }
-
-    private static Double safeGetOptimizedSetpoint(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
-        try {
-            return raoResult.getOptimizedSetPointOnState(state, pstRangeAction);
-        } catch (FaraoException e) {
-            return Double.NaN;
-        }
-    }
-
     /**
-     * If range action is purely curative, it might have an associated preventive RA on the same network element
+     * If range action is not preventive, it might have an associated preventive RA on the same network element
      * In this case, this method exports its post-pra tap and setpoint values
      */
-    static void addAfterPraValuesForPurelyCurativePsts(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
-        if (isRangeActionCurative(pstRangeAction, crac) && !isRangeActionPreventive(pstRangeAction, crac)) {
-            PstRangeAction pra = getPreventivePstRangeActionAssociated(pstRangeAction, crac);
+    static void addAfterPraValuesForNonPreventivePsts(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+        if ((isRangeActionCurative(pstRangeAction, crac) || isRangeActionAuto(pstRangeAction, crac)) && !isRangeActionPreventive(pstRangeAction, crac)) {
+            PstRangeAction pra = getSimilarPstRangeActionAvailableAtOtherState(pstRangeAction, crac.getPreventiveState(), crac);
             if (pra != null) {
                 Integer afterPraTap = safeGetOptimizedTap(raoResult, crac.getPreventiveState(), pra);
                 Double afterPraSetpoint = safeGetOptimizedSetpoint(raoResult, crac.getPreventiveState(), pra);
@@ -157,23 +123,27 @@ final class PstRangeActionResultArraySerializer {
         }
     }
 
-    static boolean isRangeActionPreventive(RangeAction<?> rangeAction, Crac crac) {
-        return isRangeActionAvailableInState(rangeAction, crac.getPreventiveState(), crac);
+    /**
+     * If range action is curative, it might have an associated automatic RA on the same network element
+     * In this case, this method exports its post-ara tap and setpoint values
+     */
+    static void addAfterAraValuesForCurativePsts(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+        if (!isRangeActionCurative(pstRangeAction, crac) || isRangeActionAuto(pstRangeAction, crac)) {
+            return;
+        }
+        Map<State, Pair<Integer, Double>> postAraTapsAndSetpoints = new HashMap<>();
+        crac.getStates(Instant.AUTO).forEach(autoState -> {
+                PstRangeAction ara = getSimilarPstRangeActionAvailableAtOtherState(pstRangeAction, autoState, crac);
+                if (Objects.nonNull(ara)) {
+                    postAraTapsAndSetpoints.put(autoState, Pair.of(safeGetOptimizedTap(raoResult, autoState, ara), safeGetOptimizedSetpoint(raoResult, autoState, ara)));
+                }
+            }
+        );
+        writeStateToTapAndSetpointArray(jsonGenerator, postAraTapsAndSetpoints, AFTER_ARA_TAPS_SETPOINTS);
     }
 
-    static boolean isRangeActionCurative(RangeAction<?> rangeAction, Crac crac) {
-        return crac.getStates().stream()
-                .filter(state -> !state.equals(crac.getPreventiveState()))
-                .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
-    }
-
-    static boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state, Crac crac) {
-        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
-        return rangeActionsForState.contains(rangeAction);
-    }
-
-    static PstRangeAction getPreventivePstRangeActionAssociated(PstRangeAction pstRangeAction, Crac crac) {
-        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+    static PstRangeAction getSimilarPstRangeActionAvailableAtOtherState(PstRangeAction pstRangeAction, State otherState, Crac crac) {
+        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(otherState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         return rangeActionsForState.stream()
                 .filter(PstRangeAction.class::isInstance)
                 .filter(otherRangeAction -> !otherRangeAction.equals(pstRangeAction))
