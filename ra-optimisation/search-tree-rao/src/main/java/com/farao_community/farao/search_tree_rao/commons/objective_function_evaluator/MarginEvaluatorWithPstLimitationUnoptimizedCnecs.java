@@ -77,6 +77,6 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
             belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
         }
 
-        return (aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0);
+        return aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0;
     }
 }
