@@ -98,7 +98,7 @@ public class UnoptimizedCnecParameters {
                         pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
                                 pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toSet());
 
-                if (skipFlowCnec(availablePstRangeActions)) {
+                if (skipFlowCnec(availablePstRangeActions, pstId)) {
                     continue;
                 }
 
@@ -110,7 +110,7 @@ public class UnoptimizedCnecParameters {
         return mapOfUnoptimizedCnecsAndPsts;
     }
 
-    private static boolean skipFlowCnec(Set<PstRangeAction> availablePstRangeActions) {
+    private static boolean skipFlowCnec(Set<PstRangeAction> availablePstRangeActions, String pstId) {
         if (availablePstRangeActions.size() > 1) {
             BUSINESS_WARNS.warn("{} pst range actions are defined with network element {} instead of 1", availablePstRangeActions.size(), pstId);
             return true;
