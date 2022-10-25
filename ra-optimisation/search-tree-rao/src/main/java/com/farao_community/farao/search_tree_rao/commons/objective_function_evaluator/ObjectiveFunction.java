@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -15,6 +16,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 
 import java.util.*;
@@ -89,7 +91,7 @@ public final class ObjectiveFunction {
             if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
                 marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
-                marginEvaluator = new BasicMinMarginEvaluator();
+                marginEvaluator = new BasicMarginEvaluator();
             }
             this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
 
@@ -101,6 +103,7 @@ public final class ObjectiveFunction {
                                        FlowResult initialFlowResult,
                                        FlowResult prePerimeterFlowResult,
                                        RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
+                                       Crac crac,
                                        Set<String> operatorsNotToOptimizeInCurative,
                                        RaoParameters raoParameters) {
 
@@ -114,7 +117,7 @@ public final class ObjectiveFunction {
             if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
                 marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
-                marginEvaluator = new BasicMinMarginEvaluator();
+                marginEvaluator = new BasicMarginEvaluator();
             }
 
             // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
@@ -126,8 +129,7 @@ public final class ObjectiveFunction {
                 // Unoptimized cnecs in series with psts
             } else if (!searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
-                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPsts(), prePerimeterRangeActionSetpointResult)));
-
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters, crac), prePerimeterRangeActionSetpointResult)));
             } else  {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
             }

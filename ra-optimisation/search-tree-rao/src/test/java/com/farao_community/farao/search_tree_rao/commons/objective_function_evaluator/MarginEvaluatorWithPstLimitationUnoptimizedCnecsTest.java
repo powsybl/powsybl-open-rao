@@ -43,7 +43,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     private final RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
     private MarginEvaluatorWithPstLimitationUnoptimizedCnecs marginEvaluatorWithPstLimitationUnoptimizedCnecs =
             new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(
-                    new BasicMinMarginEvaluator(),
+                    new BasicMarginEvaluator(),
                     flowCnecPstRangeActionMap,
                     rangeActionSetpointResult
             );

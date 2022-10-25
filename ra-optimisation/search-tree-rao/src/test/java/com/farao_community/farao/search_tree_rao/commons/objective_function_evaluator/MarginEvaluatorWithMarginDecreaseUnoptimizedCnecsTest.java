@@ -35,7 +35,7 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     private final SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
     private final MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs marginEvaluatorWithUnoptimizedCnecs =
             new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(
-                    new BasicMinMarginEvaluator(),
+                    new BasicMarginEvaluator(),
                     Set.of("FR"),
                     prePerimeterFlowResult
             );

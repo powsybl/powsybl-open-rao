@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -66,6 +67,7 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
+                                                       Crac crac,
                                                        FlowResult initialFlowResult,
                                                        RangeActionSetpointResult initialRangeActionSetpointResult,
                                                        Set<String> operatorsNotSharingCras,
@@ -88,7 +90,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
 
-        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, operatorsNotSharingCras, raoParameters);
+        objectiveFunction = ObjectiveFunction.create().build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, initialRangeActionSetpointResult, crac, operatorsNotSharingCras, raoParameters);
 
         return runAndGetResult(network, objectiveFunction);
     }

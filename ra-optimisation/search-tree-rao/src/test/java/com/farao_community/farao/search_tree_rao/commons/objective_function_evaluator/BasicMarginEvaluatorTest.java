@@ -29,7 +29,7 @@ public class BasicMarginEvaluatorTest {
     private final FlowResult prePerimeterFlowResult = Mockito.mock(FlowResult.class);
     private final RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
     private final SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
-    private final BasicMinMarginEvaluator basicMinMarginEvaluator = new BasicMinMarginEvaluator();
+    private final BasicMarginEvaluator basicMinMarginEvaluator = new BasicMarginEvaluator();
     private final BasicRelativeMarginEvaluator basicRelativeMarginEvaluator = new BasicRelativeMarginEvaluator();
 
     @Test

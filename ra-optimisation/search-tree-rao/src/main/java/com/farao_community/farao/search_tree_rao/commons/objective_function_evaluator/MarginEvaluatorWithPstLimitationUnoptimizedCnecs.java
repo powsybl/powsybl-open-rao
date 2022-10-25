@@ -19,7 +19,9 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import java.util.Map;
 
 /**
- * It enables to evaluate the absolute or relative minimal margin as a cost
+ * It enables to evaluate the absolute minimal margin as a cost
+ * For cnecs parameterized as in series with a pst, margin is updated
+ * when there are not enough setpoints on the pst left to absorb the cnec's margin deficit
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -45,35 +47,36 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
-        return computeMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit, newMargin);
+        if (cnecShouldBeConsidered(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit)) {
+            return marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
+        } else {
+            return Double.MAX_VALUE;
+        }
     }
 
-    private double computeMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit, double newMargin) {
-        if (flowCnecPstRangeActionMap.containsKey(flowCnec)) {
-            PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
-            double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
-            double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-            double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-            // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
-            double currentSetpoint = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, flowCnec.getState());
-            double aboveThresholdMargin = flowCnec.getUpperBound(Side.LEFT, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
-            double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(Side.LEFT, unit).orElse(Double.NEGATIVE_INFINITY);
-
-            double aboveThresholdConstraint;
-            double belowThresholdConsraint;
-            if (sensitivity >= 0) {
-                aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
-                belowThresholdConsraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
-            } else {
-                aboveThresholdConstraint = sensitivity * (currentSetpoint - maxSetpoint) + aboveThresholdMargin;
-                belowThresholdConsraint = sensitivity * (minSetpoint - currentSetpoint) + belowThresholdMargin;
-            }
-
-            if (aboveThresholdConstraint > 0 && belowThresholdConsraint > 0) {
-                return Double.MAX_VALUE;
-            }
+    private boolean cnecShouldBeConsidered(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
+        if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
+            return true;
         }
-        return newMargin;
+        PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
+        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
+        double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
+        double currentSetpoint = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, flowCnec.getState());
+        double aboveThresholdMargin = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
+        double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+
+        double aboveThresholdConstraint;
+        double belowThresholdConstraint;
+        if (sensitivity >= 0) {
+            aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
+            belowThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
+        } else {
+            aboveThresholdConstraint = Math.abs(sensitivity) * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
+            belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
+        }
+
+        return (aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0);
     }
 }

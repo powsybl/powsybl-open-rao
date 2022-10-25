@@ -15,13 +15,13 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivatio
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 /**
- * It enables to evaluate the absolute or relative minimal margin as a cost
+ * It enables to evaluate the absolute minimal margin as a cost
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class BasicMinMarginEvaluator implements MarginEvaluator {
+public class BasicMarginEvaluator implements MarginEvaluator {
 
-    public BasicMinMarginEvaluator() {
+    public BasicMarginEvaluator() {
         // do nothing : only getMargin is useful in this class
     }
 
