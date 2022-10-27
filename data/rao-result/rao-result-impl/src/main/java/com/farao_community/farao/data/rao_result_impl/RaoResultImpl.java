@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -37,7 +36,7 @@ public class RaoResultImpl implements RaoResult {
     private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
     private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
-    private static final RangeActionResult DEFAULT_STDRANGEACTION_RESULT = new RangeActionResult();
+    private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private final Crac crac;
@@ -214,7 +213,7 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        return rangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).isActivatedDuringState(state);
+        return rangeActionResults.getOrDefault(rangeAction, DEFAULT_RANGEACTION_RESULT).isActivatedDuringState(state);
     }
 
     @Override
@@ -230,7 +229,7 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.isPreventive()) {
-            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).getInitialSetpoint();
+            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_RANGEACTION_RESULT).getInitialSetpoint();
         } else {
             return getOptimizedSetPointOnState(stateBefore(state), rangeAction);
         }
@@ -238,30 +237,21 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        RangeAction<?> otherRangeAction = null;
         State stateBefore = state;
+        // Search for any RA with same network element that has been activated before given state
         while (Objects.nonNull(stateBefore)) {
-            otherRangeAction = getRangeActionOnSameNetworkElementAvailableAtState(rangeAction, stateBefore);
-            if (Objects.nonNull(otherRangeAction)) {
-                break;
+            final State finalStateBefore = stateBefore;
+            Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
+                    rangeActionResults.entrySet().stream().filter(entry ->
+                    entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
+                            && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
+            if (activatedRangeAction.isPresent()) {
+                return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);
             }
             stateBefore = stateBefore(stateBefore);
         }
-        if (Objects.isNull(otherRangeAction)) {
-            return getPreOptimizationSetPointOnState(crac.getPreventiveState(), rangeAction);
-        }
-        return rangeActionResults.getOrDefault(otherRangeAction, DEFAULT_STDRANGEACTION_RESULT).getOptimizedSetpointOnState(stateBefore);
-    }
-
-    private boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state) {
-        return Set.of(UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).contains(rangeAction.getUsageMethod(state));
-    }
-
-    private RangeAction<?> getRangeActionOnSameNetworkElementAvailableAtState(RangeAction<?> rangeAction, State state) {
-        return crac.getRangeActions().stream().filter(ra ->
-                        ra.getNetworkElements().equals(rangeAction.getNetworkElements())
-                        && isRangeActionAvailableInState(ra, state)
-        ).findAny().orElse(null);
+        // If no activated RA was found, return initial setpoint
+        return getPreOptimizationSetPointOnState(crac.getPreventiveState(), rangeAction);
     }
 
     @Override
