@@ -9,16 +9,18 @@ package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredRegisteredResource;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
@@ -29,58 +31,39 @@ import java.util.*;
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 
 /**
- * Generates MonitoredSeries for SWE CNE format
+ * Generates AdditionalConstraintSeries for SWE CNE format
  *
- * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SweMonitoredSeriesCreator {
+public class SweAdditionalConstraintSeriesCreator {
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
-    private Map<Contingency, Map<MonitoredSeriesCreationContext, Set<CnecCreationContext>>> cnecCreationContextsMap;
+    private Map<Contingency, AngleCnecCreationContext> angleCnecCreationContextsMap;
 
-    public SweMonitoredSeriesCreator(SweCneHelper sweCneHelper, CimCracCreationContext cracCreationContext) {
+    public SweAdditionalConstraintSeriesCreator(SweCneHelper sweCneHelper, CimCracCreationContext cracCreationContext) {
         this.sweCneHelper = sweCneHelper;
         this.cracCreationContext = cracCreationContext;
         prepareMap();
     }
 
     private void prepareMap() {
-        cnecCreationContextsMap = new TreeMap<>((c1, c2) -> {
-            if (Objects.isNull(c1) && Objects.isNull(c2)) {
-                return 0;
-            } else if (Objects.isNull(c1)) {
-                return -1;
-            } else if (Objects.isNull(c2)) {
-                return 1;
-            } else {
-                return c1.getId().compareTo(c2.getId());
-            }
-        });
         Crac crac = sweCneHelper.getCrac();
-        cracCreationContext.getMonitoredSeriesCreationContexts().values().stream()
-            .filter(MonitoredSeriesCreationContext::isImported).forEach(
-                monitoredSeriesCreationContext -> monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
-                    .filter(MeasurementCreationContext::isImported).forEach(
-                        measurementCreationContext -> measurementCreationContext.getCnecCreationContexts().values().stream()
-                            .filter(CnecCreationContext::isImported).forEach(
-                                cnecCreationContext -> {
-                                    FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
-                                    Contingency contingency = cnec.getState().getContingency().orElse(null);
-                                    cnecCreationContextsMap.computeIfAbsent(contingency, c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
-                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
-                                    cnecCreationContextsMap.get(contingency).get(monitoredSeriesCreationContext).add(cnecCreationContext);
-                                }
-                            )
-                    )
+        cracCreationContext.getAngleCnecCreationContexts().stream()
+                .filter(AngleCnecCreationContext::isImported).forEach(
+                        angleCnecCreationContext -> {
+                            AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getNativeId());
+                            Contingency contingency = angleCnec.getState().getContingency().orElse(null);
+                            angleCnecCreationContextsMap.putIfAbsent(contingency, angleCnecCreationContext);
+                        }
         );
     }
 
-    public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {
-        if (!cnecCreationContextsMap.containsKey(contingency)) {
+    public List<AdditionalConstraintSeries> generateAdditionalConstraintSeries(Contingency contingency) {
+        if (!angleCnecCreationContextsMap.containsKey(contingency)) {
             return Collections.emptyList();
         }
-        List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        cnecCreationContextsMap.get(contingency).forEach(
+        List<AdditionalConstraintSeries> additionalConstraintSeries = new ArrayList<>();
+        angleCnecCreationContextsMap.get(contingency).forEach(
             (monitoredSeriesCC, cnecCCSet) -> monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet))
         );
         return monitoredSeriesList;

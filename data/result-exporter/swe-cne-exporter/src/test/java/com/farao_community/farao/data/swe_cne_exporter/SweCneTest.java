@@ -19,6 +19,8 @@ import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCr
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
+import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.farao_community.farao.monitoring.angle_monitoring.json.AngleMonitoringResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -50,6 +52,7 @@ public class SweCneTest {
     private CracCreationContext cracCreationContext;
     private Network network;
     private RaoResult raoResult;
+    private AngleMonitoringResult angleMonitoringResult;
 
     @Before
     public void setUp() {
@@ -76,6 +79,7 @@ public class SweCneTest {
             e.printStackTrace();
         }
         raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        angleMonitoringResult = null; //new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream, crac);
     }
 
     @Test
@@ -86,7 +90,7 @@ public class SweCneTest {
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class SweRemedialActionSeriesCreatorTest {
 
-    private CneHelper cneHelper;
+    private SweCneHelper cneHelper;
     private Crac crac;
     private RaoResult raoResult;
     private CimCracCreationContext cracCreationContext;
@@ -41,7 +41,7 @@ public class SweRemedialActionSeriesCreatorTest {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
-        this.cneHelper = Mockito.mock(CneHelper.class);
+        this.cneHelper = Mockito.mock(SweCneHelper.class);
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);

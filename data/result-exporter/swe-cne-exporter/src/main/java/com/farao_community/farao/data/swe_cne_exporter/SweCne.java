@@ -17,6 +17,7 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 
@@ -39,12 +40,12 @@ import static com.farao_community.farao.data.swe_cne_exporter.SweCneUtil.*;
  */
 public class SweCne {
     private CriticalNetworkElementMarketDocument marketDocument;
-    private CneHelper cneHelper;
+    private SweCneHelper sweCneHelper;
     private CimCracCreationContext cracCreationContext;
 
-    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
-        cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
+        sweCneHelper = new SweCneHelper(crac, network, raoResult, angleMonitoringResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;
     }
 
@@ -64,7 +65,7 @@ public class SweCne {
         }
 
         OffsetDateTime offsetDateTime = cracCreationContext.getTimeStamp().withMinute(0);
-        fillHeader(cneHelper.getNetwork().getCaseDate().toDate().toInstant().atOffset(ZoneOffset.UTC));
+        fillHeader(sweCneHelper.getNetwork().getCaseDate().toDate().toInstant().atOffset(ZoneOffset.UTC));
         addTimeSeriesToCne(offsetDateTime);
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
@@ -72,21 +73,21 @@ public class SweCne {
         createAllConstraintSeries(point);
 
         // add reason
-        addResaon(point);
+        addReason(point);
     }
 
     // fills the header of the CNE
     private void fillHeader(OffsetDateTime offsetDateTime) {
-        marketDocument.setMRID(cneHelper.getExporterParameters().getDocumentId());
-        marketDocument.setRevisionNumber(String.valueOf(cneHelper.getExporterParameters().getRevisionNumber()));
+        marketDocument.setMRID(sweCneHelper.getExporterParameters().getDocumentId());
+        marketDocument.setRevisionNumber(String.valueOf(sweCneHelper.getExporterParameters().getRevisionNumber()));
         marketDocument.setType(CNE_TYPE);
-        marketDocument.setProcessProcessType(cneHelper.getExporterParameters().getProcessType().getCode());
-        marketDocument.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getSenderId()));
-        marketDocument.setSenderMarketParticipantMarketRoleType(cneHelper.getExporterParameters().getSenderRole().getCode());
-        marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getReceiverId()));
-        marketDocument.setReceiverMarketParticipantMarketRoleType(cneHelper.getExporterParameters().getReceiverRole().getCode());
+        marketDocument.setProcessProcessType(sweCneHelper.getExporterParameters().getProcessType().getCode());
+        marketDocument.setSenderMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getExporterParameters().getSenderId()));
+        marketDocument.setSenderMarketParticipantMarketRoleType(sweCneHelper.getExporterParameters().getSenderRole().getCode());
+        marketDocument.setReceiverMarketParticipantMRID(createPartyIDString(A01_CODING_SCHEME, sweCneHelper.getExporterParameters().getReceiverId()));
+        marketDocument.setReceiverMarketParticipantMarketRoleType(sweCneHelper.getExporterParameters().getReceiverRole().getCode());
         marketDocument.setCreatedDateTime(createXMLGregorianCalendarNow());
-        marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeIntervalForWholeDay(cneHelper.getExporterParameters().getTimeInterval()));
+        marketDocument.setTimePeriodTimeInterval(createEsmpDateTimeIntervalForWholeDay(sweCneHelper.getExporterParameters().getTimeInterval()));
         marketDocument.setTimePeriodTimeInterval(SweCneUtil.createEsmpDateTimeInterval(offsetDateTime));
     }
 
@@ -102,13 +103,13 @@ public class SweCne {
 
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
-        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(cneHelper, cracCreationContext).generate();
+        List<ConstraintSeries> constraintSeriesList = new SweConstraintSeriesCreator(sweCneHelper, cracCreationContext).generate();
         point.getConstraintSeries().addAll(constraintSeriesList);
     }
 
-    private void addResaon(Point point) {
+    private void addReason(Point point) {
         Reason reason = new Reason();
-        RaoResult raoResult = cneHelper.getRaoResult();
+        RaoResult raoResult = sweCneHelper.getRaoResult();
         if (raoResult.getComputationStatus() == ComputationStatus.FAILURE) {
             reason.setCode(DIVERGENCE_CODE);
             reason.setText(DIVERGENCE_TEXT);
