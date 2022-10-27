@@ -367,22 +367,22 @@
     "activatedStates" : [ {
       "instant" : "preventive",
       "tap" : -7,
-      "setpoint" : -3.2
+      "setpoint" : -2.72
     }, {
       "instant" : "auto",
       "contingency" : "Co-1",
       "tap" : -4,
-      "setpoint" : -2.0
+      "setpoint" : -1.56
     }, {
       "instant" : "curative",
       "contingency" : "Co-1",
       "tap" : -6,
-      "setpoint" : -3.0
+      "setpoint" : -2.34
     }, {
       "instant" : "curative",
       "contingency" : "Co-2",
       "tap" : -5,
-      "setpoint" : -2.4
+      "setpoint" : -1.95
     } ]
   } ],
   "hvdcRangeActionResults" : [ {

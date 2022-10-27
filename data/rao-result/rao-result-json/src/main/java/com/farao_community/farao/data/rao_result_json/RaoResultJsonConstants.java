@@ -25,7 +25,7 @@ public final class RaoResultJsonConstants {
 
     private RaoResultJsonConstants() { }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.2";
+    public static final String RAO_RESULT_IO_VERSION = "1.3";
 
     // header
     public static final String TYPE = "type";
@@ -68,13 +68,12 @@ public final class RaoResultJsonConstants {
     public static final String PSTRANGEACTION_RESULTS = "pstRangeActionResults";
     public static final String PSTRANGEACTION_ID = "pstRangeActionId";
     public static final String STANDARDRANGEACTION_RESULTS = "standardRangeActionResults";
+    public static final String RANGEACTION_RESULTS = "rangeActionResults";
     public static final String RANGEACTION_ID = "rangeActionId";
     public static final String INITIAL_TAP = "initialTap";
     public static final String INITIAL_SETPOINT = "initialSetpoint";
     public static final String AFTER_PRA_TAP = "afterPraTap";
     public static final String AFTER_PRA_SETPOINT = "afterPraSetpoint";
-    public static final String AFTER_ARA_TAPS_SETPOINTS = "afterAraTapsAndSetpoints";
-    public static final String AFTER_ARA_SETPOINTS = "afterAraSetpoints";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
 

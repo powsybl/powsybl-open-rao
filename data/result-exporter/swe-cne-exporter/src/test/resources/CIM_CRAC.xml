@@ -194,7 +194,7 @@
             <mRID>PRA_1</mRID>
             <name>PRA_1</name>
             <businessType>B59</businessType>
-            <applicationMode_MarketObjectStatus.status>A18</applicationMode_MarketObjectStatus.status>
+            <applicationMode_MarketObjectStatus.status>A27</applicationMode_MarketObjectStatus.status>
             <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
             <RegisteredResource>
               <mRID codingScheme="A02">BBE2AA11 BBE3AA11 1</mRID>
@@ -221,6 +221,34 @@
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
               <marketObjectStatus.status>A21</marketObjectStatus.status>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>ARA-Series-1</mRID>
+          <businessType>B56</businessType>
+          <name>ARA_PST</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Monitored_Series>
+            <mRID>CNEC-2</mRID>
+            <name>CNEC-2-name</name>
+          </Monitored_Series>
+          <RemedialAction_Series>
+            <mRID>PRA_1</mRID>
+            <name>PRA_1</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">BBE2AA11 BBE3AA11 1</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A06</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
+              <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>
+              <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
             </RegisteredResource>
           </RemedialAction_Series>
         </Series>

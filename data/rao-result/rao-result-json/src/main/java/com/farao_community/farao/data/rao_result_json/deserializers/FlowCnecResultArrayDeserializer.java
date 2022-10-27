@@ -152,9 +152,7 @@ final class FlowCnecResultArrayDeserializer {
     }
 
     private static void checkSideHandlingVersion(String jsonFileVersion, String fieldName) {
-        if (getPrimaryVersionNumber(jsonFileVersion) > 1 || getSubVersionNumber(jsonFileVersion) >= 2) {
-            throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s should be defined per FlowCnec side as of version 1.2", fieldName));
-        }
+        Utils.checkDeprecatedField(fieldName, FLOWCNEC_RESULTS, jsonFileVersion, "1.1");
     }
 
     private static void deserializeElementaryFlowCnecResultForUnitAndSide(JsonParser jsonParser, ElementaryFlowCnecResult eFlowCnecResult, Unit unit, Side side) throws IOException {

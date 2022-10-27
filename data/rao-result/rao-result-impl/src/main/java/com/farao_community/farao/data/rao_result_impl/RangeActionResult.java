@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
 import java.util.*;
@@ -17,39 +15,29 @@ import java.util.*;
  */
 public class RangeActionResult {
     protected double initialSetpoint = Double.NaN;
-    protected double postPraSetpoint = Double.NaN;
-    protected final Map<State, Double> postAraSetpoints;
     protected final Map<State, Double> setpointPerState;
     protected State preventiveState = null;
 
     public RangeActionResult() {
-        postAraSetpoints = new HashMap<>();
         setpointPerState = new HashMap<>();
     }
 
-    public double getPreOptimizedSetpointOnState(State state) {
-        if (state.isPreventive()) {
-            return initialSetpoint;
-        } else {
-            return getOptimizedSetpointOnState(stateBefore(state));
-        }
+    public double getInitialSetpoint() {
+        return initialSetpoint;
     }
 
-    public double getOptimizedSetpointOnState(State state) {
-        if (setpointPerState.containsKey(state)) {
-            return setpointPerState.get(state);
+    public Double getOptimizedSetpointOnState(State state) {
+        State lastActivatedStateBefore = getLastActivatedBefore(state);
+        if (Objects.nonNull(lastActivatedStateBefore)) {
+            return setpointPerState.get(lastActivatedStateBefore);
         }
-        if (postAraSetpoints.containsKey(state)) {
-            return postAraSetpoints.get(state);
-        }
-        if (Objects.isNull(state) || state.isPreventive()) { // preventiveState can be null
-            if (!Double.isNaN(postPraSetpoint)) {
-                return postPraSetpoint;
-            } else {
-                return initialSetpoint;
-            }
-        }
-        return getOptimizedSetpointOnState(stateBefore(state));
+        return initialSetpoint;
+    }
+
+    private State getLastActivatedBefore(State state) {
+        return setpointPerState.keySet().stream().filter(otherState -> otherState.isPreventive() || otherState.getContingency().equals(state.getContingency()))
+                .filter(otherState -> otherState.getInstant().equals(state.getInstant()) || otherState.getInstant().comesBefore(state.getInstant()))
+                .max(Comparator.comparingInt(s -> s.getInstant().getOrder())).orElse(null);
     }
 
     public boolean isActivatedDuringState(State state) {
@@ -67,58 +55,7 @@ public class RangeActionResult {
         }
     }
 
-    public void addPostAraSetpoint(State state, double setpoint) {
-        postAraSetpoints.put(state, setpoint);
-    }
-
     public void setInitialSetpoint(double initialSetpoint) {
         this.initialSetpoint = initialSetpoint;
-    }
-
-    public void setPostPraSetpoint(Double postPraSetpoint) {
-        this.postPraSetpoint = postPraSetpoint;
-    }
-
-    protected State stateBefore(State state) {
-        if (state.getContingency().isPresent()) {
-            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant());
-        } else {
-            return preventiveState;
-        }
-    }
-
-    private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.comesBefore(Instant.AUTO)) {
-            return preventiveState;
-        }
-        State stateBefore = lookupState(contingencyId, instantBefore(instant));
-        if (Objects.nonNull(stateBefore)) {
-            return stateBefore;
-        } else {
-            return stateBefore(contingencyId, instantBefore(instant));
-        }
-    }
-
-    private Instant instantBefore(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-            case OUTAGE:
-                return Instant.PREVENTIVE;
-            case AUTO:
-                return Instant.OUTAGE;
-            case CURATIVE:
-                return Instant.AUTO;
-            default:
-                throw new FaraoException(String.format("Unknown instant: %s", instant));
-        }
-    }
-
-    private State lookupState(String contingencyId, Instant instant) {
-        Set<State> knownStates = new HashSet<>(setpointPerState.keySet());
-        knownStates.addAll(postAraSetpoints.keySet());
-        return knownStates.stream().filter(state -> state.getInstant().equals(instant)
-                        && state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
-                .findAny()
-                .orElse(null);
     }
 }

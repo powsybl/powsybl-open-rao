@@ -44,10 +44,10 @@ public class PstRangeActionCreator {
     private final RemedialActionRegisteredResource pstRegisteredResource;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
-    private Set<FlowCnec> flowCnecs;
-    private AngleCnec angleCnec;
+    private final Set<FlowCnec> flowCnecs;
+    private final AngleCnec angleCnec;
     private PstRangeActionAdder pstRangeActionAdder;
-    private Country sharedDomain;
+    private final Country sharedDomain;
 
     public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
         this.crac = crac;

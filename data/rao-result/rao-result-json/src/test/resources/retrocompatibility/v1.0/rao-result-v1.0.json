@@ -287,18 +287,18 @@
   "pstRangeActionResults" : [ {
     "pstRangeActionId" : "pstRange1Id",
     "pstNetworkElementId" : "pst",
-    "initialTap" : 0,
+    "initialTap" : -3,
     "initialSetpoint" : 0.0,
     "activatedStates" : [ {
       "instant" : "preventive",
-      "tap" : -7,
-      "setpoint" : -3.2
+      "tap" : 3,
+      "setpoint" : 3.0
     } ]
   }, {
     "pstRangeActionId" : "pstRange2Id",
     "pstNetworkElementId" : "pst2",
-    "initialTap" : 3,
-    "initialSetpoint" : 1.7,
+    "initialTap" : 0,
+    "initialSetpoint" : 1.5,
     "activatedStates" : [ ]
   } ],
   "hvdcRangeActionResults" : [ {

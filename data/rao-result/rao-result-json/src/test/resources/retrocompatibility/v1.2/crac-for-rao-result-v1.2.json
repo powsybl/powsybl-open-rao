@@ -297,6 +297,15 @@
     "id" : "hvdcRange2Id",
     "name" : "hvdcRange2Name",
     "operator" : "RTE",
+    "onStateUsageRules" : [ {
+      "instant" : "curative",
+      "contingencyId" : "contingency1Id",
+      "usageMethod" : "available"
+    }, {
+      "instant" : "curative",
+      "contingencyId" : "contingency2Id",
+      "usageMethod" : "available"
+    } ],
     "onFlowConstraintUsageRules" : [ {
       "instant" : "preventive",
       "flowCnecId" : "cnec3curId"
@@ -313,6 +322,11 @@
     "id" : "injectionRange1Id",
     "name" : "injectionRange1Name",
     "operator" : null,
+    "onStateUsageRules" : [ {
+      "instant" : "curative",
+      "contingencyId" : "contingency1Id",
+      "usageMethod" : "available"
+    } ],
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
       "country" : "ES"
