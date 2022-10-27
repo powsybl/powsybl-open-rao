@@ -15,7 +15,7 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivatio
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 /**
- * It enables to evaluate the absolute minimal margin as a cost
+ * It enables to evaluate the absolute margin of a FlowCnec
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */

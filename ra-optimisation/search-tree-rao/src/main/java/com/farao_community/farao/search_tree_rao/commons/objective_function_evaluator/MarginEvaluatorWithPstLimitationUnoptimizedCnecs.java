@@ -19,9 +19,9 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import java.util.Map;
 
 /**
- * It enables to evaluate the absolute minimal margin as a cost
- * For cnecs parameterized as in series with a pst, margin is updated
- * when there are not enough setpoints on the pst left to absorb the cnec's margin deficit
+ * It enables to evaluate the absolute margin of a FlowCnec
+ * For cnecs parameterized as in series with a pst, margin is considered infinite
+ * if the PST has enough setpoints left to absorb the cnec's margin deficit
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */

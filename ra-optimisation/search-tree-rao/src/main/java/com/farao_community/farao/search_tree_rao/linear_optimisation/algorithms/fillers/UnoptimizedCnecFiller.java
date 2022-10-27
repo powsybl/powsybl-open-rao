@@ -112,7 +112,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      */
     private void buildDontOptimizeCnecVariables(LinearProblem linearProblem) {
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
-            linearProblem.addDontOptimizeCnecBinaryVariable(cnec, side)
+            linearProblem.addOptimizeCnecBinaryVariable(cnec, side)
         ));
     }
 
@@ -164,7 +164,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             if (flowVariable == null) {
                 throw new FaraoException(String.format(VARIABLE_NOT_CREATED, "Flow", cnec.getId(), side));
             }
-            MPVariable optimizeCnecBinaryVariable = linearProblem.getDontOptimizeCnecBinaryVariable(cnec, side);
+            MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             if (optimizeCnecBinaryVariable == null) {
                 throw new FaraoException(String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
             }
@@ -203,7 +203,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             checkVariableCreation(flowVariable, String.format(VARIABLE_NOT_CREATED, "Flow", cnec.getId(), side));
 
             // Optimize cnec binary variable
-            MPVariable optimizeCnecBinaryVariable = linearProblem.getDontOptimizeCnecBinaryVariable(cnec, side);
+            MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             checkVariableCreation(optimizeCnecBinaryVariable, String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
 
             State state = getLastStateWithRangeActionAvailableForCnec(cnec);
@@ -331,7 +331,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
         double bigM = 2 * highestThresholdValue;
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            MPVariable optimizeCnecBinaryVariable  = linearProblem.getDontOptimizeCnecBinaryVariable(cnec, side);
+            MPVariable optimizeCnecBinaryVariable  = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
             if (optimizeCnecBinaryVariable  == null) {
                 throw new FaraoException(String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
             }

@@ -101,10 +101,7 @@ public class UnoptimizedCnecParameters {
                 if (skipFlowCnec(availablePstRangeActions, pstId)) {
                     continue;
                 }
-
-                if (availablePstRangeActions.size() == 1) {
-                    mapOfUnoptimizedCnecsAndPsts.put(flowCnec, availablePstRangeActions.iterator().next());
-                }
+                mapOfUnoptimizedCnecsAndPsts.put(flowCnec, availablePstRangeActions.iterator().next());
             }
         }
         return mapOfUnoptimizedCnecsAndPsts;

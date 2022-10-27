@@ -226,8 +226,8 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue();
 
         // Verify existence of optimize_cnec binary variable
-        assertNull(linearProblem.getDontOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
-        MPVariable binaryVar = linearProblem.getDontOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        assertNull(linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
+        MPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
@@ -260,8 +260,8 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         buildLinearProblemWithMaxMinMarginAndNegativeSensitivityValue();
 
         // Verify existence of optimize_cnec binary variable
-        assertNull(linearProblem.getDontOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
-        MPVariable binaryVar = linearProblem.getDontOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        assertNull(linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
+        MPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
@@ -294,8 +294,8 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi();
 
         // Verify existence of margin_decrease binary variable
-        assertNull(linearProblem.getDontOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
-        MPVariable binaryVar = linearProblem.getDontOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        assertNull(linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
+        MPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
@@ -328,8 +328,8 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         buildLinearProblemWithMaxMinRelativeMarginAndNegativeSensi();
 
         // Verify existence of margin_decrease binary variable
-        assertNull(linearProblem.getDontOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
-        MPVariable binaryVar = linearProblem.getDontOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        assertNull(linearProblem.getOptimizeCnecBinaryVariable(classicCnec, Side.LEFT));
+        MPVariable binaryVar = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         assertNotNull(binaryVar);
 
         // Get variables
@@ -366,7 +366,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
 
         // Test that cnecInSeries's constraint does have a bigM
-        MPVariable optimizeCnecBinaryVariable = linearProblem.getDontOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        MPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         MPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertEquals(1000 + 2 * MAX_ABS_THRESHOLD, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMin.getCoefficient(optimizeCnecBinaryVariable), DOUBLE_TOLERANCE);
@@ -387,7 +387,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         assertEquals(750.0 + constraintCoeff, linearProblem.getMinimumRelativeMarginConstraint(classicCnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
 
         // Test that cnecInSeries's constraint does have a bigM
-        MPVariable marginDecreaseVariable = linearProblem.getDontOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
+        MPVariable marginDecreaseVariable = linearProblem.getOptimizeCnecBinaryVariable(cnecInSeries, Side.LEFT);
         MPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecInSeries, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertEquals(1000 + 2 * MAX_ABS_THRESHOLD, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);

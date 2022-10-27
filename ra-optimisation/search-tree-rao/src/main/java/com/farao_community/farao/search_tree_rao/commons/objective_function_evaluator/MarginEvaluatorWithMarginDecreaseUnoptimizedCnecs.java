@@ -17,9 +17,9 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import java.util.*;
 
 /**
- * It enables to evaluate the absolute minimal margin as a cost
- * For cnecs belonging to operators that do not share RAs, margin is updated
- * when margin has decreased
+ * It enables to evaluate the absolute margin of a FlowCnec
+ * For cnecs belonging to operators that do not share RAs, margin is considered infinite
+ * when cnecs'margin has increased
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
