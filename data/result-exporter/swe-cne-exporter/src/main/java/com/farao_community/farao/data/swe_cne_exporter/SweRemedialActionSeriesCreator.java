@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -131,10 +130,15 @@ public class SweRemedialActionSeriesCreator {
         RaoResult raoResult = sweCneHelper.getRaoResult();
         AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         Crac crac = sweCneHelper.getCrac();
-        List<RemedialAction<?>> usedRas = context.getCreatedIds().stream().sorted()
-            .map(crac::getRemedialAction)
-            .filter(ra -> raoResult.isActivatedDuringState(state, ra)).collect(Collectors.toList());
-        usedRas.addAll(angleMonitoringResult.getAppliedCras(state));
+        List<RemedialAction<?>> usedRas = new ArrayList<>();
+        if (Objects.nonNull(raoResult)) {
+            usedRas.addAll(context.getCreatedIds().stream().sorted()
+                    .map(crac::getRemedialAction)
+                    .filter(ra -> raoResult.isActivatedDuringState(state, ra)).collect(Collectors.toList()));
+        }
+        if (Objects.nonNull(angleMonitoringResult)) {
+            usedRas.addAll(angleMonitoringResult.getAppliedCras(state));
+        }
         for (RemedialAction<?> usedRa : usedRas) {
             if (usedRa instanceof NetworkAction) {
                 return generateNetworkRaSeries((NetworkAction) usedRa, state);

@@ -48,7 +48,7 @@ public class SweRemedialActionSeriesCreatorTest {
     }
 
     @Test
-    public void generateMonitoredSeriesTest() {
+    public void generateRemedialActionSeriesTest() {
         Set<RemedialActionSeriesCreationContext> rasccList = new HashSet<>();
         rasccList.add(createRascc("networkActionNativeId", true, Set.of("networkActionCreatedId"), false, "", "", false));
         rasccList.add(createRascc("networkAction_shouldNotBeExported", false, Set.of("na_missing"), false, "", "", false));

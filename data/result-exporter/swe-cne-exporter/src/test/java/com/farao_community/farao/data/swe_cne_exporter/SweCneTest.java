@@ -79,7 +79,13 @@ public class SweCneTest {
             e.printStackTrace();
         }
         raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
-        angleMonitoringResult = null; //new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream, crac);
+        InputStream inputStream2 = null;
+        try {
+            inputStream2 = new FileInputStream(SweCneTest.class.getResource("/AngleMonitoringResult.json").getFile());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream2, crac);
     }
 
     @Test
