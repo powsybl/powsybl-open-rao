@@ -7,14 +7,10 @@
 
 package com.farao_community.farao.monitoring.angle_monitoring;
 
-import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.api.GlskRegisteredResource;
-import com.powsybl.glsk.api.GlskShiftKey;
-import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
+import com.powsybl.iidm.modification.scalable.CompoundScalable;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -29,34 +25,32 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINES
 public class RedispatchAction {
     private final double powerToBeRedispatched;
     private final Set<String> networkElementsToBeExcluded;
-    private final GlskPoint glskPoint;
+    private final CompoundScalable compoundScalable;
 
-    RedispatchAction(double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, GlskPoint glskPoint) {
+    RedispatchAction(double powerToBeRedispatched, Set<String> networkElementsToBeExcluded, CompoundScalable compoundScalable) {
         this.powerToBeRedispatched = powerToBeRedispatched; // positive for generation, negative for load
         this.networkElementsToBeExcluded = networkElementsToBeExcluded;
-        this.glskPoint = Objects.requireNonNull(glskPoint);
+        this.compoundScalable = Objects.requireNonNull(compoundScalable);
 
     }
 
-    // TODO : integrate this filter on scalables in powsybl
-    private void filterGlskPoint() {
-        for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
-            List<GlskRegisteredResource> filteredRegisteredResourceList = new ArrayList<>(glskShiftKey.getRegisteredResourceArrayList());
-            for (GlskRegisteredResource glskRegisteredResource : glskShiftKey.getRegisteredResourceArrayList()) {
-                if (networkElementsToBeExcluded.contains(glskRegisteredResource.getmRID())) {
-                    glskRegisteredResource.setmRID("UNKNOWN ID - TEMPORARY FILTERING");
+    private void filterGlskPoint(Network network) {
+        compoundScalable.getScalables().stream().filter(scalable -> !(scalable instanceof CompoundScalable)).forEach(s -> {
+            for (Injection injection : s.filterInjections(network)) {
+                if (networkElementsToBeExcluded.contains(injection.getId())) {
+                    compoundScalable.deactivateScalables(Set.of(s));
+                    break;
                 }
             }
-            glskShiftKey.setRegisteredResourceArrayList(filteredRegisteredResourceList);
-        }
+        });
     }
 
     /**
      * Scales powerToBeRedispatched on network.
      */
     public void apply(Network network) {
-        filterGlskPoint();
-        double redispatchedPower = GlskPointScalableConverter.convert(network, glskPoint).scale(network, powerToBeRedispatched);
+        filterGlskPoint(network);
+        double redispatchedPower = compoundScalable.scale(network, powerToBeRedispatched);
         BUSINESS_WARNS.warn("Scaling : asked={}, done={}", powerToBeRedispatched, redispatchedPower);
     }
 }

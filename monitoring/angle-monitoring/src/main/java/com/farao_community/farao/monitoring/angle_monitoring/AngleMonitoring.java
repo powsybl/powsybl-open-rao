@@ -17,10 +17,10 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
-import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.glsk.cim.CimGlskDocument;
-import com.powsybl.glsk.cim.CimGlskPoint;
 import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.iidm.modification.scalable.CompoundScalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.loadflow.LoadFlow;
@@ -52,8 +52,7 @@ public class AngleMonitoring {
     private final CimGlskDocument cimGlskDocument;
 
     private List<AngleMonitoringResult> stateSpecificResults;
-    private Set<Country> glskCountries;
-    private OffsetDateTime glskOffsetDateTime;
+    private Map<Country, CompoundScalable> countryScalables;
 
     public AngleMonitoring(Crac crac, Network inputNetwork, RaoResult raoResult, CimGlskDocument cimGlskDocument) {
         this.crac = Objects.requireNonNull(crac);
@@ -67,9 +66,8 @@ public class AngleMonitoring {
      * Returns an AngleMonitoringResult
      */
     public AngleMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws FaraoException {
-        this.glskOffsetDateTime = glskOffsetDateTime;
+        loadCountryScalables(glskOffsetDateTime);
         stateSpecificResults = new ArrayList<>();
-        loadGlskCountries();
 
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
@@ -326,7 +324,7 @@ public class AngleMonitoring {
      * Checks glsks are correctly defined on country
      */
     private void checkGlsks(Country country, String naId, String angleCnecId) {
-        if (!glskCountries.contains(country)) {
+        if (!countryScalables.containsKey(country)) {
             throw new FaraoException(String.format("INFEASIBLE Angle Monitoring : Glsks were not defined for country %s. Remedial action %s of AngleCnec %s is ignored.", country.getName(), naId, angleCnecId));
         }
     }
@@ -338,15 +336,8 @@ public class AngleMonitoring {
     private void redispatchNetworkActions(Network networkClone, Map<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded) {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
-            Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
-                    .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry())
-                    && isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
-                    .map(CimGlskPoint.class::cast)
-                    .collect(Collectors.toSet());
-            if (countryGlskPoints.size() > 1) {
-                throw new FaraoException(String.format("> 1 (%s) glskPoints defined for country %s", countryGlskPoints.size(), redispatchPower.getKey().getName()));
-            }
-            new RedispatchAction(redispatchPower.getValue(), networkElementsToBeExcluded, countryGlskPoints.iterator().next()).apply(networkClone);
+            new RedispatchAction(redispatchPower.getValue(), networkElementsToBeExcluded,
+                countryScalables.get(redispatchPower.getKey()).shallowCopy()).apply(networkClone);
             BUSINESS_LOGS.info("Redispatching done for country %s", redispatchPower.getKey().name());
         }
     }
@@ -400,11 +391,17 @@ public class AngleMonitoring {
         return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNKNOWN);
     }
 
-    private void loadGlskCountries() {
-        glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
-        for (GlskPoint glskPoint : cimGlskDocument.getGlskPoints()) {
-            glskCountries.add(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry());
-        }
+    private void loadCountryScalables(OffsetDateTime glskOffsetDateTime) {
+        countryScalables = new EnumMap<>(Country.class);
+        cimGlskDocument.getGlskPoints().stream()
+            .filter(glskPoint -> isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
+            .forEach(glskPoint -> {
+                Country country = new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry();
+                if (countryScalables.containsKey(country)) {
+                    throw new FaraoException(String.format("More than one glskPoint defined for country %s", country.getName()));
+                }
+                countryScalables.put(country, (CompoundScalable) GlskPointScalableConverter.convert(inputNetwork, glskPoint));
+            });
     }
 
     private boolean isInTimeInterval(OffsetDateTime offsetDateTime, String startTime, String endTime) {
