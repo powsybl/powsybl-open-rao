@@ -83,8 +83,20 @@ public final class ObjectiveFunction {
         private CostEvaluator functionalCostEvaluator;
         private final List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
+        private SearchTreeRaoParameters getSearchTreeRaoParameters(RaoParameters raoParameters) {
+            SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
+            if (searchTreeRaoParameters == null) {
+                throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
+            }
+            return searchTreeRaoParameters;
+        }
+
         public ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs,
-                                                                              RaoParameters raoParameters) {
+                                                                       RaoParameters raoParameters,
+                                                                       Crac crac,
+                                                                       RangeActionSetpointResult prePerimeterRangeActionSetpointResult) {
+
+            SearchTreeRaoParameters searchTreeRaoParameters = getSearchTreeRaoParameters(raoParameters);
 
             // min margin objective function
             MarginEvaluator marginEvaluator;
@@ -93,8 +105,14 @@ public final class ObjectiveFunction {
             } else {
                 marginEvaluator = new BasicMarginEvaluator();
             }
-            this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
 
+            // Unoptimized cnecs in series with psts
+            if (!searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters, crac), prePerimeterRangeActionSetpointResult)));
+            } else  {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
+            }
             return this.build();
         }
 
@@ -107,10 +125,7 @@ public final class ObjectiveFunction {
                                        Set<String> operatorsNotToOptimizeInCurative,
                                        RaoParameters raoParameters) {
 
-            SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
-            if (searchTreeRaoParameters == null) {
-                throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
-            }
+            SearchTreeRaoParameters searchTreeRaoParameters = getSearchTreeRaoParameters(raoParameters);
 
             // min margin objective function
             MarginEvaluator marginEvaluator;

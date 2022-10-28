@@ -94,7 +94,7 @@ public class CastorFullOptimization {
 
         PrePerimeterResult initialOutput;
         try {
-            initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
+            initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
             RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
                     prePerimeterSensitivityAnalysis.getObjectiveFunction(),
                     new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),

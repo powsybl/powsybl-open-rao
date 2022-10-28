@@ -51,7 +51,7 @@ public class PrePerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network) {
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -61,7 +61,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
 
         sensitivityComputer = sensitivityComputerBuilder.build();
-        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters);
+        objectiveFunction = ObjectiveFunction.create().buildForInitialSensitivityComputation(flowCnecs, raoParameters, crac, RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions));
 
         return runAndGetResult(network, objectiveFunction);
     }
