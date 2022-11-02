@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

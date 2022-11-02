@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
+import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.junit.Before;
 import org.junit.Test;
