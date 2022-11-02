@@ -10,6 +10,7 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
@@ -18,6 +19,8 @@ import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintS
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * Generates AdditionalConstraintSeries for SWE CNE format
@@ -42,17 +45,17 @@ public class SweAdditionalConstraintSeriesCreator {
         if (Objects.isNull(contingency)) {
             List<AngleCnecCreationContext> prevAngleCnecs = sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
                     .collect(Collectors.toList());
-            prevAngleCnecs.forEach(angleCnecCreationContext -> {
-                AdditionalConstraintSeries additionalConstraintSeries = generateAdditionalConstraintSeries(angleCnecCreationContext);
-                additionalConstraintSeriesList.add(additionalConstraintSeries);
-            });
+            prevAngleCnecs.forEach(angleCnecCreationContext ->
+                BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
         } else {
             List<AngleCnecCreationContext> contingencyAngleCnecs = sortedAngleCnecs.stream()
                     .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
                     .collect(Collectors.toList());
             contingencyAngleCnecs.forEach(angleCnecCreationContext -> {
                 AdditionalConstraintSeries additionalConstraintSeries = generateAdditionalConstraintSeries(angleCnecCreationContext);
-                additionalConstraintSeriesList.add(additionalConstraintSeries);
+                if (Objects.nonNull(additionalConstraintSeriesList)) {
+                    additionalConstraintSeriesList.add(additionalConstraintSeries);
+                }
             });
         }
         return additionalConstraintSeriesList;
@@ -61,6 +64,10 @@ public class SweAdditionalConstraintSeriesCreator {
     private AdditionalConstraintSeries generateAdditionalConstraintSeries(AngleCnecCreationContext angleCnecCreationContext) {
         Crac crac = sweCneHelper.getCrac();
         AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getNativeId());
+        if (!angleCnec.getState().getInstant().equals(Instant.CURATIVE)) {
+            BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
+            return null;
+        }
         AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
         additionalConstraintSeries.setMRID(angleCnecCreationContext.getNativeId());
         additionalConstraintSeries.setBusinessType("B87");
