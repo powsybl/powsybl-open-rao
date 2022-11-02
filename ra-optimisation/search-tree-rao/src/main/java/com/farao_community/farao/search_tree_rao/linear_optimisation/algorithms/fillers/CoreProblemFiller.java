@@ -176,13 +176,14 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        List<State> statesBeforeCnec = getPreviousStates(cnec.getState()).stream()
+        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
             .collect(Collectors.toList());
 
         Set<RangeAction<?>> alreadyConsideredAction = new HashSet<>();
 
         for (State state : statesBeforeCnec) {
+            // Impact of range action on cnec is only added on the last instant on which rangeAction is available
             for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.contains(rangeAction)) {
@@ -386,13 +387,6 @@ public class CoreProblemFiller implements ProblemFiller {
         }
 
         return List.of(minAbsoluteSetpoint, maxAbsoluteSetpoint, minRelativeSetpoint, maxRelativeSetpoint);
-    }
-
-    private Set<State> getPreviousStates(State refState) {
-        return optimizationContext.getRangeActionsPerState().keySet().stream()
-            .filter(s -> s.getContingency().equals(refState.getContingency()) || s.getContingency().isEmpty())
-            .filter(s -> s.getInstant().comesBefore(refState.getInstant()) || s.getInstant().equals(refState.getInstant()))
-            .collect(Collectors.toSet());
     }
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
