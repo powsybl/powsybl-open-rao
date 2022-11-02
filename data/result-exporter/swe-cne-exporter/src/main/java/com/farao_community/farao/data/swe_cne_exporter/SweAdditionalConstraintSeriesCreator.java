@@ -7,14 +7,12 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 
 import java.math.BigDecimal;
 import java.util.*;

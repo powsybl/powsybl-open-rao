@@ -9,7 +9,6 @@ package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -19,9 +18,6 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredRegisteredResource;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
 import com.powsybl.iidm.network.Branch;
 
 import java.util.*;

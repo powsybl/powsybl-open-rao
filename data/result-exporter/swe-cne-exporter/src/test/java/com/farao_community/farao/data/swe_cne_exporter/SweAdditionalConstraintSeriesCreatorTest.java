@@ -7,21 +7,10 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.PstRangeActionSeriesCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintRegisteredResource;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
-import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import org.junit.Before;
 import org.junit.Test;
