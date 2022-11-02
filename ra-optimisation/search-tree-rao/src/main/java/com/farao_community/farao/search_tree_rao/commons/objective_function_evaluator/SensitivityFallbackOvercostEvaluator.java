@@ -12,6 +12,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +34,7 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
         switch (sensitivityStatus) {
             case DEFAULT:
                 return 0.;
@@ -50,7 +52,7 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int number) {
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
         return Collections.emptyList();
     }
 }

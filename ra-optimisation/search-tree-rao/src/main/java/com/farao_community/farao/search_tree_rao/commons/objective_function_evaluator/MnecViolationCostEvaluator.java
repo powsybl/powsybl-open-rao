@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.*;
 import java.util.function.Function;
@@ -51,7 +53,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
         if (Math.abs(mnecViolationCostInMWPerMW) < 1e-10) {
             return 0;
         }
@@ -70,7 +72,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
             sortedElements = flowCnecs.stream()
                     .filter(Cnec::isMonitored)

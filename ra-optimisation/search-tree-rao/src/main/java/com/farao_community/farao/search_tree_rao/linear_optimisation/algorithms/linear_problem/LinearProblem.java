@@ -347,20 +347,20 @@ public final class LinearProblem {
         return solver.getConstraint(mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
     }
 
-    public MPVariable addMarginDecreaseBinaryVariable(FlowCnec cnec, Side side) {
-        return solver.makeIntVar(0, 1, marginDecreaseVariableId(cnec, side));
+    public MPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+        return solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side));
     }
 
-    public MPVariable getMarginDecreaseBinaryVariable(FlowCnec cnec, Side side) {
-        return solver.getVariable(marginDecreaseVariableId(cnec, side));
+    public MPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+        return solver.getVariable(optimizeCnecBinaryVariableId(cnec, side));
     }
 
-    public MPConstraint addMarginDecreaseConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
-        return solver.makeConstraint(lb, ub, marginDecreaseConstraintId(cnec, side, belowOrAboveThreshold));
+    public MPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+        return solver.makeConstraint(lb, ub, dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint getMarginDecreaseConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
-        return solver.getConstraint(marginDecreaseConstraintId(cnec, side, belowOrAboveThreshold));
+    public MPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+        return solver.getConstraint(dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
     public MPConstraint addMaxRaConstraint(double lb, double ub, State state) {

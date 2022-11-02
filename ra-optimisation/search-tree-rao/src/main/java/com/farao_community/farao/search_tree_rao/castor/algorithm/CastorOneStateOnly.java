@@ -70,7 +70,7 @@ public class CastorOneStateOnly {
 
         PrePerimeterResult initialResults;
         try {
-            initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
+            initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
         } catch (SensitivityAnalysisException e) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed :", e);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl());
@@ -92,7 +92,7 @@ public class CastorOneStateOnly {
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
             .withTreeParameters(treeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), optPerimeter.getFlowCnecs()))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
             .build();
 
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
@@ -101,7 +101,7 @@ public class CastorOneStateOnly {
             .withInitialFlowResult(initialResults)
             .withPrePerimeterResult(initialResults)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters))
+            .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
             .withToolProvider(toolProvider)
             .build();
 

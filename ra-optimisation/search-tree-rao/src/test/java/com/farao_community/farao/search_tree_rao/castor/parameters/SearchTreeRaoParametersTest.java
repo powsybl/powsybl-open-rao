@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.parameters;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -18,12 +19,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -79,6 +80,9 @@ public class SearchTreeRaoParametersTest {
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
 
+        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
+        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty());
+
         // using setters
         parameters.setMaxCurativeRaPerTso(Map.of("fr", 2));
         parameters.setMaxCurativeRaPerTso(null);
@@ -94,6 +98,11 @@ public class SearchTreeRaoParametersTest {
         parameters.setMaxCurativeTopoPerTso(null);
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
+
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(null);
+        assertNotNull(parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
+        assertTrue(parameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty());
     }
 
     @Test
@@ -150,5 +159,36 @@ public class SearchTreeRaoParametersTest {
         parameters.setMaxCurativeTso(2);
         parameters.setMaxCurativeTso(-2);
         assertEquals(0, parameters.getMaxCurativeTso());
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testIncompatibleParameters1() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testIncompatibleParameters2() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
+    }
+
+    @Test
+    public void testIncompatibleParameters3() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("cnec1", "pst1"));
+        assertEquals(Map.of("cnec1", "pst1"), parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
+    }
+
+    @Test
+    public void testIncompatibleParameters4() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setUnoptimizedCnecsInSeriesWithPstsIds(null);
+        parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+        assertEquals(Collections.emptyMap(), parameters.getUnoptimizedCnecsInSeriesWithPstsIds());
+
     }
 }
