@@ -53,7 +53,7 @@ public class SweAdditionalConstraintSeriesCreator {
                     .collect(Collectors.toList());
             contingencyAngleCnecs.forEach(angleCnecCreationContext -> {
                 AdditionalConstraintSeries additionalConstraintSeries = generateAdditionalConstraintSeries(angleCnecCreationContext);
-                if (Objects.nonNull(additionalConstraintSeriesList)) {
+                if (Objects.nonNull(additionalConstraintSeries)) {
                     additionalConstraintSeriesList.add(additionalConstraintSeries);
                 }
             });
