@@ -57,8 +57,8 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  */
 public class SearchTree {
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
-    private static final int NUMBER_LOGGED_VIRTUAL_ELEMENTS_DURING_TREE = 10;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
+    private static final int NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS = 10;
 
     /**
      * attribute defined in constructor of the search tree class
@@ -208,6 +208,7 @@ public class SearchTree {
 
     private void logOptimizationSummary(Leaf leaf) {
         RaoLogger.logOptimizationSummary(BUSINESS_LOGS, input.getOptimizationPerimeter().getMainOptimizationState(), leaf.getActivatedNetworkActions().size(), getNumberOfActivatedRangeActions(leaf), preOptimFunctionalCost, preOptimVirtualCost, leaf);
+        logVirtualCostInformation(leaf, "");
     }
 
     private long getNumberOfActivatedRangeActions(Leaf leaf) {
@@ -505,16 +506,23 @@ public class SearchTree {
     }
 
     private void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
+        FaraoLogger logger = topLevelLogger;
         if (!stopCriterionReached(leaf)
                 && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
                 && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
             // Stop criterion would have been reached without virtual cost, for the first time at this depth
             // and for the given leaf
             BUSINESS_LOGS.info("{}{}, stop criterion would have been reached without \"{}\" virtual cost", prefix, leaf.getIdentifier(), virtualCostName);
+            // Promote detailed logs about costly elements to BUSINESS_LOGS
+            logger = BUSINESS_LOGS;
         }
+        logMostCostlyElements(logger, leaf, virtualCostName, prefix);
+    }
+
+    private void logMostCostlyElements(FaraoLogger logger, Leaf leaf, String virtualCostName, String prefix) {
         int i = 1;
-        for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_ELEMENTS_DURING_TREE)) {
-            BUSINESS_LOGS.info(String.format(Locale.ENGLISH,
+        for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
+            logger.info(String.format(Locale.ENGLISH,
                     "%s%s, Most limiting \"%s\" constraint #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                     prefix,
                     leaf.getIdentifier(),
