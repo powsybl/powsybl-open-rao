@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
@@ -56,6 +57,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  */
 public class SearchTree {
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
+    private static final int NUMBER_LOGGED_VIRTUAL_ELEMENTS_DURING_TREE = 10;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
 
     /**
@@ -70,8 +72,8 @@ public class SearchTree {
      * attribute defined and used within the class
      */
 
-    private boolean purelyVirtual;
-    private SearchTreeBloomer bloomer;
+    private final boolean purelyVirtual;
+    private final SearchTreeBloomer bloomer;
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
@@ -149,6 +151,7 @@ public class SearchTree {
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
+        logVirtualCostInformation(rootLeaf, "");
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter());
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
@@ -349,6 +352,7 @@ public class SearchTree {
                 } else {
                     optimizeLeaf(leaf);
                     topLevelLogger.info("Optimized {}", leaf);
+                    logVirtualCostInformation(leaf, "Optimized ");
                 }
             } else {
                 topLevelLogger.info("Evaluated {}", leaf);
@@ -442,10 +446,17 @@ public class SearchTree {
             TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;
         }
+        return costSatisfiesStopCriterion(leaf.getCost());
+    }
+
+    /**
+     * Returns true if a given cost value satisfies the stop criterion
+     */
+    private boolean costSatisfiesStopCriterion(double cost) {
         if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return leaf.getCost() < parameters.getTreeParameters().getTargetObjectiveValue();
+            return cost < parameters.getTreeParameters().getTargetObjectiveValue();
         } else {
             throw new FaraoException("Unexpected stop criterion: " + parameters.getTreeParameters().getStopCriterion());
         }
@@ -481,5 +492,38 @@ public class SearchTree {
                 .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
         }
         return alreadyAppliedRa;
+    }
+
+    /**
+     * If stop criterion is reached on functional cost, but not with virtual cost, this method logs information
+     * about postivie virtual costs
+     */
+    private void logVirtualCostInformation(Leaf leaf, String prefix) {
+        leaf.getVirtualCostNames().stream()
+                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
+                .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
+    }
+
+    private void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
+        if (!stopCriterionReached(leaf)
+                && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
+                && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
+            // Stop criterion would have been reached without virtual cost, for the first time at this depth
+            // and for the given leaf
+            BUSINESS_LOGS.info("{}{}, stop criterion would have been reached without \"{}\" virtual cost", prefix, leaf.getIdentifier(), virtualCostName);
+        }
+        int i = 1;
+        for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_ELEMENTS_DURING_TREE)) {
+            BUSINESS_LOGS.info(String.format(Locale.ENGLISH,
+                    "%s%s, Most limiting \"%s\" constraint #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+                    prefix,
+                    leaf.getIdentifier(),
+                    virtualCostName,
+                    i,
+                    leaf.getMargin(flowCnec, parameters.getObjectiveFunction().getUnit()), parameters.getObjectiveFunction().getUnit(),
+                    flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
+                    flowCnec.getId()));
+            i++;
+        }
     }
 }
