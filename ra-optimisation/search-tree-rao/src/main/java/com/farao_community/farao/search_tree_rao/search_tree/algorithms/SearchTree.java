@@ -151,9 +151,9 @@ public class SearchTree {
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
-        logVirtualCostInformation(rootLeaf, "");
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter());
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        logVirtualCostInformation(rootLeaf, "");
 
         if (stopCriterionReached(rootLeaf)) {
             logOptimizationSummary(optimalLeaf);
@@ -523,7 +523,7 @@ public class SearchTree {
         int i = 1;
         for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
             logger.info(String.format(Locale.ENGLISH,
-                    "%s%s, Most limiting \"%s\" constraint #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+                    "%s%s, limiting \"%s\" constraint #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                     prefix,
                     leaf.getIdentifier(),
                     virtualCostName,
