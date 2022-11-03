@@ -11,9 +11,11 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.RaoBusinessLogs;
 import com.farao_community.farao.commons.logs.TechnicalLogs;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -43,8 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -489,5 +490,77 @@ public class SearchTreeTest {
         listAppender.start();
         logger.addAppender(listAppender);
         return listAppender;
+    }
+
+    @Test
+    public void testCostSatisfiesStopCriterion() {
+        setSearchTreeParameters();
+
+        // MIN_OBJECTIVE
+        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
+        assertFalse(searchTree.costSatisfiesStopCriterion(-10));
+        assertFalse(searchTree.costSatisfiesStopCriterion(-0.1));
+        assertFalse(searchTree.costSatisfiesStopCriterion(0));
+        assertFalse(searchTree.costSatisfiesStopCriterion(0.1));
+        assertFalse(searchTree.costSatisfiesStopCriterion(10));
+
+        // AT_TARGET_OBJECTIVE_VALUE
+        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.getTargetObjectiveValue()).thenReturn(0.);
+        assertTrue(searchTree.costSatisfiesStopCriterion(-10));
+        assertTrue(searchTree.costSatisfiesStopCriterion(-0.1));
+        assertFalse(searchTree.costSatisfiesStopCriterion(0));
+        assertFalse(searchTree.costSatisfiesStopCriterion(0.1));
+        assertFalse(searchTree.costSatisfiesStopCriterion(10));
+    }
+
+    private void setUpForVirtualLogs() {
+        setSearchTreeParameters();
+        setSearchTreeInput();
+        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
+
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
+        State state = Mockito.mock(State.class);
+        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+        when(cnec.getState()).thenReturn(state);
+        when(cnec.getNetworkElement()).thenReturn(networkElement);
+        when(cnec.getId()).thenReturn("cnec-id");
+        when(state.getId()).thenReturn("state-id");
+        when(networkElement.getId()).thenReturn("ne-id");
+
+        when(rootLeaf.getCostlyElements(eq("loop-flow-cost"), anyInt())).thenReturn(List.of(cnec));
+        when(rootLeaf.getIdentifier()).thenReturn("leaf-id");
+        when(rootLeaf.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-135.);
+    }
+
+    @Test
+    public void testGetCostlyElementsLogs() {
+        setUpForVirtualLogs();
+
+        List<String> logs = searchTree.getCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
+        assertEquals(1, logs.size());
+        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\"", logs.get(0));
+    }
+
+    @Test
+    public void testLogVirtualCostDetails() {
+        setUpForVirtualLogs();
+
+        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.getTargetObjectiveValue()).thenReturn(0.);
+        // functional cost = -100 (secure)
+        // virtual cost = 200
+        // overall cost = 100 (unsecure)
+        when(rootLeaf.isRoot()).thenReturn(true);
+        when(rootLeaf.getCost()).thenReturn(100.);
+        when(rootLeaf.getVirtualCost("loop-flow-cost")).thenReturn(200.);
+
+        // Functional cost does not satisfy stop criterion
+        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
+        ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
+        searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
+        assertEquals(2, business.list.size());
+        assertEquals("[INFO] Optimized leaf-id, stop criterion would have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
+        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\"", business.list.get(1).toString());
     }
 }

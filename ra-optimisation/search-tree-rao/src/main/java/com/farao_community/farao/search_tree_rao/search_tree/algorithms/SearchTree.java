@@ -453,7 +453,7 @@ public class SearchTree {
     /**
      * Returns true if a given cost value satisfies the stop criterion
      */
-    private boolean costSatisfiesStopCriterion(double cost) {
+    boolean costSatisfiesStopCriterion(double cost) {
         if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
@@ -505,9 +505,9 @@ public class SearchTree {
                 .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
     }
 
-    private void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
+    void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
         FaraoLogger logger = topLevelLogger;
-        if (!stopCriterionReached(leaf)
+        if (!costSatisfiesStopCriterion(leaf.getCost())
                 && costSatisfiesStopCriterion(leaf.getCost() - leaf.getVirtualCost(virtualCostName))
                 && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
             // Stop criterion would have been reached without virtual cost, for the first time at this depth
@@ -516,13 +516,14 @@ public class SearchTree {
             // Promote detailed logs about costly elements to BUSINESS_LOGS
             logger = BUSINESS_LOGS;
         }
-        logMostCostlyElements(logger, leaf, virtualCostName, prefix);
+        getCostlyElementsLogs(leaf, virtualCostName, prefix).forEach(logger::info);
     }
 
-    private void logMostCostlyElements(FaraoLogger logger, Leaf leaf, String virtualCostName, String prefix) {
+    List<String> getCostlyElementsLogs(Leaf leaf, String virtualCostName, String prefix) {
+        List<String> logs = new ArrayList<>();
         int i = 1;
         for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
-            logger.info(String.format(Locale.ENGLISH,
+            logs.add(String.format(Locale.ENGLISH,
                     "%s%s, limiting \"%s\" constraint #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                     prefix,
                     leaf.getIdentifier(),
@@ -533,5 +534,6 @@ public class SearchTree {
                     flowCnec.getId()));
             i++;
         }
+        return logs;
     }
 }
