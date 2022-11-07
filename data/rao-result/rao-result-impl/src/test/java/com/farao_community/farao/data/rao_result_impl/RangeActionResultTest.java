@@ -57,6 +57,7 @@ public class RangeActionResultTest {
         assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", CURATIVE)));
         assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", CURATIVE)));
 
+        assertEquals(Double.NaN, rangeActionResult.getInitialSetpoint());
         assertEquals(Double.NaN, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()));
     }
 
@@ -74,6 +75,7 @@ public class RangeActionResultTest {
         assertFalse(rangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR3", CURATIVE)));
 
         // initial values
+        assertEquals(0.3, rangeActionResult.getInitialSetpoint(), 1e-3);
 
         // preventive state
         assertEquals(1.6, rangeActionResult.getOptimizedSetpointOnState(crac.getPreventiveState()), 1e-3);

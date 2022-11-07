@@ -147,8 +147,8 @@ public class RaoResultImplTest {
         assertEquals(6, raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
         assertEquals(2.3, raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertTrue(raoResult.isActivatedDuringState(crac.getPreventiveState(), pst));
-        //assertEquals(-8, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
-        //assertEquals(Map.of(pst, -8), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
+        assertEquals(-8, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
+        assertEquals(Map.of(pst, -8), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
         assertEquals(-3.1, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertEquals(Map.of(pst, -3.1), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
         assertEquals(Set.of(pst), raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState()));

@@ -10,16 +10,15 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_impl.RangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.*;
@@ -29,6 +28,7 @@ import static com.farao_community.farao.data.rao_result_json.deserializers.Utils
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 final class RangeActionResultArrayDeserializer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RangeActionResultArrayDeserializer.class);
 
     private RangeActionResultArrayDeserializer() {
     }
@@ -50,7 +50,7 @@ final class RangeActionResultArrayDeserializer {
                     checkDeprecatedField(PSTRANGEACTION_ID, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
                     break;
                 default:
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", STANDARDRANGEACTION_RESULTS, RANGEACTION_ID));
+                    throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", RANGEACTION_RESULTS, RANGEACTION_ID));
             }
 
             String rangeActionId = jsonParser.nextTextValue();
@@ -65,12 +65,12 @@ final class RangeActionResultArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
 
                     case HVDC_NETWORKELEMENT_ID:
-                        checkDeprecatedField(HVDC_NETWORKELEMENT_ID, STANDARDRANGEACTION_RESULTS, jsonFileVersion, "1.1");
+                        checkDeprecatedField(HVDC_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, "1.1");
                         jsonParser.nextTextValue();
                         break;
 
                     case PST_NETWORKELEMENT_ID:
-                        checkDeprecatedField(PST_NETWORKELEMENT_ID, STANDARDRANGEACTION_RESULTS, jsonFileVersion, "1.2");
+                        checkDeprecatedField(PST_NETWORKELEMENT_ID, RANGEACTION_RESULTS, jsonFileVersion, "1.2");
                         jsonParser.nextTextValue();
                         break;
 
@@ -85,22 +85,23 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case AFTER_PRA_SETPOINT:
-                        checkDeprecatedField(AFTER_PRA_SETPOINT, STANDARDRANGEACTION_RESULTS, jsonFileVersion, "1.2");
+                        checkDeprecatedField(AFTER_PRA_SETPOINT, RANGEACTION_RESULTS, jsonFileVersion, "1.2");
                         jsonParser.nextTextValue();
                         break;
 
                     case AFTER_PRA_TAP:
-                        checkDeprecatedField(AFTER_PRA_TAP, STANDARDRANGEACTION_RESULTS, jsonFileVersion, "1.2");
+                        checkDeprecatedField(AFTER_PRA_TAP, RANGEACTION_RESULTS, jsonFileVersion, "1.2");
                         jsonParser.nextTextValue();
                         break;
 
                     case INITIAL_TAP:
                         // skip this, we don't need to read tap because we have the setpoint
+                        LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
                         jsonParser.nextTextValue();
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", STANDARDRANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
         }
@@ -110,7 +111,6 @@ final class RangeActionResultArrayDeserializer {
         Instant instant = null;
         String contingencyId = null;
         Double setpoint = null;
-        Map<State, Double> stateToSetpoint = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
@@ -130,6 +130,7 @@ final class RangeActionResultArrayDeserializer {
 
                     case TAP:
                         // Skip, we already have setpoint
+                        LOGGER.info("Field {} in {} is no longer used", TAP, RANGEACTION_RESULTS);
                         jsonParser.nextFieldName();
                         break;
 
