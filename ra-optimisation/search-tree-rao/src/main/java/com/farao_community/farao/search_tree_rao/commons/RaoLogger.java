@@ -19,10 +19,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
-import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
@@ -41,16 +38,18 @@ public final class RaoLogger {
     }
 
     public static void logSensitivityAnalysisResults(String prefix,
-                                              ObjectiveFunction objectiveFunction,
-                                              PrePerimeterResult sensitivityAnalysisResult,
-                                              RaoParameters raoParameters,
-                                              int numberOfLoggedLimitingElements) {
+                                                     ObjectiveFunction objectiveFunction,
+                                                     RangeActionActivationResult rangeActionActivationResult,
+                                                     PrePerimeterResult sensitivityAnalysisResult,
+                                                     RaoParameters raoParameters,
+                                                     int numberOfLoggedLimitingElements) {
 
         if (!BUSINESS_LOGS.isInfoEnabled()) {
             return;
         }
 
-        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
+                sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
             formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
