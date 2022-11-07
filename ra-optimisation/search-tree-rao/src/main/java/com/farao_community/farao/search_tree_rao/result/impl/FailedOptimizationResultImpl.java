@@ -8,64 +8,89 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.api.SearchTreeRaoResult;
+import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class FailedRaoResultImpl implements SearchTreeRaoResult {
+public class FailedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
 
     @Override
-    public ComputationStatus getComputationStatus() {
+    public ComputationStatus getSensitivityStatus() {
         return ComputationStatus.FAILURE;
     }
 
     @Override
-    public ComputationStatus getComputationStatus(State state) {
+    public ComputationStatus getSensitivityStatus(State state) {
         return ComputationStatus.FAILURE;
     }
 
     @Override
-    public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public PerimeterResult getPostPreventivePerimeterResult() {
+    public double getSensitivityValue(FlowCnec flowCnec, Side side, SensitivityVariableSet linearGlsk, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public PrePerimeterResult getInitialResult() {
+    public double getFlow(FlowCnec flowCnec, Side side, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getFunctionalCost(OptimizationState optimizationState) {
+    public double getCommercialFlow(FlowCnec flowCnec, Side side, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public double getPtdfZonalSum(FlowCnec flowCnec, Side side) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState) {
+    public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public boolean isActivated(NetworkAction networkAction) {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public Set<NetworkAction> getActivatedNetworkActions() {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public double getFunctionalCost() {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public List<FlowCnec> getMostLimitingElements(int number) {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public double getVirtualCost() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -75,62 +100,37 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
+    public double getVirtualCost(String virtualCostName) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+    public Set<RangeAction<?>> getRangeActions() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -138,10 +138,4 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
-
-    @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
 }

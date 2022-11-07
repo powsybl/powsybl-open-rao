@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -31,7 +32,20 @@ public class SensitivityResultImpl implements SensitivityResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        switch (systematicSensitivityResult.getStatus()) {
+        if (systematicSensitivityResult.isOnePerimeterInFailure()) {
+            return ComputationStatus.FAILURE;
+        } else if (systematicSensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS) {
+            return ComputationStatus.DEFAULT;
+        } else if (systematicSensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
+            return ComputationStatus.FALLBACK;
+        } else {
+            return ComputationStatus.FAILURE;
+        }
+    }
+
+    @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        switch (systematicSensitivityResult.getStatus(state)) {
             case SUCCESS:
                 return ComputationStatus.DEFAULT;
             case FALLBACK:

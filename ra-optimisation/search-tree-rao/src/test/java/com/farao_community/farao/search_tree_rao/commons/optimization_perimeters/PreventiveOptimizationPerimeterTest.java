@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.powsybl.iidm.network.Country;
 import org.junit.Before;
@@ -31,6 +32,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     public void fullPreventivePerimeter1Test() {
         raoParameters.setRaoWithLoopFlowLimitation(false);
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
+        Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
 
@@ -55,6 +57,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     public void fullPreventivePerimeter2Test() {
         raoParameters.setRaoWithLoopFlowLimitation(true);
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
+        Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
 
@@ -67,6 +70,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     public void fullPreventivePerimeter3Test() {
         raoParameters.setRaoWithLoopFlowLimitation(true);
         raoParameters.setLoopflowCountries(Set.of(Country.BE));
+        Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
 
@@ -77,6 +81,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     public void fullWithPreventiveCnecOnlyTest() {
         raoParameters.setRaoWithLoopFlowLimitation(false);
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
+        Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());

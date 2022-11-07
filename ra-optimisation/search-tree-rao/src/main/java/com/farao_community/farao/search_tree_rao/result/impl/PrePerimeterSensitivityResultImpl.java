@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -34,6 +35,11 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     @Override
     public ComputationStatus getSensitivityStatus() {
         return sensitivityResult.getSensitivityStatus();
+    }
+
+    @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        return sensitivityResult.getSensitivityStatus(state);
     }
 
     @Override

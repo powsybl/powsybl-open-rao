@@ -171,6 +171,8 @@ public final class ObjectiveFunction {
             // sensi fall-back overcost
             this.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost()));
 
+            this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs));
+
             return this.build();
         }
 

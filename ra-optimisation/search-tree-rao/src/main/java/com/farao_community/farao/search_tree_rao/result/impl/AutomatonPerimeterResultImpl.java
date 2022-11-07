@@ -152,6 +152,11 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(state);
+    }
+
+    @Override
     public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
