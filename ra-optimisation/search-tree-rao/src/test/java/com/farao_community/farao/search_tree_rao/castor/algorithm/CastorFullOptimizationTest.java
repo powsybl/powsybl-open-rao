@@ -98,6 +98,7 @@ public class CastorFullOptimizationTest {
 
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(sensitivityResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityComputer.getBranchResult(network)).thenReturn(Mockito.mock(FlowResult.class));
 

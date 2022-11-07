@@ -42,6 +42,7 @@ public class RaoResultImpl implements RaoResult {
     private final Crac crac;
 
     private ComputationStatus sensitivityStatus;
+    private final Map<State, ComputationStatus> sensitivityStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
@@ -57,9 +58,18 @@ public class RaoResultImpl implements RaoResult {
         this.sensitivityStatus = computationStatus;
     }
 
+    public void setComputationStatus(State state, ComputationStatus computationStatus) {
+        this.sensitivityStatusPerState.put(state, computationStatus);
+    }
+
     @Override
     public ComputationStatus getComputationStatus() {
         return sensitivityStatus;
+    }
+
+    @Override
+    public ComputationStatus getComputationStatus(State state) {
+        return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.FAILURE);
     }
 
     @Override

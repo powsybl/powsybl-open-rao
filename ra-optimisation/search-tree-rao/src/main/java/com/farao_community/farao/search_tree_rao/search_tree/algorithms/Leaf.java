@@ -550,6 +550,17 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        if (status == Status.EVALUATED) {
+            return preOptimSensitivityResult.getSensitivityStatus(state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getSensitivityStatus(state);
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
     public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
             (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {

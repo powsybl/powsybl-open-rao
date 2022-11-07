@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -27,10 +28,15 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private static class StateResult {
+        private SensitivityComputationStatus status;
         private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
+
+        private SensitivityComputationStatus getStatus() {
+            return status;
+        }
 
         private Map<String, Map<Side, Double>> getReferenceFlows() {
             return referenceFlows;
@@ -75,11 +81,13 @@ public class SystematicSensitivityResult {
         // status set to failure initially, and set to success if we find at least one non NaN value
         this.status = SensitivityComputationStatus.FAILURE;
 
-        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
+        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
+        nStateResult.status = this.status;
         for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
             StateResult contingencyStateResult = new StateResult();
+            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors())
+                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
             postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
@@ -149,15 +157,12 @@ public class SystematicSensitivityResult {
         return invertedMap;
     }
 
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors) {
-        double reference = value.getFunctionReference();
-        double sensitivity = value.getValue();
+    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, SensitivityAnalysisResult.Status status) {
+        double reference = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getFunctionReference();
+        double sensitivity = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getValue();
         SensitivityFactor factor = factors.get(value.getFactorIndex());
 
-        if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
-            reference = 0.;
-            sensitivity = 0.;
-        } else {
+        if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
             this.status = SensitivityComputationStatus.SUCCESS;
         }
 
@@ -190,8 +195,31 @@ public class SystematicSensitivityResult {
         return status != SensitivityComputationStatus.FAILURE;
     }
 
+    public boolean isOnePerimeterInFailure() {
+        if (nStateResult.getStatus() == SensitivityComputationStatus.FAILURE) {
+            return true;
+        }
+        return postContingencyResults.values().stream().flatMap(stringStateResultMap -> stringStateResultMap.values().stream())
+            .anyMatch(stateResult -> stateResult.getStatus() == SensitivityComputationStatus.FAILURE);
+    }
+
     public SensitivityComputationStatus getStatus() {
         return status;
+    }
+
+    public SensitivityComputationStatus getStatus(State state) {
+        Optional<Contingency> optionalContingency = state.getContingency();
+        if (optionalContingency.isPresent()) {
+            if (postContingencyResults.containsKey(state.getInstant()) && postContingencyResults.get(state.getInstant()).containsKey(optionalContingency.get().getId())) {
+                return postContingencyResults.get(state.getInstant()).get(optionalContingency.get().getId()).getStatus();
+            } else if (postContingencyResults.containsKey(Instant.OUTAGE) && postContingencyResults.get(Instant.OUTAGE).containsKey(optionalContingency.get().getId())) {
+                return postContingencyResults.get(Instant.OUTAGE).get(optionalContingency.get().getId()).getStatus();
+            } else {
+                return SensitivityComputationStatus.FAILURE;
+            }
+        } else {
+            return nStateResult.getStatus();
+        }
     }
 
     public void setStatus(SensitivityComputationStatus status) {

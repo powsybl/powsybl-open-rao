@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
@@ -36,9 +37,11 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
     }
 
     public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        Set<State> ignoredStates = crac.getStates().stream().filter(state -> prePerimeterResult.getSensitivityStatus(state) == ComputationStatus.FAILURE).collect(Collectors.toSet());
 
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
-        Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> !ignoredStates.contains(flowCnec.getState())).collect(Collectors.toSet());
+        Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network)
+            .stream().filter(loopFlowCnec -> !ignoredStates.contains(loopFlowCnec.getState())).collect(Collectors.toSet());
 
         // add preventive network actions
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
@@ -54,6 +57,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
 
         //add curative range actions
         crac.getStates().stream()
+            .filter(s -> !ignoredStates.contains(s))
             .filter(s -> s.getInstant().equals(Instant.CURATIVE))
             .forEach(state -> {
                 Set<RangeAction<?>> availableRaForState = crac.getRangeActions().stream()

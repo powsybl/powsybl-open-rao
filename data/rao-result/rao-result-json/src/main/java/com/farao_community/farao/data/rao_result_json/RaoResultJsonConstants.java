@@ -107,6 +107,7 @@ public final class RaoResultJsonConstants {
     public static final String DEFAULT_STATUS = "default";
     public static final String FALLBACK_STATUS = "fallback";
     public static final String FAILURE_STATUS = "failure";
+    public static final String COMPUTATION_STATUS_MAP = "computationStatusMap";
 
     // manipulate version
     public static int getPrimaryVersionNumber(String fullVersion) {

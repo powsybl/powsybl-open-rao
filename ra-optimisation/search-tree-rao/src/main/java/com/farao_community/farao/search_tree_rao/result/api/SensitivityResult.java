@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.result.api;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -20,6 +21,8 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 public interface SensitivityResult {
 
     ComputationStatus getSensitivityStatus();
+
+    ComputationStatus getSensitivityStatus(State state);
 
     double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit);
 

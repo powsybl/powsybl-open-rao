@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -265,13 +266,17 @@ public class CastorFullOptimization {
                         PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
 
                         // Simulate automaton instant
-                        if (automatonState.isPresent()) {
+                        if (automatonState.isPresent() && prePerimeterSensitivityOutput.getSensitivityStatus(automatonState.get()) == ComputationStatus.FAILURE) {
+                            contingencyScenarioResults.put(automatonState.get(), new FailedOptimizationResultImpl());
+                        } else if (automatonState.isPresent()) {
                             AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeState, networkClone);
                             contingencyScenarioResults.put(automatonState.get(), automatonResult);
                             preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
                         }
 
-                        if (!automatonsOnly) {
+                        if (!automatonsOnly && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE) {
+                            contingencyScenarioResults.put(curativeState, new FailedOptimizationResultImpl());
+                        } else if (!automatonsOnly) {
                             // Optimize curative instant
                             OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
                                 raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
@@ -520,13 +525,20 @@ public class CastorFullOptimization {
     }
 
     static void addAppliedNetworkActionsPostContingency(AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
-        postContingencyResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
+        postContingencyResults.forEach((state, optimizationResult) -> {
+            if (optimizationResult.getSensitivityStatus(state) != ComputationStatus.FAILURE) {
+                appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions());
+            }
+        });
     }
 
     static void addAppliedRangeActionsPostContingency(AppliedRemedialActions appliedRemedialActions, Map<State, OptimizationResult> postContingencyResults) {
         // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
-        postContingencyResults.forEach((state, optimizationResult) ->
-            optimizationResult.getActivatedRangeActions(state).forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)))
+        postContingencyResults.forEach((state, optimizationResult) -> {
+                if (optimizationResult.getSensitivityStatus(state) != ComputationStatus.FAILURE) {
+                    optimizationResult.getActivatedRangeActions(state).forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)));
+                }
+            }
         );
     }
 

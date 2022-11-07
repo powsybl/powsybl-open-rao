@@ -185,6 +185,11 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        return optimizationResult.getSensitivityStatus(state);
+    }
+
+    @Override
     public double getSensitivityValue(FlowCnec flowCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         throw new NotImplementedException("This method is not implemented");
     }

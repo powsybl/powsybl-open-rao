@@ -168,6 +168,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        return sensitivityResult.getSensitivityStatus(state);
+    }
+
+    @Override
     public double getSensitivityValue(FlowCnec branchCnec, Side side, RangeAction<?> rangeAction, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, side, rangeAction, unit);
     }

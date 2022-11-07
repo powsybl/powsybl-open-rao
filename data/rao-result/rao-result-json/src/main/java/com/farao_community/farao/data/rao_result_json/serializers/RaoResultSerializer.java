@@ -46,6 +46,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         }
 
         CostResultMapSerializer.serialize(raoResult, jsonGenerator);
+        ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
         FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         AngleCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         VoltageCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
