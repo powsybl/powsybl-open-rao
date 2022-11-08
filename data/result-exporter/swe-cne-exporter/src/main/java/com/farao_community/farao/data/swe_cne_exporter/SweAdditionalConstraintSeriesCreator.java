@@ -38,6 +38,9 @@ public class SweAdditionalConstraintSeriesCreator {
 
     public List<AdditionalConstraintSeries> generateAdditionalConstraintSeries(Contingency contingency) {
         List<AdditionalConstraintSeries> additionalConstraintSeriesList = new ArrayList<>();
+        if (Objects.isNull(sweCneHelper.getAngleMonitoringResult())) {
+            return additionalConstraintSeriesList;
+        }
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
                 .filter(AngleCnecCreationContext::isImported)
                 .sorted(Comparator.comparing(AngleCnecCreationContext::getNativeId))
