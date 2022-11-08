@@ -8,6 +8,8 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
@@ -17,13 +19,12 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.range_action.StandardRangeAction;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,18 +36,22 @@ public class RaoResultImpl implements RaoResult {
     private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
     private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
-    private static final PstRangeActionResult DEFAULT_PSTRANGEACTION_RESULT = new PstRangeActionResult();
-    private static final RangeActionResult DEFAULT_STDRANGEACTION_RESULT = new RangeActionResult();
+    private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
+
+    private final Crac crac;
 
     private ComputationStatus sensitivityStatus;
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
-    private final Map<PstRangeAction, PstRangeActionResult> pstRangeActionResults = new HashMap<>();
-    private final Map<StandardRangeAction<?>, RangeActionResult> standardRangeActionResults = new HashMap<>();
+    private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
+
+    public RaoResultImpl(Crac crac) {
+        this.crac = crac;
+    }
 
     public void setComputationStatus(ComputationStatus computationStatus) {
         this.sensitivityStatus = computationStatus;
@@ -176,16 +181,16 @@ public class RaoResultImpl implements RaoResult {
 
         // if it is activated in the preventive state, return true
         if (networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-            .getStatesWithActivation().stream()
-            .anyMatch(State::isPreventive)) {
+                .getStatesWithActivation().stream()
+                .anyMatch(State::isPreventive)) {
             return true;
         }
 
         return networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-            .getStatesWithActivation().stream()
-            .filter(st -> st.getContingency().isPresent())
-            .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
-            .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
+                .getStatesWithActivation().stream()
+                .filter(st -> st.getContingency().isPresent())
+                .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
+                .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
     }
 
     @Override
@@ -196,93 +201,115 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         return networkActionResults.entrySet().stream()
-            .filter(e -> e.getValue().getStatesWithActivation().contains(state))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
+                .filter(e -> e.getValue().getStatesWithActivation().contains(state))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     public RangeActionResult getAndCreateIfAbsentRangeActionResult(RangeAction<?> rangeAction) {
-        if (rangeAction instanceof PstRangeAction) {
-            pstRangeActionResults.putIfAbsent((PstRangeAction) rangeAction, new PstRangeActionResult());
-            return pstRangeActionResults.get(rangeAction);
-        } else if (rangeAction instanceof StandardRangeAction) {
-            standardRangeActionResults.putIfAbsent((StandardRangeAction<?>) rangeAction, new RangeActionResult());
-            return standardRangeActionResults.get(rangeAction);
-        } else {
-            throw new NotImplementedException("Unable to create range action result for range action %s: range action type not implemented yet", rangeAction.getId());
-        }
+        rangeActionResults.putIfAbsent(rangeAction, new RangeActionResult());
+        return rangeActionResults.get(rangeAction);
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-
-        if (rangeAction instanceof PstRangeAction) {
-            return pstRangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).isActivatedDuringState(state);
-        } else if (rangeAction instanceof StandardRangeAction<?>) {
-            return standardRangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).isActivatedDuringState(state);
-        }
-        return false;
+        return rangeActionResults.getOrDefault(rangeAction, DEFAULT_RANGEACTION_RESULT).isActivatedDuringState(state);
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedTapOnState(state);
+        return pstRangeAction.convertAngleToTap(getPreOptimizationSetPointOnState(state, pstRangeAction));
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedTapOnState(state);
+        return pstRangeAction.convertAngleToTap(getOptimizedSetPointOnState(state, pstRangeAction));
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (rangeAction instanceof PstRangeAction) {
-            return pstRangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedSetpointOnState(state);
-        } else if (rangeAction instanceof StandardRangeAction<?>) {
-            return standardRangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).getPreOptimizedSetpointOnState(state);
+        if (state.isPreventive()) {
+            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_RANGEACTION_RESULT).getInitialSetpoint();
+        } else {
+            return getOptimizedSetPointOnState(stateBefore(state), rangeAction);
         }
-        return Double.NaN;
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (rangeAction instanceof PstRangeAction) {
-            return pstRangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
-        } else if (rangeAction instanceof StandardRangeAction<?>) {
-            return standardRangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
+        State stateBefore = state;
+        // Search for any RA with same network element that has been activated before given state
+        while (Objects.nonNull(stateBefore)) {
+            final State finalStateBefore = stateBefore;
+            Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
+                    rangeActionResults.entrySet().stream().filter(entry ->
+                    entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
+                            && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
+            if (activatedRangeAction.isPresent()) {
+                return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);
+            }
+            stateBefore = stateBefore(stateBefore);
         }
-        // only handle PstRangeAction
-        return Double.NaN;
+        // If no activated RA was found, return initial setpoint
+        return getPreOptimizationSetPointOnState(crac.getPreventiveState(), rangeAction);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        Set<RangeAction<?>> activatedRa = pstRangeActionResults.entrySet().stream()
-            .filter(e -> e.getValue().isActivatedDuringState(state))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
-
-        activatedRa.addAll(standardRangeActionResults.entrySet().stream()
+        return rangeActionResults.entrySet().stream()
                 .filter(e -> e.getValue().isActivatedDuringState(state))
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet()));
-
-        return activatedRa;
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        Map<PstRangeAction, Integer> optimizedTapsOnState = new HashMap<>();
-        pstRangeActionResults.forEach((key, value) -> optimizedTapsOnState.put(key, value.getOptimizedTapOnState(state)));
-        return optimizedTapsOnState;
-
+        return crac.getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        Map<RangeAction<?>, Double> optimizedSetpointOnState = new HashMap<>();
-        pstRangeActionResults.forEach((k, v) -> optimizedSetpointOnState.put(k, v.getOptimizedSetpointOnState(state)));
-        standardRangeActionResults.forEach((k, v) -> optimizedSetpointOnState.put(k, v.getOptimizedSetpointOnState(state)));
-        return optimizedSetpointOnState;
+        return crac.getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
+    }
+
+    private State stateBefore(State state) {
+        if (state.getContingency().isPresent()) {
+            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant());
+        } else {
+            return null;
+        }
+    }
+
+    private State stateBefore(String contingencyId, Instant instant) {
+        if (instant.comesBefore(Instant.AUTO)) {
+            return crac.getPreventiveState();
+        }
+        State stateBefore = lookupState(contingencyId, instantBefore(instant));
+        if (Objects.nonNull(stateBefore)) {
+            return stateBefore;
+        } else {
+            return stateBefore(contingencyId, instantBefore(instant));
+        }
+    }
+
+    private Instant instantBefore(Instant instant) {
+        switch (instant) {
+            case PREVENTIVE:
+            case OUTAGE:
+                return Instant.PREVENTIVE;
+            case AUTO:
+                return Instant.OUTAGE;
+            case CURATIVE:
+                return Instant.AUTO;
+            default:
+                throw new FaraoException(String.format("Unknown instant: %s", instant));
+        }
+    }
+
+    private State lookupState(String contingencyId, Instant instant) {
+        return crac.getStates(instant).stream()
+                .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
+                .findAny()
+                .orElse(null);
     }
 }

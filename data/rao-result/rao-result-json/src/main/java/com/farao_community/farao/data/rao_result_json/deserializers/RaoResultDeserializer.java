@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS;
+import static com.farao_community.farao.data.rao_result_json.deserializers.Utils.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -42,7 +43,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
     @Override
     public RaoResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        RaoResultImpl raoResult = new RaoResultImpl();
+        RaoResultImpl raoResult = new RaoResultImpl(crac);
 
         String firstFieldName = jsonParser.nextFieldName();
         String jsonFileVersion;
@@ -103,24 +104,19 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
-                case PSTRANGEACTION_RESULTS:
-                    jsonParser.nextToken();
-                    PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
-                    break;
-
                 case HVDCRANGEACTION_RESULTS:
-                    // used in version <=1.1
-                    // now called standardRangeAction as it contains a more generic result object
-                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 || getSubVersionNumber(jsonFileVersion) > 1) {
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s is not supported in file version %s", jsonParser.getCurrentName(), jsonFileVersion));
-                    } else {
-                        // else, consider HvdcRangeActions as StandardRangeActions
-                        importStandardRangeAction(jsonParser, raoResult, jsonFileVersion);
-                    }
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.1");
+                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
                 case STANDARDRANGEACTION_RESULTS:
-                    importStandardRangeAction(jsonParser, raoResult, jsonFileVersion);
+                case PSTRANGEACTION_RESULTS:
+                    checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
+                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
+                    break;
+
+                case RANGEACTION_RESULTS:
+                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
 
                 default:
@@ -130,9 +126,9 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         return raoResult;
     }
 
-    private void importStandardRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
+    private void importRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
         jsonParser.nextToken();
-        StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+        RangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
     }
 
     private void checkVersion(String raoResultVersion) {

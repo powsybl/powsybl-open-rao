@@ -41,16 +41,16 @@ public class HvdcRangeActionCreator {
     private final Network network;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
-    private Set<FlowCnec> flowCnecs;
-    private AngleCnec angleCnec;
-    private Country sharedDomain;
-    private CimCracCreationParameters cimCracCreationParameters;
-    private Map<String, HvdcRangeActionAdder> hvdcRangeActionAdders = new HashMap<>();
-    private Map<String, List<Integer>> rangeMin = new HashMap<>();
-    private Map<String, List<Integer>> rangeMax = new HashMap<>();
-    private Map<String, Boolean> isDirectionInverted = new HashMap<>();
-    private List<String> raSeriesIds = new ArrayList<>();
-    private Map<String, FaraoImportException> exceptions = new HashMap<>();
+    private final Set<FlowCnec> flowCnecs;
+    private final AngleCnec angleCnec;
+    private final Country sharedDomain;
+    private final CimCracCreationParameters cimCracCreationParameters;
+    private final Map<String, HvdcRangeActionAdder> hvdcRangeActionAdders = new HashMap<>();
+    private final Map<String, List<Integer>> rangeMin = new HashMap<>();
+    private final Map<String, List<Integer>> rangeMax = new HashMap<>();
+    private final Map<String, Boolean> isDirectionInverted = new HashMap<>();
+    private final List<String> raSeriesIds = new ArrayList<>();
+    private final Map<String, FaraoImportException> exceptions = new HashMap<>();
 
     public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;

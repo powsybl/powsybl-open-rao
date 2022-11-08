@@ -43,9 +43,9 @@ public class NetworkActionCreator {
     private NetworkActionAdder networkActionAdder;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
-    private Set<FlowCnec> flowCnecs;
-    private AngleCnec angleCnec;
-    private Country sharedDomain;
+    private final Set<FlowCnec> flowCnecs;
+    private final AngleCnec angleCnec;
+    private final Country sharedDomain;
 
     public NetworkActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, List<RemedialActionRegisteredResource> networkActionRegisteredResources, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
         this.crac = crac;

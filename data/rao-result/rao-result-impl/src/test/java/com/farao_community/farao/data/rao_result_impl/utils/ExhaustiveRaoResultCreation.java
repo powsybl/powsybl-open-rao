@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
@@ -40,10 +39,8 @@ public final class ExhaustiveRaoResultCreation {
     private ExhaustiveRaoResultCreation() {
     }
 
-    public static RaoResult create() {
-        Crac crac = ExhaustiveCracCreation.create();
-
-        RaoResultImpl raoResult = new RaoResultImpl();
+    public static RaoResult create(Crac crac) {
+        RaoResultImpl raoResult = new RaoResultImpl(crac);
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 
         // --------------------
@@ -143,24 +140,21 @@ public final class ExhaustiveRaoResultCreation {
         // ------------------------------
 
         for (PstRangeAction pstRangeAction : crac.getPstRangeActions()) {
-            PstRangeActionResult prar = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
+            RangeActionResult prar = (RangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
 
             switch (pstRangeAction.getId()) {
                 case "pstRange1Id":
                     // free to use preventive, activated
-                    prar.setInitialTap(0);
                     prar.setInitialSetpoint(0);
-                    prar.addActivationForState(crac.getPreventiveState(), -7, -3.2);
+                    prar.addActivationForState(crac.getPreventiveState(), 3.0);
                     break;
                 case "pstRange2Id":
                     // on flow in preventive state, not activated
-                    prar.setInitialTap(3);
-                    prar.setInitialSetpoint(1.7);
+                    prar.setInitialSetpoint(1.5);
                     break;
                 case "pstRange3Id":
                     // on angle in curative state, not activated
-                    prar.setInitialTap(2);
-                    prar.setInitialSetpoint(1.3);
+                    prar.setInitialSetpoint(1.0);
                     break;
                 default:
                     // do nothing

@@ -287,9 +287,8 @@ public class CracImportExportTest {
         assertEquals("group-1-hvdc", crac.getRangeAction("hvdcRange2Id").getGroupId().orElseThrow());
 
         // check preventive OnFlowConstraint usage rule
-        assertEquals(1, crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().size());
-        assertTrue(crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().get(0) instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint3 = (OnFlowConstraint) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().get(0);
+        assertEquals(3, crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().size());
+        OnFlowConstraint onFlowConstraint3 = (OnFlowConstraint) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).findAny().orElseThrow();
         assertEquals(PREVENTIVE, onFlowConstraint3.getInstant());
         assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getFlowCnec());
 
@@ -326,9 +325,8 @@ public class CracImportExportTest {
 
         // Check OnFlowConstraintInCountry usage rules
         usageRules = crac.getRemedialAction("injectionRange1Id").getUsageRules();
-        assertEquals(1, usageRules.size());
-        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
-        ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        assertEquals(2, usageRules.size());
+        ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(CURATIVE, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
     }

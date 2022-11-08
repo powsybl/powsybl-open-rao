@@ -79,7 +79,7 @@ final class FlowCnecResultArraySerializer {
         }
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         serializeFlowCnecMargin(optState, unit, flowCnec, raoResult, jsonGenerator);
-        for (Side side : flowCnec.getMonitoredSides()) {
+        for (Side side : flowCnec.getMonitoredSides().stream().sorted(Comparator.comparing(Side::toString)).collect(Collectors.toList())) {
             serializeFlowCnecFlows(optState, unit, flowCnec, side, raoResult, jsonGenerator);
         }
         jsonGenerator.writeEndObject();

@@ -40,7 +40,7 @@ public class RaoResultImplTest {
     private NetworkAction na;
 
     private void setUp() {
-        crac = CommonCracCreation.createWithCurativePstRange();
+        crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
         cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
         na = crac.newNetworkAction().withId("na-id")
@@ -51,7 +51,7 @@ public class RaoResultImplTest {
             .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        raoResult = new RaoResultImpl();
+        raoResult = new RaoResultImpl(crac);
 
         FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
 
@@ -90,12 +90,9 @@ public class RaoResultImplTest {
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", Instant.AUTO));
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
 
-        PstRangeActionResult pstRangeActionResult = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pst);
-        pstRangeActionResult.setInitialTap(3);
-        pstRangeActionResult.setInitialSetpoint(2.3);
-        pstRangeActionResult.setPostPraTap(33);
-        pstRangeActionResult.setPostPraSetpoint(32.3);
-        pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -7, -3.2);
+        RangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(pst);
+        pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
+        pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
         CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(INITIAL);
         costResult.setFunctionalCost(100.);
@@ -147,13 +144,13 @@ public class RaoResultImplTest {
     @Test
     public void testPstRangeActionResults() {
         setUp();
-        assertEquals(3, raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
+        assertEquals(6, raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
         assertEquals(2.3, raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertTrue(raoResult.isActivatedDuringState(crac.getPreventiveState(), pst));
-        assertEquals(-7, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
-        assertEquals(Map.of(pst, -7), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
-        assertEquals(-3.2, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
-        assertEquals(Map.of(pst, -3.2), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
+        assertEquals(-8, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
+        assertEquals(Map.of(pst, -8), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
+        assertEquals(-3.1, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(pst, -3.1), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
         assertEquals(Set.of(pst), raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(), raoResult.getActivatedRangeActionsDuringState(crac.getState("Contingency FR1 FR3", Instant.AUTO)));
     }

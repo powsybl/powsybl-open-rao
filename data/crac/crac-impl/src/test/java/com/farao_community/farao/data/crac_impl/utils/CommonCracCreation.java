@@ -240,4 +240,27 @@ public final class CommonCracCreation {
 
         return crac;
     }
+
+    public static Crac createWithPreventiveAndCurativePstRange() {
+        Crac crac = create();
+        Network network = import12NodesNetwork();
+        IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
+
+        crac.newPstRangeAction()
+            .withId("pst")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+            .withOperator("operator1")
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("Contingency FR1 FR3").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newTapRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMinTap(-16)
+            .withMaxTap(16)
+            .add()
+            .withInitialTap(pstHelper.getInitialTap())
+            .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
+            .add();
+
+        return crac;
+    }
 }
