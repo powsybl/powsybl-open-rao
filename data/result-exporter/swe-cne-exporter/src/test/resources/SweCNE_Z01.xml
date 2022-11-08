@@ -3,7 +3,7 @@
     <mRID>documentId</mRID>
     <revisionNumber>1</revisionNumber>
     <type>B06</type>
-    <process.processType>A48</process.processType>
+    <process.processType>Z01</process.processType>
     <sender_MarketParticipant.mRID codingScheme="A01">senderId</sender_MarketParticipant.mRID>
     <sender_MarketParticipant.marketRole.type>A04</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
@@ -84,11 +84,6 @@
                             <resourceCapacity.defaultCapacity>-6</resourceCapacity.defaultCapacity>
                             <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
                         </RegisteredResource>
-                    </RemedialAction_Series>
-                    <RemedialAction_Series>
-                        <mRID>na1</mRID>
-                        <name>na1-name</name>
-                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
@@ -178,12 +173,6 @@
                 <Constraint_Series>
                     <mRID>53c404b-8a90-4830-8f92-78956ce4469f</mRID>
                     <businessType>B57</businessType>
-                    <AdditionalConstraint_Series>
-                        <mRID>ac1</mRID>
-                        <businessType>B87</businessType>
-                        <name>ac1-name</name>
-                        <quantity.quantity>4.0</quantity.quantity>
-                    </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
                         <name>Contingency 1 name</name>
@@ -283,11 +272,6 @@
                     <RemedialAction_Series>
                         <mRID>PRA_1@-6@</mRID>
                         <name>PRA_1</name>
-                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
-                    </RemedialAction_Series>
-                    <RemedialAction_Series>
-                        <mRID>na1</mRID>
-                        <name>na1-name</name>
                         <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                 </Constraint_Series>
