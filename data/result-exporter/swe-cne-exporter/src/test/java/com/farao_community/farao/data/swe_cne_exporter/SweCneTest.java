@@ -84,7 +84,7 @@ public class SweCneTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
         try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
+            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assert.fail();
