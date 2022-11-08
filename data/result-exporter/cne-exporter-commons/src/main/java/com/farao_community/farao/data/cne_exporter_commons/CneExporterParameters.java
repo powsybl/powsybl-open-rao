@@ -25,7 +25,8 @@ public class CneExporterParameters {
 
     public enum RoleType {
         CAPACITY_COORDINATOR("A36"),
-        REGIONAL_SECURITY_COORDINATOR("A44");
+        REGIONAL_SECURITY_COORDINATOR("A44"),
+        SYSTEM_OPERATOR("A04");
 
         private String code;
         private RoleType(String code) {
@@ -43,7 +44,8 @@ public class CneExporterParameters {
     }
 
     public enum ProcessType {
-        DAY_AHEAD_CC("A48"); // Day-ahead capacity determination
+        DAY_AHEAD_CC("A48"), // Day-ahead capacity determination
+        Z01("Z01"); // Day-ahead capacity determination for SWE, does not exist in xsd
 
         private String code;
         private ProcessType(String code) {

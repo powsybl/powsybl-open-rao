@@ -3,7 +3,7 @@
     <mRID>documentId</mRID>
     <revisionNumber>1</revisionNumber>
     <type>B06</type>
-    <process.processType>A48</process.processType>
+    <process.processType>Z01</process.processType>
     <sender_MarketParticipant.mRID codingScheme="A01">senderId</sender_MarketParticipant.mRID>
     <sender_MarketParticipant.marketRole.type>A04</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
