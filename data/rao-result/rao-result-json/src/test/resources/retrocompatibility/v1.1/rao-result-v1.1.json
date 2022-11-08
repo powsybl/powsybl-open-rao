@@ -343,22 +343,22 @@
   } ],
   "pstRangeActionResults" : [ {
     "pstRangeActionId" : "pstRange1Id",
-    "initialTap" : 0,
+    "initialTap" : -3,
     "initialSetpoint" : 0.0,
     "activatedStates" : [ {
       "instant" : "preventive",
-      "tap" : -7,
-      "setpoint" : -3.2
+      "tap" : 3,
+      "setpoint" : 3.0
     } ]
   }, {
     "pstRangeActionId" : "pstRange2Id",
-    "initialTap" : 3,
-    "initialSetpoint" : 1.7,
+    "initialTap" : 0,
+    "initialSetpoint" : 1.5,
     "activatedStates" : [ ]
   }, {
     "pstRangeActionId" : "pstRange3Id",
-    "initialTap" : 2,
-    "initialSetpoint" : 1.3,
+    "initialTap" : -1,
+    "initialSetpoint" : 1.0,
     "activatedStates" : [ ]
   } ],
   "standardRangeActionResults" : [ {
