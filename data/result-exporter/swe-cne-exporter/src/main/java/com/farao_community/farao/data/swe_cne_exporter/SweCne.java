@@ -38,9 +38,9 @@ import static com.farao_community.farao.data.swe_cne_exporter.SweCneUtil.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SweCne {
-    private CriticalNetworkElementMarketDocument marketDocument;
-    private SweCneHelper sweCneHelper;
-    private CimCracCreationContext cracCreationContext;
+    private final CriticalNetworkElementMarketDocument marketDocument;
+    private final SweCneHelper sweCneHelper;
+    private final CimCracCreationContext cracCreationContext;
 
     public SweCne(Crac crac, Network network, CimCracCreationContext cracCreationContext, RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
@@ -117,6 +117,7 @@ public class SweCne {
             isUnsecure = raoResult.getFunctionalCost(OptimizationState.AFTER_CRA) > 0;
         }
         if (Objects.nonNull(angleMonitoringResult)) {
+            isDivergent = isDivergent || angleMonitoringResult.isDivergent();
             isUnsecure = isUnsecure || angleMonitoringResult.isUnsecure();
         }
 

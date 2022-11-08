@@ -75,7 +75,9 @@ public class SweAdditionalConstraintSeriesCreator {
         additionalConstraintSeries.setMRID(angleCnecCreationContext.getNativeId());
         additionalConstraintSeries.setBusinessType("B87");
         additionalConstraintSeries.setName(angleCnec.getName());
-        additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getAngleMonitoringResult().getAngle(angleCnec, Unit.DEGREE)));
+        if (!sweCneHelper.getAngleMonitoringResult().isDivergent()) {
+            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getAngleMonitoringResult().getAngle(angleCnec, Unit.DEGREE)));
+        }
         return additionalConstraintSeries;
     }
 }
