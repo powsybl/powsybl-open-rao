@@ -6,7 +6,9 @@
  */
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
@@ -17,19 +19,23 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
-import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_json.JsonExport;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.farao_community.farao.data.rao_result_impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.commons.Unit.KILOVOLT;
+import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 
@@ -45,14 +51,14 @@ public class RaoResultRoundTripTest {
     public void roundTripTest() {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
-        RaoResult raoResult = ExhaustiveRaoResultCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new RaoResultExporter().export(raoResult, crac, outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
-        CracExporters.exportCrac(crac, "Json", outputStream2);
+        new JsonExport().exportCrac(crac, outputStream2);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -293,14 +299,14 @@ public class RaoResultRoundTripTest {
         assertTrue(importedRaoResult.isActivatedDuringState(pState, pstP));
         assertFalse(importedRaoResult.isActivatedDuringState(cState1, pstP));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, pstP));
-        assertEquals(0, importedRaoResult.getPreOptimizationTapOnState(pState, pstP));
+        assertEquals(-3, importedRaoResult.getPreOptimizationTapOnState(pState, pstP));
         assertEquals(0., importedRaoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
-        assertEquals(-7, importedRaoResult.getOptimizedTapOnState(pState, pstP));
-        assertEquals(-3.2, importedRaoResult.getOptimizedSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
-        assertEquals(-3.2, importedRaoResult.getPreOptimizationSetPointOnState(cState1, pstP), DOUBLE_TOLERANCE);
-        assertEquals(-7, importedRaoResult.getPreOptimizationTapOnState(cState1, pstP));
-        assertEquals(-7, importedRaoResult.getOptimizedTapOnState(cState1, pstP));
-        assertEquals(-7, importedRaoResult.getOptimizedTapOnState(cState2, pstP));
+        assertEquals(3, importedRaoResult.getOptimizedTapOnState(pState, pstP));
+        assertEquals(3., importedRaoResult.getOptimizedSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
+        assertEquals(3., importedRaoResult.getPreOptimizationSetPointOnState(cState1, pstP), DOUBLE_TOLERANCE);
+        assertEquals(3, importedRaoResult.getPreOptimizationTapOnState(cState1, pstP));
+        assertEquals(3, importedRaoResult.getOptimizedTapOnState(cState1, pstP));
+        assertEquals(3, importedRaoResult.getOptimizedTapOnState(cState2, pstP));
 
         /*
         pstRange2Id, not activated
@@ -309,10 +315,10 @@ public class RaoResultRoundTripTest {
         assertFalse(importedRaoResult.isActivatedDuringState(pState, pstN));
         assertFalse(importedRaoResult.isActivatedDuringState(cState1, pstN));
         assertFalse(importedRaoResult.isActivatedDuringState(cState2, pstN));
-        assertEquals(3, importedRaoResult.getPreOptimizationTapOnState(pState, pstN));
-        assertEquals(3, importedRaoResult.getOptimizedTapOnState(pState, pstN));
-        assertEquals(3, importedRaoResult.getOptimizedTapOnState(cState1, pstN));
-        assertEquals(3, importedRaoResult.getOptimizedTapOnState(cState2, pstN));
+        assertEquals(0, importedRaoResult.getPreOptimizationTapOnState(pState, pstN));
+        assertEquals(0, importedRaoResult.getOptimizedTapOnState(pState, pstN));
+        assertEquals(0, importedRaoResult.getOptimizedTapOnState(cState1, pstN));
+        assertEquals(0, importedRaoResult.getOptimizedTapOnState(cState2, pstN));
 
         // ---------------------------
         // --- RangeAction results ---
@@ -367,5 +373,120 @@ public class RaoResultRoundTripTest {
         assertEquals(4341., importedRaoResult.getMargin(AFTER_ARA, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4446., importedRaoResult.getVoltage(AFTER_CRA, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4441., importedRaoResult.getMargin(AFTER_CRA, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testRoundTripRangeActionsCrossResults() {
+        Crac crac = CracFactory.findDefault().create("crac");
+        PstRangeAction pstPrev = crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
+                .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
+                .withSpeed(1)
+                .newFreeToUseUsageRule().withInstant(PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+        PstRangeAction pstAuto = crac.newPstRangeAction().withId("pst-auto").withNetworkElement("pst").withInitialTap(-1)
+                .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
+                .withSpeed(1)
+                .newFreeToUseUsageRule().withInstant(AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .add();
+        PstRangeAction pstCur = crac.newPstRangeAction().withId("pst-cur").withNetworkElement("pst").withInitialTap(-1)
+                .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
+                .newFreeToUseUsageRule().withInstant(CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+
+        // dummy flow cnecs
+        crac.newContingency().withId("contingency").withNetworkElement("co-ne").add();
+        crac.newFlowCnec().withId("dummy-preventive").withInstant(PREVENTIVE).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+        crac.newFlowCnec().withId("dummy-outage").withContingency("contingency").withInstant(OUTAGE).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+        crac.newFlowCnec().withId("dummy-auto").withContingency("contingency").withInstant(AUTO).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+        crac.newFlowCnec().withId("dummy-cur").withContingency("contingency").withInstant(CURATIVE).withNetworkElement("ne")
+                .newThreshold().withMax(1.).withSide(Side.LEFT).withUnit(Unit.MEGAWATT).add()
+                .add();
+
+        State outageState = crac.getState("contingency", OUTAGE);
+        State autoState = crac.getState("contingency", AUTO);
+        State curativeState = crac.getState("contingency", CURATIVE);
+
+        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).setInitialSetpoint(-10.);
+        raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).setInitialSetpoint(-10.);
+        raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).setInitialSetpoint(-10.);
+        raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).addActivationForState(crac.getPreventiveState(), 10.);
+        raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).addActivationForState(autoState, 20.);
+        raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).addActivationForState(curativeState, 30.);
+        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+
+        // export RaoResult
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, outputStream);
+
+        // import RaoResult
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+
+        // Before & after Preventive state
+        assertEquals(-1, importedRaoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pstPrev));
+        assertEquals(-10., importedRaoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(-1, importedRaoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pstAuto));
+        assertEquals(-10., importedRaoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(-1, importedRaoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pstCur));
+        assertEquals(-10., importedRaoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pstCur), DOUBLE_TOLERANCE);
+
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstPrev));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstAuto));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstCur));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pstCur), DOUBLE_TOLERANCE);
+
+        // Before & after outage state
+        assertEquals(1, importedRaoResult.getPreOptimizationTapOnState(outageState, pstPrev));
+        assertEquals(10., importedRaoResult.getPreOptimizationSetPointOnState(outageState, pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getPreOptimizationTapOnState(outageState, pstAuto));
+        assertEquals(10., importedRaoResult.getPreOptimizationSetPointOnState(outageState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getPreOptimizationTapOnState(outageState, pstCur));
+        assertEquals(10., importedRaoResult.getPreOptimizationSetPointOnState(outageState, pstCur), DOUBLE_TOLERANCE);
+
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(outageState, pstPrev));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(outageState, pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(outageState, pstAuto));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(outageState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getOptimizedTapOnState(outageState, pstCur));
+        assertEquals(10., importedRaoResult.getOptimizedSetPointOnState(outageState, pstCur), DOUBLE_TOLERANCE);
+
+        // Before & After ARA
+        assertEquals(1, importedRaoResult.getPreOptimizationTapOnState(autoState, pstPrev));
+        assertEquals(10., importedRaoResult.getPreOptimizationSetPointOnState(autoState, pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getPreOptimizationTapOnState(autoState, pstAuto));
+        assertEquals(10., importedRaoResult.getPreOptimizationSetPointOnState(autoState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(1, importedRaoResult.getPreOptimizationTapOnState(autoState, pstCur));
+        assertEquals(10., importedRaoResult.getPreOptimizationSetPointOnState(autoState, pstCur), DOUBLE_TOLERANCE);
+
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(autoState, pstPrev));
+        assertEquals(20., importedRaoResult.getOptimizedSetPointOnState(autoState, pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(autoState, pstAuto));
+        assertEquals(20., importedRaoResult.getOptimizedSetPointOnState(autoState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getOptimizedTapOnState(autoState, pstCur));
+        assertEquals(20., importedRaoResult.getOptimizedSetPointOnState(autoState, pstCur), DOUBLE_TOLERANCE);
+
+        // Before & After CRA
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(curativeState, pstPrev));
+        assertEquals(20., importedRaoResult.getPreOptimizationSetPointOnState(curativeState, pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(curativeState, pstAuto));
+        assertEquals(20., importedRaoResult.getPreOptimizationSetPointOnState(curativeState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(2, importedRaoResult.getPreOptimizationTapOnState(curativeState, pstCur));
+        assertEquals(20., importedRaoResult.getPreOptimizationSetPointOnState(curativeState, pstCur), DOUBLE_TOLERANCE);
+
+        assertEquals(3, importedRaoResult.getOptimizedTapOnState(curativeState, pstPrev));
+        assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstPrev), DOUBLE_TOLERANCE);
+        assertEquals(3, importedRaoResult.getOptimizedTapOnState(curativeState, pstAuto));
+        assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstAuto), DOUBLE_TOLERANCE);
+        assertEquals(3, importedRaoResult.getOptimizedTapOnState(curativeState, pstCur));
+        assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstCur), DOUBLE_TOLERANCE);
     }
 }

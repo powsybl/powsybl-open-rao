@@ -245,7 +245,7 @@ public class FlowbasedComputationImplTest {
     }
 
     private RaoResult createRaoResult(Set<FlowCnec> flowCnecs, NetworkAction na) {
-        RaoResultImpl raoResult = new RaoResultImpl();
+        RaoResultImpl raoResult = new RaoResultImpl(crac);
 
         // Warning: these results on cnecs are not relevant, and maybe not coherent with
         // the hardcoded results of FlowbasedComputationProviderMock, used in this test class.
