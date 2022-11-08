@@ -80,14 +80,14 @@ public class SweCneDivergentAngleMonitoringTest {
     @Test
     public void testExport() {
         CneExporterParameters params = new CneExporterParameters(
-            "documentId", 3, "domainId", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "senderId", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
-            "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-            "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+                "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
+                "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
+                "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+                "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
         try {
-            InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring.xml").getFile());
+            InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assert.fail();
