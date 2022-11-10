@@ -19,7 +19,7 @@ import static com.farao_community.farao.data.crac_creation.util.ucte.UcteConnect
 import static java.lang.String.format;
 
 /**
- * UcteCnecElementHelper is a utility class which manages CNECs defined with the UCTE convention.
+ * UcteFlowElementHelper is a utility class which manages CNECs defined with the UCTE convention.
  * This utility class has been designed so as to be used in CRAC creators whose format
  * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
@@ -27,7 +27,7 @@ import static java.lang.String.format;
  *
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteCnecElementHelper extends AbstractUcteConnectableHelper implements CnecElementHelper {
+public class UcteFlowElementHelper extends AbstractUcteConnectableHelper implements CnecElementHelper {
 
     private boolean isInvertedInNetwork = false;
     private Branch.Side halfLineSide = null;
@@ -46,7 +46,7 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
      * @param suffix,               suffix of the branch, either an order code or an elementName
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UcteCnecElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteFlowElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, suffix);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -63,7 +63,7 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
      * @param elementName,          element name of the branch
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UcteCnecElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteFlowElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, orderCode, elementName);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -76,7 +76,7 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
      * @param ucteBranchId,         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UcteCnecElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteFlowElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(ucteBranchId);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -123,7 +123,7 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
 
     protected void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer networkAnalyzer) {
 
-        UcteMatchingResult ucteMatchingResult = networkAnalyzer.findCnecElement(from, to, suffix);
+        UcteMatchingResult ucteMatchingResult = networkAnalyzer.findFlowElement(from, to, suffix);
 
         if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.NOT_FOUND) {
             invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));

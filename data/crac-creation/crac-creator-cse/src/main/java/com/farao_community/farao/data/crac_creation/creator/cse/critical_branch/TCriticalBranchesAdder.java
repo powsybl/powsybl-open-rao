@@ -36,8 +36,8 @@ public class TCriticalBranchesAdder {
     public void add() {
         TCriticalBranches tCriticalBranches = tcracSeries.getCriticalBranches();
         if (tCriticalBranches != null) {
-            importPreventiveCnecs(tCriticalBranches);
             importCurativeCnecs(tCriticalBranches);
+            importPreventiveCnecs(tCriticalBranches);
         }
     }
 

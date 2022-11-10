@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
+import com.farao_community.farao.data.crac_creation.creator.cse.monitored_elements.MonitoredElementReader;
 
 import java.util.Map;
 import java.util.Optional;
@@ -95,5 +96,18 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
         this.selected = criticalBranchReader.isSelected();
         this.invalidBranchReason = criticalBranchReader.getInvalidBranchReason();
         this.criticalBranchImportStatus = criticalBranchReader.getImportStatus();
+    }
+
+    public CseCriticalBranchCreationContext(MonitoredElementReader monitoredElementReader) {
+        this.criticalBranchName = monitoredElementReader.getMonitoredBranchName();
+        this.nativeBranch = monitoredElementReader.getNativeBranch();
+        this.isBaseCase = monitoredElementReader.isBaseCase();
+        this.isImported = monitoredElementReader.isImported();
+        this.createdCnecIds = monitoredElementReader.getCreatedCnecIds();
+        this.contingencyId = monitoredElementReader.getContingencyId();
+        this.isDirectionInverted = monitoredElementReader.isDirectionInverted();
+        this.invalidBranchReason = monitoredElementReader.getInvalidBranchReason();
+        this.criticalBranchImportStatus = monitoredElementReader.getImportStatus();
+        this.selected = false;
     }
 }
