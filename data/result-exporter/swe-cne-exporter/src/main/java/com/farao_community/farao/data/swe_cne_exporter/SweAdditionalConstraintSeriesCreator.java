@@ -28,6 +28,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINES
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class SweAdditionalConstraintSeriesCreator {
+    public static final String ANGLE_CNEC_BUSINESS_TYPE = "B87";
     private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
 
@@ -46,20 +47,15 @@ public class SweAdditionalConstraintSeriesCreator {
                 .sorted(Comparator.comparing(AngleCnecCreationContext::getNativeId))
                 .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
-            List<AngleCnecCreationContext> prevAngleCnecs = sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
-                    .collect(Collectors.toList());
-            prevAngleCnecs.forEach(angleCnecCreationContext ->
+            sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
+                    .forEach(angleCnecCreationContext ->
                 BUSINESS_WARNS.warn("Preventive angle cnec {} will not be added to CNE file", angleCnecCreationContext.getNativeId()));
         } else {
-            List<AngleCnecCreationContext> contingencyAngleCnecs = sortedAngleCnecs.stream()
+            sortedAngleCnecs.stream()
                     .filter(angleCnecCreationContext -> angleCnecCreationContext.getContingencyId().equals(contingency.getId()))
-                    .collect(Collectors.toList());
-            contingencyAngleCnecs.forEach(angleCnecCreationContext -> {
-                AdditionalConstraintSeries additionalConstraintSeries = generateAdditionalConstraintSeries(angleCnecCreationContext);
-                if (Objects.nonNull(additionalConstraintSeries)) {
-                    additionalConstraintSeriesList.add(additionalConstraintSeries);
-                }
-            });
+                            .map(this::generateAdditionalConstraintSeries)
+                                    .filter(Objects::nonNull)
+                                            .forEach(additionalConstraintSeriesList::add);
         }
         return additionalConstraintSeriesList;
     }
@@ -73,7 +69,7 @@ public class SweAdditionalConstraintSeriesCreator {
         }
         AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
         additionalConstraintSeries.setMRID(angleCnecCreationContext.getNativeId());
-        additionalConstraintSeries.setBusinessType("B87");
+        additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
         additionalConstraintSeries.setName(angleCnec.getName());
         if (!sweCneHelper.getAngleMonitoringResult().isDivergent()) {
             additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getAngleMonitoringResult().getAngle(angleCnec, Unit.DEGREE)));

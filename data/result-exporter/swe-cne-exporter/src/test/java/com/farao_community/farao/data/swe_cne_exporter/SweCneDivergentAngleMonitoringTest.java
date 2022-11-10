@@ -36,7 +36,7 @@ import java.util.Set;
 import static com.farao_community.farao.data.swe_cne_exporter.SweCneTest.compareCneFiles;
 
 /**
- * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class SweCneDivergentAngleMonitoringTest {
     private Crac crac;
