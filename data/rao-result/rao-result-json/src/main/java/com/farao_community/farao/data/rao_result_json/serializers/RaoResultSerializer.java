@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConsta
  */
 class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
-    private Crac crac;
+    private final Crac crac;
 
     RaoResultSerializer(Crac crac) {
         this.crac = crac;
@@ -50,8 +50,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         AngleCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         VoltageCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        PstRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        StandardRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+        RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }
