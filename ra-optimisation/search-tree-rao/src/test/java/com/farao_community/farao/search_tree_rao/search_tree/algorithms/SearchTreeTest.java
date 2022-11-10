@@ -560,7 +560,7 @@ public class SearchTreeTest {
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
-        assertEquals("[INFO] Optimized leaf-id, stop criterion would have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
+        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\"", business.list.get(1).toString());
     }
 }
