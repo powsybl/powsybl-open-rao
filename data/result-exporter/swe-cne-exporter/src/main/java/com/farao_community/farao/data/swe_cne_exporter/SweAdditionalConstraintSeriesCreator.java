@@ -44,7 +44,7 @@ public class SweAdditionalConstraintSeriesCreator {
         }
         List<AngleCnecCreationContext> sortedAngleCnecs = cracCreationContext.getAngleCnecCreationContexts().stream()
                 .filter(AngleCnecCreationContext::isImported)
-                .sorted(Comparator.comparing(AngleCnecCreationContext::getNativeId))
+                .sorted(Comparator.comparing(AngleCnecCreationContext::getCreatedAngleCnecId))
                 .collect(Collectors.toList());
         if (Objects.isNull(contingency)) {
             sortedAngleCnecs.stream().filter(angleCnecCreationContext -> Objects.isNull(angleCnecCreationContext.getContingencyId()))
@@ -62,7 +62,7 @@ public class SweAdditionalConstraintSeriesCreator {
 
     private AdditionalConstraintSeries generateAdditionalConstraintSeries(AngleCnecCreationContext angleCnecCreationContext) {
         Crac crac = sweCneHelper.getCrac();
-        AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getNativeId());
+        AngleCnec angleCnec = crac.getAngleCnec(angleCnecCreationContext.getCreatedAngleCnecId());
         if (!angleCnec.getState().getInstant().equals(Instant.CURATIVE)) {
             BUSINESS_WARNS.warn("{} angle cnec {} will not be added to CNE file", angleCnec.getState().getInstant(), angleCnecCreationContext.getNativeId());
             return null;
