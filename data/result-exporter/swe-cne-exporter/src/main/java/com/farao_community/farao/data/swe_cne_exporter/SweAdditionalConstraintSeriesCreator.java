@@ -68,7 +68,7 @@ public class SweAdditionalConstraintSeriesCreator {
             return null;
         }
         AdditionalConstraintSeries additionalConstraintSeries = new AdditionalConstraintSeries();
-        additionalConstraintSeries.setMRID(angleCnecCreationContext.getNativeId());
+        additionalConstraintSeries.setMRID(angleCnecCreationContext.getCreatedAngleCnecId());
         additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
         additionalConstraintSeries.setName(angleCnec.getName());
         if (!sweCneHelper.getAngleMonitoringResult().isDivergent()) {
