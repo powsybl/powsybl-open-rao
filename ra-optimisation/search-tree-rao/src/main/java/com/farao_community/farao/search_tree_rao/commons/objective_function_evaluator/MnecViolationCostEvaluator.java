@@ -19,8 +19,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-
 /**
  * An evaluator that computes the virtual cost resulting from the violation of
  * the MNEC minimum margin soft constraint
@@ -29,16 +27,18 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MnecViolationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
+    private final Unit unit;
     private final FlowResult initialFlowResult;
-    private final double mnecAcceptableMarginDiminutionInMW;
-    private final double mnecViolationCostInMWPerMW;
+    private final double mnecAcceptableMarginDiminution;
+    private final double mnecViolationCost;
     private List<FlowCnec> sortedElements = new ArrayList<>();
 
-    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, FlowResult initialFlowResult, MnecParameters mnecParameters) {
+    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, FlowResult initialFlowResult, MnecParameters mnecParameters) {
         this.flowCnecs = flowCnecs;
+        this.unit = unit;
         this.initialFlowResult = initialFlowResult;
-        mnecAcceptableMarginDiminutionInMW = mnecParameters.getMnecAcceptableMarginDiminution();
-        mnecViolationCostInMWPerMW = mnecParameters.getMnecViolationCost();
+        mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
+        mnecViolationCost = mnecParameters.getMnecViolationCost();
     }
 
     @Override
@@ -47,14 +47,14 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     private double computeCost(FlowResult flowResult, FlowCnec mnec) {
-        double initialMargin = initialFlowResult.getMargin(mnec, MEGAWATT);
-        double currentMargin = flowResult.getMargin(mnec, MEGAWATT);
-        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminutionInMW) - currentMargin);
+        double initialMargin = initialFlowResult.getMargin(mnec, unit);
+        double currentMargin = flowResult.getMargin(mnec, unit);
+        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminution) - currentMargin);
     }
 
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        if (Math.abs(mnecViolationCostInMWPerMW) < 1e-10) {
+        if (Math.abs(mnecViolationCost) < 1e-10) {
             return 0;
         }
         double totalMnecMarginViolation = 0;
@@ -63,12 +63,12 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
                 totalMnecMarginViolation += computeCost(flowResult, mnec);
             }
         }
-        return mnecViolationCostInMWPerMW * totalMnecMarginViolation;
+        return mnecViolationCost * totalMnecMarginViolation;
     }
 
     @Override
     public Unit getUnit() {
-        return MEGAWATT;
+        return unit;
     }
 
     @Override

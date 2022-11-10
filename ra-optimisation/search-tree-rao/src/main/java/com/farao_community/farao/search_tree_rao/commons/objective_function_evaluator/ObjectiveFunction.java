@@ -154,6 +154,7 @@ public final class ObjectiveFunction {
 
                 this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                    raoParameters.getObjectiveFunction().getUnit(),
                     initialFlowResult,
                     MnecParameters.buildFromRaoParameters(raoParameters)
                 ));

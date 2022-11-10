@@ -299,10 +299,17 @@ public class Leaf implements OptimizationResult {
         }
     }
 
+    /**
+     * Returns a string with activated network actions
+     */
+    public String getIdentifier() {
+        return isRoot() ? "Root leaf" :
+                "network action(s): " + appliedNetworkActionsInPrimaryState.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+    }
+
     @Override
     public String toString() {
-        String info = isRoot() ? "Root leaf" :
-            "network action(s): " + appliedNetworkActionsInPrimaryState.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+        String info = getIdentifier();
         if (status.equals(Status.OPTIMIZED)) {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
