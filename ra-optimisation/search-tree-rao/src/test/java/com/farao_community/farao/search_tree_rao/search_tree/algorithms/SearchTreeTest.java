@@ -537,7 +537,7 @@ public class SearchTreeTest {
     public void testGetCostlyElementsLogs() {
         setUpForVirtualLogs();
 
-        List<String> logs = searchTree.getCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
+        List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(1, logs.size());
         assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\"", logs.get(0));
     }

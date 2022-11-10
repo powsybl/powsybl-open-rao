@@ -496,8 +496,7 @@ public class SearchTree {
     }
 
     /**
-     * If stop criterion is reached on functional cost, but not with virtual cost, this method logs information
-     * about postivie virtual costs
+     * This method logs information about positive virtual costs
      */
     private void logVirtualCostInformation(Leaf leaf, String prefix) {
         leaf.getVirtualCostNames().stream()
@@ -505,6 +504,12 @@ public class SearchTree {
                 .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
     }
 
+    /**
+     * If stop criterion could have been reached without the given virtual cost, this method logs a message, in order
+     * to inform the user that the given network action was rejected because of a virtual cost
+     * (message is not logged if it has already been logged at previous depth)
+     * In all cases, this method also logs most costly elements for given virtual cost
+     */
     void logVirtualCostDetails(Leaf leaf, String virtualCostName, String prefix) {
         FaraoLogger logger = topLevelLogger;
         if (!costSatisfiesStopCriterion(leaf.getCost())
@@ -512,14 +517,14 @@ public class SearchTree {
                 && (leaf.isRoot() || !costSatisfiesStopCriterion(previousDepthOptimalLeaf.getFunctionalCost()))) {
             // Stop criterion would have been reached without virtual cost, for the first time at this depth
             // and for the given leaf
-            BUSINESS_LOGS.info("{}{}, stop criterion would have been reached without \"{}\" virtual cost", prefix, leaf.getIdentifier(), virtualCostName);
+            BUSINESS_LOGS.info("{}{}, stop criterion could have been reached without \"{}\" virtual cost", prefix, leaf.getIdentifier(), virtualCostName);
             // Promote detailed logs about costly elements to BUSINESS_LOGS
             logger = BUSINESS_LOGS;
         }
-        getCostlyElementsLogs(leaf, virtualCostName, prefix).forEach(logger::info);
+        getVirtualCostlyElementsLogs(leaf, virtualCostName, prefix).forEach(logger::info);
     }
 
-    List<String> getCostlyElementsLogs(Leaf leaf, String virtualCostName, String prefix) {
+    List<String> getVirtualCostlyElementsLogs(Leaf leaf, String virtualCostName, String prefix) {
         List<String> logs = new ArrayList<>();
         int i = 1;
         for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
