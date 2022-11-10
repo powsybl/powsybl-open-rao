@@ -236,6 +236,8 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElement("hvdc2")
                 .withGroupId("group-1-hvdc")
                 .newRange().withMin(-1000).withMax(1000).add()
+                .newOnStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency2Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3curId").add()
                 .add();
 
@@ -246,6 +248,7 @@ public final class ExhaustiveCracCreation {
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()
+                .newOnStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         return crac;
