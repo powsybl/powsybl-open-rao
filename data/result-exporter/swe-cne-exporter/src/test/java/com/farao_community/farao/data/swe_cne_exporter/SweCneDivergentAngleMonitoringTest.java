@@ -27,25 +27,18 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Node;
-import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.builder.Input;
-import org.xmlunit.diff.DefaultComparisonFormatter;
-import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.Difference;
 
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.farao_community.farao.data.swe_cne_exporter.SweCneTest.compareCneFiles;
 
 /**
- * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SweCneTest {
+public class SweCneDivergentAngleMonitoringTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
@@ -54,7 +47,7 @@ public class SweCneTest {
 
     @Before
     public void setUp() {
-        network = Importers.loadNetwork(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
+        network = Importers.loadNetwork(new File(SweCneDivergentAngleMonitoringTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
@@ -70,14 +63,14 @@ public class SweCneTest {
         crac = cracCreationContext.getCrac();
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(SweCneTest.class.getResource("/RaoResult.json").getFile());
+            inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/RaoResult.json").getFile());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
         InputStream inputStream2 = null;
         try {
-            inputStream2 = new FileInputStream(SweCneTest.class.getResource("/AngleMonitoringResult.json").getFile());
+            inputStream2 = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/AngleMonitoringDivergentResult.json").getFile());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -87,67 +80,17 @@ public class SweCneTest {
     @Test
     public void testExport() {
         CneExporterParameters params = new CneExporterParameters(
-            "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
-            "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
-            "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
-            "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+                "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
+                "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
+                "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+                "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
         try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
+            InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assert.fail();
-        }
-    }
-
-    @Test
-    public void testValidateSchemaOk() {
-        try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
-            assertTrue(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
-        } catch (IOException e) {
-            Assert.fail();
-        }
-    }
-
-    @Test
-    public void testValidateSchemaNok() {
-        try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_wrong.xml").getFile());
-            assertFalse(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
-        } catch (IOException e) {
-            Assert.fail();
-        }
-    }
-
-    public static void compareCneFiles(InputStream expectedCneInputStream, InputStream actualCneInputStream) throws AssertionError {
-        DiffBuilder db = DiffBuilder
-            .compare(Input.fromStream(expectedCneInputStream))
-            .withTest(Input.fromStream(actualCneInputStream))
-            .ignoreComments()
-            .withNodeFilter(SweCneTest::shouldCompareNode);
-        Diff d = db.build();
-
-        if (d.hasDifferences()) {
-            DefaultComparisonFormatter formatter = new DefaultComparisonFormatter();
-            StringBuffer buffer = new StringBuffer();
-            for (Difference ds : d.getDifferences()) {
-                buffer.append(formatter.getDescription(ds.getComparison()) + "\n");
-            }
-            throw new AssertionError("There are XML differences in CNE files\n" + buffer);
-        }
-        assertFalse(d.hasDifferences());
-    }
-
-    private static boolean shouldCompareNode(Node node) {
-        if (node.getNodeName().equals("mRID")) {
-            // For the following fields, mRID is generated randomly as per the CNE specifications
-            // We should not compare them with the test file
-            return !node.getParentNode().getNodeName().equals("TimeSeries")
-                && (!node.getParentNode().getNodeName().equals("Constraint_Series"));
-        } else {
-            return !(node.getNodeName().equals("createdDateTime"));
         }
     }
 }

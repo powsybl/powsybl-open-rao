@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
@@ -24,14 +23,16 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.B
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public final class SweConstraintSeriesCreator {
-    private final CneHelper cneHelper;
+    private final SweCneHelper sweCneHelper;
     private final SweMonitoredSeriesCreator monitoredSeriesCreator;
     private final SweRemedialActionSeriesCreator remedialActionSeriesCreator;
+    private final SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator;
 
-    public SweConstraintSeriesCreator(CneHelper cneHelper, CimCracCreationContext cracCreationContext) {
-        this.cneHelper = cneHelper;
-        this.monitoredSeriesCreator = new SweMonitoredSeriesCreator(cneHelper, cracCreationContext);
-        this.remedialActionSeriesCreator = new SweRemedialActionSeriesCreator(cneHelper, cracCreationContext);
+    public SweConstraintSeriesCreator(SweCneHelper sweCneHelper, CimCracCreationContext cracCreationContext) {
+        this.sweCneHelper = sweCneHelper;
+        this.monitoredSeriesCreator = new SweMonitoredSeriesCreator(sweCneHelper, cracCreationContext);
+        this.remedialActionSeriesCreator = new SweRemedialActionSeriesCreator(sweCneHelper, cracCreationContext);
+        this.additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
     }
 
     public List<ConstraintSeries> generate() {
@@ -44,7 +45,7 @@ public final class SweConstraintSeriesCreator {
     private List<ConstraintSeries> generateB56() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         constraintSeries.add(generateBasecaseB56());
-        cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency ->
+        sweCneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency ->
             constraintSeries.add(generateContingencyB56(contingency))
         );
         return constraintSeries;
@@ -70,7 +71,7 @@ public final class SweConstraintSeriesCreator {
     private List<ConstraintSeries> generateB57() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
         constraintSeries.add(generateBasecaseB57());
-        cneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency ->
+        sweCneHelper.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).forEach(contingency ->
             constraintSeries.add(generateContingencyB57(contingency))
         );
         return constraintSeries;
@@ -80,6 +81,7 @@ public final class SweConstraintSeriesCreator {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
+        constraintSeries.getAdditionalConstraintSeries().addAll(additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(null));
         constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(null));
         constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeriesReference(null));
         return constraintSeries;
@@ -89,6 +91,7 @@ public final class SweConstraintSeriesCreator {
         ConstraintSeries constraintSeries = new ConstraintSeries();
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
+        constraintSeries.getAdditionalConstraintSeries().addAll(additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency));
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
         constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(contingency));
         constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeriesReference(contingency));

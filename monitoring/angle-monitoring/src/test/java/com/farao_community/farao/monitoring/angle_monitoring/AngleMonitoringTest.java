@@ -37,8 +37,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +48,6 @@ import static org.mockito.Mockito.when;
  */
 public class AngleMonitoringTest {
     private static final double ANGLE_TOLERANCE = 0.5;
-    private int numberOfLoadFlowsInParallel = 2;
     private OffsetDateTime glskOffsetDateTime;
     private Network network;
     private Crac crac;
@@ -122,19 +120,19 @@ public class AngleMonitoringTest {
     }
 
     private void runAngleMonitoring() {
-        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument).run("OpenLoadFlow", loadFlowParameters, numberOfLoadFlowsInParallel, glskOffsetDateTime);
+        angleMonitoringResult = new AngleMonitoring(crac, network, raoResult, cimGlskDocument).run("OpenLoadFlow", loadFlowParameters, 2, glskOffsetDateTime);
     }
 
     @Test
-    public void testUnknownAngleMonitoring() {
+    public void testDivergentAngleMonitoring() {
         // LoadFlow diverges
         setUpCracFactory("networkKO.xiidm");
         mockCurativeStates();
         runAngleMonitoring();
-        assertTrue(angleMonitoringResult.isUnknown());
+        assertTrue(angleMonitoringResult.isDivergent());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertTrue(angleMonitoringResult.getAngleCnecsWithAngle().stream().noneMatch(angleResult -> !angleResult.getAngle().isNaN()));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("Unknown status on AngleCnecs."));
+        assertTrue(angleMonitoringResult.getAngleCnecsWithAngle().stream().allMatch(angleResult -> angleResult.getAngle().isNaN()));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of("Load flow divergence."));
     }
 
     @Test
@@ -221,8 +219,8 @@ public class AngleMonitoringTest {
         // Status checks
         assertEquals("UNSECURE", angleMonitoringResult.getStatus().toString());
         assertTrue(angleMonitoringResult.isUnsecure());
-        assertTrue(!angleMonitoringResult.isSecure());
-        assertTrue(!angleMonitoringResult.isUnknown());
+        assertFalse(angleMonitoringResult.isSecure());
+        assertFalse(angleMonitoringResult.isUnknown());
         // Applied cras
         State state = crac.getState("Co-1", Instant.CURATIVE);
         assertEquals(1, angleMonitoringResult.getAppliedCras(state).size());

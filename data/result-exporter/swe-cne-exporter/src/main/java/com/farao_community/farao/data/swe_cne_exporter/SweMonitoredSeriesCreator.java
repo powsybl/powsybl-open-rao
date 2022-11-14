@@ -9,7 +9,6 @@ package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -34,12 +33,12 @@ import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class SweMonitoredSeriesCreator {
-    private final CneHelper cneHelper;
+    private final SweCneHelper sweCneHelper;
     private final CimCracCreationContext cracCreationContext;
     private Map<Contingency, Map<MonitoredSeriesCreationContext, Set<CnecCreationContext>>> cnecCreationContextsMap;
 
-    public SweMonitoredSeriesCreator(CneHelper cneHelper, CimCracCreationContext cracCreationContext) {
-        this.cneHelper = cneHelper;
+    public SweMonitoredSeriesCreator(SweCneHelper sweCneHelper, CimCracCreationContext cracCreationContext) {
+        this.sweCneHelper = sweCneHelper;
         this.cracCreationContext = cracCreationContext;
         prepareMap();
     }
@@ -56,7 +55,7 @@ public class SweMonitoredSeriesCreator {
                 return c1.getId().compareTo(c2.getId());
             }
         });
-        Crac crac = cneHelper.getCrac();
+        Crac crac = sweCneHelper.getCrac();
         cracCreationContext.getMonitoredSeriesCreationContexts().values().stream()
             .filter(MonitoredSeriesCreationContext::isImported).forEach(
                 monitoredSeriesCreationContext -> monitoredSeriesCreationContext.getMeasurementCreationContexts().stream()
@@ -90,7 +89,7 @@ public class SweMonitoredSeriesCreator {
         double flow = 0.0;
         double margin = Double.POSITIVE_INFINITY;
         for (Side side : cnec.getMonitoredSides()) {
-            double flowOnSide = cneHelper.getRaoResult().getFlow(optimizationState, cnec, side, Unit.AMPERE);
+            double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizationState, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }
@@ -104,7 +103,7 @@ public class SweMonitoredSeriesCreator {
     }
 
     private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts) {
-        Crac crac = cneHelper.getCrac();
+        Crac crac = sweCneHelper.getCrac();
         Map<Integer, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
             FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
@@ -140,7 +139,7 @@ public class SweMonitoredSeriesCreator {
         MonitoredRegisteredResource registeredResource = new MonitoredRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, monitoredSeriesCreationContext.getNativeResourceId()));
         registeredResource.setName(monitoredSeriesCreationContext.getNativeResourceName());
-        Branch<?> branch = cneHelper.getNetwork().getBranch(cnec.getNetworkElement().getId());
+        Branch<?> branch = sweCneHelper.getNetwork().getBranch(cnec.getNetworkElement().getId());
         registeredResource.setInAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal1().getVoltageLevel().getId()));
         registeredResource.setOutAggregateNodeMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, branch.getTerminal2().getVoltageLevel().getId()));
 

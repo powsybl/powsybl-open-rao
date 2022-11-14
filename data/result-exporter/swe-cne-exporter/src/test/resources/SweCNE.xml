@@ -85,6 +85,11 @@
                             <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
                         </RegisteredResource>
                     </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>na1</mRID>
+                        <name>na1-name</name>
+                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
                     <mRID>b207176-7d9b-4fa0-ae5d-cd8a869ae491</mRID>
@@ -173,6 +178,12 @@
                 <Constraint_Series>
                     <mRID>53c404b-8a90-4830-8f92-78956ce4469f</mRID>
                     <businessType>B57</businessType>
+                    <AdditionalConstraint_Series>
+                        <mRID>ac1</mRID>
+                        <businessType>B87</businessType>
+                        <name>ac1-name</name>
+                        <quantity.quantity>4.0</quantity.quantity>
+                    </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
                         <name>Contingency 1 name</name>
@@ -272,6 +283,11 @@
                     <RemedialAction_Series>
                         <mRID>PRA_1@-6@</mRID>
                         <name>PRA_1</name>
+                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+                    </RemedialAction_Series>
+                    <RemedialAction_Series>
+                        <mRID>na1</mRID>
+                        <name>na1-name</name>
                         <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                 </Constraint_Series>

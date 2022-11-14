@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.swe_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 import org.xml.sax.SAXException;
@@ -47,9 +48,9 @@ public class SweCneExporter {
 
     public void exportCne(Crac crac, Network network,
                           CimCracCreationContext cracCreationContext,
-                          RaoResult raoResult, RaoParameters raoParameters,
+                          RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters,
                           CneExporterParameters exporterParameters, OutputStream outputStream) {
-        SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
+        SweCne cne = new SweCne(crac, network, cracCreationContext, raoResult, angleMonitoringResult, raoParameters, exporterParameters);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
         StringWriter stringWriter = new StringWriter();

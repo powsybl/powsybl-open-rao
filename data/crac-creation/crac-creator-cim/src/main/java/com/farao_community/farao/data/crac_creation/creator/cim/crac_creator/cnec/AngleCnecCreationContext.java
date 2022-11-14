@@ -41,6 +41,10 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
         return createdAngleCnecId;
     }
 
+    public String getCreatedAngleCnecId() {
+        return createdAngleCnecId;
+    }
+
     @Override
     public boolean isImported() {
         return angleCnecImportStatus.equals(ImportStatus.IMPORTED);

@@ -85,11 +85,6 @@
                             <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
                         </RegisteredResource>
                     </RemedialAction_Series>
-                    <RemedialAction_Series>
-                        <mRID>na1</mRID>
-                        <name>na1-name</name>
-                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
-                    </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
                     <mRID>b207176-7d9b-4fa0-ae5d-cd8a869ae491</mRID>
@@ -182,7 +177,6 @@
                         <mRID>ac1</mRID>
                         <businessType>B87</businessType>
                         <name>ac1-name</name>
-                        <quantity.quantity>4.0</quantity.quantity>
                     </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
@@ -283,11 +277,6 @@
                     <RemedialAction_Series>
                         <mRID>PRA_1@-6@</mRID>
                         <name>PRA_1</name>
-                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
-                    </RemedialAction_Series>
-                    <RemedialAction_Series>
-                        <mRID>na1</mRID>
-                        <name>na1-name</name>
                         <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                 </Constraint_Series>
@@ -392,8 +381,8 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Reason>
-                    <code>Z13</code>
-                    <text>Network is secure</text>
+                    <code>B40</code>
+                    <text>Load flow divergence</text>
                 </Reason>
             </Point>
         </Period>

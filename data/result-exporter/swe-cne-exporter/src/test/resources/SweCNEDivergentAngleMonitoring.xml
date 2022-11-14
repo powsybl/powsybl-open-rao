@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_3.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <mRID>documentId</mRID>
-    <revisionNumber>1</revisionNumber>
+    <revisionNumber>3</revisionNumber>
     <type>B06</type>
-    <process.processType>Z01</process.processType>
+    <process.processType>A48</process.processType>
     <sender_MarketParticipant.mRID codingScheme="A01">senderId</sender_MarketParticipant.mRID>
-    <sender_MarketParticipant.marketRole.type>A04</sender_MarketParticipant.marketRole.type>
+    <sender_MarketParticipant.marketRole.type>A44</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">receiverId</receiver_MarketParticipant.mRID>
     <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
     <createdDateTime>2022-06-08T09:22:09Z</createdDateTime>
@@ -84,11 +84,6 @@
                             <resourceCapacity.defaultCapacity>-6</resourceCapacity.defaultCapacity>
                             <resourceCapacity.unitSymbol>C62</resourceCapacity.unitSymbol>
                         </RegisteredResource>
-                    </RemedialAction_Series>
-                    <RemedialAction_Series>
-                        <mRID>na1</mRID>
-                        <name>na1-name</name>
-                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
@@ -182,7 +177,6 @@
                         <mRID>ac1</mRID>
                         <businessType>B87</businessType>
                         <name>ac1-name</name>
-                        <quantity.quantity>4.0</quantity.quantity>
                     </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
@@ -283,11 +277,6 @@
                     <RemedialAction_Series>
                         <mRID>PRA_1@-6@</mRID>
                         <name>PRA_1</name>
-                        <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
-                    </RemedialAction_Series>
-                    <RemedialAction_Series>
-                        <mRID>na1</mRID>
-                        <name>na1-name</name>
                         <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
                     </RemedialAction_Series>
                 </Constraint_Series>
@@ -392,8 +381,8 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Reason>
-                    <code>Z13</code>
-                    <text>Network is secure</text>
+                    <code>B40</code>
+                    <text>Load flow divergence</text>
                 </Reason>
             </Point>
         </Period>

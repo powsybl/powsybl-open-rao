@@ -93,7 +93,7 @@ public class JsonAngleMonitoringResultTest {
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(preventiveState).size());
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), Instant.CURATIVE)).size());
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
-        Set<AngleMonitoringResult.AngleResult> expectedResult = Set.of(new AngleMonitoringResult.AngleResult(ac1, 2.0), new AngleMonitoringResult.AngleResult(ac2, 4.0));
+        Set<AngleMonitoringResult.AngleResult> expectedResult = Set.of(new AngleMonitoringResult.AngleResult(ac1, 2.3), new AngleMonitoringResult.AngleResult(ac2, 4.6));
         angleMonitoringResult.getAngleCnecsWithAngle().forEach(angleResult ->
                 assertTrue(expectedResult.stream().anyMatch(exRes -> compareAngleResults(exRes, angleResult))));
         OutputStream os = new ByteArrayOutputStream();
