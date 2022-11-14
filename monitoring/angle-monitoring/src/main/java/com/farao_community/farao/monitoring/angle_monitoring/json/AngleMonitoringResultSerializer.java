@@ -57,7 +57,7 @@ public class AngleMonitoringResultSerializer extends JsonSerializer<AngleMonitor
                 jsonGenerator.writeStringField(CONTINGENCY, optContingency.get().getId());
             }
             jsonGenerator.writeStringField(CNEC_ID, angleResult.getAngleCnec().getId());
-            jsonGenerator.writeNumberField(QUANTITY, angleResult.getAngle());
+            jsonGenerator.writeNumberField(QUANTITY, Math.round(10.0 * angleResult.getAngle()) / 10.0);
             jsonGenerator.writeEndObject();
         }
     }
