@@ -109,7 +109,7 @@ public class AngleMonitoring {
                                 stateSpecificResults.add(monitorAngleCnecs(loadFlowProvider, loadFlowParameters, state, networkClone));
                             } catch (Exception e) {
                                 BUSINESS_WARNS.warn(e.getMessage());
-                                stateSpecificResults.add(catchAngleMonitoringResult(state));
+                                stateSpecificResults.add(catchAngleMonitoringResult(state, AngleMonitoringResult.Status.UNKNOWN));
                             }
                             stateCountDownLatch.countDown();
                             try {
@@ -165,7 +165,7 @@ public class AngleMonitoring {
         // 1) Compute angles for all AngleCnecs
         boolean loadFlowIsOk = computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone);
         if (!loadFlowIsOk) {
-            return catchAngleMonitoringResult(state);
+            return catchAngleMonitoringResult(state, AngleMonitoringResult.Status.DIVERGENT);
         }
         Map<AngleCnec, Double> angleValues = computeAngles(crac.getAngleCnecs(state), networkClone);
         for (Map.Entry<AngleCnec, Double> angleCnecWithAngle : angleValues.entrySet()) {
@@ -185,7 +185,7 @@ public class AngleMonitoring {
             if (!loadFlowIsOk) {
                 Set<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
                 angleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, angleResult)));
-                return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNSECURE);
+                return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.DIVERGENT);
             }
         }
         // 4) Re-compute all angle values
@@ -371,6 +371,7 @@ public class AngleMonitoring {
      * Individual AngleResults and appliedCras maps are concatenated.
      * Global status :
      * - SECURE if all AngleMonitoringResults are SECURE.
+     * - DIVERGENT if any AngleMonitoringResult is DIVERGENT.
      * - UNSECURE if any AngleMonitoringResult is UNSECURE.
      * - UNKNOWN if any AngleMonitoringResult is UNKNOWN and no AngleMonitoringResult is UNSECURE.
      */
@@ -386,6 +387,8 @@ public class AngleMonitoring {
         // Status
         if (stateSpecificResults.isEmpty()) {
             assembledStatus = AngleMonitoringResult.Status.UNKNOWN;
+        } else if (stateSpecificResults.stream().anyMatch(AngleMonitoringResult::isDivergent)) {
+            assembledStatus = AngleMonitoringResult.Status.DIVERGENT;
         } else if (stateSpecificResults.stream().anyMatch(AngleMonitoringResult::isUnsecure)) {
             assembledStatus = AngleMonitoringResult.Status.UNSECURE;
         } else if (stateSpecificResults.stream().anyMatch(AngleMonitoringResult::isUnknown)) {
@@ -394,10 +397,10 @@ public class AngleMonitoring {
         return new AngleMonitoringResult(assembledAngleCnecsWithAngle, assembledAppliedCras, assembledStatus);
     }
 
-    private AngleMonitoringResult catchAngleMonitoringResult(State state) {
+    private AngleMonitoringResult catchAngleMonitoringResult(State state, AngleMonitoringResult.Status status) {
         TreeSet<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
         crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, Double.NaN)));
-        return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.UNKNOWN);
+        return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), status);
     }
 
     private void loadGlskCountries() {

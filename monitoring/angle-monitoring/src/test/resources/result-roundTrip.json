@@ -4,12 +4,12 @@
   "angle-cnec-quantities-in-degrees" : [ {
     "instant" : "preventive",
     "cnec-id" : "ac1",
-    "quantity" : 2.0
+    "quantity" : 2.3
   }, {
     "instant" : "curative",
     "contingency" : "co1",
     "cnec-id" : "ac2",
-    "quantity" : 4.0
+    "quantity" : 4.6
   } ],
   "applied-cras" : [ {
     "instant" : "curative",
