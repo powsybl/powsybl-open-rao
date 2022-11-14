@@ -86,7 +86,7 @@ public class CriticalBranchReader {
         if (tOutage == null) {
             outage = "basecase";
         } else {
-            if (tOutage.getV() == null) {
+            if (tOutage.getV() == null && tOutage.getName() != null) {
                 isMonitored = true;
                 tOutage.setV(tOutage.getName().getV());
             }
@@ -95,16 +95,16 @@ public class CriticalBranchReader {
         this.criticalBranchName = String.join(" - ", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage);
         UcteFlowElementHelper branchHelper = new UcteFlowElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), ucteNetworkAnalyzer);
         this.nativeBranch = new NativeBranch(branchHelper.getOriginalFrom(), branchHelper.getOriginalTo(), branchHelper.getSuffix());
-        if (outage.equals("mneHasTooManyBranches")) {
-            this.isImported = false;
-            this.invalidBranchReason = "MonitoredElement has more than 1 Branch";
-            this.criticalBranchImportStatus = ImportStatus.NOT_YET_HANDLED_BY_FARAO;
-            return;
-        }
         if (!branchHelper.isValid()) {
             this.isImported = false;
             this.invalidBranchReason = branchHelper.getInvalidReason();
             this.criticalBranchImportStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
+            return;
+        }
+        if (outage.equals("mneHasTooManyBranches")) {
+            this.isImported = false;
+            this.invalidBranchReason = "MonitoredElement has more than 1 Branch";
+            this.criticalBranchImportStatus = ImportStatus.NOT_YET_HANDLED_BY_FARAO;
             return;
         }
         this.monitoredSides = branchHelper.isHalfLine() ? Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide())) : defaultMonitoredSides;
