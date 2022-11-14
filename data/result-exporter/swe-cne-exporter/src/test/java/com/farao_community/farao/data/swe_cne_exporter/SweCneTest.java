@@ -20,7 +20,6 @@ import com.farao_community.farao.data.crac_creation.creator.cim.parameters.Range
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +52,7 @@ public class SweCneTest {
 
     @Before
     public void setUp() {
-        network = Importers.loadNetwork(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
+        network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);

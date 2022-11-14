@@ -22,8 +22,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.cim.CimGlskDocument;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Before;
@@ -75,7 +74,7 @@ public class AngleMonitoringTest {
     public void setUpCimCrac(String fileName, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        network = Importers.loadNetwork(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
@@ -87,7 +86,7 @@ public class AngleMonitoringTest {
     }
 
     public void setUpCracFactory(String networkFileName) {
-        network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
+        network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         crac = CracFactory.findDefault().create("test-crac");
         cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml"));
         glskOffsetDateTime = OffsetDateTime.parse("2017-04-12T02:30Z");
