@@ -6,12 +6,9 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cse.monitored_elements;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
-import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CriticalBranchReader;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CseCriticalBranchCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
@@ -50,8 +47,7 @@ public class TMonitoredElementsAdder {
             for (int i = 0; i < tMonitoredElements.getMonitoredElement().size(); i++) {
                 if (tMonitoredElements.getMonitoredElement().get(i).getBranch().size() == 1) {
                     addBaseCaseBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0));
-                }
-                else {
+                } else {
                     TOutage fakeOutage = new TOutage();
                     TName fakeName = new TName();
                     fakeName.setV("mneHasTooManyBranches");

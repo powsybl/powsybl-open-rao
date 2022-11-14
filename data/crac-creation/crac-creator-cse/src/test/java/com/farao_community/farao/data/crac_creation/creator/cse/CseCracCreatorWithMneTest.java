@@ -152,19 +152,19 @@ public class CseCracCreatorWithMneTest {
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (direction.equals("DIRECT")) {
             return flowCnec.getThresholds().stream().anyMatch(threshold ->
-                    threshold.getSide().equals((side))
+                    threshold.getSide().equals(side)
                             && ((!directionInvertedInNetwork && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)) || (directionInvertedInNetwork && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)))
                             && (threshold.getUnit().equals(expectedThresholdUnit))
             );
         } else if (direction.equals("OPPOSITE")) {
             return flowCnec.getThresholds().stream().anyMatch(threshold ->
-                    threshold.getSide().equals((side))
+                    threshold.getSide().equals(side)
                             && ((directionInvertedInNetwork && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)) || (!directionInvertedInNetwork && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)))
                             && (threshold.getUnit().equals(expectedThresholdUnit))
             );
         } else {
             return flowCnec.getThresholds().stream().anyMatch(threshold ->
-                    threshold.getSide().equals((side))
+                    threshold.getSide().equals(side)
                             && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
                             && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
                             && threshold.getUnit().equals(expectedThresholdUnit)
