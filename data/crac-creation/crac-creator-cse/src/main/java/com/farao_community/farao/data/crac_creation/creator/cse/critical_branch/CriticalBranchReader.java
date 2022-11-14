@@ -82,9 +82,10 @@ public class CriticalBranchReader {
 
     public CriticalBranchReader(TBranch tBranch, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
         String outage;
+        final String basecase = "basecase";
         boolean isMonitored = false;
         if (tOutage == null) {
-            outage = "basecase";
+            outage = basecase;
         } else {
             if (tOutage.getV() == null && tOutage.getName() != null) {
                 isMonitored = true;
@@ -108,7 +109,7 @@ public class CriticalBranchReader {
             return;
         }
         this.monitoredSides = branchHelper.isHalfLine() ? Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide())) : defaultMonitoredSides;
-        if (tOutage != null && crac.getContingency(tOutage.getV()) == null && !tOutage.getV().equals("basecase")) {
+        if (tOutage != null && crac.getContingency(tOutage.getV()) == null && !tOutage.getV().equals(basecase)) {
             this.isImported = false;
             this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
             this.invalidBranchReason = String.format("CNEC is defined on outage %s which is not defined", tOutage.getV());
@@ -120,7 +121,7 @@ public class CriticalBranchReader {
             } else {
                 this.selected = isSelected(tBranch);
             }
-            if (tOutage == null || tOutage.getV().equals("basecase")) {
+            if (tOutage == null || tOutage.getV().equals(basecase)) {
                 // preventive
                 this.isBaseCase = true;
                 this.contingencyId = null;
