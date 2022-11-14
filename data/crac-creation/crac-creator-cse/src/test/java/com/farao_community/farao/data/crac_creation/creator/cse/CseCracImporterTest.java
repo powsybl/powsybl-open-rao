@@ -39,12 +39,4 @@ public class CseCracImporterTest {
         assertEquals(cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().get(0).getTimeInterval().getV(), "2021-04-30T22:00Z/2021-04-30T23:00ZZ");
         assertEquals(cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().get(0).getBranch().get(0).getImax().getV(), 100);
     }
-
-    @Test
-    public void importNativeCracwithMNEUs() {
-        InputStream is = getClass().getResourceAsStream("/cracs/20220530_1930_2D1_ce_CRAC_Transit_CSE2.xml");
-        CseCracImporter importer = new CseCracImporter();
-        CseCrac cseCrac = importer.importNativeCrac(is);
-        assertEquals(cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().size(), 30);
-    }
 }
