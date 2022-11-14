@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cne
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,7 @@ public class SweAdditionalConstraintSeriesCreator {
         additionalConstraintSeries.setBusinessType(ANGLE_CNEC_BUSINESS_TYPE);
         additionalConstraintSeries.setName(angleCnec.getName());
         if (!sweCneHelper.getAngleMonitoringResult().isDivergent()) {
-            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getAngleMonitoringResult().getAngle(angleCnec, Unit.DEGREE)));
+            additionalConstraintSeries.setQuantityQuantity(BigDecimal.valueOf(sweCneHelper.getAngleMonitoringResult().getAngle(angleCnec, Unit.DEGREE)).setScale(1, RoundingMode.HALF_UP));
         }
         return additionalConstraintSeries;
     }

@@ -54,7 +54,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(crac.getAngleCnec(acc2.getCreatedAngleCnecId())).thenReturn(angleCnec2);
         Mockito.when(angleCnec1.getName()).thenReturn("AngleCnecName1");
         Mockito.when(angleCnec2.getName()).thenReturn("AngleCnecName2");
-        Mockito.when(angleMonitoringResult.getAngle(angleCnec1, Unit.DEGREE)).thenReturn(1.34);
+        Mockito.when(angleMonitoringResult.getAngle(angleCnec1, Unit.DEGREE)).thenReturn(1.37);
         Mockito.when(angleMonitoringResult.getAngle(angleCnec2, Unit.DEGREE)).thenReturn(-21.34);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(acc1, acc2));
         State curativeState = Mockito.mock(State.class);
@@ -112,11 +112,11 @@ public class SweAdditionalConstraintSeriesCreatorTest {
         assertEquals("AngleCnecId1", contingencyAngleSeries.get(0).getMRID());
         assertEquals("AngleCnecName1", contingencyAngleSeries.get(0).getName());
         assertEquals("B87", contingencyAngleSeries.get(0).getBusinessType());
-        assertEquals(1.34, contingencyAngleSeries.get(0).getQuantityQuantity().doubleValue(), 1.0E-6);
+        assertEquals(1.4, contingencyAngleSeries.get(0).getQuantityQuantity().doubleValue(), 1.0E-6);
         assertEquals("AngleCnecId2", contingencyAngleSeries.get(1).getMRID());
         assertEquals("AngleCnecName2", contingencyAngleSeries.get(1).getName());
         assertEquals("B87", contingencyAngleSeries.get(1).getBusinessType());
-        assertEquals(-21.34, contingencyAngleSeries.get(1).getQuantityQuantity().doubleValue(), 1.0E-6);
+        assertEquals(-21.3, contingencyAngleSeries.get(1).getQuantityQuantity().doubleValue(), 1.0E-6);
     }
 
     @Test
