@@ -33,7 +33,7 @@ public class CseCracImporterTest {
 
     @Test
     public void importNativeCracWithMNE() {
-        InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_with_MNE(cnec1become_mne).xml");
+        InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_with_MNE.xml");
         CseCracImporter importer = new CseCracImporter();
         CseCrac cseCrac = importer.importNativeCrac(is);
         assertEquals(cseCrac.getCracDocument().getCRACSeries().get(0).getMonitoredElements().getMonitoredElement().get(0).getTimeInterval().getV(), "2021-04-30T22:00Z/2021-04-30T23:00ZZ");

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse.monitored_eleme
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CriticalBranchReader;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CseCriticalBranchCreationContext;
@@ -48,8 +49,14 @@ public class TMonitoredElementsAdder {
         if (tMonitoredElements != null) {
             for (int i = 0; i < tMonitoredElements.getMonitoredElement().size(); i++) {
                 if (tMonitoredElements.getMonitoredElement().get(i).getBranch().size() == 1) {
-                    /* Il faut un truc qui dit qu'il y en a plus que 2 donc erreur d'apres Peter mais je sais pas faire */
                     addBaseCaseBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0));
+                }
+                else {
+                    TOutage fakeOutage = new TOutage();
+                    TName fakeName = new TName();
+                    fakeName.setV("mneHasTooManyBranches");
+                    fakeOutage.setName(fakeName);
+                    addBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0), fakeOutage);
                 }
             }
         }
@@ -63,10 +70,6 @@ public class TMonitoredElementsAdder {
                         for (int j = 0; j < tcracSeries.getOutages().getOutage().size(); j++) {
                             addBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0), tcracSeries.getOutages().getOutage().get(j));
                         }
-                    } else {
-                        // TODO : Add info to CracCreationContext
-                        /* Il faut un truc qui dit qu'il y en a plus que 2 donc erreur d'apres Peter mais je sais pas faire  */
-                        return;
                     }
                 }
             }

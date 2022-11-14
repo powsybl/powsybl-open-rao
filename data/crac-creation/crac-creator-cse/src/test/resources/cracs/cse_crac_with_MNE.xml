@@ -201,10 +201,39 @@
             <MonitoredElement>
                 <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
                 <Branch>
-                    <Name v="fake_mne"/>
+                    <Name v="mne_test"/>
                     <EIC v="14T-220-0-0266AL"/>
-                    <FromNode v="NNL2AA1 "/>
+                    <FromNode v="NNL3AA1 "/>
+                    <ToNode v="NNL2AA1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage v="110" unit="Pct"/>
+                    <ImaxAfterSPS v="6000" unit="A"/>
+                    <ImaxAfterCRA v="6500" unit="A"/>
+                    <Imax v="100" unit="Pct"/>
+                    <Vn v="380" unit="kV"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+            </MonitoredElement>
+            <MonitoredElement>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Branch>
+                    <Name v="fake_mne_1"/>
+                    <EIC v="14T-220-0-0266AL"/>
+                    <FromNode v="NNL1AA1 "/>
                     <ToNode v="NNL3AA1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage v="110" unit="Pct"/>
+                    <ImaxAfterSPS v="6000" unit="A"/>
+                    <ImaxAfterCRA v="6500" unit="A"/>
+                    <Imax v="100" unit="Pct"/>
+                    <Vn v="380" unit="kV"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+                <Branch>
+                    <Name v="fake_mne_2"/>
+                    <EIC v="14T-220-0-0266AL"/>
+                    <FromNode v="NNL1AA1 "/>
+                    <ToNode v="NNL2AA1 "/>
                     <Order v="1"/>
                     <ImaxAfterOutage v="110" unit="Pct"/>
                     <ImaxAfterSPS v="6000" unit="A"/>
