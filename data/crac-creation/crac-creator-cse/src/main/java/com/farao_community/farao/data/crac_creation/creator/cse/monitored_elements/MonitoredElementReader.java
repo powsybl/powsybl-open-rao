@@ -86,7 +86,7 @@ public class MonitoredElementReader {
         this.nativeBranch = new NativeBranch(branchHelper.getOriginalFrom(), branchHelper.getOriginalTo(), branchHelper.getSuffix());
         if (outage.equals("mneHasTooManyBranches")) {
             this.isImported = false;
-            this.invalidBranchReason = String.format("MonitoredElement has more than 1 Branch");
+            this.invalidBranchReason = "MonitoredElement has more than 1 Branch";
             this.monitoredBranchImportStatus = ImportStatus.NOT_YET_HANDLED_BY_FARAO;
             return;
         }

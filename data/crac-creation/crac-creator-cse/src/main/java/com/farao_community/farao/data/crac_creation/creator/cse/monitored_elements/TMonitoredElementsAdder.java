@@ -59,13 +59,11 @@ public class TMonitoredElementsAdder {
     }
 
     private void importCurativeMne(TMonitoredElements tMonitoredElements) {
-        if (tMonitoredElements != null) {
-            if (tcracSeries.getOutages().getOutage().size() > 0) {
-                for (int i = 0; i < tMonitoredElements.getMonitoredElement().size(); i++) {
-                    if (tMonitoredElements.getMonitoredElement().get(i).getBranch().size() == 1) {
-                        for (int j = 0; j < tcracSeries.getOutages().getOutage().size(); j++) {
-                            addBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0), tcracSeries.getOutages().getOutage().get(j));
-                        }
+        if (tMonitoredElements != null && !tcracSeries.getOutages().getOutage().isEmpty()) {
+            for (int i = 0; i < tMonitoredElements.getMonitoredElement().size(); i++) {
+                if (tMonitoredElements.getMonitoredElement().get(i).getBranch().size() == 1) {
+                    for (int j = 0; j < tcracSeries.getOutages().getOutage().size(); j++) {
+                        addBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0), tcracSeries.getOutages().getOutage().get(j));
                     }
                 }
             }

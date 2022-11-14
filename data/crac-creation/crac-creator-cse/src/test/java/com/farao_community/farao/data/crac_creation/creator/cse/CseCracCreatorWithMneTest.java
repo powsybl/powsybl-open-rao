@@ -55,7 +55,7 @@ public class CseCracCreatorWithMneTest {
         assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(Instant.CURATIVE));
         assertNotNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(Instant.AUTO));
         assertNull(cseCriticalBranchCreationContext.getCreatedCnecsIds().get(Instant.PREVENTIVE));
-        assertEquals(cseCriticalBranchCreationContext.getImportStatus(), ImportStatus.IMPORTED);
+        assertEquals(ImportStatus.IMPORTED, cseCriticalBranchCreationContext.getImportStatus());
         assertFalse(cseCriticalBranchCreationContext.isBaseCase());
         assertEquals(contingencyId, cseCriticalBranchCreationContext.getContingencyId().orElseThrow());
         assertEquals(fromNode, cseCriticalBranchCreationContext.getNativeBranch().getFrom());
