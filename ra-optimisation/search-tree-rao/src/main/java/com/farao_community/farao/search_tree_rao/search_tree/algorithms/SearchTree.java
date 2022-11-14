@@ -7,9 +7,11 @@
 package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
@@ -525,18 +527,24 @@ public class SearchTree {
     }
 
     List<String> getVirtualCostlyElementsLogs(Leaf leaf, String virtualCostName, String prefix) {
+        Unit unit = parameters.getObjectiveFunction().getUnit();
         List<String> logs = new ArrayList<>();
         int i = 1;
         for (FlowCnec flowCnec : leaf.getCostlyElements(virtualCostName, NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS)) {
+            Side limitingSide = leaf.getMargin(flowCnec, Side.LEFT, unit) < leaf.getMargin(flowCnec, Side.RIGHT, unit) ? Side.LEFT : Side.RIGHT;
+            double flow = leaf.getFlow(flowCnec, limitingSide, unit);
+            Double limitingThreshold = flow >= 0 ? flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN) : flowCnec.getLowerBound(limitingSide, unit).orElse(Double.NaN);
             logs.add(String.format(Locale.ENGLISH,
-                    "%s%s, limiting \"%s\" constraint #%02d: margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+                    "%s%s, limiting \"%s\" constraint #%02d: flow = %.2f %s, threshold = %.2f %s, margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\", CNEC name = \"%s\"",
                     prefix,
                     leaf.getIdentifier(),
                     virtualCostName,
                     i,
-                    leaf.getMargin(flowCnec, parameters.getObjectiveFunction().getUnit()), parameters.getObjectiveFunction().getUnit(),
+                    flow, unit,
+                    limitingThreshold, unit,
+                    leaf.getMargin(flowCnec, limitingSide, unit), unit,
                     flowCnec.getNetworkElement().getId(), flowCnec.getState().getId(),
-                    flowCnec.getId()));
+                    flowCnec.getId(), flowCnec.getName()));
             i++;
         }
         return logs;
