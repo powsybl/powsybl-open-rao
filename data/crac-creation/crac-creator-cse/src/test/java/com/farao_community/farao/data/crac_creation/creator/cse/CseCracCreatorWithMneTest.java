@@ -198,7 +198,7 @@ public class CseCracCreatorWithMneTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();
         assertAllMneCorrectlyImportedInCrac();
-        assertEquals("[REMOVED] Critical branch \"mne_test - NNL3AA1  - NNL2AA1  - outage_3\" was not imported: INCOMPLETE_DATA. CNEC is defined on outage null which is not defined.", cracCreationContext.getCreationReport().getReport().get(3));
+        assertEquals("[REMOVED] Critical branch \"mne_test - NNL3AA1  - NNL2AA1  - outage_3\" was not imported: INCOMPLETE_DATA. CNEC is defined on outage outage_3 which is not defined.", cracCreationContext.getCreationReport().getReport().get(3));
         assertEquals("[REMOVED] Critical branch \"fake_mne_1 - NNL1AA1  - NNL3AA1  - mneHasTooManyBranches\" was not imported: NOT_YET_HANDLED_BY_FARAO. MonitoredElement has more than 1 Branch.", cracCreationContext.getCreationReport().getReport().get(2));
     }
 }

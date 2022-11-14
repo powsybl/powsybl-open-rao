@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse.monitored_eleme
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
+import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CriticalBranchReader;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CseCriticalBranchCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
@@ -46,7 +47,11 @@ public class TMonitoredElementsAdder {
         if (tMonitoredElements != null) {
             for (int i = 0; i < tMonitoredElements.getMonitoredElement().size(); i++) {
                 if (tMonitoredElements.getMonitoredElement().get(i).getBranch().size() == 1) {
-                    addBaseCaseBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0));
+                    TOutage fakeOutage = new TOutage();
+                    TName fakeName = new TName();
+                    fakeName.setV("basecase");
+                    fakeOutage.setName(fakeName);
+                    addBranch(tMonitoredElements.getMonitoredElement().get(i).getBranch().get(0), fakeOutage);
                 } else {
                     TOutage fakeOutage = new TOutage();
                     TName fakeName = new TName();
@@ -70,12 +75,8 @@ public class TMonitoredElementsAdder {
         }
     }
 
-    private void addBaseCaseBranch(TBranch tBranch) {
-        addBranch(tBranch, null);
-    }
-
     private void addBranch(TBranch tBranch, TOutage tOutage) {
-        MonitoredElementReader monitoredElementReader = new MonitoredElementReader(tBranch, tOutage, crac, ucteNetworkAnalyzer, defaultMonitoredSides);
-        cseCracCreationContext.addCriticalBranchCreationContext(new CseCriticalBranchCreationContext(monitoredElementReader));
+        CriticalBranchReader criticalBranchReader = new CriticalBranchReader(tBranch, tOutage, crac, ucteNetworkAnalyzer, defaultMonitoredSides);
+        cseCracCreationContext.addCriticalBranchCreationContext(new CseCriticalBranchCreationContext(criticalBranchReader));
     }
 }
