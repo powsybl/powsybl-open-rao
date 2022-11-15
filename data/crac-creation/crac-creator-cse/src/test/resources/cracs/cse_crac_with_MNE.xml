@@ -203,8 +203,8 @@
                 <Branch>
                     <Name v="mne_test"/>
                     <EIC v="14T-220-0-0266AL"/>
-                    <FromNode v="NNL3AA1 "/>
-                    <ToNode v="NNL2AA1 "/>
+                    <FromNode v="NNL2AA1 "/>
+                    <ToNode v="NNL3AA1 "/>
                     <Order v="1"/>
                     <ImaxAfterOutage v="110" unit="Pct"/>
                     <ImaxAfterSPS v="6000" unit="A"/>

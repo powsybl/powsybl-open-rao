@@ -84,7 +84,7 @@ public class CseCriticalBranchCreationContext implements BranchCnecCreationConte
         return selected;
     }
 
-    public CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
+    CseCriticalBranchCreationContext(CriticalBranchReader criticalBranchReader) {
         this.criticalBranchName = criticalBranchReader.getCriticalBranchName();
         this.nativeBranch = criticalBranchReader.getNativeBranch();
         this.isBaseCase = criticalBranchReader.isBaseCase();
