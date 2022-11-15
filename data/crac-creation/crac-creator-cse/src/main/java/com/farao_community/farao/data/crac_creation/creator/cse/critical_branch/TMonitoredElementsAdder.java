@@ -35,7 +35,9 @@ public class TMonitoredElementsAdder {
 
     public void add() {
         TMonitoredElements tMonitoredElements = tcracSeries.getMonitoredElements();
-        if (tMonitoredElements == null) return;
+        if (tMonitoredElements == null) {
+            return;
+        }
         importPreventiveMne(tMonitoredElements);
         importCurativeMne(tMonitoredElements);
     }
