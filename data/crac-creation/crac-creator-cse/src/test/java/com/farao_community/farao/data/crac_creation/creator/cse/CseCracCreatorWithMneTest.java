@@ -119,7 +119,8 @@ public class CseCracCreatorWithMneTest {
         } else {
             assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
         }
-        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.RIGHT), flowCnec.getNominalVoltage(Side.LEFT));
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.RIGHT), 0.00001);
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.LEFT), 0.00001);
     }
 
     public void assertMneBaseCaseInCrac(String name, String fromNode, String toNode, String suffix, String direction, Instant instant, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
@@ -143,23 +144,27 @@ public class CseCracCreatorWithMneTest {
         } else {
             assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
         }
-        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.RIGHT), flowCnec.getNominalVoltage(Side.LEFT));
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.RIGHT), 0.00001);
+        assertEquals(expectedNV, flowCnec.getNominalVoltage(Side.LEFT), 0.00001);
     }
 
     private boolean hasThreshold(String nativeId, double expectedThreshold, Unit expectedThresholdUnit, FlowCnec flowCnec, String direction, Side side) {
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if ((!directionInvertedInNetwork && direction.equals("DIRECT")) || (directionInvertedInNetwork && direction.equals("OPPOSITE"))) {
+            // should have max
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
                     && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
                     && threshold.getUnit().equals(expectedThresholdUnit)
             );
         }
         if ((directionInvertedInNetwork && direction.equals("DIRECT")) || (!directionInvertedInNetwork && direction.equals("OPPOSITE"))) {
+            // should have min
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
                     && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
                     && threshold.getUnit().equals(expectedThresholdUnit)
             );
         }
+        // should have min and max
         return flowCnec.getThresholds().stream().anyMatch(threshold ->
                 threshold.getSide().equals(side)
                         && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)

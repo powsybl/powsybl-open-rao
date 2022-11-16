@@ -45,13 +45,9 @@ public class TMonitoredElementsAdder {
     private void importPreventiveMne(TMonitoredElements tMonitoredElements) {
         tMonitoredElements.getMonitoredElement().forEach(tMonitoredElement -> {
             if (tMonitoredElement.getBranch().size() == 1) {
-                List<TBranch> tBranches = new ArrayList<>();
-                tBranches.add(tMonitoredElement.getBranch().get(0));
-                addBaseCaseBranch(tBranches);
+                addBaseCaseBranch(List.of(tMonitoredElement.getBranch().get(0)));
             } else {
-                List<TBranch> tBranches = new ArrayList<>();
-                tBranches.addAll(tMonitoredElement.getBranch());
-                addBaseCaseBranch(tBranches);
+                addBaseCaseBranch(tMonitoredElement.getBranch());
             }
         });
     }
@@ -64,9 +60,7 @@ public class TMonitoredElementsAdder {
         tMonitoredElements.getMonitoredElement().forEach(tMonitoredElement -> {
             if (tMonitoredElement.getBranch().size() == 1) {
                 tBranches.add(tMonitoredElement.getBranch().get(0));
-                tcracSeries.getOutages().getOutage().forEach(tOutage -> {
-                    addBranch(tBranches, tOutage);
-                });
+                tcracSeries.getOutages().getOutage().forEach(tOutage -> addBranch(tBranches, tOutage));
             }
         });
     }
