@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
 import java.util.*;
@@ -16,36 +15,29 @@ import java.util.*;
  */
 public class RangeActionResult {
     protected double initialSetpoint = Double.NaN;
-    protected double postPraSetpoint = Double.NaN;
-    protected Map<State, Double> setpointPerState;
+    protected final Map<State, Double> setpointPerState;
     protected State preventiveState = null;
 
     public RangeActionResult() {
         setpointPerState = new HashMap<>();
     }
 
-    public double getPreOptimizedSetpointOnState(State state) {
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && setpointPerState.containsKey(preventiveState)) {
-            return setpointPerState.get(preventiveState);
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && !Double.isNaN(postPraSetpoint)) {
-            return postPraSetpoint;
+    public double getInitialSetpoint() {
+        return initialSetpoint;
+    }
+
+    public Double getOptimizedSetpointOnState(State state) {
+        State lastActivatedStateBefore = getLastActivatedBefore(state);
+        if (Objects.nonNull(lastActivatedStateBefore)) {
+            return setpointPerState.get(lastActivatedStateBefore);
         }
         return initialSetpoint;
     }
 
-    public double getOptimizedSetpointOnState(State state) {
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-        if (setpointPerState.containsKey(state)) {
-            return setpointPerState.get(state);
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState) && setpointPerState.containsKey(preventiveState)) {
-            return setpointPerState.get(preventiveState);
-        } else if (!Double.isNaN(postPraSetpoint)) {
-            return postPraSetpoint;
-        }
-        return initialSetpoint;
+    private State getLastActivatedBefore(State state) {
+        return setpointPerState.keySet().stream().filter(otherState -> otherState.isPreventive() || otherState.getContingency().equals(state.getContingency()))
+                .filter(otherState -> otherState.getInstant().equals(state.getInstant()) || otherState.getInstant().comesBefore(state.getInstant()))
+                .max(Comparator.comparingInt(s -> s.getInstant().getOrder())).orElse(null);
     }
 
     public boolean isActivatedDuringState(State state) {
@@ -65,9 +57,5 @@ public class RangeActionResult {
 
     public void setInitialSetpoint(double initialSetpoint) {
         this.initialSetpoint = initialSetpoint;
-    }
-
-    public void setPostPraSetpoint(Double postPraSetpoint) {
-        this.postPraSetpoint = postPraSetpoint;
     }
 }

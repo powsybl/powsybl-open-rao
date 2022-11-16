@@ -26,6 +26,7 @@ public class AngleMonitoringResult {
     public enum Status {
         SECURE,
         UNSECURE,
+        DIVERGENT,
         UNKNOWN
     }
 
@@ -82,6 +83,9 @@ public class AngleMonitoringResult {
     public boolean isUnknown() {
         return getStatus() == Status.UNKNOWN; }
 
+    public boolean isDivergent() {
+        return getStatus() == Status.DIVERGENT; }
+
     public Set<NetworkAction> getAppliedCras(State state) {
         return appliedCras.getOrDefault(state, Collections.emptySet());
     }
@@ -107,7 +111,7 @@ public class AngleMonitoringResult {
 
     public double getAngle(AngleCnec angleCnec, Unit unit) {
         if (!unit.equals(Unit.DEGREE)) {
-            throw new FaraoException(String.format("Unhandled unit %s for AngleCnec %s", unit.toString(), angleCnec.toString()));
+            throw new FaraoException(String.format("Unhandled unit %s for AngleCnec %s", unit, angleCnec.toString()));
         }
         Set<Double> angles = angleCnecsWithAngle.stream().filter(angleResult -> angleResult.getAngleCnec().equals(angleCnec))
                 .map(AngleResult::getAngle).collect(Collectors.toSet());
@@ -121,6 +125,9 @@ public class AngleMonitoringResult {
     }
 
     public List<String> printConstraints() {
+        if (isDivergent()) {
+            return List.of("Load flow divergence.");
+        }
         if (isSecure()) {
             return List.of("All AngleCnecs are secure.");
         }

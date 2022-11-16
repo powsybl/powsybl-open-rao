@@ -19,12 +19,13 @@ import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCr
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
+import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.farao_community.farao.monitoring.angle_monitoring.json.AngleMonitoringResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -35,7 +36,6 @@ import org.xmlunit.diff.Difference;
 import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
@@ -49,6 +49,7 @@ public class SweCneTest {
     private CracCreationContext cracCreationContext;
     private Network network;
     private RaoResult raoResult;
+    private AngleMonitoringResult angleMonitoringResult;
 
     @Before
     public void setUp() {
@@ -58,13 +59,11 @@ public class SweCneTest {
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
 
-        Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 1));
+        Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
+        CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
+        cimCracCreationParameters.setRemedialActionSpeed(rangeActionSpeeds);
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters = Mockito.spy(cracCreationParameters);
-        CimCracCreationParameters cimCracCreationParameters = Mockito.mock(CimCracCreationParameters.class);
-        Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
-        Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
-        Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
 
         cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC), cracCreationParameters);
         crac = cracCreationContext.getCrac();
@@ -75,19 +74,26 @@ public class SweCneTest {
             e.printStackTrace();
         }
         raoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+        InputStream inputStream2 = null;
+        try {
+            inputStream2 = new FileInputStream(SweCneTest.class.getResource("/AngleMonitoringResult.json").getFile());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream2, crac);
     }
 
     @Test
     public void testExport() {
         CneExporterParameters params = new CneExporterParameters(
-            "documentId", 3, "domainId", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "senderId", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
+            "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
+            "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
             "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, new RaoParameters(), params, outputStream);
+        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
         try {
-            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
+            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assert.fail();

@@ -210,6 +210,15 @@
     "id" : "hvdcRange2Id",
     "name" : "hvdcRange2Name",
     "operator" : "RTE",
+    "onStateUsageRules" : [ {
+      "instant" : "curative",
+      "contingencyId" : "contingency1Id",
+      "usageMethod" : "available"
+    }, {
+      "instant" : "curative",
+      "contingencyId" : "contingency2Id",
+      "usageMethod" : "available"
+    } ],
     "onFlowConstraintUsageRules" : [ {
       "instant" : "preventive",
       "flowCnecId" : "cnec3curId"
