@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CRACDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" DtdVersion="1" DtdRelease="0" xsi:noNamespaceSchemaLocation="crac-document.xsd">
+<CRACDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" DtdVersion="1" DtdRelease="0"
+              xsi:noNamespaceSchemaLocation="crac-document.xsd">
     <DocumentIdentification v="ruleToBeDefined"/>
     <DocumentVersion v="12"/>
     <DocumentType v="Z03"/>
@@ -206,10 +207,10 @@
                     <FromNode v="NNL2AA1 "/>
                     <ToNode v="NNL3AA1 "/>
                     <Order v="1"/>
-                    <IlimitMNE_AfterOutage v ="110" unit="Pct"/>
-                    <IlimitMNE_AfterSPS v ="6000" unit="A"/>
-                    <IlimitMNE_AfterCRA v ="6500" unit="A"/>
-                    <IlimitMNE v ="100" unit="Pct"/>
+                    <IlimitMNE_AfterOutage v="110" unit="Pct"/>
+                    <IlimitMNE_AfterSPS v="6000" unit="A"/>
+                    <IlimitMNE_AfterCRA v="6500" unit="A"/>
+                    <IlimitMNE v="100" unit="Pct"/>
                     <Vn v="380" unit="kV"/>
                     <Direction v="DIRECT"/>
                 </Branch>
@@ -222,10 +223,10 @@
                     <FromNode v="NNL1AA1 "/>
                     <ToNode v="NNL3AA1 "/>
                     <Order v="1"/>
-                    <IlimitMNE_AfterOutage v ="110" unit="Pct"/>
-                    <IlimitMNE_AfterSPS v ="6000" unit="A"/>
-                    <IlimitMNE_AfterCRA v ="6500" unit="A"/>
-                    <IlimitMNE v ="100" unit="Pct"/>
+                    <IlimitMNE_AfterOutage v="110" unit="Pct"/>
+                    <IlimitMNE_AfterSPS v="6000" unit="A"/>
+                    <IlimitMNE_AfterCRA v="6500" unit="A"/>
+                    <IlimitMNE v="100" unit="Pct"/>
                     <Vn v="380" unit="kV"/>
                     <Direction v="DIRECT"/>
                 </Branch>
@@ -235,10 +236,10 @@
                     <FromNode v="NNL1AA1 "/>
                     <ToNode v="NNL2AA1 "/>
                     <Order v="1"/>
-                    <IlimitMNE_AfterOutage v ="110" unit="Pct"/>
-                    <IlimitMNE_AfterSPS v ="6000" unit="A"/>
-                    <IlimitMNE_AfterCRA v ="6500" unit="A"/>
-                    <IlimitMNE v ="100" unit="Pct"/>
+                    <IlimitMNE_AfterOutage v="110" unit="Pct"/>
+                    <IlimitMNE_AfterSPS v="6000" unit="A"/>
+                    <IlimitMNE_AfterCRA v="6500" unit="A"/>
+                    <IlimitMNE v="100" unit="Pct"/>
                     <Vn v="380" unit="kV"/>
                     <Direction v="DIRECT"/>
                 </Branch>

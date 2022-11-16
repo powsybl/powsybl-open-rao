@@ -56,11 +56,9 @@ public class TMonitoredElementsAdder {
         if (tMonitoredElements == null || tcracSeries.getOutages().getOutage().isEmpty()) {
             return;
         }
-        List<TBranch> tBranches = new ArrayList<>();
         tMonitoredElements.getMonitoredElement().forEach(tMonitoredElement -> {
             if (tMonitoredElement.getBranch().size() == 1) {
-                tBranches.add(tMonitoredElement.getBranch().get(0));
-                tcracSeries.getOutages().getOutage().forEach(tOutage -> addBranch(tBranches, tOutage));
+                tcracSeries.getOutages().getOutage().forEach(tOutage -> addBranch(List.of(tMonitoredElement.getBranch().get(0)), tOutage));
             }
         });
     }
