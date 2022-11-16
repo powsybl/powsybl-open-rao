@@ -52,7 +52,7 @@ final class RangeActionResultArraySerializer {
 
         Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), rangeAction);
         if (!Double.isNaN(initialSetpoint)) {
-            jsonGenerator.writeNumberField(INITIAL_SETPOINT, Math.round(100.0 * initialSetpoint) / 100.0);
+            jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
         if (rangeAction instanceof PstRangeAction) {
@@ -146,7 +146,7 @@ final class RangeActionResultArraySerializer {
                 jsonGenerator.writeNumberField(TAP, tap);
             }
             if (!Double.isNaN(setpoint)) {
-                jsonGenerator.writeNumberField(SETPOINT, Math.round(100.0 * setpoint) / 100.0);
+                jsonGenerator.writeNumberField(SETPOINT, setpoint);
             }
             jsonGenerator.writeEndObject();
         }

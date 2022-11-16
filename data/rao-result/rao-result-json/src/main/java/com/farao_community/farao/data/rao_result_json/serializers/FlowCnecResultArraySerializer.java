@@ -121,7 +121,7 @@ final class FlowCnecResultArraySerializer {
             jsonGenerator.writeNumberField(COMMERCIAL_FLOW, Math.round(100.0 * commercialFlow) / 100.0);
         }
         if (unit.equals(MEGAWATT) && !Double.isNaN(ptdfZonalSum)) {
-            jsonGenerator.writeNumberField(ZONAL_PTDF_SUM, Math.round(100.0 * ptdfZonalSum) / 100.0);
+            jsonGenerator.writeNumberField(ZONAL_PTDF_SUM, Math.round(1000000.0 * ptdfZonalSum) / 1000000.0);
         }
         jsonGenerator.writeEndObject();
     }
