@@ -89,7 +89,7 @@ public class CriticalBranchReader {
         }
         String outage = defineOutage(tOutage);
         TBranch tBranch = tBranches.get(0);
-        this.criticalBranchName = String.join(" - ", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage == null ? "basecase" : outage);
+        this.criticalBranchName = String.join(" - ", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage);
         UcteFlowElementHelper branchHelper = new UcteFlowElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), ucteNetworkAnalyzer);
         this.nativeBranch = new NativeBranch(branchHelper.getOriginalFrom(), branchHelper.getOriginalTo(), branchHelper.getSuffix());
         if (!branchHelper.isValid()) {
@@ -124,11 +124,10 @@ public class CriticalBranchReader {
     }
 
     private String defineOutage(TOutage tOutage) {
-        if (tOutage != null) {
-            return tOutage.getName() == null ? tOutage.getV() : tOutage.getName().getV();
-        } else {
-            return null;
+        if (tOutage == null) {
+            return "basecase";
         }
+        return tOutage.getName() == null ? tOutage.getV() : tOutage.getName().getV();
     }
 
     private void importPreventiveCnec(TBranch tBranch, UcteFlowElementHelper branchHelper, Crac crac, boolean isMonitored) {
