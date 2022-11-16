@@ -206,10 +206,10 @@
                     <FromNode v="NNL2AA1 "/>
                     <ToNode v="NNL3AA1 "/>
                     <Order v="1"/>
-                    <ImaxAfterOutage v="110" unit="Pct"/>
-                    <ImaxAfterSPS v="6000" unit="A"/>
-                    <ImaxAfterCRA v="6500" unit="A"/>
-                    <Imax v="100" unit="Pct"/>
+                    <IlimitMNE_AfterOutage v ="110" unit="Pct"/>
+                    <IlimitMNE_AfterSPS v ="6000" unit="A"/>
+                    <IlimitMNE_AfterCRA v ="6500" unit="A"/>
+                    <IlimitMNE v ="100" unit="Pct"/>
                     <Vn v="380" unit="kV"/>
                     <Direction v="DIRECT"/>
                 </Branch>
@@ -222,10 +222,10 @@
                     <FromNode v="NNL1AA1 "/>
                     <ToNode v="NNL3AA1 "/>
                     <Order v="1"/>
-                    <ImaxAfterOutage v="110" unit="Pct"/>
-                    <ImaxAfterSPS v="6000" unit="A"/>
-                    <ImaxAfterCRA v="6500" unit="A"/>
-                    <Imax v="100" unit="Pct"/>
+                    <IlimitMNE_AfterOutage v ="110" unit="Pct"/>
+                    <IlimitMNE_AfterSPS v ="6000" unit="A"/>
+                    <IlimitMNE_AfterCRA v ="6500" unit="A"/>
+                    <IlimitMNE v ="100" unit="Pct"/>
                     <Vn v="380" unit="kV"/>
                     <Direction v="DIRECT"/>
                 </Branch>
@@ -235,10 +235,10 @@
                     <FromNode v="NNL1AA1 "/>
                     <ToNode v="NNL2AA1 "/>
                     <Order v="1"/>
-                    <ImaxAfterOutage v="110" unit="Pct"/>
-                    <ImaxAfterSPS v="6000" unit="A"/>
-                    <ImaxAfterCRA v="6500" unit="A"/>
-                    <Imax v="100" unit="Pct"/>
+                    <IlimitMNE_AfterOutage v ="110" unit="Pct"/>
+                    <IlimitMNE_AfterSPS v ="6000" unit="A"/>
+                    <IlimitMNE_AfterCRA v ="6500" unit="A"/>
+                    <IlimitMNE v ="100" unit="Pct"/>
                     <Vn v="380" unit="kV"/>
                     <Direction v="DIRECT"/>
                 </Branch>

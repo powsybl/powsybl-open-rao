@@ -132,16 +132,14 @@ public class CriticalBranchReader {
     }
 
     private void importPreventiveCnec(TBranch tBranch, UcteFlowElementHelper branchHelper, Crac crac, boolean isMonitored) {
-        // TODO Check isMonitored value : Imax for CriticalBranch and ILimitMne for MonitoredElement
-        importCnec(crac, tBranch, branchHelper, tBranch.getImax(), null, Instant.PREVENTIVE, isMonitored);
+        importCnec(crac, tBranch, branchHelper, isMonitored ? tBranch.getIlimitMNE() : tBranch.getImax(), null, Instant.PREVENTIVE, isMonitored);
     }
 
     private void importCurativeCnecs(TBranch tBranch, UcteFlowElementHelper branchHelper, String outage, Crac crac, boolean isMonitored) {
-        // TODO Check isMonitored value for the same reason
         EnumMap<Instant, TImax> cnecCaracs = new EnumMap<>(Instant.class);
-        cnecCaracs.put(Instant.OUTAGE, tBranch.getImaxAfterOutage());
-        cnecCaracs.put(Instant.AUTO, tBranch.getImaxAfterSPS());
-        cnecCaracs.put(Instant.CURATIVE, tBranch.getImaxAfterCRA());
+        cnecCaracs.put(Instant.OUTAGE, isMonitored ? tBranch.getIlimitMNEAfterOutage() : tBranch.getImaxAfterOutage());
+        cnecCaracs.put(Instant.AUTO, isMonitored ? tBranch.getIlimitMNEAfterSPS() : tBranch.getImaxAfterSPS());
+        cnecCaracs.put(Instant.CURATIVE, isMonitored ? tBranch.getIlimitMNEAfterCRA() : tBranch.getImaxAfterCRA());
         cnecCaracs.forEach((instant, iMax) -> importCnec(crac, tBranch, branchHelper, iMax, outage, instant, isMonitored));
     }
 

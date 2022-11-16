@@ -80,6 +80,10 @@
 			<xsd:element name="ImaxAfterSPS" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="ImaxAfterCRA" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Imax" type="T_Imax" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="IlimitMNE" type="T_Imax" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="IlimitMNE_AfterOutage" type="T_Imax" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="IlimitMNE_AfterSPS" type="T_Imax" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="IlimitMNE_AfterCRA" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Vn" type="T_Vn" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="minMargin" type="T_minMargin" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Direction" type="T_Direction" minOccurs="0" maxOccurs="1"/>
