@@ -12,7 +12,7 @@
     <parent>
         <artifactId>farao-result-exporter</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>4.1.5-SNAPSHOT</version>
+        <version>4.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -51,6 +51,11 @@
 
     <dependencies>
         <!-- Compile dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-angle-monitoring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>

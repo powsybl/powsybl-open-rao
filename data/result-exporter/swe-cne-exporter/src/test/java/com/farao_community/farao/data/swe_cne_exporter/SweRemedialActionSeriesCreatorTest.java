@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -31,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class SweRemedialActionSeriesCreatorTest {
 
-    private CneHelper cneHelper;
+    private SweCneHelper cneHelper;
     private Crac crac;
     private RaoResult raoResult;
     private CimCracCreationContext cracCreationContext;
@@ -41,14 +40,14 @@ public class SweRemedialActionSeriesCreatorTest {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
-        this.cneHelper = Mockito.mock(CneHelper.class);
+        this.cneHelper = Mockito.mock(SweCneHelper.class);
 
         Mockito.when(cneHelper.getCrac()).thenReturn(crac);
         Mockito.when(cneHelper.getRaoResult()).thenReturn(raoResult);
     }
 
     @Test
-    public void generateMonitoredSeriesTest() {
+    public void generateRemedialActionSeriesTest() {
         Set<RemedialActionSeriesCreationContext> rasccList = new HashSet<>();
         rasccList.add(createRascc("networkActionNativeId", true, Set.of("networkActionCreatedId"), false, "", "", false));
         rasccList.add(createRascc("networkAction_shouldNotBeExported", false, Set.of("na_missing"), false, "", "", false));
