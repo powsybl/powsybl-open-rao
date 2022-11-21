@@ -69,6 +69,6 @@ public class TMonitoredElementsAdder {
 
     private void addBranch(List<TBranch> tBranches, TOutage tOutage) {
         CriticalBranchReader criticalBranchReader = new CriticalBranchReader(tBranches, tOutage, crac, ucteNetworkAnalyzer, defaultMonitoredSides, true);
-        cseCracCreationContext.addCriticalBranchCreationContext(new CseCriticalBranchCreationContext(criticalBranchReader));
+        cseCracCreationContext.addMonitoredElementCreationContext(new CseCriticalBranchCreationContext(criticalBranchReader));
     }
 }

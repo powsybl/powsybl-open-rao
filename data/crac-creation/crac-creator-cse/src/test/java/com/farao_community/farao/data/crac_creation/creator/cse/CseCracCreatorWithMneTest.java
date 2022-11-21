@@ -197,7 +197,7 @@ public class CseCracCreatorWithMneTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();
         assertAllMneCorrectlyImportedInCrac();
-        assertEquals("[REMOVED] Critical branch \"mne_test - NNL2AA1  - NNL3AA1  - outage_3\" was not imported: INCOMPLETE_DATA. CNEC is defined on outage outage_3 which is not defined.", cracCreationContext.getCreationReport().getReport().get(3));
-        assertEquals("[REMOVED] Critical branch \"fake_mne_1 ; fake_mne_2\" was not imported: INCONSISTENCY_IN_DATA. MonitoredElement has more than 1 Branch.", cracCreationContext.getCreationReport().getReport().get(2));
+        assertEquals("[REMOVED] Monitored element \"mne_test - NNL2AA1  - NNL3AA1  - outage_3\" was not imported: INCOMPLETE_DATA. CNEC is defined on outage outage_3 which is not defined.", cracCreationContext.getCreationReport().getReport().get(3));
+        assertEquals("[REMOVED] Monitored element \"fake_mne_1 ; fake_mne_2\" was not imported: INCONSISTENCY_IN_DATA. MonitoredElement has more than 1 Branch.", cracCreationContext.getCreationReport().getReport().get(2));
     }
 }
