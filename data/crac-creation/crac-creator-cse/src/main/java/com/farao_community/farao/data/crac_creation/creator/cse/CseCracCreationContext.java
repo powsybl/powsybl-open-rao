@@ -28,6 +28,7 @@ public class CseCracCreationContext implements StandardCracCreationContext {
     private boolean isCreationSuccessful;
     private CracCreationReport creationReport;
     private Map<String, CseCriticalBranchCreationContext> criticalBranchCreationContexts = new HashMap<>();
+    private Map<String, CseCriticalBranchCreationContext> monitoredElementCreationContexts = new HashMap<>();
     private Map<String, CseOutageCreationContext> outageCreationContexts = new HashMap<>();
     private Map<String, CseRemedialActionCreationContext> remedialActionCreationContexts = new HashMap<>();
     private final OffsetDateTime timestamp;
@@ -45,6 +46,7 @@ public class CseCracCreationContext implements StandardCracCreationContext {
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
         this.creationReport = new CracCreationReport(toCopy.creationReport);
         this.criticalBranchCreationContexts = new HashMap<>(toCopy.criticalBranchCreationContexts);
+        this.monitoredElementCreationContexts = new HashMap<>(toCopy.monitoredElementCreationContexts);
         this.outageCreationContexts = new HashMap<>(toCopy.outageCreationContexts);
         this.remedialActionCreationContexts = new HashMap<>(toCopy.remedialActionCreationContexts);
         this.timestamp = toCopy.timestamp;
@@ -53,7 +55,9 @@ public class CseCracCreationContext implements StandardCracCreationContext {
 
     @Override
     public List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts() {
-        return new ArrayList<>(criticalBranchCreationContexts.values());
+        ArrayList<CseCriticalBranchCreationContext> list = new ArrayList<>(criticalBranchCreationContexts.values());
+        list.addAll(monitoredElementCreationContexts.values());
+        return list;
     }
 
     @Override
@@ -84,6 +88,7 @@ public class CseCracCreationContext implements StandardCracCreationContext {
     public void buildCreationReport() {
         addToReport(outageCreationContexts.values(), "Outage");
         addToReport(criticalBranchCreationContexts.values(), "Critical branch");
+        addToReport(monitoredElementCreationContexts.values(), "Monitored element");
         addToReport(remedialActionCreationContexts.values(), "Remedial action");
     }
 
@@ -109,9 +114,17 @@ public class CseCracCreationContext implements StandardCracCreationContext {
         this.criticalBranchCreationContexts.put(cseCriticalBranchCreationContext.getNativeId(), cseCriticalBranchCreationContext);
     }
 
+    public void addMonitoredElementCreationContext(CseCriticalBranchCreationContext cseCriticalBranchCreationContext) {
+        this.monitoredElementCreationContexts.put(cseCriticalBranchCreationContext.getNativeId(), cseCriticalBranchCreationContext);
+    }
+
     @Override
     public BranchCnecCreationContext getBranchCnecCreationContext(String nativeCnecId) {
-        return criticalBranchCreationContexts.get(nativeCnecId);
+        if (criticalBranchCreationContexts.containsKey(nativeCnecId)) {
+            return criticalBranchCreationContexts.get(nativeCnecId);
+        } else {
+            return monitoredElementCreationContexts.get(nativeCnecId);
+        }
     }
 
     public CseOutageCreationContext getOutageCreationContext(String outageName) {

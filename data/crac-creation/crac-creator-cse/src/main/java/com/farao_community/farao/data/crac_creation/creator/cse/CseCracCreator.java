@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.TCriticalBranchesAdder;
+import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.TMonitoredElementsAdder;
 import com.farao_community.farao.data.crac_creation.creator.cse.outage.TOutageAdder;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.remedial_action.TRemedialActionAdder;
@@ -71,6 +72,9 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             tCriticalBranchesAdder.add();
             // Add remedial actions
             new TRemedialActionAdder(tcracSeries, crac, network, ucteNetworkAnalyzer, tCriticalBranchesAdder.getRemedialActionsForCnecsMap(), creationContext, cseCracCreationParameters).add();
+            // Add monitored elements
+            TMonitoredElementsAdder tMonitoredElementsAdder = new TMonitoredElementsAdder(tcracSeries, crac, ucteNetworkAnalyzer, creationContext, cracCreationParameters.getDefaultMonitoredSides());
+            tMonitoredElementsAdder.add();
 
             creationContext.buildCreationReport();
             return creationContext.creationSuccess(crac);

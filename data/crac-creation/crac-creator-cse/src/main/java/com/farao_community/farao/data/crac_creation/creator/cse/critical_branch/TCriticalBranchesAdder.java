@@ -36,8 +36,8 @@ public class TCriticalBranchesAdder {
     public void add() {
         TCriticalBranches tCriticalBranches = tcracSeries.getCriticalBranches();
         if (tCriticalBranches != null) {
-            importPreventiveCnecs(tCriticalBranches);
             importCurativeCnecs(tCriticalBranches);
+            importPreventiveCnecs(tCriticalBranches);
         }
     }
 
@@ -59,7 +59,7 @@ public class TCriticalBranchesAdder {
     }
 
     private void addBranch(TBranch tBranch, TOutage tOutage) {
-        CriticalBranchReader criticalBranchReader = new CriticalBranchReader(tBranch, tOutage, crac, ucteNetworkAnalyzer, defaultMonitoredSides);
+        CriticalBranchReader criticalBranchReader = new CriticalBranchReader(List.of(tBranch), tOutage, crac, ucteNetworkAnalyzer, defaultMonitoredSides, false);
         cseCracCreationContext.addCriticalBranchCreationContext(new CseCriticalBranchCreationContext(criticalBranchReader));
         addRemedialActionsForCnecs(criticalBranchReader.getCreatedCnecIds().values(), criticalBranchReader.getRemedialActionIds());
     }

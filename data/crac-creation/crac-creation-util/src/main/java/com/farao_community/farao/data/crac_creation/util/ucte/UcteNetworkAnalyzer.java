@@ -44,7 +44,7 @@ public class UcteNetworkAnalyzer {
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC);
     }
 
-    UcteMatchingResult findCnecElement(String from, String to, String suffix) {
+    UcteMatchingResult findFlowElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
     }
