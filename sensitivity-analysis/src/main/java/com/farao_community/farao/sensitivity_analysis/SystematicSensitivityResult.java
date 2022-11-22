@@ -81,7 +81,6 @@ public class SystematicSensitivityResult {
         this.status = SensitivityComputationStatus.FAILURE;
 
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
-        nStateResult.status = this.status;
         for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
             StateResult contingencyStateResult = new StateResult();
             contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
@@ -90,6 +89,7 @@ public class SystematicSensitivityResult {
             );
             postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
+        nStateResult.status = this.status;
         return this;
     }
 
@@ -163,6 +163,10 @@ public class SystematicSensitivityResult {
 
         if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
             this.status = SensitivityComputationStatus.SUCCESS;
+        }
+        if (Double.isNaN(reference) && status != SensitivityAnalysisResult.Status.FAILURE) {
+            reference = 0;
+            sensitivity = 0;
         }
 
         Side side = null;
