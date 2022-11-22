@@ -17,15 +17,13 @@ import com.farao_community.farao.data.crac_creation.creator.api.std_creation_con
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TBranch;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TImax;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TOutage;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteCnecElementHelper;
+import com.farao_community.farao.data.crac_creation.util.ucte.UcteFlowElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.Branch;
 
 import javax.annotation.Nullable;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -80,15 +78,19 @@ public class CriticalBranchReader {
         return selected;
     }
 
-    public CriticalBranchReader(TBranch tBranch, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides) {
-        String outage;
-        if (tOutage == null) {
-            outage = "basecase";
-        } else {
-            outage = tOutage.getV();
+    public CriticalBranchReader(List<TBranch> tBranches, @Nullable TOutage tOutage, Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<Side> defaultMonitoredSides, boolean isMonitored) {
+        if (tBranches.size() > 1) {
+            this.criticalBranchName = tBranches.stream().map(tBranch -> tBranch.getName().getV()).collect(Collectors.joining(" ; "));
+            this.nativeBranch = new NativeBranch(tBranches.get(0).getFromNode().toString(), tBranches.get(0).getToNode().toString(), tBranches.get(0).getOrder().toString());
+            this.isImported = false;
+            this.invalidBranchReason = "MonitoredElement has more than 1 Branch";
+            this.criticalBranchImportStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+            return;
         }
+        String outage = defineOutage(tOutage);
+        TBranch tBranch = tBranches.get(0);
         this.criticalBranchName = String.join(" - ", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage);
-        UcteCnecElementHelper branchHelper = new UcteCnecElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), ucteNetworkAnalyzer);
+        UcteFlowElementHelper branchHelper = new UcteFlowElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), ucteNetworkAnalyzer);
         this.nativeBranch = new NativeBranch(branchHelper.getOriginalFrom(), branchHelper.getOriginalTo(), branchHelper.getSuffix());
         if (!branchHelper.isValid()) {
             this.isImported = false;
@@ -97,84 +99,93 @@ public class CriticalBranchReader {
             return;
         }
         this.monitoredSides = branchHelper.isHalfLine() ? Set.of(Side.fromIidmSide(branchHelper.getHalfLineSide())) : defaultMonitoredSides;
-        if (tOutage != null && crac.getContingency(tOutage.getV()) == null) {
+        if (tOutage != null && crac.getContingency(outage) == null) {
             this.isImported = false;
             this.criticalBranchImportStatus = ImportStatus.INCOMPLETE_DATA;
-            this.invalidBranchReason = String.format("CNEC is defined on outage %s which is not defined", tOutage.getV());
+            this.invalidBranchReason = String.format("CNEC is defined on outage %s which is not defined", outage);
         } else {
             this.isImported = true;
             this.isDirectionInverted = branchHelper.isInvertedInNetwork();
-            this.selected = isSelected(tBranch);
+            this.selected = !isMonitored && isSelected(tBranch);
             if (tOutage == null) {
                 // preventive
                 this.isBaseCase = true;
                 this.contingencyId = null;
                 this.criticalBranchImportStatus = ImportStatus.IMPORTED;
-                importPreventiveCnec(tBranch, branchHelper, crac);
+                importPreventiveCnec(tBranch, branchHelper, crac, isMonitored);
             } else {
                 // curative
                 this.isBaseCase = false;
-                this.contingencyId = tOutage.getV();
+                this.contingencyId = outage;
                 this.criticalBranchImportStatus = ImportStatus.IMPORTED;
-                importCurativeCnecs(tBranch, branchHelper, tOutage, crac);
+                importCurativeCnecs(tBranch, branchHelper, outage, crac, isMonitored);
             }
         }
     }
 
-    private void importPreventiveCnec(TBranch tBranch, UcteCnecElementHelper branchHelper, Crac crac) {
-        importCnec(crac, tBranch, branchHelper, tBranch.getImax(), null, Instant.PREVENTIVE);
+    private String defineOutage(TOutage tOutage) {
+        if (tOutage == null) {
+            return "basecase";
+        }
+        return tOutage.getName() == null ? tOutage.getV() : tOutage.getName().getV();
     }
 
-    private void importCurativeCnecs(TBranch tBranch, UcteCnecElementHelper branchHelper, TOutage tOutage, Crac crac) {
+    private void importPreventiveCnec(TBranch tBranch, UcteFlowElementHelper branchHelper, Crac crac, boolean isMonitored) {
+        importCnec(crac, tBranch, branchHelper, isMonitored ? tBranch.getIlimitMNE() : tBranch.getImax(), null, Instant.PREVENTIVE, isMonitored);
+    }
+
+    private void importCurativeCnecs(TBranch tBranch, UcteFlowElementHelper branchHelper, String outage, Crac crac, boolean isMonitored) {
         EnumMap<Instant, TImax> cnecCaracs = new EnumMap<>(Instant.class);
-        cnecCaracs.put(Instant.OUTAGE, tBranch.getImaxAfterOutage());
-        cnecCaracs.put(Instant.AUTO, tBranch.getImaxAfterSPS());
-        cnecCaracs.put(Instant.CURATIVE, tBranch.getImaxAfterCRA());
-        cnecCaracs.forEach((instant, iMax) -> importCnec(crac, tBranch, branchHelper, iMax, tOutage, instant));
+        cnecCaracs.put(Instant.OUTAGE, isMonitored ? tBranch.getIlimitMNEAfterOutage() : tBranch.getImaxAfterOutage());
+        cnecCaracs.put(Instant.AUTO, isMonitored ? tBranch.getIlimitMNEAfterSPS() : tBranch.getImaxAfterSPS());
+        cnecCaracs.put(Instant.CURATIVE, isMonitored ? tBranch.getIlimitMNEAfterCRA() : tBranch.getImaxAfterCRA());
+        cnecCaracs.forEach((instant, iMax) -> importCnec(crac, tBranch, branchHelper, iMax, outage, instant, isMonitored));
     }
 
-    private void importCnec(Crac crac, TBranch tBranch, UcteCnecElementHelper branchHelper, @Nullable TImax tImax, @Nullable TOutage tOutage, Instant instant) {
+    private void importCnec(Crac crac, TBranch tBranch, UcteFlowElementHelper branchHelper, @Nullable TImax tImax, String outage, Instant instant, boolean isMonitored) {
         if (tImax == null) {
             return;
         }
-        String cnecId = getCnecId(tBranch, tOutage, instant);
+        String cnecId = getCnecId(tBranch, outage, instant);
         FlowCnecAdder cnecAdder = crac.newFlowCnec()
-            .withId(cnecId)
-            .withName(tBranch.getName().getV())
-            .withInstant(instant)
-            .withContingency(tOutage != null ? tOutage.getV() : null)
-            .withOptimized(selected)
-            .withNetworkElement(branchHelper.getIdInNetwork())
-            .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-            .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-            .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+                .withId(cnecId)
+                .withName(tBranch.getName().getV())
+                .withInstant(instant)
+                .withContingency(outage)
+                .withOptimized(selected).withMonitored(isMonitored)
+                .withNetworkElement(branchHelper.getIdInNetwork())
+                .withIMax(branchHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
+                .withIMax(branchHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
+                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
+                .withNominalVoltage(branchHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
 
         Set<Side> monitoredSidesForThreshold = monitoredSides;
         Unit unit = convertUnit(tImax.getUnit());
         // For transformers, if unit is absolute amperes, monitor low voltage side
         if (!branchHelper.isHalfLine() && unit.equals(Unit.AMPERE) &&
-            Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
+                Math.abs(branchHelper.getNominalVoltage(Branch.Side.ONE) - branchHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
             monitoredSidesForThreshold = (branchHelper.getNominalVoltage(Branch.Side.ONE) <= branchHelper.getNominalVoltage(Branch.Side.TWO)) ?
-                Set.of(Side.LEFT) : Set.of(Side.RIGHT);
+                    Set.of(Side.LEFT) : Set.of(Side.RIGHT);
         }
         addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
         cnecAdder.add();
         createdCnecIds.put(instant, cnecId);
-        storeRemedialActions(tBranch);
+        if (!isMonitored) {
+            storeRemedialActions(tBranch);
+        }
     }
 
     private void storeRemedialActions(TBranch tBranch) {
         tBranch.getRemedialActions().forEach(tRemedialActions ->
-            tRemedialActions.getName().forEach(tName -> remedialActionIds.add(tName.getV()))
+                tRemedialActions.getName().forEach(tName -> remedialActionIds.add(tName.getV()))
         );
     }
 
     private static void addThreshold(FlowCnecAdder cnecAdder, double positiveLimit, Unit unit, String direction, boolean invert, Set<Side> monitoredSides) {
         monitoredSides.forEach(side -> {
             BranchThresholdAdder branchThresholdAdder = cnecAdder.newThreshold()
-                .withSide(side)
-                .withUnit(unit);
+                    .withSide(side)
+                    .withUnit(unit);
             convertMinMax(branchThresholdAdder, positiveLimit, direction, invert, unit.equals(Unit.PERCENT_IMAX));
             branchThresholdAdder.add();
         });
@@ -194,11 +205,11 @@ public class CriticalBranchReader {
         }
     }
 
-    private static String getCnecId(TBranch tBranch, @Nullable TOutage tOutage, Instant instant) {
-        if (tOutage == null) {
+    private static String getCnecId(TBranch tBranch, String outage, Instant instant) {
+        if (outage == null) {
             return String.format("%s - %s->%s - %s", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), instant.toString());
         }
-        return String.format("%s - %s->%s  - %s - %s", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), tOutage.getV(), instant.toString());
+        return String.format("%s - %s->%s  - %s - %s", tBranch.getName().getV(), tBranch.getFromNode().getV(), tBranch.getToNode().getV(), outage, instant.toString());
     }
 
     private static Unit convertUnit(String unit) {

@@ -79,10 +79,10 @@ final class VoltageCnecResultArraySerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(voltage)) {
-            jsonGenerator.writeNumberField(VOLTAGE, voltage);
+            jsonGenerator.writeNumberField(VOLTAGE, Math.round(100.0 * voltage) / 100.0);
         }
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField(MARGIN, margin);
+            jsonGenerator.writeNumberField(MARGIN, Math.round(100.0 * margin) / 100.0);
         }
         jsonGenerator.writeEndObject();
     }
