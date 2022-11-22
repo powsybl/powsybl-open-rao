@@ -42,14 +42,14 @@ final class CostResultMapSerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeOptimizationState(optState));
         if (!Double.isNaN(raoResult.getFunctionalCost(optState))) {
-            jsonGenerator.writeNumberField(FUNCTIONAL_COST, raoResult.getFunctionalCost(optState));
+            jsonGenerator.writeNumberField(FUNCTIONAL_COST, Math.round(100.0 * raoResult.getFunctionalCost(optState)) / 100.0);
         }
 
         if (containAnyVirtualCostForOptimizationState(raoResult, optState)) {
             jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
             for (String virtualCostName : raoResult.getVirtualCostNames()) {
                 if (!Double.isNaN(raoResult.getVirtualCost(optState, virtualCostName))) {
-                    jsonGenerator.writeNumberField(virtualCostName, raoResult.getVirtualCost(optState, virtualCostName));
+                    jsonGenerator.writeNumberField(virtualCostName, Math.round(100.0 * raoResult.getVirtualCost(optState, virtualCostName)) / 100.0);
                 }
             }
             jsonGenerator.writeEndObject();

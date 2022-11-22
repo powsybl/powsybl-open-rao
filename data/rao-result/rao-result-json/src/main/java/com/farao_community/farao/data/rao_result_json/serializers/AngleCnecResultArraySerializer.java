@@ -79,10 +79,10 @@ final class AngleCnecResultArraySerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(angle)) {
-            jsonGenerator.writeNumberField(ANGLE, angle);
+            jsonGenerator.writeNumberField(ANGLE, Math.round(100.0 * angle) / 100.0);
         }
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField(MARGIN, margin);
+            jsonGenerator.writeNumberField(MARGIN, Math.round(100.0 * margin) / 100.0);
         }
         jsonGenerator.writeEndObject();
     }
