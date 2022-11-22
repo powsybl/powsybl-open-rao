@@ -46,14 +46,17 @@ final class NetworkActionResultArraySerializer {
 
     private static void serializeNetworkActionResult(NetworkAction networkAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
+        List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
+                .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
+                .sorted(STATE_COMPARATOR)
+                .collect(Collectors.toList());
+
+        if (statesWhenNetworkActionIsActivated.isEmpty()) {
+            return;
+        }
+
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(NETWORKACTION_ID, networkAction.getId());
-
-        List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
-            .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
-            .sorted(STATE_COMPARATOR)
-            .collect(Collectors.toList());
-
         jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED);
         for (State state: statesWhenNetworkActionIsActivated) {
             jsonGenerator.writeStartObject();
