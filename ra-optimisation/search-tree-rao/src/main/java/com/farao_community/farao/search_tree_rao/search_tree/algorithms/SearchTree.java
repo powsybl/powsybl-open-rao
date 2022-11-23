@@ -316,7 +316,11 @@ public class SearchTree {
 
     private int arbitraryNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         if (ra1.isDetectedDuringRao() == ra2.isDetectedDuringRao()) {
-            return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
+            if (ra1.getNetworkActionSet().size() == ra2.getNetworkActionSet().size()) {
+                return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
+            } else {
+                return Integer.compare(ra2.getNetworkActionSet().size(), ra1.getNetworkActionSet().size());
+            }
         } else if (ra1.isDetectedDuringRao()) {
             return -1;
         } else {
