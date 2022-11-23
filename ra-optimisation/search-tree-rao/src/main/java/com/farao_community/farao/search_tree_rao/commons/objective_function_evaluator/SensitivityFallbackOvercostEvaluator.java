@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -42,7 +41,7 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
                 return fallBackOvercost;
             case FAILURE:
             default:
-                throw new FaraoException("Cannot evaluate cost as the sensitivity computation failed");
+                return 0;
         }
     }
 

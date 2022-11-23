@@ -284,6 +284,15 @@ public class CastorFullOptimization {
                         }
                     } catch (Exception e) {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
+                        Optional<State> automatonState = optimizedScenario.getAutomatonState();
+                        if (automatonState.isPresent() && !contingencyScenarioResults.containsKey(automatonState.get())) {
+                            contingencyScenarioResults.put(automatonState.get(), new FailedOptimizationResultImpl());
+                        }
+                        if (!automatonsOnly) {
+                            State curativeState = optimizedScenario.getCurativeState();
+                            contingencyScenarioResults.put(curativeState, new FailedOptimizationResultImpl());
+                        }
+
                     }
                     TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
                     contingencyCountDownLatch.countDown();
@@ -415,7 +424,7 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Second automaton simulation [end]");
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
-        if (newPostContingencyResults.entrySet().stream().anyMatch(entry -> !entry.getValue().getActivatedNetworkActions().isEmpty() || !entry.getValue().getActivatedRangeActions(entry.getKey()).isEmpty())) {
+        if (newPostContingencyResults.entrySet().stream().anyMatch(entry -> entry.getValue().getSensitivityStatus() != ComputationStatus.FAILURE && (!entry.getValue().getActivatedNetworkActions().isEmpty() || !entry.getValue().getActivatedRangeActions(entry.getKey()).isEmpty()))) {
             // If any activated ARA, re-run curative sensitivity analysis
             AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedCras.copy();
             addAppliedNetworkActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
