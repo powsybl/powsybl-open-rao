@@ -93,6 +93,11 @@ public class UnoptimizedCnecParameters {
                 continue;
             }
 
+            if (pstRangeActions.isEmpty()) {
+                BUSINESS_WARNS.warn("No pst range actions are defined with network element {}", pstId);
+                continue;
+            }
+
             for (FlowCnec flowCnec : flowCnecs) {
                 Set<PstRangeAction> availablePstRangeActions = pstRangeActions.stream().filter(pstRangeAction ->
                         pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
@@ -114,9 +119,9 @@ public class UnoptimizedCnecParameters {
         }
 
         if (availablePstRangeActions.isEmpty()) {
-            BUSINESS_WARNS.warn("No pst range actions are defined with network element {}", pstId);
             return true;
         }
+
         return false;
     }
 }
