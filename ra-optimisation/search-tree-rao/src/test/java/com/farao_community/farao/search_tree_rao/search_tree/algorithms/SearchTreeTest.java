@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -525,12 +526,16 @@ public class SearchTreeTest {
         when(cnec.getState()).thenReturn(state);
         when(cnec.getNetworkElement()).thenReturn(networkElement);
         when(cnec.getId()).thenReturn("cnec-id");
+        when(cnec.getName()).thenReturn("cnec-name");
+        when(cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
         when(state.getId()).thenReturn("state-id");
         when(networkElement.getId()).thenReturn("ne-id");
 
         when(rootLeaf.getCostlyElements(eq("loop-flow-cost"), anyInt())).thenReturn(List.of(cnec));
         when(rootLeaf.getIdentifier()).thenReturn("leaf-id");
-        when(rootLeaf.getMargin(cnec, Unit.MEGAWATT)).thenReturn(-135.);
+        when(rootLeaf.getMargin(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-135.);
+        when(rootLeaf.getMargin(cnec, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-134.);
+        when(rootLeaf.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(1135.);
     }
 
     @Test
@@ -539,7 +544,7 @@ public class SearchTreeTest {
 
         List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(1, logs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\"", logs.get(0));
+        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.get(0));
     }
 
     @Test
@@ -561,6 +566,6 @@ public class SearchTreeTest {
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
-        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\"", business.list.get(1).toString());
+        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
     }
 }
