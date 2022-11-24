@@ -45,7 +45,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-            <version>${powsybl.core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
