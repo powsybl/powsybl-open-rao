@@ -405,7 +405,6 @@
                 <artifactId>commons-collections4</artifactId>
                 <version>${apache.commons.collections4}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
@@ -415,11 +414,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${google.guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>farao-virtual-hubs-network-extension</artifactId>
-                <version>${farao.virtualhubs.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.ortools</groupId>
@@ -545,6 +539,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>farao-virtual-hubs-network-extension</artifactId>
+                <version>${farao.virtualhubs.version}</version>
             </dependency>
 
             <!-- Provided dependencies -->

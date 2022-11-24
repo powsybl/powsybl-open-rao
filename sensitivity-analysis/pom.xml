@@ -29,7 +29,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${powsybl.glsk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -72,7 +71,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-ucte</artifactId>
-            <version>${powsybl.glsk.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
