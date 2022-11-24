@@ -512,6 +512,11 @@
                 <version>${powsybl.glsk.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-glsk-document-ucte</artifactId>
+                <version>${powsybl.glsk.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>${javax.validation.version}</version>
