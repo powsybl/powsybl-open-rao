@@ -54,7 +54,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-document-io-api</artifactId>
-            <version>${powsybl.glsk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

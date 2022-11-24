@@ -43,7 +43,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${powsybl.glsk.version}</version>
         </dependency>
 
         <!-- Runtime dependencies -->
