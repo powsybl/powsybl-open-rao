@@ -93,10 +93,10 @@ final class FlowCnecResultArraySerializer {
             return;
         }
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField(MARGIN, margin);
+            jsonGenerator.writeNumberField(MARGIN, Math.round(100.0 * margin) / 100.0);
         }
         if (!Double.isNaN(relativeMargin)) {
-            jsonGenerator.writeNumberField(RELATIVE_MARGIN, relativeMargin);
+            jsonGenerator.writeNumberField(RELATIVE_MARGIN, Math.round(100.0 * relativeMargin) / 100.0);
         }
     }
 
@@ -112,16 +112,16 @@ final class FlowCnecResultArraySerializer {
 
         jsonGenerator.writeObjectFieldStart(serializeSide(side));
         if (!Double.isNaN(flow)) {
-            jsonGenerator.writeNumberField(FLOW, flow);
+            jsonGenerator.writeNumberField(FLOW, Math.round(100.0 * flow) / 100.0);
         }
         if (!Double.isNaN(loopFlow)) {
-            jsonGenerator.writeNumberField(LOOP_FLOW, loopFlow);
+            jsonGenerator.writeNumberField(LOOP_FLOW, Math.round(100.0 * loopFlow) / 100.0);
         }
         if (!Double.isNaN(commercialFlow)) {
-            jsonGenerator.writeNumberField(COMMERCIAL_FLOW, commercialFlow);
+            jsonGenerator.writeNumberField(COMMERCIAL_FLOW, Math.round(100.0 * commercialFlow) / 100.0);
         }
         if (unit.equals(MEGAWATT) && !Double.isNaN(ptdfZonalSum)) {
-            jsonGenerator.writeNumberField(ZONAL_PTDF_SUM, ptdfZonalSum);
+            jsonGenerator.writeNumberField(ZONAL_PTDF_SUM, Math.round(1000000.0 * ptdfZonalSum) / 1000000.0);
         }
         jsonGenerator.writeEndObject();
     }

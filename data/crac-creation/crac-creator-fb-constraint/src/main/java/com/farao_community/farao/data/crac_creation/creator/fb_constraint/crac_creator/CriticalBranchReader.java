@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
-import com.farao_community.farao.data.crac_creation.util.ucte.UcteCnecElementHelper;
+import com.farao_community.farao.data.crac_creation.util.ucte.UcteFlowElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.powsybl.iidm.network.Branch;
@@ -42,7 +42,7 @@ class CriticalBranchReader {
     private boolean isBaseCase;
     private boolean isInvertedInNetwork;
     private OutageReader outageReader;
-    private UcteCnecElementHelper ucteCnecElementHelper;
+    private UcteFlowElementHelper ucteFlowElementHelper;
     private Side ampereThresholdSide = null;
 
     boolean isCriticialBranchValid() {
@@ -91,7 +91,7 @@ class CriticalBranchReader {
     }
 
     NativeBranch getNativeBranch() {
-        return new NativeBranch(ucteCnecElementHelper.getOriginalFrom(), ucteCnecElementHelper.getOriginalTo(), ucteCnecElementHelper.getSuffix());
+        return new NativeBranch(ucteFlowElementHelper.getOriginalFrom(), ucteFlowElementHelper.getOriginalTo(), ucteFlowElementHelper.getSuffix());
     }
 
     boolean isInvertedInNetwork() {
@@ -115,20 +115,20 @@ class CriticalBranchReader {
 
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         this.importStatus = ImportStatus.IMPORTED;
-        this.ucteCnecElementHelper = new UcteCnecElementHelper(criticalBranch.getBranch().getFrom(),
+        this.ucteFlowElementHelper = new UcteFlowElementHelper(criticalBranch.getBranch().getFrom(),
             criticalBranch.getBranch().getTo(),
             criticalBranch.getBranch().getOrder(),
             criticalBranch.getBranch().getElementName(),
             ucteNetworkAnalyzer);
 
-        if (ucteCnecElementHelper.isValid()) {
-            this.isInvertedInNetwork = ucteCnecElementHelper.isInvertedInNetwork();
-            if (ucteCnecElementHelper.isHalfLine()) {
-                this.monitoredSides = Set.of(Side.fromIidmSide(ucteCnecElementHelper.getHalfLineSide()));
+        if (ucteFlowElementHelper.isValid()) {
+            this.isInvertedInNetwork = ucteFlowElementHelper.isInvertedInNetwork();
+            if (ucteFlowElementHelper.isHalfLine()) {
+                this.monitoredSides = Set.of(Side.fromIidmSide(ucteFlowElementHelper.getHalfLineSide()));
             }
         } else {
             this.importStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
-            this.importStatusDetail = String.format("critical branch %s was removed as %s", criticalBranch.getId(), ucteCnecElementHelper.getInvalidReason());
+            this.importStatusDetail = String.format("critical branch %s was removed as %s", criticalBranch.getId(), ucteFlowElementHelper.getInvalidReason());
             return;
         }
 
@@ -161,10 +161,10 @@ class CriticalBranchReader {
     }
 
     private void initAmpereThresholdSide() {
-        if (!ucteCnecElementHelper.isHalfLine()
-            && Math.abs(ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) - ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
+        if (!ucteFlowElementHelper.isHalfLine()
+            && Math.abs(ucteFlowElementHelper.getNominalVoltage(Branch.Side.ONE) - ucteFlowElementHelper.getNominalVoltage(Branch.Side.TWO)) > 1) {
             // For transformers, if unit is absolute amperes, monitor low voltage side
-            ampereThresholdSide = ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE) <= ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO) ?
+            ampereThresholdSide = ucteFlowElementHelper.getNominalVoltage(Branch.Side.ONE) <= ucteFlowElementHelper.getNominalVoltage(Branch.Side.TWO) ?
                 Side.LEFT : Side.RIGHT;
         }
     }
@@ -189,16 +189,16 @@ class CriticalBranchReader {
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(criticalBranch.getId().concat(" - ").concat(instant.toString()))
             .withName(branch.getName())
-            .withNetworkElement(ucteCnecElementHelper.getIdInNetwork())
+            .withNetworkElement(ucteFlowElementHelper.getIdInNetwork())
             .withInstant(instant)
             .withReliabilityMargin(criticalBranch.getFrmMw())
             .withOperator(criticalBranch.getTsoOrigin())
             .withMonitored(criticalBranch.isMNEC())
             .withOptimized(criticalBranch.isCNEC())
-            .withIMax(ucteCnecElementHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
-            .withIMax(ucteCnecElementHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
-            .withNominalVoltage(ucteCnecElementHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
-            .withNominalVoltage(ucteCnecElementHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
+            .withIMax(ucteFlowElementHelper.getCurrentLimit(Branch.Side.ONE), Side.LEFT)
+            .withIMax(ucteFlowElementHelper.getCurrentLimit(Branch.Side.TWO), Side.RIGHT)
+            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(Branch.Side.ONE), Side.LEFT)
+            .withNominalVoltage(ucteFlowElementHelper.getNominalVoltage(Branch.Side.TWO), Side.RIGHT);
 
         if (!isBaseCase) {
             adder.withContingency(outageReader.getOutage().getId());
@@ -261,13 +261,13 @@ class CriticalBranchReader {
     }
 
     private void addLimitsGivenDirection(double positiveLimit, BranchThresholdAdder branchThresholdAdder) {
-        if ((DIRECT.contains(criticalBranch.getDirection()) && !ucteCnecElementHelper.isInvertedInNetwork())
-            || (OPPOSITE.contains(criticalBranch.getDirection()) && ucteCnecElementHelper.isInvertedInNetwork())) {
+        if ((DIRECT.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork())
+            || (OPPOSITE.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork())) {
             branchThresholdAdder.withMax(positiveLimit);
         }
 
-        if ((DIRECT.contains(criticalBranch.getDirection()) && ucteCnecElementHelper.isInvertedInNetwork())
-            || (OPPOSITE.contains(criticalBranch.getDirection()) && !ucteCnecElementHelper.isInvertedInNetwork())) {
+        if ((DIRECT.contains(criticalBranch.getDirection()) && ucteFlowElementHelper.isInvertedInNetwork())
+            || (OPPOSITE.contains(criticalBranch.getDirection()) && !ucteFlowElementHelper.isInvertedInNetwork())) {
             branchThresholdAdder.withMin(-positiveLimit);
         }
     }
