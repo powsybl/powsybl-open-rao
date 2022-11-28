@@ -229,7 +229,7 @@ public class AngleMonitoringTest {
         assertEquals(2, angleMonitoringResult.getAppliedCras().size());
         // AngleCnecsWithAngle
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
-        assertEquals(299.54, angleMonitoringResult.getAngle(crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
+        assertEquals(299, angleMonitoringResult.getAngle(crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
         assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 299°."));
     }
 }
