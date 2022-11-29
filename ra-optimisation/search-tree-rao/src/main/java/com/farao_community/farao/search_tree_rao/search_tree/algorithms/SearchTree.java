@@ -334,14 +334,23 @@ public class SearchTree {
         return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
     }
 
+    /**
+     * Prioritizes the better network action combination that was detected by the RAO
+     */
     private int compareIsDetectedDuringRao(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         return -Boolean.compare(ra1.isDetectedDuringRao(), ra2.isDetectedDuringRao());
     }
 
+    /**
+     * Prioritizes the network action combination that pre-defined by the user
+     */
     private int compareIsPreDefined(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         return -Boolean.compare(this.bloomer.hasPreDefinedNetworkActionCombination(ra1), this.bloomer.hasPreDefinedNetworkActionCombination(ra2));
     }
 
+    /**
+     * Prioritizes the bigger network action combination
+     */
     private int compareSize(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         return -Integer.compare(ra1.getNetworkActionSet().size(), ra2.getNetworkActionSet().size());
     }
