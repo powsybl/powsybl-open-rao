@@ -83,7 +83,6 @@ public class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
-
     @Before
     public void setUp() throws Exception {
         setSearchTreeInput();
