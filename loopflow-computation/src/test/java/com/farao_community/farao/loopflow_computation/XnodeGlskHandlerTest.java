@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
@@ -32,7 +31,7 @@ public class XnodeGlskHandlerTest {
         String networkFileName = "network_with_virtual_hubs.xiidm";
         String glskFileName = "glsk_with_virtual_hubs.xml";
 
-        Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
+        Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         ZonalData<SensitivityVariableSet> glskZonalData = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/" + glskFileName)).getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
 
         Crac crac = CracFactory.findDefault().create("cracId");
