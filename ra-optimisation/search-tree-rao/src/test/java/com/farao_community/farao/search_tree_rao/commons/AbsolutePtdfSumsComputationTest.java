@@ -18,7 +18,6 @@ import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
@@ -139,7 +138,7 @@ public class AbsolutePtdfSumsComputationTest {
     public void testIgnoreGlskOnDisconnectedXnodes() {
 
         // prepare data
-        Network network = Importers.loadNetwork("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
+        Network network = Network.read("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_with_virtual_hubs.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 

@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.refprog.reference_program;
 
 import com.farao_community.farao.commons.EICode;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -37,7 +36,7 @@ public class ReferenceProgramBuilderTest {
 
     @Test
     public void testLines() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(1000.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(1500.0, referenceProgram.getGlobalNetPosition(eiCodeBelgium), DOUBLE_TOLERANCE);
@@ -47,7 +46,7 @@ public class ReferenceProgramBuilderTest {
 
     @Test
     public void testDanglingLines() {
-        Network network = Importers.loadNetwork("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
+        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(0.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(300.0, referenceProgram.getGlobalNetPosition(eiCodeBelgium), DOUBLE_TOLERANCE);
@@ -55,7 +54,7 @@ public class ReferenceProgramBuilderTest {
 
     @Test
     public void testHvdcLines() {
-        Network network = Importers.loadNetwork("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
+        Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(272.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(-272.0, referenceProgram.getGlobalNetPosition(eiCodeGermany), DOUBLE_TOLERANCE);

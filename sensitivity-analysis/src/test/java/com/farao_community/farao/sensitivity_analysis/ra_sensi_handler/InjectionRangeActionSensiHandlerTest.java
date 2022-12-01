@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -30,7 +29,7 @@ public class InjectionRangeActionSensiHandlerTest {
 
     @Test
     public void checkConsistencyOKTest() {
-        Network network = Importers.loadNetwork("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
+        Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
@@ -93,7 +92,7 @@ public class InjectionRangeActionSensiHandlerTest {
 
     @Test (expected = FaraoException.class)
     public void checkConsistencyNotAnInjection() {
-        Network network = Importers.loadNetwork("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
+        Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
@@ -108,7 +107,7 @@ public class InjectionRangeActionSensiHandlerTest {
 
     @Test (expected = FaraoException.class)
     public void checkConsistencyNotANetworkElement() {
-        Network network = Importers.loadNetwork("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
+        Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "unknown")

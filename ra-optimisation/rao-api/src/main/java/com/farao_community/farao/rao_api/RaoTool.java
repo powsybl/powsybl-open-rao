@@ -12,7 +12,6 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -101,7 +100,7 @@ public class RaoTool implements Tool {
 
         //Network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile);
+        Network network = Network.read(caseFile);
         String currentState = network.getVariantManager().getWorkingVariantId();
 
         //Crac
