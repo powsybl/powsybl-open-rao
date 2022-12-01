@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_creation.util.iidm;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -25,7 +24,7 @@ public class IidmCnecElementHelperTest {
 
     @Before
     public void setUp() {
-        network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
+        network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
     }
 
     @Test

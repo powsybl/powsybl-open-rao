@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.commons;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class CountryGraphTest {
     @Test
     public void testGraphOnSmallNetwork() {
 
-        Network network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        Network network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         CountryGraph graph = new CountryGraph(network);
 
         // FR-FR
