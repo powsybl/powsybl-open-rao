@@ -87,7 +87,7 @@ public class SearchTreeTest {
     public void setUp() throws Exception {
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
-       setSearchTreeParameters();
+        setSearchTreeParameters();
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true));
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         mockNetworkPool(network);
