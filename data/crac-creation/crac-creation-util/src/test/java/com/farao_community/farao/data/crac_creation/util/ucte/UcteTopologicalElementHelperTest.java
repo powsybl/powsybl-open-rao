@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class UcteTopologicalElementHelperTest {
     private UcteNetworkAnalyzer networkHelper;
 
     private void setUp(String networkFile) {
-        Network network = Importers.loadNetwork(networkFile, getClass().getResourceAsStream("/" + networkFile));
+        Network network = Network.read(networkFile, getClass().getResourceAsStream("/" + networkFile));
         networkHelper = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS));
     }
 

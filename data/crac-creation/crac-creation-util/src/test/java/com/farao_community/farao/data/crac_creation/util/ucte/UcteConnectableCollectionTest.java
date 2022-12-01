@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.farao_community.farao.data.crac_creation.util.ConnectableType;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +24,7 @@ public class UcteConnectableCollectionTest {
     private UcteConnectableCollection ucteConnectableCollection;
 
     private void init(String networkFile) {
-        network = Importers.loadNetwork(networkFile, getClass().getResourceAsStream("/" + networkFile));
+        network = Network.read(networkFile, getClass().getResourceAsStream("/" + networkFile));
         ucteConnectableCollection = new UcteConnectableCollection(network);
     }
 

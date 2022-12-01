@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.refprog.reference_program;
 
 import com.farao_community.farao.commons.EICode;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -38,7 +37,7 @@ public class CountryNetPositionComputationTest {
 
     @Test
     public void testLines() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         assertEquals(1000.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(1500.0, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);
@@ -48,7 +47,7 @@ public class CountryNetPositionComputationTest {
 
     @Test
     public void testDanglingLines() {
-        Network network = Importers.loadNetwork("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
+        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         assertEquals(0.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(300.0, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);
@@ -56,7 +55,7 @@ public class CountryNetPositionComputationTest {
 
     @Test
     public void testHvdcLines() {
-        Network network = Importers.loadNetwork("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
+        Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         assertEquals(272.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(-272.0, netPositions.get(eiCodeGermany), DOUBLE_TOLERANCE);

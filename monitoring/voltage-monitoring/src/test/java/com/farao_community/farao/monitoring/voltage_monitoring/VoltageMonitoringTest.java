@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Before;
@@ -56,7 +55,7 @@ public class VoltageMonitoringTest {
 
     @Before
     public void setUp() {
-        network = Importers.loadNetwork("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
+        network = Network.read("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
         crac = CracFactory.findDefault().create("test-crac");
 
         naOpenL1 = crac.newNetworkAction()
@@ -327,7 +326,7 @@ public class VoltageMonitoringTest {
 
     @Test
     public void testMultipleVoltageValuesPerVoltageLevel() {
-        network = Importers.loadNetwork("ieee14.xiidm", getClass().getResourceAsStream("/ieee14.xiidm"));
+        network = Network.read("ieee14.xiidm", getClass().getResourceAsStream("/ieee14.xiidm"));
         // VL45 : Min = 144.38, Max = 148.41
         // VL46 : Min = 143.10, Max = 147.66
 

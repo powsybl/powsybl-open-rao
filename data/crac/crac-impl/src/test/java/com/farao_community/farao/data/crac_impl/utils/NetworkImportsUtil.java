@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.data.crac_impl.utils;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 
 /**
@@ -19,23 +18,23 @@ public final class NetworkImportsUtil {
     }
 
     public static Network import12NodesNetwork() {
-        return Importers.loadNetwork("utils/TestCase12Nodes.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12Nodes.uct"));
+        return Network.read("utils/TestCase12Nodes.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12Nodes.uct"));
     }
 
     public static Network import12NodesNoPstNetwork() {
-        return Importers.loadNetwork("TestCase12Nodes_no_pst.uct", NetworkImportsUtil.class.getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
+        return Network.read("TestCase12Nodes_no_pst.uct", NetworkImportsUtil.class.getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
     }
 
     public static Network import12NodesWith2PstsNetwork() {
-        return Importers.loadNetwork("utils/TestCase12Nodes_2_PSTS.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12Nodes_2_PSTS.uct"));
+        return Network.read("utils/TestCase12Nodes_2_PSTS.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12Nodes_2_PSTS.uct"));
     }
 
     public static Network import12NodesNetworkWithSwitch() {
-        return Importers.loadNetwork("utils/TestCase12NodesWithSwitch.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12NodesWithSwitch.uct"));
+        return Network.read("utils/TestCase12NodesWithSwitch.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12NodesWithSwitch.uct"));
     }
 
     public static Network import16NodesNetworkWithHvdc() {
-        return Importers.loadNetwork("utils/TestCase16NodesWithHvdc.xiidm", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase16NodesWithHvdc.xiidm"));
+        return Network.read("utils/TestCase16NodesWithHvdc.xiidm", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase16NodesWithHvdc.xiidm"));
     }
 
     public static void addHvdcLine(Network network) {

@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.glsk.virtual.hubs;
 
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
@@ -28,7 +27,7 @@ public class GlskVirtualHubsTest {
     @Test
     public void testGetVirtualHubsOk() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
-        Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
+        Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
 
         ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
@@ -51,7 +50,7 @@ public class GlskVirtualHubsTest {
     @Test
     public void testGetVirtualHubsNotFound() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
-        Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
+        Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");
 
         ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);

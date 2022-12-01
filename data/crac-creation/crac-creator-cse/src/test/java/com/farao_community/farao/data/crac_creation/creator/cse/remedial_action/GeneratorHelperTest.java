@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_creation.creator.cse.remedial_action
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -24,7 +23,7 @@ public class GeneratorHelperTest {
     private UcteNetworkAnalyzer ucteNetworkAnalyzer;
 
     private void setUp(String networkFileName) {
-        network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream(networkFileName));
+        network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
         ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS));
     }
 

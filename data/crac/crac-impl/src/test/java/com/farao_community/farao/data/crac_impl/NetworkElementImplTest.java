@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
@@ -82,7 +81,7 @@ public class NetworkElementImplTest {
 
     @Test
     public void testGetLocation() {
-        Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+        Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
 
         Set<Optional<Country>> countries;
 
@@ -130,13 +129,13 @@ public class NetworkElementImplTest {
 
     @Test(expected = FaraoException.class)
     public void testGetLocationAbsent() {
-        Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+        Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         new NetworkElementImpl("non-existent").getLocation(network);
     }
 
     @Test(expected = NotImplementedException.class)
     public void testGetLocationOnUnsupportedType() {
-        Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+        Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network);
     }
 

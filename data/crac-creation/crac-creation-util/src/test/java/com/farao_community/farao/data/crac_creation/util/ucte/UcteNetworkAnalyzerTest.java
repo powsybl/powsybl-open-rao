@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -20,7 +19,7 @@ public class UcteNetworkAnalyzerTest {
 
     @Test
     public void testGetter() {
-        Network network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
+        Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
         UcteNetworkAnalyzerProperties properties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS);
         UcteNetworkAnalyzer networkAnalyzer = new UcteNetworkAnalyzer(network, properties);
 
@@ -31,7 +30,7 @@ public class UcteNetworkAnalyzerTest {
     @Test
     public void testBusIdMatchPolicy() {
 
-        Network network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
+        Network network = Network.read("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
 
         UcteNetworkAnalyzerProperties properties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS);
         UcteNetworkAnalyzer networkAnalyzer = new UcteNetworkAnalyzer(network, properties);
@@ -47,7 +46,7 @@ public class UcteNetworkAnalyzerTest {
     @Test
     public void testMethodFindDependingOnSoughtElement1() {
 
-        Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+        Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         UcteNetworkAnalyzer networkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES));
 
         // internal branch

@@ -29,7 +29,6 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
@@ -71,7 +70,7 @@ public class CastorFullOptimizationTest {
 
     @Before
     public void setup() {
-        network = Importers.loadNetwork("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
+        network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
         RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
@@ -542,7 +541,7 @@ public class CastorFullOptimizationTest {
         // Small RAO without second preventive optimization and only topological actions
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
-        Network network = Importers.loadNetwork("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
@@ -560,7 +559,7 @@ public class CastorFullOptimizationTest {
     public void smallRaoWith2P() {
         // Same RAO as before but activating 2P => results should be better
 
-        Network network = Importers.loadNetwork("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
@@ -581,7 +580,7 @@ public class CastorFullOptimizationTest {
     public void smallRaoWithGlobal2P() {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
-        Network network = Importers.loadNetwork("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));

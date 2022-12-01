@@ -3,7 +3,6 @@ package com.farao_community.farao.util;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +24,7 @@ public class NetworkPoolTest {
 
     @Before
     public void setUp() {
-        network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(initialVariant, otherVariant);
     }

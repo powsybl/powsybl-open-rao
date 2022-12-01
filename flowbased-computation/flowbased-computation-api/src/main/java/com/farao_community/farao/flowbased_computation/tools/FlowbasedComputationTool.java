@@ -22,7 +22,6 @@ import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputa
 
 import com.google.auto.service.AutoService;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.tools.Command;
@@ -157,7 +156,7 @@ public class FlowbasedComputationTool implements Tool {
         }
         Instant instant = Instant.parse(line.getOptionValue(INSTANT));
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile);
+        Network network = Network.read(caseFile);
         Crac crac = CracImporters.importCrac(cracFile);
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
