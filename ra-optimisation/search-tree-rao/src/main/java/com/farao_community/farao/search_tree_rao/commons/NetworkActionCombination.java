@@ -64,11 +64,12 @@ public class NetworkActionCombination {
             return false;
         }
         NetworkActionCombination oNetworkActionCombination = (NetworkActionCombination) o;
-        return this.networkActionSet.equals(oNetworkActionCombination.networkActionSet);
+        return (this.detectedDuringRao == oNetworkActionCombination.isDetectedDuringRao())
+                && (this.networkActionSet.equals(oNetworkActionCombination.networkActionSet));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(networkActionSet);
+        return Objects.hash(networkActionSet) + 37 * Objects.hash(detectedDuringRao);
     }
 }

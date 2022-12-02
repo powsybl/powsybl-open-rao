@@ -77,6 +77,7 @@ public final class SearchTreeBloomer {
 
         // preDefined combinations
         List<NetworkActionCombination> networkActionCombinations = preDefinedNaCombinations.stream()
+            .distinct()
             .filter(naCombination -> networkActions.containsAll(naCombination.getNetworkActionSet()))
             .collect(Collectors.toList());
 
@@ -302,5 +303,9 @@ public final class SearchTreeBloomer {
             leaf.getCostlyElements(virtualCost, Integer.MAX_VALUE).forEach(element -> locations.addAll(element.getLocation(network)));
         }
         return locations;
+    }
+
+    boolean hasPreDefinedNetworkActionCombination(NetworkActionCombination naCombination) {
+        return this.preDefinedNaCombinations.contains(naCombination);
     }
 }

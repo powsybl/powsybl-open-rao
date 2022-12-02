@@ -14,6 +14,7 @@ import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombinatio
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -74,6 +75,12 @@ public class NetworkActionParameters {
     }
 
     public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {
+        // It may happen that the 1st preventive RAO finds an optimal combination that was already defined
+        // In this case, remove the old combination and add the new one (marked "detected during RAO")
+        Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.networkActionCombinations
+                .stream().filter(naCombination -> naCombination.getNetworkActionSet().equals(networkActionCombination.getNetworkActionSet()))
+                .findAny();
+        alreadyExistingNetworkActionCombination.ifPresent(this.networkActionCombinations::remove);
         this.networkActionCombinations.add(networkActionCombination);
     }
 

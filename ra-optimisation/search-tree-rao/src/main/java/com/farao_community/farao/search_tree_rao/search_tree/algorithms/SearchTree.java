@@ -259,7 +259,7 @@ public class SearchTree {
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
-        naCombinations.sort(this::arbitraryNetworkActionCombinationComparison);
+        naCombinations.sort(this::deterministicNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
@@ -280,7 +280,7 @@ public class SearchTree {
                 }
                 try {
                     Network networkFinal = networkClone;
-                    if (combinationFulfillingStopCriterion.isEmpty() || arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                    if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
@@ -314,18 +314,46 @@ public class SearchTree {
         }
     }
 
-    private int arbitraryNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
-        if (ra1.isDetectedDuringRao() == ra2.isDetectedDuringRao()) {
-            if (ra1.getNetworkActionSet().size() == ra2.getNetworkActionSet().size()) {
-                return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
-            } else {
-                return Integer.compare(ra2.getNetworkActionSet().size(), ra1.getNetworkActionSet().size());
-            }
-        } else if (ra1.isDetectedDuringRao()) {
-            return -1;
-        } else {
-            return 1;
+    int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+        // 1. First priority given to combinations detected during RAO
+        int comp1 = compareIsDetectedDuringRao(ra1, ra2);
+        if (comp1 != 0) {
+            return comp1;
         }
+        // 2. Second priority given to pre-defined combinations
+        int comp2 = compareIsPreDefined(ra1, ra2);
+        if (comp2 != 0) {
+            return comp2;
+        }
+        // 3. Third priority given to large combinations
+        int comp3 = compareSize(ra1, ra2);
+        if (comp3 != 0) {
+            return comp3;
+        }
+        // 4. Last priority is random but deterministic
+        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode(),
+                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode());
+    }
+
+    /**
+     * Prioritizes the better network action combination that was detected by the RAO
+     */
+    private int compareIsDetectedDuringRao(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+        return -Boolean.compare(ra1.isDetectedDuringRao(), ra2.isDetectedDuringRao());
+    }
+
+    /**
+     * Prioritizes the network action combination that pre-defined by the user
+     */
+    private int compareIsPreDefined(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+        return -Boolean.compare(this.bloomer.hasPreDefinedNetworkActionCombination(ra1), this.bloomer.hasPreDefinedNetworkActionCombination(ra2));
+    }
+
+    /**
+     * Prioritizes the bigger network action combination
+     */
+    private int compareSize(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+        return -Integer.compare(ra1.getNetworkActionSet().size(), ra2.getNetworkActionSet().size());
     }
 
     private String printNetworkActions(Set<NetworkAction> networkActions) {
@@ -354,7 +382,7 @@ public class SearchTree {
         TECHNICAL_LOGS.debug("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
-                if (combinationFulfillingStopCriterion.isPresent() && arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
+                if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                 } else {
                     optimizeLeaf(leaf);
@@ -432,7 +460,7 @@ public class SearchTree {
             // special case: stop criterion has been reached
             if (combinationFulfillingStopCriterion.isPresent()
                 && stopCriterionReached(leaf)
-                && arbitraryNetworkActionCombinationComparison(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                && deterministicNetworkActionCombinationComparison(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
                 optimalLeaf = leaf;
                 combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
             }

@@ -48,8 +48,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -73,17 +72,16 @@ public class SearchTreeTest {
     private Set<RangeAction<?>> availableRangeActions;
     private PrePerimeterResult prePerimeterResult;
     private AppliedRemedialActions appliedRemedialActions;
-    private ObjectiveFunction objectiveFunction;
 
     private Leaf rootLeaf;
 
     private SearchTreeParameters searchTreeParameters;
     private TreeParameters treeParameters;
     private GlobalRemedialActionLimitationParameters raLimitationParameters;
-    private NetworkActionParameters networkActionParameters;
 
-    private int maximumSearchDepth;
     private int leavesInParallel;
+
+    private NetworkActionCombination predefinedNaCombination;
 
     @Before
     public void setUp() throws Exception {
@@ -96,7 +94,7 @@ public class SearchTreeTest {
     }
 
     private void setSearchTreeParameters() {
-        maximumSearchDepth = 1;
+        int maximumSearchDepth = 1;
         leavesInParallel = 1;
         treeParameters = Mockito.mock(TreeParameters.class);
         when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
@@ -107,8 +105,10 @@ public class SearchTreeTest {
         when(raLimitationParameters.getMaxCurativeTso()).thenReturn(Integer.MAX_VALUE);
         when(raLimitationParameters.getMaxCurativePstPerTso()).thenReturn(new HashMap<>());
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
-        networkActionParameters = Mockito.mock(NetworkActionParameters.class);
+        NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         when(searchTreeParameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
+        predefinedNaCombination = Mockito.mock(NetworkActionCombination.class);
+        when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
     }
 
     private void setSearchTreeInput() {
@@ -129,7 +129,7 @@ public class SearchTreeTest {
         when(searchTreeInput.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         when(searchTreeInput.getPrePerimeterResult()).thenReturn(prePerimeterResult);
-        objectiveFunction = Mockito.mock(ObjectiveFunction.class);
+        ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
@@ -567,5 +567,50 @@ public class SearchTreeTest {
         assertEquals(2, business.list.size());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
+    }
+
+    @Test
+    public void testSortNaCombinations() {
+        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na2 = Mockito.mock(NetworkAction.class);
+        when(na1.getId()).thenReturn("na1");
+        when(na2.getId()).thenReturn("na2");
+
+        // 1. First priority given to combinations detected during RAO
+        assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
+                new NetworkActionCombination(Set.of(na1), true),
+                new NetworkActionCombination(Set.of(na2), false)
+        ));
+        assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
+                predefinedNaCombination,
+                new NetworkActionCombination(Set.of(na2), true)
+        ));
+        // 2. Second priority given to pre-defined combinations
+        assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
+                predefinedNaCombination,
+                new NetworkActionCombination(Set.of(na2), false)
+        ));
+        assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
+                new NetworkActionCombination(Set.of(na2), false),
+                predefinedNaCombination
+        ));
+        // 3. Third priority given to large combinations
+        assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
+                new NetworkActionCombination(Set.of(na1, na2), false),
+                new NetworkActionCombination(Set.of(na2), false)
+        ));
+        assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
+                new NetworkActionCombination(Set.of(na1), true),
+                new NetworkActionCombination(Set.of(na2, na1), true)
+        ));
+        // 4. Last priority is random but deterministic
+        assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
+                new NetworkActionCombination(Set.of(na1), true),
+                new NetworkActionCombination(Set.of(na2), true)
+        ));
+        assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
+                new NetworkActionCombination(Set.of(na2), false),
+                new NetworkActionCombination(Set.of(na1), false)
+        ));
     }
 }
