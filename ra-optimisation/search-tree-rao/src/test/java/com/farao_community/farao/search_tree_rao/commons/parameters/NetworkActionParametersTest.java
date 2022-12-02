@@ -21,8 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -59,9 +58,18 @@ public class NetworkActionParametersTest {
         assertTrue(nap.skipNetworkActionFarFromMostLimitingElements());
         assertEquals(4, nap.getMaxNumberOfBoundariesForSkippingNetworkActions());
 
-        NetworkActionCombination naCombination = new NetworkActionCombination(Set.of(Mockito.mock(NetworkAction.class), Mockito.mock(NetworkAction.class)));
+        Set<NetworkAction> naSet = Set.of(Mockito.mock(NetworkAction.class), Mockito.mock(NetworkAction.class));
+        NetworkActionCombination naCombination = new NetworkActionCombination(naSet);
         nap.addNetworkActionCombination(naCombination);
+        assertEquals(2, nap.getNetworkActionCombinations().size());
         assertTrue(nap.getNetworkActionCombinations().contains(naCombination));
+
+        // Test unicity
+        NetworkActionCombination naCombinationDetectedInRao = new NetworkActionCombination(naSet, true);
+        nap.addNetworkActionCombination(naCombinationDetectedInRao);
+        assertEquals(2, nap.getNetworkActionCombinations().size());
+        assertTrue(nap.getNetworkActionCombinations().contains(naCombinationDetectedInRao));
+        assertFalse(nap.getNetworkActionCombinations().contains(naCombination));
     }
 
     @Test (expected = FaraoException.class)
