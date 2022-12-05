@@ -60,6 +60,12 @@ public final class ObjectiveFunction {
                 .sum();
     }
 
+    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        return virtualCostEvaluators.stream()
+            .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
+            .sum();
+    }
+
     public Set<String> getVirtualCostNames() {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
@@ -70,6 +76,14 @@ public final class ObjectiveFunction {
                 .findAny()
                 .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
                 .orElse(Double.NaN);
+    }
+
+    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExlude) {
+        return virtualCostEvaluators.stream()
+            .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
+            .findAny()
+            .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExlude))
+            .orElse(Double.NaN);
     }
 
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, String virtualCostName, int number) {

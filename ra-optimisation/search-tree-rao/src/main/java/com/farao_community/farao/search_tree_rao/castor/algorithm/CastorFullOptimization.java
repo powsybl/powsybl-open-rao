@@ -512,6 +512,12 @@ public class CastorFullOptimization {
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
+        Set<String> contingenciesToExclude = raoInput.getCrac().getStates().stream()
+            .filter(state -> (curativeResults.containsKey(state) && curativeResults.get(state).getSensitivityStatus() == ComputationStatus.FAILURE)
+                || initialOutput.getSensitivityStatus(state) == ComputationStatus.FAILURE)
+            .map(state -> state.getContingency().get().getId())
+            .collect(Collectors.toSet());
+        prePerimeterSensitivityAnalysis.excludeContingency(contingenciesToExclude);
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras);
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),

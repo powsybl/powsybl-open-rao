@@ -21,6 +21,7 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
@@ -32,7 +33,7 @@ import java.util.Set;
 public class PrePerimeterSensitivityAnalysis {
 
     // actual input
-    private final Set<FlowCnec> flowCnecs;
+    private Set<FlowCnec> flowCnecs;
     private final Set<RangeAction<?>> rangeActions;
     private final RaoParameters raoParameters;
     private final ToolProvider toolProvider;
@@ -123,5 +124,11 @@ public class PrePerimeterSensitivityAnalysis {
 
     private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
         return objectiveFunction.evaluate(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityResult.getSensitivityStatus());
+    }
+
+    public void excludeContingency(Set<String> contingenciesToExclude) {
+        flowCnecs = flowCnecs.stream()
+            .filter(flowCnec -> flowCnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(flowCnec.getState().getContingency().get().getId()))
+            .collect(Collectors.toSet());
     }
 }
