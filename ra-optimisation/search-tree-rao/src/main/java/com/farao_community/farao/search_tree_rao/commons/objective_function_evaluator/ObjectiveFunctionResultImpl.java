@@ -14,10 +14,7 @@ import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionRes
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -53,7 +50,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     @Override
     public double getFunctionalCost() {
         if (!areCostComputed) {
-            computeCosts();
+            computeCosts(new HashSet<>());
         }
         return functionalCost;
     }
@@ -66,7 +63,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     @Override
     public double getVirtualCost() {
         if (!areCostComputed) {
-            computeCosts();
+            computeCosts(new HashSet<>());
         }
         if (virtualCosts.size() > 0) {
             return virtualCosts.values().stream().mapToDouble(v -> v).sum();
@@ -82,7 +79,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     @Override
     public double getVirtualCost(String virtualCostName) {
         if (!areCostComputed) {
-            computeCosts();
+            computeCosts(new HashSet<>());
         }
         return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
     }
@@ -94,14 +91,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
-
-        computeCosts();
+        computeCosts(contingenciesToExclude);
     }
 
-    private void computeCosts() {
-        functionalCost = objectiveFunction.getFunctionalCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+    private void computeCosts(Set<String> contingenciesToExclude) {
+        functionalCost = objectiveFunction.getFunctionalCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
         virtualCosts = new HashMap<>();
-        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn)));
+        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn, contingenciesToExclude)));
         areCostComputed = true;
     }
 }
