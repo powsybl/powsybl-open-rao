@@ -88,14 +88,18 @@ public class UnoptimizedCnecParameters {
             Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> flowCnec.getNetworkElement().getId().equals(cnecId)).collect(Collectors.toSet());
             Set<PstRangeAction> pstRangeActions = crac.getPstRangeActions().stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(pstId)).collect(Collectors.toSet());
 
-            if (skipEntry(cnecId, pstId, flowCnecs, pstRangeActions)) continue;
+            if (skipEntry(cnecId, pstId, flowCnecs, pstRangeActions)) {
+                continue;
+            }
 
             for (FlowCnec flowCnec : flowCnecs) {
                 Set<PstRangeAction> availablePstRangeActions = pstRangeActions.stream().filter(pstRangeAction ->
                         pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
                                 pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toSet());
 
-                if (skipFlowCnec(availablePstRangeActions, pstId)) continue;
+                if (skipFlowCnec(availablePstRangeActions, pstId)) {
+                    continue;
+                }
 
                 mapOfUnoptimizedCnecsAndPsts.put(flowCnec, availablePstRangeActions.iterator().next());
             }
