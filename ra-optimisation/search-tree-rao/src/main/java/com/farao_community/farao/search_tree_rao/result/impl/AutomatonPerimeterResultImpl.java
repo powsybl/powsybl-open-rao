@@ -114,6 +114,12 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        postAutomatonSensitivityAnalysisOutput.excludeContingencies(contingenciesToExclude);
+
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return rangeActionsWithSetpoint.keySet();
     }
@@ -159,6 +165,11 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(state);
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        return postAutomatonSensitivityAnalysisOutput.getContingencies();
     }
 
     @Override

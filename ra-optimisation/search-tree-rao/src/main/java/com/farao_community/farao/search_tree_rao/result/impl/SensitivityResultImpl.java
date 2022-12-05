@@ -18,6 +18,8 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
+import java.util.Set;
+
 import static java.lang.String.format;
 
 /**
@@ -54,6 +56,10 @@ public class SensitivityResultImpl implements SensitivityResult {
             case FAILURE:
                 return ComputationStatus.FAILURE;
         }
+    }
+
+    public Set<String> getContingencies() {
+        return systematicSensitivityResult.getContingencies();
     }
 
     @Override

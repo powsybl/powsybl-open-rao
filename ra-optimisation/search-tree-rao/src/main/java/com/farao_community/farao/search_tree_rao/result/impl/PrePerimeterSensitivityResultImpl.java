@@ -52,6 +52,10 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
         return prePerimeterSetpoints;
     }
 
+    public Set<String> getContingencies() {
+        return sensitivityResult.getContingencies();
+    }
+
     @Override
     public ComputationStatus getSensitivityStatus() {
         return sensitivityResult.getSensitivityStatus();
@@ -155,5 +159,10 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     @Override
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunctionResult.getObjectiveFunction();
+    }
+
+    @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        objectiveFunctionResult.excludeContingencies(contingenciesToExclude);
     }
 }

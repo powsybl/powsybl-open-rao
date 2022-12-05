@@ -230,6 +230,10 @@ public class SystematicSensitivityResult {
         this.status = status;
     }
 
+    public Set<String> getContingencies() {
+        return postContingencyResults.values().stream().flatMap(contingencyResult -> contingencyResult.keySet().stream()).collect(Collectors.toSet());
+    }
+
     public double getReferenceFlow(FlowCnec cnec, Side side) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null ||

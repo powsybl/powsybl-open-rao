@@ -98,6 +98,11 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        optimizationResult.excludeContingencies(contingenciesToExclude);
+    }
+
+    @Override
     public ObjectiveFunction getObjectiveFunction() {
         return optimizationResult.getObjectiveFunction();
     }
@@ -187,6 +192,11 @@ public class PerimeterResultImpl implements PerimeterResult {
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
         return optimizationResult.getSensitivityStatus(state);
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        return optimizationResult.getContingencies();
     }
 
     @Override

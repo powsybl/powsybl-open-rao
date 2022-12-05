@@ -267,7 +267,7 @@ public class CastorFullOptimization {
 
                         // Simulate automaton instant
                         if (automatonState.isPresent() && prePerimeterSensitivityOutput.getSensitivityStatus(automatonState.get()) == ComputationStatus.FAILURE) {
-                            contingencyScenarioResults.put(automatonState.get(), new FailedOptimizationResultImpl());
+                            contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl());
                         } else if (automatonState.isPresent()) {
                             AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeState, networkClone);
                             contingencyScenarioResults.put(automatonState.get(), automatonResult);
@@ -275,7 +275,7 @@ public class CastorFullOptimization {
                         }
 
                         if (!automatonsOnly && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE) {
-                            contingencyScenarioResults.put(curativeState, new FailedOptimizationResultImpl());
+                            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl());
                         } else if (!automatonsOnly) {
                             // Optimize curative instant
                             OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
@@ -286,11 +286,11 @@ public class CastorFullOptimization {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                         Optional<State> automatonState = optimizedScenario.getAutomatonState();
                         if (automatonState.isPresent() && !contingencyScenarioResults.containsKey(automatonState.get())) {
-                            contingencyScenarioResults.put(automatonState.get(), new FailedOptimizationResultImpl());
+                            contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl());
                         }
                         if (!automatonsOnly) {
                             State curativeState = optimizedScenario.getCurativeState();
-                            contingencyScenarioResults.put(curativeState, new FailedOptimizationResultImpl());
+                            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl());
                         }
 
                     }
@@ -524,7 +524,7 @@ public class CastorFullOptimization {
 
         // Run second preventive RAO
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [start]");
-        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult.getActivatedNetworkActions(), appliedCras)
+        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult.getActivatedNetworkActions(), appliedCras, curativeResults)
             .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
@@ -551,15 +551,21 @@ public class CastorFullOptimization {
         );
     }
 
-    private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, Set<NetworkAction> optimalNetworkActionsInFirstPreventiveRao, AppliedRemedialActions appliedCras) {
+    private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, Set<NetworkAction> optimalNetworkActionsInFirstPreventiveRao, AppliedRemedialActions appliedCras, Map<State, OptimizationResult> curativeResults) {
 
         OptimizationPerimeter optPerimeter;
         if (raoParameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) {
-            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult, curativeResults);
         } else {
             Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(raoInput.getCrac().getRangeActions());
             removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, raoInput.getCrac());
-            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(raoInput.getCrac(), rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            Crac crac = raoInput.getCrac();
+            Set<State> filteredStates = crac.getStates().stream()
+                .filter(state -> !curativeResults.containsKey(state) || curativeResults.get(state).getSensitivityStatus() != ComputationStatus.FAILURE)
+                .filter(state -> prePerimeterResult.getSensitivityStatus(state) != ComputationStatus.FAILURE)
+                .collect(Collectors.toSet());
+            optPerimeter = PreventiveOptimizationPerimeter.buildForStates(crac.getPreventiveState(), filteredStates,
+                crac, rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         }
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()

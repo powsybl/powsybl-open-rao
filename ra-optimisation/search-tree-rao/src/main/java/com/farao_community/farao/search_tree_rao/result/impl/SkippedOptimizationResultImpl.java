@@ -19,14 +19,12 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class FailedOptimizationResultImpl implements OptimizationResult {
+public class SkippedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
 
     @Override
@@ -37,6 +35,11 @@ public class FailedOptimizationResultImpl implements OptimizationResult {
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
         return ComputationStatus.FAILURE;
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        return new HashSet<>();
     }
 
     @Override
@@ -86,27 +89,32 @@ public class FailedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return new ArrayList<>();
     }
 
     @Override
     public double getVirtualCost() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return 0;
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return new HashSet<>();
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return 0;
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        //do not do anything
     }
 
     @Override

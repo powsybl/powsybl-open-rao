@@ -58,6 +58,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults) {
         this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), null);
+        excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
     /**
@@ -71,6 +72,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults) {
         this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), secondPreventivePerimeterResult);
+        excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
     /**
@@ -85,6 +87,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                Map<State, OptimizationResult> postContingencyResults,
                                                ObjectiveFunctionResult postSecondAraoResults) {
         this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), postSecondAraoResults);
+        excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
     private PreventiveAndCurativesRaoResultImpl(State preventiveState,
@@ -124,6 +127,38 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             }
         });
         return results;
+    }
+
+    private Set<String> getContingenciesToExclude(StateTree stateTree) {
+        Set<String> contingenciesToExclude = new HashSet<>();
+        stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
+            Optional<State> automatonState = contingencyScenario.getAutomatonState();
+            if (automatonState.isPresent()) {
+                OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
+                if (!automatonResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                    return;
+                }
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+                if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                }
+            } else {
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+                if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                }
+            }
+        });
+        return contingenciesToExclude;
+    }
+
+    private void excludeContingencies(Set<String> contingenciesToExclude) {
+        initialResult.excludeContingencies(contingenciesToExclude);
+        firstPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
+        secondPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
+        resultsWithPrasForAllCnecs.excludeContingencies(contingenciesToExclude);
+        postContingencyResults.values().forEach(result -> result.excludeContingencies(contingenciesToExclude));
     }
 
     @Override
