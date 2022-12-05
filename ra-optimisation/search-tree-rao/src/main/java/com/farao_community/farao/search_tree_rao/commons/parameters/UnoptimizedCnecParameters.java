@@ -88,23 +88,32 @@ public class UnoptimizedCnecParameters {
             Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> flowCnec.getNetworkElement().getId().equals(cnecId)).collect(Collectors.toSet());
             Set<PstRangeAction> pstRangeActions = crac.getPstRangeActions().stream().filter(pstRangeAction -> pstRangeAction.getNetworkElement().getId().equals(pstId)).collect(Collectors.toSet());
 
-            if (flowCnecs.isEmpty()) {
-                BUSINESS_WARNS.warn("No flowCnec with network element id {} exists in unoptimized-cnecs-in-series-with-psts parameter", cnecId);
-                continue;
-            }
+            if (skipEntry(cnecId, pstId, flowCnecs, pstRangeActions)) continue;
 
             for (FlowCnec flowCnec : flowCnecs) {
                 Set<PstRangeAction> availablePstRangeActions = pstRangeActions.stream().filter(pstRangeAction ->
                         pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.AVAILABLE) ||
                                 pstRangeAction.getUsageMethod(flowCnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toSet());
 
-                if (skipFlowCnec(availablePstRangeActions, pstId)) {
-                    continue;
-                }
+                if (skipFlowCnec(availablePstRangeActions, pstId)) continue;
+
                 mapOfUnoptimizedCnecsAndPsts.put(flowCnec, availablePstRangeActions.iterator().next());
             }
         }
         return mapOfUnoptimizedCnecsAndPsts;
+    }
+
+    private static boolean skipEntry(String cnecId, String pstId, Set<FlowCnec> flowCnecs, Set<PstRangeAction> pstRangeActions) {
+        if (flowCnecs.isEmpty()) {
+            BUSINESS_WARNS.warn("No flowCnec with network element id {} exists in unoptimized-cnecs-in-series-with-psts parameter", cnecId);
+            return true;
+        }
+
+        if (pstRangeActions.isEmpty()) {
+            BUSINESS_WARNS.warn("No pst range actions are defined with network element {}", pstId);
+            return true;
+        }
+        return false;
     }
 
     private static boolean skipFlowCnec(Set<PstRangeAction> availablePstRangeActions, String pstId) {
@@ -113,10 +122,6 @@ public class UnoptimizedCnecParameters {
             return true;
         }
 
-        if (availablePstRangeActions.isEmpty()) {
-            BUSINESS_WARNS.warn("No pst range actions are defined with network element {}", pstId);
-            return true;
-        }
-        return false;
+        return availablePstRangeActions.isEmpty();
     }
 }
