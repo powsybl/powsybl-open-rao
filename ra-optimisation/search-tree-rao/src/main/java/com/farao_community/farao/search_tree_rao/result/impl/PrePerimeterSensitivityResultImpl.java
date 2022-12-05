@@ -32,6 +32,10 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
         this.objectiveFunctionResult = objectiveFunctionResult;
     }
 
+    public Set<String> getContingencies() {
+        return sensitivityResult.getContingencies();
+    }
+
     @Override
     public ComputationStatus getSensitivityStatus() {
         return sensitivityResult.getSensitivityStatus();
@@ -138,5 +142,10 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return objectiveFunctionResult.getCostlyElements(virtualCostName, number);
+    }
+
+    @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        objectiveFunctionResult.excludeContingencies(contingenciesToExclude);
     }
 }

@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -227,6 +228,10 @@ public class SystematicSensitivityResult {
 
     public void setStatus(SensitivityComputationStatus status) {
         this.status = status;
+    }
+
+    public Set<String> getContingencies() {
+        return postContingencyResults.values().stream().flatMap(contingencyResult -> contingencyResult.keySet().stream()).collect(Collectors.toSet());
     }
 
     public double getReferenceFlow(FlowCnec cnec, Side side) {

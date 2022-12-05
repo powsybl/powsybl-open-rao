@@ -102,6 +102,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        objectiveFunctionResult.excludeContingencies(contingenciesToExclude);
+    }
+
+    @Override
     public LinearProblemStatus getStatus() {
         return status;
     }
@@ -164,6 +169,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
         return sensitivityResult.getSensitivityStatus(state);
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        return sensitivityResult.getContingencies();
     }
 
     @Override

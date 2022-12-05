@@ -45,9 +45,17 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
+        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, numberOfElements, new HashSet<>());
+    }
+
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 
-        flowCnecs.stream().filter(Cnec::isOptimized).forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit)));
+        flowCnecs.stream()
+            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
+            .filter(Cnec::isOptimized)
+            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit)));
 
         List<FlowCnec> sortedElements = flowCnecs.stream()
             .filter(Cnec::isOptimized)
@@ -57,8 +65,8 @@ public class MinMarginEvaluator implements CostEvaluator {
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 
-    public FlowCnec getMostLimitingElement(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 1);
+    public FlowCnec getMostLimitingElement(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 1, contingenciesToExclude);
         if (costlyElements.isEmpty()) {
             return null;
         }
@@ -67,7 +75,12 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        FlowCnec limitingElement = getMostLimitingElement(flowResult, rangeActionActivationResult, sensitivityResult);
+        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
+    }
+
+    @Override
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        FlowCnec limitingElement = getMostLimitingElement(flowResult, rangeActionActivationResult, sensitivityResult, contingenciesToExclude);
         if (limitingElement == null) {
             // In case there is no limiting element (may happen in perimeters where only MNECs exist),
             // return a finite value, so that the virtual cost is not hidden by the functional cost

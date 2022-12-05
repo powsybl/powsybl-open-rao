@@ -87,6 +87,12 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         return objectiveFunction.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, virtualCostName, number);
     }
 
+    @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+
+        computeCosts();
+    }
+
     private void computeCosts() {
         functionalCost = objectiveFunction.getFunctionalCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
         virtualCosts = new HashMap<>();

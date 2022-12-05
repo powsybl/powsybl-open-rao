@@ -75,4 +75,6 @@ public interface ObjectiveFunctionResult {
      * @return The ordered list of the n first costly elements according to the given virtual cost.
      */
     List<FlowCnec> getCostlyElements(String virtualCostName, int number);
+
+    void excludeContingencies(Set<String> contingenciesToExclude);
 }

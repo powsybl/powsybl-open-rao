@@ -17,6 +17,7 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivatio
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +41,11 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
+    }
+
+    @Override
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         if (sensitivityStatus == ComputationStatus.FAILURE) {
             return sensitivityFailureOvercost;
         }
@@ -58,6 +64,11 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number, Set<String> contingenciesToExclude) {
         return Collections.emptyList();
     }
 }

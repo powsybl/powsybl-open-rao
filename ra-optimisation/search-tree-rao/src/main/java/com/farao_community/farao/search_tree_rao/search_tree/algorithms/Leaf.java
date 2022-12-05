@@ -454,6 +454,18 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        if (status == Status.EVALUATED) {
+            preOptimObjectiveFunctionResult.excludeContingencies(contingenciesToExclude);
+        } else if (status == Status.OPTIMIZED) {
+            postOptimResult.excludeContingencies(contingenciesToExclude);
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
+
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         if (status == Status.EVALUATED) {
             return raActivationsFromParentLeaf.getRangeActions();
@@ -544,6 +556,17 @@ public class Leaf implements OptimizationResult {
             return preOptimSensitivityResult.getSensitivityStatus(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityStatus(state);
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        if (status == Status.EVALUATED) {
+            return preOptimSensitivityResult.getContingencies();
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getContingencies();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }

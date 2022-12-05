@@ -15,6 +15,7 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivatio
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -34,6 +35,8 @@ public interface CostEvaluator {
      */
     double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus);
 
+    double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude);
+
     Unit getUnit();
 
     /**
@@ -46,4 +49,6 @@ public interface CostEvaluator {
      * @return The ordered list of the n first costly elements.
      */
     List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements);
+
+    List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude);
 }

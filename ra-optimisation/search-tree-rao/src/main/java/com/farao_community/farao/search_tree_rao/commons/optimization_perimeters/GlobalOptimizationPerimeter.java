@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 
@@ -36,8 +37,11 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         super(mainOptimizationState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions);
     }
 
-    public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        Set<State> ignoredStates = crac.getStates().stream().filter(state -> prePerimeterResult.getSensitivityStatus(state) == ComputationStatus.FAILURE).collect(Collectors.toSet());
+    public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult, Map<State, OptimizationResult> curativeResults) {
+        Set<State> ignoredStates = crac.getStates().stream()
+            .filter(state -> prePerimeterResult.getSensitivityStatus(state) == ComputationStatus.FAILURE ||
+                (curativeResults.containsKey(state) && curativeResults.get(state).getSensitivityStatus() == ComputationStatus.FAILURE))
+            .collect(Collectors.toSet());
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(flowCnec -> !ignoredStates.contains(flowCnec.getState())).collect(Collectors.toSet());
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network)
