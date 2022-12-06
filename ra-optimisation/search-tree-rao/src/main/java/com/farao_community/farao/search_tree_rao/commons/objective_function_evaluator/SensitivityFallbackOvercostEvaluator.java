@@ -17,6 +17,7 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -54,5 +55,10 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return Collections.emptySet();
     }
 }

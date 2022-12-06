@@ -90,4 +90,9 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs;
+    }
 }

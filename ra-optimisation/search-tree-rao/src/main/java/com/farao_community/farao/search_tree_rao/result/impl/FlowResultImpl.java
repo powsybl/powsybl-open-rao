@@ -67,4 +67,5 @@ public class FlowResultImpl implements FlowResult {
     public Map<FlowCnec, Map<Side, Double>> getPtdfZonalSums() {
         return fixedPtdfs.getPtdfZonalSums();
     }
+
 }
