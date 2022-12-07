@@ -26,8 +26,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static java.lang.Math.abs;
-import static java.lang.String.format;
 
 /**
  * This filler adds variables and constraints allowing the RAO to ignore some
@@ -125,7 +125,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
                     .collect(Collectors.toSet());
         } else {
-            return flowCnecPstRangeActionMap.keySet();
+            return optimizationContext.getFlowCnecs().stream()
+                    .filter(flowCnecPstRangeActionMap::containsKey)
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -207,6 +209,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             checkVariableCreation(optimizeCnecBinaryVariable, String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
 
             State state = getLastStateWithRangeActionAvailableForCnec(cnec);
+            if (Objects.isNull(state)) {
+                return;
+            }
             MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecPstRangeActionMap.get(cnec), state);
             checkVariableCreation(setPointVariable, String.format("Range action variable for PST %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec).getId()));
 
@@ -310,7 +315,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecPstRangeActionMap.get(cnec)))
                 .findFirst();
         if (lastState.isEmpty()) {
-            throw new FaraoException(format("Range action %s is not optimized on any state before cnec %s", flowCnecPstRangeActionMap.get(cnec).getId(), cnec.getId()));
+            BUSINESS_WARNS.warn("Range action {} is unavailable for cnec {}", flowCnecPstRangeActionMap.get(cnec).getId(), cnec.getId());
+            return null;
         } else {
             return lastState.get();
         }
