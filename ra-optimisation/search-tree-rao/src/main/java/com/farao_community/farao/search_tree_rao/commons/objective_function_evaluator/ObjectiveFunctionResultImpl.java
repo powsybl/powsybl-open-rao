@@ -46,6 +46,11 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     }
 
     @Override
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
+    }
+
+    @Override
     public double getFunctionalCost() {
         if (!areCostComputed) {
             computeCosts();

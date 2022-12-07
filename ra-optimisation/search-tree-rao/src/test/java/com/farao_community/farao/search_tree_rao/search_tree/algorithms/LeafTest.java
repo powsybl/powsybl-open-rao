@@ -722,6 +722,29 @@ public class LeafTest {
         leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT);
     }
 
+    @Test(expected = FaraoException.class)
+    public void getObjectiveFunctionBeforeEvaluation() {
+        Leaf leaf = buildNotEvaluatedRootLeaf();
+        leaf.getObjectiveFunction();
+    }
+
+    @Test
+    public void getObjectiveFunctionAfterOptimization() {
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        IteratingLinearOptimizationResultImpl linearOptimizationResult = Mockito.mock(IteratingLinearOptimizationResultImpl.class);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(RaoParameters.ObjectiveFunction.class));
+        prepareLinearProblemBuilder(linearOptimizationResult);
+        leaf.optimize(searchTreeInput, searchTreeParameters);
+
+        ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
+        when(linearOptimizationResult.getObjectiveFunction()).thenReturn(objectiveFunction);
+
+        assertEquals(objectiveFunction, leaf.getObjectiveFunction());
+    }
+
     @Test
     public void testFinalize() {
         ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
