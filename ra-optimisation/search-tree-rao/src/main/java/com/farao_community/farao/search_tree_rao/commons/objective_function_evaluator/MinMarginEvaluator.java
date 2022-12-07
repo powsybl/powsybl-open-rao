@@ -57,6 +57,11 @@ public class MinMarginEvaluator implements CostEvaluator {
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs;
+    }
+
     public FlowCnec getMostLimitingElement(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
         List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 1);
         if (costlyElements.isEmpty()) {

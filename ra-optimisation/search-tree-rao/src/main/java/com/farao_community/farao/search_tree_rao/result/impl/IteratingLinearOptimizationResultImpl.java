@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -99,6 +100,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return objectiveFunctionResult.getCostlyElements(virtualCostName, number);
+    }
+
+    @Override
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunctionResult.getObjectiveFunction();
     }
 
     @Override
