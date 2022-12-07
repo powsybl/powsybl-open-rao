@@ -453,4 +453,21 @@ public class SearchTreeBloomerTest {
             .withTapToAngleConversionMap(conversionMap)
             .add();
     }
+
+    @Test
+    public void testFilterIdenticalCombinations() {
+        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na2 = Mockito.mock(NetworkAction.class);
+
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class),
+                Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), false, 0,
+                List.of(new NetworkActionCombination(Set.of(na1, na2), false),
+                        new NetworkActionCombination(Set.of(na1, na2), false),
+                        new NetworkActionCombination(Set.of(na1, na2), true)),
+                pState);
+        Leaf leaf = Mockito.mock(Leaf.class);
+        Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        List<NetworkActionCombination> result = bloomer.bloom(leaf, Set.of(na1, na2));
+        assertEquals(4, result.size());
+    }
 }

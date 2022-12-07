@@ -5,12 +5,12 @@
     <parent>
         <artifactId>farao-data</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>4.2.1-SNAPSHOT</version>
+        <version>4.2.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>farao-result-exporter</artifactId>
-    <version>4.2.1-SNAPSHOT</version>
+    <version>4.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Result exporters</name>
     <description>Module that regroups the RAO result exporters</description>
