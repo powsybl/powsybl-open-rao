@@ -187,8 +187,7 @@ public class RaoUtilTest {
 
     @Test
     public void testIsOnFlowConstraintAvailable() {
-        State optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+        State optimizedState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
@@ -217,7 +216,7 @@ public class RaoUtilTest {
         assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
         assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));
 
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        optimizedState = crac.getPreventiveState();
         assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network));
         assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
         assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network));

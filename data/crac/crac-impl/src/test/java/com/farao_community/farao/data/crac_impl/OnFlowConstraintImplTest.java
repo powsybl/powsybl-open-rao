@@ -30,8 +30,10 @@ public class OnFlowConstraintImplTest {
         flowCnec = Mockito.mock(FlowCnec.class);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         curativeState = Mockito.mock(State.class);
         Mockito.when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
+        Mockito.when(curativeState.isPreventive()).thenReturn(false);
     }
 
     @Test
@@ -65,5 +67,23 @@ public class OnFlowConstraintImplTest {
         onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, Mockito.mock(FlowCnec.class));
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
+    }
+
+    @Test
+    public void testGetUsageMethod() {
+        State curativeState2 = Mockito.mock(State.class);
+        Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
+        Mockito.when(curativeState2.isPreventive()).thenReturn(false);
+
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
+        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState));
+        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState2));
+
+        Mockito.when(flowCnec.getState()).thenReturn(curativeState);
+        onFlowConstraint = new OnFlowConstraintImpl(Instant.CURATIVE, flowCnec);
+        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(curativeState));
+        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState2));
     }
 }

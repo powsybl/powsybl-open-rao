@@ -374,10 +374,10 @@ public class CastorFullOptimizationTest {
         assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra5, state1, crac));
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra5, state2, crac));
 
-        // ra6 is available in preventive and in state1 and in state2
+        // ra6 is available in preventive and in state1
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra6, crac.getPreventiveState(), crac));
         assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra6, state1, crac));
-        assertTrue(CastorFullOptimization.isRangeActionAvailableInState(ra6, state2, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAvailableInState(ra6, state2, crac));
     }
 
     @Test
