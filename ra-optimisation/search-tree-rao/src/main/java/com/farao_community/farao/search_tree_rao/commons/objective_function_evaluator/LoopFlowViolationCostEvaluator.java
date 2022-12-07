@@ -83,6 +83,11 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return loopflowCnecs;
+    }
+
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
         return cnec.getMonitoredSides()
             .stream().map(side -> Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, side, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec, side)))

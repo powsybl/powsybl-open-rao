@@ -42,6 +42,12 @@ public final class ObjectiveFunction {
         return new ObjectiveFunctionBuilder();
     }
 
+    public Set<FlowCnec> getFlowCnecs() {
+        Set<FlowCnec> allFlowCnecs = new HashSet<>(functionalCostEvaluator.getFlowCnecs());
+        virtualCostEvaluators.forEach(virtualCostEvaluator -> allFlowCnecs.addAll(virtualCostEvaluator.getFlowCnecs()));
+        return allFlowCnecs;
+    }
+
     public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
         return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }

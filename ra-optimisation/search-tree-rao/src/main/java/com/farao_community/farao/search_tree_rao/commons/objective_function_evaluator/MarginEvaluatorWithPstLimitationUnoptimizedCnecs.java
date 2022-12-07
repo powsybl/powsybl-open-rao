@@ -32,10 +32,10 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
 
     public MarginEvaluatorWithPstLimitationUnoptimizedCnecs(MarginEvaluator marginEvaluator,
                                                             Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
-                                                            RangeActionSetpointResult prePerimeterRangeActionSetpointResult) {
+                                                            RangeActionSetpointResult rangeActionActivationResult) {
         this.marginEvaluator = marginEvaluator;
         this.flowCnecPstRangeActionMap = flowCnecPstRangeActionMap;
-        this.prePerimeterRangeActionSetpointResult = prePerimeterRangeActionSetpointResult;
+        this.prePerimeterRangeActionSetpointResult = rangeActionActivationResult;
     }
 
     @Override

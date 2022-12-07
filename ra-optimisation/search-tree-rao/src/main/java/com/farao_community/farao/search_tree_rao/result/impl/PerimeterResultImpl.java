@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -94,6 +95,11 @@ public class PerimeterResultImpl implements PerimeterResult {
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return optimizationResult.getCostlyElements(virtualCostName, number);
+    }
+
+    @Override
+    public ObjectiveFunction getObjectiveFunction() {
+        return optimizationResult.getObjectiveFunction();
     }
 
     @Override

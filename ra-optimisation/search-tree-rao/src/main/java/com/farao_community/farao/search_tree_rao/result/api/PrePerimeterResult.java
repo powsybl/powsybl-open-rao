@@ -11,4 +11,10 @@ package com.farao_community.farao.search_tree_rao.result.api;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface PrePerimeterResult extends FlowResult, SensitivityResult, RangeActionSetpointResult, ObjectiveFunctionResult {
+
+    FlowResult getFlowResult();
+
+    RangeActionSetpointResult getRangeActionSetpointResult();
+
+    SensitivityResult getSensitivityResult();
 }

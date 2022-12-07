@@ -140,8 +140,8 @@ public class PrePerimeterSensitivityAnalysisTest {
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
-        assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getFlowResult().getPtdfZonalSums());
+        assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getFlowResult().getCommercialFlow(cnec, Side.LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -153,6 +153,6 @@ public class PrePerimeterSensitivityAnalysisTest {
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
+        assertEquals(Map.of(cnec, Map.of(Side.LEFT, 0.1)), ((PrePerimeterSensitivityResultImpl) result).getFlowResult().getPtdfZonalSums());
     }
 }

@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -29,6 +30,25 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
         this.sensitivityResult = sensitivityResult;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         this.objectiveFunctionResult = objectiveFunctionResult;
+    }
+
+    @Override
+    public FlowResult getFlowResult() {
+        return flowResult;
+    }
+
+    @Override
+    public SensitivityResult getSensitivityResult() {
+        return sensitivityResult;
+    }
+
+    public ObjectiveFunctionResult getObjectiveFunctionResult() {
+        return objectiveFunctionResult;
+    }
+
+    @Override
+    public RangeActionSetpointResult getRangeActionSetpointResult() {
+        return prePerimeterSetpoints;
     }
 
     @Override
@@ -96,14 +116,6 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
         return prePerimeterSetpoints.getTap(pstRangeAction);
     }
 
-    public FlowResult getBranchResult() {
-        return flowResult;
-    }
-
-    public SensitivityResult getSensitivityResult() {
-        return sensitivityResult;
-    }
-
     @Override
     public double getFunctionalCost() {
         return objectiveFunctionResult.getFunctionalCost();
@@ -132,5 +144,10 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return objectiveFunctionResult.getCostlyElements(virtualCostName, number);
+    }
+
+    @Override
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunctionResult.getObjectiveFunction();
     }
 }

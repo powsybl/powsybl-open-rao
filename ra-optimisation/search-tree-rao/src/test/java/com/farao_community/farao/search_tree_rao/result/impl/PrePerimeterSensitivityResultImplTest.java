@@ -105,7 +105,7 @@ public class PrePerimeterSensitivityResultImplTest {
         when(rangeActionSetpointResult.getSetpoint(ra1)).thenReturn(15.6);
         assertEquals(15.6, output.getSetpoint(ra1), DOUBLE_TOLERANCE);
 
-        assertEquals(flowResult, output.getBranchResult());
+        assertEquals(flowResult, output.getFlowResult());
         assertEquals(sensitivityResult, output.getSensitivityResult());
         assertEquals(0, output.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, output.getVirtualCost(), DOUBLE_TOLERANCE);

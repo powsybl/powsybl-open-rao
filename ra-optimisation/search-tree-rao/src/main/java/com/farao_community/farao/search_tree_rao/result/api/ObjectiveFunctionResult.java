@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.api;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 
 import java.util.List;
 import java.util.Set;
@@ -71,8 +72,11 @@ public interface ObjectiveFunctionResult {
      * computation the list would be empty. Elements with a null virtual cost are not present in the list.
      *
      * @param virtualCostName: The name of the virtual cost.
-     * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.
+     * @param number:          The size of the list to be studied, so the number of costly elements to be retrieved.
      * @return The ordered list of the n first costly elements according to the given virtual cost.
      */
     List<FlowCnec> getCostlyElements(String virtualCostName, int number);
+
+    ObjectiveFunction getObjectiveFunction();
+
 }
