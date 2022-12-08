@@ -181,7 +181,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         highestFunctionalCost = Math.max(
             highestFunctionalCost,
             postContingencyResults.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().equals(instant))
+                .filter(entry -> entry.getKey().getInstant().equals(instant) || entry.getKey().getInstant().comesBefore(instant))
                 .map(Map.Entry::getValue)
                 .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
                 .map(PerimeterResult::getFunctionalCost)
