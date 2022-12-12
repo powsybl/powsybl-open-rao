@@ -250,7 +250,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         when(postPrevResult.getFunctionalCost()).thenReturn(-2020.);
         assertEquals(-1025., output.getFunctionalCost(AFTER_ARA), DOUBLE_TOLERANCE);
-        assertEquals(-1030., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(-1025., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
     }
 
     @Test
