@@ -55,13 +55,6 @@ final class RangeActionResultArraySerializer {
             jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
-        if (rangeAction instanceof PstRangeAction) {
-            Integer initialTap = safeGetPreOptimizedTap(raoResult, crac.getPreventiveState(), (PstRangeAction) rangeAction);
-            if (initialTap != null) {
-                jsonGenerator.writeNumberField(INITIAL_TAP, initialTap);
-            }
-        }
-
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
                 .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
                 .sorted(STATE_COMPARATOR)
@@ -140,11 +133,7 @@ final class RangeActionResultArraySerializer {
                 jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
             }
 
-            Integer tap = entry.getValue().getFirst();
             Double setpoint = entry.getValue().getSecond();
-            if (Objects.nonNull(tap)) {
-                jsonGenerator.writeNumberField(TAP, tap);
-            }
             if (!Double.isNaN(setpoint)) {
                 jsonGenerator.writeNumberField(SETPOINT, setpoint);
             }

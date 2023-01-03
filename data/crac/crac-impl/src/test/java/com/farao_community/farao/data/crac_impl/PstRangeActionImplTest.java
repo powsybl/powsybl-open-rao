@@ -92,6 +92,7 @@ public class PstRangeActionImplTest {
 
         double minAngleInNetwork = phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha();
         double maxAngleInNetwork = phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha();
+        assertEquals(0.3885, pstRa.getSmallestAngleStep(), 1e-3);
         assertEquals(minAngleInNetwork, pstRa.getMinAdmissibleSetpoint(0), 1e-3);
         assertEquals(maxAngleInNetwork, pstRa.getMaxAdmissibleSetpoint(0), 1e-3);
     }
