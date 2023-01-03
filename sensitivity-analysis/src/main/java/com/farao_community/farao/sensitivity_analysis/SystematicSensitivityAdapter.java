@@ -61,7 +61,10 @@ final class SystematicSensitivityAdapter {
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
-
+        // Information : for contingencies with auto RA but no curative RA, SystematicSensitivityResult::getCnecStateResult will
+        // retrieve sensi information for curative state from auto state to take into account auto RAs.
+        // (When auto AND curative RAs are applied, they will both be included in statesWithRa and both sensis
+        // are computed.)
         Set<State> statesWithRa = appliedRemedialActions.getStatesWithRa(network);
         Set<State> statesWithoutRa = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
         statesWithoutRa.removeAll(statesWithRa);
