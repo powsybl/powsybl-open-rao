@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -239,11 +240,17 @@ public class SystematicSensitivityResult {
     private StateResult getCnecStateResult(Cnec<?> cnec) {
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
-            if (postContingencyResults.containsKey(cnec.getState().getInstant()) && postContingencyResults.get(cnec.getState().getInstant()).containsKey(optionalContingency.get().getId())) {
-                return postContingencyResults.get(cnec.getState().getInstant()).get(optionalContingency.get().getId());
-            } else {
-                return postContingencyResults.get(Instant.OUTAGE).get(optionalContingency.get().getId());
+            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
+                    .filter(instant -> instant.comesBefore(cnec.getState().getInstant()) || instant.equals(cnec.getState().getInstant()))
+                    .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+                    .collect(Collectors.toList());
+            for (Instant instant : possibleInstants) {
+                // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.
+                if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
+                    return postContingencyResults.get(instant).get(optionalContingency.get().getId());
+                }
             }
+            return null;
         } else {
             return nStateResult;
         }

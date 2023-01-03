@@ -281,10 +281,11 @@ public class CastorFullOptimization {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                     }
                     TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
-                    contingencyCountDownLatch.countDown();
                     try {
                         networkPool.releaseUsedNetwork(networkClone);
+                        contingencyCountDownLatch.countDown();
                     } catch (InterruptedException ex) {
+                        contingencyCountDownLatch.countDown();
                         Thread.currentThread().interrupt();
                         throw new FaraoException(ex);
                     }
@@ -294,6 +295,7 @@ public class CastorFullOptimization {
             if (!success) {
                 throw new FaraoException("At least one post-contingency state could not be optimized within the given time (24 hours). This should not happen.");
             }
+            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

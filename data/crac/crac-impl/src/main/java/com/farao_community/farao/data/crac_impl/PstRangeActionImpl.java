@@ -44,9 +44,9 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         this.ranges = ranges;
         this.initialTapPosition = initialTap;
         this.tapToAngleConversionMap = tapToAngleConversionMap;
-        this.smallestAngleStep = computeSmallestAngleStep();
         this.lowTapPosition = Collections.min(tapToAngleConversionMap.keySet());
         this.highTapPosition = Collections.max(tapToAngleConversionMap.keySet());
+        this.smallestAngleStep = computeSmallestAngleStep();
     }
 
     @Override
