@@ -253,7 +253,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setCurativeRaoOptimizeOperatorsNotSharingCras(boolean curativeRaoOptimizeOperatorsNotSharingCras) {
-        if (!getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
+        if (!curativeRaoOptimizeOperatorsNotSharingCras && !getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
             throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
         }
         this.curativeRaoOptimizeOperatorsNotSharingCras = curativeRaoOptimizeOperatorsNotSharingCras;
@@ -264,14 +264,10 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setUnoptimizedCnecsInSeriesWithPstsIds(Map<String, String> unoptimizedCnecsInSeriesWithPsts) {
-        if (!getCurativeRaoOptimizeOperatorsNotSharingCras()) {
+        if (unoptimizedCnecsInSeriesWithPsts != null && !unoptimizedCnecsInSeriesWithPsts.isEmpty() && !getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
         }
-        if (Objects.isNull(unoptimizedCnecsInSeriesWithPsts)) {
-            this.unoptimizedCnecsInSeriesWithPstsIds = new HashMap<>();
-        } else {
-            this.unoptimizedCnecsInSeriesWithPstsIds = unoptimizedCnecsInSeriesWithPsts;
-        }
+        this.unoptimizedCnecsInSeriesWithPstsIds = Objects.requireNonNullElseGet(unoptimizedCnecsInSeriesWithPsts, HashMap::new);
     }
 
     public SecondPreventiveRaoCondition getSecondPreventiveOptimizationCondition() {
