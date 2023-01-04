@@ -164,7 +164,10 @@ public class CastorFullOptimization {
 
         mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
-            mergedRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
+            BUSINESS_LOGS.info("Results without 2P would have been:");
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoResult secondPreventiveRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
+            mergedRaoResults = postCheckSecondPreventiveResults(stateTree, secondPreventiveRaoResults, mergedRaoResults, postContingencyResults, preventiveResult);
         } else {
             BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
             // log results
@@ -172,6 +175,21 @@ public class CastorFullOptimization {
         }
 
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters);
+    }
+
+    /**
+     * Return previous result if 2P has increased cost
+     */
+    private RaoResult postCheckSecondPreventiveResults(StateTree stateTree, RaoResult secondPreventiveRaoResults, RaoResult mergedRaoResults, Map<State, OptimizationResult> postContingencyResults, PerimeterResult preventiveResult) {
+        if (secondPreventiveRaoResults.getCost(OptimizationState.AFTER_CRA) > mergedRaoResults.getCost(OptimizationState.AFTER_CRA)) {
+            BUSINESS_LOGS.info("Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
+                    formatDouble(mergedRaoResults.getCost(OptimizationState.AFTER_CRA)), formatDouble(mergedRaoResults.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(mergedRaoResults.getVirtualCost(OptimizationState.AFTER_CRA)),
+                    formatDouble(secondPreventiveRaoResults.getCost(OptimizationState.AFTER_CRA)), formatDouble(secondPreventiveRaoResults.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(secondPreventiveRaoResults.getVirtualCost(OptimizationState.AFTER_CRA)));
+            // log results
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            return mergedRaoResults;
+        }
+        return secondPreventiveRaoResults;
     }
 
     /**
