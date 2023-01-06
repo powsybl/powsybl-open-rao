@@ -67,6 +67,7 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
+    //TODO : add method with contingenciesToExclude
     public Set<FlowCnec> getFlowCnecs() {
         return Collections.emptySet();
     }
