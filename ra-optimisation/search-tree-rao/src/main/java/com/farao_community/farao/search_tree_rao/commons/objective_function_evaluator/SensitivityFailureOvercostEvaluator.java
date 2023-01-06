@@ -71,4 +71,9 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number, Set<String> contingenciesToExclude) {
         return Collections.emptyList();
     }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return Collections.emptySet();
+    }
 }

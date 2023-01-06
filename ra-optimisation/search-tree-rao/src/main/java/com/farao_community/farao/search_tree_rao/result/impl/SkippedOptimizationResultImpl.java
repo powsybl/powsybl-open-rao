@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -115,6 +116,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         //do not do anything
+    }
+
+    @Override
+    public ObjectiveFunction getObjectiveFunction() {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
