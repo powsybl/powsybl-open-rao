@@ -28,6 +28,7 @@ import java.util.Set;
  */
 public class FailedRaoResultImpl implements SearchTreeRaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
+    private boolean wentThroughSecondPreventive = false;
 
     @Override
     public ComputationStatus getComputationStatus() {
@@ -139,4 +140,13 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
+    @Override
+    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
+        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    }
+
+    @Override
+    public boolean getRaoWentThroughSecondPreventive() {
+        return wentThroughSecondPreventive;
+    }
 }

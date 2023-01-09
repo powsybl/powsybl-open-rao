@@ -168,6 +168,7 @@ public class CastorFullOptimization {
             RaoResult secondPreventiveRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
             if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
                 mergedRaoResults = secondPreventiveRaoResults;
+                mergedRaoResults.setRaoWentThroughSecondPreventive(true);
                 logFinalResultsOutsideOfSecondPreventive = false;
             }
         }

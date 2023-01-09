@@ -375,4 +375,8 @@ public interface RaoResult {
      * @return The map of the range actions associated to their optimized set points of the specified state.
      */
     Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
+
+    boolean getRaoWentThroughSecondPreventive();
+
+    void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive);
 }

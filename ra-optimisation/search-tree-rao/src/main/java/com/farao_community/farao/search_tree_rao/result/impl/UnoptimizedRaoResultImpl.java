@@ -35,6 +35,7 @@ import java.util.Set;
  */
 public class UnoptimizedRaoResultImpl implements RaoResult {
     private final PrePerimeterResult initialResult;
+    private boolean wentThroughSecondPreventive = false;
 
     public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
@@ -194,5 +195,15 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
             setpointPerRa.put(ra, initialResult.getSetpoint(ra))
         );
         return setpointPerRa;
+    }
+
+    @Override
+    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
+        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    }
+
+    @Override
+    public boolean getRaoWentThroughSecondPreventive() {
+        return wentThroughSecondPreventive;
     }
 }

@@ -37,6 +37,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
     private final Map<State, PerimeterResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
+    private boolean wentThroughSecondPreventive = false;
 
     /**
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
@@ -437,5 +438,15 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                 .filter(mapState -> mapState.getInstant().equals(Instant.AUTO) && mapState.getContingency().equals(Optional.of(contingency)))
                 .findAny().orElse(preventiveState);
         }
+    }
+
+    @Override
+    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
+        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    }
+
+    @Override
+    public boolean getRaoWentThroughSecondPreventive() {
+        return wentThroughSecondPreventive;
     }
 }

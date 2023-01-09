@@ -49,6 +49,8 @@ public class RaoResultImpl implements RaoResult {
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
 
+    private boolean wentThroughSecondPreventive = false;
+
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
     }
@@ -311,5 +313,15 @@ public class RaoResultImpl implements RaoResult {
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
+    }
+
+    @Override
+    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
+        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    }
+
+    @Override
+    public boolean getRaoWentThroughSecondPreventive() {
+        return wentThroughSecondPreventive;
     }
 }

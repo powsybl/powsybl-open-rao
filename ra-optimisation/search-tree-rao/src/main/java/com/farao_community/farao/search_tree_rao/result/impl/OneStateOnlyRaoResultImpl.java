@@ -33,6 +33,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
     private final Set<FlowCnec> optimizedFlowCnecs;
+    private boolean wentThroughSecondPreventive = false;
 
     public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
@@ -265,4 +266,13 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         return postOptimizationResult.getOptimizedSetpointsOnState(state);
     }
 
+    @Override
+    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
+        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    }
+
+    @Override
+    public boolean getRaoWentThroughSecondPreventive() {
+        return wentThroughSecondPreventive;
+    }
 }
