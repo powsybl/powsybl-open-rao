@@ -867,4 +867,12 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(AFTER_CRA, "mnec", 100));
         assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_CRA, "lf", 100));
     }
+
+    @Test
+    public void testRaoWentThroughSecondPrev() {
+        setUp();
+        assertFalse(output.getRaoWentThroughSecondPreventive());
+        output.setRaoWentThroughSecondPreventive(true);
+        assertTrue(output.getRaoWentThroughSecondPreventive());
+    }
 }

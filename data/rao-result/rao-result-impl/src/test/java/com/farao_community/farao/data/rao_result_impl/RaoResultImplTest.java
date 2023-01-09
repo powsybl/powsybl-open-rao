@@ -205,4 +205,12 @@ public class RaoResultImplTest {
 
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
+
+    @Test
+    public void testRaoWentThroughSecondPrev() {
+        setUp();
+        assertFalse(raoResult.getRaoWentThroughSecondPreventive());
+        raoResult.setRaoWentThroughSecondPreventive(true);
+        assertTrue(raoResult.getRaoWentThroughSecondPreventive());
+    }
 }

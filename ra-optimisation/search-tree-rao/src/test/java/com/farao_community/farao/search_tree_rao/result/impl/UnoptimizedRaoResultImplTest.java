@@ -262,4 +262,12 @@ public class UnoptimizedRaoResultImplTest {
         State state1 = Mockito.mock(State.class);
         assertTrue(output.getActivatedRangeActionsDuringState(state1).isEmpty());
     }
+
+    @Test
+    public void testRaoWentThroughSecondPrev() {
+        setUp();
+        assertFalse(output.getRaoWentThroughSecondPreventive());
+        output.setRaoWentThroughSecondPreventive(true);
+        assertTrue(output.getRaoWentThroughSecondPreventive());
+    }
 }

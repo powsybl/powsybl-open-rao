@@ -319,4 +319,12 @@ public class OneStateOnlyRaoResultImplTest {
         assertEquals(-1500., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-750., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void testRaoWentThroughSecondPrev() {
+        setUp();
+        assertFalse(output.getRaoWentThroughSecondPreventive());
+        output.setRaoWentThroughSecondPreventive(true);
+        assertTrue(output.getRaoWentThroughSecondPreventive());
+    }
 }
