@@ -422,8 +422,9 @@ public class CastorFullOptimization {
                                                     PerimeterResult firstPreventiveResult,
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
-        Map<State, OptimizationResult> curativeResults = postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, curativeResults);
+        Map<State, OptimizationResult> curativeAndAutoResults = postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        curativeAndAutoResults.putAll(postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, curativeAndAutoResults);
 
         // Run 2nd automaton simulation and update results
         BUSINESS_LOGS.info("----- Second automaton simulation [start]");
