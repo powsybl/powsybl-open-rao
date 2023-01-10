@@ -298,10 +298,11 @@ public class SearchTree {
                     BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                 }
                 TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-                latch.countDown();
                 try {
                     networkPool.releaseUsedNetwork(networkClone);
+                    latch.countDown();
                 } catch (InterruptedException ex) {
+                    latch.countDown();
                     Thread.currentThread().interrupt();
                     throw new FaraoException(ex);
                 }

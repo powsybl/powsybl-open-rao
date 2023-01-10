@@ -111,10 +111,11 @@ public class AngleMonitoring {
                                 BUSINESS_WARNS.warn(e.getMessage());
                                 stateSpecificResults.add(catchAngleMonitoringResult(state, AngleMonitoringResult.Status.UNKNOWN));
                             }
-                            stateCountDownLatch.countDown();
                             try {
                                 networkPool.releaseUsedNetwork(networkClone);
+                                stateCountDownLatch.countDown();
                             } catch (InterruptedException ex) {
+                                stateCountDownLatch.countDown();
                                 Thread.currentThread().interrupt();
                                 throw new FaraoException(ex);
                             }
