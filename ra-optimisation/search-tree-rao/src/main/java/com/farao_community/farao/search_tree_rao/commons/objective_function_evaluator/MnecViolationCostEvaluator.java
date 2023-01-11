@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -64,7 +65,8 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         }
         double totalMnecMarginViolation = 0;
         for (FlowCnec mnec : flowCnecs) {
-            if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(mnec.getState().getContingency().get().getId()))) {
+            Optional<Contingency> contingency = mnec.getState().getContingency();
+            if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId()))) {
                 totalMnecMarginViolation += computeCost(flowResult, mnec);
             }
         }
