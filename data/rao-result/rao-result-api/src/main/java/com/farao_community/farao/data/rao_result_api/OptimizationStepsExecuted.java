@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.farao_community.farao.data.rao_result_api;
+
+/**
+ * Enum representing the different optimizations the rao went through
+ *
+ * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
+ */
+
+public enum OptimizationStepsExecuted {
+    SECOND_PREVENTIVE_IMPROVED_FIRST(true, false, false),
+    FIRST_PREVENTIVE_ONLY(false, false, false),
+    FIRST_PREVENTIVE_FELLBACK(false, true, false),
+    SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION(true, true, false),
+    SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION(true, false, true);
+
+    private final boolean secondPreventive;
+    private final boolean fellBackToInitialSituation;
+    private final boolean fellBackToFirstPreventiveSituation;
+
+    OptimizationStepsExecuted(boolean secondPreventive, boolean fellBackToInitialSituation, boolean fellBackToFirstPreventiveSituation) {
+        this.secondPreventive = secondPreventive;
+        this.fellBackToInitialSituation = fellBackToInitialSituation;
+        this.fellBackToFirstPreventiveSituation = fellBackToFirstPreventiveSituation;
+    }
+
+    public boolean hasRunSecondPreventive() {
+        return secondPreventive;
+    }
+
+    public boolean hasFallenBackToInitialSituation() {
+        return fellBackToInitialSituation;
+    }
+
+    public boolean hasFallenBackToFirstPreventiveSituation() {
+        return fellBackToFirstPreventiveSituation;
+    }
+}

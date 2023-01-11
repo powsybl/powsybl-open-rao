@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -62,8 +63,8 @@ public class FailedRaoResultImplTest {
     @Test
     public void testRaoWentThroughSecondPrev() {
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
-        assertFalse(failedRaoResultImpl.getRaoWentThroughSecondPreventive());
-        failedRaoResultImpl.setRaoWentThroughSecondPreventive(true);
-        assertTrue(failedRaoResultImpl.getRaoWentThroughSecondPreventive());
+        assertFalse(failedRaoResultImpl.getOptimizationStepsExecuted().hasRunSecondPreventive());
+        failedRaoResultImpl.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
+        assertTrue(failedRaoResultImpl.getOptimizationStepsExecuted().hasRunSecondPreventive());
     }
 }

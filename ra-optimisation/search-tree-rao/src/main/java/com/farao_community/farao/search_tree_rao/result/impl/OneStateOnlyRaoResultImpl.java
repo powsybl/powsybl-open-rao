@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
     private final Set<FlowCnec> optimizedFlowCnecs;
-    private boolean wentThroughSecondPreventive = false;
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
@@ -267,12 +268,12 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
-    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
-        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        this.optimizationStepsExecuted = optimizationStepsExecuted;
     }
 
     @Override
-    public boolean getRaoWentThroughSecondPreventive() {
-        return wentThroughSecondPreventive;
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

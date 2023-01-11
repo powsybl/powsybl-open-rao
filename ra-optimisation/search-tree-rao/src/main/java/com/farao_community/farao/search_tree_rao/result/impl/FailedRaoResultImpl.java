@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.SearchTreeRaoResult;
@@ -28,7 +29,7 @@ import java.util.Set;
  */
 public class FailedRaoResultImpl implements SearchTreeRaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
-    private boolean wentThroughSecondPreventive = false;
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     @Override
     public ComputationStatus getComputationStatus() {
@@ -141,12 +142,12 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
-    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
-        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        this.optimizationStepsExecuted = optimizationStepsExecuted;
     }
 
     @Override
-    public boolean getRaoWentThroughSecondPreventive() {
-        return wentThroughSecondPreventive;
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

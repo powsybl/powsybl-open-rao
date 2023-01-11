@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 
@@ -37,7 +38,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
     private final Map<State, PerimeterResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
-    private boolean wentThroughSecondPreventive = false;
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     /**
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
@@ -441,12 +442,12 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     }
 
     @Override
-    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
-        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        this.optimizationStepsExecuted = optimizationStepsExecuted;
     }
 
     @Override
-    public boolean getRaoWentThroughSecondPreventive() {
-        return wentThroughSecondPreventive;
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

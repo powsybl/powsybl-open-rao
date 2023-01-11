@@ -21,6 +21,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import java.util.Set;
  */
 public class UnoptimizedRaoResultImpl implements RaoResult {
     private final PrePerimeterResult initialResult;
-    private boolean wentThroughSecondPreventive = false;
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
@@ -198,12 +199,12 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive) {
-        this.wentThroughSecondPreventive = raoWentThroughSecondPreventive;
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        this.optimizationStepsExecuted = optimizationStepsExecuted;
     }
 
     @Override
-    public boolean getRaoWentThroughSecondPreventive() {
-        return wentThroughSecondPreventive;
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

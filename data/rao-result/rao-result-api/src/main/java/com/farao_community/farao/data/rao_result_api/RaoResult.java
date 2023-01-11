@@ -376,7 +376,7 @@ public interface RaoResult {
      */
     Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
 
-    boolean getRaoWentThroughSecondPreventive();
+    OptimizationStepsExecuted getOptimizationStepsExecuted();
 
-    void setRaoWentThroughSecondPreventive(boolean raoWentThroughSecondPreventive);
+    void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted);
 }
