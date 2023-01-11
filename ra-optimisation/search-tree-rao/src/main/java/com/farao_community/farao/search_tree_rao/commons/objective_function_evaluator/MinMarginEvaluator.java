@@ -66,7 +66,6 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    //TODO : update with reason per perimeter filter ?
     public Set<FlowCnec> getFlowCnecs() {
         return flowCnecs;
     }
