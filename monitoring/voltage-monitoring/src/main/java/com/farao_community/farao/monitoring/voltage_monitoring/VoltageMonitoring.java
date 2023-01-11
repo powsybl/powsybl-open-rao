@@ -84,10 +84,11 @@ public class VoltageMonitoring {
                             Thread.currentThread().interrupt();
                             throw new FaraoException(CONTINGENCY_ERROR, e);
                         }
-                        stateCountDownLatch.countDown();
                         try {
                             networkPool.releaseUsedNetwork(networkClone);
+                            stateCountDownLatch.countDown();
                         } catch (InterruptedException ex) {
+                            stateCountDownLatch.countDown();
                             Thread.currentThread().interrupt();
                             throw new FaraoException(ex);
                         }
