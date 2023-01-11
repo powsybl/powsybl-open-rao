@@ -95,7 +95,9 @@ public final class MonitoredSeriesCreationContext {
         this.measurementCreationContexts.addAll(measurementCreationContexts);
         if (this.measurementCreationContexts.stream().anyMatch(MeasurementCreationContext::isImported)) {
             this.importStatus = ImportStatus.IMPORTED;
-            this.importStatusDetail = "";
+            if (!isAltered) {
+                this.importStatusDetail = "";
+            }
         } else {
             this.importStatus = ImportStatus.OTHER;
             this.importStatusDetail = "None of the measurements could be imported";
