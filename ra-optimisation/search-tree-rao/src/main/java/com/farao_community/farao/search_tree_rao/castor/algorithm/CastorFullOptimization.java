@@ -304,6 +304,7 @@ public class CastorFullOptimization {
                     } catch (Exception e) {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                         Optional<State> automatonState = optimizedScenario.getAutomatonState();
+                        // If exception occurs during curative, auto may have been successful. Do not replace auto entry.
                         if (automatonState.isPresent() && !contingencyScenarioResults.containsKey(automatonState.get())) {
                             contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl());
                         }
@@ -437,6 +438,7 @@ public class CastorFullOptimization {
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
         Map<State, OptimizationResult> curativeResults = postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//        curativeResults.putAll(postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
         SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, curativeResults);
 
         // Run 2nd automaton simulation and update results
@@ -520,6 +522,7 @@ public class CastorFullOptimization {
 
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedCras = new AppliedRemedialActions();
+        // Find curative states following an auto state
         addAppliedNetworkActionsPostContingency(appliedCras, curativeResults);
 
         // Apply 1st preventive results for range actions that are both preventive and curative. This way we are sure

@@ -26,7 +26,7 @@ import java.util.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class SkippedOptimizationResultImpl implements OptimizationResult {
-    private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
+    private static final String SHOULD_NOT_BE_USED = "Should not be used: optimization result has been skipped.";
 
     @Override
     public ComputationStatus getSensitivityStatus() {
