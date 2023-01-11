@@ -14,9 +14,9 @@ package com.farao_community.farao.data.rao_result_api;
  */
 
 public enum OptimizationStepsExecuted {
-    SECOND_PREVENTIVE_IMPROVED_FIRST(true, false, false),
     FIRST_PREVENTIVE_ONLY(false, false, false),
     FIRST_PREVENTIVE_FELLBACK(false, true, false),
+    SECOND_PREVENTIVE_IMPROVED_FIRST(true, false, false),
     SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION(true, true, false),
     SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION(true, false, true);
 
