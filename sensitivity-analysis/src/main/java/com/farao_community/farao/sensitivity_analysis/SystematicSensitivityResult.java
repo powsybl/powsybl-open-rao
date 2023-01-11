@@ -214,13 +214,17 @@ public class SystematicSensitivityResult {
     public SensitivityComputationStatus getStatus(State state) {
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
-            if (postContingencyResults.containsKey(state.getInstant()) && postContingencyResults.get(state.getInstant()).containsKey(optionalContingency.get().getId())) {
-                return postContingencyResults.get(state.getInstant()).get(optionalContingency.get().getId()).getStatus();
-            } else if (postContingencyResults.containsKey(Instant.OUTAGE) && postContingencyResults.get(Instant.OUTAGE).containsKey(optionalContingency.get().getId())) {
-                return postContingencyResults.get(Instant.OUTAGE).get(optionalContingency.get().getId()).getStatus();
-            } else {
-                return SensitivityComputationStatus.FAILURE;
+            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
+                    .filter(instant -> instant.comesBefore(state.getInstant()) || instant.equals(state.getInstant()))
+                    .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+                    .collect(Collectors.toList());
+            for (Instant instant : possibleInstants) {
+                // Use latest sensi computed on state
+                if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
+                    return postContingencyResults.get(instant).get(optionalContingency.get().getId()).getStatus();
+                }
             }
+            return SensitivityComputationStatus.FAILURE;
         } else {
             return nStateResult.getStatus();
         }
