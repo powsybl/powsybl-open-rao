@@ -6,7 +6,7 @@
 
     <groupId>com.farao-community.farao</groupId>
     <artifactId>farao-core</artifactId>
-    <version>4.2.3-SNAPSHOT</version>
+    <version>4.2.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>FARAO</name>
@@ -113,7 +113,7 @@
         <google.autoservice.version>1.0-rc7</google.autoservice.version>
         <google.guava.version>29.0-jre</google.guava.version>
         <google.ortools.version>9.2.9972</google.ortools.version>
-        <jackson.version>2.9.9</jackson.version>
+        <jackson.version>2.13.4</jackson.version>
         <java.version>11</java.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
@@ -141,7 +141,7 @@
         <powermock.version>2.0.7</powermock.version>
         <powsybl.core.version>5.0.0</powsybl.core.version>
         <powsybl.glsk.version>2.0.0</powsybl.glsk.version>
-        <powsybl.openloadflow.version>0.24.0</powsybl.openloadflow.version>
+        <powsybl.openloadflow.version>0.24.2</powsybl.openloadflow.version>
         <slf4j.version>1.7.30</slf4j.version>
         <threeten.version>1.5.0</threeten.version>
         <xmlunit.core.version>2.8.1</xmlunit.core.version>
