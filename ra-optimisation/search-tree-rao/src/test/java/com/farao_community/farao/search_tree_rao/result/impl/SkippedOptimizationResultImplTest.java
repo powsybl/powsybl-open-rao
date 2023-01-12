@@ -20,7 +20,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -41,11 +40,12 @@ public class SkippedOptimizationResultImplTest {
         SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl();
 
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus());
-        assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus(any()));
+        assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus(state));
         assertTrue(skippedOptimizationResult.getContingencies().isEmpty());
-        assertTrue(skippedOptimizationResult.getMostLimitingElements(anyInt()).isEmpty());
+        assertTrue(skippedOptimizationResult.getMostLimitingElements(0).isEmpty());
+        assertTrue(skippedOptimizationResult.getMostLimitingElements(10).isEmpty());
         assertEquals(0, skippedOptimizationResult.getVirtualCost(), 1e-6);
-        assertEquals(0, skippedOptimizationResult.getVirtualCost(any()), 1e-6);
+        assertEquals(0, skippedOptimizationResult.getVirtualCost("emptyString"), 1e-6);
         assertTrue(skippedOptimizationResult.getVirtualCostNames().isEmpty());
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
@@ -53,7 +53,7 @@ public class SkippedOptimizationResultImplTest {
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.isActivated(networkAction));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements(anyString(), anyInt()));
+        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getActivatedRangeActions(state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
