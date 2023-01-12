@@ -25,6 +25,7 @@ import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterResultImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -506,6 +507,8 @@ public class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getRangeActionSetpointResult()).thenReturn(rangeActionSetpointResult);
         when(rangeActionSetpointResult.getRangeActions()).thenReturn(Collections.emptySet());
         when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
+        when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
         AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
         assertNotNull(result);
