@@ -519,7 +519,6 @@ public class AutomatonSimulatorTest {
         assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
     }
 
-
     @Test
     public void testDisableAcEmulationBeforeShifting() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
