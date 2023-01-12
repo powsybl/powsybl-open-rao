@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
