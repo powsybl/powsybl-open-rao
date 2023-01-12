@@ -143,11 +143,11 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        this.optimizationStepsExecuted = optimizationStepsExecuted;
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
+        throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 }

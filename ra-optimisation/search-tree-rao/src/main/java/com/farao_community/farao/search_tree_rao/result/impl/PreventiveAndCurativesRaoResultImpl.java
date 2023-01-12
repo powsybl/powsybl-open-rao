@@ -443,7 +443,21 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        this.optimizationStepsExecuted = optimizationStepsExecuted;
+
+        // This setter is public but should not be used other than in the CastorFullOptimization class
+        // It performs a check to allow only certain step modification according to CastorFullOptimization
+
+        if ((this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY) &&
+                (optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK) ||
+                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST))) ||
+                (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST) &&
+                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION)) ||
+                (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION) &&
+                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION))) {
+            this.optimizationStepsExecuted = optimizationStepsExecuted;
+        } else {
+            throw new FaraoException("The RaoResult object should not be modified by users");
+        }
     }
 
     @Override
