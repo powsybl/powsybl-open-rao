@@ -531,6 +531,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult1.getPtdfZonalSum(cnec1, LEFT)).thenReturn(4.);
         when(curativeResult2.getPtdfZonalSum(cnec1, LEFT)).thenReturn(5.);
 
+        when(curativeResult2.getSensitivityStatus(curativeState2)).thenReturn(ComputationStatus.DEFAULT);
+
         PerimeterResult perimeterResult;
 
         // INITIAL
@@ -569,6 +571,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(4., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_CRA, curativeState2);
         assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
+
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus(curativeState2));
     }
 
     @Test

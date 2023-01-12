@@ -88,4 +88,10 @@ public class SensitivityFailureOvercostEvaluatorTest {
         assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5).size());
         assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5, Set.of("")).size());
     }
+
+    @Test
+    public void testGetFlowCnecs() {
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2));
+        assertEquals(0, evaluator.getFlowCnecs().size());
+    }
 }

@@ -106,6 +106,7 @@ public class SystematicSensitivityResultTest {
 
         // Then
         assertTrue(result.isSuccess());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
 
         //  in basecase
         assertEquals(10, result.getReferenceFlow(nStateCnec, Side.LEFT), EPSILON);
@@ -158,6 +159,7 @@ public class SystematicSensitivityResultTest {
 
         // Then
         assertFalse(result.isSuccess());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
 
     private void setUpForHvdc() {
