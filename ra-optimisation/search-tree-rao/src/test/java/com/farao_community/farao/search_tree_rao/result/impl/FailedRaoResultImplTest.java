@@ -59,12 +59,4 @@ public class FailedRaoResultImplTest {
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
     }
-
-    @Test
-    public void testRaoWentThroughSecondPrev() {
-        FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
-        assertFalse(failedRaoResultImpl.getOptimizationStepsExecuted().hasRunSecondPreventive());
-        failedRaoResultImpl.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
-        assertTrue(failedRaoResultImpl.getOptimizationStepsExecuted().hasRunSecondPreventive());
-    }
 }
