@@ -6,9 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -66,10 +63,10 @@ public class CastorOneStateOnly {
 
         // compute initial sensitivity on CNECs of the only optimized state
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
-            raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
-            raoParameters,
-            toolProvider);
+                raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
+                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
+                raoParameters,
+                toolProvider);
 
         PrePerimeterResult initialResults;
         try {
@@ -83,46 +80,37 @@ public class CastorOneStateOnly {
         OptimizationPerimeter optPerimeter;
         TreeParameters treeParameters;
         Set<String> operatorsNotToOptimize = new HashSet<>();
-
-        OptimizationResult optimizationResult;
-        Set<FlowCnec> perimeterFlowCnecs;
-
-        if (raoInput.getOptimizedState().getInstant().equals(Instant.AUTO)) {
-            perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
-            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow().getId(), Instant.CURATIVE);
-            AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
-            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), curativeState, raoInput.getNetwork());
+        if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
+            optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
+            treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         } else {
-            if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
-                optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
-                treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-            } else {
-                optPerimeter = CurativeOptimizationPerimeter.build(raoInput.getOptimizedState(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
-                treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
-                operatorsNotToOptimize.addAll(stateTree.getOperatorsNotSharingCras());
-            }
-            perimeterFlowCnecs = optPerimeter.getFlowCnecs();
-            SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
-                    .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
-                    .withTreeParameters(treeParameters)
-                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
-                    .build();
-            SearchTreeInput searchTreeInput = SearchTreeInput.create()
-                    .withNetwork(raoInput.getNetwork())
-                    .withOptimizationPerimeter(optPerimeter)
-                    .withInitialFlowResult(initialResults)
-                    .withPrePerimeterResult(initialResults)
-                    .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-                    .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
-                    .withToolProvider(toolProvider)
-                    .build();
-            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
-
-            // apply RAs and return results
-            optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
-            optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+            optPerimeter = CurativeOptimizationPerimeter.build(raoInput.getOptimizedState(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
+            treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
+            operatorsNotToOptimize.addAll(stateTree.getOperatorsNotSharingCras());
         }
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getOptimizedState(), initialResults, optimizationResult, perimeterFlowCnecs));
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
+                .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
+                .withTreeParameters(treeParameters)
+                .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), raoInput.getCrac()))
+                .build();
+
+        SearchTreeInput searchTreeInput = SearchTreeInput.create()
+                .withNetwork(raoInput.getNetwork())
+                .withOptimizationPerimeter(optPerimeter)
+                .withInitialFlowResult(initialResults)
+                .withPrePerimeterResult(initialResults)
+                .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
+                .withObjectiveFunction(ObjectiveFunction.create().build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, initialResults, raoInput.getCrac(), operatorsNotToOptimize, raoParameters))
+                .withToolProvider(toolProvider)
+                .build();
+
+        OptimizationResult optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
+
+        // apply RAs and return results
+        optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
+        optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getOptimizedState(), initialResults, optimizationResult, optPerimeter.getFlowCnecs()));
     }
 }
