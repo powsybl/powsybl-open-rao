@@ -36,7 +36,7 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
 
     @Override
     public String getName() {
-        return "sensitivity-fallback-cost";
+        return "sensitivity-failure-cost";
     }
 
     @Override

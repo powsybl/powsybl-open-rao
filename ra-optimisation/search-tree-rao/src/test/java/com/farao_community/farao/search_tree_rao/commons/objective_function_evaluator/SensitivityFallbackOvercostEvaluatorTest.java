@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -71,5 +73,6 @@ public class SensitivityFallbackOvercostEvaluatorTest {
     public void testGetCostlyElements() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
         assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5).size());
+        assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5, Set.of("")).size());
     }
 }
