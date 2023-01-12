@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -208,12 +209,15 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testRaoResultStatus() {
+    public void testRaoWentThroughSecondPrev() {
         setUp();
         assertFalse(raoResult.getOptimizationStepsExecuted().hasRunSecondPreventive());
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
         raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertTrue(raoResult.getOptimizationStepsExecuted().hasRunSecondPreventive());
-        assertFalse(raoResult.getOptimizationStepsExecuted().hasFallenBackToInitialSituation());
-        assertFalse(raoResult.getOptimizationStepsExecuted().hasFallenBackToFirstPreventiveSituation());
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK));
     }
 }
