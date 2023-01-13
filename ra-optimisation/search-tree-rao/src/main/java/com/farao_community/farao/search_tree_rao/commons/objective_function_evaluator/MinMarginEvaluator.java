@@ -57,7 +57,7 @@ public class MinMarginEvaluator implements CostEvaluator {
             .filter(Cnec::isOptimized)
             .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit)));
 
-        List<FlowCnec> sortedElements = flowCnecs.stream()
+        List<FlowCnec> sortedElements = margins.keySet().stream()
             .filter(Cnec::isOptimized)
             .sorted(Comparator.comparing(margins::get))
             .collect(Collectors.toList());
