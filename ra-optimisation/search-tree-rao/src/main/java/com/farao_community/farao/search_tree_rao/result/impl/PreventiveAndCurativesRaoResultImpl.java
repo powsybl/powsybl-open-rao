@@ -174,7 +174,20 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        return getPerimeterResult(OptimizationState.AFTER_CRA, state).getSensitivityStatus(state);
+        OptimizationState optimizationState = null;
+        switch (state.getInstant()) {
+            case PREVENTIVE:
+            case OUTAGE:
+                optimizationState = OptimizationState.AFTER_PRA;
+                break;
+            case AUTO:
+                optimizationState = OptimizationState.AFTER_ARA;
+                break;
+            case CURATIVE:
+                optimizationState = OptimizationState.AFTER_CRA;
+                break;
+        }
+        return getPerimeterResult(optimizationState, state).getSensitivityStatus(state);
     }
 
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
