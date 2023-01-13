@@ -43,7 +43,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
         // computation status
         ComputationStatus computationStatus = raoResult.getComputationStatus();
-        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeOptimizedStepsExecuted(computationStatus));
+        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
         if (computationStatus == ComputationStatus.FAILURE) {
             jsonGenerator.writeEndObject();

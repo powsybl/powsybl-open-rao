@@ -256,7 +256,7 @@ public final class RaoResultJsonConstants {
         }
     }
 
-    public static String serializeOptimizedStepsExecuted(ComputationStatus computationStatus) {
+    public static String serializeStatus(ComputationStatus computationStatus) {
         switch (computationStatus) {
             case DEFAULT:
                 return DEFAULT_STATUS;

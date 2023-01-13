@@ -9,6 +9,7 @@ package com.farao_community.farao.data.rao_result_json;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -83,9 +84,9 @@ public class RaoResultJsonConstantsTest {
 
     @Test
     public void testSerializeStatus() {
-        assertEquals("default", serializeOptimizedStepsExecuted(DEFAULT));
-        assertEquals("fallback", serializeOptimizedStepsExecuted(FALLBACK));
-        assertEquals("failure", serializeOptimizedStepsExecuted(FAILURE));
+        assertEquals("default", serializeStatus(DEFAULT));
+        assertEquals("fallback", serializeStatus(FALLBACK));
+        assertEquals("failure", serializeStatus(FAILURE));
     }
 
     @Test
@@ -120,5 +121,23 @@ public class RaoResultJsonConstantsTest {
         when(state2.getContingency()).thenReturn(Optional.of(co2));
         assertEquals(1, STATE_COMPARATOR.compare(state1, state2));
         assertEquals(-1, STATE_COMPARATOR.compare(state2, state1));
+    }
+
+    @Test
+    public void testSerializeOptimizedStepsExecuted () {
+        assertEquals(FIRST_PREVENTIVE_ONLY, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertEquals(FIRST_PREVENTIVE_FELLBACK, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK));
+        assertEquals(SECOND_PREVENTIVE_IMPROVED_FIRST, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertEquals(SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals(SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+    }
+
+    @Test
+    public void testDeserializeOptimizedStepsExecuted () {
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, deserializeOptimizedStepsExecuted(FIRST_PREVENTIVE_ONLY));
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK, deserializeOptimizedStepsExecuted(FIRST_PREVENTIVE_FELLBACK));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
     }
 }
