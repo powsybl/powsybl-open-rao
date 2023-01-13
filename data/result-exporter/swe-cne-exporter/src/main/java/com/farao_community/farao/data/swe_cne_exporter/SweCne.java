@@ -110,10 +110,10 @@ public class SweCne {
         Reason reason = new Reason();
         RaoResult raoResult = sweCneHelper.getRaoResult();
         AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
-        boolean isDivergent = false;
+        boolean isDivergent = sweCneHelper.isAnyContingencyInFailure();
         boolean isUnsecure = false;
         if (Objects.nonNull(raoResult)) {
-            isDivergent = raoResult.getComputationStatus() == ComputationStatus.FAILURE;
+            isDivergent = isDivergent || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
             isUnsecure = raoResult.getFunctionalCost(OptimizationState.AFTER_CRA) > 0;
         }
         if (Objects.nonNull(angleMonitoringResult)) {

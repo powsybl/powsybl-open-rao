@@ -69,7 +69,7 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.FAILURE);
+        return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
     @Override
