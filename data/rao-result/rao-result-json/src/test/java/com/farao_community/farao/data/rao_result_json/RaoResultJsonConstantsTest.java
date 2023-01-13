@@ -83,9 +83,9 @@ public class RaoResultJsonConstantsTest {
 
     @Test
     public void testSerializeStatus() {
-        assertEquals("default", serializeStatus(DEFAULT));
-        assertEquals("fallback", serializeStatus(FALLBACK));
-        assertEquals("failure", serializeStatus(FAILURE));
+        assertEquals("default", serializeOptimizedStepsExecuted(DEFAULT));
+        assertEquals("fallback", serializeOptimizedStepsExecuted(FALLBACK));
+        assertEquals("failure", serializeOptimizedStepsExecuted(FAILURE));
     }
 
     @Test
