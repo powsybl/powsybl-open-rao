@@ -124,7 +124,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testSerializeOptimizedStepsExecuted () {
+    public void testSerializeOptimizedStepsExecuted() {
         assertEquals(FIRST_PREVENTIVE_ONLY, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertEquals(FIRST_PREVENTIVE_FELLBACK, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK));
         assertEquals(SECOND_PREVENTIVE_IMPROVED_FIRST, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
@@ -133,7 +133,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testDeserializeOptimizedStepsExecuted () {
+    public void testDeserializeOptimizedStepsExecuted() {
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, deserializeOptimizedStepsExecuted(FIRST_PREVENTIVE_ONLY));
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK, deserializeOptimizedStepsExecuted(FIRST_PREVENTIVE_FELLBACK));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_IMPROVED_FIRST));
