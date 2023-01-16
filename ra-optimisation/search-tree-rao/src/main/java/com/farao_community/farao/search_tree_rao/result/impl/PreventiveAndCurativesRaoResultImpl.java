@@ -174,20 +174,28 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        OptimizationState optimizationState = null;
+        List<OptimizationState> possibleOptimizationStates;
         switch (state.getInstant()) {
             case PREVENTIVE:
             case OUTAGE:
-                optimizationState = OptimizationState.AFTER_PRA;
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_PRA);
                 break;
             case AUTO:
-                optimizationState = OptimizationState.AFTER_ARA;
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
                 break;
             case CURATIVE:
-                optimizationState = OptimizationState.AFTER_CRA;
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
                 break;
+            default:
+                throw new FaraoException(String.format("Instant %s was not recognized", state.getInstant()));
         }
-        return getPerimeterResult(optimizationState, state).getSensitivityStatus(state);
+        for (OptimizationState optimizationState : possibleOptimizationStates) {
+            PerimeterResult perimeterResult = getPerimeterResult(optimizationState, state);
+            if (Objects.nonNull(perimeterResult)) {
+                return perimeterResult.getSensitivityStatus(state);
+            }
+        }
+        return FAILURE;
     }
 
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
