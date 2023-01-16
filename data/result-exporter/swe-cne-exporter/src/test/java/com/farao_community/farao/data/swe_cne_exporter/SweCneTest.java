@@ -49,6 +49,7 @@ public class SweCneTest {
     private CracCreationContext cracCreationContext;
     private Network network;
     private RaoResult raoResult;
+    private RaoResult raoResultWithFailure;
     private AngleMonitoringResult angleMonitoringResult;
 
     @Before
@@ -81,6 +82,14 @@ public class SweCneTest {
             e.printStackTrace();
         }
         angleMonitoringResult = new AngleMonitoringResultImporter().importAngleMonitoringResult(inputStream2, crac);
+        InputStream inputStream3 = null;
+        try {
+            inputStream3 = new FileInputStream(SweCneTest.class.getResource("/RaoResultWithFailure.json").getFile());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        raoResultWithFailure = new RaoResultImporter().importRaoResult(inputStream3, crac);
+
     }
 
     @Test
@@ -94,6 +103,23 @@ public class SweCneTest {
         new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResult, angleMonitoringResult, new RaoParameters(), params, outputStream);
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
+            compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
+        } catch (IOException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testExportWithFailure() {
+        CneExporterParameters params = new CneExporterParameters(
+                "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
+                "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
+                "receiverId", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+                "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new SweCneExporter().exportCne(crac, network, (CimCracCreationContext) cracCreationContext, raoResultWithFailure, angleMonitoringResult, new RaoParameters(), params, outputStream);
+        try {
+            InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNEWithFailure_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
             Assert.fail();
