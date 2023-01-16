@@ -108,7 +108,7 @@ public class SweMonitoredSeriesCreator {
         Map<Integer, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
             FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
-            int roundedFlow = (int) Math.round(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec));
+            int roundedFlow = (int) Math.round(getCnecFlowClosestToThreshold(OptimizationState.afterOptimizing(cnec.getState()), cnec));
             if (monitoredSeriesPerFlowValue.containsKey(roundedFlow) && includeMeasurements) {
                 mergeSeries(monitoredSeriesPerFlowValue.get(roundedFlow), cnec);
             } else if (!monitoredSeriesPerFlowValue.containsKey(roundedFlow)) {
@@ -126,7 +126,7 @@ public class SweMonitoredSeriesCreator {
         float roundedThreshold = Math.round(Math.min(
             Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
             Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
-        threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec) >= 0 ?
+        threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(OptimizationState.afterOptimizing(cnec.getState()), cnec) >= 0 ?
             DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
         threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
 
@@ -148,7 +148,7 @@ public class SweMonitoredSeriesCreator {
             Analog flow = new Analog();
             flow.setMeasurementType(FLOW_MEASUREMENT_TYPE);
             flow.setUnitSymbol(AMP_UNIT_SYMBOL);
-            float roundedFlow = Math.round(getCnecFlowClosestToThreshold(OptimizationState.AFTER_CRA, cnec));
+            float roundedFlow = Math.round(getCnecFlowClosestToThreshold(OptimizationState.afterOptimizing(cnec.getState()), cnec));
             flow.setPositiveFlowIn(roundedFlow >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
             flow.setAnalogValuesValue(Math.abs(roundedFlow));
             registeredResource.getMeasurements().add(flow);
