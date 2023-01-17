@@ -165,7 +165,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
             || secondPreventivePerimeterResult.getSensitivityStatus() == FAILURE
-            || postContingencyResults.values().stream().anyMatch(perimeterResult -> Objects.isNull(perimeterResult) || perimeterResult.getSensitivityStatus() == FAILURE)) {
+            || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
             return FAILURE;
         }
         // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
