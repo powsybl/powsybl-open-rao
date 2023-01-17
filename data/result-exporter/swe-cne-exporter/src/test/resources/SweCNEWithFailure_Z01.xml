@@ -210,13 +210,13 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3420</analogValues.value>
+                                <analogValues.value>3220</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>2</analogValues.value>
+                                <analogValues.value>15</analogValues.value>
                             </Measurements>
                         </RegisteredResource>
                     </Monitored_Series>
@@ -260,7 +260,7 @@
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
                                 <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>3220</analogValues.value>
+                                <analogValues.value>3410</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A07</measurementType>
