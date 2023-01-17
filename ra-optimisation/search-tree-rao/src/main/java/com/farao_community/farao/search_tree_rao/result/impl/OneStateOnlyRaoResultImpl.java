@@ -271,7 +271,8 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if ((this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY)) &&
                 !(optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK) ||
-                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST)) ||
+                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST) ||
+                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION)) ||
                 (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST) &&
                         !optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION)) ||
                 (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION) &&
