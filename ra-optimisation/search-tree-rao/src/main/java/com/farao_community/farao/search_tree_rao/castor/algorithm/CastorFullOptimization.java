@@ -430,9 +430,10 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Second automaton simulation [end]");
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
-        if (newPostContingencyResults.entrySet().stream().anyMatch(entry -> !entry.getValue().getActivatedNetworkActions().isEmpty() || !entry.getValue().getActivatedRangeActions(entry.getKey()).isEmpty())) {
-            // If any activated ARA, re-run curative sensitivity analysis
-            AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedCras.copy();
+        if (newPostContingencyResults.entrySet().stream().anyMatch(entry -> !entry.getValue().getActivatedNetworkActions().equals(postContingencyResults.get(entry.getKey()).getActivatedNetworkActions())
+                || !entry.getValue().getActivatedRangeActions(entry.getKey()).equals(postContingencyResults.get(entry.getKey()).getActivatedRangeActions(entry.getKey())))) {
+            // If activated ARAs in ARAO2 are different from activated ARAs in ARAO1, re-run curative sensitivity analysis
+            AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.getAppliedCurativeRas();
             addAppliedNetworkActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
             addAppliedRangeActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
             PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
@@ -476,14 +477,19 @@ public class CastorFullOptimization {
         private final PerimeterResult perimeterResult;
         private final PrePerimeterResult postPraSensitivityAnalysisOutput;
         private final Set<RemedialAction<?>> remedialActionsExcluded;
-        private final AppliedRemedialActions appliedCras;
+        private final AppliedRemedialActions appliedRas;
 
-        public SecondPreventiveRaoResult(PerimeterResult perimeterResult, PrePerimeterResult postPraSensitivityAnalysisOutput, Set<RemedialAction<?>> remedialActionsExcluded, AppliedRemedialActions appliedCras) {
+        public SecondPreventiveRaoResult(PerimeterResult perimeterResult, PrePerimeterResult postPraSensitivityAnalysisOutput, Set<RemedialAction<?>> remedialActionsExcluded, AppliedRemedialActions appliedRas) {
             this.perimeterResult = perimeterResult;
             this.postPraSensitivityAnalysisOutput = postPraSensitivityAnalysisOutput;
             this.remedialActionsExcluded = remedialActionsExcluded;
-            this.appliedCras = appliedCras;
+            this.appliedRas = appliedRas;
         }
+
+        public AppliedRemedialActions getAppliedCurativeRas() {
+            return appliedRas.getAppliedCurativeRas();
+        }
+
     }
 
     /**
