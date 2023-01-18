@@ -37,10 +37,6 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
         jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
 
-        //
-        OptimizationStepsExecuted optimizationStepsExecuted = raoResult.getOptimizationStepsExecuted();
-        jsonGenerator.writeStringField(OPTIMIZATION_STEPS_EXECUTED, serializeOptimizedStepsExecuted(optimizationStepsExecuted));
-
         // computation status
         ComputationStatus computationStatus = raoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
@@ -49,6 +45,10 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             jsonGenerator.writeEndObject();
             return;
         }
+
+        // optimization steps executed
+        OptimizationStepsExecuted optimizationStepsExecuted = raoResult.getOptimizationStepsExecuted();
+        jsonGenerator.writeStringField(OPTIMIZATION_STEPS_EXECUTED, serializeOptimizedStepsExecuted(optimizationStepsExecuted));
 
         CostResultMapSerializer.serialize(raoResult, jsonGenerator);
         FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
