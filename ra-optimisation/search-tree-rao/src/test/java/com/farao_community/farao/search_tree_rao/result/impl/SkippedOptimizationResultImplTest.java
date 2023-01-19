@@ -12,12 +12,13 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
+
+import java.util.HashSet;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -35,9 +36,8 @@ public class SkippedOptimizationResultImplTest {
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction rangeAction = mock(RangeAction.class);
-        NetworkAction networkAction = mock(NetworkAction.class);
 
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl();
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(new HashSet<>(), new HashSet<>());
 
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus());
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus(state));
@@ -52,16 +52,12 @@ public class SkippedOptimizationResultImplTest {
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.isActivated(networkAction));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getActivatedRangeActions(state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-        assertThrows(FaraoException.class, skippedOptimizationResult::getActivatedNetworkActions);
         assertThrows(FaraoException.class, skippedOptimizationResult::getFunctionalCost);
         assertThrows(FaraoException.class, skippedOptimizationResult::getObjectiveFunction);
-        assertThrows(FaraoException.class, skippedOptimizationResult::getRangeActions);
     }
 }

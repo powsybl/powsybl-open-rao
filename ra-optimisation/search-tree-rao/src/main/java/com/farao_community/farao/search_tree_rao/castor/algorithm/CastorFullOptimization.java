@@ -285,16 +285,23 @@ public class CastorFullOptimization {
                         PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
 
                         // Simulate automaton instant
-                        if (automatonState.isPresent() && prePerimeterSensitivityOutput.getSensitivityStatus(automatonState.get()) == ComputationStatus.FAILURE) {
-                            contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl());
-                        } else if (automatonState.isPresent()) {
+                        boolean autoStateSensiFailed = false;
+                        if (automatonState.isPresent()) {
                             AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeState, networkClone);
-                            contingencyScenarioResults.put(automatonState.get(), automatonResult);
-                            preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
+                            if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
+                                autoStateSensiFailed = true;
+                                contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(automatonResult.getActivatedNetworkActions(), automatonResult.getActivatedRangeActions(automatonState.get())));
+                            } else {
+                                contingencyScenarioResults.put(automatonState.get(), automatonResult);
+                                preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
+                            }
                         }
-
-                        if (!automatonsOnly && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE) {
-                            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl());
+                        // Do not simulate curative instant if last sensitivity analysis failed
+                        // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
+                        // -- or if there was an automaton state that failed
+                        if (!automatonsOnly && ((!automatonState.isPresent() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE)
+                                || (automatonState.isPresent() && autoStateSensiFailed))) {
+                            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(new HashSet<>(), new HashSet<>()));
                         } else if (!automatonsOnly) {
                             // Optimize curative instant
                             OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
@@ -302,17 +309,19 @@ public class CastorFullOptimization {
                             contingencyScenarioResults.put(curativeState, curativeResult);
                         }
                     } catch (Exception e) {
+                        // TODO : remove the following if/else : this catch should only be for optimizeCurativeState failures
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                         Optional<State> automatonState = optimizedScenario.getAutomatonState();
                         // If exception occurs during curative, auto may have been successful. Do not replace auto entry.
                         if (automatonState.isPresent() && !contingencyScenarioResults.containsKey(automatonState.get())) {
-                            contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl());
+                            BUSINESS_LOGS.error("Auto {} sensi fail was not catched in AutomatonSimulator : {}", optimizedScenario.getContingency().getId(), e);
+                            contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(new HashSet<>(), new HashSet<>()));
                         }
                         if (!automatonsOnly) {
                             State curativeState = optimizedScenario.getCurativeState();
-                            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl());
+                            // TODO : veut on créér un SkippedOptimization si on a divergé pendant le curatif (pendant application de CRA), plutôt que de revenir au rootLeaf du curatif ?
+                            contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(new HashSet<>(), new HashSet<>()));
                         }
-
                     }
                     TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
                     try {
@@ -437,7 +446,8 @@ public class CastorFullOptimization {
                                                     PerimeterResult firstPreventiveResult,
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
-        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
+        Map<State, OptimizationResult> curativeResults = postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, curativeResults);
 
         // Run 2nd automaton simulation and update results
         BUSINESS_LOGS.info("----- Second automaton simulation [start]");

@@ -27,6 +27,13 @@ import java.util.*;
  */
 public class SkippedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: optimization result has been skipped.";
+    private final Set<NetworkAction> activatedNetworkActions;
+    private final Set<RangeAction<?>> activatedRangeActions;
+
+    public SkippedOptimizationResultImpl(Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions) {
+        this.activatedNetworkActions = activatedNetworkActions;
+        this.activatedRangeActions = activatedRangeActions;
+    }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
@@ -75,12 +82,12 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return activatedNetworkActions.contains(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return new HashSet<>(activatedNetworkActions);
     }
 
     @Override
@@ -125,12 +132,12 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return activatedRangeActions;
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return activatedRangeActions;
     }
 
     @Override
