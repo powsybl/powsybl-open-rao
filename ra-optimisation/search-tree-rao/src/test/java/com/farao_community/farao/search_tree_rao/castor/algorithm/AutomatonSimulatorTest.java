@@ -26,6 +26,7 @@ import com.farao_community.farao.search_tree_rao.commons.objective_function_eval
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterResultImpl;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.apache.commons.lang3.tuple.Pair;
@@ -70,10 +71,24 @@ public class AutomatonSimulatorTest {
     @Before
     public void setup() {
         network = Network.read("TestCase16NodesWith2Hvdc.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWith2Hvdc.xiidm"));
+        // Add some lines otherwise HVDC2 is connected to nothing and load-flow produces NaN angles
+        network.newLine()
+            .setId("newline1")
+            .setR(0.01).setX(0.01)
+            .setBus1("BBE2AA12").setVoltageLevel1("BBE2AA1").setG1(0.01).setB1(0.01)
+            .setBus2("DDE3AA11").setVoltageLevel2("DDE3AA1").setG2(0.01).setB2(0.01)
+            .add();
+        network.newLine()
+            .setId("newline2")
+            .setR(0.01).setX(0.01)
+            .setBus1("FFR3AA12").setVoltageLevel1("FFR3AA1").setG1(0.01).setB1(0.01)
+            .setBus2("DDE2AA11").setVoltageLevel2("DDE2AA1").setG2(0.01).setB2(0.01)
+            .add();
+
         crac = CracFactory.findDefault().create("test-crac");
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
-            .withNetworkElement("contingency1-ne")
+            .withNetworkElement("NNL1AA11 NNL2AA11 1")
             .add();
         crac.newFlowCnec()
             .withId("cnec-prev")
@@ -183,21 +198,21 @@ public class AutomatonSimulatorTest {
 
         // Add HVDC range actions
         hvdcRa1 = crac.newHvdcRangeAction()
-                .withId("hvdc-ra1")
-                .withGroupId("hvdcGroup")
-                .withNetworkElement("BBE2AA11 FFR3AA11 1")
-                .withSpeed(1)
-                .newRange().withMax(1).withMin(-1).add()
-                .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
-                .add();
+            .withId("hvdc-ra1")
+            .withGroupId("hvdcGroup")
+            .withNetworkElement("BBE2AA11 FFR3AA11 1")
+            .withSpeed(1)
+            .newRange().withMax(1).withMin(-1).add()
+            .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
         hvdcRa2 = crac.newHvdcRangeAction()
-                .withId("hvdc-ra2")
-                .withGroupId("hvdcGroup")
-                .withNetworkElement("BBE2AA12 FFR3AA12 1")
-                .withSpeed(1)
-                .newRange().withMax(1).withMin(-1).add()
-                .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
-                .add();
+            .withId("hvdc-ra2")
+            .withGroupId("hvdcGroup")
+            .withNetworkElement("BBE2AA12 FFR3AA12 1")
+            .withSpeed(1)
+            .newRange().withMax(1).withMin(-1).add()
+            .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
 
         autoState = crac.getState(contingency1, Instant.AUTO);
 
@@ -251,38 +266,76 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableAcEmulation() {
+    public void testDisableAcEmulation1() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
-        PrePerimeterResult result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         // check that AC emulation was disabled on HVDC
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         // check that other HVDC was not touched
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         // check that sensi computation has been run
-        assertEquals(mockedPrePerimeterResult, result);
+        assertEquals(mockedPrePerimeterResult, result.getLeft());
+        assertEquals(1, result.getRight().size());
+        assertEquals(2450.87, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(2450.87, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
 
         // run a second time => no influence + sensi not run
         result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
-        assertEquals(prePerimeterResult, result);
+        assertEquals(prePerimeterResult, result.getLeft());
+        assertEquals(Map.of(), result.getRight());
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(2450.87, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(0, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testDisableAcEmulation2() {
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on 2 aligned HVDC RAs
-        result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1, hvdcRa2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1, hvdcRa2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
-        assertEquals(mockedPrePerimeterResult, result);
+        assertEquals(mockedPrePerimeterResult, result.getLeft());
+        assertEquals(2, result.getRight().size());
+        assertEquals(2450.87, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(2450.87, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(-46.61, result.getRight().get(hvdcRa2), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(46.61, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testDisableAcEmulation3() {
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on an HVDC with no HvdcAngleDroopActivePowerControl
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").removeExtension(HvdcAngleDroopActivePowerControl.class);
-        result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
-        assertEquals(prePerimeterResult, result);
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        assertEquals(prePerimeterResult, result.getLeft());
+        assertEquals(Map.of(), result.getRight());
+    }
+
+    @Test
+    public void testDisableAcEmulation4() {
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on non-HVDC : nothing should happen
-        result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
-        assertEquals(prePerimeterResult, result);
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        assertEquals(prePerimeterResult, result.getLeft());
+        assertEquals(Map.of(), result.getRight());
     }
 
     @Test
@@ -537,6 +590,10 @@ public class AutomatonSimulatorTest {
         automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        assertEquals(2450.87, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
+        assertEquals(46.61, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getConvertersMode());
     }
 
 }

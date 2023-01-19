@@ -390,8 +390,9 @@ public final class AutomatonSimulator {
      * enabled in AC emulation. Its sets the active power set-point of the HVDCs to the one computed by the AC control
      * prior to deactivation.
      * It finally runs a sensitivity analysis when AC emulations have been disabled.
+     * It returns the sensitivity analysis result and the HVDC active power set-points.
      */
-    PrePerimeterResult disableHvdcAngleDroopActivePowerControl(List<RangeAction<?>> alignedRa,
+    Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> disableHvdcAngleDroopActivePowerControl(List<RangeAction<?>> alignedRa,
                                                                Network network,
                                                                PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
                                                                PrePerimeterResult prePerimeterSensitivityOutput,
@@ -403,7 +404,7 @@ public final class AutomatonSimulator {
             .collect(Collectors.toSet());
 
         if (hvdcRasWithControl.isEmpty()) {
-            return prePerimeterSensitivityOutput;
+            return Pair.of(prePerimeterSensitivityOutput, new HashMap<>());
         }
 
         // First, run a load-flow computation if any RA is an HVDC with AngleDroopActivePowerControl enabled.
@@ -413,9 +414,11 @@ public final class AutomatonSimulator {
         // Next, disable AngleDroopActivePowerControl and set its active power set-point to the value previously
         // computed by the AngleDroopActivePowerControl
         // This makes sure that the future sensitivity computations will converge
+        Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
         hvdcRasWithControl.forEach(hvdcRa -> {
             String hvdcLineId = hvdcRa.getNetworkElement().getId();
             double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(hvdcLineId, networkWithContingencyAndFlows);
+            activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
             disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
         });
 
@@ -424,7 +427,7 @@ public final class AutomatonSimulator {
         PrePerimeterResult result = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, result, Set.of(automatonState), raoParameters.getObjectiveFunction(), numberLoggedElementsDuringRao);
 
-        return result;
+        return Pair.of(result, activePowerSetpoints);
     }
 
     private static Network runLoadFlowOnNetworkClone(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
@@ -496,8 +499,10 @@ public final class AutomatonSimulator {
         List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
 
         if (alignedRangeActions.stream().allMatch(HvdcRangeAction.class::isInstance) && !flowCnecsWithNegativeMargin.isEmpty()) {
-            // Disable AC emulation for HVDC lines, re-run sensitivity analysis and fetch new negative margins
-            automatonRangeActionOptimizationSensitivityAnalysisOutput = disableHvdcAngleDroopActivePowerControl(alignedRangeActions, network, preAutoPerimeterSensitivityAnalysis, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonState);
+            // Disable HvdcAngleDroopActivePowerControl for HVDC lines, fetch their set-point, re-run sensitivity analysis and fetch new negative margins
+            Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = disableHvdcAngleDroopActivePowerControl(alignedRangeActions, network, preAutoPerimeterSensitivityAnalysis, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonState);
+            automatonRangeActionOptimizationSensitivityAnalysisOutput = result.getLeft();
+            activatedRangeActionsWithSetpoint.putAll(result.getRight());
             flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
         }
 

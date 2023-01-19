@@ -11,13 +11,12 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -37,8 +36,6 @@ import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
 import static org.junit.Assert.*;
@@ -62,16 +59,6 @@ public class CseCracCreatorTest {
         CseCracCreator cseCracCreator = new CseCracCreator();
         cracCreationContext = cseCracCreator.createCrac(cseCrac, network, offsetDateTime, parameters);
         importedCrac = cracCreationContext.getCrac();
-    }
-
-    @Test
-    public void newTest() {
-        setUp("/20220530_1930_2D1_CO_CRAC_Transit_CSE2.xml", "/20220601_1630_153_UX1_6399MW.xiidm");
-        //setUp("/20220530_1930_2D1_CO_CRAC_Transit_CSE3_.xml", "/20220601_1630_153_UX1_6399MW.xiidm");
-        Set<FlowCnec> mnecs = importedCrac.getFlowCnecs().stream().filter(Cnec::isMonitored).collect(Collectors.toSet());
-        Set<FlowCnec> cnecs = importedCrac.getFlowCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet());
-        Set<FlowCnec> ignored = importedCrac.getFlowCnecs().stream().filter(c -> !c.isOptimized() && !c.isMonitored()).collect(Collectors.toSet());
-        int nn = importedCrac.getAngleCnecs().size();
     }
 
     private void setUp(String cracFileName) {
