@@ -53,9 +53,7 @@ public class AppliedRemedialActionsTest {
 
         // check object
         assertFalse(appliedRemedialActions.isEmpty(network));
-        assertFalse(appliedRemedialActions.getAppliedCurativeRas().isEmpty(network));
         assertEquals(1, appliedRemedialActions.getStatesWithRa(network).size());
-        assertEquals(1, appliedRemedialActions.getAppliedCurativeRas().getStatesWithRa(network).size());
         assertEquals("Contingency FR1 FR3", appliedRemedialActions.getStatesWithRa(network).iterator().next().getContingency().orElseThrow().getId());
         // apply remedial actions on network
         assertTrue(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
@@ -76,9 +74,7 @@ public class AppliedRemedialActionsTest {
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
 
         assertFalse(appliedRemedialActions.isEmpty(network));
-        assertFalse(appliedRemedialActions.getAppliedCurativeRas().isEmpty(network));
         assertEquals(2, appliedRemedialActions.getStatesWithRa(network).size());
-        assertEquals(2, appliedRemedialActions.getAppliedCurativeRas().getStatesWithRa(network).size());
 
         // apply remedial actions on network
         assertTrue(network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().isConnected());
@@ -95,9 +91,7 @@ public class AppliedRemedialActionsTest {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
 
         assertTrue(appliedRemedialActions.isEmpty(network));
-        assertTrue(appliedRemedialActions.getAppliedCurativeRas().isEmpty(network));
         assertEquals(0, appliedRemedialActions.getStatesWithRa(network).size());
-        assertEquals(0, appliedRemedialActions.getAppliedCurativeRas().getStatesWithRa(network).size());
 
     }
 
@@ -108,9 +102,7 @@ public class AppliedRemedialActionsTest {
         // should not be taken into account, as PST setpoint is the same as in the initial network
 
         assertTrue(appliedRemedialActions.isEmpty(network));
-        assertTrue(appliedRemedialActions.getAppliedCurativeRas().isEmpty(network));
         assertEquals(0, appliedRemedialActions.getStatesWithRa(network).size());
-        assertEquals(0, appliedRemedialActions.getAppliedCurativeRas().getStatesWithRa(network).size());
 
     }
 
@@ -159,8 +151,8 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testGetCurativeRAs() {
-        // Setup specific to this test to verify that method only takes Curative RAs and no other
+    public void testGetAppliedRemedialActionsAtAGivenInstant() {
+        // Setup specific to this test to verify that method only takes RAs from a given instant and no other
         // Creates a fake_pst with an AUTO instant because addAppliedRemedialAction method only allows instant Curative or Auto
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
         crac.newPstRangeAction()
@@ -184,6 +176,9 @@ public class AppliedRemedialActionsTest {
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", Instant.AUTO), pstRangeAction, 3.2);
 
         assertEquals(2, appliedRemedialActions.getStatesWithRa(network).size());
-        assertEquals(1, appliedRemedialActions.getAppliedCurativeRas().getStatesWithRa(network).size());
+        assertEquals(1, appliedRemedialActions.getAppliedRemedialActionsAtAGivenInstant(Instant.AUTO).getStatesWithRa(network).size());
+        assertEquals(1, appliedRemedialActions.getAppliedRemedialActionsAtAGivenInstant(Instant.CURATIVE).getStatesWithRa(network).size());
+        assertThrows(FaraoException.class, () -> appliedRemedialActions.getAppliedRemedialActionsAtAGivenInstant(Instant.PREVENTIVE));
+        assertThrows(FaraoException.class, () -> appliedRemedialActions.getAppliedRemedialActionsAtAGivenInstant(Instant.OUTAGE));
     }
 }

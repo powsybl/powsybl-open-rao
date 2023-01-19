@@ -113,9 +113,12 @@ public class AppliedRemedialActions {
         return ara;
     }
 
-    public AppliedRemedialActions getAppliedCurativeRas() {
+    public AppliedRemedialActions getAppliedRemedialActionsAtAGivenInstant(Instant instant) {
+        if (!(instant.equals(Instant.AUTO) || instant.equals(Instant.CURATIVE))) {
+            throw new FaraoException("Only works with CURATIVE and AUTO remedial actions");
+        }
         AppliedRemedialActions ara = new AppliedRemedialActions();
-        appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(Instant.CURATIVE))
+        appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(instant))
                 .forEach(entry -> {
                     ara.addAppliedNetworkActions(entry.getKey(), entry.getValue().networkActions);
                     ara.addAppliedRangeActions(entry.getKey(), entry.getValue().rangeActions);
