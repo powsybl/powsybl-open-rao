@@ -55,6 +55,8 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 public final class AutomatonSimulator {
     private static final double DOUBLE_NON_NULL = 1e-12;
     private static final int MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT = 10;
+    public static final double SENSI_UNDER_ESTIMATOR_MIN = 0.5;
+    private static final double SENSI_UNDER_ESTIMATOR_DECREMENT = 0.15;
 
     private final Crac crac;
     private final RaoParameters raoParameters;
@@ -516,7 +518,7 @@ public final class AutomatonSimulator {
         while (!flowCnecsWithNegativeMargin.isEmpty()) {
             FlowCnec toBeShiftedCnec = flowCnecsWithNegativeMargin.get(0).getLeft();
             if (toBeShiftedCnec.equals(previouslyShiftedCnec)) {
-                sensitivityUnderestimator = Math.max(0.5, sensitivityUnderestimator - 0.15);
+                sensitivityUnderestimator = Math.max(SENSI_UNDER_ESTIMATOR_MIN, sensitivityUnderestimator - SENSI_UNDER_ESTIMATOR_DECREMENT);
             } else {
                 sensitivityUnderestimator = 1;
             }
