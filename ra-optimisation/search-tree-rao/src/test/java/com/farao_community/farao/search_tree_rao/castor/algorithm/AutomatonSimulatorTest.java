@@ -481,6 +481,7 @@ public class AutomatonSimulatorTest {
         assertNotNull(result.getPerimeterResult());
         assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
+
     @Test
     public void testSimulateTopologicalAutomatonsFailure() {
         when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
