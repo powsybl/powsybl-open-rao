@@ -481,6 +481,13 @@ public class AutomatonSimulatorTest {
         assertNotNull(result.getPerimeterResult());
         assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
+    @Test
+    public void testSimulateTopologicalAutomatonsFailure() {
+        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
+        AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        assertNotNull(result);
+        assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
+    }
 
     @Test
     public void testSimulateAutomatonState() {
@@ -518,6 +525,19 @@ public class AutomatonSimulatorTest {
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
         assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
+    }
+
+    @Test
+    public void testSimulateAutomatonStateFailure() {
+        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
+        State curativeState = mock(State.class);
+        when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
+        assertNotNull(result);
+        assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
+        assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
+        assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
 
     @Test

@@ -281,7 +281,7 @@ public final class RaoLogger {
         } else {
             raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
         }
-        logger.info("Scenario \"{}\": {} {}", scenarioName, OptimizationState.afterOptimizing(optimizedState), raResult);
+        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
     }
 
     public static String formatDouble(double value) {
