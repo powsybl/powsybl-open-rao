@@ -132,6 +132,9 @@ public class CastorFullOptimization {
         applyRemedialActions(network, preventiveResult, raoInput.getCrac().getPreventiveState());
 
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), null);
+        if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            throw new FaraoException("Systematic sensitivity analysis after preventive remedial actions failed");
+        }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
                 new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
@@ -446,6 +449,9 @@ public class CastorFullOptimization {
             addAppliedNetworkActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
             addAppliedRangeActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
             PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
+            if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                throw new FaraoException("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
+            }
             for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
                 State state = entry.getKey();
                 if (!state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)) {
@@ -535,6 +541,9 @@ public class CastorFullOptimization {
                 .collect(Collectors.toSet());
         prePerimeterSensitivityAnalysis.excludeContingency(contingenciesToExclude);
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras);
+        if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            throw new FaraoException("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
+        }
         RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
                 new RangeActionActivationResultImpl(RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), raoInput.getCrac().getRangeActions())),
@@ -548,6 +557,9 @@ public class CastorFullOptimization {
                 .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
+        if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            throw new FaraoException("Systematic sensitivity analysis after preventive remedial actions after second preventive optimization failed");
+        }
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [end]");
 
         return new SecondPreventiveRaoResult(secondPreventiveResult, postPraSensitivityAnalysisOutput, remedialActionsExcluded, appliedCras);

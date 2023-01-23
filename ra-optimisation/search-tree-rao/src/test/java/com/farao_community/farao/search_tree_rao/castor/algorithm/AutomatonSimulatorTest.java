@@ -517,7 +517,7 @@ public class AutomatonSimulatorTest {
         RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
         when(mockedPrePerimeterResult.getRangeActionSetpointResult()).thenReturn(rangeActionSetpointResult);
         when(rangeActionSetpointResult.getRangeActions()).thenReturn(Collections.emptySet());
-        when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.DEFAULT);
         SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
         when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
