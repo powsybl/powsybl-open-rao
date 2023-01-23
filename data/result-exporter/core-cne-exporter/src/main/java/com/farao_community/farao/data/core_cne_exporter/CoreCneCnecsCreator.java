@@ -216,12 +216,12 @@ public final class CoreCneCnecsCreator {
         return measurements;
     }
 
-    private double getCnecFlow(FlowCnec cnec, OptimizationState optimizationState, Unit unit) {
+    private double getCnecFlow(FlowCnec cnec, Side side, OptimizationState optimizationState, Unit unit) {
         OptimizationState resultState = optimizationState;
         if (resultState.equals(OptimizationState.AFTER_CRA) && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
             resultState = OptimizationState.AFTER_PRA;
         }
-        return cneHelper.getRaoResult().getFlow(resultState, cnec, Side.LEFT, unit);
+        return cneHelper.getRaoResult().getFlow(resultState, cnec, side, unit);
     }
 
     private double getCnecMargin(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
@@ -238,12 +238,12 @@ public final class CoreCneCnecsCreator {
         if (resultState.equals(OptimizationState.AFTER_CRA) && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
             resultState = OptimizationState.AFTER_PRA;
         }
-        return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, Side.LEFT) : absoluteMargin;
+        return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
     }
 
     private Analog createFlowMeasurement(FlowCnec cnec, OptimizationState optimizationState, Unit unit, boolean shouldInvertBranchDirection) {
         double invert = shouldInvertBranchDirection ? -1 : 1;
-        return newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, invert * getCnecFlow(cnec, optimizationState, unit));
+        return newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, invert * getCnecFlow(cnec, getMonitoredSide(cnec), optimizationState, unit));
     }
 
     private Analog createThresholdMeasurement(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, String measurementType, boolean shouldInvertBranchDirection) {
@@ -287,15 +287,14 @@ public final class CoreCneCnecsCreator {
      */
     private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Map<Double, Double> thresholdToMarginMap = new HashMap<>();
-        double flow = getCnecFlow(cnec, optimizationState, unit);
+        Side side = getMonitoredSide(cnec);
+        double flow = getCnecFlow(cnec, side, optimizationState, unit);
         if (!Double.isNaN(flow)) {
-            for (Side side : Set.of(Side.LEFT, Side.RIGHT)) {
-                if (false) {
-                    // TODO : reactivate this for MNECs (if (asMnec)) when we should go back to the full version
-                    getThresholdToMarginMapAsMnec(cnec, unit, thresholdToMarginMap, flow, side);
-                } else {
-                    getThresholdToMarginMapAsCnec(cnec, unit, deductFrmFromThreshold, thresholdToMarginMap, flow, side);
-                }
+            if (false) {
+                // TODO : reactivate this for MNECs (if (asMnec)) when we should go back to the full version
+                getThresholdToMarginMapAsMnec(cnec, unit, thresholdToMarginMap, flow, side);
+            } else {
+                getThresholdToMarginMapAsCnec(cnec, unit, deductFrmFromThreshold, thresholdToMarginMap, flow, side);
             }
         }
         return thresholdToMarginMap;
@@ -316,7 +315,7 @@ public final class CoreCneCnecsCreator {
 
     private void getThresholdToMarginMapAsMnec(FlowCnec cnec, Unit unit, Map<Double, Double> thresholdToMarginMap, double flow, Side side) {
         // Look at thresholds computed using initial flow
-        double initialFlow = getCnecFlow(cnec, OptimizationState.INITIAL, unit);
+        double initialFlow = getCnecFlow(cnec, getMonitoredSide(cnec), OptimizationState.INITIAL, unit);
         double tolerance = cneHelper.getMnecAcceptableMarginDiminution() * getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
 
         double mnecUpperThreshold = Math.max(cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE), initialFlow + tolerance);
@@ -333,7 +332,7 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createPtdfZonalSumMeasurement(FlowCnec cnec) {
-        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(OptimizationState.INITIAL, cnec, Side.LEFT);
+        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(OptimizationState.INITIAL, cnec, getMonitoredSide(cnec));
         return newPtdfMeasurement(SUM_PTDF_MEASUREMENT_TYPE, absPtdfSum);
     }
 
@@ -344,7 +343,7 @@ public final class CoreCneCnecsCreator {
         }
         List<Analog> measurements = new ArrayList<>();
         try {
-            double loopflow = cneHelper.getRaoResult().getLoopFlow(resultOptimState, cnec, Side.LEFT, Unit.MEGAWATT);
+            double loopflow = cneHelper.getRaoResult().getLoopFlow(resultOptimState, cnec, getMonitoredSide(cnec), Unit.MEGAWATT);
             LoopFlowThreshold loopFlowExtension = cnec.getExtension(LoopFlowThreshold.class);
             if (!Objects.isNull(loopFlowExtension) && !Double.isNaN(loopflow)) {
                 double invert = shouldInvertBranchDirection ? -1 : 1;
@@ -370,5 +369,9 @@ public final class CoreCneCnecsCreator {
         } else {
             throw new FaraoException("Only conversions between MW and A are supported.");
         }
+    }
+
+    private Side getMonitoredSide(FlowCnec cnec) {
+        return cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
     }
 }
