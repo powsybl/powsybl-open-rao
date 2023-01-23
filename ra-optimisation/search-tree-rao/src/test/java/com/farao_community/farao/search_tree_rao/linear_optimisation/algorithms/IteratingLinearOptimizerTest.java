@@ -28,7 +28,6 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -296,10 +295,10 @@ public class IteratingLinearOptimizerTest {
 
     @Test
     public void optimizeWithSensitivityComputationFailure() {
-        Mockito.doAnswer(invocationOnMock -> {
-            network = invocationOnMock.getArgument(0);
-            throw new SensitivityAnalysisException("Sensi computation failed");
-        }).when(sensitivityComputer).compute(network);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
+        Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        Mockito.doNothing().when(sensitivityComputer).compute(network);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();

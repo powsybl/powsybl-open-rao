@@ -255,7 +255,7 @@ public class AutomatonSimulatorTest {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
-        PrePerimeterResult result = automatonSimulator.disableACEmulation(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        PrePerimeterResult result = automatonSimulator.disableACEmulation(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult);
         // check that AC emulation was disabled on HVDC
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         // check that other HVDC was not touched
@@ -264,24 +264,24 @@ public class AutomatonSimulatorTest {
         assertEquals(mockedPrePerimeterResult, result);
 
         // run a second time => no influence + sensi not run
-        result = automatonSimulator.disableACEmulation(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        result = automatonSimulator.disableACEmulation(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(prePerimeterResult, result);
 
         // Test on 2 aligned HVDC RAs
-        result = automatonSimulator.disableACEmulation(List.of(hvdcRa1, hvdcRa2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        result = automatonSimulator.disableACEmulation(List.of(hvdcRa1, hvdcRa2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult);
         assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(mockedPrePerimeterResult, result);
 
         // Test on an HVDC with no HvdcAngleDroopActivePowerControl
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").removeExtension(HvdcAngleDroopActivePowerControl.class);
-        result = automatonSimulator.disableACEmulation(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        result = automatonSimulator.disableACEmulation(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult);
         assertEquals(prePerimeterResult, result);
 
         // Test on non-HVDC : nothing should happen
-        result = automatonSimulator.disableACEmulation(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        result = automatonSimulator.disableACEmulation(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult);
         assertEquals(prePerimeterResult, result);
     }
 
@@ -484,10 +484,10 @@ public class AutomatonSimulatorTest {
 
     @Test
     public void testSimulateTopologicalAutomatonsFailure() {
-        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
+        when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
         assertNotNull(result);
-        assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
+        assertEquals(ComputationStatus.FAILURE, result.getPerimeterResult().getSensitivityStatus());
     }
 
     @Test

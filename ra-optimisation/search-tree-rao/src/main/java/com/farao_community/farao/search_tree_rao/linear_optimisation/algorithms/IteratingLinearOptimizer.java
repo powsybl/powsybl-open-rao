@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
@@ -19,7 +20,6 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.LinearProblemResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Locale;
@@ -42,15 +42,15 @@ public class IteratingLinearOptimizer {
     public LinearOptimizationResult optimize() {
 
         IteratingLinearOptimizationResultImpl bestResult = createResult(
-            input.getPreOptimizationFlowResult(),
-            input.getPreOptimizationSensitivityResult(),
-            input.getRaActivationFromParentLeaf(),
-            0);
+                input.getPreOptimizationFlowResult(),
+                input.getPreOptimizationSensitivityResult(),
+                input.getRaActivationFromParentLeaf(),
+                0);
 
         SensitivityComputer sensitivityComputer = null;
 
         LinearProblem linearProblem = new LinearProblemBuilder()
-            .buildFromInputsAndParameters(input, parameters);
+                .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.getPreOptimizationFlowResult(), input.getPreOptimizationSensitivityResult());
 
@@ -80,18 +80,17 @@ public class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            try {
-                sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult);
-            } catch (SensitivityAnalysisException e) {
+            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult);
+            if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
             }
 
             IteratingLinearOptimizationResultImpl currentResult = createResult(
-                sensitivityComputer.getBranchResult(input.getNetwork()),
-                sensitivityComputer.getSensitivityResult(),
-                currentRangeActionActivationResult,
-                iteration
+                    sensitivityComputer.getBranchResult(input.getNetwork()),
+                    sensitivityComputer.getSensitivityResult(),
+                    currentRangeActionActivationResult,
+                    iteration
             );
 
             if (currentResult.getCost() >= bestResult.getCost()) {
@@ -153,8 +152,8 @@ public class IteratingLinearOptimizer {
 
     private boolean hasRemedialActionsChanged(RangeActionActivationResult newRangeActionActivationResult, RangeActionActivationResult oldRangeActionActivationResult, OptimizationPerimeter optimizationContext) {
         return optimizationContext.getRangeActionsPerState().entrySet().stream()
-            .anyMatch(e -> e.getValue().stream()
-                .anyMatch(ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >= 1e-6));
+                .anyMatch(e -> e.getValue().stream()
+                        .anyMatch(ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >= 1e-6));
     }
 
     private AppliedRemedialActions applyRangeActions(RangeActionActivationResult rangeActionActivationResult) {
@@ -163,14 +162,14 @@ public class IteratingLinearOptimizer {
 
         // apply RangeAction from first optimization state
         optimizationContext.getRangeActionsPerState().get(optimizationContext.getMainOptimizationState())
-            .forEach(ra -> ra.apply(input.getNetwork(), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationContext.getMainOptimizationState())));
+                .forEach(ra -> ra.apply(input.getNetwork(), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationContext.getMainOptimizationState())));
 
         // add RangeAction activated in the following states
         if (optimizationContext instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActions = input.getPreOptimizationAppliedRemedialActions().copyNetworkActions();
             optimizationContext.getRangeActionsPerState().entrySet().stream()
-                .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state
-                .forEach(e -> e.getValue().forEach(ra -> appliedRemedialActions.addAppliedRangeAction(e.getKey(), ra, rangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()))));
+                    .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state
+                    .forEach(e -> e.getValue().forEach(ra -> appliedRemedialActions.addAppliedRangeAction(e.getKey(), ra, rangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()))));
             return appliedRemedialActions;
         } else {
             return null;
@@ -180,10 +179,10 @@ public class IteratingLinearOptimizer {
     private SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions) {
 
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
-            .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
-            .withAppliedRemedialActions(appliedRemedialActions)
-            .withToolProvider(input.getToolProvider());
+                .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
+                .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
+                .withAppliedRemedialActions(appliedRemedialActions)
+                .withToolProvider(input.getToolProvider());
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
@@ -198,11 +197,9 @@ public class IteratingLinearOptimizer {
     }
 
     private void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {
-        try {
-            sensitivityComputer.compute(network);
-        } catch (SensitivityAnalysisException e) {
+        sensitivityComputer.compute(network);
+        if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
-            throw e;
         }
     }
 
@@ -211,36 +208,36 @@ public class IteratingLinearOptimizer {
                                                                RangeActionActivationResult rangeActionActivation,
                                                                int nbOfIterations) {
         return new IteratingLinearOptimizationResultImpl(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionActivation, flowResult,
-            input.getObjectiveFunction().evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
+                input.getObjectiveFunction().evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
     private RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult) {
         return BestTapFinder.round(
-            linearProblemResult,
-            input.getNetwork(),
-            input.getOptimizationPerimeter(),
-            input.getPrePerimeterSetpoints(),
-            previousResult,
-            parameters.getObjectiveFunctionUnit()
+                linearProblemResult,
+                input.getNetwork(),
+                input.getOptimizationPerimeter(),
+                input.getPrePerimeterSetpoints(),
+                previousResult,
+                parameters.getObjectiveFunctionUnit()
         );
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
         TECHNICAL_LOGS.info(
-            "Iteration {}: better solution found with a cost of {} (functional: {})",
-            iteration,
-            formatDouble(currentObjectiveFunctionResult.getCost()),
-            formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
+                "Iteration {}: better solution found with a cost of {} (functional: {})",
+                iteration,
+                formatDouble(currentObjectiveFunctionResult.getCost()),
+                formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         TECHNICAL_LOGS.info(
-            "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
-            iteration,
-            formatDouble(bestResult.getCost()),
-            formatDouble(currentResult.getCost()),
-            formatDouble(bestResult.getFunctionalCost()),
-            formatDouble(currentResult.getFunctionalCost()));
+                "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
+                iteration,
+                formatDouble(bestResult.getCost()),
+                formatDouble(currentResult.getCost()),
+                formatDouble(bestResult.getFunctionalCost()),
+                formatDouble(currentResult.getFunctionalCost()));
     }
 
     private static String formatDouble(double value) {

@@ -262,7 +262,10 @@ public class LeafTest {
     public void testEvaluateError() {
         Leaf rootLeaf = buildNotEvaluatedRootLeaf();
         String message = "MockSensiFail";
-        Mockito.doThrow(new FaraoException(message)).when(sensitivityComputer).compute(network);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
+        Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        Mockito.doNothing().when(sensitivityComputer).compute(network);
 
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer);
 
@@ -285,7 +288,10 @@ public class LeafTest {
     @Test
     public void testOptimizeWithError() {
         Leaf rootLeaf = buildNotEvaluatedRootLeaf();
-        Mockito.doThrow(new FaraoException()).when(sensitivityComputer).compute(network);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
+        Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        Mockito.doNothing().when(sensitivityComputer).compute(network);
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer);
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
