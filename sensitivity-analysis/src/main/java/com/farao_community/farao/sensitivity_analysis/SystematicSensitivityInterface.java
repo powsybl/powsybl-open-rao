@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -89,7 +90,7 @@ public final class SystematicSensitivityInterface {
 
         public SystematicSensitivityInterfaceBuilder withSensitivityProvider(CnecSensitivityProvider cnecSensitivityProvider) {
             if (Objects.isNull(cnecSensitivityProvider)) {
-                throw new SensitivityAnalysisException("Null sensitivity provider.");
+                throw new FaraoException("Null sensitivity provider.");
             }
             this.multipleSensitivityProvider.addProvider(cnecSensitivityProvider);
             providerInitialised = true;
@@ -115,10 +116,10 @@ public final class SystematicSensitivityInterface {
 
         public SystematicSensitivityInterface build() {
             if (Objects.isNull(sensitivityProvider)) {
-                throw new SensitivityAnalysisException("You must provide a sensitivity provider implementation name when building a SystematicSensitivityInterface.");
+                throw new FaraoException("Please provide a sensitivity provider implementation name when building a SystematicSensitivityInterface");
             }
             if (!providerInitialised) {
-                throw new SensitivityAnalysisException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
+                throw new FaraoException("Sensitivity provider has not been initialized");
             }
             if (Objects.isNull(defaultParameters)) {
                 defaultParameters = new SensitivityAnalysisParameters();

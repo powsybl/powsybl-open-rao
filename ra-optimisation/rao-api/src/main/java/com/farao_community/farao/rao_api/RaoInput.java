@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
@@ -88,8 +89,8 @@ public final class RaoInput {
             return raoInput;
         }
 
-        private RaoInputException requiredArgumentError(String type) {
-            return new RaoInputException(format(REQUIRED_ARGUMENT_MESSAGE, type));
+        private FaraoException requiredArgumentError(String type) {
+            return new FaraoException(format(REQUIRED_ARGUMENT_MESSAGE, type));
         }
 
     }

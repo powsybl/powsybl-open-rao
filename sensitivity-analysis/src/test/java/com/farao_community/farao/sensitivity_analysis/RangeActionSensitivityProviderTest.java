@@ -297,6 +297,6 @@ public class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        assertThrows(SensitivityAnalysisException.class, () -> provider.getBasecaseFactors(network));
+        assertThrows(FaraoException.class, () -> provider.getBasecaseFactors(network));
     }
 }

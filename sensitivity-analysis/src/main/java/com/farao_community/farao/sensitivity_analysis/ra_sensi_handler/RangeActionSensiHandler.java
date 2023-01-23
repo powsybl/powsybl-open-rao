@@ -6,13 +6,13 @@
  */
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
@@ -33,7 +33,7 @@ public interface RangeActionSensiHandler {
         } else if (rangeAction instanceof InjectionRangeAction) {
             return new InjectionRangeActionSensiHandler((InjectionRangeAction) rangeAction);
         } else {
-            throw new SensitivityAnalysisException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
+            throw new FaraoException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
         }
     }
 }

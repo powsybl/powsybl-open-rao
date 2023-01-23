@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -50,8 +51,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         }
 
         if (!factorsInAmpere && !factorsInMegawatt) {
-            FaraoLoggerProvider.TECHNICAL_LOGS.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
-            throw new SensitivityAnalysisException("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
+            throw new FaraoException("The sensitivity provider should contain at least Megawatt or Ampere unit");
         }
 
     }
