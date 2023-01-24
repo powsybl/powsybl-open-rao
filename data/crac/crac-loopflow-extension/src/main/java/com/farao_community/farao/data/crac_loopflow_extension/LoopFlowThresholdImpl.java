@@ -116,9 +116,14 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
     }
 
     private double getCnecFmaxWithoutFrmInA() {
-        return Math.min(
-                getExtendable().getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
-                -getExtendable().getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))
-                + convertMWToA(getExtendable().getReliabilityMargin());
+        double minUpperBound = Math.min(
+            getExtendable().getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
+            getExtendable().getUpperBound(Side.RIGHT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)
+        );
+        double maxLowerBound = Math.max(
+            getExtendable().getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
+            getExtendable().getLowerBound(Side.RIGHT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
+        );
+        return Math.min(minUpperBound, -maxLowerBound) + convertMWToA(getExtendable().getReliabilityMargin());
     }
 }

@@ -121,13 +121,14 @@ public class CoreCneCnecsCreatorTest {
     }
 
     private void mockCnecResult(FlowCnec cnec, double flowA, double flowMw, double marginA, double marginMw, double relMarginA, double relMarginMw, double ptdf) {
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(Side.LEFT), eq(Unit.AMPERE))).thenReturn(flowA);
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(Side.LEFT), eq(Unit.MEGAWATT))).thenReturn(flowMw);
+        Side monitoredSide = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
+        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenReturn(flowA);
+        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
         Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenReturn(marginA);
         Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(marginMw);
         Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenReturn(relMarginA);
         Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(relMarginMw);
-        Mockito.when(raoResult.getPtdfZonalSum(any(), eq(cnec), eq(Side.LEFT))).thenReturn(ptdf);
+        Mockito.when(raoResult.getPtdfZonalSum(any(), eq(cnec), eq(monitoredSide))).thenReturn(ptdf);
     }
 
     @Test
@@ -376,7 +377,7 @@ public class CoreCneCnecsCreatorTest {
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(321.).withUnit(Unit.MEGAWATT).add();
 
         mockCnecResult(cnec1, 40, 80, 10, 20, 100, 200, .1);
-        Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(Side.LEFT), eq(Unit.MEGAWATT))).thenReturn(123.);
+        Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(Side.RIGHT), eq(Unit.MEGAWATT))).thenReturn(123.);
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.setRaoWithLoopFlowLimitation(true);
