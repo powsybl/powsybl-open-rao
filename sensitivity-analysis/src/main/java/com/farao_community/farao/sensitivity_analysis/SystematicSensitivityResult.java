@@ -72,6 +72,13 @@ public class SystematicSensitivityResult {
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
+    public SystematicSensitivityResult(SensitivityComputationStatus status) {
+        this.status = status;
+        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
+        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
+    }
+
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
 
         if (results == null) {
