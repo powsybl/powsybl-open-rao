@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -47,10 +49,12 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         if (sensitivityStatus == ComputationStatus.FAILURE) {
+            TECHNICAL_LOGS.info(String.format("Sensitivity failure : assigning virtual overcost of %s", sensitivityFailureOvercost));
             return sensitivityFailureOvercost;
         }
         for (State state : states) {
             if (sensitivityResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
+                TECHNICAL_LOGS.info(String.format("Sensitivity failure for state %s : assigning virtual overcost of %s", state.getId(), sensitivityFailureOvercost));
                 return sensitivityFailureOvercost;
             }
         }

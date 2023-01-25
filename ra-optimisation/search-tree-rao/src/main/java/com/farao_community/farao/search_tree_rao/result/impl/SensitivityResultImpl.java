@@ -34,14 +34,14 @@ public class SensitivityResultImpl implements SensitivityResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        if (systematicSensitivityResult.isOnePerimeterInFailure()) {
-            return ComputationStatus.FAILURE;
-        } else if (systematicSensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS) {
-            return ComputationStatus.DEFAULT;
-        } else if (systematicSensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
-            return ComputationStatus.FALLBACK;
-        } else {
-            return ComputationStatus.FAILURE;
+        switch (systematicSensitivityResult.getStatus()) {
+            case SUCCESS:
+                return ComputationStatus.DEFAULT;
+            case FALLBACK:
+                return ComputationStatus.FALLBACK;
+            default:
+            case FAILURE:
+                return ComputationStatus.FAILURE;
         }
     }
 

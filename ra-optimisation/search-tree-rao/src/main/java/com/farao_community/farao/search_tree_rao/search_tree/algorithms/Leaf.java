@@ -316,7 +316,7 @@ public class Leaf implements OptimizationResult {
             info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
             info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
         } else if (status.equals(Status.EVALUATED)) {
-            info += "range actions have not been optimized";
+            info += ", range actions have not been optimized";
             info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
             info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
             info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());

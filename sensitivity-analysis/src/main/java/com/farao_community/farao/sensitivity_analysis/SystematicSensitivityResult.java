@@ -34,7 +34,7 @@ public class SystematicSensitivityResult {
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
 
-        private SensitivityComputationStatus getStatus() {
+        private SensitivityComputationStatus getSensitivityComputationStatus() {
             return status;
         }
 
@@ -206,14 +206,6 @@ public class SystematicSensitivityResult {
         return status != SensitivityComputationStatus.FAILURE;
     }
 
-    public boolean isOnePerimeterInFailure() {
-        if (nStateResult.getStatus() == SensitivityComputationStatus.FAILURE) {
-            return true;
-        }
-        return postContingencyResults.values().stream().flatMap(stringStateResultMap -> stringStateResultMap.values().stream())
-            .anyMatch(stateResult -> stateResult.getStatus() == SensitivityComputationStatus.FAILURE);
-    }
-
     public SensitivityComputationStatus getStatus() {
         return status;
     }
@@ -228,12 +220,12 @@ public class SystematicSensitivityResult {
             for (Instant instant : possibleInstants) {
                 // Use latest sensi computed on state
                 if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
-                    return postContingencyResults.get(instant).get(optionalContingency.get().getId()).getStatus();
+                    return postContingencyResults.get(instant).get(optionalContingency.get().getId()).getSensitivityComputationStatus();
                 }
             }
             return SensitivityComputationStatus.FAILURE;
         } else {
-            return nStateResult.getStatus();
+            return nStateResult.getSensitivityComputationStatus();
         }
     }
 

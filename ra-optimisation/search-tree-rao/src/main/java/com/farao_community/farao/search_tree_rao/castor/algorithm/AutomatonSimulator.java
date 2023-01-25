@@ -97,7 +97,7 @@ public final class AutomatonSimulator {
                     new HashMap<>(),
                     automatonState);
             failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
-            TECHNICAL_LOGS.info("Automaton state {} has failed during sensi computation during topological automaton simulation.", automatonState.getId());
+            TECHNICAL_LOGS.info("Automaton state {} has failed during sensi computation before topological automaton simulation.", automatonState.getId());
             RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions().size(), failedAutomatonPerimeterResultImpl.getActivatedRangeActions(automatonState).size());
             return failedAutomatonPerimeterResultImpl;
         }

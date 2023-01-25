@@ -300,7 +300,7 @@ public class CastorFullOptimization {
                         // Do not simulate curative instant if last sensitivity analysis failed
                         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
                         // -- or if there was an automaton state that failed
-                        if (!automatonsOnly && ((!automatonState.isPresent() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE)
+                        if (!automatonsOnly && ((automatonState.isEmpty() && prePerimeterSensitivityOutput.getSensitivityStatus(curativeState) == ComputationStatus.FAILURE)
                                 || (automatonState.isPresent() && autoStateSensiFailed))) {
                             contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(new HashSet<>(), new HashSet<>()));
                         } else if (!automatonsOnly) {
@@ -438,7 +438,7 @@ public class CastorFullOptimization {
         Map<State, OptimizationResult> curativeResults = postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, curativeResults);
 
-        if (secondPreventiveRaoResult.perimeterResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return new FailedRaoResultImpl();
         }
 
@@ -449,6 +449,12 @@ public class CastorFullOptimization {
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
         // Always re-run curative sensitivity analysis for simplicity
+        Set<String> contingenciesToExclude = raoInput.getCrac().getStates().stream()
+                .filter(state -> (postContingencyResults.containsKey(state) && postContingencyResults.get(state).getSensitivityStatus() == ComputationStatus.FAILURE)
+                        || initialOutput.getSensitivityStatus(state) == ComputationStatus.FAILURE)
+                .map(state -> state.getContingency().get().getId())
+                .collect(Collectors.toSet());
+        prePerimeterSensitivityAnalysis.excludeContingency(contingenciesToExclude);
         AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedCras.copy();
         addAppliedNetworkActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
         addAppliedRangeActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
@@ -465,6 +471,7 @@ public class CastorFullOptimization {
             newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult, secondPreventiveRaoResult.remedialActionsExcluded, postCraSensitivityAnalysisOutput));
         }
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+
         return new PreventiveAndCurativesRaoResultImpl(stateTree,
                 initialOutput,
                 firstPreventiveResult,
@@ -521,12 +528,8 @@ public class CastorFullOptimization {
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
-        Set<String> contingenciesToExclude = raoInput.getCrac().getStates().stream()
-                .filter(state -> (postContingencyResults.containsKey(state) && postContingencyResults.get(state).getSensitivityStatus() == ComputationStatus.FAILURE)
-                        || initialOutput.getSensitivityStatus(state) == ComputationStatus.FAILURE)
-                .map(state -> state.getContingency().get().getId())
-                .collect(Collectors.toSet());
-        prePerimeterSensitivityAnalysis.excludeContingency(contingenciesToExclude);
+        // Do not exclude contingencies with failed sensi : by including them in second preventive optimization,
+        // the RAO will try to apply PRAs that prevent divergence on these perimeters
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras);
         if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
@@ -577,13 +580,7 @@ public class CastorFullOptimization {
         } else {
             Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(raoInput.getCrac().getRangeActions());
             removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, raoInput.getCrac());
-            Crac crac = raoInput.getCrac();
-            Set<State> filteredStates = crac.getStates().stream()
-                    .filter(state -> !curativeResults.containsKey(state) || curativeResults.get(state).getSensitivityStatus() != ComputationStatus.FAILURE)
-                    .filter(state -> prePerimeterResult.getSensitivityStatus(state) != ComputationStatus.FAILURE)
-                    .collect(Collectors.toSet());
-            optPerimeter = PreventiveOptimizationPerimeter.buildForStates(crac.getPreventiveState(), filteredStates,
-                    crac, rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
+            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(raoInput.getCrac(), rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
         }
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
