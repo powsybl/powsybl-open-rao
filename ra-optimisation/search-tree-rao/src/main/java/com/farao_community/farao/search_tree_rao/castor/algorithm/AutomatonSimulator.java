@@ -144,14 +144,6 @@ public final class AutomatonSimulator {
      * -- and the set of applied network actions.
      */
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis) {
-
-        //if (crac.getFlowCnecs(automatonState).stream().noneMatch(cnec -> prePerimeterSensitivityOutput.getMargin(cnec, raoParameters.getObjectiveFunction().getUnit()) <= 0)) {
-        //if (automatonState.getContingency().orElseThrow().getId().equals("REE-Co-11")) {
-        if (false) {
-            TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as all margins are positive.", automatonState.getId());
-            return new TopoAutomatonSimulationResult(prePerimeterSensitivityOutput, Set.of());
-        }
-
         // -- Apply network actions
         // -- First get forced network actions
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
