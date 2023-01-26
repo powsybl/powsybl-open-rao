@@ -80,7 +80,6 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
         CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
-        // TODO : add unit test for this
         return creationContext.creationSuccess(crac);
     }
 
