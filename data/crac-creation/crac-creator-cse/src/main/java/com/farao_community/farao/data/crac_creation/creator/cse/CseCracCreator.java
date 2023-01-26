@@ -78,7 +78,7 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             tMonitoredElementsAdder.add();
 
             creationContext.buildCreationReport();
-            CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::warn);
+            CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
             // TODO : add unit test for this
             return creationContext.creationSuccess(crac);
         } catch (FaraoException e) {
