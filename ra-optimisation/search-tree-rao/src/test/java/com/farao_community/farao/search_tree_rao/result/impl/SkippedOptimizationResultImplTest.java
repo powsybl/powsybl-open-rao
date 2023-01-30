@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -17,8 +18,12 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -59,5 +64,20 @@ public class SkippedOptimizationResultImplTest {
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
         assertThrows(FaraoException.class, skippedOptimizationResult::getFunctionalCost);
         assertThrows(FaraoException.class, skippedOptimizationResult::getObjectiveFunction);
+    }
+
+    @Test
+    public void testDefaultStatus() {
+        State state = mock(State.class);
+        Optional<Contingency> optContingency = mock(Optional.class);
+        Contingency contingency = mock(Contingency.class);
+        Mockito.when(state.getContingency()).thenReturn(optContingency);
+        Mockito.when(optContingency.isPresent()).thenReturn(true);
+        Mockito.when(optContingency.get()).thenReturn(contingency);
+        Mockito.when(contingency.getId()).thenReturn("contingencyId");
+
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, skippedOptimizationResult.getSensitivityStatus());
+        assertEquals(Set.of("contingencyId"), skippedOptimizationResult.getContingencies());
     }
 }
