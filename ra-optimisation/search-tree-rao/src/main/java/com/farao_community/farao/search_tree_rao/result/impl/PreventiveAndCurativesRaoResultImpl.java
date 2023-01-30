@@ -24,6 +24,7 @@ import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 import java.util.*;
 
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
+import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FALLBACK;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -159,6 +160,9 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         secondPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
         resultsWithPrasForAllCnecs.excludeContingencies(contingenciesToExclude);
         postContingencyResults.values().forEach(result -> result.excludeContingencies(contingenciesToExclude));
+        if (finalCostEvaluator != null) {
+            finalCostEvaluator.excludeContingencies(contingenciesToExclude);
+        }
     }
 
     @Override
@@ -168,7 +172,11 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
             return FAILURE;
         }
-        // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
+        if (initialResult.getSensitivityStatus() == FALLBACK
+                || secondPreventivePerimeterResult.getSensitivityStatus() == FALLBACK
+                || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FALLBACK)) {
+            return FALLBACK;
+        }
         return ComputationStatus.DEFAULT;
     }
 

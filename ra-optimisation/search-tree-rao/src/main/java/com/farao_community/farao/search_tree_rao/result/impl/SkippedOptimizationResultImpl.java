@@ -27,26 +27,37 @@ import java.util.*;
  */
 public class SkippedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: optimization result has been skipped.";
+    private final State state;
     private final Set<NetworkAction> activatedNetworkActions;
     private final Set<RangeAction<?>> activatedRangeActions;
+    private final ComputationStatus computationStatus;
 
-    public SkippedOptimizationResultImpl(Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions) {
+    public SkippedOptimizationResultImpl(State state, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, ComputationStatus computationStatus) {
+        this.state = state;
         this.activatedNetworkActions = activatedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
+        this.computationStatus = computationStatus;
     }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return ComputationStatus.FAILURE;
+        return computationStatus;
     }
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        return ComputationStatus.FAILURE;
+        return computationStatus;
     }
 
     @Override
+    // The following method is used to determine which contingencies must be excluded from cost computation
     public Set<String> getContingencies() {
+        if (computationStatus != ComputationStatus.FAILURE) {
+            Optional<Contingency> contingency = state.getContingency();
+            if (contingency.isPresent()) {
+                return Set.of(contingency.get().getId());
+            }
+        }
         return new HashSet<>();
     }
 

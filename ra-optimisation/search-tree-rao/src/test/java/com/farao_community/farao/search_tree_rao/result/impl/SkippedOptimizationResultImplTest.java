@@ -37,7 +37,7 @@ public class SkippedOptimizationResultImplTest {
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction rangeAction = mock(RangeAction.class);
 
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(new HashSet<>(), new HashSet<>());
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE);
 
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus());
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus(state));
