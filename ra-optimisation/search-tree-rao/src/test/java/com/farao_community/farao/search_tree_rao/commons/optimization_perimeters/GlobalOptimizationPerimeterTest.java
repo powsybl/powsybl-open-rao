@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -31,7 +30,7 @@ public class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimet
         raoParameters.setRaoWithLoopFlowLimitation(true);
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
-        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult, new HashMap<>());
+        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState, cState1), optPerimeter.getRangeActionOptimizationStates());

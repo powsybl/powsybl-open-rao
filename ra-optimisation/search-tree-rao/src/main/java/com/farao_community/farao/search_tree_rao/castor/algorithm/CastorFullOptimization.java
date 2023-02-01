@@ -602,7 +602,7 @@ public class CastorFullOptimization {
 
         OptimizationPerimeter optPerimeter;
         if (raoParameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) {
-            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult, curativeResults);
+            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult);
         } else {
             Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(raoInput.getCrac().getRangeActions());
             removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, raoInput.getCrac());
