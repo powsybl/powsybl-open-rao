@@ -457,9 +457,23 @@ public class CastorFullOptimization {
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
         // Always re-run curative sensitivity analysis for simplicity
+        // -- Gather all post contingency remedial actions
+        // ---- Curative remedial actions : appliedCra from secondPreventiveRaoResult + curative remedial actions optimized during second preventive (global opt)
         AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedCras.copy();
+        if (raoParameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) {
+            for (Map.Entry<State, OptimizationResult> entry : postContingencyResults.entrySet()) {
+                State state = entry.getKey();
+                if (!state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)) {
+                    continue;
+                }
+                secondPreventiveRaoResult.perimeterResult.getActivatedRangeActions(state)
+                        .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
+            }
+        }
+        // ---- add auto remedial actions
         addAppliedNetworkActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
         addAppliedRangeActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
+        // Run postCra sensi
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
