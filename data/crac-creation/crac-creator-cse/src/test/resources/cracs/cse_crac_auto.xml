@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CRACDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" DtdVersion="1" DtdRelease="0" xsi:noNamespaceSchemaLocation="crac-document.xsd">
+    <DocumentIdentification v="ruleToBeDefined"/>
+    <DocumentVersion v="12"/>
+    <DocumentType v="Z03"/>
+    <ProcessType v="Z03"/>
+    <SenderIdentification v="senderEIC" codingScheme="A01"/>
+    <SenderRole v="A04"/>
+    <ReceiverIdentification v="receiverEIC" codingScheme="A01"/>
+    <ReceiverRole v="A36"/>
+    <CreationDateTime v="2015-07-22T10:30:00Z"/>
+    <TimeInterval v="2015-07-18T01:00Z/2020-01-01T01:00Z"/>
+    <Domain v="10YDOM-1001A061T" codingScheme="A01"/>
+    <CRACSeries>
+        <Outages>
+            <Outage>
+                <Name v="outage_1"/>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE2AA1 "/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+            <Outage>
+                <Name v="outage_2"/>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE3AA1 "/>
+                    <Order v="1"/>
+                </Branch>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE2AA1 "/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+            <Outage>
+                <Name v="outage_3"/>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE2ZZ1 "/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+        </Outages>
+        <RemedialActions>
+            <RemedialAction>
+                <Name v="ara_1"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Operator v="FR"/>
+                <Application v="SPS"/>
+                <SharedWith v="CSE"/>
+                <Status>
+                    <Branch>
+                        <FromNode v="FFR1AA1 "/>
+                        <ToNode v="FFR3AA1 "/>
+                        <Order v="1"/>
+                        <Status v="OPEN"/>
+                    </Branch>
+                    <Branch>
+                        <FromNode v="FFR2AA1 "/>
+                        <ToNode v="FFR3AA1 "/>
+                        <Order v="1"/>
+                        <Status v="OPEN"/>
+                    </Branch>
+                </Status>
+            </RemedialAction>
+        </RemedialActions>
+        <CriticalBranches>
+            <BaseCaseBranches>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Branch>
+                    <Name v="basecase_branch_1"/>
+                    <FromNode v="NNL2AA1 "/>
+                    <ToNode v="NNL3AA1 "/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="4000"/>
+                    <Direction v="DIRECT"/>
+                    <Selected v="false"/>
+                </Branch>
+                <Branch>
+                    <Name v="basecase_branch_2"/>
+                    <FromNode v="NNL1AA1 "/>
+                    <ToNode v="NNL3AA1 "/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="4000"/>
+                    <Direction v="OPPOSITE"/>
+                    <Selected v="true"/>
+                </Branch>
+                <Branch>
+                    <Name v="basecase_branch_3"/>
+                    <FromNode v="NNL1AA1 "/>
+                    <ToNode v="NNL2AA1 "/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="4500"/>
+                    <Direction v="OPPOSITE"/>
+                </Branch>
+            </BaseCaseBranches>
+            <CriticalBranch>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Outage v="outage_1"/>
+                <Branch>
+                    <Name v="French line 1"/>
+                    <FromNode v="FFR1AA1 "/>
+                    <ToNode v="FFR2AA1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="4318"/>
+                    <ImaxAfterSPS unit="A" v="3500"/>
+                    <ImaxAfterCRA unit="A" v="3099"/>
+                    <Direction v="OPPOSITE"/>
+                </Branch>
+            </CriticalBranch>
+            <CriticalBranch>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Outage v="outage_2"/>
+                <Branch>
+                    <Name v="French line 2"/>
+                    <FromNode v="FFR1AA1 "/>
+                    <ToNode v="FFR3AA1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="3071"/>
+                    <ImaxAfterSPS unit="A" v="3000"/>
+                    <ImaxAfterCRA unit="A" v="2585"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+                <RemedialActions>
+                    <Name v="ara_1"/>
+                </RemedialActions>
+            </CriticalBranch>
+        </CriticalBranches>
+    </CRACSeries>
+</CRACDocument>

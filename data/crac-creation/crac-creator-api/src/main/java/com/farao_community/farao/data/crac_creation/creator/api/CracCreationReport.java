@@ -40,6 +40,12 @@ public final class CracCreationReport {
         BUSINESS_WARNS.warn(message);
     }
 
+    public void added(String addedReason) {
+        String message = String.format("[ADDED] %s", addedReason);
+        creationReport.add(message);
+        BUSINESS_WARNS.warn(message);
+    }
+
     public void altered(String alteredReason) {
         String message = String.format("[ALTERED] %s", alteredReason);
         creationReport.add(message);

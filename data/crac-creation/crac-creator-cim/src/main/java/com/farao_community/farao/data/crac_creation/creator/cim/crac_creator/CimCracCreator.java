@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.con
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.TimeSeries;
+import com.farao_community.farao.data.crac_util.CracValidator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -78,6 +79,7 @@ public class CimCracCreator implements CracCreator<CimCrac, CimCracCreationConte
         createRemedialActions(cimCracCreationParameters);
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
+        CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
         return creationContext.creationSuccess(crac);
     }
 

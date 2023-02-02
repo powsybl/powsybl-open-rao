@@ -62,24 +62,32 @@ public class TRemedialActionAdder {
         for (TRemedialActions tRemedialActions : tRemedialActionsList) {
             if (tRemedialActions != null) {
                 tRemedialActions.getRemedialAction().forEach(tRemedialAction -> {
-                    if (tRemedialAction.getStatus() != null) {
-                        importTopologicalAction(tRemedialAction);
-                    } else if (tRemedialAction.getGeneration() != null) {
-                        importInjectionAction(tRemedialAction);
-                    } else if (tRemedialAction.getPstRange() != null) {
-                        importPstRangeAction(tRemedialAction);
-                    } else if (tRemedialAction.getHVDCRange() != null) {
-                        importHvdcRangeAction(tRemedialAction);
-                    } else if (tRemedialAction.getBusBar() != null) {
-                        importBusBarChangeAction(tRemedialAction);
-                    } else {
+                    try {
+                        importRemedialAction(tRemedialAction);
+                    } catch (FaraoException e) {
                         // unsupported remedial action type
                         cseCracCreationContext.addRemedialActionCreationContext(
-                            CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "unknown remedial action type")
+                            CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.NOT_YET_HANDLED_BY_FARAO, e.getMessage())
                         );
                     }
                 });
             }
+        }
+    }
+
+    private void importRemedialAction(TRemedialAction tRemedialAction) {
+        if (tRemedialAction.getStatus() != null) {
+            importTopologicalAction(tRemedialAction);
+        } else if (tRemedialAction.getGeneration() != null) {
+            importInjectionAction(tRemedialAction);
+        } else if (tRemedialAction.getPstRange() != null) {
+            importPstRangeAction(tRemedialAction);
+        } else if (tRemedialAction.getHVDCRange() != null) {
+            importHvdcRangeAction(tRemedialAction);
+        } else if (tRemedialAction.getBusBar() != null) {
+            importBusBarChangeAction(tRemedialAction);
+        } else {
+            throw new FaraoException("unknown remedial action type");
         }
     }
 
@@ -331,7 +339,11 @@ public class TRemedialActionAdder {
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
         if (sharedWithId.equals("CSE")) {
-            addFreeToUseUsageRules(remedialActionAdder, raApplicationInstant);
+            if (raApplicationInstant.equals(Instant.AUTO)) {
+                throw new FaraoException("Cannot import automatons from CSE CRAC yet");
+            } else {
+                addFreeToUseUsageRules(remedialActionAdder, raApplicationInstant);
+            }
         } else {
             addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant, sharedWithId);
         }

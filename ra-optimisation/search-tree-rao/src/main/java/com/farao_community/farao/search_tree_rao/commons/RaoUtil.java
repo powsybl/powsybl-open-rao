@@ -124,17 +124,17 @@ public final class RaoUtil {
      * Returns true if a remedial action is available depending on its usage rules
      * If it has a OnFlowConstraint usage rule, then the margins are needed
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult, Set<FlowCnec> perimeterCnecs, Network network) {
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult, Set<FlowCnec> perimeterCnecs, Network network, Unit marginUnit) {
         switch (remedialAction.getUsageMethod(optimizedState)) {
             case AVAILABLE:
                 return true;
             case TO_BE_EVALUATED:
                 return remedialAction.getUsageRules().stream()
                     .filter(OnFlowConstraint.class::isInstance)
-                    .anyMatch(usageRule -> isOnFlowConstraintAvailable((OnFlowConstraint) usageRule, optimizedState, flowResult))
+                    .anyMatch(usageRule -> isOnFlowConstraintAvailable((OnFlowConstraint) usageRule, optimizedState, flowResult, marginUnit))
                     || remedialAction.getUsageRules().stream()
                     .filter(OnFlowConstraintInCountry.class::isInstance)
-                    .anyMatch(usageRule -> isOnFlowConstraintInCountryAvailable((OnFlowConstraintInCountry) usageRule, optimizedState, flowResult, perimeterCnecs, network));
+                    .anyMatch(usageRule -> isOnFlowConstraintInCountryAvailable((OnFlowConstraintInCountry) usageRule, optimizedState, flowResult, perimeterCnecs, network, marginUnit));
             default:
                 return false;
         }
@@ -144,12 +144,13 @@ public final class RaoUtil {
      * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
      * It needs a FlowResult to get the margin of the flow cnec
      */
-    public static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
+    public static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult, Unit marginUnit) {
         if (!onFlowConstraint.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
             return false;
         } else {
-            // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
-            return flowResult.getMargin(onFlowConstraint.getFlowCnec(), Unit.MEGAWATT) <= 0;
+            // We need to know the unit of the objective function, because a negative margin in A can be positive in MW
+            // given different approximations, and vice versa
+            return flowResult.getMargin(onFlowConstraint.getFlowCnec(), marginUnit) <= 0;
         }
     }
 
@@ -157,7 +158,7 @@ public final class RaoUtil {
      * Returns true if a OnFlowConstraintInCountry usage rule is verified, ie if any CNEC of the country has a negative margin
      * It needs a FlowResult to get the margin of the flow cnecs
      */
-    public static boolean isOnFlowConstraintInCountryAvailable(OnFlowConstraintInCountry onFlowConstraintInCountry, State optimizedState, FlowResult flowResult, Set<FlowCnec> perimeterCnecs, Network network) {
+    public static boolean isOnFlowConstraintInCountryAvailable(OnFlowConstraintInCountry onFlowConstraintInCountry, State optimizedState, FlowResult flowResult, Set<FlowCnec> perimeterCnecs, Network network, Unit marginUnit) {
         if (!onFlowConstraintInCountry.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
             return false;
         } else {
@@ -166,11 +167,12 @@ public final class RaoUtil {
                 Instant.AUTO, Set.of(Instant.AUTO),
                 Instant.CURATIVE, Set.of(Instant.CURATIVE)
             );
-            // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
+            // We need to know the unit of the objective function, because a negative margin in A can be positive in MW
+            // given different approximations, and vice versa
             return perimeterCnecs.stream()
                 .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant()).contains(cnec.getState().getInstant()))
                 .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
-                .anyMatch(cnec -> flowResult.getMargin(cnec, Unit.MEGAWATT) <= 0);
+                .anyMatch(cnec -> flowResult.getMargin(cnec, marginUnit) <= 0);
         }
     }
 

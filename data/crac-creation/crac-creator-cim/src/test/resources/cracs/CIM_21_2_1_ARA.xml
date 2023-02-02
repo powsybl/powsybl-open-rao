@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CRAC_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3 iec62325-451-n-crac_v2_3.xsd">
+  <mRID>CIM_CRAC_DOCUMENT</mRID>
+  <revisionNumber>1</revisionNumber>
+  <type>B15</type>
+  <process.processType>A48</process.processType>
+  <sender_MarketParticipant.mRID codingScheme="A01">FAKE</sender_MarketParticipant.mRID>
+  <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+  <receiver_MarketParticipant.mRID codingScheme="A01">FAKE</receiver_MarketParticipant.mRID>
+  <receiver_MarketParticipant.marketRole.type>A04</receiver_MarketParticipant.marketRole.type>
+  <createdDateTime>2021-03-31T15:02:00Z</createdDateTime>
+  <status>
+    <value>A42</value>
+  </status>
+  <time_Period.timeInterval>
+    <start>2021-04-01T22:00Z</start>
+    <end>2021-04-02T22:00Z</end>
+  </time_Period.timeInterval>
+  <domain.mRID codingScheme="A01">10YCB-FR-ES-PT-S</domain.mRID>
+  <TimeSeries>
+    <mRID>TimeSeries</mRID>
+    <businessType>B54</businessType>
+    <curveType>A03</curveType>
+    <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">1----C</out_Domain.mRID>
+    <Period>
+      <timeInterval>
+        <start>2021-04-01T22:00Z</start>
+        <end>2021-04-02T22:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point>
+        <position>2</position>
+        <Series>
+          <mRID>ContingenciesSeries1</mRID>
+          <businessType>B55</businessType>
+          <name>ContingenciesSeries</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <name>Co1NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4 + _a279a3dc-550b-426c-af3a-61b7be508dcc</mRID>
+              <name>Co2NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+        </Series>
+        <Series>
+          <mRID>CNECs_after_all_contingencies</mRID>
+          <businessType>B57</businessType>
+          <name>CNECs_after_all_contingencies</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Monitored_Series>
+            <mRID>CNEC-2</mRID>
+            <name>CNEC-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">FAKE_ID</mRID>
+              <name>CNEC-2</name>
+              <in_Domain.mRID codingScheme="A01">1---W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1--W</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>2.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A12</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A01</positiveFlowIn>
+                <analogValues.value>2.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+          <Monitored_Series>
+            <mRID>CNEC-3</mRID>
+            <name>CNEC-3-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>CNEC-3</name>
+              <in_Domain.mRID codingScheme="A01">1----W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1----W</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>MAW</unitSymbol>
+                <analogValues.value>3.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A12</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <analogValues.value>3.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+          <Monitored_Series>
+            <mRID>CNEC-4</mRID>
+            <name>CNEC-4-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
+              <name>CNEC-4</name>
+              <in_Domain.mRID codingScheme="A01">1---0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1----0</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <analogValues.value>4.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A12</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <analogValues.value>4.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+        </Series>
+        <Series>
+          <mRID>MNECs_after_some_contingencies</mRID>
+          <businessType>B57</businessType>
+          <name>MNECs_after_some_contingencies</name>
+          <optimization_MarketObjectStatus.status>A49</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>Co1NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Fake-Co</mRID>
+            <name>Fake-Co-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
+              <name>FakeCoElement</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Monitored_Series>
+            <mRID>MNEC-1</mRID>
+            <name>MNEC-1-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_dad02278-bd25-476f-8f58-dbe44be72586 + _ed0c5d75-4a54-43c8-b782-b20d7431630b</mRID>
+              <name>CNEC-5</name>
+              <in_Domain.mRID codingScheme="A01">1----0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1--0</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <analogValues.value>5.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A13</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <analogValues.value>5.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+          <Monitored_Series>
+            <mRID>MNEC-2</mRID>
+            <name>MNEC-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b58bf21a-096a-4dae-9a01-3f03b60c24c7</mRID>
+              <name>CNEC-6</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <analogValues.value>6.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A07</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <analogValues.value>6.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+        </Series>
+        <Series>
+          <mRID>RA-Series-20</mRID>
+          <businessType>B56</businessType>
+          <name>A20-2</name>
+          <optimization_MarketObjectStatus.status>Z01</optimization_MarketObjectStatus.status>
+          <Monitored_Series>
+            <mRID>CNEC-3</mRID>
+            <name>CNEC-3-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>CNEC-3</name>
+              <in_Domain.mRID codingScheme="A01">1----W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1----W</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>MAW</unitSymbol>
+                <analogValues.value>3.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A12</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <analogValues.value>3.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
+          </Monitored_Series>
+          <RemedialAction_Series>
+            <mRID>ARA_20</mRID>
+            <name>ARA_20</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>VHZKCA_VEFOBGFR_1_400</name>
+              <pSRType.psrType>A02</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YES-REE------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+              <marketObjectStatus.status>A22</marketObjectStatus.status>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+      </Point>
+    </Period>
+  </TimeSeries>
+</CRAC_MarketDocument>
