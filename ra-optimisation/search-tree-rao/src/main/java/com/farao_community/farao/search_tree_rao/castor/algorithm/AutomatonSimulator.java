@@ -418,8 +418,15 @@ public final class AutomatonSimulator {
         hvdcRasWithControl.forEach(hvdcRa -> {
             String hvdcLineId = hvdcRa.getNetworkElement().getId();
             double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(hvdcLineId, networkWithContingencyAndFlows);
-            activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
-            disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
+            if (activePowerSetpoint >= hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint)
+                && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
+            ) {
+                activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
+                disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
+            } else {
+                BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
+                    hvdcRa.getId(), activePowerSetpoint, hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint), hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)));
+            }
         });
 
         // Finally, run a sensitivity analysis to get sensitivity values in DC set-point mode
@@ -549,11 +556,11 @@ public final class AutomatonSimulator {
 
             // On first iteration, define direction
             if (iteration == 0) {
-                direction = Math.signum(optimalSetpoint - currentSetpoint);
+                direction = safeDiffSignum(optimalSetpoint, currentSetpoint);
             }
             // Compare direction with previous shift
             // If direction == 0, then the RA is at one of its bounds
-            if (direction == 0 || (direction != Math.signum(optimalSetpoint - currentSetpoint)) || iteration > MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT) {
+            if (direction == 0 || (direction != safeDiffSignum(optimalSetpoint, currentSetpoint)) || iteration > MAX_NUMBER_OF_SENSI_IN_AUTO_SETPOINT_SHIFT) {
                 return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
             }
 
@@ -575,6 +582,26 @@ public final class AutomatonSimulator {
             previouslyShiftedCnec = toBeShiftedCnec;
         }
         return Pair.of(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
+    }
+
+    /**
+     * Computes the signum of a value evolution "newValue - oldValue"
+     * If the evolution is smaller than 1e-6 in absolute value, it returns 0
+     * If the double signum is smaller than 1e-6 in absolute value, it returns 0
+     * Else, it returns 1 if evolution is positive, -1 if evolution is negative
+     */
+    private static int safeDiffSignum(double newValue, double oldValue) {
+        if (Math.abs(newValue - oldValue) < 1e-6) {
+            return 0;
+        }
+        double signum = Math.signum(newValue - oldValue);
+        if (Math.abs(signum) < 1e-6) {
+            return 0;
+        }
+        if (signum > 0) {
+            return 1;
+        }
+        return -1;
     }
 
     /**
@@ -623,7 +650,7 @@ public final class AutomatonSimulator {
      * after angleToBeRounded in the direction opposite of initialAngle.
      */
     static Double roundUpAngleToTapWrtInitialSetpoint(PstRangeAction rangeAction, double angleToBeRounded, double initialAngle) {
-        double direction = Math.signum(angleToBeRounded - initialAngle);
+        double direction = safeDiffSignum(angleToBeRounded, initialAngle);
         if (direction > 0) {
             Optional<Double> roundedAngle = rangeAction.getTapToAngleConversionMap().values().stream().filter(angle -> angle >= angleToBeRounded).min(Double::compareTo);
             if (roundedAngle.isPresent()) {

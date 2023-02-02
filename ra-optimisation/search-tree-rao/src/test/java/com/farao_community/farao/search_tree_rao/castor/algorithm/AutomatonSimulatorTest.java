@@ -202,7 +202,7 @@ public class AutomatonSimulatorTest {
             .withGroupId("hvdcGroup")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
-            .newRange().withMax(1).withMin(-1).add()
+            .newRange().withMax(3000).withMin(-3000).add()
             .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         hvdcRa2 = crac.newHvdcRangeAction()
@@ -210,7 +210,7 @@ public class AutomatonSimulatorTest {
             .withGroupId("hvdcGroup")
             .withNetworkElement("BBE2AA12 FFR3AA12 1")
             .withSpeed(1)
-            .newRange().withMax(1).withMin(-1).add()
+            .newRange().withMax(3000).withMin(-3000).add()
             .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
@@ -336,6 +336,51 @@ public class AutomatonSimulatorTest {
         Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertEquals(prePerimeterResult, result.getLeft());
         assertEquals(Map.of(), result.getRight());
+    }
+
+    @Test
+    public void testDisableHvdcAngleDroopControl5() {
+        // Test with phi1 < phi2
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+
+        HvdcLine hvdcLine = network.getHvdcLine("BBE2AA11 FFR3AA11 1");
+        hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setP0(100f);
+        network.getGenerator("BBE2AA11_generator").setTargetP(0);
+        network.getLoad("BBE2AA11_load").setP0(3000);
+        network.getGenerator("FFR3AA11_generator").setTargetP(6460);
+        network.getLoad("FFR3AA11_load").setP0(0);
+        network.getGenerator("FFR5AA11_generator").setTargetP(6460);
+        network.getLoad("FFR5AA11_load").setP0(0);
+        hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        assertEquals(mockedPrePerimeterResult, result.getLeft());
+        assertEquals(1, result.getRight().size());
+        assertEquals(-813.97, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
+        assertEquals(813.97, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testDisableHvdcAngleDroopControl6() {
+        // Initial setpoint is out of RA's allowed range. Do not disable HvdcAngleDroopControl
+        hvdcRa1 = crac.newHvdcRangeAction()
+            .withId("hvdc-ra3")
+            .withGroupId("hvdcGroup")
+            .withNetworkElement("BBE2AA11 FFR3AA11 1")
+            .withSpeed(1)
+            .newRange().withMax(1000).withMin(-1000).add()
+            .newFreeToUseUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+            .add();
+
+        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+
+        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
+        assertTrue(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        assertTrue(result.getRight().isEmpty());
     }
 
     @Test
