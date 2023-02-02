@@ -899,4 +899,34 @@ public class CimCracCreatorTest {
         assertEquals(1, crac2.getContingencies().size());
         assertNotNull(crac2.getContingency("Co-2"));
     }
+
+    private void assertCnecHasOutageDuplicate(String flowCnecId) {
+        FlowCnec flowCnec = importedCrac.getFlowCnec(flowCnecId);
+        assertNotNull(flowCnec);
+        FlowCnec duplicate = importedCrac.getFlowCnec(flowCnec.getId() + " - OUTAGE DUPLICATE");
+        assertNotNull(duplicate);
+        assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
+        assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
+        assertEquals(Instant.OUTAGE, duplicate.getState().getInstant());
+        assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
+        assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
+        assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
+        assertEquals(flowCnec.getIMax(Side.LEFT), duplicate.getIMax(Side.LEFT), 1e-6);
+        assertEquals(flowCnec.getIMax(Side.RIGHT), duplicate.getIMax(Side.RIGHT), 1e-6);
+        assertEquals(flowCnec.getNominalVoltage(Side.LEFT), duplicate.getNominalVoltage(Side.LEFT), 1e-6);
+        assertEquals(flowCnec.getNominalVoltage(Side.RIGHT), duplicate.getNominalVoltage(Side.RIGHT), 1e-6);
+        assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains(String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)));
+    }
+
+    @Test
+    public void importAndDuplicateAutoCnecs() {
+        CracCreationParameters cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
+        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
+
+        assertEquals(12, importedCrac.getCnecs().size());
+        assertCnecHasOutageDuplicate("CNEC-4 - Co-1 - auto");
+        assertCnecHasOutageDuplicate("CNEC-4 - Co-2 - auto");
+    }
 }
