@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
@@ -34,7 +35,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
-import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.apache.commons.lang3.tuple.Pair;
@@ -409,7 +409,7 @@ public final class AutomatonSimulator {
         }
 
         TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.");
-        Network networkWithContingencyAndFlows = runLoadFlowOnNetworkClone(network, automatonState, raoParameters.getLoadFlowProvider(), raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters());
+        Map<String, Double> controls = computeHvdcAngleDroopActivePowerControlValues(network, automatonState, raoParameters.getLoadFlowProvider(), raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters());
 
         // Next, disable AngleDroopActivePowerControl on HVDCs and set their active power set-points to the value
         // previously computed by the AngleDroopActivePowerControl.
@@ -417,7 +417,7 @@ public final class AutomatonSimulator {
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
         hvdcRasWithControl.forEach(hvdcRa -> {
             String hvdcLineId = hvdcRa.getNetworkElement().getId();
-            double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(hvdcLineId, networkWithContingencyAndFlows);
+            double activePowerSetpoint = controls.get(hvdcLineId);
             if (activePowerSetpoint >= hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint)
                 && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
             ) {
@@ -429,7 +429,12 @@ public final class AutomatonSimulator {
             }
         });
 
-        // Finally, run a sensitivity analysis to get sensitivity values in DC set-point mode
+        if (activePowerSetpoints.isEmpty()) {
+            // Nothing has changed
+            return Pair.of(prePerimeterSensitivityOutput, new HashMap<>());
+        }
+
+        // Finally, run a sensitivity analysis to get sensitivity values in DC set-point mode if needed
         TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.");
         PrePerimeterResult result = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, result, Set.of(automatonState), raoParameters.getObjectiveFunction(), numberLoggedElementsDuringRao);
@@ -437,13 +442,29 @@ public final class AutomatonSimulator {
         return Pair.of(result, activePowerSetpoints);
     }
 
-    private static Network runLoadFlowOnNetworkClone(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        Network networkClone = NetworkXml.copy(network);
+    private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+        // Create a temporary variant to apply contingency and compute load-flow on
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        String tmpVariant = RandomizedString.getRandomizedString("HVDC_LF", network.getVariantManager().getVariantIds(), 10);
+        network.getVariantManager().cloneVariant(initialVariantId, tmpVariant);
+        network.getVariantManager().setWorkingVariant(tmpVariant);
+
+        // Apply contingency and compute load-flow
         if (state.getContingency().isPresent()) {
-            state.getContingency().orElseThrow().apply(networkClone, null);
+            state.getContingency().orElseThrow().apply(network, null);
         }
-        LoadFlow.find(loadFlowProvider).run(networkClone, loadFlowParameters);
-        return networkClone;
+        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+
+        // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
+        Map<String, Double> controls = network.getHvdcLineStream()
+                .filter(hvdcLine -> hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null)
+                    .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, AutomatonSimulator::computeHvdcAngleDroopActivePowerControlValue));
+
+        // Reset working variant
+        network.getVariantManager().setWorkingVariant(initialVariantId);
+        network.getVariantManager().removeVariant(tmpVariant);
+
+        return controls;
     }
 
     private static boolean isAngleDroopActivePowerControlEnabled(HvdcRangeAction hvdcRangeAction, Network network) {
@@ -454,13 +475,12 @@ public final class AutomatonSimulator {
 
     /**
      * Compute setpoint set by AngleDroopActivePowerControl = p0 + droop * angle difference
+     * NB: p0 and angle difference are always in 1->2 direction
      *
-     * @param hvdcLineId: ID of the HVDC line
-     * @param network:    network with load flow results (to access angle values)
+     * @param hvdcLine: HVDC line object
      * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
      */
-    private static double computeHvdcAngleDroopActivePowerControlValue(String hvdcLineId, Network network) {
-        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
+    private static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
         double phi1 = hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getAngle();
         double phi2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus().getAngle();
         double p0 = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getP0();
