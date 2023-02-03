@@ -154,7 +154,7 @@ public final class AutomatonSimulator {
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
         // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network))
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()))
             .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
@@ -290,7 +290,7 @@ public final class AutomatonSimulator {
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
         // -- Then add those with an OnFlowConstraint or OnFlowConstraintInCountry usage rule if their constraint is verified
         crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network))
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()))
             .forEach(availableRangeActions::add);
 
         // 2) Sort range actions

@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_creation.creator.cse.xsd.CRACDocument
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TCRACSeries;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
+import com.farao_community.farao.data.crac_util.CracValidator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -77,6 +78,8 @@ public class CseCracCreator implements CracCreator<CseCrac, CseCracCreationConte
             tMonitoredElementsAdder.add();
 
             creationContext.buildCreationReport();
+            CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
+            // TODO : add unit test for CracValidator.validateCrac step when auto RAs are handled
             return creationContext.creationSuccess(crac);
         } catch (FaraoException e) {
             creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()));

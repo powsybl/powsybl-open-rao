@@ -579,4 +579,12 @@ public class CseCracCreatorTest {
         assertHasOneThreshold("basecase_branch_1 - BBE2AA1 ->BBE3AA2  - preventive", Side.LEFT);
         assertHasOneThreshold("basecase_branch_2 - BBE2AA1 ->BBE3AA2  - preventive", Side.LEFT);
     }
+
+    @Test
+    public void createCracWithAuto() {
+        setUp("/cracs/cse_crac_auto.xml");
+        assertRemedialActionNotImported("ara_1", NOT_YET_HANDLED_BY_FARAO);
+        assertEquals(9, importedCrac.getFlowCnecs().size());
+        assertFalse(cracCreationContext.getCreationReport().getReport().contains("[ADDED] CNEC \"French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+    }
 }

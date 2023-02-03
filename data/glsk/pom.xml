@@ -7,10 +7,10 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-data</artifactId>
-        <version>4.2.4-SNAPSHOT</version>
+        <version>4.2.5-SNAPSHOT</version>
     </parent>
     <artifactId>farao-glsk</artifactId>
-    <version>4.2.4-SNAPSHOT</version>
+    <version>4.2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>GLSK virtual hubs related modules</name>
     <description>Module that regroups all features related to GLSK virtual hubs</description>
