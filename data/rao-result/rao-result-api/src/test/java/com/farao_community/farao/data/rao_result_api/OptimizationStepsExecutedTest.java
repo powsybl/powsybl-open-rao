@@ -22,11 +22,11 @@ public class OptimizationStepsExecutedTest {
         assertFalse(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
         assertFalse(optimizationStepsExecuted.hasFallenBackToInitialSituation());
-        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -35,11 +35,11 @@ public class OptimizationStepsExecutedTest {
         assertFalse(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
         assertTrue(optimizationStepsExecuted.hasFallenBackToInitialSituation());
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -48,11 +48,11 @@ public class OptimizationStepsExecutedTest {
         assertTrue(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
         assertFalse(optimizationStepsExecuted.hasFallenBackToInitialSituation());
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -61,11 +61,11 @@ public class OptimizationStepsExecutedTest {
         assertTrue(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
         assertTrue(optimizationStepsExecuted.hasFallenBackToInitialSituation());
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -74,10 +74,10 @@ public class OptimizationStepsExecutedTest {
         assertTrue(optimizationStepsExecuted.hasRunSecondPreventive());
         assertTrue(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
         assertFalse(optimizationStepsExecuted.hasFallenBackToInitialSituation());
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 }
