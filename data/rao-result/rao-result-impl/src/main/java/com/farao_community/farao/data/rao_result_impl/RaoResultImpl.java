@@ -318,8 +318,10 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY) && this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
+        if (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
+        } else {
+            throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
     }
 

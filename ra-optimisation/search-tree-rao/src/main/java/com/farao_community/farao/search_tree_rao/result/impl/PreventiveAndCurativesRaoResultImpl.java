@@ -445,6 +445,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
+        } else {
+            throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
     }
 
