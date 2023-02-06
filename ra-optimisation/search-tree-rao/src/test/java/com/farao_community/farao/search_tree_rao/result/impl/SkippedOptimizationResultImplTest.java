@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -56,6 +57,7 @@ public class SkippedOptimizationResultImplTest {
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
+        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
@@ -78,5 +80,24 @@ public class SkippedOptimizationResultImplTest {
         SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, skippedOptimizationResult.getSensitivityStatus());
         assertEquals(Set.of("contingencyId"), skippedOptimizationResult.getContingencies());
+    }
+
+    @Test
+    public void testActivation() {
+        State state = mock(State.class);
+        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na2 = Mockito.mock(NetworkAction.class);
+        NetworkAction na3 = Mockito.mock(NetworkAction.class);
+        RangeAction ra1 = Mockito.mock(RangeAction.class);
+        RangeAction ra2 = Mockito.mock(RangeAction.class);
+        Set<NetworkAction> networkActions = Set.of(na1, na2);
+        Set<RangeAction<?>> rangeActions = Set.of(ra1, ra2);
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, networkActions, rangeActions, ComputationStatus.DEFAULT);
+        assertEquals(networkActions, skippedOptimizationResult.getActivatedNetworkActions());
+        assertTrue(skippedOptimizationResult.isActivated(na1));
+        assertTrue(skippedOptimizationResult.isActivated(na2));
+        assertFalse(skippedOptimizationResult.isActivated(na3));
+        assertEquals(rangeActions, skippedOptimizationResult.getRangeActions());
+        assertEquals(rangeActions, skippedOptimizationResult.getActivatedRangeActions(state));
     }
 }
