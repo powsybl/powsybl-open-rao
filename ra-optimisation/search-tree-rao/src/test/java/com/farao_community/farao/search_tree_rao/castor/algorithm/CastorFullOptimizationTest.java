@@ -604,7 +604,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
         assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK); });
+            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION); });
     }
 
     @Test
@@ -616,7 +616,7 @@ public class CastorFullOptimizationTest {
         raoParameters.setForbidCostIncrease(true);
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK, raoResult.getOptimizationStepsExecuted());
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
         assertThrows(FaraoException.class, () -> {
             raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
     }

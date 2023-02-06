@@ -286,7 +286,7 @@ public final class RaoResultJsonConstants {
         switch (optimizationStepsExecuted) {
             case FIRST_PREVENTIVE_ONLY:
                 return FIRST_PREVENTIVE_ONLY;
-            case FIRST_PREVENTIVE_FELLBACK:
+            case FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
                 return FIRST_PREVENTIVE_FELLBACK;
             case SECOND_PREVENTIVE_IMPROVED_FIRST:
                 return SECOND_PREVENTIVE_IMPROVED_FIRST;
@@ -304,7 +304,7 @@ public final class RaoResultJsonConstants {
             case FIRST_PREVENTIVE_ONLY:
                 return OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
             case FIRST_PREVENTIVE_FELLBACK:
-                return OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK;
+                return OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
             case SECOND_PREVENTIVE_IMPROVED_FIRST:
                 return OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST;
             case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:

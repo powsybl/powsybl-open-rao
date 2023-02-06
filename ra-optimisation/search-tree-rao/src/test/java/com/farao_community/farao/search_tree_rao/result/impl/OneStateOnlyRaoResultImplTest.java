@@ -330,6 +330,6 @@ public class OneStateOnlyRaoResultImplTest {
         assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK));
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 }

@@ -443,19 +443,9 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
-        if ((this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY)) &&
-                !(optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK) ||
-                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST) ||
-                        optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION)) ||
-                (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST) &&
-                        !optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION)) ||
-                (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION) &&
-                        !optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION)) ||
-                this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK) ||
-                this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION)) {
-            throw new FaraoException("The RaoResult object is getting modified outside of its usual routine (its OptimizationStepsExecuted attribute) but it shouldn't");
+        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
+            this.optimizationStepsExecuted = optimizationStepsExecuted;
         }
-        this.optimizationStepsExecuted = optimizationStepsExecuted;
     }
 
     @Override

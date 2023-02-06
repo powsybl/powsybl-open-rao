@@ -125,19 +125,19 @@ public class RaoResultJsonConstantsTest {
 
     @Test
     public void testSerializeOptimizedStepsExecuted() {
-        assertEquals(FIRST_PREVENTIVE_ONLY, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertEquals(FIRST_PREVENTIVE_FELLBACK, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK));
-        assertEquals(SECOND_PREVENTIVE_IMPROVED_FIRST, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertEquals(SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals(SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertEquals("The RAO went only through first preventive", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertEquals("First preventive fellback to initial situation", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals("Second preventive improved first preventive results", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
+        assertEquals("Second preventive fellback to initial situation", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals("Second preventive fellback to first preventive results", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
     }
 
     @Test
     public void testDeserializeOptimizedStepsExecuted() {
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, deserializeOptimizedStepsExecuted(FIRST_PREVENTIVE_ONLY));
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK, deserializeOptimizedStepsExecuted(FIRST_PREVENTIVE_FELLBACK));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_IMPROVED_FIRST));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
-        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, deserializeOptimizedStepsExecuted(SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, deserializeOptimizedStepsExecuted("The RAO went only through first preventive"));
+        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted("First preventive fellback to initial situation"));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, deserializeOptimizedStepsExecuted("Second preventive improved first preventive results"));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted("Second preventive fellback to initial situation"));
+        assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION, deserializeOptimizedStepsExecuted("Second preventive fellback to first preventive results"));
     }
 }
