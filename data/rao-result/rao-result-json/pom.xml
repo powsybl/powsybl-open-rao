@@ -30,6 +30,11 @@
             <artifactId>farao-rao-result-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-search-tree-rao</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -92,12 +97,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.farao-community.farao</groupId>
-            <artifactId>farao-search-tree-rao</artifactId>
-            <version>4.2.5-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
