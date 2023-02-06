@@ -5,7 +5,7 @@
     <parent>
         <artifactId>farao-crac</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>4.2.4-SNAPSHOT</version>
+        <version>4.2.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,6 +27,10 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-loadflow-api</artifactId>
         </dependency>
 
         <dependency>

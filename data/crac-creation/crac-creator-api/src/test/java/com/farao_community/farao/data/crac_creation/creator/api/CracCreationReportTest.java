@@ -47,6 +47,13 @@ public class CracCreationReportTest {
     }
 
     @Test
+    public void testAdded() {
+        cracCreationReport.added("message");
+        assertEquals(1, cracCreationReport.getReport().size());
+        assertEquals("[ADDED] message", cracCreationReport.getReport().get(0));
+    }
+
+    @Test
     public void testAltered() {
         cracCreationReport.altered("message");
         assertEquals(1, cracCreationReport.getReport().size());

@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-data</artifactId>
-        <version>4.2.4-SNAPSHOT</version>
+        <version>4.2.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>farao-crac-io</artifactId>
-    <version>4.2.4-SNAPSHOT</version>
+    <version>4.2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CRAC import/export related modules</name>
     <description>Module that gathers all the CRAC importers and exporters modules</description>

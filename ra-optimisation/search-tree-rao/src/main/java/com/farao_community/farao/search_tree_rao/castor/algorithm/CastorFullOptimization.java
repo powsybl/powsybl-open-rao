@@ -431,7 +431,8 @@ public class CastorFullOptimization {
                                                     PerimeterResult firstPreventiveResult,
                                                     Map<State, OptimizationResult> postContingencyResults) {
         // Run 2nd preventive RAO
-        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, postContingencyResults);
+        Map<State, OptimizationResult> curativeResults = postContingencyResults.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        SecondPreventiveRaoResult secondPreventiveRaoResult = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult, curativeResults);
 
         // Run 2nd automaton simulation and update results
         BUSINESS_LOGS.info("----- Second automaton simulation [start]");
@@ -507,14 +508,14 @@ public class CastorFullOptimization {
                                                              PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
                                                              PrePerimeterResult initialOutput,
                                                              PerimeterResult firstPreventiveResult,
-                                                             Map<State, OptimizationResult> postContingencyResults) {
+                                                             Map<State, OptimizationResult> curativeResults) {
         Network network = raoInput.getNetwork();
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO);
 
         // Get the applied network actions for every contingency perimeter
         AppliedRemedialActions appliedCras = new AppliedRemedialActions();
-        addAppliedNetworkActionsPostContingency(appliedCras, postContingencyResults);
+        addAppliedNetworkActionsPostContingency(appliedCras, curativeResults);
 
         // Apply 1st preventive results for range actions that are both preventive and curative. This way we are sure
         // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
@@ -523,7 +524,7 @@ public class CastorFullOptimization {
         if (!parameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) { // keep old behaviour
             remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
             applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
-            addAppliedRangeActionsPostContingency(appliedCras, postContingencyResults);
+            addAppliedRangeActionsPostContingency(appliedCras, curativeResults);
         }
 
         // Run a first sensitivity computation using initial network and applied CRAs
