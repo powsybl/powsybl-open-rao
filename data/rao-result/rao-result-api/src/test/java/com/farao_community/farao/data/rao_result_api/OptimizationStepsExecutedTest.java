@@ -26,7 +26,7 @@ public class OptimizationStepsExecutedTest {
         assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
         assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
         assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertTrue(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertFalse(optimizationStepsExecuted.isOverwritePossible(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
