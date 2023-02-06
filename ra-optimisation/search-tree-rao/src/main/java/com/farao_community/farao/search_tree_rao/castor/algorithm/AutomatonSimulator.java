@@ -93,41 +93,23 @@ public final class AutomatonSimulator {
 
         PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis = getPreAutoPerimeterSensitivityAnalysis(automatonState, curativeState);
 
-        // Sensi failed :
+        // Sensitivity analysis failed :
         if (prePerimeterSensitivityOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
-            AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
-                    prePerimeterSensitivityOutput,
-                    new HashSet<>(),
-                    new HashSet<>(),
-                    new HashMap<>(),
-                    automatonState);
-            failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
-            TECHNICAL_LOGS.info("Automaton state {} has failed during sensi computation before topological automaton simulation.", automatonState.getId());
-            RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions().size(), failedAutomatonPerimeterResultImpl.getActivatedRangeActions(automatonState).size());
-            return failedAutomatonPerimeterResultImpl;
+            return createFailedAutomatonPerimeterResult(automatonState, prePerimeterSensitivityOutput, new HashSet<>(), "before");
         }
 
         // I) Simulate topological automatons
         TopoAutomatonSimulationResult topoSimulationResult = simulateTopologicalAutomatons(automatonState, network, preAutoPerimeterSensitivityAnalysis);
 
-        // Sensi failed :
+        // Sensitivity analysis failed :
         if (topoSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
-            AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
-                    topoSimulationResult.getPerimeterResult(),
-                    topoSimulationResult.getActivatedNetworkActions(),
-                    new HashSet<>(),
-                    new HashMap<>(),
-                    automatonState);
-            failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
-            TECHNICAL_LOGS.info("Automaton state {} has failed during sensi computation during topological automaton simulation.", automatonState.getId());
-            RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions().size(), failedAutomatonPerimeterResultImpl.getActivatedRangeActions(automatonState).size());
-            return failedAutomatonPerimeterResultImpl;
+            return createFailedAutomatonPerimeterResult(automatonState, topoSimulationResult.getPerimeterResult(), topoSimulationResult.getActivatedNetworkActions(), "during");
         }
 
         // II) Simulate range actions
         RangeAutomatonSimulationResult rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeState, network, preAutoPerimeterSensitivityAnalysis, topoSimulationResult.getPerimeterResult());
 
-        // Sensi failed :
+        // Sensitivity analysis failed :
         if (rangeAutomatonSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
             AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
                     rangeAutomatonSimulationResult.getPerimeterResult(),
@@ -136,7 +118,7 @@ public final class AutomatonSimulator {
                     rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
                     automatonState);
             failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
-            TECHNICAL_LOGS.info("Automaton state {} has failed during sensi computation during range automaton simulation.", automatonState.getId());
+            TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation during range automaton simulation.", automatonState.getId());
             RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions().size(), failedAutomatonPerimeterResultImpl.getActivatedRangeActions(automatonState).size());
             return failedAutomatonPerimeterResultImpl;
         }
@@ -160,6 +142,19 @@ public final class AutomatonSimulator {
         rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
         rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
+    }
+
+    AutomatonPerimeterResultImpl createFailedAutomatonPerimeterResult(State autoState, PrePerimeterResult result, Set<NetworkAction> activatedNetworkActions, String defineMoment) {
+        AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
+                result,
+                activatedNetworkActions,
+                new HashSet<>(),
+                new HashMap<>(),
+                autoState);
+        failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
+        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} topological automaton simulation.", autoState.getId(), defineMoment);
+        RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions().size(), failedAutomatonPerimeterResultImpl.getActivatedRangeActions(autoState).size());
+        return failedAutomatonPerimeterResultImpl;
     }
 
     /**
@@ -186,7 +181,7 @@ public final class AutomatonSimulator {
     /**
      * This function simulates topological automatons.
      * Returns a pair of :
-     * -- a PrePerimeterResult : a new sensi analysis is run after having applied the topological automatons,
+     * -- a PrePerimeterResult : a new sensitivity analysis is run after having applied the topological automatons,
      * -- and the set of applied network actions.
      */
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis) {
@@ -210,11 +205,11 @@ public final class AutomatonSimulator {
             na.apply(network);
         });
 
-        // -- Sensi must be run to evaluate available auto range actions
-        // -- If network actions have been applied, run sensi :
+        // -- Sensitivity analysis must be run to evaluate available auto range actions
+        // -- If network actions have been applied, run sensitivity :
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         if (!appliedNetworkActions.isEmpty()) {
-            TECHNICAL_LOGS.info("Running sensi post application of auto network actions for automaton state {}.", automatonState.getId());
+            TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {}.", automatonState.getId());
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, appliedNetworkActions);
@@ -416,8 +411,8 @@ public final class AutomatonSimulator {
     }
 
     /**
-     * This functions runs a sensi when the remedial actions simulation process is over.
-     * The sensi analysis is run on curative range actions, to be used at curative instant.
+     * This functions runs a sensitivity analysis when the remedial actions simulation process is over.
+     * The sensitivity analysis is run on curative range actions, to be used at curative instant.
      * This function returns a prePerimeterResult that will be used to build an AutomatonPerimeterResult.
      */
     private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, State curativeState, Network network) {
@@ -434,7 +429,7 @@ public final class AutomatonSimulator {
                 toolProvider);
 
         // Run computation
-        TECHNICAL_LOGS.info("Running pre curative sensi after auto state {}.", automatonState.getId());
+        TECHNICAL_LOGS.info("Running pre curative sensitivity analysis after auto state {}.", automatonState.getId());
         return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
     }
 
@@ -559,7 +554,7 @@ public final class AutomatonSimulator {
      * -- OR setpoints have been shifted as far as possible in one direction
      * -- OR the direction in which the shift is performed switches
      * -- OR too many iterations have been performed
-     * After every setpoint shift, a new sensi analysis is performed.
+     * After every setpoint shift, a new sensitivity analysis is performed.
      * This function returns a pair of a prePerimeterResult, and a map of activated range actions during the shift, with their
      * newly computed setpoints, both used to compute an AutomatonPerimeterResult.
      */
@@ -580,7 +575,7 @@ public final class AutomatonSimulator {
             Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = disableHvdcAngleDroopActivePowerControl(alignedRangeActions, network, preAutoPerimeterSensitivityAnalysis, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonState);
             automatonRangeActionOptimizationSensitivityAnalysisOutput = result.getLeft();
             activatedRangeActionsWithSetpoint.putAll(result.getRight());
-            // If sensi failed :
+            // If sensitivity analysis failed :
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, Collections.emptySet(), Collections.emptyMap());
             }
@@ -650,7 +645,7 @@ public final class AutomatonSimulator {
                 activatedRangeActionsWithSetpoint.put(rangeAction, optimalSetpoint);
             }
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
-            // If sensi fails, stop shifting and return all applied range actions
+            // If sensitivity analysis fails, stop shifting and return all applied range actions
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithSetpoint);
             }

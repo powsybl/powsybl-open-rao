@@ -149,9 +149,6 @@ public class SweRemedialActionSeriesCreator {
             } else if (usedRa instanceof PstRangeAction) {
                 return generatePstRaSeries((PstRangeAction) usedRa, state, context, onlyReference);
             } else if (usedRa instanceof HvdcRangeAction) {
-                if (Objects.isNull(raoResult)) {
-                    throw new FaraoException(String.format("Rao result is null. Cannot retrieve HvdcRangeAction %s's optimized setpoint on state %s", usedRa.getId(), state.getId()));
-                }
                 // In case of an HVDC, the native crac has one series per direction, we select the one that corresponds to the sign of the setpoint
                 if (context.isInverted() == (raoResult.getOptimizedSetPointOnState(state, (HvdcRangeAction) usedRa) < 0)) {
                     return generateHvdcRaSeries((HvdcRangeAction) usedRa, state, context);

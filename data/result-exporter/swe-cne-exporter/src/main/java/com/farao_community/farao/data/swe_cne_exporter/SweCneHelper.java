@@ -19,13 +19,14 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class SweCneHelper extends CneHelper {
-    private AngleMonitoringResult angleMonitoringResult;
+    private final AngleMonitoringResult angleMonitoringResult;
     private Map<Contingency, Boolean> contingencyFailureMap = new HashMap<>();
 
     public SweCneHelper(Crac crac, Network network, RaoResult raoResult, AngleMonitoringResult angleMonitoringResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
@@ -38,22 +39,17 @@ public class SweCneHelper extends CneHelper {
         return angleMonitoringResult;
     }
 
-    public Map<Contingency, Boolean> getContingencyFailureMap() {
-        return contingencyFailureMap;
+    public boolean isContingencyDivergent(Contingency contingency) {
+        return contingencyFailureMap.getOrDefault(contingency, false);
     }
 
     private void defineContingencyFailureMap() {
-        for (Contingency contingency: getCrac().getContingencies()) {
-            // Initialize map with default :
-            contingencyFailureMap.put(contingency, false);
-            if (Objects.nonNull(getRaoResult()) && getCrac().getStates(contingency).stream()
-                    .anyMatch(state -> getRaoResult().getComputationStatus(state).equals(ComputationStatus.FAILURE))) {
-                contingencyFailureMap.put(contingency, true);
-            }
-        }
+        contingencyFailureMap = getCrac().getContingencies().stream()
+                .collect(Collectors.toMap(Function.identity(), contingency -> getCrac().getStates(contingency).stream()
+                        .anyMatch(state -> getRaoResult().getComputationStatus(state).equals(ComputationStatus.FAILURE))));
     }
 
     public boolean isAnyContingencyInFailure() {
-        return contingencyFailureMap.values().stream().anyMatch(value -> value.equals(true));
+        return contingencyFailureMap.containsValue(true);
     }
 }

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.rao_result_json.serializers;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -35,15 +36,17 @@ final class ComputationStatusMapSerializer {
 
         jsonGenerator.writeArrayFieldStart(COMPUTATION_STATUS_MAP);
         for (State state : sortedListOfStates) {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField(COMPUTATION_STATUS, raoResult.getComputationStatus(state).toString());
-            jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
-            Optional<Contingency> optContingency = state.getContingency();
-            if (optContingency.isPresent()) {
-                jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
-
+            ComputationStatus computationStatus = raoResult.getComputationStatus(state);
+            if (!computationStatus.equals(ComputationStatus.DEFAULT)) {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField(COMPUTATION_STATUS, raoResult.getComputationStatus(state).toString());
+                jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+                Optional<Contingency> optContingency = state.getContingency();
+                if (optContingency.isPresent()) {
+                    jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
+                }
+                jsonGenerator.writeEndObject();
             }
-            jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
     }

@@ -15,7 +15,6 @@ import com.farao_community.farao.data.swe_cne_exporter.xsd.*;
 import java.util.*;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
-import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.DIVERGENCE_TEXT;
 
 /**
  * Structures the chaining of RASeriesCreator and MonitoredSeriesCreator for SWE CNE format
@@ -64,7 +63,7 @@ public final class SweConstraintSeriesCreator {
         constraintSeries.setMRID(CneUtil.generateUUID());
         constraintSeries.setBusinessType(B56_BUSINESS_TYPE);
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
-        if (sweCneHelper.getContingencyFailureMap().get(contingency)) {
+        if (sweCneHelper.isContingencyDivergent(contingency)) {
             addDivergenceReasonCode(constraintSeries);
         } else {
             constraintSeries.getRemedialActionSeries().addAll(remedialActionSeriesCreator.generateRaSeries(contingency));
@@ -104,7 +103,7 @@ public final class SweConstraintSeriesCreator {
         constraintSeries.setBusinessType(B57_BUSINESS_TYPE);
         constraintSeries.getAdditionalConstraintSeries().addAll(additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency));
         constraintSeries.getContingencySeries().add(generateContingencySeries(contingency));
-        if (sweCneHelper.getContingencyFailureMap().get(contingency)) {
+        if (sweCneHelper.isContingencyDivergent(contingency)) {
             constraintSeries.getMonitoredSeries().addAll(monitoredSeriesCreator.generateMonitoredSeries(contingency));
             addDivergenceReasonCode(constraintSeries);
         } else {

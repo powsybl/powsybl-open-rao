@@ -79,7 +79,7 @@ public class SweMonitoredSeriesCreator {
             return Collections.emptyList();
         }
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
-        boolean includeMeasurements = !sweCneHelper.getContingencyFailureMap().getOrDefault(contingency, false);
+        boolean includeMeasurements = !sweCneHelper.isContingencyDivergent(contingency);
         cnecCreationContextsMap.get(contingency).forEach(
             (monitoredSeriesCC, cnecCCSet) -> monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet, includeMeasurements))
         );
