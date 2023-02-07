@@ -268,6 +268,22 @@ public final class RaoLogger {
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
     }
 
+    public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions) {
+        Optional<Contingency> optionalContingency = optimizedState.getContingency();
+        String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
+        String raResult = "";
+        if (activatedNetworkActions + activatedRangeActions == 0) {
+            raResult = "no remedial actions activated";
+        } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
+            raResult = String.format("%s network action(s) activated", activatedNetworkActions);
+        } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
+            raResult = String.format("%s range action(s) activated", activatedRangeActions);
+        } else {
+            raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
+        }
+        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
+    }
+
     public static String formatDouble(double value) {
         if (value >= Double.MAX_VALUE) {
             return "+infinity";

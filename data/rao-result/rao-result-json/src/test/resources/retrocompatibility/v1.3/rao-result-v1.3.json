@@ -27,12 +27,38 @@
     },
     "afterCRA" : {
       "functionalCost" : -50.0,
-      "virtualCost" : {
-        "loopFlow" : 10.0,
-        "MNEC" : 2.0
+      "virtualCost": {
+        "loopFlow": 10.0,
+        "MNEC": 2.0
       }
     }
   },
+  "computationStatusMap": [
+    {
+      "computationStatus": "DEFAULT",
+      "instant": "preventive"
+    },
+    {
+      "computationStatus": "FALLBACK",
+      "instant": "outage",
+      "contingency": "contingency1Id"
+    },
+    {
+      "computationStatus": "FAILURE",
+      "instant": "curative",
+      "contingency": "contingency1Id"
+    },
+    {
+      "computationStatus": "DEFAULT",
+      "instant": "auto",
+      "contingency": "contingency2Id"
+    },
+    {
+      "computationStatus": "FALLBACK",
+      "instant": "curative",
+      "contingency": "contingency2Id"
+    }
+  ],
   "flowCnecResults" : [ {
     "flowCnecId" : "cnec1outageId",
     "initial" : {

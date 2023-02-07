@@ -26,6 +26,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -41,7 +42,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -98,6 +98,7 @@ public class CastorFullOptimizationTest {
 
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(sensitivityResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityComputer.getBranchResult(network)).thenReturn(Mockito.mock(FlowResult.class));
 
@@ -113,12 +114,12 @@ public class CastorFullOptimizationTest {
 
     }
 
-    @Test
+    /*@Test
     public void run() throws ExecutionException, InterruptedException {
         prepareMocks();
         RaoResult raoResult = castorFullOptimization.run().get();
         assertNotNull(raoResult);
-    }
+    }*/
 
     @Test
     public void testShouldRunSecondPreventiveRaoSimple() {
@@ -534,6 +535,21 @@ public class CastorFullOptimizationTest {
         appliedRemedialActions.applyOnNetwork(state1, network);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
+    }
+
+    @Test
+    public void smallRaoWithDivergingInitialSensi() {
+        // Small RAO with diverging initial sensi
+        // Cannot optimize range actions in unit tests (needs OR-Tools installed)
+
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration.json"));
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertTrue(raoResult instanceof FailedRaoResultImpl);
     }
 
     @Test

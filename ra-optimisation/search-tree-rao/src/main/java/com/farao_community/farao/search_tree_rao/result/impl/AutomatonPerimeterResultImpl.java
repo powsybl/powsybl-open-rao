@@ -35,6 +35,7 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     private final Set<RangeAction<?>> activatedRangeActions;
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
+    private ComputationStatus computationStatus = ComputationStatus.DEFAULT;
 
     public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
@@ -114,6 +115,12 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        postAutomatonSensitivityAnalysisOutput.excludeContingencies(contingenciesToExclude);
+
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return rangeActionsWithSetpoint.keySet();
     }
@@ -154,6 +161,24 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public ComputationStatus getSensitivityStatus() {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus();
+    }
+
+    @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus(state);
+    }
+
+    public ComputationStatus getComputationStatus() {
+        return computationStatus;
+    }
+
+    public void setComputationStatus(ComputationStatus computationStatusToSet) {
+        computationStatus = computationStatusToSet;
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        return postAutomatonSensitivityAnalysisOutput.getContingencies();
     }
 
     @Override

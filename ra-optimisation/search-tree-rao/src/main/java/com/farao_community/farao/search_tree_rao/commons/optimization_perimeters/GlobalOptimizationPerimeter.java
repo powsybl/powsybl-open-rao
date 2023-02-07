@@ -36,7 +36,6 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
     }
 
     public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 

@@ -52,6 +52,10 @@ public final class ObjectiveFunction {
         return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }
 
+    public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
+    }
+
     public List<FlowCnec> getMostLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
         return functionalCostEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
     }
@@ -60,6 +64,12 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream()
                 .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
                 .sum();
+    }
+
+    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        return virtualCostEvaluators.stream()
+            .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
+            .sum();
     }
 
     public Set<String> getVirtualCostNames() {
@@ -72,6 +82,14 @@ public final class ObjectiveFunction {
                 .findAny()
                 .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
                 .orElse(Double.NaN);
+    }
+
+    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExlude) {
+        return virtualCostEvaluators.stream()
+            .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
+            .findAny()
+            .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExlude))
+            .orElse(Double.NaN);
     }
 
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, String virtualCostName, int number) {
@@ -177,6 +195,10 @@ public final class ObjectiveFunction {
 
             // sensi fall-back overcost
             this.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost()));
+
+            // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
+            // to ensure that corresponding leaf is not selected
+            this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs));
 
             return this.build();
         }

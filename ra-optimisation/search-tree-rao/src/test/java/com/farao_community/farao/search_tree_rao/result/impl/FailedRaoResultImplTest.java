@@ -34,6 +34,7 @@ public class FailedRaoResultImplTest {
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
 
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
+        assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPerimeterResult(optimizationState, state));
         assertThrows(FaraoException.class, failedRaoResultImpl::getPostPreventivePerimeterResult);
         assertThrows(FaraoException.class, failedRaoResultImpl::getInitialResult);

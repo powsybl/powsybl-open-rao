@@ -144,6 +144,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public void excludeContingencies(Set<String> contingenciesToExclude) {
+        firstCraoResult.excludeContingencies(contingenciesToExclude);
+        secondPraoResult.excludeContingencies(contingenciesToExclude);
+        postCraSensitivityObjectiveResult.excludeContingencies(contingenciesToExclude);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return firstCraoResult.getRangeActions();
     }
@@ -193,6 +200,18 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     @Override
     public ComputationStatus getSensitivityStatus() {
         return postCraSensitivitySensitivityResult.getSensitivityStatus();
+    }
+
+    @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        return postCraSensitivitySensitivityResult.getSensitivityStatus(state);
+    }
+
+    @Override
+    public Set<String> getContingencies() {
+        Set<String> allContingencies = firstCraoResult.getContingencies();
+        allContingencies.addAll(secondPraoResult.getContingencies());
+        return allContingencies;
     }
 
     @Override

@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -35,7 +35,7 @@ public class HvdcRangeActionSensiHandler implements RangeActionSensiHandler {
     public void checkConsistency(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(hvdcRangeAction.getNetworkElement().getId());
         if (!(identifiable instanceof HvdcLine)) {
-            throw new SensitivityAnalysisException(String.format("Unable to create sensitivity variable for HvdcRangeAction %s, on element %s", hvdcRangeAction.getId(), hvdcRangeAction.getNetworkElement().getId()));
+            throw new FaraoException(String.format("Unable to create sensitivity variable for HvdcRangeAction %s, on element %s", hvdcRangeAction.getId(), hvdcRangeAction.getNetworkElement().getId()));
         }
     }
 }

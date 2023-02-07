@@ -35,6 +35,11 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
+    public ComputationStatus getComputationStatus(State state) {
+        return ComputationStatus.FAILURE;
+    }
+
+    @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }

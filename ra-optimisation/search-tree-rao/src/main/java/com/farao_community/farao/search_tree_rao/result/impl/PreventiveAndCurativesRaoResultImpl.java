@@ -24,6 +24,7 @@ import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 import java.util.*;
 
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
+import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FALLBACK;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -58,6 +59,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults) {
         this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), null);
+        excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
     /**
@@ -71,6 +73,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults) {
         this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), secondPreventivePerimeterResult);
+        excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
     /**
@@ -85,6 +88,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                Map<State, OptimizationResult> postContingencyResults,
                                                ObjectiveFunctionResult postSecondAraoResults) {
         this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, remedialActionsExcludedFromSecondPreventive, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults), postSecondAraoResults);
+        excludeContingencies(getContingenciesToExclude(stateTree));
     }
 
     private PreventiveAndCurativesRaoResultImpl(State preventiveState,
@@ -112,23 +116,94 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
                 results.put(automatonState.get(), new PerimeterResultImpl(preContingencyResult, automatonResult));
-                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(automatonResult, automatonState.get()), postContingencyResults.get(contingencyScenario.getCurativeState())));
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+                if (automatonResult.getSensitivityStatus() == FAILURE || curativeResult.getSensitivityStatus() == FAILURE) {
+                    results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, curativeResult));
+                } else {
+                    results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(automatonResult, automatonState.get()), curativeResult));
+                }
             } else {
-                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, curativeResult));
             }
         });
         return results;
+    }
+
+    private Set<String> getContingenciesToExclude(StateTree stateTree) {
+        Set<String> contingenciesToExclude = new HashSet<>();
+        stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
+            Optional<State> automatonState = contingencyScenario.getAutomatonState();
+            if (automatonState.isPresent()) {
+                OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
+                if (!automatonResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                    return;
+                }
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+                if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                }
+            } else {
+                OptimizationResult curativeResult = postContingencyResults.get(contingencyScenario.getCurativeState());
+                if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
+                    contingenciesToExclude.add(contingencyScenario.getContingency().getId());
+                }
+            }
+        });
+        return contingenciesToExclude;
+    }
+
+    private void excludeContingencies(Set<String> contingenciesToExclude) {
+        initialResult.excludeContingencies(contingenciesToExclude);
+        firstPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
+        secondPreventivePerimeterResult.excludeContingencies(contingenciesToExclude);
+        resultsWithPrasForAllCnecs.excludeContingencies(contingenciesToExclude);
+        postContingencyResults.values().forEach(result -> result.excludeContingencies(contingenciesToExclude));
+        if (finalCostEvaluator != null) {
+            finalCostEvaluator.excludeContingencies(contingenciesToExclude);
+        }
     }
 
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
             || secondPreventivePerimeterResult.getSensitivityStatus() == FAILURE
-            || postContingencyResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
+            || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
             return FAILURE;
         }
-        // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
+        if (initialResult.getSensitivityStatus() == FALLBACK
+                || secondPreventivePerimeterResult.getSensitivityStatus() == FALLBACK
+                || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FALLBACK)) {
+            return FALLBACK;
+        }
         return ComputationStatus.DEFAULT;
+    }
+
+    @Override
+    public ComputationStatus getComputationStatus(State state) {
+        List<OptimizationState> possibleOptimizationStates;
+        switch (state.getInstant()) {
+            case PREVENTIVE:
+            case OUTAGE:
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_PRA);
+                break;
+            case AUTO:
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
+                break;
+            case CURATIVE:
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
+                break;
+            default:
+                throw new FaraoException(String.format("Instant %s was not recognized", state.getInstant()));
+        }
+        for (OptimizationState optimizationState : possibleOptimizationStates) {
+            PerimeterResult perimeterResult = getPerimeterResult(optimizationState, state);
+            if (Objects.nonNull(perimeterResult)) {
+                return perimeterResult.getSensitivityStatus(state);
+            }
+        }
+        return FAILURE;
     }
 
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
