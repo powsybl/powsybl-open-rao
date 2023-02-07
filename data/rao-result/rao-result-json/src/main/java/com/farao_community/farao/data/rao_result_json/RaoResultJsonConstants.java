@@ -111,7 +111,7 @@ public final class RaoResultJsonConstants {
 
     // optimized steps executed by the RAO
     public static final String OPTIMIZATION_STEPS_EXECUTED = "optimizationStepsExecuted";
-    public static final String FIRST_PREVENTIVE_ONLY = "The RAO went only through first preventive";
+    public static final String FIRST_PREVENTIVE_ONLY = "The RAO only went through first preventive";
     public static final String FIRST_PREVENTIVE_FELLBACK = "First preventive fellback to initial situation";
     public static final String SECOND_PREVENTIVE_IMPROVED_FIRST = "Second preventive improved first preventive results";
     public static final String SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION = "Second preventive fellback to first preventive results";

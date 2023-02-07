@@ -209,7 +209,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testRaoWentThroughSecondPrev() {
+    public void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(raoResult.getOptimizationStepsExecuted().hasRunSecondPreventive());
         raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);

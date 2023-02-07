@@ -322,7 +322,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testRaoWentThroughSecondPrev() {
+    public void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);

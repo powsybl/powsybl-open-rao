@@ -266,7 +266,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testRaoWentThroughSecondPrev() {
+    public void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
