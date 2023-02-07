@@ -401,16 +401,16 @@ public class CastorFullOptimizationTest {
     public void testIsRangeActionCurative() {
         setUpCracWithRAs();
         // ra1 is available in preventive only
-        assertFalse(CastorFullOptimization.isRangeActionCurative(ra1, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra1, crac));
         // ra2 is available in state2 only
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra2, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra2, crac));
         // ra3 is available in preventive and in state1
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra3, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra4, crac));
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra5, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra5, crac));
         // ra6 is preventive and curative
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra6, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra6, crac));
     }
 
     @Test
@@ -479,13 +479,13 @@ public class CastorFullOptimizationTest {
         setUpCracWithRealRAs(false);
         Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
 
         setUpCracWithRealRAs(true);
         Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 
@@ -529,7 +529,7 @@ public class CastorFullOptimizationTest {
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
 
         // add range action
-        CastorFullOptimization.addAppliedRangeActionsPostContingency(appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Instant.CURATIVE, appliedRemedialActions, curativeResults);
 
         // apply also range action
         appliedRemedialActions.applyOnNetwork(state1, network);

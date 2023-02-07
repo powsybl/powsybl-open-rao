@@ -11,17 +11,17 @@ import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
@@ -103,7 +103,7 @@ final class SystematicSensitivityAdapter {
             Optional<com.farao_community.farao.data.crac_api.Contingency> optContingency = state.getContingency();
 
             if (optContingency.isEmpty()) {
-                throw new FaraoException("Sensitivity analysis with applied RA does not handled preventive RA.");
+                throw new FaraoException("Sensitivity analysis with applied RA does not handle preventive RA.");
             }
 
             TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
@@ -111,6 +111,9 @@ final class SystematicSensitivityAdapter {
             String variantForState = RandomizedString.getRandomizedString();
             network.getVariantManager().cloneVariant(workingVariantId, variantForState);
             network.getVariantManager().setWorkingVariant(variantForState);
+
+            // If some applied range actions are HvdcRangeActions, disable HvdcAngleDroopActivePowerControl and apply their optimal setpoint
+            findAndDisableHvdcAngleDroopActivePowerControl(network, appliedRemedialActions, state);
 
             appliedRemedialActions.applyOnNetwork(state, network);
 
@@ -131,4 +134,28 @@ final class SystematicSensitivityAdapter {
         network.getVariantManager().setWorkingVariant(workingVariantId);
         return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
+
+    private static void findAndDisableHvdcAngleDroopActivePowerControl(Network network, AppliedRemedialActions appliedRemedialActions, State state) {
+        Map<HvdcRangeAction, Double> hvdcRasWithControl = appliedRemedialActions.getAppliedRangeActions(state).entrySet().stream()
+                .filter(entry -> entry.getKey() instanceof HvdcRangeAction)
+                .collect(Collectors.toMap(entry -> (HvdcRangeAction) entry.getKey(), Map.Entry::getValue))
+                .entrySet().stream()
+                .filter(entry -> isAngleDroopActivePowerControlEnabled(entry.getKey(), network))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        hvdcRasWithControl.forEach((hvdcRa, activePowerSetpoint) -> {
+            HvdcLine hvdcLine = network.getHvdcLine(hvdcRa.getNetworkElement().getId());
+            TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
+            hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
+            hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+            hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+        });
+    }
+
+    private static boolean isAngleDroopActivePowerControlEnabled(HvdcRangeAction hvdcRangeAction, Network network) {
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcRangeAction.getNetworkElement().getId());
+        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+        return (hvdcAngleDroopActivePowerControl != null) && hvdcAngleDroopActivePowerControl.isEnabled();
+    }
+
 }
