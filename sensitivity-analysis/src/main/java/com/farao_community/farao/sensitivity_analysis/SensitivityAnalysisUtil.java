@@ -1,5 +1,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.*;
@@ -33,7 +34,7 @@ final class SensitivityAnalysisUtil {
         } else if (networkIdentifiable instanceof DanglingLine) {
             return new DanglingLineContingency(elementId);
         } else {
-            throw new SensitivityAnalysisException("Unable to apply contingency element " + elementId);
+            throw new FaraoException("Unable to apply contingency element " + elementId + " while converting crac contingency to Powsybl format");
         }
     }
 }

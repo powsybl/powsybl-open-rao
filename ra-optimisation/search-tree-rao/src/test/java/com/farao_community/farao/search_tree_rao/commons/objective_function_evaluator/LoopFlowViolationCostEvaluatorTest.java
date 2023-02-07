@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -44,15 +46,19 @@ public class LoopFlowViolationCostEvaluatorTest {
 
     @Before
     public void setUp() {
+        State state = Mockito.mock(State.class);
+        when(state.getContingency()).thenReturn(Optional.empty());
         LoopFlowThreshold cnec1Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         when(cnec1.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(cnec1Extension);
+        when(cnec1.getState()).thenReturn(state);
 
         LoopFlowThreshold cnec2Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         when(cnec2.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
+        when(cnec2.getState()).thenReturn(state);
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);

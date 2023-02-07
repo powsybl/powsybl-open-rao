@@ -33,6 +33,8 @@ public interface RaoResult {
 
     ComputationStatus getComputationStatus();
 
+    ComputationStatus getComputationStatus(State state);
+
     /**
      * It gives the flow on a {@link FlowCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}.

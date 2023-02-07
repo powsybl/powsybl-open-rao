@@ -40,12 +40,18 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
-        SensitivityAnalysisResult result = SensitivityAnalysis.find(sensitivityProvider).run(network,
-            network.getVariantManager().getWorkingVariantId(),
-            cnecSensitivityProvider.getAllFactors(network),
-            cnecSensitivityProvider.getContingencies(network),
-            cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters);
+        SensitivityAnalysisResult result;
+        try {
+            result = SensitivityAnalysis.find(sensitivityProvider).run(network,
+                    network.getVariantManager().getWorkingVariantId(),
+                    cnecSensitivityProvider.getAllFactors(network),
+                    cnecSensitivityProvider.getContingencies(network),
+                    cnecSensitivityProvider.getVariableSets(),
+                    sensitivityComputationParameters);
+        } catch (Exception e) {
+            TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
+            return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         return new SystematicSensitivityResult().completeData(result, Instant.OUTAGE).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }

@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -16,6 +17,8 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -40,6 +43,23 @@ public class SensitivityResultImpl implements SensitivityResult {
             case FAILURE:
                 return ComputationStatus.FAILURE;
         }
+    }
+
+    @Override
+    public ComputationStatus getSensitivityStatus(State state) {
+        switch (systematicSensitivityResult.getStatus(state)) {
+            case SUCCESS:
+                return ComputationStatus.DEFAULT;
+            case FALLBACK:
+                return ComputationStatus.FALLBACK;
+            default:
+            case FAILURE:
+                return ComputationStatus.FAILURE;
+        }
+    }
+
+    public Set<String> getContingencies() {
+        return systematicSensitivityResult.getContingencies();
     }
 
     @Override

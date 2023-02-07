@@ -192,6 +192,12 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
+    public void testGetStateSensitivityStatus() {
+        when(postAutoSensitivity.getSensitivityStatus(state1)).thenReturn(ComputationStatus.FALLBACK);
+        assertEquals(ComputationStatus.FALLBACK, result.getSensitivityStatus(state1));
+    }
+
+    @Test
     public void testGetSensitivityOnRangeAction() {
         RangeAction<?> rangeAction = mock(RangeAction.class);
         when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, rangeAction, MEGAWATT)).thenReturn(100.);

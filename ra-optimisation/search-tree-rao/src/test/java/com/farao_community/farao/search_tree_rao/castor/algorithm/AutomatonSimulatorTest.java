@@ -25,6 +25,7 @@ import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterResultImpl;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -440,10 +441,10 @@ public class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
         // so PSTs should be shifted to setpoint +1.1 on first iteration, then +3.1 on second because of under-estimator
 
-        Pair<PrePerimeterResult, Map<RangeAction<?>, Double>> shiftResult =
+        AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
-        assertEquals(3.1, shiftResult.getRight().get(ara1), DOUBLE_TOLERANCE);
-        assertEquals(3.1, shiftResult.getRight().get(ara2), DOUBLE_TOLERANCE);
+        assertEquals(3.1, shiftResult.getRangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
+        assertEquals(3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -467,10 +468,10 @@ public class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(-50., -5.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(-50., -5.);
 
-        Pair<PrePerimeterResult, Map<RangeAction<?>, Double>> shiftResult =
+        AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
-        assertEquals(3.1, shiftResult.getRight().get(ara1), DOUBLE_TOLERANCE);
-        assertEquals(3.1, shiftResult.getRight().get(ara2), DOUBLE_TOLERANCE);
+        assertEquals(3.1, shiftResult.getRangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
+        assertEquals(3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -490,10 +491,10 @@ public class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.LEFT, ara1, Unit.MEGAWATT)).thenReturn(50., 5.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec, Side.LEFT, ara2, Unit.MEGAWATT)).thenReturn(50., 5.);
 
-        Pair<PrePerimeterResult, Map<RangeAction<?>, Double>> shiftResult =
+        AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
-        assertEquals(-3.1, shiftResult.getRight().get(ara1), DOUBLE_TOLERANCE);
-        assertEquals(-3.1, shiftResult.getRight().get(ara2), DOUBLE_TOLERANCE);
+        assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
+        assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -523,10 +524,10 @@ public class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec2, Side.RIGHT, ara1, Unit.MEGAWATT)).thenReturn(0.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec2, Side.RIGHT, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
-        Pair<PrePerimeterResult, Map<RangeAction<?>, Double>> shiftResult =
+        AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
-        assertEquals(-3.1, shiftResult.getRight().get(ara1), DOUBLE_TOLERANCE);
-        assertEquals(-3.1, shiftResult.getRight().get(ara2), DOUBLE_TOLERANCE);
+        assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara1), DOUBLE_TOLERANCE);
+        assertEquals(-3.1, shiftResult.getRangeActionsWithSetpoint().get(ara2), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -582,6 +583,14 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
+    public void testSimulateTopologicalAutomatonsFailure() {
+        when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
+        assertNotNull(result);
+        assertEquals(ComputationStatus.FAILURE, result.getPerimeterResult().getSensitivityStatus());
+    }
+
+    @Test
     public void testSimulateAutomatonState() {
         State curativeState = mock(State.class);
         when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
@@ -608,13 +617,28 @@ public class AutomatonSimulatorTest {
         RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
         when(mockedPrePerimeterResult.getRangeActionSetpointResult()).thenReturn(rangeActionSetpointResult);
         when(rangeActionSetpointResult.getRangeActions()).thenReturn(Collections.emptySet());
-        when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.DEFAULT);
+        SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
+        when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
         AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
         assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
+    }
+
+    @Test
+    public void testSimulateAutomatonStateFailure() {
+        when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
+        State curativeState = mock(State.class);
+        when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
+        assertNotNull(result);
+        assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
+        assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
+        assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
 
     @Test

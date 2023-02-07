@@ -47,8 +47,14 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
+    }
+
+    @Override
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         double cost = loopflowCnecs
             .stream()
+            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
             .sum();
 
@@ -66,8 +72,14 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
+        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, numberOfElements, new HashSet<>());
+    }
+
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
         if (sortedElements.isEmpty()) {
             sortedElements = loopflowCnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
                 .collect(Collectors.toMap(
                     Function.identity(),
                     cnec -> getLoopFlowExcess(flowResult, cnec)

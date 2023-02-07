@@ -100,7 +100,7 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigFailsAndNoFallback() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
@@ -110,12 +110,8 @@ public class SystematicSensitivityInterfaceTest {
             .build();
 
         // run - expected failure
-        try {
-            systematicSensitivityInterface.run(network);
-            fail();
-        } catch (SensitivityAnalysisException e) {
-            assertTrue(e.getMessage().contains("Sensitivity analysis failed with default parameters. No fallback parameters available."));
-        }
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
+        assertFalse(result.isSuccess());
     }
 
     @Test
@@ -168,16 +164,12 @@ public class SystematicSensitivityInterfaceTest {
             .withSensitivityProviderName("default-impl-name")
             .withDefaultParameters(defaultParameters)
             .withFallbackParameters(fallbackParameters)
-            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
-            .build();
+                .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+                .build();
 
         // run - expected failure
-        try {
-            systematicSensitivityInterface.run(network);
-            fail();
-        } catch (SensitivityAnalysisException e) {
-            assertTrue(e.getMessage().contains("Sensitivity analysis failed with all available sensitivity parameters."));
-        }
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
+        assertFalse(result.isSuccess());
     }
 
     private SystematicSensitivityResult buildSystematicAnalysisResultOk() {

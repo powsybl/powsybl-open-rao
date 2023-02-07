@@ -77,6 +77,8 @@ public interface ObjectiveFunctionResult {
      */
     List<FlowCnec> getCostlyElements(String virtualCostName, int number);
 
+    void excludeContingencies(Set<String> contingenciesToExclude);
+
     ObjectiveFunction getObjectiveFunction();
 
 }

@@ -35,6 +35,8 @@ public interface CostEvaluator {
      */
     double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus);
 
+    double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude);
+
     Unit getUnit();
 
     /**
@@ -47,6 +49,8 @@ public interface CostEvaluator {
      * @return The ordered list of the n first costly elements.
      */
     List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements);
+
+    List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude);
 
     Set<FlowCnec> getFlowCnecs();
 }

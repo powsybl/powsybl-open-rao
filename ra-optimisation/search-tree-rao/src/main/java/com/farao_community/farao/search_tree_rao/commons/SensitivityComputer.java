@@ -16,14 +16,11 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.search_tree_rao.result.impl.SensitivityResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
-
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -38,12 +35,7 @@ public final class SensitivityComputer {
     }
 
     public void compute(Network network) {
-        try {
-            result = systematicSensitivityInterface.run(network);
-        } catch (SensitivityAnalysisException e) {
-            TECHNICAL_LOGS.warn("Systematic sensitivity computation failed on {} mode: {}", systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());
-            throw e;
-        }
+        result = systematicSensitivityInterface.run(network);
     }
 
     public FlowResult getBranchResult(Network network) {

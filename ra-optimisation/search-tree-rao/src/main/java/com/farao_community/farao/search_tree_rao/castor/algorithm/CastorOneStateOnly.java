@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -30,7 +31,6 @@ import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTr
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -72,10 +72,9 @@ public class CastorOneStateOnly {
                 toolProvider);
 
         PrePerimeterResult initialResults;
-        try {
-            initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
-        } catch (SensitivityAnalysisException e) {
-            BUSINESS_LOGS.error("Initial sensitivity analysis failed :", e);
+        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
+        if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            BUSINESS_LOGS.error("Initial sensitivity analysis failed");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl());
         }
 

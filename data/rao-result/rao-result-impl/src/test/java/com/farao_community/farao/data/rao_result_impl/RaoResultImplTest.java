@@ -205,4 +205,11 @@ public class RaoResultImplTest {
 
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
+
+    @Test
+    public void testSensitivityStatus() {
+        setUp();
+        raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", Instant.AUTO), ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", Instant.AUTO)));
+    }
 }

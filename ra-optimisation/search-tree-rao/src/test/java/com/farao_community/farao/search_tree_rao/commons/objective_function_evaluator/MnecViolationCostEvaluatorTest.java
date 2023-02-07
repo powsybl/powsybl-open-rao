@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -42,15 +44,20 @@ public class MnecViolationCostEvaluatorTest {
 
     @Before
     public void setUp() {
+        State state = Mockito.mock(State.class);
+        when(state.getContingency()).thenReturn(Optional.empty());
         mnec1 = Mockito.mock(FlowCnec.class);
         when(mnec1.isOptimized()).thenReturn(true);
         when(mnec1.isMonitored()).thenReturn(true);
+        when(mnec1.getState()).thenReturn(state);
         mnec2 = Mockito.mock(FlowCnec.class);
         when(mnec2.isOptimized()).thenReturn(false);
         when(mnec2.isMonitored()).thenReturn(true);
+        when(mnec2.getState()).thenReturn(state);
         pureCnec = Mockito.mock(FlowCnec.class);
         when(pureCnec.isOptimized()).thenReturn(true);
         when(pureCnec.isMonitored()).thenReturn(false);
+        when(pureCnec.getState()).thenReturn(state);
 
         initialFlowResult = Mockito.mock(FlowResult.class);
         currentFlowResult = Mockito.mock(FlowResult.class);

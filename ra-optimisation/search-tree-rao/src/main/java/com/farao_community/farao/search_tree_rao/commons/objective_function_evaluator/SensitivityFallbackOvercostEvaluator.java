@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -16,6 +15,7 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivatio
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,14 +36,18 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
+    }
+
+    @Override
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         switch (sensitivityStatus) {
-            case DEFAULT:
-                return 0.;
             case FALLBACK:
                 return fallBackOvercost;
+            case DEFAULT:
             case FAILURE:
             default:
-                throw new FaraoException("Cannot evaluate cost as the sensitivity computation failed");
+                return 0;
         }
     }
 
@@ -54,6 +58,11 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
         return Collections.emptyList();
     }
 

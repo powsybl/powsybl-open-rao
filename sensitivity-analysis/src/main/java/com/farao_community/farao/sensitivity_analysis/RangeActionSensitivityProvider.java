@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -89,7 +90,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             } else if (ra instanceof InjectionRangeAction) {
                 createPositiveAndNegativeGlsks((InjectionRangeAction) ra, sensitivityVariables, glskIds);
             } else {
-                throw new SensitivityAnalysisException(String.format("Range action type of %s not implemented yet", ra.getId()));
+                throw new FaraoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
         }
 

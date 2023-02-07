@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
 
@@ -33,7 +33,7 @@ public class PstRangeActionSensiHandler implements RangeActionSensiHandler {
     public void checkConsistency(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(pstRangeAction.getNetworkElement().getId());
         if (!(identifiable instanceof TwoWindingsTransformer)) {
-            throw new SensitivityAnalysisException(String.format("Unable to create sensitivity variable for PstRangeAction %s, on element %s", pstRangeAction.getId(), pstRangeAction.getNetworkElement().getId()));
+            throw new FaraoException(String.format("Unable to create sensitivity variable for PstRangeAction %s, on element %s", pstRangeAction.getId(), pstRangeAction.getNetworkElement().getId()));
         }
     }
 }
