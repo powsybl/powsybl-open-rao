@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -41,21 +42,17 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         ComputationStatus computationStatus = raoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
-        if (computationStatus == ComputationStatus.FAILURE) {
-            jsonGenerator.writeEndObject();
-            return;
+        if (!(raoResult instanceof FailedRaoResultImpl)) {
+            OptimizationStepsExecuted optimizationStepsExecuted = raoResult.getOptimizationStepsExecuted();
+            jsonGenerator.writeStringField(OPTIMIZATION_STEPS_EXECUTED, serializeOptimizedStepsExecuted(optimizationStepsExecuted));
+            CostResultMapSerializer.serialize(raoResult, jsonGenerator);
+            ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
+            FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+            AngleCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+            VoltageCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+            NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+            RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         }
-
-        // optimization steps executed
-        OptimizationStepsExecuted optimizationStepsExecuted = raoResult.getOptimizationStepsExecuted();
-        jsonGenerator.writeStringField(OPTIMIZATION_STEPS_EXECUTED, serializeOptimizedStepsExecuted(optimizationStepsExecuted));
-
-        CostResultMapSerializer.serialize(raoResult, jsonGenerator);
-        FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        AngleCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        VoltageCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.sensitivity_analysis.ra_sensi_handler;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
-import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
@@ -45,7 +45,7 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
         injectionRangeAction.getInjectionDistributionKeys().forEach((k, v) -> {
             Identifiable<?> identifiable = network.getIdentifiable(k.getId());
             if (!(identifiable instanceof Generator || identifiable instanceof Load)) {
-                throw new SensitivityAnalysisException(String.format("Unable to create sensitivity variable for InjectionRangeAction %s, on element %s", injectionRangeAction.getId(), k.getId()));
+                throw new FaraoException(String.format("Unable to create sensitivity variable for InjectionRangeAction %s, on element %s", injectionRangeAction.getId(), k.getId()));
             }
         });
     }

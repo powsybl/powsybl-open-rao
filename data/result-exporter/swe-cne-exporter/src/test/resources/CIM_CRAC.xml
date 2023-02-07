@@ -275,7 +275,7 @@
                 <measurementType>A07</measurementType>
                 <unitSymbol>AMP</unitSymbol>
                 <positiveFlowIn>A01</positiveFlowIn>
-                <analogValues.value>2.0</analogValues.value>
+                <analogValues.value>15.0</analogValues.value>
               </Measurements>
             </RegisteredResource>
           </Monitored_Series>

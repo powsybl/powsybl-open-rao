@@ -48,6 +48,11 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
+    public ComputationStatus getComputationStatus(State state) {
+        return initialResult.getSensitivityStatus(state);
+    }
+
+    @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getFlow(flowCnec, side, unit);
     }

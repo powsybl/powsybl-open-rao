@@ -83,6 +83,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     raoResult.setOptimizationStepsExecuted(deserializeOptimizedStepsExecuted(jsonParser.nextTextValue()));
                     break;
 
+                case COMPUTATION_STATUS_MAP:
+                    jsonParser.nextToken();
+                    ComputationStatusMapDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
                 case COST_RESULTS:
                     jsonParser.nextToken();
                     CostResultMapDeserializer.deserialize(jsonParser, raoResult);

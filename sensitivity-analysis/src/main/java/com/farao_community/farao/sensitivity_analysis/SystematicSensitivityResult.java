@@ -8,6 +8,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -27,10 +28,15 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private static class StateResult {
+        private SensitivityComputationStatus status;
         private final Map<String, Map<Side, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<Side, Double>> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> flowSensitivities = new HashMap<>();
         private final Map<String, Map<String, Map<Side, Double>>> intensitySensitivities = new HashMap<>();
+
+        private SensitivityComputationStatus getSensitivityComputationStatus() {
+            return status;
+        }
 
         private Map<String, Map<Side, Double>> getReferenceFlows() {
             return referenceFlows;
@@ -66,6 +72,13 @@ public class SystematicSensitivityResult {
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
+    public SystematicSensitivityResult(SensitivityComputationStatus status) {
+        this.status = status;
+        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
+        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
+    }
+
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
 
         if (results == null) {
@@ -75,14 +88,16 @@ public class SystematicSensitivityResult {
         // status set to failure initially, and set to success if we find at least one non NaN value
         this.status = SensitivityComputationStatus.FAILURE;
 
-        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
+        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors(), SensitivityAnalysisResult.Status.SUCCESS));
         for (SensitivityAnalysisResult.SensitivityContingencyStatus contingencyStatus : results.getContingencyStatuses()) {
             StateResult contingencyStateResult = new StateResult();
+            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors())
+                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
             postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
+        nStateResult.status = this.status;
         return this;
     }
 
@@ -149,16 +164,17 @@ public class SystematicSensitivityResult {
         return invertedMap;
     }
 
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors) {
-        double reference = value.getFunctionReference();
-        double sensitivity = value.getValue();
+    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, SensitivityAnalysisResult.Status status) {
+        double reference = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getFunctionReference();
+        double sensitivity = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getValue();
         SensitivityFactor factor = factors.get(value.getFactorIndex());
 
-        if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
-            reference = 0.;
-            sensitivity = 0.;
-        } else {
+        if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
             this.status = SensitivityComputationStatus.SUCCESS;
+        }
+        if (Double.isNaN(reference) && status != SensitivityAnalysisResult.Status.FAILURE) {
+            reference = 0;
+            sensitivity = 0;
         }
 
         Side side = null;
@@ -194,8 +210,31 @@ public class SystematicSensitivityResult {
         return status;
     }
 
+    public SensitivityComputationStatus getStatus(State state) {
+        Optional<Contingency> optionalContingency = state.getContingency();
+        if (optionalContingency.isPresent()) {
+            List<Instant> possibleInstants = postContingencyResults.keySet().stream()
+                    .filter(instant -> instant.comesBefore(state.getInstant()) || instant.equals(state.getInstant()))
+                    .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+                    .collect(Collectors.toList());
+            for (Instant instant : possibleInstants) {
+                // Use latest sensi computed on state
+                if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
+                    return postContingencyResults.get(instant).get(optionalContingency.get().getId()).getSensitivityComputationStatus();
+                }
+            }
+            return SensitivityComputationStatus.FAILURE;
+        } else {
+            return nStateResult.getSensitivityComputationStatus();
+        }
+    }
+
     public void setStatus(SensitivityComputationStatus status) {
         this.status = status;
+    }
+
+    public Set<String> getContingencies() {
+        return postContingencyResults.values().stream().flatMap(contingencyResult -> contingencyResult.keySet().stream()).collect(Collectors.toSet());
     }
 
     public double getReferenceFlow(FlowCnec cnec, Side side) {

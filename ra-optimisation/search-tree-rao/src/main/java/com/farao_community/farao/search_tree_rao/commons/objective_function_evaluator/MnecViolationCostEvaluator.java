@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -54,12 +55,18 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
+    }
+
+    @Override
+    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         if (Math.abs(mnecViolationCost) < 1e-10) {
             return 0;
         }
         double totalMnecMarginViolation = 0;
         for (FlowCnec mnec : flowCnecs) {
-            if (mnec.isMonitored()) {
+            Optional<Contingency> contingency = mnec.getState().getContingency();
+            if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId()))) {
                 totalMnecMarginViolation += computeCost(flowResult, mnec);
             }
         }
@@ -73,18 +80,24 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
+        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, numberOfElements, new HashSet<>());
+    }
+
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
         if (sortedElements.isEmpty()) {
             sortedElements = flowCnecs.stream()
-                    .filter(Cnec::isMonitored)
-                    .collect(Collectors.toMap(
-                        Function.identity(),
-                        cnec -> computeCost(flowResult, cnec)
-                    ))
-                    .entrySet().stream()
-                    .filter(entry -> entry.getValue() != 0)
-                    .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+                .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
+                .filter(Cnec::isMonitored)
+                .collect(Collectors.toMap(
+                    Function.identity(),
+                    cnec -> computeCost(flowResult, cnec)
+                ))
+                .entrySet().stream()
+                .filter(entry -> entry.getValue() != 0)
+                .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
         }
         Collections.reverse(sortedElements);
 

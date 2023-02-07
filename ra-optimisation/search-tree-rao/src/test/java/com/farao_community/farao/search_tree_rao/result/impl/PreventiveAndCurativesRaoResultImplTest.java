@@ -226,8 +226,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(curativeResult1.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(curativeResult2.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(curativeResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
@@ -238,7 +238,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
         when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(curativeResult2.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
     }
 
@@ -532,6 +532,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult1.getPtdfZonalSum(cnec1, LEFT)).thenReturn(4.);
         when(curativeResult2.getPtdfZonalSum(cnec1, LEFT)).thenReturn(5.);
 
+        when(curativeResult2.getSensitivityStatus(curativeState2)).thenReturn(ComputationStatus.DEFAULT);
+
         PerimeterResult perimeterResult;
 
         // INITIAL
@@ -570,6 +572,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(4., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_CRA, curativeState2);
         assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1, LEFT), DOUBLE_TOLERANCE);
+
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus(curativeState2));
     }
 
     @Test

@@ -52,7 +52,7 @@
       },
       "zonalPtdfSum" : 0.1
     },
-    "afterCRA" : {
+    "afterPRA" : {
       "megawatt" : {
         "flow" : 1210.0,
         "margin" : 1211.0,
@@ -88,7 +88,7 @@
       },
       "zonalPtdfSum" : 0.1
     },
-    "afterCRA" : {
+    "afterPRA" : {
       "megawatt" : {
         "flow" : 1210.0,
         "margin" : 1211.0,
@@ -124,7 +124,7 @@
       },
       "zonalPtdfSum" : 0.2
     },
-    "afterCRA" : {
+    "afterPRA" : {
       "megawatt" : {
         "flow" : 2210.0,
         "margin" : 2211.0,
@@ -162,16 +162,6 @@
         "flow" : 3220.0,
         "margin" : 3221.0
       }
-    },
-    "afterCRA" : {
-      "megawatt" : {
-        "flow" : 3310.0,
-        "margin" : 3311.0
-      },
-      "ampere" : {
-        "flow" : 3320.0,
-        "margin" : 3321.0
-      }
     }
   }, {
     "flowCnecId" : "CNEC-1 - DIRECT - Co-2 - outage",
@@ -194,26 +184,6 @@
         "flow" : 3220.0,
         "margin" : 3221.0
       }
-    },
-    "afterARA" : {
-      "megawatt" : {
-        "flow" : 3310.0,
-        "margin" : 3311.0
-      },
-      "ampere" : {
-        "flow" : 3320.0,
-        "margin" : 3321.0
-      }
-    },
-    "afterCRA" : {
-      "megawatt" : {
-        "flow" : 3410.0,
-        "margin" : 3411.0
-      },
-      "ampere" : {
-        "flow" : 3420.0,
-        "margin" : 3421.0
-      }
     }
   }, {
     "flowCnecId" : "CNEC-2 - OPPOSITE - Co-2 - outage",
@@ -227,13 +197,13 @@
         "margin" : 3121.0
       }
     },
-    "afterCRA" : {
+    "afterPRA" : {
       "megawatt" : {
         "flow" : 3210.0,
         "margin" : 3211.0
       },
       "ampere" : {
-        "flow" : 3220.0,
+        "flow" : 3410.0,
         "margin" : 3221.0
       }
     }
@@ -253,7 +223,20 @@
         },
         "zonalPtdfSum": 0.4
       },
-      "afterCRA": {
+      "afterPRA": {
+      "megawatt": {
+        "flow": 4210.0,
+        "margin": 4211.0,
+        "relativeMargin": 4212.0
+      },
+      "ampere": {
+        "flow": 4220.0,
+        "margin": 4221.0,
+        "relativeMargin": 4222.0
+      },
+      "zonalPtdfSum": 0.4
+    },
+      "afterARA": {
         "megawatt": {
           "flow": 4210.0,
           "margin": 4211.0,
@@ -282,7 +265,20 @@
         },
         "zonalPtdfSum": 0.4
       },
-      "afterCRA": {
+      "afterPRA": {
+        "megawatt": {
+          "flow": 4210.0,
+          "margin": 4211.0,
+          "relativeMargin": 4212.0
+        },
+        "ampere": {
+          "flow": 4220.0,
+          "margin": 4221.0,
+          "relativeMargin": 4222.0
+        },
+        "zonalPtdfSum": 0.4
+    },
+      "afterARA": {
         "megawatt": {
           "flow": 4210.0,
           "margin": 4211.0,

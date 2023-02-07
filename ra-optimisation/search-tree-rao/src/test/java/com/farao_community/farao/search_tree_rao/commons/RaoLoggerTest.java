@@ -316,4 +316,35 @@ public class RaoLoggerTest {
         RaoLogger.logOptimizationSummary(logger, curative, 3, 2, null, 200., objectiveFunctionResult);
         assertEquals("[INFO] Scenario \"contingency\": 3 network action(s) and 2 range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
     }
+
+    @Test
+    public void testLogFailedOptimizationSummary() {
+        State preventive = Mockito.mock(State.class);
+        when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
+
+        State curative = Mockito.mock(State.class);
+        when(curative.getInstant()).thenReturn(Instant.CURATIVE);
+        Contingency contingency = Mockito.mock(Contingency.class);
+        when(contingency.getName()).thenReturn("contingency");
+        when(curative.getContingency()).thenReturn(Optional.of(contingency));
+
+        when(objectiveFunctionResult.getCost()).thenReturn(-100.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-150.);
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(50.);
+
+        FaraoLogger logger = FaraoLoggerProvider.BUSINESS_LOGS;
+        List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
+
+        RaoLogger.logFailedOptimizationSummary(logger, preventive, 0, 0);
+        assertEquals("[INFO] Scenario \"preventive\": no remedial actions activated", logsList.get(logsList.size() - 1).toString());
+
+        RaoLogger.logFailedOptimizationSummary(logger, curative, 1, 0);
+        assertEquals("[INFO] Scenario \"contingency\": 1 network action(s) activated", logsList.get(logsList.size() - 1).toString());
+
+        RaoLogger.logFailedOptimizationSummary(logger, curative, 0, 2);
+        assertEquals("[INFO] Scenario \"contingency\": 2 range action(s) activated", logsList.get(logsList.size() - 1).toString());
+
+        RaoLogger.logFailedOptimizationSummary(logger, curative, 3, 2);
+        assertEquals("[INFO] Scenario \"contingency\": 3 network action(s) and 2 range action(s) activated", logsList.get(logsList.size() - 1).toString());
+    }
 }

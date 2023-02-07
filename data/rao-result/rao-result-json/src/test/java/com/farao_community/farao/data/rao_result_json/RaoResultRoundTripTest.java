@@ -68,6 +68,11 @@ public class RaoResultRoundTripTest {
         // --- Computation status ---
         // --------------------------
         assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", OUTAGE)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency1Id", CURATIVE)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", AUTO)));
+        assertEquals(ComputationStatus.DEFAULT, importedRaoResult.getComputationStatus(crac.getState("contingency2Id", CURATIVE)));
 
         // --------------------------
         // --- test Costs results ---

@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -52,16 +53,19 @@ public class ObjectiveFunctionTest {
 
         minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
         when(minMarginEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus)).thenReturn(-300.);
+        when(minMarginEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>())).thenReturn(-300.);
         when(minMarginEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 10)).thenReturn(List.of(cnec1, cnec2));
 
         mnecViolationCostEvaluator = Mockito.mock(MnecViolationCostEvaluator.class);
         when(mnecViolationCostEvaluator.getName()).thenReturn("mnec-cost");
         when(mnecViolationCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus)).thenReturn(1000.);
+        when(mnecViolationCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>())).thenReturn(1000.);
         when(mnecViolationCostEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 10)).thenReturn(List.of(cnec1));
 
         loopFlowViolationCostEvaluator = Mockito.mock(LoopFlowViolationCostEvaluator.class);
         when(loopFlowViolationCostEvaluator.getName()).thenReturn("loop-flow-cost");
         when(loopFlowViolationCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus)).thenReturn(100.);
+        when(loopFlowViolationCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>())).thenReturn(100.);
         when(loopFlowViolationCostEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 10)).thenReturn(List.of(cnec2));
     }
 

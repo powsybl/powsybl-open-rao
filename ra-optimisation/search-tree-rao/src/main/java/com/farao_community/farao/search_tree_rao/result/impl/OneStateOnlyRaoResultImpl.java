@@ -90,6 +90,11 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         return ComputationStatus.DEFAULT;
     }
 
+    @Override
+    public ComputationStatus getComputationStatus(State state) {
+        return postOptimizationResult.getSensitivityStatus(state);
+    }
+
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (!state.equals(optimizedState)) {
             // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)

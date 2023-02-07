@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
+import static com.farao_community.farao.data.crac_api.Instant.*;
+import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.cnec.Side.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
@@ -134,6 +136,13 @@ public class ImporterRetrocompatibilityTest {
         RaoResult raoResult = new RaoResultImporter().importRaoResult(raoResultFile, crac);
 
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
+        // Test computation status map
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
+        assertEquals(ComputationStatus.FALLBACK, raoResult.getComputationStatus(crac.getState("contingency1Id", OUTAGE)));
+        assertEquals(ComputationStatus.FAILURE, raoResult.getComputationStatus(crac.getState("contingency1Id", CURATIVE)));
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", AUTO)));
+        assertEquals(ComputationStatus.FALLBACK, raoResult.getComputationStatus(crac.getState("contingency2Id", CURATIVE)));
+
     }
 
     @Test
