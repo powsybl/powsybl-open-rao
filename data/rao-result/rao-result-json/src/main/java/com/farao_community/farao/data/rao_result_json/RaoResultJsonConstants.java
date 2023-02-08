@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -108,6 +109,14 @@ public final class RaoResultJsonConstants {
     public static final String FALLBACK_STATUS = "fallback";
     public static final String FAILURE_STATUS = "failure";
     public static final String COMPUTATION_STATUS_MAP = "computationStatusMap";
+
+    // optimized steps executed by the RAO
+    public static final String OPTIMIZATION_STEPS_EXECUTED = "optimizationStepsExecuted";
+    public static final String FIRST_PREVENTIVE_ONLY = "The RAO only went through first preventive";
+    public static final String FIRST_PREVENTIVE_FELLBACK = "First preventive fellback to initial situation";
+    public static final String SECOND_PREVENTIVE_IMPROVED_FIRST = "Second preventive improved first preventive results";
+    public static final String SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION = "Second preventive fellback to first preventive results";
+    public static final String SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION = "Second preventive fellback to initial situation";
 
     // manipulate version
     public static int getPrimaryVersionNumber(String fullVersion) {
@@ -271,6 +280,40 @@ public final class RaoResultJsonConstants {
                 return ComputationStatus.FAILURE;
             default:
                 throw new FaraoException(String.format("Unrecognized computation status %s", stringValue));
+        }
+    }
+
+    public static String serializeOptimizedStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        switch (optimizationStepsExecuted) {
+            case FIRST_PREVENTIVE_ONLY:
+                return FIRST_PREVENTIVE_ONLY;
+            case FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
+                return FIRST_PREVENTIVE_FELLBACK;
+            case SECOND_PREVENTIVE_IMPROVED_FIRST:
+                return SECOND_PREVENTIVE_IMPROVED_FIRST;
+            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:
+                return SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
+            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
+                return SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+            default:
+                throw new FaraoException(String.format("Unsupported optimization steps executed %s", optimizationStepsExecuted));
+        }
+    }
+
+    public static OptimizationStepsExecuted deserializeOptimizedStepsExecuted(String stringValue) {
+        switch (stringValue) {
+            case FIRST_PREVENTIVE_ONLY:
+                return OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+            case FIRST_PREVENTIVE_FELLBACK:
+                return OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+            case SECOND_PREVENTIVE_IMPROVED_FIRST:
+                return OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST;
+            case SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION:
+                return OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
+            case SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION:
+                return OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+            default:
+                throw new FaraoException(String.format("Unrecognized optimization steps executed %s", stringValue));
         }
     }
 

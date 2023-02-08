@@ -8,6 +8,7 @@ package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -42,6 +43,8 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
         if (!(raoResult instanceof FailedRaoResultImpl)) {
+            OptimizationStepsExecuted optimizationStepsExecuted = raoResult.getOptimizationStepsExecuted();
+            jsonGenerator.writeStringField(OPTIMIZATION_STEPS_EXECUTED, serializeOptimizedStepsExecuted(optimizationStepsExecuted));
             CostResultMapSerializer.serialize(raoResult, jsonGenerator);
             ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
             FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);

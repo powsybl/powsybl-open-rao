@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -870,5 +871,16 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(56., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
         assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(AFTER_CRA, "mnec", 100));
         assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(AFTER_CRA, "lf", 100));
+    }
+
+    @Test
+    public void testOptimizedStepsExecuted() {
+        setUp();
+        assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
+        output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
+        assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 }
