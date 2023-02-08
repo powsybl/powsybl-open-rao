@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 
@@ -38,6 +39,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
     private final Map<State, PerimeterResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     /**
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
@@ -512,5 +514,19 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                 .filter(mapState -> mapState.getInstant().equals(Instant.AUTO) && mapState.getContingency().equals(Optional.of(contingency)))
                 .findAny().orElse(preventiveState);
         }
+    }
+
+    @Override
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
+            this.optimizationStepsExecuted = optimizationStepsExecuted;
+        } else {
+            throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
+        }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }

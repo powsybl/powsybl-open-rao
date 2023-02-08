@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.SearchTreeRaoResult;
@@ -144,4 +145,13 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
+    @Override
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
 }

@@ -22,6 +22,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 
 import java.util.*;
 import java.util.function.Function;
@@ -49,6 +50,8 @@ public class RaoResultImpl implements RaoResult {
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
+
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
@@ -321,5 +324,19 @@ public class RaoResultImpl implements RaoResult {
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
+    }
+
+    @Override
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        if (this.optimizationStepsExecuted.equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY)) {
+            this.optimizationStepsExecuted = optimizationStepsExecuted;
+        } else {
+            throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
+        }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }
