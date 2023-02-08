@@ -185,7 +185,7 @@ public class SystematicSensitivityAdapterTest {
                 .withId("contingency1")
                 .withNetworkElement("NNL1AA11 NNL2AA11 1")
                 .add();
-       crac.newFlowCnec()
+        crac.newFlowCnec()
                 .withId("cnec1")
                 .withNetworkElement("cnec-ne")
                 .withContingency("contingency1")
