@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -14,6 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -261,5 +263,16 @@ public class UnoptimizedRaoResultImplTest {
     public void testGetActivatedRangeActionsDuringState() {
         State state1 = Mockito.mock(State.class);
         assertTrue(output.getActivatedRangeActionsDuringState(state1).isEmpty());
+    }
+
+    @Test
+    public void testOptimizedStepsExecuted() {
+        setUp();
+        assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
+        output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);
+        assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 }

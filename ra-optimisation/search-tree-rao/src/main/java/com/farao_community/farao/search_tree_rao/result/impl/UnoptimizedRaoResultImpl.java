@@ -21,6 +21,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.Set;
  */
 public class UnoptimizedRaoResultImpl implements RaoResult {
     private final PrePerimeterResult initialResult;
+    private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
@@ -199,5 +201,19 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
             setpointPerRa.put(ra, initialResult.getSetpoint(ra))
         );
         return setpointPerRa;
+    }
+
+    @Override
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+        if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
+            this.optimizationStepsExecuted = optimizationStepsExecuted;
+        } else {
+            throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
+        }
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 }
