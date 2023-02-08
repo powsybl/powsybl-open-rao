@@ -135,7 +135,7 @@ final class SystematicSensitivityAdapter {
         return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
-    private static void findAndDisableHvdcAngleDroopActivePowerControl(Network network, AppliedRemedialActions appliedRemedialActions, State state) {
+    static void findAndDisableHvdcAngleDroopActivePowerControl(Network network, AppliedRemedialActions appliedRemedialActions, State state) {
         Map<HvdcRangeAction, Double> hvdcRasWithControl = appliedRemedialActions.getAppliedRangeActions(state).entrySet().stream()
                 .filter(entry -> entry.getKey() instanceof HvdcRangeAction)
                 .collect(Collectors.toMap(entry -> (HvdcRangeAction) entry.getKey(), Map.Entry::getValue))
@@ -157,5 +157,4 @@ final class SystematicSensitivityAdapter {
         HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         return (hvdcAngleDroopActivePowerControl != null) && hvdcAngleDroopActivePowerControl.isEnabled();
     }
-
 }
