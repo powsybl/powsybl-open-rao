@@ -40,7 +40,6 @@ import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTr
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
