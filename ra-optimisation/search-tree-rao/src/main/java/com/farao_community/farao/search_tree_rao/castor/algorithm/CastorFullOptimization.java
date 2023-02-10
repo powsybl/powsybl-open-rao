@@ -494,11 +494,7 @@ public class CastorFullOptimization {
             // Curative state was previously skipped because it led to a sensi failure.
             // Depending on updated sensi analysis, create a SkippedOptimizationResult with corresponding status
             if (entry.getValue() instanceof SkippedOptimizationResultImpl) {
-                if (postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey()) != ComputationStatus.FAILURE) {
-                    newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey())));
-                } else {
-                    newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
-                }
+                newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey())));
             } else {
                 newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult, secondPreventiveRaoResult.remedialActionsExcluded, postCraSensitivityAnalysisOutput));
             }
