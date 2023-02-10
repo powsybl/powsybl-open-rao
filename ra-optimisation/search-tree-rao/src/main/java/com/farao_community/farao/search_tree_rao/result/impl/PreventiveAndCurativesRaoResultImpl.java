@@ -8,11 +8,13 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -247,9 +249,71 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs.getFunctionalCost();
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
+            // When a second preventive optimization has been run, use its updated cost evaluation
             return finalCostEvaluator.getFunctionalCost();
         } else {
+            // No second preventive was run => use CRAO1 results
+            // OR ARA
             return getHighestFunctionalForInstant(optimizationState.getFirstInstant());
+        }
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+            return Double.NaN;
+        }
+        return getFlowResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+            return Double.NaN;
+        }
+        return getFlowResult(optimizationState, flowCnec).getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+            return Double.NaN;
+        }
+        return getFlowResult(optimizationState, flowCnec).getCommercialFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+            return Double.NaN;
+        }
+        return getFlowResult(optimizationState, flowCnec).getLoopFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
+        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+            return Double.NaN;
+        }
+        return getFlowResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
+    }
+
+    private FlowResult getFlowResult(OptimizationState optimizationState, FlowCnec flowCnec) {
+        if (optimizationState == OptimizationState.INITIAL) {
+            return initialResult;
+        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
+                (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+            // using postPreventiveResult would exclude curative CNECs
+            return resultsWithPrasForAllCnecs;
+        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizationState.getFirstInstant().equals(flowCnec.getState().getInstant())) {
+            // if cnec has been optimized during a post contingency instant
+            return postContingencyResults.get(flowCnec.getState());
+        } else if (!postContingencyResults.containsKey(flowCnec.getState())) {
+            // if post contingency cnec has been optimized in preventive perimeter (no remedial actions)
+            return secondPreventivePerimeterResult;
+        } else {
+            // e.g Auto instant for curative cnecs optimized in 2P
+            return null;
         }
     }
 
