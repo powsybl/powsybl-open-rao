@@ -479,7 +479,7 @@ public class CastorFullOptimization {
         }
         // ---- add auto remedial actions from second auto
         addAppliedNetworkActionsPostContingency(appliedArasAndCras, newPostContingencyResults);
-        addAppliedRangeActionsPostContingency(com.farao_community.farao.data.crac_api.Instant.CURATIVE, appliedArasAndCras, newPostContingencyResults);
+        addAppliedRangeActionsPostContingency(com.farao_community.farao.data.crac_api.Instant.AUTO, appliedArasAndCras, newPostContingencyResults);
         // Run postCra sensi
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
