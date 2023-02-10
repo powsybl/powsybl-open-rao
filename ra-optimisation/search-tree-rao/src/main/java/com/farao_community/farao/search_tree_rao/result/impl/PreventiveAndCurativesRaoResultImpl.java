@@ -260,42 +260,56 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+        if (Objects.nonNull(getFlowResult(optimizationState, flowCnec))) {
+            return getFlowResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
+        } else {
             return Double.NaN;
         }
-        return getFlowResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        if (Objects.nonNull(getFlowResult(optimizationState, flowCnec))) {
+            return getFlowResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
+        } else {
+            return Double.NaN;
+        }
     }
 
     @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+        if (Objects.nonNull(getFlowResult(optimizationState, flowCnec))) {
+            return getFlowResult(optimizationState, flowCnec).getFlow(flowCnec, side, unit);
+        } else {
             return Double.NaN;
         }
-        return getFlowResult(optimizationState, flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+        if (Objects.nonNull(getFlowResult(optimizationState, flowCnec))) {
+            return getFlowResult(optimizationState, flowCnec).getCommercialFlow(flowCnec, side, unit);
+        } else {
             return Double.NaN;
         }
-        return getFlowResult(optimizationState, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+        if (Objects.nonNull(getFlowResult(optimizationState, flowCnec))) {
+            return getFlowResult(optimizationState, flowCnec).getLoopFlow(flowCnec, side, unit);
+        } else {
             return Double.NaN;
         }
-        return getFlowResult(optimizationState, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        if (Objects.isNull(getFlowResult(optimizationState, flowCnec))) {
+        if (Objects.nonNull(getFlowResult(optimizationState, flowCnec))) {
+            return getFlowResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
+        } else {
             return Double.NaN;
         }
-        return getFlowResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     private FlowResult getFlowResult(OptimizationState optimizationState, FlowCnec flowCnec) {
