@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
@@ -64,34 +65,27 @@ public final class RaoLogger {
 
     public static void logRangeActions(FaraoLogger logger,
                                        Leaf leaf,
-                                       OptimizationPerimeter optimizationContext) {
-        logRangeActions(logger, leaf, optimizationContext, null);
-    }
-
-    public static void logRangeActions(FaraoLogger logger,
-                                       Leaf leaf,
                                        OptimizationPerimeter
                                            optimizationContext, String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
-        String rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
+        List<String> rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
             .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {
-                double rangeActionValue;
-                if (rangeAction instanceof PstRangeAction) {
-                    rangeActionValue = leaf.getOptimizedTap((PstRangeAction) rangeAction, eState.getKey());
-                } else {
-                    rangeActionValue = leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
+                Set<RangeAction<?>> rangeActionSet = leaf.getActivatedRangeActions(eState.getKey());
+                if (rangeActionSet.contains(rangeAction)) {
+                    double rangeActionValue;
+                    rangeActionValue = rangeAction instanceof PstRangeAction ? leaf.getOptimizedTap((PstRangeAction) rangeAction, eState.getKey()) :
+                        leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
+                    return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue) :
+                        format("%s: %.0f", rangeAction.getName(), rangeActionValue);
                 }
-                if (globalPstOptimization) {
-                    return format("%s@%s: %.0f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue);
-                } else {
-                    return format("%s: %.0f", rangeAction.getName(), rangeActionValue);
-                }
-            }))
-            .collect(Collectors.joining(", "));
-
-        logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
+                return "";
+            })).collect(Collectors.toList());
+        rangeActionSetpoints.removeAll(List.of(""));
+        boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
+        logger.info(isRangeActionSetPointEmpty ? "{}No range actions activated" : "{}range action(s): {}",
+            prefix == null ? "" : prefix, isRangeActionSetPointEmpty ? null : String.join(", ", rangeActionSetpoints));
     }
 
     public static void logMostLimitingElementsResults(FaraoLogger logger, OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {

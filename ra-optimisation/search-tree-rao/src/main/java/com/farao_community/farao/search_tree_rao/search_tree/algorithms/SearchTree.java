@@ -153,7 +153,7 @@ public class SearchTree {
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter());
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         logVirtualCostInformation(rootLeaf, "");
 
