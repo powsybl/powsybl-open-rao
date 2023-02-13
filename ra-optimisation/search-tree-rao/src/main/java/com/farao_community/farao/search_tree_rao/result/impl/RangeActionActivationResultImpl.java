@@ -98,7 +98,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     public RangeActionActivationResultImpl(RangeActionSetpointResult rangeActionSetpointResult) {
-        rangeActionSetpointResult.getRangeActions().forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(rangeActionSetpointResult.getSetpoint(ra))));
+        rangeActionSetpointResult.getRangeActions().stream().filter(PstRangeAction.class::isInstance).forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(rangeActionSetpointResult.getSetpoint(ra))));
     }
 
     public void activate(RangeAction<?> rangeAction, State state, double setpoint) {
