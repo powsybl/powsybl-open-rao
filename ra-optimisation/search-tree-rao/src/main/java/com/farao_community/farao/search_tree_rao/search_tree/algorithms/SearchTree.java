@@ -22,7 +22,6 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -196,7 +195,6 @@ public class SearchTree {
                 input.getNetwork(),
                 forcedNetworkActions,
                 null,
-                new RangeActionActivationResultImpl(input.getPrePerimeterResult()),
                 input.getPrePerimeterResult(),
                 input.getPreOptimizationAppliedNetworkActions());
             optimalLeaf = rootLeaf;
@@ -396,7 +394,6 @@ public class SearchTree {
             network,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
-            new RangeActionActivationResultImpl(input.getPrePerimeterResult()),
             input.getPrePerimeterResult(),
             input.getPreOptimizationAppliedNetworkActions());
     }
