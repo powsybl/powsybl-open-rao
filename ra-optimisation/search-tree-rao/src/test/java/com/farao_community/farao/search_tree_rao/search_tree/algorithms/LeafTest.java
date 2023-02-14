@@ -555,7 +555,7 @@ public class LeafTest {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         rangeActions.add(pstRangeAction);
         rangeActions.add(rangeAction);
-        when(prePerimeterResult.getRangeActions()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
         when(prePerimeterResult.getTap(pstRangeAction)).thenReturn(optimalTap);
         when(prePerimeterResult.getSetpoint(rangeAction)).thenReturn(optimalSetpoint);
         when(prePerimeterResult.getSetpoint(pstRangeAction)).thenReturn(optimalSetpoint);
