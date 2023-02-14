@@ -114,7 +114,7 @@ public class SearchTreeTest {
     private void setSearchTreeInput() {
         searchTreeInput = Mockito.mock(SearchTreeInput.class);
         appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
-        when(searchTreeInput.getPreOptimizationAppliedNetworkActions()).thenReturn(appliedRemedialActions);
+        when(searchTreeInput.getPreOptimizationAppliedRemedialActions()).thenReturn(appliedRemedialActions);
         network = Mockito.mock(Network.class);
         when(searchTreeInput.getNetwork()).thenReturn(network);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);

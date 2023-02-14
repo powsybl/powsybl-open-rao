@@ -26,7 +26,7 @@ public final class SearchTreeInput {
 
     private final FlowResult initialFlowResult;
     private final PrePerimeterResult prePerimeterResult;
-    private final AppliedRemedialActions preOptimizationAppliedNetworkActions;
+    private final AppliedRemedialActions preOptimizationAppliedRemedialActions;
 
     private final ObjectiveFunction objectiveFunction;
     private final ToolProvider toolProvider;
@@ -35,14 +35,14 @@ public final class SearchTreeInput {
                             OptimizationPerimeter optimizationPerimeter,
                             FlowResult initialFlowResult,
                             PrePerimeterResult prePerimeterResult,
-                            AppliedRemedialActions preOptimizationAppliedNetworkActions,
+                            AppliedRemedialActions preOptimizationAppliedRemedialActions,
                             ObjectiveFunction objectiveFunction,
                             ToolProvider toolProvider) {
         this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterResult = prePerimeterResult;
-        this.preOptimizationAppliedNetworkActions = preOptimizationAppliedNetworkActions;
+        this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
         this.objectiveFunction = objectiveFunction;
         this.toolProvider = toolProvider;
     }
@@ -63,8 +63,8 @@ public final class SearchTreeInput {
         return prePerimeterResult;
     }
 
-    public AppliedRemedialActions getPreOptimizationAppliedNetworkActions() {
-        return preOptimizationAppliedNetworkActions;
+    public AppliedRemedialActions getPreOptimizationAppliedRemedialActions() {
+        return preOptimizationAppliedRemedialActions;
     }
 
     public ObjectiveFunction getObjectiveFunction() {

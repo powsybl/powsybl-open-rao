@@ -204,4 +204,18 @@ public class SearchTreeRaoParametersTest {
         parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(true);
         assertTrue(parameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
     }
+
+    @Test
+    public void testIncompatibleMaxCraParameters() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setMaxCurativeRaPerTso(Map.of("RTE", 5, "REE", 1));
+
+        Exception exception = assertThrows(FaraoException.class, () -> parameters.setMaxCurativeTopoPerTso(Map.of("RTE", 6)));
+        assertEquals("TSO RTE has a maximum number of allowed CRAs smaller than the number of allowed topological CRAs. This is not supported.", exception.getMessage());
+        assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
+
+        exception = assertThrows(FaraoException.class, () -> parameters.setMaxCurativePstPerTso(Map.of("REE", 2)));
+        assertEquals("TSO REE has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", exception.getMessage());
+        assertTrue(parameters.getMaxCurativePstPerTso().isEmpty());
+    }
 }
