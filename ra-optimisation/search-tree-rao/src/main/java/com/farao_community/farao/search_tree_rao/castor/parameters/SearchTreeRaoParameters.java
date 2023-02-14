@@ -220,6 +220,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         if (Objects.isNull(maxCurativeTopoPerTso)) {
             this.maxCurativeTopoPerTso = new HashMap<>();
         } else {
+            crossCheckMaxCraPerTsoParameters(this.maxCurativeRaPerTso, maxCurativeTopoPerTso, this.maxCurativePstPerTso);
             this.maxCurativeTopoPerTso = maxCurativeTopoPerTso;
         }
     }
@@ -232,6 +233,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         if (Objects.isNull(maxCurativePstPerTso)) {
             this.maxCurativePstPerTso = new HashMap<>();
         } else {
+            crossCheckMaxCraPerTsoParameters(this.maxCurativeRaPerTso, this.maxCurativeTopoPerTso, maxCurativePstPerTso);
             this.maxCurativePstPerTso = maxCurativePstPerTso;
         }
     }
@@ -244,6 +246,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         if (Objects.isNull(maxCurativeRaPerTso)) {
             this.maxCurativeRaPerTso = new HashMap<>();
         } else {
+            crossCheckMaxCraPerTsoParameters(maxCurativeRaPerTso, this.maxCurativeTopoPerTso, this.maxCurativePstPerTso);
             this.maxCurativeRaPerTso = maxCurativeRaPerTso;
         }
     }
@@ -331,6 +334,23 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         }
 
         return Optional.of(new NetworkActionCombination(networkActions));
+    }
+
+    private static void crossCheckMaxCraPerTsoParameters(Map<String, Integer> maxCurativeRaPerTso, Map<String, Integer> maxCurativeTopoPerTso, Map<String, Integer> maxCurativePstPerTso) {
+        Set<String> tsos = new HashSet<>();
+        tsos.addAll(maxCurativeRaPerTso.keySet());
+        tsos.addAll(maxCurativeTopoPerTso.keySet());
+        tsos.addAll(maxCurativePstPerTso.keySet());
+        tsos.forEach(tso -> {
+            if (maxCurativeTopoPerTso.containsKey(tso)
+                && maxCurativeRaPerTso.getOrDefault(tso, 1000) < maxCurativeTopoPerTso.get(tso)) {
+                throw new FaraoException(String.format("TSO %s has a maximum number of allowed CRAs smaller than the number of allowed topological CRAs. This is not supported.", tso));
+            }
+            if (maxCurativePstPerTso.containsKey(tso)
+                && maxCurativeRaPerTso.getOrDefault(tso, 1000) < maxCurativePstPerTso.get(tso)) {
+                throw new FaraoException(String.format("TSO %s has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", tso));
+            }
+        });
     }
 
 }
