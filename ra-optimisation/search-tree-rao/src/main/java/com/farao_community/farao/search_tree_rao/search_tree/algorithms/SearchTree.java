@@ -169,7 +169,7 @@ public class SearchTree {
     }
 
     void initLeaves(SearchTreeInput input) {
-        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedNetworkActions());
+        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedRemedialActions());
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
@@ -196,7 +196,7 @@ public class SearchTree {
                 forcedNetworkActions,
                 null,
                 input.getPrePerimeterResult(),
-                input.getPreOptimizationAppliedNetworkActions());
+                input.getPreOptimizationAppliedRemedialActions());
             optimalLeaf = rootLeaf;
             previousDepthOptimalLeaf = rootLeaf;
         }
@@ -395,7 +395,7 @@ public class SearchTree {
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
             input.getPrePerimeterResult(),
-            input.getPreOptimizationAppliedNetworkActions());
+            input.getPreOptimizationAppliedRemedialActions());
     }
 
     private void optimizeLeaf(Leaf leaf) {
@@ -417,7 +417,7 @@ public class SearchTree {
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
 
-        sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedNetworkActions());
+        sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());
 
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
