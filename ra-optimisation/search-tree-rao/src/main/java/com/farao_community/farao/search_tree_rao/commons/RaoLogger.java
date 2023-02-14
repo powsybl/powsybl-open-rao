@@ -10,9 +10,11 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
@@ -24,6 +26,7 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -242,40 +245,45 @@ public final class RaoLogger {
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
-        Optional<Contingency> optionalContingency = optimizedState.getContingency();
-        String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
-        String raResult = "";
-        if (activatedNetworkActions + activatedRangeActions == 0) {
-            raResult = "no remedial actions activated";
-        } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            raResult = String.format("%s network action(s) activated", activatedNetworkActions);
-        } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            raResult = String.format("%s range action(s) activated", activatedRangeActions);
-        } else {
-            raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
-        }
+    public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+        String scenarioName = getScenarioName(optimizedState);
+        String raResult = getRaResult(networkActions, rangeActions, true);
+        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
+    }
+
+    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
+        String scenarioName = getScenarioName(optimizedState);
+        String raResult = getRaResult(networkActions, rangeActions, false);
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
             String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost));
-
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
     }
 
-    public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions) {
-        Optional<Contingency> optionalContingency = optimizedState.getContingency();
-        String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
-        String raResult = "";
+    public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, boolean failed) {
+        long activatedNetworkActions = networkActions.size();
+        long activatedRangeActions = rangeActions.size();
+        String networkActionsNames = StringUtils.join(networkActions.stream().map(Identifiable::getName).collect(Collectors.toSet()), ", ");
+
+        Set<String> rangeActionsSet = new HashSet<>();
+        rangeActions.forEach((key, value) -> rangeActionsSet.add(format("%s: %.0f", key.getName(), value)));
+        String rangeActionsNames = StringUtils.join(rangeActionsSet, ", ");
+
         if (activatedNetworkActions + activatedRangeActions == 0) {
-            raResult = "no remedial actions activated";
+            return "no remedial actions activated";
         } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            raResult = String.format("%s network action(s) activated", activatedNetworkActions);
+            return String.format("%s network action(s) activated", activatedNetworkActions) + (failed ? "" : " : " + networkActionsNames);
         } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            raResult = String.format("%s range action(s) activated", activatedRangeActions);
+            return String.format("%s range action(s) activated", activatedRangeActions) + (failed ? "" : " : " + rangeActionsNames);
         } else {
-            raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
+            return String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions) +
+                (failed ? "" : " : " + networkActionsNames + " and " + rangeActionsNames);
         }
-        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
+    }
+
+    public static String getScenarioName(State state) {
+        Optional<Contingency> optionalContingency = state.getContingency();
+        return optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
     }
 
     public static String formatDouble(double value) {

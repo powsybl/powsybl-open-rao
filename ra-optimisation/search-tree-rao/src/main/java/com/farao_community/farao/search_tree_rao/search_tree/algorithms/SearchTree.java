@@ -13,7 +13,10 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -42,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
+import static com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAppliedOnState;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -209,12 +213,9 @@ public class SearchTree {
     }
 
     private void logOptimizationSummary(Leaf leaf) {
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, input.getOptimizationPerimeter().getMainOptimizationState(), leaf.getActivatedNetworkActions().size(), getNumberOfActivatedRangeActions(leaf), preOptimFunctionalCost, preOptimVirtualCost, leaf);
+        State state = input.getOptimizationPerimeter().getMainOptimizationState();
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, leaf.getActivatedNetworkActions(), getRangeActionsAppliedOnState(leaf, state), preOptimFunctionalCost, preOptimVirtualCost, leaf);
         logVirtualCostInformation(leaf, "");
-    }
-
-    private long getNumberOfActivatedRangeActions(Leaf leaf) {
-        return leaf.getNumberOfActivatedRangeActions();
     }
 
     private void iterateOnTree() {
