@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import java.util.Set;
 
-
 import static org.junit.Assert.assertEquals;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;

@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
@@ -83,10 +82,6 @@ public class SearchTree {
     private double preOptimVirtualCost;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
-    // TODO : instead of this parameter, clean rangeActions containted in Leaf. There should only be the optimized state's range actions
-    // but then other RangeActionActivatinoResult in FARAO initialized with leaf's range actions should be initialized with prePerimeterOutput range Actions + leaf's
-    // optimized range actions.
-    private Set<RangeAction<?>> optimizedRangeActions;
 
     public SearchTree(SearchTreeInput input,
                       SearchTreeParameters parameters,
@@ -125,8 +120,6 @@ public class SearchTree {
     }
 
     public CompletableFuture<OptimizationResult> run() {
-
-        optimizedRangeActions = input.getOptimizationPerimeter().getRangeActions();
 
         initLeaves(input);
 
@@ -282,7 +275,10 @@ public class SearchTree {
                 try {
                     if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                         // Reset range action to their pre-perimeter set-points
-                        optimizedRangeActions.forEach(ra ->
+                        // TODO : instead of this parameter, clean rangeActions containted in Leaf. There should only be the optimized state's range actions
+                        // but then other RangeActionActivatinoResult in FARAO initialized with leaf's range actions should be initialized with prePerimeterOutput range Actions + leaf's
+                        // optimized range actions.
+                        input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
                             ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
 
