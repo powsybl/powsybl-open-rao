@@ -9,7 +9,7 @@ package com.farao_community.farao.data.flowbased_domain.json;
 import com.farao_community.farao.data.flowbased_domain.DataGlskFactors;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPostContingency;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import org.junit.Test;
 

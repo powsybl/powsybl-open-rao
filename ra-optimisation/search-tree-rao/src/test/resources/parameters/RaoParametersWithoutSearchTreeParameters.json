@@ -16,7 +16,7 @@
       "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
-      "noGeneratorReactiveLimits" : false,
+      "useReactiveLimits" : true,
       "twtSplitShuntAdmittance" : false,
       "shuntCompensatorVoltageControlOn" : false,
       "readSlackBus" : false,
