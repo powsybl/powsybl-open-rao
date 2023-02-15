@@ -68,8 +68,6 @@ public class CastorFullOptimizationTest {
     private RangeAction<?> ra9;
     private NetworkAction na1;
 
-    private CastorFullOptimization castorFullOptimization;
-
     @Before
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
@@ -82,7 +80,7 @@ public class CastorFullOptimizationTest {
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         java.time.Instant instant = Mockito.mock(java.time.Instant.class);
-        castorFullOptimization = new CastorFullOptimization(inputs, raoParameters, instant);
+        new CastorFullOptimization(inputs, raoParameters, instant);
     }
 
     @Test
@@ -417,12 +415,15 @@ public class CastorFullOptimizationTest {
         setUpCracWithRAs();
         // detect range actions that are preventive and curative
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
-        assertEquals(5, rangeActionsExcludedFrom2P.size());
+        assertEquals(8, rangeActionsExcludedFrom2P.size());
         assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra7));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra9));
     }
 
     @Test
@@ -593,8 +594,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
 
     @Test
@@ -618,8 +618,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -632,7 +631,6 @@ public class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
 }

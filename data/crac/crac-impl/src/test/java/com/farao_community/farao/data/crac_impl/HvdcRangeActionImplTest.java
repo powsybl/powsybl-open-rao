@@ -29,9 +29,7 @@ import static org.junit.Assert.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class HvdcRangeActionImplTest {
-    private Crac crac;
     private HvdcRangeActionAdder hvdcRangeActionAdder;
-    private String networkElementId;
     private Network network;
     private Network networkWithAngleDroop;
     private HvdcLine hvdcLine;
@@ -39,10 +37,10 @@ public class HvdcRangeActionImplTest {
 
     @Before
     public void setUp() {
-        crac = new CracImplFactory().create("cracId");
+        Crac crac = new CracImplFactory().create("cracId");
         network = NetworkImportsUtil.import16NodesNetworkWithHvdc();
         networkWithAngleDroop =  NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs();
-        networkElementId = "BBE2AA11 FFR3AA11 1";
+        String networkElementId = "BBE2AA11 FFR3AA11 1";
 
         hvdcRangeActionAdder = crac.newHvdcRangeAction()
             .withId("hvdc-range-action-id")
@@ -71,7 +69,7 @@ public class HvdcRangeActionImplTest {
         hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
         assertEquals(6, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-        assertFalse(network.getHvdcLine(hvdcRa.getId()).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        assertFalse(hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
     }
 
     @Test
@@ -82,7 +80,7 @@ public class HvdcRangeActionImplTest {
         hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
         assertEquals(-4, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-        assertFalse(network.getHvdcLine(hvdcRa.getId()).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        assertFalse(hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
     }
 
     @Test
@@ -112,7 +110,7 @@ public class HvdcRangeActionImplTest {
 
     @Test (expected = FaraoException.class)
     public void hvdcWithoutSpecificRange() {
-       hvdcRangeActionAdder.add();
+        hvdcRangeActionAdder.add();
     }
 
     @Test
