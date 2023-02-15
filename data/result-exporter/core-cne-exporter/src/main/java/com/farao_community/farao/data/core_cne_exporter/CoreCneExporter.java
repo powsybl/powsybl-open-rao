@@ -76,7 +76,7 @@ public class CoreCneExporter {
             outputStream.write(result.getBytes());
 
         } catch (JAXBException | IOException e) {
-            throw new FaraoException();
+            throw new FaraoException("Could not write CORE CNE file.");
         }
     }
 
