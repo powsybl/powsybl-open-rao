@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
@@ -85,6 +86,10 @@ public class SearchTree {
     private double preOptimVirtualCost;
 
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
+    // TODO : instead of this parameter, clean rangeActions containted in Leaf. There should only be the optimized state's range actions
+    // but then other RangeActionActivatinoResult in FARAO initialized with leaf's range actions should be initialized with prePerimeterOutput range Actions + leaf's
+    // optimized range actions.
+    private Set<RangeAction<?>> optimizedRangeActions;
 
     public SearchTree(SearchTreeInput input,
                       SearchTreeParameters parameters,
@@ -125,6 +130,8 @@ public class SearchTree {
     }
 
     public CompletableFuture<OptimizationResult> run() {
+
+        optimizedRangeActions = input.getOptimizationPerimeter().getRangeActions();
 
         initLeaves(input);
 
@@ -284,8 +291,8 @@ public class SearchTree {
                         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
-                        previousDepthOptimalLeaf.getRangeActions()
-                            .forEach(ra -> ra.apply(networkFinal, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
+                        optimizedRangeActions
+                                .forEach(ra -> ra.apply(networkFinal, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
 
                         // todo
                         // set alreadyAppliedRa

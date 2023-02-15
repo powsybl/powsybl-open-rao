@@ -30,7 +30,6 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.Iter
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -132,16 +131,10 @@ public class Leaf implements OptimizationResult {
          Network network,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(buildRangeActionSetpointResult(optimizationPerimeter, prePerimeterOutput)), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
-    }
-
-    private static RangeActionSetpointResult buildRangeActionSetpointResult(OptimizationPerimeter optimizationPerimeter, PrePerimeterResult prePerimeterResult) {
-        Map<RangeAction<?>, Double> raWithSetpoint = new HashMap<>();
-        optimizationPerimeter.getRangeActions().forEach(rangeAction -> raWithSetpoint.put(rangeAction, prePerimeterResult.getSetpoint(rangeAction)));
-        return new RangeActionSetpointResultImpl(raWithSetpoint);
     }
 
     public FlowResult getPreOptimBranchResult() {
