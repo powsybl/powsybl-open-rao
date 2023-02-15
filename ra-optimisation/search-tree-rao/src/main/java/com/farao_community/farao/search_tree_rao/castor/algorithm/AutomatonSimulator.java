@@ -21,7 +21,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
