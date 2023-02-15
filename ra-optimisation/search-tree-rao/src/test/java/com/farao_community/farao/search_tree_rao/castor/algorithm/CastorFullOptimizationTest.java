@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
@@ -29,7 +28,6 @@ import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRao
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
@@ -38,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -66,6 +63,9 @@ public class CastorFullOptimizationTest {
     private RangeAction<?> ra4;
     private RangeAction<?> ra5;
     private RangeAction<?> ra6;
+    private RangeAction<?> ra7;
+    private RangeAction<?> ra8;
+    private RangeAction<?> ra9;
     private NetworkAction na1;
 
     private CastorFullOptimization castorFullOptimization;
@@ -84,44 +84,6 @@ public class CastorFullOptimizationTest {
         java.time.Instant instant = Mockito.mock(java.time.Instant.class);
         castorFullOptimization = new CastorFullOptimization(inputs, raoParameters, instant);
     }
-
-    private void prepareMocks() {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.mock(SensitivityComputer.SensitivityComputerBuilder.class);
-        when(sensitivityComputerBuilder.withToolProvider(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCnecs(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withRangeActions(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withPtdfsResults(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withPtdfsResults(Mockito.any(), Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCommercialFlowsResults(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCommercialFlowsResults(Mockito.any(), Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withAppliedRemedialActions(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
-        when(sensitivityComputerBuilder.build()).thenReturn(sensitivityComputer);
-
-        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(sensitivityResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
-        Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
-        Mockito.when(sensitivityComputer.getBranchResult(network)).thenReturn(Mockito.mock(FlowResult.class));
-
-        Leaf leaf = Mockito.mock(Leaf.class);
-        when(leaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-
-        try {
-            PowerMockito.whenNew(SensitivityComputer.SensitivityComputerBuilder.class).withNoArguments().thenReturn(sensitivityComputerBuilder);
-            PowerMockito.whenNew(Leaf.class).withArguments(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()).thenReturn(leaf);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /*@Test
-    public void run() throws ExecutionException, InterruptedException {
-        prepareMocks();
-        RaoResult raoResult = castorFullOptimization.run().get();
-        assertNotNull(raoResult);
-    }*/
 
     @Test
     public void testShouldRunSecondPreventiveRaoSimple() {
@@ -297,7 +259,7 @@ public class CastorFullOptimizationTest {
                 .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.UNDEFINED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
-        // ra2 : curative only
+        // ra2 : preventive and curative
         ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ra2-ne")
@@ -335,6 +297,30 @@ public class CastorFullOptimizationTest {
                 .withNetworkElement("ra6-ne")
                 .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(Instant.CURATIVE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // ra7 : auto only
+        ra7 = crac.newPstRangeAction()
+                .withId("ra7")
+                .withNetworkElement("ra7-ne")
+                .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .withSpeed(1)
+                .add();
+        // ra8 : preventive and auto
+        ra8 = crac.newPstRangeAction()
+                .withId("ra8")
+                .withNetworkElement("ra8-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .withSpeed(2)
+                .add();
+        // ra9 : preventive only, but with same NetworkElement as ra8
+        ra9 = crac.newPstRangeAction()
+                .withId("ra9")
+                .withNetworkElement("ra8-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // na1 : preventive + curative
@@ -413,6 +399,17 @@ public class CastorFullOptimizationTest {
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra5, crac));
         // ra6 is preventive and curative
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra6, crac));
+    }
+
+    @Test
+    public void testIsRangeActionAuto() {
+        setUpCracWithRAs();
+        // ra7 is auto
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra7, crac));
+        // ra8 is preventive and auto
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra8, crac));
+        // ra9 is preventive with same network element as ra8
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
     }
 
     @Test

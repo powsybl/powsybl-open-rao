@@ -71,7 +71,7 @@ public class HvdcRangeActionImplTest {
         hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
         assertEquals(6, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-
+        assertFalse(network.getHvdcLine(hvdcRa.getId()).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
     }
 
     @Test
@@ -82,6 +82,7 @@ public class HvdcRangeActionImplTest {
         hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
         assertEquals(-4, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
+        assertFalse(network.getHvdcLine(hvdcRa.getId()).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
     }
 
     @Test
@@ -111,7 +112,7 @@ public class HvdcRangeActionImplTest {
 
     @Test (expected = FaraoException.class)
     public void hvdcWithoutSpecificRange() {
-        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.add();
+       hvdcRangeActionAdder.add();
     }
 
     @Test
@@ -125,13 +126,13 @@ public class HvdcRangeActionImplTest {
 
     @Test(expected = FaraoException.class)
     public void hvdcWithNoMin() {
-        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMax(10).add()
+        hvdcRangeActionAdder.newRange().withMax(10).add()
                 .add();
     }
 
     @Test(expected = FaraoException.class)
     public void hvdcWithNoMax() {
-        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(10).add()
+        hvdcRangeActionAdder.newRange().withMin(10).add()
                 .add();
     }
 
