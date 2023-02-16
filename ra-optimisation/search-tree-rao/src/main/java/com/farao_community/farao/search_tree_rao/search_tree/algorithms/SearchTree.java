@@ -273,7 +273,10 @@ public class SearchTree {
                 try {
                     if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                         // Reset range action to their pre-perimeter set-points
-                        previousDepthOptimalLeaf.getRangeActions().forEach(ra ->
+                        // TODO : instead of this parameter, clean rangeActions containted in Leaf. There should only be the optimized state's range actions
+                        // but then other RangeActionActivatinoResult in FARAO initialized with leaf's range actions should be initialized with prePerimeterOutput range Actions + leaf's
+                        // optimized range actions.
+                        input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
                             ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
 

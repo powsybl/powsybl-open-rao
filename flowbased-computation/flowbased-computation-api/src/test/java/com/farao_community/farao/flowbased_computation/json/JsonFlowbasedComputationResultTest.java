@@ -9,7 +9,7 @@ package com.farao_community.farao.flowbased_computation.json;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResultImpl;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;

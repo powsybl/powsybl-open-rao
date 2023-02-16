@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao.castor.parameters;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
