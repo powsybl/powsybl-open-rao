@@ -7,7 +7,7 @@
 package com.farao_community.farao.flowbased_computation.json;
 
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;

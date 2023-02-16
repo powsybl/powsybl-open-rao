@@ -103,7 +103,7 @@ final class SystematicSensitivityAdapter {
             Optional<com.farao_community.farao.data.crac_api.Contingency> optContingency = state.getContingency();
 
             if (optContingency.isEmpty()) {
-                throw new FaraoException("Sensitivity analysis with applied RA does not handled preventive RA.");
+                throw new FaraoException("Sensitivity analysis with applied RA does not handle preventive RA.");
             }
 
             TECHNICAL_LOGS.debug("... ({}/{}) state with RA {}", counterForLogs, statesWithRa.size() + 1, state.getId());
