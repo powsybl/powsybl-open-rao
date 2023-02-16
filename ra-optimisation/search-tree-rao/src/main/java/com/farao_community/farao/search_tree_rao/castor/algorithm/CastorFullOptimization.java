@@ -199,10 +199,12 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        if (secondPreventiveRaoResults.getCost(OptimizationState.AFTER_CRA) > mergedRaoResults.getCost(OptimizationState.AFTER_CRA)) {
+        double firstPreventiveCost = mergedRaoResults.getCost(OptimizationState.AFTER_CRA);
+        double secondPreventiveCost = secondPreventiveRaoResults.getCost(OptimizationState.AFTER_CRA);
+        if (secondPreventiveCost > firstPreventiveCost) {
             BUSINESS_LOGS.info("Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
-                    formatDouble(mergedRaoResults.getCost(OptimizationState.AFTER_CRA)), formatDouble(mergedRaoResults.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(mergedRaoResults.getVirtualCost(OptimizationState.AFTER_CRA)),
-                    formatDouble(secondPreventiveRaoResults.getCost(OptimizationState.AFTER_CRA)), formatDouble(secondPreventiveRaoResults.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(secondPreventiveRaoResults.getVirtualCost(OptimizationState.AFTER_CRA)));
+                    formatDouble(firstPreventiveCost), formatDouble(mergedRaoResults.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(mergedRaoResults.getVirtualCost(OptimizationState.AFTER_CRA)),
+                    formatDouble(secondPreventiveCost), formatDouble(secondPreventiveRaoResults.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(secondPreventiveRaoResults.getVirtualCost(OptimizationState.AFTER_CRA)));
             return false;
         }
         return true;
@@ -213,10 +215,18 @@ public class CastorFullOptimization {
      */
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
         RaoResult finalRaoResult = raoResult;
-        if (raoParameters.getForbidCostIncrease() && raoResult.getCost(OptimizationState.AFTER_CRA) > initialResult.getCost()) {
+
+        double initialCost = initialResult.getCost();
+        double initialFunctionalCost = initialResult.getFunctionalCost();
+        double initialVirtualCost = initialResult.getVirtualCost();
+        double finalCost = finalRaoResult.getCost(OptimizationState.AFTER_CRA);
+        double finalFunctionalCost = finalRaoResult.getFunctionalCost(OptimizationState.AFTER_CRA);
+        double finalVirtualCost = finalRaoResult.getVirtualCost(OptimizationState.AFTER_CRA);
+
+        if (raoParameters.getForbidCostIncrease() && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
-                    formatDouble(initialResult.getCost()), formatDouble(initialResult.getFunctionalCost()), formatDouble(initialResult.getVirtualCost()),
-                    formatDouble(raoResult.getCost(OptimizationState.AFTER_CRA)), formatDouble(raoResult.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(raoResult.getVirtualCost(OptimizationState.AFTER_CRA)));
+                    formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
+                    formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
@@ -229,8 +239,8 @@ public class CastorFullOptimization {
 
         // Log costs before and after RAO
         BUSINESS_LOGS.info("Cost before RAO = {} (functional: {}, virtual: {}), cost after RAO = {} (functional: {}, virtual: {})",
-                formatDouble(initialResult.getCost()), formatDouble(initialResult.getFunctionalCost()), formatDouble(initialResult.getVirtualCost()),
-                formatDouble(finalRaoResult.getCost(OptimizationState.AFTER_CRA)), formatDouble(finalRaoResult.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(finalRaoResult.getVirtualCost(OptimizationState.AFTER_CRA)));
+                formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
+                formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));
 
         return CompletableFuture.completedFuture(finalRaoResult);
     }
