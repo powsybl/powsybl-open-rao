@@ -14,11 +14,14 @@ import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Elementary HVDC range remedial action.
@@ -104,12 +107,26 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     @Override
     public void apply(Network network, double targetSetpoint) {
+        findAndDisableHvdcAngleDroopActivePowerControl(network);
         if (targetSetpoint < 0) {
             getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         } else {
             getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         }
         getHvdcLine(network).setActivePowerSetpoint(Math.abs(targetSetpoint));
+    }
+
+    public void findAndDisableHvdcAngleDroopActivePowerControl(Network network) {
+        if (isAngleDroopActivePowerControlEnabled(network)) {
+            HvdcLine hvdcLine = getHvdcLine(network);
+            TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLine.getId());
+            hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
+        }
+    }
+
+    private boolean isAngleDroopActivePowerControlEnabled(Network network) {
+        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = getHvdcLine(network).getExtension(HvdcAngleDroopActivePowerControl.class);
+        return (hvdcAngleDroopActivePowerControl != null) && hvdcAngleDroopActivePowerControl.isEnabled();
     }
 
     private HvdcLine getHvdcLine(Network network) {

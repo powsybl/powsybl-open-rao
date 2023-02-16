@@ -456,7 +456,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetFlow() {
         when(initialResult.getFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
         when(postPrevResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
@@ -467,7 +467,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetMargin() {
         when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
         when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
@@ -478,7 +478,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetRelativeMargin() {
         when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
         when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
@@ -489,7 +489,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetCommercialFlow() {
         when(initialResult.getCommercialFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
         when(curativeResult1.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
@@ -500,7 +500,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetLoopFlow() {
         when(initialResult.getLoopFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
         when(curativeResult2.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(90.);
         when(curativeResult2.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(60.);
         when(cnec3.getState()).thenReturn(curativeState2);
@@ -512,7 +512,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     @Test
     public void testGetPtdfZonalSum() {
         when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(10.);
-        when(postPrevResult.getPtdfZonalSum(cnec2, RIGHT)).thenReturn(20.);
+        when(preCurativeResult.getPtdfZonalSum(cnec2, RIGHT)).thenReturn(20.);
         when(autoResult1.getPtdfZonalSum(cnec1auto, LEFT)).thenReturn(25.);
         when(curativeResult2.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
@@ -708,8 +708,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get flow
         when(initialResult.getFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
+        when(preCurativeResult.getFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
@@ -717,8 +717,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get margin
         when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(preCurativeResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getMargin(AFTER_PRA, cnec2, AMPERE), DOUBLE_TOLERANCE);
@@ -726,8 +726,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get relative margin
         when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(preCurativeResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, AMPERE), DOUBLE_TOLERANCE);
@@ -735,8 +735,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get commercial flow
         when(initialResult.getCommercialFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
+        when(preCurativeResult.getCommercialFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getCommercialFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
@@ -744,8 +744,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get loopflow
         when(initialResult.getLoopFlow(cnec1, LEFT, MEGAWATT)).thenReturn(10.);
-        when(postPrevResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getLoopFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
+        when(preCurativeResult.getLoopFlow(cnec2, RIGHT, AMPERE)).thenReturn(20.);
+        when(preCurativeResult.getLoopFlow(cnec3, RIGHT, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(INITIAL, cnec1, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, RIGHT, AMPERE), DOUBLE_TOLERANCE);
@@ -753,8 +753,8 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get ptdf zonal sum
         when(initialResult.getPtdfZonalSum(cnec1, LEFT)).thenReturn(10.);
-        when(postPrevResult.getPtdfZonalSum(cnec2, RIGHT)).thenReturn(20.);
-        when(postPrevResult.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
+        when(preCurativeResult.getPtdfZonalSum(cnec2, RIGHT)).thenReturn(20.);
+        when(preCurativeResult.getPtdfZonalSum(cnec3, RIGHT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1, LEFT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2, RIGHT), DOUBLE_TOLERANCE);

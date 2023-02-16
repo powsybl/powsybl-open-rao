@@ -37,6 +37,10 @@ public final class NetworkImportsUtil {
         return Network.read("utils/TestCase16NodesWithHvdc.xiidm", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase16NodesWithHvdc.xiidm"));
     }
 
+    public static Network import16NodesNetworkWithAngleDroopHvdcs() {
+        return Network.read("utils/TestCase16NodesWithAngleDroopHvdcs.xiidm", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase16NodesWithAngleDroopHvdcs.xiidm"));
+    }
+
     public static void addHvdcLine(Network network) {
         VoltageLevel vl1 = network.getVoltageLevel("BBE1AA1");
         vl1.getBusBreakerView().newBus().setId("B1").add();

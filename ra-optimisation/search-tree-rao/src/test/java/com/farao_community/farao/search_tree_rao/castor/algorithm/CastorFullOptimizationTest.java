@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
@@ -29,7 +28,6 @@ import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRao
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
@@ -38,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -66,9 +63,10 @@ public class CastorFullOptimizationTest {
     private RangeAction<?> ra4;
     private RangeAction<?> ra5;
     private RangeAction<?> ra6;
+    private RangeAction<?> ra7;
+    private RangeAction<?> ra8;
+    private RangeAction<?> ra9;
     private NetworkAction na1;
-
-    private CastorFullOptimization castorFullOptimization;
 
     @Before
     public void setup() {
@@ -82,46 +80,8 @@ public class CastorFullOptimizationTest {
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         java.time.Instant instant = Mockito.mock(java.time.Instant.class);
-        castorFullOptimization = new CastorFullOptimization(inputs, raoParameters, instant);
+        new CastorFullOptimization(inputs, raoParameters, instant);
     }
-
-    private void prepareMocks() {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.mock(SensitivityComputer.SensitivityComputerBuilder.class);
-        when(sensitivityComputerBuilder.withToolProvider(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCnecs(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withRangeActions(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withPtdfsResults(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withPtdfsResults(Mockito.any(), Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCommercialFlowsResults(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCommercialFlowsResults(Mockito.any(), Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withAppliedRemedialActions(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
-        when(sensitivityComputerBuilder.build()).thenReturn(sensitivityComputer);
-
-        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(sensitivityResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
-        Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
-        Mockito.when(sensitivityComputer.getBranchResult(network)).thenReturn(Mockito.mock(FlowResult.class));
-
-        Leaf leaf = Mockito.mock(Leaf.class);
-        when(leaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-
-        try {
-            PowerMockito.whenNew(SensitivityComputer.SensitivityComputerBuilder.class).withNoArguments().thenReturn(sensitivityComputerBuilder);
-            PowerMockito.whenNew(Leaf.class).withArguments(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()).thenReturn(leaf);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /*@Test
-    public void run() throws ExecutionException, InterruptedException {
-        prepareMocks();
-        RaoResult raoResult = castorFullOptimization.run().get();
-        assertNotNull(raoResult);
-    }*/
 
     @Test
     public void testShouldRunSecondPreventiveRaoSimple() {
@@ -297,7 +257,7 @@ public class CastorFullOptimizationTest {
                 .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.UNDEFINED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
-        // ra2 : curative only
+        // ra2 : preventive and curative
         ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ra2-ne")
@@ -335,6 +295,30 @@ public class CastorFullOptimizationTest {
                 .withNetworkElement("ra6-ne")
                 .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(Instant.CURATIVE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // ra7 : auto only
+        ra7 = crac.newPstRangeAction()
+                .withId("ra7")
+                .withNetworkElement("ra7-ne")
+                .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .withSpeed(1)
+                .add();
+        // ra8 : preventive and auto
+        ra8 = crac.newPstRangeAction()
+                .withId("ra8")
+                .withNetworkElement("ra8-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .withSpeed(2)
+                .add();
+        // ra9 : preventive only, but with same NetworkElement as ra8
+        ra9 = crac.newPstRangeAction()
+                .withId("ra9")
+                .withNetworkElement("ra8-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // na1 : preventive + curative
@@ -403,16 +387,27 @@ public class CastorFullOptimizationTest {
     public void testIsRangeActionCurative() {
         setUpCracWithRAs();
         // ra1 is available in preventive only
-        assertFalse(CastorFullOptimization.isRangeActionCurative(ra1, crac));
+        assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra1, crac));
         // ra2 is available in state2 only
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra2, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra2, crac));
         // ra3 is available in preventive and in state1
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra3, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra3, crac));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra4, crac));
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra5, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra4, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra5, crac));
         // ra6 is preventive and curative
-        assertTrue(CastorFullOptimization.isRangeActionCurative(ra6, crac));
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra6, crac));
+    }
+
+    @Test
+    public void testIsRangeActionAuto() {
+        setUpCracWithRAs();
+        // ra7 is auto
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra7, crac));
+        // ra8 is preventive and auto
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra8, crac));
+        // ra9 is preventive with same network element as ra8
+        assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra9, crac));
     }
 
     @Test
@@ -420,12 +415,15 @@ public class CastorFullOptimizationTest {
         setUpCracWithRAs();
         // detect range actions that are preventive and curative
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
-        assertEquals(5, rangeActionsExcludedFrom2P.size());
+        assertEquals(8, rangeActionsExcludedFrom2P.size());
         assertTrue(rangeActionsExcludedFrom2P.contains(ra2));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra7));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra9));
     }
 
     @Test
@@ -481,13 +479,13 @@ public class CastorFullOptimizationTest {
         setUpCracWithRealRAs(false);
         Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
 
         setUpCracWithRealRAs(true);
         Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions(Mockito.any());
-        CastorFullOptimization.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        CastorFullOptimization.applyPreventiveResultsForAutoOrCurativeRangeActions(network, perimeterResult, crac);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 
@@ -514,7 +512,8 @@ public class CastorFullOptimizationTest {
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        CastorFullOptimization.addAppliedNetworkActionsPostContingency(appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Instant.AUTO, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency(Instant.CURATIVE, appliedRemedialActions, curativeResults);
 
         // do not apply network action
         // do not apply range action as it was not yet added to applied RAs
@@ -531,7 +530,8 @@ public class CastorFullOptimizationTest {
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
 
         // add range action
-        CastorFullOptimization.addAppliedRangeActionsPostContingency(appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Instant.AUTO, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency(Instant.CURATIVE, appliedRemedialActions, curativeResults);
 
         // apply also range action
         appliedRemedialActions.applyOnNetwork(state1, network);
@@ -594,8 +594,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
 
     @Test
@@ -619,8 +618,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -633,7 +631,6 @@ public class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
 }
