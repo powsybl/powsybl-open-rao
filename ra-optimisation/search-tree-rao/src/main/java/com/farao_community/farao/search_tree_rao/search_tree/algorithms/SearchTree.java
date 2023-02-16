@@ -20,6 +20,7 @@ import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -36,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
@@ -142,13 +144,19 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        TECHNICAL_LOGS.info("{}", rootLeaf);
+        // TODO Change this ugly behavior
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(rootLeaf);
+        TECHNICAL_LOGS.info("{}", virtualCostDetailed.isEmpty() ? rootLeaf : rootLeaf.toString().substring(0, rootLeaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
+
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf);
 
-        topLevelLogger.info("{}", rootLeaf);
+        // TODO Change this ugly behavior
+        virtualCostDetailed = getVirtualCostDetailed(rootLeaf);
+        topLevelLogger.info("{}", virtualCostDetailed.isEmpty() ? rootLeaf : rootLeaf.toString().substring(0, rootLeaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
+
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         logVirtualCostInformation(rootLeaf, "");
@@ -161,7 +169,11 @@ public class SearchTree {
         iterateOnTree();
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
-        TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
+
+        // TODO Change this ugly behavior
+        virtualCostDetailed = getVirtualCostDetailed(optimalLeaf);
+        TECHNICAL_LOGS.info("Best leaf: {}", virtualCostDetailed.isEmpty() ? optimalLeaf : optimalLeaf.toString().substring(0, optimalLeaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
+
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
@@ -227,7 +239,12 @@ public class SearchTree {
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
-                    topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
+
+                    // TODO Change this ugly behavior
+                    Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(optimalLeaf);
+                    topLevelLogger.info("Search depth {} best leaf: {}", depth + 1,
+                        virtualCostDetailed.isEmpty() ? optimalLeaf : optimalLeaf.toString().substring(0, optimalLeaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
+
                     RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
                     RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
@@ -370,22 +387,36 @@ public class SearchTree {
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation());
-        TECHNICAL_LOGS.debug("Evaluated {}", leaf);
+
+        // TODO Change this ugly behavior
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(leaf);
+        topLevelLogger.info("Evaluated {}", virtualCostDetailed.isEmpty() ? leaf : leaf.toString().substring(0, leaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
+
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                 } else {
                     optimizeLeaf(leaf);
-                    topLevelLogger.info("Optimized {}", leaf);
+
+                    // TODO Change this ugly behavior
+                    virtualCostDetailed = getVirtualCostDetailed(leaf);
+                    topLevelLogger.info("Optimized {}", virtualCostDetailed.isEmpty() ? leaf : leaf.toString().substring(0, leaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
+
                     logVirtualCostInformation(leaf, "Optimized ");
                 }
             } else {
-                topLevelLogger.info("Evaluated {}", leaf);
+
+                // TODO Change this ugly behavior
+                virtualCostDetailed = getVirtualCostDetailed(leaf);
+                topLevelLogger.info("Evaluated {}", virtualCostDetailed.isEmpty() ? leaf : leaf.toString().substring(0, leaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
             }
             updateOptimalLeaf(leaf, naCombination);
         } else {
-            topLevelLogger.info("Could not evaluate leaf: {}", leaf);
+
+            // TODO Change this ugly behavior
+            virtualCostDetailed = getVirtualCostDetailed(leaf);
+            topLevelLogger.info("Could not evaluate {}", virtualCostDetailed.isEmpty() ? leaf : leaf.toString().substring(0, leaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
         }
     }
 
@@ -503,6 +534,13 @@ public class SearchTree {
 
         return previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
+    }
+
+    public static Map<String, Double> getVirtualCostDetailed(ObjectiveFunctionResult objectiveFunctionResult) {
+        return objectiveFunctionResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
+            .collect(Collectors.toMap(Function.identity(),
+                name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
     }
 
     /**

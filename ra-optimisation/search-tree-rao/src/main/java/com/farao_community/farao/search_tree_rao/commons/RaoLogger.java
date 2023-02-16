@@ -29,10 +29,10 @@ import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree.getVirtualCostDetailed;
 import static java.lang.String.format;
 
 /**
@@ -56,10 +56,7 @@ public final class RaoLogger {
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
                 sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
 
-        Map<String, Double> virtualCosts =
-            prePerimeterObjectiveFunctionResult.getVirtualCostNames().stream()
-            .filter(name -> prePerimeterObjectiveFunctionResult.getVirtualCost(name) > 0)
-            .collect(Collectors.toMap(Function.identity(), prePerimeterObjectiveFunctionResult::getVirtualCost));
+        Map<String, Double> virtualCosts = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
         BUSINESS_LOGS.info(prefix +  "cost = {} (functional: {}, virtual: {}{})",
             formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
@@ -261,8 +258,9 @@ public final class RaoLogger {
     public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions, false);
+        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(finalObjective);
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-            String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost));
+            String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost), virtualCostDetailed.isEmpty() ? "" : virtualCostDetailed);
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
     }
