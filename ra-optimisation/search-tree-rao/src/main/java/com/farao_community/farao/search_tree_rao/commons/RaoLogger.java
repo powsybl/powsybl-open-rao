@@ -29,6 +29,7 @@ import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
@@ -55,10 +56,16 @@ public final class RaoLogger {
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, rangeActionActivationResult,
                 sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
+        Map<String, Double> virtualCosts =
+            prePerimeterObjectiveFunctionResult.getVirtualCostNames().stream()
+            .filter(name -> prePerimeterObjectiveFunctionResult.getVirtualCost(name) > 0)
+            .collect(Collectors.toMap(Function.identity(), prePerimeterObjectiveFunctionResult::getVirtualCost));
+
+        BUSINESS_LOGS.info(prefix +  "cost = {} (functional: {}, virtual: {}{})",
             formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
             formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
-            formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
+            formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()),
+            virtualCosts.isEmpty() ? "" : " " + virtualCosts);
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             sensitivityAnalysisResult,
