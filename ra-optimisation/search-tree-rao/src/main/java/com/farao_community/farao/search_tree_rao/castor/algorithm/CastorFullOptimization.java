@@ -216,15 +216,16 @@ public class CastorFullOptimization {
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
         RaoResult finalRaoResult = raoResult;
 
-        double finalCost = finalRaoResult.getCost(OptimizationState.AFTER_CRA);
+        double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
+        double finalCost = finalRaoResult.getCost(OptimizationState.AFTER_CRA);
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(OptimizationState.AFTER_CRA);
         double finalVirtualCost = finalRaoResult.getVirtualCost(OptimizationState.AFTER_CRA);
 
-        if (raoParameters.getForbidCostIncrease() && finalCost > initialFunctionalCost + initialVirtualCost) {
+        if (raoParameters.getForbidCostIncrease() && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
-                    formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
+                    formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
                     formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
@@ -238,7 +239,7 @@ public class CastorFullOptimization {
 
         // Log costs before and after RAO
         BUSINESS_LOGS.info("Cost before RAO = {} (functional: {}, virtual: {}), cost after RAO = {} (functional: {}, virtual: {})",
-                formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
+                formatDouble(initialCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost),
                 formatDouble(finalCost), formatDouble(finalFunctionalCost), formatDouble(finalVirtualCost));
 
         return CompletableFuture.completedFuture(finalRaoResult);
