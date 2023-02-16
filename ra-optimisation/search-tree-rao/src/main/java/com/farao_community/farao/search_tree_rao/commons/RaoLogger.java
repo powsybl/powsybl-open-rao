@@ -260,7 +260,7 @@ public final class RaoLogger {
         String raResult = getRaResult(networkActions, rangeActions, false);
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(finalObjective);
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-            String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost), virtualCostDetailed.isEmpty() ? "" : virtualCostDetailed);
+            String.format("initial cost = %s (functional: %s, virtual: %s%s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost), virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
     }

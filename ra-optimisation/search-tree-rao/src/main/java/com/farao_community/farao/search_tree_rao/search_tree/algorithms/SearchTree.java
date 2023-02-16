@@ -38,7 +38,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
@@ -528,7 +527,7 @@ public class SearchTree {
     /**
      * Log virtual cost detail at end of the line if virtual cost > 0
      */
-    private void logVirtualCostNamesIfPresent(FaraoLogger logger, Leaf leaf, String message){
+    private void logVirtualCostNamesIfPresent(FaraoLogger logger, Leaf leaf, String message) {
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(leaf);
         logger.info(message, virtualCostDetailed.isEmpty() ? leaf : leaf.toString().substring(0, leaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
     }
