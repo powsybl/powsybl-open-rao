@@ -44,7 +44,7 @@ public final class CneUtil {
 
             return xmlcal;
         } catch (DatatypeConfigurationException e) {
-            throw new FaraoException();
+            throw new FaraoException("Could not write current date and time.");
         }
     }
 
