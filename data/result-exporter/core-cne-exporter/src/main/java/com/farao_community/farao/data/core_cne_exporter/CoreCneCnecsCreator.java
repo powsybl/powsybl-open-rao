@@ -20,7 +20,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
@@ -39,9 +39,9 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreat
 public final class CoreCneCnecsCreator {
 
     private CneHelper cneHelper;
-    private StandardCracCreationContext cracCreationContext;
+    private UcteCracCreationContext cracCreationContext;
 
-    public CoreCneCnecsCreator(CneHelper cneHelper, StandardCracCreationContext cracCreationContext) {
+    public CoreCneCnecsCreator(CneHelper cneHelper, UcteCracCreationContext cracCreationContext) {
         this.cneHelper = cneHelper;
         this.cracCreationContext = cracCreationContext;
     }

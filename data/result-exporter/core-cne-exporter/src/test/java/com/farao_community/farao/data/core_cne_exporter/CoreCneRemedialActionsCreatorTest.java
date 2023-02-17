@@ -23,7 +23,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -398,7 +398,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
-        StandardCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
+        UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext)  cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
@@ -442,7 +442,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
-        StandardCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
+        UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext)  cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
@@ -498,7 +498,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
-        StandardCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
+        UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");

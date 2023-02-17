@@ -149,11 +149,11 @@ public class CimCracCreationContext implements CracCreationContext {
         this.angleCnecCreationContexts.add(angleCnecCreationContext);
     }
 
-    public Set<AngleCnecCreationContext> getAngleCnecCreationContexts() {
+    public Set<AngleCnecCreationContext> getAngleCnecCreationContext() {
         return new HashSet<>(angleCnecCreationContexts);
     }
 
-    public AngleCnecCreationContext getAngleCnecCreationContexts(String seriesId) {
+    public AngleCnecCreationContext getAngleCnecCreationContext(String seriesId) {
         return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 
@@ -205,11 +205,11 @@ public class CimCracCreationContext implements CracCreationContext {
         this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
     }
 
-    public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts() {
+    public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContext() {
         return remedialActionSeriesCreationContexts;
     }
 
-    public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContexts(String seriesId) {
+    public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId) {
         return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 

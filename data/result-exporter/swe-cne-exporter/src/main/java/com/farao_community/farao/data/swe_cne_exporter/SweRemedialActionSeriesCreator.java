@@ -43,7 +43,7 @@ public class SweRemedialActionSeriesCreator {
     public List<RemedialActionSeries> generateRaSeries(Contingency contingency) {
         List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
         Crac crac = sweCneHelper.getCrac();
-        List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
+        List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContext().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
             .collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class SweRemedialActionSeriesCreator {
     public List<RemedialActionSeries> generateRaSeriesReference(Contingency contingency) {
         List<RemedialActionSeries> remedialActionSeriesList = new ArrayList<>();
         Crac crac = sweCneHelper.getCrac();
-        List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContexts().stream()
+        List<RemedialActionSeriesCreationContext> sortedRas = cracCreationContext.getRemedialActionSeriesCreationContext().stream()
             .filter(RemedialActionSeriesCreationContext::isImported)
             .sorted(Comparator.comparing(RemedialActionSeriesCreationContext::getNativeId))
             .collect(Collectors.toList());

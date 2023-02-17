@@ -13,16 +13,16 @@ import java.time.OffsetDateTime;
 
 /**
  *  Common interface of a Crac creation context
- *
+ * <p>
  *  A CracCreationContext contains the results of a CRAC creation, notably the created Crac
  *  object.
- *
+ * <p>
  *  It also contains additional information on how the {@link Crac} has been created from a
  *  {@link NativeCrac}, for instance on how the object of the NativeCrac has been mapped in
  *  the created Crac.
- *
- *  The CracCreationContext is notably required by some Crac exporters, so as to rollback
- *  some of the Crac information with their native values.
+ * <p>
+ *  The CracCreationContext is notably required by some Crac exporters, to roll-back
+ *  some Crac information with their native values.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */

@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.CracCreationRepo
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FbConstraintCreationContext implements StandardCracCreationContext {
+public class FbConstraintCreationContext implements UcteCracCreationContext {
 
     private Crac crac;
     private boolean isCreationSuccessful;

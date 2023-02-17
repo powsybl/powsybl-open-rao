@@ -57,7 +57,7 @@ public class SweRemedialActionSeriesCreatorTest {
         rasccList.add(createRascc("hvdcEsFr", true, Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", true));
         rasccList.add(createRascc("hvdcPtEs", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", false));
         rasccList.add(createRascc("hvdcEsPt", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", true));
-        Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContexts()).thenReturn(rasccList);
+        Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContext()).thenReturn(rasccList);
 
         addRemedialActionToCrac("networkActionCreatedId", "networkActionName", NetworkAction.class);
         addRemedialActionToCrac("na_missing", "networkActionName", NetworkAction.class);

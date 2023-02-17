@@ -124,7 +124,7 @@ public class RemedialActionSeriesCreator {
                 AdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new AdditionalConstraintSeriesCreator(crac, network, cimSerie.getAdditionalConstraintSeries().get(0), contingencies.get(0).getId(), cimSerie.getMRID(), cracCreationContext);
                 this.angleCnec = additionalConstraintSeriesCreator.createAndAddAdditionalConstraintSeries();
                 // If angle cnec import has failed, create failed RemedialActionSeriesCreationContexts for associated remedial actions.
-                if (cracCreationContext.getAngleCnecCreationContexts().stream().anyMatch(context -> context.getSerieId().equals(cimSerie.getMRID()) && !context.isImported())) {
+                if (cracCreationContext.getAngleCnecCreationContext().stream().anyMatch(context -> context.getSerieId().equals(cimSerie.getMRID()) && !context.isImported())) {
                     for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
                         remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, "Associated angle cnec could not be imported"));
                     }

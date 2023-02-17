@@ -11,9 +11,9 @@ import com.farao_community.farao.data.crac_creation.creator.api.CracCreationCont
 import java.util.List;
 
 /**
- * The StandardCracCreationContext is a {@link CracCreationContext} which has been designed so
- * as to cover information which are pertinent for several native CRAC formats.
- *
+ * The UcteCracCreationContext is a {@link CracCreationContext} which has been designed
+ * to cover information which are pertinent for UCTE CRAC formats.
+ * <p>
  * It is fitted to native CRAC formats which share some common assumptions, such as:
  * <ul>
  *     <li>the native CNECs are defined for the preventive state, or for several states sharing the same contingency</li>
@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface StandardCracCreationContext extends CracCreationContext {
+public interface UcteCracCreationContext extends CracCreationContext {
 
     /**
      * Get all branch CNEC creation contexts
