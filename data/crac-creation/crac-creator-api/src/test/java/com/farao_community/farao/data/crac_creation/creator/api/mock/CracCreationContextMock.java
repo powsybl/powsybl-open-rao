@@ -10,6 +10,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 
+import java.time.OffsetDateTime;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -29,6 +31,16 @@ public class CracCreationContextMock implements CracCreationContext {
     @Override
     public Crac getCrac() {
         return null;
+    }
+
+    @Override
+    public OffsetDateTime getTimeStamp() {
+        return null;
+    }
+
+    @Override
+    public String getNetworkName() {
+        return "networkName";
     }
 
     @Override

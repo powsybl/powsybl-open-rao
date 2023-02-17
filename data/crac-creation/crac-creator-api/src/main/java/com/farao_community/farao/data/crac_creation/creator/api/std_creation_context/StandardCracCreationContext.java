@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creation.creator.api.std_creation_co
 
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
