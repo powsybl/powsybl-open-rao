@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -302,14 +303,13 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.OPTIMIZED)) {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
+        }
+        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
+            Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(this);
             info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
             info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
-            info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
-        } else if (status.equals(Status.EVALUATED)) {
-            info += ", range actions have not been optimized";
-            info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
-            info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
-            info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
+            info += String.format(Locale.ENGLISH, ", virtual: %.2f%s)", getVirtualCost(),
+                virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
         }
         return info;
     }

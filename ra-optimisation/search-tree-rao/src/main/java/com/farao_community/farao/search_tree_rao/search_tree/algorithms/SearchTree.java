@@ -20,7 +20,6 @@ import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -37,11 +36,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
-import static com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAppliedOnState;
+import static com.farao_community.farao.search_tree_rao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -144,13 +142,13 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
-        logVirtualCostNamesIfPresent(TECHNICAL_LOGS, rootLeaf, "{}");
+        TECHNICAL_LOGS.info("{}", rootLeaf);
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf);
 
-        logVirtualCostNamesIfPresent(topLevelLogger, rootLeaf, "{}");
+        topLevelLogger.info("{}", rootLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         logVirtualCostInformation(rootLeaf, "");
@@ -164,7 +162,7 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
 
-        logVirtualCostNamesIfPresent(TECHNICAL_LOGS, optimalLeaf, "Best leaf: {}");
+        TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
@@ -208,7 +206,7 @@ public class SearchTree {
 
     private void logOptimizationSummary(Leaf leaf) {
         State state = input.getOptimizationPerimeter().getMainOptimizationState();
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, leaf.getActivatedNetworkActions(), getRangeActionsAppliedOnState(leaf, state), preOptimFunctionalCost, preOptimVirtualCost, leaf);
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, leaf.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(leaf, state), preOptimFunctionalCost, preOptimVirtualCost, leaf);
         logVirtualCostInformation(leaf, "");
     }
 
@@ -231,8 +229,7 @@ public class SearchTree {
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
 
-                    String strDepth = String.valueOf(depth + 1);
-                    logVirtualCostNamesIfPresent(topLevelLogger, optimalLeaf, "Search depth " + strDepth + " best leaf: {}");
+                    topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
                     RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
                     RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
@@ -376,8 +373,7 @@ public class SearchTree {
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation());
 
-        logVirtualCostNamesIfPresent(topLevelLogger, leaf, "Evaluated {}");
-
+        topLevelLogger.info("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
@@ -385,15 +381,15 @@ public class SearchTree {
                 } else {
                     optimizeLeaf(leaf);
 
-                    logVirtualCostNamesIfPresent(topLevelLogger, leaf, "Optimized {}");
+                    topLevelLogger.info("Optimized {}", leaf);
                     logVirtualCostInformation(leaf, "Optimized ");
                 }
             } else {
-                logVirtualCostNamesIfPresent(topLevelLogger, leaf, "Evaluated {}");
+                topLevelLogger.info("Optimized {}", leaf);
             }
             updateOptimalLeaf(leaf, naCombination);
         } else {
-            logVirtualCostNamesIfPresent(topLevelLogger, leaf, "Could not evaluate {}");
+            topLevelLogger.info("Could not evaluate {}", leaf);
         }
     }
 
@@ -511,25 +507,6 @@ public class SearchTree {
 
         return previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
-    }
-
-    /**
-     * For a given virtual-cost-name, if its associated virtual cost is positive, this method will return a map containing
-     * these information to be used in the Rao logs
-     */
-    public static Map<String, Double> getVirtualCostDetailed(ObjectiveFunctionResult objectiveFunctionResult) {
-        return objectiveFunctionResult.getVirtualCostNames().stream()
-            .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
-            .collect(Collectors.toMap(Function.identity(),
-                name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
-    }
-
-    /**
-     * Log virtual cost detail at end of the line if virtual cost > 0
-     */
-    private void logVirtualCostNamesIfPresent(FaraoLogger logger, Leaf leaf, String message) {
-        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(leaf);
-        logger.info(message, virtualCostDetailed.isEmpty() ? leaf : leaf.toString().substring(0, leaf.toString().length() - 1) + " " + virtualCostDetailed + ")");
     }
 
     /**

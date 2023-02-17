@@ -29,10 +29,10 @@ import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree.getVirtualCostDetailed;
 import static java.lang.String.format;
 
 /**
@@ -260,9 +260,9 @@ public final class RaoLogger {
         String raResult = getRaResult(networkActions, rangeActions, false);
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(finalObjective);
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-            String.format("initial cost = %s (functional: %s, virtual: %s%s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost), virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
-        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
-            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
+            String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost));
+        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
+            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, boolean failed) {
@@ -299,5 +299,16 @@ public final class RaoLogger {
         } else {
             return String.format(Locale.ENGLISH, "%.2f", value);
         }
+    }
+
+    /**
+     * For a given virtual-cost-name, if its associated virtual cost is positive, this method will return a map containing
+     * these information to be used in the Rao logs
+     */
+    public static Map<String, Double> getVirtualCostDetailed(ObjectiveFunctionResult objectiveFunctionResult) {
+        return objectiveFunctionResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
+            .collect(Collectors.toMap(Function.identity(),
+                name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
     }
 }

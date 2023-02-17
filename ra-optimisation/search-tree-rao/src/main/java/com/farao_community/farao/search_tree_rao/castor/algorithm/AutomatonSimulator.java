@@ -119,7 +119,7 @@ public final class AutomatonSimulator {
                     automatonState);
             failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
             TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation during range automaton simulation.", automatonState.getId());
-            RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAppliedOnState(failedAutomatonPerimeterResultImpl, automatonState));
+            RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, automatonState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, automatonState));
             return failedAutomatonPerimeterResultImpl;
         }
         // Build and return optimization result
@@ -131,7 +131,7 @@ public final class AutomatonSimulator {
             rangeAutomatonSimulationResult.getRangeActionsWithSetpoint(),
             automatonState);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, null, automatonPerimeterResultImpl);
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(automatonPerimeterResultImpl, automatonState), null, null, automatonPerimeterResultImpl);
         return automatonPerimeterResultImpl;
     }
 
@@ -144,7 +144,7 @@ public final class AutomatonSimulator {
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
-    public static Map<RangeAction<?>, Double> getRangeActionsAppliedOnState(OptimizationResult optimizationResult, State state) {
+    public static Map<RangeAction<?>, Double> getRangeActionsAndTheirTapsAppliedOnState(OptimizationResult optimizationResult, State state) {
         Set< RangeAction<?>> setActivatedRangeActions = optimizationResult.getActivatedRangeActions(state);
         Map<RangeAction<?>, Double> allRangeActions = new HashMap<>();
         setActivatedRangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> allRangeActions.put(pstRangeAction, (double) optimizationResult.getOptimizedTap(pstRangeAction, state)));
@@ -161,7 +161,7 @@ public final class AutomatonSimulator {
                 autoState);
         failedAutomatonPerimeterResultImpl.setComputationStatus(ComputationStatus.FAILURE);
         TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} topological automaton simulation.", autoState.getId(), defineMoment);
-        RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState));
+        RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState));
         return failedAutomatonPerimeterResultImpl;
     }
 
