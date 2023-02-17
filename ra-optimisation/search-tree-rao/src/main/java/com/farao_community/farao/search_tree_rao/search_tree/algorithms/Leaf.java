@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
-import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
@@ -131,6 +130,10 @@ public class Leaf implements OptimizationResult {
 
     public FlowResult getPreOptimBranchResult() {
         return preOptimFlowResult;
+    }
+
+    public ObjectiveFunctionResult getPreOptimObjectiveFunctionResult() {
+        return preOptimObjectiveFunctionResult;
     }
 
     public Status getStatus() {

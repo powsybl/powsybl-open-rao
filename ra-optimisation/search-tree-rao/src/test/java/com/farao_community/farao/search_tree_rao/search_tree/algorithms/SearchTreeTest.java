@@ -31,6 +31,7 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -447,7 +448,10 @@ public class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialResult.getFunctionalCost()).thenReturn(0.);
+        when(initialResult.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[INFO] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
@@ -470,7 +474,10 @@ public class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialResult.getFunctionalCost()).thenReturn(0.);
+        when(initialResult.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[INFO] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";

@@ -206,7 +206,7 @@ public class SearchTree {
 
     private void logOptimizationSummary(Leaf leaf) {
         State state = input.getOptimizationPerimeter().getMainOptimizationState();
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, leaf.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(leaf, state), preOptimFunctionalCost, preOptimVirtualCost, leaf);
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, state, leaf.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(leaf, state), leaf.getPreOptimObjectiveFunctionResult(), leaf);
         logVirtualCostInformation(leaf, "");
     }
 

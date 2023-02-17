@@ -251,21 +251,22 @@ public final class RaoLogger {
 
     public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
         String scenarioName = getScenarioName(optimizedState);
-        String raResult = getRaResult(networkActions, rangeActions, true);
+        String raResult = getRaResult(networkActions, rangeActions);
         logger.info("Scenario \"{}\": {}", scenarioName, raResult);
     }
 
-    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
+    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
         String scenarioName = getScenarioName(optimizedState);
-        String raResult = getRaResult(networkActions, rangeActions, false);
+        String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(finalObjective);
-        String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-            String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost));
+        String initialCostString = preOptimObjectiveFunctionResult == null ? "" :
+            String.format("initial cost = %s (functional: %s, virtual: %s%s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()),
+                virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
     }
 
-    public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, boolean failed) {
+    public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
         long activatedNetworkActions = networkActions.size();
         long activatedRangeActions = rangeActions.size();
         String networkActionsNames = StringUtils.join(networkActions.stream().map(Identifiable::getName).collect(Collectors.toSet()), ", ");
@@ -277,12 +278,12 @@ public final class RaoLogger {
         if (activatedNetworkActions + activatedRangeActions == 0) {
             return "no remedial actions activated";
         } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            return String.format("%s network action(s) activated", activatedNetworkActions) + (failed ? "" : " : " + networkActionsNames);
+            return String.format("%s network action(s) activated : %s", activatedNetworkActions, networkActionsNames);
         } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            return String.format("%s range action(s) activated", activatedRangeActions) + (failed ? "" : " : " + rangeActionsNames);
+            return String.format("%s range action(s) activated : %s", activatedRangeActions, rangeActionsNames);
         } else {
-            return String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions) +
-                (failed ? "" : " : " + networkActionsNames + " and " + rangeActionsNames);
+            return String.format("%s network action(s) and %s range action(s) activated : %s and %s",
+                activatedNetworkActions, activatedRangeActions, networkActionsNames, rangeActionsNames);
         }
     }
 
