@@ -258,17 +258,18 @@ public final class RaoLogger {
     public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
-        Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(finalObjective);
+        Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
+        boolean isPreOptimNull = preOptimObjectiveFunctionResult == null;
+        Map<String, Double> initialVirtualCostDetailed = isPreOptimNull ? Collections.emptyMap() : getVirtualCostDetailed(preOptimObjectiveFunctionResult);
         String initialCostString;
-        if (virtualCostDetailed.isEmpty()) {
-            initialCostString = preOptimObjectiveFunctionResult == null ? "" :
+        if (initialVirtualCostDetailed.isEmpty()) {
+            initialCostString = isPreOptimNull ? "" :
                 String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
         } else {
-            initialCostString = preOptimObjectiveFunctionResult == null ? "" :
-                String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), virtualCostDetailed);
+            initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
         }
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
-            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
+            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {

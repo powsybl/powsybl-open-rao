@@ -47,6 +47,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.logRangeActions;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -568,12 +570,34 @@ public class SearchTreeTest {
         when(rootLeaf.getVirtualCost("loop-flow-cost")).thenReturn(200.);
 
         // Functional cost does not satisfy stop criterion
-        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
+    }
+
+    @Test
+    public void testLogRangeActions() {
+        setUpForVirtualLogs();
+        List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
+        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
+
+        // apply 2 range actions
+        rangeAction1 = Mockito.mock(PstRangeAction.class);
+        rangeAction2 = Mockito.mock(PstRangeAction.class);
+        when(rangeAction1.getName()).thenReturn("PST1");
+        when(rangeAction2.getName()).thenReturn("PST2");
+        Map<State, Set<RangeAction<?>>> setFakeRas = Map.of(optimizedState, Set.of(rangeAction1, rangeAction2));
+        when(searchTreeInput.getOptimizationPerimeter().getRangeActionsPerState()).thenReturn(setFakeRas);
+        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
+
+        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        // PST can be logged in any order
+        assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
+        assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");
+        assert logsList.get(logsList.size() - 1).toString().contains("PST2: 0");
     }
 
     @Test
