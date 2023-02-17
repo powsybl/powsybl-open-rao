@@ -79,9 +79,6 @@ public class SearchTree {
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
 
-    private double preOptimFunctionalCost;
-    private double preOptimVirtualCost;
-
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
     public SearchTree(SearchTreeInput input,
@@ -128,9 +125,6 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Evaluating root leaf");
         rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation());
-        this.preOptimFunctionalCost = rootLeaf.getFunctionalCost();
-        this.preOptimVirtualCost = rootLeaf.getVirtualCost();
-
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);

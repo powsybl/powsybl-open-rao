@@ -259,9 +259,14 @@ public final class RaoLogger {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(finalObjective);
-        String initialCostString = preOptimObjectiveFunctionResult == null ? "" :
-            String.format("initial cost = %s (functional: %s, virtual: %s%s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()),
-                virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
+        String initialCostString;
+        if (virtualCostDetailed.isEmpty()) {
+            initialCostString = preOptimObjectiveFunctionResult == null ? "" :
+                String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
+        } else {
+            initialCostString = preOptimObjectiveFunctionResult == null ? "" :
+                String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), virtualCostDetailed);
+        }
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed);
     }
