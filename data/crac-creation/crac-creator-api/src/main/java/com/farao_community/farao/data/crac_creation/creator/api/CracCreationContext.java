@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_creation.creator.api;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
+import java.time.OffsetDateTime;
+
 /**
  *  Common interface of a Crac creation context
  *
@@ -35,6 +37,17 @@ public interface CracCreationContext {
      * Get the created Crac object
      */
     Crac getCrac();
+
+    /**
+     * Get the timestamp for which the CRAC has been created
+     */
+    OffsetDateTime getTimeStamp();
+
+    /**
+     * Get the name of the network used to create the CRAC
+     * @return
+     */
+    String getNetworkName();
 
     /**
      * Get a report with important information about the creation process

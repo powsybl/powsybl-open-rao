@@ -113,7 +113,7 @@ public class FbConstraintCreationContext implements StandardCracCreationContext 
         return this;
     }
 
-    public void buildCreationReport() {
+    void buildCreationReport() {
         addToReport(criticalBranchCreationContexts.values(), "Critical branch");
         addToReport(complexVariantCreationContexts.values(), "Remedial action");
     }

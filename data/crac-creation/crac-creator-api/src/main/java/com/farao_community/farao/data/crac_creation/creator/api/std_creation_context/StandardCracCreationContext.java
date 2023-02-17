@@ -27,15 +27,25 @@ import java.util.List;
  */
 public interface StandardCracCreationContext extends CracCreationContext {
 
+    /**
+     * Get all branch CNEC creation contexts
+     */
     List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
 
-    BranchCnecCreationContext getBranchCnecCreationContext(String brancCnecId);
+    /**
+     * Get a specific branch CNEC creation context
+     * @param branchCnecId: the native branch CNEC ID (as it figures in the native CRAC)
+     */
+    BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId);
 
+    /**
+     * Get all remedial-action creation contexts
+     */
     List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
 
+    /**
+     * Get a specific remedial-action creation context
+     * @param remedialActionId: the native remedial-action ID (as it figures in the native CRAC)
+     */
     RemedialActionCreationContext getRemedialActionCreationContext(String remedialActionId);
-
-    OffsetDateTime getTimeStamp();
-
-    String getNetworkName();
 }

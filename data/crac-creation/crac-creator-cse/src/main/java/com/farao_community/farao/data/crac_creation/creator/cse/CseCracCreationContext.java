@@ -85,7 +85,7 @@ public class CseCracCreationContext implements StandardCracCreationContext {
         return crac;
     }
 
-    public void buildCreationReport() {
+    void buildCreationReport() {
         addToReport(outageCreationContexts.values(), "Outage");
         addToReport(criticalBranchCreationContexts.values(), "Critical branch");
         addToReport(monitoredElementCreationContexts.values(), "Monitored element");
