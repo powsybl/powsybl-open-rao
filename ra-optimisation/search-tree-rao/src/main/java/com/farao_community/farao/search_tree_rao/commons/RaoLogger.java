@@ -259,14 +259,16 @@ public final class RaoLogger {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
-        boolean isPreOptimNull = preOptimObjectiveFunctionResult == null;
-        Map<String, Double> initialVirtualCostDetailed = isPreOptimNull ? Collections.emptyMap() : getVirtualCostDetailed(preOptimObjectiveFunctionResult);
         String initialCostString;
-        if (initialVirtualCostDetailed.isEmpty()) {
-            initialCostString = isPreOptimNull ? "" :
-                String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
+        if (preOptimObjectiveFunctionResult == null) {
+            initialCostString = "";
         } else {
-            initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
+            Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            if (initialVirtualCostDetailed.isEmpty()) {
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
+            } else {
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
+            }
         }
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
