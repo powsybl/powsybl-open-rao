@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -27,7 +28,7 @@ public class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimet
 
     @Test
     public void globalOptimizationPerimeterTest() {
-        raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
         GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);

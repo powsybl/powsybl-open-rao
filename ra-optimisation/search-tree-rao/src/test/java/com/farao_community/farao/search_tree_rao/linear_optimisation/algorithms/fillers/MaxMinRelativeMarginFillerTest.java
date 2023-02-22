@@ -11,7 +11,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
@@ -67,11 +69,12 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setPstPenaltyCost(0.01);
-        raoParameters.setHvdcPenaltyCost(0.01);
-        raoParameters.setInjectionRaPenaltyCost(0.01);
-        raoParameters.setPtdfSumLowerBound(0.01);
-        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
+        raoParameters.addExtension(RelativeMarginParametersExtension.class, RelativeMarginParametersExtension.loadDefault());
+        raoParameters.getExtension(RelativeMarginParametersExtension.class).setPtdfSumLowerBound(0.01);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
         parameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
 

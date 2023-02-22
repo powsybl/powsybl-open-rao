@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -20,6 +21,7 @@ import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpoint
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -53,10 +55,11 @@ public class PrePerimeterSensitivityAnalysis {
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+        if (Objects.nonNull(loopFlowParameters)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
 
@@ -74,14 +77,15 @@ public class PrePerimeterSensitivityAnalysis {
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+        if (Objects.nonNull(loopFlowParameters)) {
+            if (loopFlowParameters.getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
                 sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionType().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
         }
         if (appliedCurativeRemedialActions != null) {

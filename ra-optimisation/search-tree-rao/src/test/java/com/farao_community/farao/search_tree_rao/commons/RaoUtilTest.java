@@ -23,7 +23,9 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoInput;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
@@ -39,8 +41,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
-import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -81,37 +81,39 @@ public class RaoUtilTest {
 
     @Test(expected = FaraoException.class)
     public void testExceptionForGlskOnRelativeMargin() {
-        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.addExtension(RelativeMarginParametersExtension.class, RelativeMarginParametersExtension.loadDefault());
+        raoParameters.getExtension(RelativeMarginParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>());
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.addExtension(RelativeMarginParametersExtension.class, RelativeMarginParametersExtension.loadDefault());
+        raoParameters.getExtension(RelativeMarginParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testAmpereWithDc() {
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().setDc(true);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
@@ -196,7 +198,7 @@ public class RaoUtilTest {
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
 
         NetworkAction na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
@@ -205,21 +207,21 @@ public class RaoUtilTest {
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().get(0);
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunction().getUnit()));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
+        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionType().getUnit()));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunction().getUnit()));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
+        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionType().getUnit()));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunction().getUnit()));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
+        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionType().getUnit()));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
 
         optimizedState = crac.getPreventiveState();
-        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
-        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunction().getUnit()));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
+        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionType().getUnit()));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
     }
 
     @Test
@@ -277,7 +279,7 @@ public class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, RaoUtil.isOnFlowConstraintInCountryAvailable((OnFlowConstraintInCountry) ra.getUsageRules().get(0), optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
-        assertEquals(available, RaoUtil.isRemedialActionAvailable(ra, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunction().getUnit()));
+        assertEquals(available, RaoUtil.isOnFlowConstraintInCountryAvailable((OnFlowConstraintInCountry) ra.getUsageRules().get(0), optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
+        assertEquals(available, RaoUtil.isRemedialActionAvailable(ra, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionType().getUnit()));
     }
 }

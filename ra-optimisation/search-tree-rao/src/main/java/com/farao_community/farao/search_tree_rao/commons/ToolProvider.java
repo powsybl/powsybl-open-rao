@@ -18,6 +18,8 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXnodeGlskHandler;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.glsk.commons.ZonalData;
@@ -57,9 +59,10 @@ public final class ToolProvider {
     }
 
     public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
-        if (!raoParameters.getLoopflowCountries().isEmpty()) {
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+        if (Objects.nonNull(loopFlowParameters)) {
             return allCnecs.stream()
-                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
+                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParameters.getCountries()))
                 .collect(Collectors.toSet());
         } else {
             return allCnecs.stream()
@@ -87,12 +90,12 @@ public final class ToolProvider {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(raoParameters.getSensitivityProvider())
-            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
+            .withDefaultParameters(raoParameters.getSensitivityWithLoadFlowParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions);
 
-        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+        if (!raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
         }
 
@@ -111,7 +114,11 @@ public final class ToolProvider {
     }
 
     Set<String> getEicForObjectiveFunction() {
-        return raoParameters.getRelativeMarginPtdfBoundaries().stream().
+        RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+        if (Objects.isNull(relativeMarginParameters)) {
+            throw new FaraoException("No relative margins parameters were defined");
+        }
+        return relativeMarginParameters.getPtdfBoundaries().stream().
             flatMap(boundary -> boundary.getEiCodes().stream()).
             map(EICode::getAreaCode).
             collect(Collectors.toSet());
@@ -204,12 +211,16 @@ public final class ToolProvider {
                 )
             );
         }
-        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+        if (raoParameters.getObjectiveFunctionType().relativePositiveMargins()) {
+            RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+            if (Objects.isNull(relativeMarginParameters)) {
+                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType());
+            }
             toolProviderBuilder.withAbsolutePtdfSumsComputation(
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                    raoParameters.getRelativeMarginPtdfBoundaries(),
+                        relativeMarginParameters.getPtdfBoundaries(),
                     raoInput.getNetwork()
                 )
             );

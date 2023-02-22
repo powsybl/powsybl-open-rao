@@ -64,11 +64,11 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters.getObjectiveFunction().getUnit()))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters.getObjectiveFunctionType().getUnit()))
             .collect(Collectors.toSet());
 
         Set<RangeAction<?>> availableRangeActions = rangeActions.stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters.getObjectiveFunction().getUnit()))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters.getObjectiveFunctionType().getUnit()))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);

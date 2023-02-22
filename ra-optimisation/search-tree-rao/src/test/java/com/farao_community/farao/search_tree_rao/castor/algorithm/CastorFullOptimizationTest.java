@@ -18,18 +18,17 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.rao_api.parameters.SecondPreventiveRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
@@ -38,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -68,8 +66,6 @@ public class CastorFullOptimizationTest {
     private RangeAction<?> ra6;
     private NetworkAction na1;
 
-    private CastorFullOptimization castorFullOptimization;
-
     @Before
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
@@ -79,49 +75,9 @@ public class CastorFullOptimizationTest {
         when(inputs.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
         when(inputs.getCrac()).thenReturn(crac);
         RaoParameters raoParameters = new RaoParameters();
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         java.time.Instant instant = Mockito.mock(java.time.Instant.class);
-        castorFullOptimization = new CastorFullOptimization(inputs, raoParameters, instant);
+        new CastorFullOptimization(inputs, raoParameters, instant);
     }
-
-    private void prepareMocks() {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = Mockito.mock(SensitivityComputer.SensitivityComputerBuilder.class);
-        when(sensitivityComputerBuilder.withToolProvider(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCnecs(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withRangeActions(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withPtdfsResults(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withPtdfsResults(Mockito.any(), Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCommercialFlowsResults(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withCommercialFlowsResults(Mockito.any(), Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        when(sensitivityComputerBuilder.withAppliedRemedialActions(Mockito.any())).thenReturn(sensitivityComputerBuilder);
-        SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
-        when(sensitivityComputerBuilder.build()).thenReturn(sensitivityComputer);
-
-        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(sensitivityResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
-        Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
-        Mockito.when(sensitivityComputer.getBranchResult(network)).thenReturn(Mockito.mock(FlowResult.class));
-
-        Leaf leaf = Mockito.mock(Leaf.class);
-        when(leaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-
-        try {
-            PowerMockito.whenNew(SensitivityComputer.SensitivityComputerBuilder.class).withNoArguments().thenReturn(sensitivityComputerBuilder);
-            PowerMockito.whenNew(Leaf.class).withArguments(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()).thenReturn(leaf);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /*@Test
-    public void run() throws ExecutionException, InterruptedException {
-        prepareMocks();
-        RaoResult raoResult = castorFullOptimization.run().get();
-        assertNotNull(raoResult);
-    }*/
 
     @Test
     public void testShouldRunSecondPreventiveRaoSimple() {
@@ -135,30 +91,28 @@ public class CastorFullOptimizationTest {
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
 
         // Deactivated in parameters
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.DISABLED);
+        parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
 
-        // CurativeRaoStopCriterion.MIN_OBJECTIVE
-        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
+        // CurativeStopCriterion.MIN_OBJECTIVE
+        parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
 
-        // CurativeRaoStopCriterion.SECURE, secure case
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
+        // CurativeStopCriterion.SECURE, secure case
+        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
         Mockito.doReturn(-1.).when(optimizationResult1).getFunctionalCost();
         Mockito.doReturn(-10.).when(optimizationResult2).getFunctionalCost();
         Mockito.doReturn(0.).when(optimizationResult1).getVirtualCost();
         Mockito.doReturn(0.).when(optimizationResult2).getVirtualCost();
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
-        // CurativeRaoStopCriterion.SECURE, unsecure case 1
+        // CurativeStopCriterion.SECURE, unsecure case 1
         Mockito.doReturn(0.).when(optimizationResult1).getFunctionalCost();
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
-        // CurativeRaoStopCriterion.SECURE, unsecure case 2
+        // CurativeStopCriterion.SECURE, unsecure case 2
         Mockito.doReturn(5.).when(optimizationResult1).getFunctionalCost();
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
-        // CurativeRaoStopCriterion.SECURE, unsecure case 3
+        // CurativeStopCriterion.SECURE, unsecure case 3
         Mockito.doReturn(-10.).when(optimizationResult1).getFunctionalCost();
         Mockito.doReturn(9.).when(optimizationResult1).getVirtualCost();
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, null, 0));
@@ -179,13 +133,11 @@ public class CastorFullOptimizationTest {
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        searchTreeRaoParameters.setCurativeRaoMinObjImprovement(10.);
+        parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(10.);
 
-        // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE);
+        // CurativeStopCriterion.PREVENTIVE_OBJECTIVE
+        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE);
         setCost(preventiveResult, -100.);
         // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
         when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-200.);
@@ -197,8 +149,8 @@ public class CastorFullOptimizationTest {
         when(postFirstPreventiveRaoResult.getCost(OptimizationState.AFTER_CRA)).thenReturn(-109.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
 
-        // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        // CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
+        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         // case 1 : all curatives are better than preventive (cost <= preventive cost - minObjImprovement), SECURE
         setCost(optimizationResult1, -200.);
         setCost(optimizationResult2, -300.);
@@ -230,10 +182,8 @@ public class CastorFullOptimizationTest {
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
+        parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
 
         // Enough time
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, null, java.time.Instant.now().plusSeconds(200), 100));
@@ -252,10 +202,8 @@ public class CastorFullOptimizationTest {
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
 
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
+        parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE);
+        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
 
         RaoResult postFirstRaoResult = Mockito.mock(RaoResult.class);
         when(postFirstRaoResult.getCost(OptimizationState.INITIAL)).thenReturn(-100.);
@@ -584,7 +532,7 @@ public class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
 
         // Activate 2P
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
@@ -594,8 +542,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
 
     @Test
@@ -608,8 +555,8 @@ public class CastorFullOptimizationTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P.json"));
 
         // Activate global 2P
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setGlobalOptimizationInSecondPreventive(true);
+        raoParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        raoParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
@@ -619,8 +566,7 @@ public class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), Instant.CURATIVE)));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
     }
 
     @Test
@@ -633,7 +579,6 @@ public class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> {
-            raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY); });
+        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
 }

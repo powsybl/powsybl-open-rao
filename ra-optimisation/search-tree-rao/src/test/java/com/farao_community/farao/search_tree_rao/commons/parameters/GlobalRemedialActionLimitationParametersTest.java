@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import org.junit.Test;
 
 import java.util.Map;
@@ -23,15 +22,13 @@ public class GlobalRemedialActionLimitationParametersTest {
     @Test
     public void buildFromRaoParametersTestOk() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
+        raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRa(3);
+        raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeTso(1);
+        raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativePstPerTso(Map.of("BE", 2, "FR", 1));
+        raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeTopoPerTso(Map.of("DE", 0));
+        raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRaPerTso(Map.of("ES", 3, "PT", 1));
 
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRa(3);
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeTso(1);
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativePstPerTso(Map.of("BE", 2, "FR", 1));
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeTopoPerTso(Map.of("DE", 0));
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("ES", 3, "PT", 1));
-
-        GlobalRemedialActionLimitationParameters gralp = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters);
+        GlobalRemedialActionLimitationParameters gralp = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
 
         assertEquals(Integer.valueOf(3), gralp.getMaxCurativeRa());
         assertEquals(Integer.valueOf(1), gralp.getMaxCurativeTso());
@@ -43,6 +40,6 @@ public class GlobalRemedialActionLimitationParametersTest {
     @Test (expected = FaraoException.class)
     public void buildFromRaoParametersWithMissingSearchTreeRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
-        GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters);
+        GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
     }
 }

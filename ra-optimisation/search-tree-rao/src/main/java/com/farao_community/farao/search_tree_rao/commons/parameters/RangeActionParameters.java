@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.Objects;
@@ -15,7 +16,7 @@ import java.util.Objects;
  */
 public class RangeActionParameters {
 
-    private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
+    private final RangeActionsOptimizationParameters.PstModel pstOptimizationApproximation;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
     private final double injectionSensitivityThreshold;
@@ -23,7 +24,7 @@ public class RangeActionParameters {
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
 
-    public RangeActionParameters(RaoParameters.PstOptimizationApproximation pstOptimizationApproximation,
+    public RangeActionParameters(RangeActionsOptimizationParameters.PstModel pstOptimizationApproximation,
                                  double pstSensitivityThreshold,
                                  double hvdcSensitivityThreshold,
                                  double injectionSensitivityThreshold,
@@ -39,7 +40,7 @@ public class RangeActionParameters {
         this.injectionPenaltyCost = injectionPenaltyCost;
     }
 
-    public RaoParameters.PstOptimizationApproximation getPstOptimizationApproximation() {
+    public RangeActionsOptimizationParameters.PstModel getPstOptimizationApproximation() {
         return pstOptimizationApproximation;
     }
 
@@ -68,7 +69,7 @@ public class RangeActionParameters {
     }
 
     public static RangeActionParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        return new RangeActionParameters(raoParameters.getPstOptimizationApproximation(),
+        return new RangeActionParameters(raoParameters.getPstModel(),
             raoParameters.getPstSensitivityThreshold(),
             raoParameters.getHvdcSensitivityThreshold(),
             raoParameters.getInjectionRaSensitivityThreshold(),

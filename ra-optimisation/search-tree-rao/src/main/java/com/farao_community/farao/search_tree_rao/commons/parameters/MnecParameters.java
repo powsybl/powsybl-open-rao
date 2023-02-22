@@ -8,10 +8,14 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
+
+import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+// TODO : classe doublon par rapport à la classe parametre ?
 public class MnecParameters {
     private final double mnecAcceptableMarginDiminution;
     private final double mnecViolationCost;
@@ -36,10 +40,11 @@ public class MnecParameters {
     }
 
     public static MnecParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        if (raoParameters.isRaoWithMnecLimitation()) {
-            return new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
-                raoParameters.getMnecViolationCost(),
-                raoParameters.getMnecConstraintAdjustmentCoefficient());
+        MnecParametersExtension mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
+        if (Objects.nonNull(mnecParameters)) {
+            return new MnecParameters(mnecParameters.getAcceptableMarginDecrease(),
+                mnecParameters.getViolationCost(),
+                mnecParameters.getConstraintAdjustmentCoefficient());
         } else {
             return null;
         }

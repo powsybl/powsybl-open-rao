@@ -23,6 +23,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.iidm.network.Country;
@@ -54,28 +56,30 @@ public final class RaoUtil {
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
 
-        if (raoParameters.getObjectiveFunction().getUnit().equals(Unit.AMPERE)
-            && raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
-            throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunction().toString()));
+        if (raoParameters.getObjectiveFunctionType().getUnit().equals(Unit.AMPERE)
+            && raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+            throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionType().toString()));
         }
 
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionType().doesRequirePtdf()) {
             if (raoInput.getGlskProvider() == null) {
-                throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunction()));
+                throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionType()));
             }
-            if (raoParameters.getRelativeMarginPtdfBoundaries().isEmpty()) {
-                throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunction()));
+            RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+            if (Objects.isNull(relativeMarginParameters) || relativeMarginParameters.getPtdfBoundaries().isEmpty()) {
+                throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionType()));
             }
         }
 
-        if ((raoParameters.isRaoWithLoopFlowLimitation()
-            || raoParameters.getObjectiveFunction().doesRequirePtdf())
-            && (raoInput.getReferenceProgram() == null)) {
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+        if ((Objects.nonNull(loopFlowParameters)
+            || raoParameters.getObjectiveFunctionType().doesRequirePtdf())
+            && (Objects.isNull(raoInput.getReferenceProgram()))) {
             FaraoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowProvider(), raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters()));
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowProvider(), raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
         }
 
-        if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
+        if (Objects.nonNull(loopFlowParameters) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
                 "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                 raoInput.getCrac().getId());

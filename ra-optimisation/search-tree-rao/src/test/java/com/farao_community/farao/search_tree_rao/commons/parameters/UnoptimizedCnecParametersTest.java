@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,10 +42,9 @@ public class UnoptimizedCnecParametersTest {
     @Test
     public void buildWithoutOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
-        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
+        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
 
         assertNotNull(ocp);
         assertEquals(Set.of("BE"), ocp.getOperatorsNotToOptimize());
@@ -55,17 +53,16 @@ public class UnoptimizedCnecParametersTest {
     @Test
     public void buildWhileOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
+        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
-        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
+        UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
         assertNull(ocp);
     }
 
     @Test (expected = FaraoException.class)
     public void buildFromRaoParametersWithMissingSearchTreeRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
-        UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
+        UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
     }
 
     @Test
@@ -119,14 +116,13 @@ public class UnoptimizedCnecParametersTest {
                 .add();
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("ne1Id", "pst1",
+        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst1",
                 "ne2Id", "fakeId",
                 "fakeId", "pst2"));
-        UnoptimizedCnecParameters.build(raoParameters, Set.of("BE"), crac);
+        UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
 
-        Map<FlowCnec, PstRangeAction> map = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters, crac);
-        assertEquals(3,  raoParameters.getExtension(SearchTreeRaoParameters.class).getUnoptimizedCnecsInSeriesWithPstsIds().size());
+        Map<FlowCnec, PstRangeAction> map = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac);
+        assertEquals(3,  raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().size());
         assertEquals(1, map.size());
         assertTrue(map.containsKey(crac.getFlowCnec("flowCnec-1")));
         assertEquals(crac.getPstRangeAction("pstRange1Id"), map.get(crac.getFlowCnec("flowCnec-1")));
@@ -144,9 +140,8 @@ public class UnoptimizedCnecParametersTest {
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
         RaoParameters newRaoParameters = new RaoParameters();
-        newRaoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        newRaoParameters.getExtension(SearchTreeRaoParameters.class).setUnoptimizedCnecsInSeriesWithPstsIds(Map.of("ne1Id", "pst2"));
-        Map<FlowCnec, PstRangeAction> newMap = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(newRaoParameters, crac);
+        newRaoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst2"));
+        Map<FlowCnec, PstRangeAction> newMap = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(newRaoParameters.getNotOptimizedCnecsParameters(), crac);
         assertEquals(0, newMap.size());
     }
 

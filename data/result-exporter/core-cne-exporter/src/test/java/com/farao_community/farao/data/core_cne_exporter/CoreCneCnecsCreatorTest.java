@@ -21,7 +21,9 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,7 +161,7 @@ public class CoreCneCnecsCreatorTest {
 
         mockCnecResult(cnec2, 400, 800, -100, -200, -99999999, -999999999, .2);
 
-        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
@@ -211,7 +213,7 @@ public class CoreCneCnecsCreatorTest {
 
         mockCnecResult(cnec1, 40, 80, 10, 20, 100, 200, .1);
 
-        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
@@ -249,7 +251,7 @@ public class CoreCneCnecsCreatorTest {
 
         mockCnecResult(cnec1, 40, 80, 10, 20, 100, 200, .1);
 
-        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 
@@ -326,7 +328,7 @@ public class CoreCneCnecsCreatorTest {
         mockCnecResult(cnecOutage, 45, 85, 15, 25, 105, 205, .1);
         mockCnecResult(cnecCur, 45, 85, 18, 28, 108, 208, .1);
 
-        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), Instant.CURATIVE))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
@@ -379,8 +381,8 @@ public class CoreCneCnecsCreatorTest {
         mockCnecResult(cnec1, 40, 80, 10, 20, 100, 200, .1);
         Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(Side.RIGHT), eq(Unit.MEGAWATT))).thenReturn(123.);
 
-        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 

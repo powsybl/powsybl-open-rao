@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.Objects;
@@ -15,17 +16,17 @@ import java.util.Objects;
  */
 public class SolverParameters {
 
-    private final RaoParameters.Solver solver;
+    private final RangeActionsOptimizationParameters.Solver solver;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
 
-    public SolverParameters(RaoParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+    public SolverParameters(RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
         this.solver = solver;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
     }
 
-    public RaoParameters.Solver getSolver() {
+    public RangeActionsOptimizationParameters.Solver getSolver() {
         return solver;
     }
 
@@ -38,7 +39,7 @@ public class SolverParameters {
     }
 
     public static SolverParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        return new SolverParameters(raoParameters.getSolver(),
+        return new SolverParameters(raoParameters.getLinearOptimizationSolver(),
             raoParameters.getRelativeMipGap(),
             raoParameters.getSolverSpecificParameters());
     }

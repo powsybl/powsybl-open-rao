@@ -7,9 +7,9 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import org.junit.Test;
 
-import static com.farao_community.farao.rao_api.parameters.RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO;
 import static org.junit.Assert.*;
 
 /**
@@ -20,17 +20,18 @@ public class LoopFlowParametersTest {
     @Test
     public void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
 
-        raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoParameters.setLoopFlowApproximationLevel(UPDATE_PTDF_WITH_TOPO);
-        raoParameters.setLoopFlowAcceptableAugmentation(0.0);
-        raoParameters.setLoopFlowViolationCost(100);
-        raoParameters.setLoopFlowConstraintAdjustmentCoefficient(2.4);
+        loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO);
+        loopFlowParameters.setAcceptableIncrease(0.0);
+        loopFlowParameters.setViolationCost(100);
+        loopFlowParameters.setConstraintAdjustmentCoefficient(2.4);
 
         LoopFlowParameters lfp = LoopFlowParameters.buildFromRaoParameters(raoParameters);
 
         assertNotNull(lfp);
-        assertEquals(UPDATE_PTDF_WITH_TOPO, lfp.getLoopFlowApproximationLevel());
+        assertEquals(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO, lfp.getLoopFlowApproximationLevel());
         assertEquals(0.0, lfp.getLoopFlowAcceptableAugmentation(), 1e-6);
         assertEquals(100, lfp.getLoopFlowViolationCost(), 1e-6);
         assertEquals(2.4, lfp.getLoopFlowConstraintAdjustmentCoefficient(), 1e-6);
@@ -39,7 +40,6 @@ public class LoopFlowParametersTest {
     @Test
     public void buildFromRaoParametersTestWithoutLimitation() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setRaoWithLoopFlowLimitation(false);
         LoopFlowParameters lfp = LoopFlowParameters.buildFromRaoParameters(raoParameters);
         assertNull(lfp);
     }

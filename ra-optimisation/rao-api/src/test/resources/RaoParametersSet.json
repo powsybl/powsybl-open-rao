@@ -1,6 +1,9 @@
 {
   "version" : "1.0",
-  "objective-function" : "MAX_MIN_MARGIN_IN_AMPERE",
+  "objective-function" : {
+    "type" : "MAX_MIN_MARGIN_IN_AMPERE",
+    "forbid-cost-increase" : true
+  },
   "max-number-of-iterations" : 30,
   "pst-penalty-cost" : 10.0,
   "pst-sensitivity-threshold" : 0.2,
@@ -26,7 +29,7 @@
   "relative-mip-gap" : 1.0E-5,
   "solver-specific-parameters" : "TREEMEMORYLIMIT 20",
   "pst-optimization-approximation" : "APPROXIMATED_INTEGERS",
-  "forbid-cost-increase" : true,
+
   "load-flow-provider" : "OpenLoadFlowProvider",
   "sensitivity-provider" : "OpenSensitivityAnalysis",
   "sensitivity-parameters" : {
