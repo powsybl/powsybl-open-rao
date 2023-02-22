@@ -26,9 +26,9 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
     private double violationCost;
     private double constraintAdjustmentCoefficient;
 
-    public static final double DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    public static final double DEFAULT_VIOLATION_COST = 10.0;
-    public static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    private static final double DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
+    private static final double DEFAULT_VIOLATION_COST = 10.0;
+    private static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     public MnecParametersExtension(double acceptableMarginDecrease, double violationCost, double constraintAdjustmentCoefficient) {
         this.acceptableMarginDecrease = acceptableMarginDecrease;

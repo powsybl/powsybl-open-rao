@@ -24,8 +24,8 @@ public class LoadFlowAndSensitivityParameters {
     private String sensitivityProvider;
     private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters;
 
-    public static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
-    public static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
+    private static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
+    private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
     private static final SensitivityAnalysisParameters DEFAULT_SENSI_WITH_LOAD_FLOW_PARAMETERS = new SensitivityAnalysisParameters();
 
     public LoadFlowAndSensitivityParameters(String loadFlowProvider, String sensitivityProvider, SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {

@@ -22,8 +22,8 @@ public class NotOptimizedCnecsParameters {
     private boolean doNotOptimizeCurativeCnecsForTsosWithoutCras;
     private Map<String, String> doNotOptimizeCnecsSecuredByTheirPst;
 
-    static final boolean DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS = true;
-    static final Map<String, String> DEFAULT_DO_NOT_OPTIMIZE_CNECS_SECURED_BY_THEIR_PST = new HashMap<>();
+    private static final boolean DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS = true;
+    private static final Map<String, String> DEFAULT_DO_NOT_OPTIMIZE_CNECS_SECURED_BY_THEIR_PST = new HashMap<>();
 
     public NotOptimizedCnecsParameters(boolean doNotOptimizeCurativeCnecsForTsosWithoutCras, Map<String, String> doNotOptimizeCnecsSecuredByTheirPst) {
         this.doNotOptimizeCurativeCnecsForTsosWithoutCras = doNotOptimizeCurativeCnecsForTsosWithoutCras;

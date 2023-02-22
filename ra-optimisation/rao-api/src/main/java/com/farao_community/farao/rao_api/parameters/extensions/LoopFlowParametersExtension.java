@@ -30,10 +30,10 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
     private double violationCost;
     private Set<Country> countries;
 
-    public static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
-    public static final Approximation DEFAULT_APPROXIMATION = Approximation.FIXED_PTDF;
-    public static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    public static final double DEFAULT_VIOLATION_COST = 0.0;
+    private static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
+    private static final Approximation DEFAULT_APPROXIMATION = Approximation.FIXED_PTDF;
+    private static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    private static final double DEFAULT_VIOLATION_COST = 0.0;
     private static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
 
     public LoopFlowParametersExtension(double acceptableIncrease, Approximation approximation, double constraintAdjustmentCoefficient, double violationCost, Set<Country> countries) {

@@ -21,9 +21,9 @@ public class MultithreadingParameters {
     private int preventiveLeavesInParallel;
     private int curativeLeavesInParallel;
 
-    static final int DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL = 1;
-    static final int DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL = 1;
-    static final int DEFAULT_CURATIVE_LEAVES_IN_PARALLEL = 1;
+    private static final int DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL = 1;
+    private static final int DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL = 1;
+    private static final int DEFAULT_CURATIVE_LEAVES_IN_PARALLEL = 1;
 
     public MultithreadingParameters(int contingencyScenariosInParallel, int preventiveLeavesInParallel, int curativeLeavesInParallel) {
         this.contingencyScenariosInParallel = contingencyScenariosInParallel;

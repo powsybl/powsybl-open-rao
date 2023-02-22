@@ -26,11 +26,11 @@ public class RaUsageLimitsPerContingencyParameters {
     private Map<String, Integer> maxCurativePstPerTso;
     private Map<String, Integer> maxCurativeRaPerTso;
 
-    static final int DEFAULT_MAX_CURATIVE_RA = Integer.MAX_VALUE;
-    static final int DEFAULT_MAX_CURATIVE_TSO = Integer.MAX_VALUE;
-    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
-    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
-    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
+    private static final int DEFAULT_MAX_CURATIVE_RA = Integer.MAX_VALUE;
+    private static final int DEFAULT_MAX_CURATIVE_TSO = Integer.MAX_VALUE;
+    private static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
+    private static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
+    private static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
 
     public RaUsageLimitsPerContingencyParameters(int maxCurativeRa, int maxCurativeTso, Map<String, Integer> maxCurativeTopoPerTso, Map<String, Integer> maxCurativePstPerTso, Map<String, Integer> maxCurativeRaPerTso) {
         this.maxCurativeRa = maxCurativeRa;

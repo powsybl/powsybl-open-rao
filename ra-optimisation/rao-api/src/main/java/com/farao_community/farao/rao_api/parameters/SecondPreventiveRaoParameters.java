@@ -20,9 +20,9 @@ public class SecondPreventiveRaoParameters {
     private ExecutionCondition executionCondition;
     private boolean reOptimizeCurativeRangeActions;
     private boolean hintFromFirstPreventiveRao;
-    static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
-    static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = false;
-    static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
+    private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
+    private static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = false;
+    private static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
 
     public SecondPreventiveRaoParameters(ExecutionCondition executionCondition, boolean reOptimizeCurativeRangeActions, boolean hintFromFirstPreventiveRao) {
         this.executionCondition = executionCondition;

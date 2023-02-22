@@ -33,14 +33,14 @@ public class RangeActionsOptimizationParameters {
     private LinearOptimizationSolver linearOptimizationSolver;
 
     // Default values
-    public static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
-    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
-    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
-    public static final PstModel DEFAULT_PST_MODEL = PstModel.CONTINUOUS;
-    public static final double DEFAULT_HVDC_PENALTY_COST = 0.001;
-    public static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
-    public static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
-    public static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
+    private static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
+    private static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    private static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    private static final PstModel DEFAULT_PST_MODEL = PstModel.CONTINUOUS;
+    private static final double DEFAULT_HVDC_PENALTY_COST = 0.001;
+    private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
+    private static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
+    private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
 
     public RangeActionsOptimizationParameters(int maxMipIterations, double pstPenaltyCost, double pstSensitivityThreshold,
                                               PstModel pstModel, double hvdcPenaltyCost, double hvdcSensitivityThreshold,
@@ -75,7 +75,7 @@ public class RangeActionsOptimizationParameters {
         private double relativeMipGap;
         private String solverSpecificParameters;
 
-        public static final Solver DEFAULT_SOLVER = Solver.CBC;
+        private static final Solver DEFAULT_SOLVER = Solver.CBC;
         public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
         public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
 

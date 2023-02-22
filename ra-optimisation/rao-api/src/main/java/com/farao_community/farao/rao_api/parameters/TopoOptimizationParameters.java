@@ -30,12 +30,12 @@ public class TopoOptimizationParameters {
     private int maxNumberOfBoundariesForSkippingActions;
 
     // Default values
-    static final int DEFAULT_MAX_SEARCH_TREE_DEPTH = Integer.MAX_VALUE;
-    static final List<List<String>> DEFAULT_PREDEFINED_COMBINATIONS = new ArrayList<>();
-    static final double DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD = 0;
-    static final double DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD = 0;
-    static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
-    static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
+    private static final int DEFAULT_MAX_SEARCH_TREE_DEPTH = Integer.MAX_VALUE;
+    private static final List<List<String>> DEFAULT_PREDEFINED_COMBINATIONS = new ArrayList<>();
+    private static final double DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD = 0;
+    private static final double DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD = 0;
+    private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
+    private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
 
     public TopoOptimizationParameters(int maxSearchTreeDepth, List<List<String>> predefinedCombinations,
                                       double relativeMinImpactThreshold, double absoluteMinImpactThreshold,

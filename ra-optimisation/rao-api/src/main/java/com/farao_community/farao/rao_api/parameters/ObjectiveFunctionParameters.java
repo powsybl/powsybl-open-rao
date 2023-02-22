@@ -30,11 +30,11 @@ public class ObjectiveFunctionParameters {
     private CurativeStopCriterion curativeStopCriterion;
 
     // Default values
-    static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
-    static final boolean DEFAULT_FORBID_COST_INCREASE = false;
-    static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
-    static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
-    static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
+    private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
+    private static final boolean DEFAULT_FORBID_COST_INCREASE = false;
+    private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
+    private static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
+    private static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
 
     public ObjectiveFunctionParameters(ObjectiveFunctionType objectiveFunctionType, boolean forbidCostIncrease, double curativeMinObjImprovement, PreventiveStopCriterion preventiveStopCriterion, CurativeStopCriterion curativeStopCriterion) {
         this.objectiveFunctionType = objectiveFunctionType;
