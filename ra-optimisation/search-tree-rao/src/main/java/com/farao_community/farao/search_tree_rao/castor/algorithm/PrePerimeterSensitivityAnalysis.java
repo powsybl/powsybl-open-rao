@@ -85,7 +85,7 @@ public class PrePerimeterSensitivityAnalysis {
                 sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
-        if (raoParameters.getObjectiveFunctionType().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
         }
         if (appliedCurativeRemedialActions != null) {

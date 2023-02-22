@@ -69,13 +69,13 @@ public class RangeActionParameters {
     }
 
     public static RangeActionParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        return new RangeActionParameters(raoParameters.getPstModel(),
-            raoParameters.getPstSensitivityThreshold(),
-            raoParameters.getHvdcSensitivityThreshold(),
-            raoParameters.getInjectionRaSensitivityThreshold(),
-            raoParameters.getPstPenaltyCost(),
-            raoParameters.getHvdcPenaltyCost(),
-            raoParameters.getInjectionRaPenaltyCost());
+        return new RangeActionParameters(raoParameters.getRangeActionsOptimizationParameters().getPstModel(),
+            raoParameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold(),
+            raoParameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold(),
+            raoParameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold(),
+            raoParameters.getRangeActionsOptimizationParameters().getPstPenaltyCost(),
+            raoParameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost(),
+            raoParameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
     }
 
     @Override

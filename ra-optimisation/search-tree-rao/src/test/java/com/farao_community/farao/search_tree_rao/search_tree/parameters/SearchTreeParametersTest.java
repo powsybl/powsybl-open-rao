@@ -43,7 +43,7 @@ public class SearchTreeParametersTest {
         assertEquals(MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getMaxMinRelativeMarginParameters());
         assertEquals(LoopFlowParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getLoopFlowParameters());
         assertEquals(SolverParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getSolverParameters());
-        assertEquals(raoParameters.getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
+        assertEquals(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
     }
 
     @Test

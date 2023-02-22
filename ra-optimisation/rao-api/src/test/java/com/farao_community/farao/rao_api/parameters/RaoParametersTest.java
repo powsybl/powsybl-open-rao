@@ -158,7 +158,7 @@ public class RaoParametersTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
-        assertEquals(10, parameters.getContingencyScenariosInParallel());
+        assertEquals(10, parameters.getMultithreadingParameters().getContingencyScenariosInParallel());
     }
 
     @Test

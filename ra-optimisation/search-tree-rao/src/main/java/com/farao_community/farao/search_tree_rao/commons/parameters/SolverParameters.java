@@ -39,9 +39,9 @@ public class SolverParameters {
     }
 
     public static SolverParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        return new SolverParameters(raoParameters.getLinearOptimizationSolver(),
-            raoParameters.getRelativeMipGap(),
-            raoParameters.getSolverSpecificParameters());
+        return new SolverParameters(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver(),
+            raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap(),
+            raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolverSpecificParameters());
     }
 
     @Override

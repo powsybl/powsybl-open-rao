@@ -112,6 +112,7 @@ public class ObjectiveFunctionParameters {
     public void setPreventiveStopCriterion(PreventiveStopCriterion preventiveStopCriterion) {
         this.preventiveStopCriterion = preventiveStopCriterion;
     }
+
     public double getCurativeMinObjImprovement() {
         return curativeMinObjImprovement;
     }

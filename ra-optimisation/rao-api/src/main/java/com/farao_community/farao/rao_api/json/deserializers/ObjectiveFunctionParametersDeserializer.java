@@ -31,7 +31,7 @@ public final class ObjectiveFunctionParametersDeserializer {
                     break;
                 case FORBID_COST_INCREASE:
                     jsonParser.nextToken();
-                    raoParameters.setForbidCostIncrease(jsonParser.getBooleanValue());
+                    raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(jsonParser.getBooleanValue());
                     break;
                 case CURATIVE_MIN_OBJ_IMPROVEMENT:
                     jsonParser.nextToken();

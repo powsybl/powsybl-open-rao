@@ -89,13 +89,13 @@ public final class ToolProvider {
                                                                             AppliedRemedialActions appliedRemedialActions) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName(raoParameters.getSensitivityProvider())
-            .withDefaultParameters(raoParameters.getSensitivityWithLoadFlowParameters())
+            .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
+            .withDefaultParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions);
 
-        if (!raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+        if (!raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
         }
 
@@ -211,7 +211,7 @@ public final class ToolProvider {
                 )
             );
         }
-        if (raoParameters.getObjectiveFunctionType().relativePositiveMargins()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
             RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
             if (Objects.isNull(relativeMarginParameters)) {
                 throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType());

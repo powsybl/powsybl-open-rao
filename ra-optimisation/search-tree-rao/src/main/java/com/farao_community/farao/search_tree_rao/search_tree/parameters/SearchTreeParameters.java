@@ -118,7 +118,7 @@ public class SearchTreeParameters {
         private int maxNumberOfIterations;
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
-            this.objectiveFunction = raoParameters.getObjectiveFunctionType();
+            this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType();
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
             this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
             this.rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
@@ -126,7 +126,7 @@ public class SearchTreeParameters {
             this.maxMinRelativeMarginParameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
             this.loopFlowParameters = LoopFlowParameters.buildFromRaoParameters(raoParameters);
             this.solverParameters = SolverParameters.buildFromRaoParameters(raoParameters);
-            this.maxNumberOfIterations = raoParameters.getMaxMipIterations();
+            this.maxNumberOfIterations = raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations();
             return this;
         }
 

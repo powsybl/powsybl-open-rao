@@ -24,7 +24,6 @@ import java.util.Objects;
  */
 // TODO rename getters setters with intelliji refacto
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
-
     private ObjectiveFunctionParameters objectiveFunctionParameters = ObjectiveFunctionParameters.loadDefault();
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = RangeActionsOptimizationParameters.loadDefault();
     private TopoOptimizationParameters topoOptimizationParameters = TopoOptimizationParameters.loadDefault();
@@ -35,159 +34,15 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = LoadFlowAndSensitivityParameters.loadDefault();
 
     // GETTERS AND SETTERS
-    public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunctionType() {
-        return getObjectiveFunctionParameters().getObjectiveFunctionType();
-    }
-
-    public RaoParameters setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType) {
-        getObjectiveFunctionParameters().setObjectiveFunctionType(objectiveFunctionType);
-        return this;
-    }
-
-    public int getMaxMipIterations() {
-        return rangeActionsOptimizationParameters.getMaxMipIterations();
-    }
-
-    public RaoParameters setMaxMipIterations(int maxMipIterations) {
-        this.rangeActionsOptimizationParameters.setMaxMipIterations(maxMipIterations);
-        return this;
-    }
-
-    public double getPstPenaltyCost() {
-        return rangeActionsOptimizationParameters.getPstPenaltyCost();
-    }
-
-    public RaoParameters setPstPenaltyCost(double pstPenaltyCost) {
-        this.rangeActionsOptimizationParameters.setPstPenaltyCost(pstPenaltyCost);
-        return this;
-    }
-
-    public double getPstSensitivityThreshold() {
-        return rangeActionsOptimizationParameters.getPstSensitivityThreshold();
-    }
-
-    public RaoParameters setPstSensitivityThreshold(double pstSensitivityThreshold) {
-        this.rangeActionsOptimizationParameters.setPstSensitivityThreshold(pstSensitivityThreshold);
-        return this;
-    }
-
-    public double getHvdcPenaltyCost() {
-        return rangeActionsOptimizationParameters.getHvdcPenaltyCost();
-    }
-
-    public void setHvdcPenaltyCost(double hvdcPenaltyCost) {
-        this.rangeActionsOptimizationParameters.setHvdcPenaltyCost(hvdcPenaltyCost);
-    }
-
-    public double getHvdcSensitivityThreshold() {
-        return rangeActionsOptimizationParameters.getHvdcSensitivityThreshold();
-    }
-
-    public void setHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
-        this.rangeActionsOptimizationParameters.setHvdcSensitivityThreshold(hvdcSensitivityThreshold);
-    }
-
-    public double getInjectionRaPenaltyCost() {
-        return rangeActionsOptimizationParameters.getInjectionRaPenaltyCost();
-    }
-
-    public void setInjectionRaPenaltyCost(double injectionRaPenaltyCost) {
-        this.rangeActionsOptimizationParameters.setInjectionRaPenaltyCost(injectionRaPenaltyCost);
-    }
-
-    public double getInjectionRaSensitivityThreshold() {
-        return rangeActionsOptimizationParameters.getInjectionRaSensitivityThreshold();
-    }
-
-    public void setInjectionRaSensitivityThreshold(double injectionRaSensitivityThreshold) {
-        this.rangeActionsOptimizationParameters.setInjectionRaSensitivityThreshold(injectionRaSensitivityThreshold);
-    }
-
     // TODO : DELETE
     public double getFallbackOverCost() {
         return 0;
-    }
-
-
-    public SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters() {
-        return loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters();
-    }
-
-    public String getLoadFlowProvider() {
-        return loadFlowAndSensitivityParameters.getLoadFlowProvider();
-    }
-
-    public void setLoadFlowProvider(String loadFlowProvider) {
-        this.loadFlowAndSensitivityParameters.setLoadFlowProvider(loadFlowProvider);
-    }
-
-    public String getSensitivityProvider() {
-        return loadFlowAndSensitivityParameters.getSensitivityProvider();
-    }
-
-    public void setSensitivityProvider(String sensitivityProvider) {
-        this.loadFlowAndSensitivityParameters.setSensitivityProvider(sensitivityProvider);
-    }
-
-    public RaoParameters setSensitivityWithLoadFlowParameters(SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
-        this.loadFlowAndSensitivityParameters.setSensitivityWithLoadFlowParameters(Objects.requireNonNull(sensitivityWithLoadFlowParameters));
-        return this;
     }
 
     // TODO : DELETE
     public SensitivityAnalysisParameters getFallbackSensitivityAnalysisParameters() {
         return loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters();
     }
-
-    public int getContingencyScenariosInParallel() {
-        return multithreadingParameters.getContingencyScenariosInParallel();
-    }
-
-    public void setContingencyScenariosInParallel(int contingencyScenariosInParallel) {
-        this.multithreadingParameters.setContingencyScenariosInParallel(contingencyScenariosInParallel);
-    }
-
-    public RangeActionsOptimizationParameters.Solver getLinearOptimizationSolver() {
-        return rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolver();
-    }
-
-    public void setLinearOptimizationSolver(RangeActionsOptimizationParameters.Solver solver) {
-        this.rangeActionsOptimizationParameters.setLinearOptimizationSolverSolver(solver);
-    }
-
-    public double getRelativeMipGap() {
-        return rangeActionsOptimizationParameters.getLinearOptimizationSolver().getRelativeMipGap();
-    }
-
-    public void setRelativeMipGap(double relativeMipGap) {
-        this.rangeActionsOptimizationParameters.setLinearOptimizationSolverRelativeMipGap(relativeMipGap);
-    }
-
-    public RangeActionsOptimizationParameters.PstModel getPstModel() {
-        return rangeActionsOptimizationParameters.getPstModel();
-    }
-
-    public void setPstModel(RangeActionsOptimizationParameters.PstModel pstModel) {
-        this.rangeActionsOptimizationParameters.setPstModel(pstModel);
-    }
-
-    public boolean getForbidCostIncrease() {
-        return objectiveFunctionParameters.getForbidCostIncrease();
-    }
-
-    public void setForbidCostIncrease(boolean forbidCostIncrease) {
-        this.objectiveFunctionParameters.setForbidCostIncrease(forbidCostIncrease);
-    }
-
-    public String getSolverSpecificParameters() {
-        return rangeActionsOptimizationParameters.getLinearOptimizationSolver().getSolverSpecificParameters();
-    }
-
-    public void setSolverSpecificParameters(String solverSpecificParameters) {
-        this.rangeActionsOptimizationParameters.setLinearOptimizationSolverSpecificParameters(solverSpecificParameters);
-    }
-
-    // TODO : rationaliser les getters/setters ??
 
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
         this.objectiveFunctionParameters = objectiveFunctionParameters;
@@ -284,7 +139,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return parameters;
     }
 
-// TODO : handle this with new objects
     public static void load(RaoParameters parameters, PlatformConfig platformConfig) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);

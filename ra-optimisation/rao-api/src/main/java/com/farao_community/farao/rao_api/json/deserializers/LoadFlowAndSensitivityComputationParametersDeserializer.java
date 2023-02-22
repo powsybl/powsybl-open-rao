@@ -36,7 +36,7 @@ public final class LoadFlowAndSensitivityComputationParametersDeserializer {
                     break;
                 case SENSITIVITY_PARAMETERS:
                     jsonParser.nextToken();
-                    raoParameters.setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(raoParameters.getSensitivityWithLoadFlowParameters()).readValue(jsonParser));
+                    raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters()).readValue(jsonParser));
                     break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize load flow and sensitivity parameters: unexpected field in %s (%s)", LOAD_FLOW_AND_SENSITIVITY_COMPUTATION, jsonParser.getCurrentName()));

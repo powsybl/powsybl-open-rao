@@ -21,9 +21,9 @@ public class SolverParametersTest {
     public void buildFromRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
 
-        raoParameters.setLinearOptimizationSolver(RangeActionsOptimizationParameters.Solver.CBC);
-        raoParameters.setRelativeMipGap(0.5);
-        raoParameters.setSolverSpecificParameters("coucouSpecificParameters");
+        raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.CBC);
+        raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(0.5);
+        raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("coucouSpecificParameters");
 
         SolverParameters sp = SolverParameters.buildFromRaoParameters(raoParameters);
 

@@ -35,7 +35,7 @@ public class MaxMinRelativeMarginParametersTest {
     @Test
     public void buildFromRaoParametersTestWithoutRelativeMargin() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         MaxMinRelativeMarginParameters mmrmp = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
         assertNull(mmrmp);
     }

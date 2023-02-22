@@ -59,7 +59,7 @@ public final class RaoLogger {
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
                 sensitivityAnalysisResult,
-                raoParameters.getObjectiveFunctionType(),
+                raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType(),
                 numberOfLoggedLimitingElements);
     }
 

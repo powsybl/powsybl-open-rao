@@ -56,27 +56,27 @@ public final class RaoUtil {
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
 
-        if (raoParameters.getObjectiveFunctionType().getUnit().equals(Unit.AMPERE)
-            && raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
-            throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionType().toString()));
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().getUnit().equals(Unit.AMPERE)
+            && raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+            throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().toString()));
         }
 
-        if (raoParameters.getObjectiveFunctionType().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf()) {
             if (raoInput.getGlskProvider() == null) {
-                throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionType()));
+                throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType()));
             }
             RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
             if (Objects.isNull(relativeMarginParameters) || relativeMarginParameters.getPtdfBoundaries().isEmpty()) {
-                throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionType()));
+                throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType()));
             }
         }
 
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
         if ((Objects.nonNull(loopFlowParameters)
-            || raoParameters.getObjectiveFunctionType().doesRequirePtdf())
+            || raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
             FaraoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowProvider(), raoParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));
         }
 
         if (Objects.nonNull(loopFlowParameters) && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
