@@ -31,8 +31,14 @@ import java.util.Set;
  */
 public interface RaoResult {
 
+    /**
+     * Get the overall sensitivity computation status of the RAO
+     */
     ComputationStatus getComputationStatus();
 
+    /**
+     * Get the sensitivity computation status for a given state
+     */
     ComputationStatus getComputationStatus(State state);
 
     /**
@@ -378,6 +384,9 @@ public interface RaoResult {
      */
     Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
 
+    /**
+     * Know which RAO steps were executed by the RAO
+     */
     OptimizationStepsExecuted getOptimizationStepsExecuted();
 
     void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted);
