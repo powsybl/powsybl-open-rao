@@ -64,7 +64,6 @@ public final class SystematicSensitivityInterface {
     public static final class SystematicSensitivityInterfaceBuilder {
         private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
-        private SensitivityAnalysisParameters fallbackParameters;
         private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
@@ -75,11 +74,6 @@ public final class SystematicSensitivityInterface {
 
         public SystematicSensitivityInterfaceBuilder withSensitivityProviderName(String sensitivityProvider) {
             this.sensitivityProvider = sensitivityProvider;
-            return this;
-        }
-
-        public SystematicSensitivityInterfaceBuilder withFallbackParameters(SensitivityAnalysisParameters fallbackParameters) {
-            this.fallbackParameters = fallbackParameters;
             return this;
         }
 
@@ -127,7 +121,6 @@ public final class SystematicSensitivityInterface {
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
             systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
             systematicSensitivityInterface.defaultParameters = defaultParameters;
-            systematicSensitivityInterface.fallbackParameters = fallbackParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             return systematicSensitivityInterface;

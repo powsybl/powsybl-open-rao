@@ -14,7 +14,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 
@@ -33,17 +32,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private NotOptimizedCnecsParameters notOptimizedCnecsParameters = NotOptimizedCnecsParameters.loadDefault();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = LoadFlowAndSensitivityParameters.loadDefault();
 
-    // GETTERS AND SETTERS
-    // TODO : DELETE
-    public double getFallbackOverCost() {
-        return 0;
-    }
-
-    // TODO : DELETE
-    public SensitivityAnalysisParameters getFallbackSensitivityAnalysisParameters() {
-        return loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters();
-    }
-
+    // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
         this.objectiveFunctionParameters = objectiveFunctionParameters;
     }
@@ -108,11 +97,12 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return loadFlowAndSensitivityParameters;
     }
 
+    // ConfigLoader
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
      */
-    public static interface ConfigLoader<E extends Extension<RaoParameters>> extends ExtensionConfigLoader<RaoParameters, E> {
+    public interface ConfigLoader<E extends Extension<RaoParameters>> extends ExtensionConfigLoader<RaoParameters, E> {
     }
 
     private static final Supplier<ExtensionProviders<RaoParameters.ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =

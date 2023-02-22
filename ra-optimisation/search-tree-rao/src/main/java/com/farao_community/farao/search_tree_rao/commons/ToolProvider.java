@@ -91,7 +91,6 @@ public final class ToolProvider {
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
             .withDefaultParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions);
 
