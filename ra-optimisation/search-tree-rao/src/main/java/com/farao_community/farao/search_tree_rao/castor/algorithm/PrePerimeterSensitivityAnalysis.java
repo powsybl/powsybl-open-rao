@@ -59,7 +59,7 @@ public class PrePerimeterSensitivityAnalysis {
         if (Objects.nonNull(loopFlowParameters)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
-        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
             sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
 
@@ -85,7 +85,7 @@ public class PrePerimeterSensitivityAnalysis {
                 sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
-        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
             sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
         }
         if (appliedCurativeRemedialActions != null) {

@@ -189,7 +189,7 @@ public class IteratingLinearOptimizer {
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
             builder.withCommercialFlowsResults(input.getPreOptimizationFlowResult());
         }
-        if (parameters.getObjectiveFunction().doesRequirePtdf()) {
+        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             builder.withPtdfsResults(input.getInitialFlowResult());
         }
 

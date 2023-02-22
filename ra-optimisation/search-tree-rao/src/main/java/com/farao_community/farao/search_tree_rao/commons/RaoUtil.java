@@ -61,7 +61,7 @@ public final class RaoUtil {
             throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().toString()));
         }
 
-        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
             if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType()));
             }
@@ -73,7 +73,7 @@ public final class RaoUtil {
 
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
         if ((Objects.nonNull(loopFlowParameters)
-            || raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().doesRequirePtdf())
+            || raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
             FaraoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider(), raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters()));

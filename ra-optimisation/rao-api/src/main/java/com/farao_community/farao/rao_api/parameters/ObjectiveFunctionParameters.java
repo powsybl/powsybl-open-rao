@@ -19,11 +19,9 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO : rapatrier commentaires
 public class ObjectiveFunctionParameters {
     // Attributes
     private ObjectiveFunctionType objectiveFunctionType;
-    // Fallback to initial solution if RAO caused cost to increase (ie in curative)
     private boolean forbidCostIncrease;
     private double curativeMinObjImprovement;
     private PreventiveStopCriterion preventiveStopCriterion;
@@ -51,32 +49,24 @@ public class ObjectiveFunctionParameters {
 
     // Enum
     public enum ObjectiveFunctionType {
-        MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT, false),
-        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE, false),
-        MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT(Unit.MEGAWATT, true),
-        MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE, true);
+        MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
+        MAX_MIN_MARGIN_IN_AMPERE(Unit.AMPERE),
+        MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT(Unit.MEGAWATT),
+        MAX_MIN_RELATIVE_MARGIN_IN_AMPERE(Unit.AMPERE);
 
-        private Unit unit;
-        private boolean requirePtdf;
+        private final Unit unit;
 
-        ObjectiveFunctionType(Unit unit, boolean requirePtdf) {
+        ObjectiveFunctionType(Unit unit) {
             this.unit = unit;
-            this.requirePtdf = requirePtdf;
         }
 
         public Unit getUnit() {
             return unit;
         }
 
-        // TODO : doesRequirePtdf = relativePositiveMargins => simplify
-        public boolean doesRequirePtdf() {
-            return requirePtdf;
-        }
-
         public boolean relativePositiveMargins() {
             return this.equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) || this.equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         }
-        // TODO : add check to check that getObjectiveFunctionType is consisten with the presence of RelativeMarginsParameters extension
     }
 
     public enum PreventiveStopCriterion {
@@ -92,7 +82,6 @@ public class ObjectiveFunctionParameters {
     }
 
     // Getters and setters
-
     public ObjectiveFunctionType getObjectiveFunctionType() {
         return objectiveFunctionType;
     }
