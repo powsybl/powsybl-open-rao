@@ -79,6 +79,7 @@ public final class RaoParametersConstants {
     public static final String LOAD_FLOW_AND_SENSITIVITY_COMPUTATION = "load-flow-and-sensitivity-computation";
     public static final String LOAD_FLOW_PROVIDER = "load-flow-provider";
     public static final String SENSITIVITY_PROVIDER = "sensitivity-provider";
+    public static final String SENSITIVITY_FAILURE_OVERCOST = "sensitivity-failure-overcost";
     public static final String SENSITIVITY_PARAMETERS = "sensitivity-parameters";
 
     // EXTENSIONS
