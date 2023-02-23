@@ -183,7 +183,7 @@ public final class ObjectiveFunction {
 
             // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
             // to ensure that corresponding leaf is not selected
-            this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs));
+            this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
 
             return this.build();
         }

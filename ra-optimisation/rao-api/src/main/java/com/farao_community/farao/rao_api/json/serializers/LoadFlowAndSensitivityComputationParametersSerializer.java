@@ -26,6 +26,7 @@ final class LoadFlowAndSensitivityComputationParametersSerializer {
         jsonGenerator.writeObjectFieldStart(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION);
         jsonGenerator.writeStringField(LOAD_FLOW_PROVIDER, parameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider());
         jsonGenerator.writeStringField(SENSITIVITY_PROVIDER, parameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider());
+        jsonGenerator.writeNumberField(SENSITIVITY_FAILURE_OVERCOST, parameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost());
         jsonGenerator.writeFieldName(SENSITIVITY_PARAMETERS);
         serializerProvider.defaultSerializeValue(parameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters(), jsonGenerator);
         jsonGenerator.writeEndObject();

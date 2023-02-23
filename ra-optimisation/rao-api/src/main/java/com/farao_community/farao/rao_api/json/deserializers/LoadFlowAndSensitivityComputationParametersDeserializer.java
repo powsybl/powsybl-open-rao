@@ -34,6 +34,10 @@ public final class LoadFlowAndSensitivityComputationParametersDeserializer {
                     jsonParser.nextToken();
                     raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider(jsonParser.getValueAsString());
                     break;
+                case SENSITIVITY_FAILURE_OVERCOST:
+                    jsonParser.nextToken();
+                    raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(jsonParser.getValueAsDouble());
+                    break;
                 case SENSITIVITY_PARAMETERS:
                     jsonParser.nextToken();
                     raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityWithLoadFlowParameters(JsonSensitivityAnalysisParameters.createObjectMapper().readerForUpdating(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters()).readValue(jsonParser));

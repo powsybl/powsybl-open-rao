@@ -22,20 +22,25 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 public class LoadFlowAndSensitivityParameters {
     private String loadFlowProvider;
     private String sensitivityProvider;
+
+    private double sensitivityFailureOvercost;
     private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters;
 
     private static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
     private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
+    private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
+
     private static final SensitivityAnalysisParameters DEFAULT_SENSI_WITH_LOAD_FLOW_PARAMETERS = new SensitivityAnalysisParameters();
 
-    public LoadFlowAndSensitivityParameters(String loadFlowProvider, String sensitivityProvider, SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
+    public LoadFlowAndSensitivityParameters(String loadFlowProvider, String sensitivityProvider, double sensitivityFailureOvercost, SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
         this.sensitivityProvider = sensitivityProvider;
+        this.sensitivityFailureOvercost = sensitivityFailureOvercost;
         this.sensitivityWithLoadFlowParameters = sensitivityWithLoadFlowParameters;
     }
 
     public static LoadFlowAndSensitivityParameters loadDefault() {
-        return new LoadFlowAndSensitivityParameters(DEFAULT_LOADFLOW_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER, DEFAULT_SENSI_WITH_LOAD_FLOW_PARAMETERS);
+        return new LoadFlowAndSensitivityParameters(DEFAULT_LOADFLOW_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_FAILURE_OVERCOST, DEFAULT_SENSI_WITH_LOAD_FLOW_PARAMETERS);
     }
 
     // Getters and setters
@@ -63,6 +68,15 @@ public class LoadFlowAndSensitivityParameters {
         this.sensitivityProvider = sensitivityProvider;
     }
 
+    public double getSensitivityFailureOvercost() {
+        return sensitivityFailureOvercost;
+    }
+
+    public void setSensitivityFailureOvercost(double sensitivityFailureOvercost) {
+        this.sensitivityFailureOvercost = sensitivityFailureOvercost;
+    }
+
+
     public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         LoadFlowAndSensitivityParameters parameters = loadDefault();
@@ -70,6 +84,7 @@ public class LoadFlowAndSensitivityParameters {
                 .ifPresent(config -> {
                     parameters.setLoadFlowProvider(config.getStringProperty(LOAD_FLOW_PROVIDER, DEFAULT_LOADFLOW_PROVIDER));
                     parameters.setSensitivityProvider(config.getStringProperty(SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER));
+                    parameters.setSensitivityFailureOvercost(config.getDoubleProperty(SENSITIVITY_FAILURE_OVERCOST, DEFAULT_SENSITIVITY_FAILURE_OVERCOST));
                 });
         parameters.setSensitivityWithLoadFlowParameters(SensitivityAnalysisParameters.load(platformConfig));
         return parameters;

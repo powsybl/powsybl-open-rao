@@ -56,19 +56,19 @@ public class SensitivityFailureOvercostEvaluatorTest {
 
     @Test
     public void testGetName() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1));
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1), 10000);
         assertEquals("sensitivity-failure-cost", evaluator.getName());
     }
 
     @Test
     public void testGetUnit() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1));
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1), 10000);
         assertEquals(Unit.MEGAWATT, evaluator.getUnit());
     }
 
     @Test
     public void testCostWithNoStateInFailure() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2));
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
         assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
         assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
@@ -76,7 +76,7 @@ public class SensitivityFailureOvercostEvaluatorTest {
 
     @Test
     public void testCostWithStateInFailure() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2, cnec3));
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2, cnec3), 10000);
         assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
         assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
         assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
@@ -84,14 +84,14 @@ public class SensitivityFailureOvercostEvaluatorTest {
 
     @Test
     public void testGetCostlyElements() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2));
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5).size());
         assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5, Set.of("")).size());
     }
 
     @Test
     public void testGetFlowCnecs() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2));
+        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(0, evaluator.getFlowCnecs().size());
     }
 }
