@@ -147,7 +147,7 @@ public final class ObjectiveFunction {
             }
 
             // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
-            if (!raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
+            if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
 
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().getUnit(),

@@ -45,10 +45,10 @@ public class UnoptimizedCnecParameters {
 
     // unoptimizedCnecsInSeriesWithPsts and operatorNotToOptimize cannot be activated together.
     public static UnoptimizedCnecParameters build(NotOptimizedCnecsParameters parameters, Set<String> operatorsNotSharingCras, Crac crac) {
-        if (!parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
+        if (parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !parameters.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
             throw new FaraoException("SearchTreeRaoParameters : unoptimizedCnecsInSeriesWithPsts and operatorNotToOptimize cannot be activated together");
-        } else if (!parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()) {
+        } else if (parameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()) {
             return new UnoptimizedCnecParameters(
                 operatorsNotSharingCras,
                 null);

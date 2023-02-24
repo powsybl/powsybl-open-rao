@@ -41,7 +41,7 @@ public class UnoptimizedCnecParametersTest {
     @Test
     public void buildWithoutOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
+        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
 
@@ -52,7 +52,7 @@ public class UnoptimizedCnecParametersTest {
     @Test
     public void buildWhileOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
+        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
         assertNull(ocp);
