@@ -21,7 +21,6 @@ import java.util.Objects;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO rename getters setters with intelliji refacto
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private ObjectiveFunctionParameters objectiveFunctionParameters = ObjectiveFunctionParameters.loadDefault();
     private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = RangeActionsOptimizationParameters.loadDefault();
@@ -121,11 +120,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
      */
     public static RaoParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-
         RaoParameters parameters = new RaoParameters();
         load(parameters, platformConfig);
         parameters.readExtensions(platformConfig);
-
         return parameters;
     }
 

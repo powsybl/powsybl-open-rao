@@ -8,11 +8,7 @@
 package com.farao_community.farao.rao_api.parameters.extensions;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
-
-import java.util.Objects;
 
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 /**
@@ -26,9 +22,9 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
     private double violationCost;
     private double constraintAdjustmentCoefficient;
 
-    private static final double DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    private static final double DEFAULT_VIOLATION_COST = 10.0;
-    private static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    static final double DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
+    static final double DEFAULT_VIOLATION_COST = 10.0;
+    static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
 
     public MnecParametersExtension(double acceptableMarginDecrease, double violationCost, double constraintAdjustmentCoefficient) {
         this.acceptableMarginDecrease = acceptableMarginDecrease;
@@ -42,7 +38,7 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
 
     @Override
     public String getName() {
-        return MNEC_PARAMETERS_EXTENSION_NAME;
+        return MNEC_PARAMETERS;
     }
 
     public double getAcceptableMarginDecrease() {
@@ -67,37 +63,5 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
 
     public void setConstraintAdjustmentCoefficient(double constraintAdjustmentCoefficient) {
         this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
-    }
-
-    @AutoService(RaoParameters.ConfigLoader.class)
-    public class MnecParametersConfigLoader implements RaoParameters.ConfigLoader<MnecParametersExtension> {
-
-        @Override
-        public MnecParametersExtension load(PlatformConfig platformConfig) {
-            Objects.requireNonNull(platformConfig);
-            MnecParametersExtension parameters = loadDefault();
-            platformConfig.getOptionalModuleConfig(MNEC_PARAMETERS)
-                    .ifPresent(config -> {
-                        parameters.setAcceptableMarginDecrease(config.getDoubleProperty(ACCEPTABLE_MARGIN_DECREASE, DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION));
-                        parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, DEFAULT_VIOLATION_COST));
-                        parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
-                    });
-            return parameters;
-        }
-
-        @Override
-        public String getExtensionName() {
-            return MNEC_PARAMETERS_EXTENSION_NAME;
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "rao-parameters";
-        }
-
-        @Override
-        public Class<? super MnecParametersExtension> getExtensionClass() {
-            return MnecParametersExtension.class;
-        }
     }
 }

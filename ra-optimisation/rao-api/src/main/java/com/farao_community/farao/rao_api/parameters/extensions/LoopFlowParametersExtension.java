@@ -9,14 +9,13 @@ package com.farao_community.farao.rao_api.parameters.extensions;
 
 import com.farao_community.farao.rao_api.parameters.ParametersUtil;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Country;
 
 import java.util.*;
 
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
+
 /**
  * Extension : loopFlow parameters for RAO
  *
@@ -30,11 +29,11 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
     private double violationCost;
     private Set<Country> countries;
 
-    private static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
-    private static final Approximation DEFAULT_APPROXIMATION = Approximation.FIXED_PTDF;
-    private static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    private static final double DEFAULT_VIOLATION_COST = 0.0;
-    private static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
+    static final double DEFAULT_ACCEPTABLE_INCREASE = 0.0;
+    static final Approximation DEFAULT_APPROXIMATION = Approximation.FIXED_PTDF;
+    static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    static final double DEFAULT_VIOLATION_COST = 0.0;
+    static final Set<Country> DEFAULT_COUNTRIES = new HashSet<>(); //Empty by default
 
     public LoopFlowParametersExtension(double acceptableIncrease, Approximation approximation, double constraintAdjustmentCoefficient, double violationCost, Set<Country> countries) {
         this.acceptableIncrease = acceptableIncrease;
@@ -111,41 +110,7 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
 
     @Override
     public String getName() {
-        return LOOP_FLOW_PARAMETERS_EXTENSION_NAME;
-    }
-
-    @AutoService(RaoParameters.ConfigLoader.class)
-    public class LoopFlowParametersConfigLoader implements RaoParameters.ConfigLoader<LoopFlowParametersExtension> {
-
-        @Override
-        public LoopFlowParametersExtension load(PlatformConfig platformConfig) {
-            Objects.requireNonNull(platformConfig);
-            LoopFlowParametersExtension parameters = loadDefault();
-            platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS)
-                    .ifPresent(config -> {
-                        parameters.setAcceptableIncrease(config.getDoubleProperty(ACCEPTABLE_INCREASE, DEFAULT_ACCEPTABLE_INCREASE));
-                        parameters.setApproximation(config.getEnumProperty(APPROXIMATION, Approximation.class,
-                                DEFAULT_APPROXIMATION));
-                        parameters.setConstraintAdjustmentCoefficient(config.getDoubleProperty(CONSTRAINT_ADJUSTMENT_COEFFICIENT, DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
-                        parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, DEFAULT_VIOLATION_COST));
-                        parameters.setCountries(ParametersUtil.convertToCountrySet(config.getStringListProperty(COUNTRIES, new ArrayList<>())));
-                    });
-            return parameters;
-        }
-
-        @Override
-        public String getExtensionName() {
-            return LOOP_FLOW_PARAMETERS_EXTENSION_NAME;
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "rao-parameters";
-        }
-
-        @Override
-        public Class<? super LoopFlowParametersExtension> getExtensionClass() {
-            return LoopFlowParametersExtension.class;
-        }
+        return LOOP_FLOW_PARAMETERS;
     }
 }
+

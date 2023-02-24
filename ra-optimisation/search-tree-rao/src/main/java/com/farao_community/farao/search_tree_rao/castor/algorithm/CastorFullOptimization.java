@@ -130,7 +130,7 @@ public class CastorFullOptimization {
         // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
 
         double preventiveOptimalCost = preventiveResult.getCost();
-        TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(RaoParameters.class), preventiveOptimalCost);
+        TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
         applyRemedialActions(network, preventiveResult, raoInput.getCrac().getPreventiveState());
 
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), null);

@@ -45,27 +45,35 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     break;
                 case OBJECTIVE_FUNCTION:
+                    parser.nextToken();
                     ObjectiveFunctionParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case RANGE_ACTIONS_OPTIMIZATION:
+                    parser.nextToken();
                     RangeActionsOptimizationParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case TOPOLOGICAL_ACTIONS_OPTIMIZATION:
+                    parser.nextToken();
                     TopoOptimizationParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case MULTI_THREADING:
+                    parser.nextToken();
                     MultiThreadingParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case SECOND_PREVENTIVE_RAO:
+                    parser.nextToken();
                     SecondPreventiveRaoParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case RA_USAGE_LIMITS_PER_CONTINGENCY:
+                    parser.nextToken();
                     RaUsageLimitsPerContingencyParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case NOT_OPTIMIZED_CNECS:
+                    parser.nextToken();
                     NotOptimizedCnecsParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION:
+                    parser.nextToken();
                     LoadFlowAndSensitivityComputationParametersDeserializer.deserialize(parser, parameters);
                     break;
                 case "extensions":

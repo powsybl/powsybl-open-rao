@@ -64,12 +64,12 @@ public class MnecParametersExtensionSerializer implements JsonRaoParameters.Exte
 
     @Override
     public String getExtensionName() {
-        return MNEC_PARAMETERS_EXTENSION_NAME;
+        return MNEC_PARAMETERS;
     }
 
     @Override
     public String getCategoryName() {
-        return MNEC_PARAMETERS;
+        return "rao-parameters";
     }
 
     @Override

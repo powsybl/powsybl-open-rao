@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class MaxMinRelativeMarginParameters {
     }
 
     public static MaxMinRelativeMarginParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+        RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
         if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
             if (Objects.isNull(relativeMarginParameters)) {
                 throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType());

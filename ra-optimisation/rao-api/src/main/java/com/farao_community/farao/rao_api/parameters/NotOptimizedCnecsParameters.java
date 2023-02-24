@@ -22,7 +22,7 @@ public class NotOptimizedCnecsParameters {
     private boolean doNotOptimizeCurativeCnecsForTsosWithoutCras;
     private Map<String, String> doNotOptimizeCnecsSecuredByTheirPst;
 
-    private static final boolean DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS = true;
+    private static final boolean DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS = false;
     private static final Map<String, String> DEFAULT_DO_NOT_OPTIMIZE_CNECS_SECURED_BY_THEIR_PST = new HashMap<>();
 
     public NotOptimizedCnecsParameters(boolean doNotOptimizeCurativeCnecsForTsosWithoutCras, Map<String, String> doNotOptimizeCnecsSecuredByTheirPst) {
@@ -70,14 +70,14 @@ public class NotOptimizedCnecsParameters {
     }
 
     public void setDoNotOptimizeCurativeCnecsForTsosWithoutCras(boolean doNotOptimizeCurativeCnecsForTsosWithoutCras) {
-        if (!doNotOptimizeCurativeCnecsForTsosWithoutCras && !getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
+        if (doNotOptimizeCurativeCnecsForTsosWithoutCras && !getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
             throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
         }
         this.doNotOptimizeCurativeCnecsForTsosWithoutCras = doNotOptimizeCurativeCnecsForTsosWithoutCras;
     }
 
     public void setDoNotOptimizeCnecsSecuredByTheirPst(Map<String, String> doNotOptimizeCnecsSecuredByTheirPstEntry) {
-        if (doNotOptimizeCnecsSecuredByTheirPstEntry != null && !doNotOptimizeCnecsSecuredByTheirPstEntry.isEmpty() && !getDoNotOptimizeCurativeCnecsForTsosWithoutCras()) {
+        if (doNotOptimizeCnecsSecuredByTheirPstEntry != null && !doNotOptimizeCnecsSecuredByTheirPstEntry.isEmpty() && getDoNotOptimizeCurativeCnecsForTsosWithoutCras()) {
             throw new FaraoException("unoptimized-cnecs-in-series-with-psts and curative-rao-optimize-operators-not-sharing-cras are incompatible");
         }
         this.doNotOptimizeCnecsSecuredByTheirPst = Objects.requireNonNullElseGet(doNotOptimizeCnecsSecuredByTheirPstEntry, HashMap::new);

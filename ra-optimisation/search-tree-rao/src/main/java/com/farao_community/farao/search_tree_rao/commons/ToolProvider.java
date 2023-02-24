@@ -19,7 +19,7 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXno
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.glsk.commons.ZonalData;
@@ -113,7 +113,7 @@ public final class ToolProvider {
     }
 
     Set<String> getEicForObjectiveFunction() {
-        RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+        RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
         if (Objects.isNull(relativeMarginParameters)) {
             throw new FaraoException("No relative margins parameters were defined");
         }
@@ -211,7 +211,7 @@ public final class ToolProvider {
             );
         }
         if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
-            RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+            RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
             if (Objects.isNull(relativeMarginParameters)) {
                 throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType());
             }

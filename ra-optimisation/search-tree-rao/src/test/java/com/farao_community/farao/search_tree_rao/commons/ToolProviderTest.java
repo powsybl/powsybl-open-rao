@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -82,8 +82,8 @@ public class ToolProviderTest {
 
     @Test
     public void testGetEicForObjectiveFunction() {
-        raoParameters.addExtension(RelativeMarginParametersExtension.class, RelativeMarginParametersExtension.loadDefault());
-        raoParameters.getExtension(RelativeMarginParametersExtension.class).setPtdfBoundariesFromString(
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(
                 List.of("{FR}-{BE}", "{ES}-{FR}")
         );
         ToolProvider toolProvider = ToolProvider.create()

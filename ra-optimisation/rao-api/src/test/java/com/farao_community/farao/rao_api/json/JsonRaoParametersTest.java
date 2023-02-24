@@ -13,7 +13,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.SecondPreventiveRaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -42,7 +42,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     @Test
     public void roundTripDefault() throws IOException {
         RaoParameters parameters = new RaoParameters();
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters.json");
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_v2.json");
     }
 
     @Test
@@ -73,15 +73,18 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
         // Multi-threading parameters
         parameters.getMultithreadingParameters().setContingencyScenariosInParallel(15);
+        parameters.getMultithreadingParameters().setPreventiveLeavesInParallel(21);
+        parameters.getMultithreadingParameters().setCurativeLeavesInParallel(22);
         // Second preventive RAO parameters
         parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
+        parameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
         // RaUsageLimitsPerContingency parameters
-        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRa(3);
-        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeTso(2);
+        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRa(214);
+        parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeTso(215);
         parameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRaPerTso(Map.of("RTE", 5));
         // Not optimized cnecs parameters
-        parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
+        parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
         // LoadFlow and sensitivity parameters
         parameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
@@ -102,12 +105,12 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(30);
         parameters.getExtension(MnecParametersExtension.class).setConstraintAdjustmentCoefficient(3);
         // -- Relative Margins parameters
-        parameters.addExtension(RelativeMarginParametersExtension.class, RelativeMarginParametersExtension.loadDefault());
+        parameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}"));
-        parameters.getExtension(RelativeMarginParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
-        parameters.getExtension(RelativeMarginParametersExtension.class).setPtdfSumLowerBound(0.05);
+        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
+        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
 
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
 
     public void update() {
@@ -140,25 +143,20 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::compareTxt, "/RaoParametersWithExtension.json");
+        writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::compareTxt, "/RaoParametersWithExtension_v2.json");
     }
 
     @Test
     public void readExtension() {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension.json"));
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension_v2.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
     }
 
-    @Test(expected = FaraoException.class)
-    public void readErrorUnexpectedField() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError.json"));
-    }
-
     @Test
     public void readErrorUnexpectedExtension() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersError.json")) {
+        try (InputStream is = getClass().getResourceAsStream("/RaoParametersError_v2.json")) {
             JsonRaoParameters.read(is);
             fail();
         } catch (FaraoException e) {
@@ -169,27 +167,27 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
 
     @Test(expected = FaraoException.class)
     public void loopFlowApproximationLevelError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError_v2.json"));
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongStopCriterionError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersStopCriterionError.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithPrevStopCriterionError_v2.json"));
     }
 
     @Test(expected = FaraoException.class)
     public void curativeRaoStopCriterionError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersCurativeStopCriterionError.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithCurStopCriterionError_v2.json"));
     }
 
     @Test(expected = FaraoException.class)
-    public void testMapTypeError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersMapError.json"));
+    public void testWrongFieldError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithWrongField_v2.json"));
     }
 
     @Test(expected = FaraoException.class)
     public void testMapNegativeError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersMapError2.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithNegativeField_v2.json"));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

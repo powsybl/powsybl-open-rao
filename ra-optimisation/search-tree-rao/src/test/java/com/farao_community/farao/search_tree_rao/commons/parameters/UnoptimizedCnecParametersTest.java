@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
@@ -57,12 +56,6 @@ public class UnoptimizedCnecParametersTest {
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
         assertNull(ocp);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void buildFromRaoParametersWithMissingSearchTreeRaoParametersTest() {
-        RaoParameters raoParameters = new RaoParameters();
-        UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
     }
 
     @Test

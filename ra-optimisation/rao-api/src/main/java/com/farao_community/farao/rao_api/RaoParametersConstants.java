@@ -57,7 +57,7 @@ public final class RaoParametersConstants {
     public static final String CURATIVE_LEAVES_IN_PARALLEL = "curative-leaves-in-parallel";
 
     // Second Preventive RAO parameters
-    public static final String SECOND_PREVENTIVE_RAO = "second_preventive_rao";
+    public static final String SECOND_PREVENTIVE_RAO = "second-preventive-rao";
     public static final String EXECUTION_CONDITION = "execution-condition";
     public static final String RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = "re-optimize-curative-range-actions";
     public static final String HINT_FROM_FIRST_PREVENTIVE_RAO = "hint-from-first-preventive-rao";
@@ -86,22 +86,19 @@ public final class RaoParametersConstants {
     public static final String CONSTRAINT_ADJUSTMENT_COEFFICIENT = "constraint-adjustment-coefficient";
     public static final String VIOLATION_COST = "violation-cost";
     // -- LoopFlow parameters
-    public static final String LOOP_FLOW_PARAMETERS_EXTENSION_NAME = "LoopFlowParameters";
     public static final String LOOP_FLOW_PARAMETERS = "loop-flow-parameters";
     public static final String ACCEPTABLE_INCREASE = "acceptable-increase";
     public static final String APPROXIMATION = "approximation";
     public static final String COUNTRIES = "countries";
 
     // -- Mnec parameters
-    public static final String MNEC_PARAMETERS_EXTENSION_NAME = "MnecParameters";
     public static final String MNEC_PARAMETERS = "mnec-parameters";
 
     public static final String ACCEPTABLE_MARGIN_DECREASE = "acceptable-margin-decrease";
 
     // -- Relative margins parameters
-    public static final String RELATIVE_MARGINS_PARAMETERS_EXTENSION_NAME = "RelativeMarginsParameters";
     public static final String RELATIVE_MARGINS = "relative-margins-parameters";
-    public static final String PTDF_BOUNDARIES = "ptdf_boundaries";
-    public static final String PTDF_SUM_LOWER_BOUND = "ptdf_sum_lower_bound";
+    public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
+    public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
 
 }

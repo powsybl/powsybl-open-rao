@@ -24,7 +24,7 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.iidm.network.Country;
@@ -65,7 +65,7 @@ public final class RaoUtil {
             if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType()));
             }
-            RelativeMarginParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginParametersExtension.class);
+            RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
             if (Objects.isNull(relativeMarginParameters) || relativeMarginParameters.getPtdfBoundaries().isEmpty()) {
                 throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType()));
             }

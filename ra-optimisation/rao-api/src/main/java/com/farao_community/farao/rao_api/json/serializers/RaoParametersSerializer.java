@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 
 /**

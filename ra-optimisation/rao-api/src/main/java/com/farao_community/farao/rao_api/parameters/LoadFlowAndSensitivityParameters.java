@@ -76,7 +76,6 @@ public class LoadFlowAndSensitivityParameters {
         this.sensitivityFailureOvercost = sensitivityFailureOvercost;
     }
 
-
     public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         LoadFlowAndSensitivityParameters parameters = loadDefault();

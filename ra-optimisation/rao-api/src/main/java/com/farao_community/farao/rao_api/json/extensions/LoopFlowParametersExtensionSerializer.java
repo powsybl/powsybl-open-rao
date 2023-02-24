@@ -90,12 +90,12 @@ public class LoopFlowParametersExtensionSerializer implements JsonRaoParameters.
 
     @Override
     public String getExtensionName() {
-        return LOOP_FLOW_PARAMETERS_EXTENSION_NAME;
+        return LOOP_FLOW_PARAMETERS;
     }
 
     @Override
     public String getCategoryName() {
-        return LOOP_FLOW_PARAMETERS;
+        return "rao-parameters";
     }
 
     @Override

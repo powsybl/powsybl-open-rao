@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -75,13 +74,7 @@ public class NetworkActionParametersTest {
         assertTrue(nap.getNetworkActionCombinations().contains(naCombinationDetectedInRao));
         assertFalse(nap.getNetworkActionCombinations().contains(naCombination));
     }
-
-    @Test (expected = FaraoException.class)
-    public void buildFromRaoParametersWithMissingSearchTreeRaoParametersTest() {
-        RaoParameters raoParameters = new RaoParameters();
-        NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
-    }
-
+    
     @Test
     public void testNetworkActionCombinations() {
 
