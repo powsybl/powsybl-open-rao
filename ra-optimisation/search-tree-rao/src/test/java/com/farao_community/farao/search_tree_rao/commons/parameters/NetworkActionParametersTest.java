@@ -74,7 +74,7 @@ public class NetworkActionParametersTest {
         assertTrue(nap.getNetworkActionCombinations().contains(naCombinationDetectedInRao));
         assertFalse(nap.getNetworkActionCombinations().contains(naCombination));
     }
-    
+
     @Test
     public void testNetworkActionCombinations() {
 

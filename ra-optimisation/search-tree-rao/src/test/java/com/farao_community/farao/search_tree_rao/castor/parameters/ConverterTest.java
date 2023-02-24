@@ -4,13 +4,12 @@ import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import old.OldJsonRaoParameters;
 import old.OldRaoParameters;
-import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Path;
 
 public class ConverterTest {
-    
+
     public void scriptRaoParametersConversion() throws IOException {
         String inputPath = "/home/demontmorillongod/Workspace/FARAO/farao-core/ra-optimisation/rao-api/src/test/resources/";
         String outputPath = inputPath;
@@ -26,7 +25,7 @@ public class ConverterTest {
         JsonRaoParameters.write(newRaoParameters, Path.of(outputFile));
 
     }
-    
+
     public void roundTripDefault() throws IOException {
         String inputPath = "/home/demontmorillongod/Workspace/FARAO/farao-core/ra-optimisation/rao-api/src/test/resources/";
         String outputPath = inputPath;
