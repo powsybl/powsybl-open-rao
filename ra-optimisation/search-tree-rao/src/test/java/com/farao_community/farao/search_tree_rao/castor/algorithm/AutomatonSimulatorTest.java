@@ -30,6 +30,7 @@ import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterR
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
@@ -220,6 +221,9 @@ public class AutomatonSimulatorTest {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(false);
+        raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().setLoadFlowParameters(loadFlowParameters);
 
         mockedPreAutoPerimeterSensitivityAnalysis = mock(PrePerimeterSensitivityAnalysis.class);
         mockedPrePerimeterResult = mock(PrePerimeterResult.class);
