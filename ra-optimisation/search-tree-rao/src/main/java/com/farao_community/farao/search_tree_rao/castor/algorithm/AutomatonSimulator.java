@@ -500,6 +500,7 @@ public final class AutomatonSimulator {
             state.getContingency().orElseThrow().apply(network, null);
         }
         LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+        System.out.println("!!!!!!!!!!!! load flow parameters = " + loadFlowParameters.toString());
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
