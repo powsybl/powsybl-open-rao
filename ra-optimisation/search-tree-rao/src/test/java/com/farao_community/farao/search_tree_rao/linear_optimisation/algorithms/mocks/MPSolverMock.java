@@ -43,7 +43,7 @@ public class MPSolverMock extends FaraoMPSolver {
 
     @Override
     public MPVariableMock makeNumVar(double lb, double ub, String name) {
-        // check that variable does not already exists
+        // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
         MPVariableMock newVariable = new MPVariableMock(name, lb, ub, false);
@@ -53,7 +53,7 @@ public class MPSolverMock extends FaraoMPSolver {
 
     @Override
     public MPConstraintMock makeConstraint(double lb, double ub, String name) {
-        // check that constraint does not already exists
+        // check that constraint does not already exist
         assertFalse(constraints.stream().anyMatch(v -> v.name().equals(name)));
 
         MPConstraintMock newConstraint = new MPConstraintMock(name, lb, ub);
@@ -63,7 +63,7 @@ public class MPSolverMock extends FaraoMPSolver {
 
     @Override
     public MPVariable makeBoolVar(String name) {
-        // check that variable does not already exists
+        // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
         MPVariableMock newVariable = new MPVariableMock(name, 0, 1, true);
@@ -73,7 +73,7 @@ public class MPSolverMock extends FaraoMPSolver {
 
     @Override
     public MPVariable makeIntVar(double lb, double ub, String name) {
-        // check that variable does not already exists
+        // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
         MPVariableMock newVariable = new MPVariableMock(name, lb, ub, true);

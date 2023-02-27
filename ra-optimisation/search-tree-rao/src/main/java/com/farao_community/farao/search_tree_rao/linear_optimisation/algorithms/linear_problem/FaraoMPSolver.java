@@ -19,9 +19,8 @@ import java.util.Map;
 public class FaraoMPSolver extends MPSolver {
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
-    Map<String, FaraoMPConstraint> constraints = new HashMap<>();
-    Map<String, FaraoMPVariable> variables = new HashMap<>();
-    FaraoMPObjective objective;
+    Map<String, MPConstraint> constraints = new HashMap<>();
+    Map<String, MPVariable> variables = new HashMap<>();
 
     public FaraoMPSolver(long cptr, boolean cMemoryOwn) {
         super(cptr, cMemoryOwn);
@@ -31,62 +30,50 @@ public class FaraoMPSolver extends MPSolver {
         super(name, problemType);
     }
 
-    public FaraoMPConstraint getConstraint(String name) {
+    public MPConstraint getConstraint(String name) {
         return constraints.get(name);
     }
 
-    public FaraoMPVariable getVariable(String name) {
+    public MPVariable getVariable(String name) {
         return variables.get(name);
     }
 
-    public FaraoMPObjective getObjective() {
-        return objective;
-    }
-
-    @Override
-    public MPObjective objective() {
-        long cPtr = main_research_linear_solverJNI .MPSolver_objective(getCPtr(this), this);
-        objective = cPtr == 0L ? null : new FaraoMPObjective(cPtr, false, NUMBER_OF_BITS_TO_ROUND_OFF);
-        return objective;
+    public MPObjective getObjective() {
+        return super.objective();
     }
 
     @Override
     public MPVariable makeNumVar(double lb, double ub, String name) {
-        long cPtr = main_research_linear_solverJNI .MPSolver_makeNumVar(getCPtr(this), this, RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name);
-        FaraoMPVariable v = cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, NUMBER_OF_BITS_TO_ROUND_OFF);
-        variables.put(name, v);
-        return v;
+        MPVariable mpVariable = super.makeNumVar(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name);
+        variables.put(name, mpVariable);
+        return mpVariable;
     }
 
     @Override
     public MPVariable makeIntVar(double lb, double ub, String name) {
-        long cPtr = main_research_linear_solverJNI .MPSolver_makeIntVar(getCPtr(this), this, RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name);
-        FaraoMPVariable v = cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, NUMBER_OF_BITS_TO_ROUND_OFF);
-        variables.put(name, v);
-        return v;
+        MPVariable mpVariable = super.makeIntVar(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name);
+        variables.put(name, mpVariable);
+        return mpVariable;
     }
 
     @Override
     public MPVariable makeBoolVar(String name) {
-        long cPtr = main_research_linear_solverJNI .MPSolver_makeBoolVar(getCPtr(this), this, name);
-        FaraoMPVariable v = cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, NUMBER_OF_BITS_TO_ROUND_OFF);
-        variables.put(name, v);
-        return v;
+        MPVariable mpVariable = super.makeBoolVar(name);
+        variables.put(name, mpVariable);
+        return mpVariable;
     }
 
     @Override
     public MPConstraint makeConstraint(double lb, double ub, String name) {
-        long cPtr = main_research_linear_solverJNI .MPSolver_makeConstraint__SWIG_2(getCPtr(this), this, RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name);
-        FaraoMPConstraint c = cPtr == 0L ? null : new FaraoMPConstraint(cPtr, false, NUMBER_OF_BITS_TO_ROUND_OFF);
-        constraints.put(name, c);
-        return c;
+        MPConstraint mpConstraint = super.makeConstraint(RaoUtil.roundDouble(lb, NUMBER_OF_BITS_TO_ROUND_OFF), RaoUtil.roundDouble(ub, NUMBER_OF_BITS_TO_ROUND_OFF), name);
+        constraints.put(name, mpConstraint);
+        return mpConstraint;
     }
 
     @Override
     public MPConstraint makeConstraint(String name) {
-        long cPtr = main_research_linear_solverJNI .MPSolver_makeConstraint__SWIG_3(getCPtr(this), this, name);
-        FaraoMPConstraint c = cPtr == 0L ? null : new FaraoMPConstraint(cPtr, false, NUMBER_OF_BITS_TO_ROUND_OFF);
-        constraints.put(name, c);
-        return c;
+        MPConstraint mpConstraint = super.makeConstraint(name);
+        constraints.put(name, mpConstraint);
+        return mpConstraint;
     }
 }

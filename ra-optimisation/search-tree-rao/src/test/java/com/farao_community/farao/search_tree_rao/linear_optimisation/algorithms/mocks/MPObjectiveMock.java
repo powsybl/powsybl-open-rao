@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks;
 
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPObjective;
+import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.HashMap;
@@ -15,14 +15,14 @@ import java.util.Map;
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
  */
-public class MPObjectiveMock extends FaraoMPObjective {
+public class MPObjectiveMock extends MPObjective {
 
     private Map<String, Double> coefficients;
     private boolean isMinimization;
     private boolean isMaximization;
 
     protected MPObjectiveMock() {
-        super(0, true, 0);
+        super(0, true);
         coefficients = new HashMap<>();
         isMinimization = false;
         isMaximization = false;
