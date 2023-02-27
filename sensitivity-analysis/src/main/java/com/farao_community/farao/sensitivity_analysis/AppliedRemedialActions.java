@@ -119,4 +119,15 @@ public class AppliedRemedialActions {
         }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
+
+    public AppliedRemedialActions copyCurative() {
+        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(Instant.CURATIVE))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        AppliedRemedialActions ara = new AppliedRemedialActions();
+        curativeMap.forEach((state, appliedRaOnState) -> {
+            ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions);
+            ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
+        });
+        return ara;
+    }
 }

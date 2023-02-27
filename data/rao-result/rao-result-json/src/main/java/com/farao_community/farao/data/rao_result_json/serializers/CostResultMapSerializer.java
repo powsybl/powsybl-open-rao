@@ -35,34 +35,29 @@ final class CostResultMapSerializer {
     }
 
     private static void serializeCostResultForOptimizationState(OptimizationState optState, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+        double functionalCost = raoResult.getFunctionalCost(optState);
+        boolean isFunctionalCostNaN = Double.isNaN(functionalCost);
 
-        if (!containAnyResultPresentForOptimizationState(raoResult, optState)) {
+        if (isFunctionalCostNaN && Double.isNaN(raoResult.getVirtualCost(optState))) {
             return;
         }
 
         jsonGenerator.writeObjectFieldStart(serializeOptimizationState(optState));
-        if (!Double.isNaN(raoResult.getFunctionalCost(optState))) {
-            jsonGenerator.writeNumberField(FUNCTIONAL_COST, Math.round(100.0 * raoResult.getFunctionalCost(optState)) / 100.0);
+        if (!isFunctionalCostNaN) {
+            jsonGenerator.writeNumberField(FUNCTIONAL_COST, Math.round(100.0 * functionalCost) / 100.0);
         }
 
         if (containAnyVirtualCostForOptimizationState(raoResult, optState)) {
             jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
             for (String virtualCostName : raoResult.getVirtualCostNames()) {
-                if (!Double.isNaN(raoResult.getVirtualCost(optState, virtualCostName))) {
-                    jsonGenerator.writeNumberField(virtualCostName, Math.round(100.0 * raoResult.getVirtualCost(optState, virtualCostName)) / 100.0);
+                double virtualCostForAGivenName = raoResult.getVirtualCost(optState, virtualCostName);
+                if (!Double.isNaN(virtualCostForAGivenName)) {
+                    jsonGenerator.writeNumberField(virtualCostName, Math.round(100.0 * virtualCostForAGivenName) / 100.0);
                 }
             }
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndObject();
-    }
-
-    private static boolean containAnyResultPresentForOptimizationState(RaoResult raoResult, OptimizationState optState) {
-
-        if (!Double.isNaN(raoResult.getFunctionalCost(optState))) {
-            return true;
-        }
-        return !Double.isNaN(raoResult.getVirtualCost(optState));
     }
 
     private static boolean containAnyVirtualCostForOptimizationState(RaoResult raoResult, OptimizationState optState) {
