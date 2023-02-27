@@ -536,7 +536,7 @@ public final class AutomatonSimulator {
         BUSINESS_LOGS.info("phi2 = " + phi2);
         BUSINESS_LOGS.info("p0 = " + p0);
         BUSINESS_LOGS.info("droop = " + droop);
-        BUSINESS_LOGS.info("p0 + droop * (phi1 - phi2) = " + p0 + droop * (phi1 - phi2));
+        BUSINESS_LOGS.info(String.format("p0 + droop * (phi1 - phi2) = %.4f", p0 + droop * (phi1 - phi2)));
         BUSINESS_LOGS.info("=========================");
         return p0 + droop * (phi1 - phi2);
     }
