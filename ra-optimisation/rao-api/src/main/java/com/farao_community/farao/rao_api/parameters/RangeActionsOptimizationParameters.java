@@ -20,7 +20,6 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  *
  */
 public class RangeActionsOptimizationParameters {
-    // TODO rename getters setters with intelliji refacto
     // Attributes
     private int maxMipIterations;
     private double pstPenaltyCost;
@@ -191,18 +190,6 @@ public class RangeActionsOptimizationParameters {
 
     public LinearOptimizationSolver getLinearOptimizationSolver() {
         return linearOptimizationSolver;
-    }
-
-    public void setLinearOptimizationSolverSolver(Solver solver) {
-        this.linearOptimizationSolver.setSolver(solver);
-    }
-
-    public void setLinearOptimizationSolverRelativeMipGap(double relativeMipGap) {
-        this.linearOptimizationSolver.setRelativeMipGap(relativeMipGap);
-    }
-
-    public void setLinearOptimizationSolverSpecificParameters(String solverSpecificParameters) {
-        this.linearOptimizationSolver.setSolverSpecificParameters(solverSpecificParameters);
     }
 
     public void setPstModel(PstModel pstModel) {

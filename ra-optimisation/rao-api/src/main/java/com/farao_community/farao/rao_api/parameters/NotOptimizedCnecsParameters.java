@@ -17,7 +17,6 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO : inverser DEFAULT DO NOT OPTIMIZE CURATIVE CNECS ...
 public class NotOptimizedCnecsParameters {
     private boolean doNotOptimizeCurativeCnecsForTsosWithoutCras;
     private Map<String, String> doNotOptimizeCnecsSecuredByTheirPst;
@@ -48,25 +47,9 @@ public class NotOptimizedCnecsParameters {
         platformConfig.getOptionalModuleConfig(NOT_OPTIMIZED_CNECS)
                 .ifPresent(config -> {
                     parameters.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(config.getBooleanProperty(DO_NOT_OPTIMIZE_CURATIVE_CNECS, DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS));
-                    parameters.setDoNotOptimizeCnecsSecuredByTheirPst(convertListToMap(config.getStringListProperty(DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST, convertMapToList(DEFAULT_DO_NOT_OPTIMIZE_CNECS_SECURED_BY_THEIR_PST))));
+                    parameters.setDoNotOptimizeCnecsSecuredByTheirPst(ParametersUtil.convertListToMapStringString(config.getStringListProperty(DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST, ParametersUtil.convertMapStringStringToList(DEFAULT_DO_NOT_OPTIMIZE_CNECS_SECURED_BY_THEIR_PST))));
                 });
         return parameters;
-    }
-
-    // TODO : regarder code Baptiste
-    private static List<String> convertMapToList(Map<String, String> map) {
-        List<String> list = new ArrayList<>();
-        map.entrySet().forEach(entry -> list.add(entry.getKey() + " : " + entry.getValue()));
-        return list;
-    }
-
-    private static Map<String, String> convertListToMap(List<String> list) {
-        Map<String, String> map = new HashMap<>();
-        list.forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(" : ");
-            map.put(splitListEntry[0], splitListEntry[1]);
-        });
-        return map;
     }
 
     public void setDoNotOptimizeCurativeCnecsForTsosWithoutCras(boolean doNotOptimizeCurativeCnecsForTsosWithoutCras) {

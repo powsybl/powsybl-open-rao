@@ -53,27 +53,11 @@ public class RaUsageLimitsPerContingencyParameters {
                 .ifPresent(config -> {
                     parameters.setMaxCurativeRa(config.getIntProperty(MAX_CURATIVE_RA, DEFAULT_MAX_CURATIVE_RA));
                     parameters.setMaxCurativeTso(config.getIntProperty(MAX_CURATIVE_TSO, DEFAULT_MAX_CURATIVE_TSO));
-                    parameters.setMaxCurativeTopoPerTso(convertListToMap(config.getStringListProperty(MAX_CURATIVE_TOPO_PER_TSO, convertMapToList(DEFAULT_MAX_CURATIVE_TOPO_PER_TSO))));
-                    parameters.setMaxCurativePstPerTso(convertListToMap(config.getStringListProperty(MAX_CURATIVE_PST_PER_TSO, convertMapToList(DEFAULT_MAX_CURATIVE_PST_PER_TSO))));
-                    parameters.setMaxCurativeRaPerTso(convertListToMap(config.getStringListProperty(MAX_CURATIVE_RA_PER_TSO, convertMapToList(DEFAULT_MAX_CURATIVE_RA_PER_TSO))));
+                    parameters.setMaxCurativeTopoPerTso(ParametersUtil.convertListToMapStringInteger(config.getStringListProperty(MAX_CURATIVE_TOPO_PER_TSO, ParametersUtil.convertMapStringIntegerToList(DEFAULT_MAX_CURATIVE_TOPO_PER_TSO))));
+                    parameters.setMaxCurativePstPerTso(ParametersUtil.convertListToMapStringInteger(config.getStringListProperty(MAX_CURATIVE_PST_PER_TSO, ParametersUtil.convertMapStringIntegerToList(DEFAULT_MAX_CURATIVE_PST_PER_TSO))));
+                    parameters.setMaxCurativeRaPerTso(ParametersUtil.convertListToMapStringInteger(config.getStringListProperty(MAX_CURATIVE_RA_PER_TSO, ParametersUtil.convertMapStringIntegerToList(DEFAULT_MAX_CURATIVE_RA_PER_TSO))));
                 });
         return parameters;
-    }
-
-    // TODO : harmoniser avec NotOptimizedCnecsParametesr pour eviter doublon => dans Util ?
-    private static List<String> convertMapToList(Map<String, Integer> map) {
-        List<String> list = new ArrayList<>();
-        map.entrySet().forEach(entry -> list.add(entry.getKey() + " : " + entry.getValue().toString()));
-        return list;
-    }
-
-    private static Map<String, Integer> convertListToMap(List<String> list) {
-        Map<String, Integer> map = new HashMap<>();
-        list.stream().forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(" : ");
-            map.put(splitListEntry[0], Integer.parseInt(splitListEntry[1]));
-        });
-        return map;
     }
 
     public void setMaxCurativeRa(int maxCurativeRa) {

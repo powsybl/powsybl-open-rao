@@ -19,7 +19,6 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO General : config loading different than existing : "{" "+" etc
 public class TopoOptimizationParameters {
     // Attributes
     private int maxSearchTreeDepth;
@@ -121,30 +120,12 @@ public class TopoOptimizationParameters {
         platformConfig.getOptionalModuleConfig(TOPOLOGICAL_ACTIONS_OPTIMIZATION)
                 .ifPresent(config -> {
                     parameters.setMaxSearchTreeDepth(config.getIntProperty(MAX_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
-                    parameters.setPredefinedCombinations(convertListToListOfList(config.getStringListProperty(PREDEFINED_COMBINATIONS, convertListOfListToList(DEFAULT_PREDEFINED_COMBINATIONS))));
+                    parameters.setPredefinedCombinations(ParametersUtil.convertListToListOfList(config.getStringListProperty(PREDEFINED_COMBINATIONS, ParametersUtil.convertListOfListToList(DEFAULT_PREDEFINED_COMBINATIONS))));
                     parameters.setRelativeMinImpactThreshold(config.getDoubleProperty(RELATIVE_MINIMUM_IMPACT_THRESHOLD, DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD));
                     parameters.setAbsoluteMinImpactThreshold(config.getDoubleProperty(ABSOLUTE_MINIMUM_IMPACT_THRESHOLD, DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD));
                     parameters.setSkipActionsFarFromMostLimitingElement(config.getBooleanProperty(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT));
                     parameters.setMaxNumberOfBoundariesForSkippingActions(config.getIntProperty(MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS, DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS));
                 });
         return parameters;
-    }
-
-    // TODO : harmoniser avec NotOptimizedCnecsParametesr pour eviter doublon => dans Util ?
-    private static List<String> convertListOfListToList(List<List<String>> listOfList) {
-        List<String> list = new ArrayList<>();
-        listOfList.forEach(entry -> list.add(String.join(" + ", entry)));
-        return list;
-    }
-
-    private static List<List<String>> convertListToListOfList(List<String> list) {
-        List<List<String>> listOfList = new ArrayList<>();
-        list.forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(" + ");
-            List<String> newList = new ArrayList<>();
-            newList.addAll(Arrays.asList(splitListEntry));
-            listOfList.add(newList);
-        });
-        return listOfList;
     }
 }

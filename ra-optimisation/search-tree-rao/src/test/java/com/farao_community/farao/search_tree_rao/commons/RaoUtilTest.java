@@ -83,7 +83,7 @@ public class RaoUtilTest {
     public void testExceptionForGlskOnRelativeMargin() {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 

@@ -18,7 +18,6 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO : add sensitivity failure overcost
 public class LoadFlowAndSensitivityParameters {
     private String loadFlowProvider;
     private String sensitivityProvider;
@@ -30,8 +29,6 @@ public class LoadFlowAndSensitivityParameters {
     private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
     private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
 
-    private static final SensitivityAnalysisParameters DEFAULT_SENSI_WITH_LOAD_FLOW_PARAMETERS = new SensitivityAnalysisParameters();
-
     public LoadFlowAndSensitivityParameters(String loadFlowProvider, String sensitivityProvider, double sensitivityFailureOvercost, SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
         this.sensitivityProvider = sensitivityProvider;
@@ -40,7 +37,7 @@ public class LoadFlowAndSensitivityParameters {
     }
 
     public static LoadFlowAndSensitivityParameters loadDefault() {
-        return new LoadFlowAndSensitivityParameters(DEFAULT_LOADFLOW_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_FAILURE_OVERCOST, DEFAULT_SENSI_WITH_LOAD_FLOW_PARAMETERS);
+        return new LoadFlowAndSensitivityParameters(DEFAULT_LOADFLOW_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_FAILURE_OVERCOST,  new SensitivityAnalysisParameters());
     }
 
     // Getters and setters
