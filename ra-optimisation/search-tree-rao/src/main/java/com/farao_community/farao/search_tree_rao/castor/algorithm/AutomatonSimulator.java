@@ -531,6 +531,13 @@ public final class AutomatonSimulator {
         double phi2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus().getAngle();
         double p0 = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getP0();
         double droop = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).getDroop();
+        BUSINESS_LOGS.info("=========== " + hvdcLine.getId());
+        BUSINESS_LOGS.info("phi1 = " + phi1);
+        BUSINESS_LOGS.info("phi2 = " + phi2);
+        BUSINESS_LOGS.info("p0 = " + p0);
+        BUSINESS_LOGS.info("droop = " + droop);
+        BUSINESS_LOGS.info("p0 + droop * (phi1 - phi2) = " + p0 + droop * (phi1 - phi2));
+        BUSINESS_LOGS.info("=========================");
         return p0 + droop * (phi1 - phi2);
     }
 
