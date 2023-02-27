@@ -21,6 +21,7 @@ public class FaraoMPSolver extends MPSolver {
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     Map<String, MPConstraint> constraints = new HashMap<>();
     Map<String, MPVariable> variables = new HashMap<>();
+    MPObjective objective;
 
     public FaraoMPSolver(long cptr, boolean cMemoryOwn) {
         super(cptr, cMemoryOwn);
@@ -39,7 +40,13 @@ public class FaraoMPSolver extends MPSolver {
     }
 
     public MPObjective getObjective() {
-        return super.objective();
+        return objective;
+    }
+
+    @Override
+    public MPObjective objective() {
+        objective = super.objective();
+        return objective;
     }
 
     @Override
