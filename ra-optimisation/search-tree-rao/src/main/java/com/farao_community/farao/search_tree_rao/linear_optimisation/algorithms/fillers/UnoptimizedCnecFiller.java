@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 import static java.lang.Math.abs;
 
 /**
@@ -315,7 +315,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecPstRangeActionMap.get(cnec)))
                 .findFirst();
         if (lastState.isEmpty()) {
-            BUSINESS_WARNS.warn("Range action {} is unavailable for cnec {}", flowCnecPstRangeActionMap.get(cnec).getId(), cnec.getId());
+            // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) is unavailable for cnec
             return null;
         } else {
             return lastState.get();
