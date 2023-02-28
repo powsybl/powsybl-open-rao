@@ -27,11 +27,11 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
 
     @Override
     protected void initAvailableNetworks(Network network) {
-        TECHNICAL_LOGS.info("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
+        TECHNICAL_LOGS.debug("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);
         for (int i = 0; i < getParallelism(); i++) {
-            TECHNICAL_LOGS.info("Copy n°{}", i + 1);
+            TECHNICAL_LOGS.debug("Copy n°{}", i + 1);
             Network copy = NetworkXml.copy(network);
             // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
             // in cloned network, so we need to copy it again.
