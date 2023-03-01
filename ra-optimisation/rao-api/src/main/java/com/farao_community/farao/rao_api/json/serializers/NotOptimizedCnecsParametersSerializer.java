@@ -10,6 +10,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.util.TreeMap;
 
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 
@@ -24,7 +25,7 @@ final class NotOptimizedCnecsParametersSerializer {
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(NOT_OPTIMIZED_CNECS);
         jsonGenerator.writeBooleanField(DO_NOT_OPTIMIZE_CURATIVE_CNECS, parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        jsonGenerator.writeObjectField(DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST, parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst());
+        jsonGenerator.writeObjectField(DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST, new TreeMap<>(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst()));
         jsonGenerator.writeEndObject();
     }
 }

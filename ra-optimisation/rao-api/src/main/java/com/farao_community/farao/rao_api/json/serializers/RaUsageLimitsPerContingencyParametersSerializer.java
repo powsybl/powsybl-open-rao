@@ -10,6 +10,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.util.TreeMap;
 
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 
@@ -25,9 +26,9 @@ final class RaUsageLimitsPerContingencyParametersSerializer {
         jsonGenerator.writeObjectFieldStart(RA_USAGE_LIMITS_PER_CONTINGENCY);
         jsonGenerator.writeNumberField(MAX_CURATIVE_RA, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRa());
         jsonGenerator.writeNumberField(MAX_CURATIVE_TSO, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTso());
-        jsonGenerator.writeObjectField(MAX_CURATIVE_TOPO_PER_TSO, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso());
-        jsonGenerator.writeObjectField(MAX_CURATIVE_PST_PER_TSO, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativePstPerTso());
-        jsonGenerator.writeObjectField(MAX_CURATIVE_RA_PER_TSO, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso());
+        jsonGenerator.writeObjectField(MAX_CURATIVE_TOPO_PER_TSO, new TreeMap<>(parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso()));
+        jsonGenerator.writeObjectField(MAX_CURATIVE_PST_PER_TSO, new TreeMap<>(parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativePstPerTso()));
+        jsonGenerator.writeObjectField(MAX_CURATIVE_RA_PER_TSO, new TreeMap<>(parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso()));
         jsonGenerator.writeEndObject();
     }
 }

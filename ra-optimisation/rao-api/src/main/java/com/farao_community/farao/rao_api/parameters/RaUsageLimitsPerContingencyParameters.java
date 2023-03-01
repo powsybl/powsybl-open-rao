@@ -53,9 +53,9 @@ public class RaUsageLimitsPerContingencyParameters {
                 .ifPresent(config -> {
                     parameters.setMaxCurativeRa(config.getIntProperty(MAX_CURATIVE_RA, DEFAULT_MAX_CURATIVE_RA));
                     parameters.setMaxCurativeTso(config.getIntProperty(MAX_CURATIVE_TSO, DEFAULT_MAX_CURATIVE_TSO));
-                    parameters.setMaxCurativeTopoPerTso(ParametersUtil.convertListToMapStringInteger(config.getStringListProperty(MAX_CURATIVE_TOPO_PER_TSO, ParametersUtil.convertMapStringIntegerToList(DEFAULT_MAX_CURATIVE_TOPO_PER_TSO))));
-                    parameters.setMaxCurativePstPerTso(ParametersUtil.convertListToMapStringInteger(config.getStringListProperty(MAX_CURATIVE_PST_PER_TSO, ParametersUtil.convertMapStringIntegerToList(DEFAULT_MAX_CURATIVE_PST_PER_TSO))));
-                    parameters.setMaxCurativeRaPerTso(ParametersUtil.convertListToMapStringInteger(config.getStringListProperty(MAX_CURATIVE_RA_PER_TSO, ParametersUtil.convertMapStringIntegerToList(DEFAULT_MAX_CURATIVE_RA_PER_TSO))));
+                    parameters.setMaxCurativeTopoPerTso(ParametersUtil.convertListToStringIntMap(config.getStringListProperty(MAX_CURATIVE_TOPO_PER_TSO, ParametersUtil.convertStringIntMapToList(DEFAULT_MAX_CURATIVE_TOPO_PER_TSO))));
+                    parameters.setMaxCurativePstPerTso(ParametersUtil.convertListToStringIntMap(config.getStringListProperty(MAX_CURATIVE_PST_PER_TSO, ParametersUtil.convertStringIntMapToList(DEFAULT_MAX_CURATIVE_PST_PER_TSO))));
+                    parameters.setMaxCurativeRaPerTso(ParametersUtil.convertListToStringIntMap(config.getStringListProperty(MAX_CURATIVE_RA_PER_TSO, ParametersUtil.convertStringIntMapToList(DEFAULT_MAX_CURATIVE_RA_PER_TSO))));
                 });
         return parameters;
     }

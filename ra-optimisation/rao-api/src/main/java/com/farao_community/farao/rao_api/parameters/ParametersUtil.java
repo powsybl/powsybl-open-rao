@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_api.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.iidm.network.Country;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -19,7 +20,6 @@ import java.util.*;
 public final class ParametersUtil {
 
     private ParametersUtil() {
-
     }
 
     public static Set<Country> convertToCountrySet(List<String> countryStringList) {
@@ -34,52 +34,71 @@ public final class ParametersUtil {
         return countryList;
     }
 
-    public static List<String> convertMapStringStringToList(Map<String, String> map) {
-        List<String> list = new ArrayList<>();
-        map.entrySet().forEach(entry -> list.add(entry.getKey() + " : " + entry.getValue()));
-        return list;
-    }
-
-    public static Map<String, String> convertListToMapStringString(List<String> list) {
+    public static Map<String, String> convertListToStringStringMap(List<String> stringList) {
         Map<String, String> map = new HashMap<>();
-        list.forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(" : ");
-            map.put(splitListEntry[0], splitListEntry[1]);
+        stringList.forEach(listEntry -> {
+            String[] splitListEntry = listEntry.split(":");
+            if (splitListEntry.length != 2) {
+                throw new FaraoException("List<String> cannot be converted to a Map<String, String>");
+            }
+            map.put(convertBracketIntoString(splitListEntry[0]), convertBracketIntoString(splitListEntry[1]));
         });
         return map;
     }
 
-    public static List<String> convertMapStringIntegerToList(Map<String, Integer> map) {
+    public static List<String> convertStringStringMapToList(Map<String, String> map) {
         List<String> list = new ArrayList<>();
-        map.entrySet().forEach(entry -> list.add(entry.getKey() + " : " + entry.getValue().toString()));
+        map.forEach((key, value) -> list.add("{" + key + "}:{" + value + "}"));
         return list;
     }
 
-    public static Map<String, Integer> convertListToMapStringInteger(List<String> list) {
+    public static Map<String, Integer> convertListToStringIntMap(List<String> stringList) {
         Map<String, Integer> map = new HashMap<>();
-        list.stream().forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(" : ");
-            map.put(splitListEntry[0], Integer.parseInt(splitListEntry[1]));
+        stringList.forEach(listEntry -> {
+            String[] splitListEntry = listEntry.split(":");
+            if (splitListEntry.length != 2) {
+                throw new FaraoException("List<String> cannot be converted to a Map<String, Integer>");
+            }
+            map.put(convertBracketIntoString(splitListEntry[0]), Integer.parseInt(splitListEntry[1]));
         });
         return map;
     }
 
-    public static List<String> convertListOfListToList(List<List<String>> listOfList) {
+    public static List<String> convertStringIntMapToList(Map<String, Integer> map) {
         List<String> list = new ArrayList<>();
-        listOfList.forEach(entry -> list.add(String.join(" + ", entry)));
+        map.forEach((key, value) -> list.add("{" + key + "}:" + value.toString()));
         return list;
     }
 
-    // TODO
-    public static List<List<String>> convertListToListOfList(List<String> list) {
+    public static List<List<String>> convertListToListOfList(List<String> stringList) {
         List<List<String>> listOfList = new ArrayList<>();
-        list.forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(" + ");
+        stringList.forEach(listEntry -> {
+            String[] splitListEntry = listEntry.split("\\+");
             List<String> newList = new ArrayList<>();
-            newList.addAll(Arrays.asList(splitListEntry));
+            for (String splitString : splitListEntry) {
+                newList.add(convertBracketIntoString(splitString));
+            }
             listOfList.add(newList);
         });
         return listOfList;
+    }
+
+    public static List<String> convertListOfListToList(List<List<String>> listOfList) {
+        List<String> finalList = new ArrayList<>();
+        listOfList.forEach(subList -> {
+            if (!subList.isEmpty()) {
+                finalList.add("{" + String.join("}+{", subList) + "}");
+            }
+        });
+        return finalList;
+    }
+
+    private static String convertBracketIntoString(String stringInBrackets) {
+        String insideString = StringUtils.substringBetween(stringInBrackets, "{", "}");
+        if (insideString == null || insideString.length() == 0) {
+            throw new FaraoException(String.format("%s is not contained into brackets", stringInBrackets));
+        }
+        return insideString;
     }
 
 }

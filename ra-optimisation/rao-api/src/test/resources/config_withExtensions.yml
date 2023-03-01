@@ -1,0 +1,72 @@
+
+objective-function:
+    type: MAX_MIN_MARGIN_IN_AMPERE
+    forbid-cost-increase: true
+    curative-min-obj-improvement: 3.0
+    preventive-stop-criterion: MIN_OBJECTIVE
+    curative-stop-criterion: PREVENTIVE_OBJECTIVE
+
+range-actions-optimization:
+    max-mip-iterations: 2
+    pst-penalty-cost: 0.02
+    pst-sensitivity-threshold: 0.2
+    pst-model: APPROXIMATED_INTEGERS
+    hvdc-penalty-cost: 0.002
+    hvdc-sensitivity-threshold: 0.2
+    injection-ra-penalty-cost: 0.003
+    injection-ra-sensitivity-threshold: 0.3
+
+linear-optimization-solver:
+    solver: XPRESS
+    relative-mip-gap: 0.004
+    solver-specific-parameters: BLABLABLA
+
+topological-actions-optimization:
+    max-search-tree-depth: 3
+    predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
+    relative-minimum-impact-threshold: 0.02
+    absolute-minimum-impact-threshold: 2.0
+    skip-actions-far-from-most-limiting-element: true
+    max-number-of-boundaries-for-skipping-actions: 3
+
+multi-threading:
+    contingency-scenarios-in-parallel: 4
+    preventive-leaves-in-parallel: 5
+    curative-leaves-in-parallel: 6
+
+second-preventive-rao:
+    execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
+    re-optimize-curative-range-actions: true
+    hint-from-first-preventive-rao: true
+
+ra-usage-limits-per-contingency:
+    max-curative-ra: 10
+    max-curative-tso: 2
+    max-curative-topo-per-tso: ["{TSO_1}:1", "{TSO_2}:2"]
+    max-curative-pst-per-tso: ["{TSO_1}:3", "{TSO_2}:4"]
+    max-curative-ra-per-tso: ["{TSO_1}:5", "{TSO_2}:6"]
+
+not-optimized-cnecs:
+    do-not-optimize-curative-cnecs-for-tsos-without-cras: false
+    do-not-optimize-cnec-secured-by-its-pst: [ "{cnecId1}:{pstId1}", "{cnecId2}:{pstId2}" ]
+
+load-flow-and-sensitivity-computation:
+    load-flow-provider: LOADFLOW_PROVIDER
+    sensitivity-provider: SENSI_PROVIDER
+    sensitivity-failure-overcost: 2
+
+loop-flow-parameters:
+    acceptable-increase: 11.0
+    approximation: UPDATE_PTDF_WITH_TOPO
+    constraint-adjustment-coefficient: 12.0
+    violation-cost: 13.0
+    countries: [ "FR", "ES", "PT" ]
+
+mnec-parameters:
+    acceptable-margin-decrease: 55.0
+    violation-cost: 11.0
+    constraint-adjustment-coefficient: 12.0
+
+relative-margins-parameters:
+    ptdf-boundaries: [ "{FR}-{BE}", "{FR}-{DE}" ]
+    ptdf-sum-lower-bound: 0.02
