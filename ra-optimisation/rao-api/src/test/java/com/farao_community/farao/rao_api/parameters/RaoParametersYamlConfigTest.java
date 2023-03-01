@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -24,12 +25,13 @@ import static org.junit.Assert.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RaoParametersYamlConfigTest  extends AbstractConverterTest {
+public class RaoParametersYamlConfigTest extends AbstractConverterTest{
     static double DOUBLE_TOLERANCE = 1e-6;
 
     public RaoParameters loadRaoParameters(String configFile) {
-        Path path = Path.of(getClass().getResource("/").getPath());
-        PlatformConfig platformConfig = new PlatformConfig(PlatformConfig.loadModuleRepository(path, configFile), path);
+        Path path = Paths.get(new File(getClass().getResource("/" + configFile + ".yml").getFile()).getAbsolutePath()); //Path.of(getClass().getResource("/").getPath());
+        Path subPath = path.getParent();
+        PlatformConfig platformConfig = new PlatformConfig(PlatformConfig.loadModuleRepository(subPath, configFile), subPath);
         return RaoParameters.load(platformConfig);
     }
 
