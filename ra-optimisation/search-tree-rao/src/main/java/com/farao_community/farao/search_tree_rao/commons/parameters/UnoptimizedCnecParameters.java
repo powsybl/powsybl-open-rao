@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -100,12 +100,12 @@ public class UnoptimizedCnecParameters {
 
     private static boolean skipEntry(String cnecId, String pstId, Set<FlowCnec> flowCnecs, Set<PstRangeAction> pstRangeActions) {
         if (flowCnecs.isEmpty()) {
-            BUSINESS_WARNS.warn("No flowCnec with network element id {} exists in unoptimized-cnecs-in-series-with-psts parameter", cnecId);
+            TECHNICAL_LOGS.debug("No flowCnec with network element id {} exists in unoptimized-cnecs-in-series-with-psts parameter", cnecId);
             return true;
         }
 
         if (pstRangeActions.isEmpty()) {
-            BUSINESS_WARNS.warn("No pst range actions are defined with network element {}", pstId);
+            TECHNICAL_LOGS.debug("No pst range actions are defined with network element {}", pstId);
             return true;
         }
         return false;
@@ -113,7 +113,7 @@ public class UnoptimizedCnecParameters {
 
     private static boolean skipFlowCnec(Set<PstRangeAction> availablePstRangeActions, String pstId) {
         if (availablePstRangeActions.size() > 1) {
-            BUSINESS_WARNS.warn("{} pst range actions are defined with network element {} instead of 1", availablePstRangeActions.size(), pstId);
+            TECHNICAL_LOGS.debug("{} pst range actions are defined with network element {} instead of 1", availablePstRangeActions.size(), pstId);
             return true;
         }
 
