@@ -14,8 +14,8 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -26,7 +26,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static java.lang.Math.abs;
 
 /**
@@ -315,7 +314,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecPstRangeActionMap.get(cnec)))
                 .findFirst();
         if (lastState.isEmpty()) {
-            BUSINESS_WARNS.warn("Range action {} is unavailable for cnec {}", flowCnecPstRangeActionMap.get(cnec).getId(), cnec.getId());
+            // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) is unavailable for cnec
             return null;
         } else {
             return lastState.get();

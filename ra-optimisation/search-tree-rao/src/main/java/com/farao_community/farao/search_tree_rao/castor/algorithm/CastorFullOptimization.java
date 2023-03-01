@@ -339,7 +339,7 @@ public class CastorFullOptimization {
                                 contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
                             }
                         }
-                        TECHNICAL_LOGS.info("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
+                        TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
                         try {
                             networkPool.releaseUsedNetwork(networkClone);
                             contingencyCountDownLatch.countDown();
