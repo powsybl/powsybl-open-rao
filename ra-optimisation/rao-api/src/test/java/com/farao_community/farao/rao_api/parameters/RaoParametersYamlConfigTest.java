@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RaoParametersYamlConfigTest extends AbstractConverterTest{
+public class RaoParametersYamlConfigTest extends AbstractConverterTest {
     static double DOUBLE_TOLERANCE = 1e-6;
 
     public RaoParameters loadRaoParameters(String configFile) {
