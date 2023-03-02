@@ -9,45 +9,48 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPConstraint extends MPConstraint {
+public class FaraoMPConstraint {
+    private final MPConstraint mpConstraint;
     private final int numberOfBitsToRoundOff;
-    List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPConstraint(MPConstraint basicMPConstraint, int numberOfBitsToRoundOff) {
-        super(getCPtr(basicMPConstraint), false);
+    protected FaraoMPConstraint(MPConstraint mpConstraint, int numberOfBitsToRoundOff) {
+        this.mpConstraint = mpConstraint;
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
-    @Override
-    public void setCoefficient(MPVariable variable, double coeff) {
-        variables.add(variable);
-        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+    public String name() {
+        return mpConstraint.name();
     }
 
-    public List<MPVariable> getVariables() {
-        return variables;
+    public double getCoefficient(FaraoMPVariable variable) {
+        return mpConstraint.getCoefficient(variable.getMPVariable());
     }
 
-    @Override
+    public void setCoefficient(FaraoMPVariable variable, double coeff) {
+        mpConstraint.setCoefficient(variable.getMPVariable(), RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+    }
+
+    public double lb() {
+        return mpConstraint.lb();
+    }
+
+    public double ub() {
+        return mpConstraint.ub();
+    }
+
     public void setLb(double lb) {
-        super.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
+        mpConstraint.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
     }
 
-    @Override
     public void setUb(double ub) {
-        super.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpConstraint.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
-    @Override
     public void setBounds(double lb, double ub) {
-        super.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpConstraint.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 }

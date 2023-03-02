@@ -13,26 +13,44 @@ import com.google.ortools.linearsolver.MPVariable;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPVariable extends MPVariable {
+public class FaraoMPVariable {
+    private final MPVariable mpVariable;
     private final int numberOfBitsToRoundOff;
 
-    protected FaraoMPVariable(MPVariable basicMPVariable, int numberOfBitsToRoundOff) {
-        super(getCPtr(basicMPVariable), false);
+    protected FaraoMPVariable(MPVariable mpVariable, int numberOfBitsToRoundOff) {
+        this.mpVariable = mpVariable;
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
-    @Override
+    public String name() {
+        return mpVariable.name();
+    }
+
+    public double lb() {
+        return mpVariable.lb();
+    }
+
+    public double ub() {
+        return mpVariable.ub();
+    }
+
     public void setLb(double lb) {
-        super.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
+        mpVariable.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
     }
 
-    @Override
     public void setUb(double ub) {
-        super.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpVariable.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
-    @Override
     public void setBounds(double lb, double ub) {
-        super.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+        mpVariable.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+    }
+
+    MPVariable getMPVariable() {
+        return mpVariable;
+    }
+
+    public double solutionValue() {
+        return mpVariable.solutionValue();
     }
 }

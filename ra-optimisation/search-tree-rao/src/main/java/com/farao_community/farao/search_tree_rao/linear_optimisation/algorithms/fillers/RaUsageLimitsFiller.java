@@ -13,13 +13,13 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -108,9 +108,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        MPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state);
+        FaraoMPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction, state);
 
-        MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
+        FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
         if (absoluteVariationVariable == null) {
             throw new FaraoException(format("Range action absolute variation variable for %s has not been defined yet.", rangeAction.getId()));
         }
@@ -120,7 +120,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         // range action absolute variation <= isVariationVariable * (max setpoint - min setpoint) + initialSetpointRelaxation
         // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
         // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
-        MPConstraint constraint = linearProblem.addIsVariationConstraint(-LinearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
+        FaraoMPConstraint constraint = linearProblem.addIsVariationConstraint(-LinearProblem.infinity(), initialSetpointRelaxation, rangeAction, state);
         constraint.setCoefficient(absoluteVariationVariable, 1);
         double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
         constraint.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - rangeAction.getMinAdmissibleSetpoint(initialSetpoint)));
@@ -131,9 +131,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         if (maxRa == null) {
             return;
         }
-        MPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
+        FaraoMPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
         rangeActions.get(state).forEach(ra -> {
-            MPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
+            FaraoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
             maxRaConstraint.setCoefficient(isVariationVariable, 1);
         });
     }
@@ -149,17 +149,17 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             .filter(Objects::nonNull)
             .filter(tso -> !maxTsoExclusions.contains(tso))
             .collect(Collectors.toSet());
-        MPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
+        FaraoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
         constraintTsos.forEach(tso -> {
             // Create "is at least one RA for TSO used" binary variable ...
-            MPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso, state);
+            FaraoMPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso, state);
             maxTsoConstraint.setCoefficient(tsoRaUsedVariable, 1);
             // ... and the constraints that will define it
             // tsoRaUsed >= ra1_used, tsoRaUsed >= ra2_used + ...
 
             rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
                 .forEach(ra -> {
-                    MPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, LinearProblem.infinity(), tso, ra, state);
+                    FaraoMPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, LinearProblem.infinity(), tso, ra, state);
                     tsoRaUsedConstraint.setCoefficient(tsoRaUsedVariable, 1);
                     tsoRaUsedConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), -1);
                 });
@@ -172,7 +172,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             return;
         }
         maxRaPerTso.forEach((tso, maxRaForTso) -> {
-            MPConstraint maxRaPerTsoConstraint = linearProblem.addMaxRaPerTsoConstraint(0, maxRaForTso, tso, state);
+            FaraoMPConstraint maxRaPerTsoConstraint = linearProblem.addMaxRaPerTsoConstraint(0, maxRaForTso, tso, state);
             rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
                 .forEach(ra -> maxRaPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });
@@ -184,7 +184,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             return;
         }
         maxPstPerTso.forEach((tso, maxPstForTso) -> {
-            MPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso, state);
+            FaraoMPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso, state);
             rangeActions.get(state).stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
                 .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });

@@ -7,7 +7,7 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks;
 
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class MPConstraintMock extends FaraoMPConstraint {
     }
 
     @Override
-    public void setCoefficient(MPVariable var, double coeff) {
+    public void setCoefficient(FaraoMPVariable var, double coeff) {
         coefficients.put(var.name(), coeff);
     }
 
@@ -67,7 +67,7 @@ public class MPConstraintMock extends FaraoMPConstraint {
     }
 
     @Override
-    public double getCoefficient(MPVariable var) {
+    public double getCoefficient(FaraoMPVariable var) {
         return coefficients.getOrDefault(var.name(), 0.);
     }
 }
