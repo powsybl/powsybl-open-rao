@@ -60,7 +60,7 @@ public final class ToolProvider {
 
     public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (Objects.nonNull(loopFlowParameters)) {
+        if (Objects.nonNull(loopFlowParameters) && !loopFlowParameters.getCountries().isEmpty()) {
             return allCnecs.stream()
                 .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParameters.getCountries()))
                 .collect(Collectors.toSet());
