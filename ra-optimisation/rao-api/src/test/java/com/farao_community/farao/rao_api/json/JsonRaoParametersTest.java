@@ -38,6 +38,7 @@ import static org.junit.Assert.assertTrue;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class JsonRaoParametersTest extends AbstractConverterTest {
+    static double DOUBLE_TOLERANCE = 1e-6;
 
     @Test
     public void roundTripDefault() throws IOException {
@@ -111,6 +112,42 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
+    }
+
+    @Test
+    public void update() {
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
+        assertEquals(1, parameters.getExtensions().size());
+        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
+        assertEquals(2, parameters.getExtensions().size());
+        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
+        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth());
+        assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(8, parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
+        assertEquals(3, parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
+        assertTrue(parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
+        assertEquals(2, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
+        assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
+        assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty());
+        assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, parameters.getSecondPreventiveRaoParameters().getExecutionCondition());
+        assertTrue(parameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
+        assertEquals(2, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso().size());
+        assertEquals(3, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso().get("RTE").intValue());
+        assertEquals(5, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeTopoPerTso().get("Elia").intValue());
+        assertEquals(1, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativePstPerTso().size());
+        assertEquals(0, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativePstPerTso().get("Amprion").intValue());
+        assertEquals(2, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso().size());
+        assertEquals(1, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso().get("Tennet").intValue());
+        assertEquals(9, parameters.getRaUsageLimitsPerContingencyParameters().getMaxCurativeRaPerTso().get("50Hz").intValue());
+        // Extensions
+        MnecParametersExtension mnecParameters = parameters.getExtension(MnecParametersExtension.class);
+        assertEquals(888, mnecParameters.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
+        assertEquals(23, mnecParameters.getViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(4, mnecParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        RelativeMarginsParametersExtension relativeMarginsParameters = parameters.getExtension(RelativeMarginsParametersExtension.class);
+        assertEquals(0.06, relativeMarginsParameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(List.of("{FR}-{ES}"), relativeMarginsParameters.getPtdfBoundariesAsString());
     }
 
     @Test

@@ -122,7 +122,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         Objects.requireNonNull(platformConfig);
         RaoParameters parameters = new RaoParameters();
         load(parameters, platformConfig);
-        parameters.readExtensions(platformConfig);
+        parameters.loadExtensions(platformConfig);
         return parameters;
     }
 
@@ -139,7 +139,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         parameters.setLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters.load(platformConfig));
     }
 
-    private void readExtensions(PlatformConfig platformConfig) {
+    private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : PARAMETERS_EXTENSIONS_SUPPLIER.get().getProviders()) {
             if (platformConfig.getOptionalModuleConfig(provider.getExtensionName()).isPresent()) {
                 addExtension(provider.getExtensionClass(), provider.load(platformConfig));
