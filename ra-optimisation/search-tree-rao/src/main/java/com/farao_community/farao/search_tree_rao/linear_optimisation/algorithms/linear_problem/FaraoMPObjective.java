@@ -21,8 +21,8 @@ public class FaraoMPObjective extends MPObjective {
     private final int numberOfBitsToRoundOff;
     List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPObjective(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
-        super(cPtr, cMemoryOwn);
+    protected FaraoMPObjective(MPObjective basicMPObjective, int numberOfBitsToRoundOff) {
+        super(getCPtr(basicMPObjective), false);
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 

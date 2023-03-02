@@ -23,7 +23,7 @@ public class MPConstraintMock extends FaraoMPConstraint {
     private Map<String, Double> coefficients;
 
     public MPConstraintMock(String pName, double pLb, double pUb) {
-        super(0, false, 0);
+        super(null, 0);
         this.name = pName;
         this.lb = pLb;
         this.ub = pUb;

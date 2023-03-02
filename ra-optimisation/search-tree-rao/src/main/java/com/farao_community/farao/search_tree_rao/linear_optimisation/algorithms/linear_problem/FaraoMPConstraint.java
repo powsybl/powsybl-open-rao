@@ -21,8 +21,8 @@ public class FaraoMPConstraint extends MPConstraint {
     private final int numberOfBitsToRoundOff;
     List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
-        super(cPtr, cMemoryOwn);
+    protected FaraoMPConstraint(MPConstraint basicMPConstraint, int numberOfBitsToRoundOff) {
+        super(getCPtr(basicMPConstraint), false);
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 

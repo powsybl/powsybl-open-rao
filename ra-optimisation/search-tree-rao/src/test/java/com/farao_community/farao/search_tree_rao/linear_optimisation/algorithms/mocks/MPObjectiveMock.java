@@ -22,7 +22,7 @@ public class MPObjectiveMock extends FaraoMPObjective {
     private boolean isMaximization;
 
     protected MPObjectiveMock() {
-        super(0, true, 0);
+        super(null, 0);
         coefficients = new HashMap<>();
         isMinimization = false;
         isMaximization = false;

@@ -16,8 +16,8 @@ import com.google.ortools.linearsolver.MPVariable;
 public class FaraoMPVariable extends MPVariable {
     private final int numberOfBitsToRoundOff;
 
-    protected FaraoMPVariable(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
-        super(cPtr, cMemoryOwn);
+    protected FaraoMPVariable(MPVariable basicMPVariable, int numberOfBitsToRoundOff) {
+        super(getCPtr(basicMPVariable), false);
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
