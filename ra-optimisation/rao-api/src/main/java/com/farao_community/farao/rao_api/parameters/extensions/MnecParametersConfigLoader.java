@@ -17,7 +17,7 @@ public class MnecParametersConfigLoader implements RaoParameters.ConfigLoader<Mn
     public MnecParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         MnecParametersExtension parameters = MnecParametersExtension.loadDefault();
-        platformConfig.getOptionalModuleConfig(MNEC_PARAMETERS)
+        platformConfig.getOptionalModuleConfig(MNEC_PARAMETERS_SECTION)
                 .ifPresent(config -> {
                     parameters.setAcceptableMarginDecrease(config.getDoubleProperty(ACCEPTABLE_MARGIN_DECREASE, MnecParametersExtension.DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION));
                     parameters.setViolationCost(config.getDoubleProperty(VIOLATION_COST, MnecParametersExtension.DEFAULT_VIOLATION_COST));
@@ -28,7 +28,7 @@ public class MnecParametersConfigLoader implements RaoParameters.ConfigLoader<Mn
 
     @Override
     public String getExtensionName() {
-        return MNEC_PARAMETERS;
+        return MNEC_PARAMETERS_SECTION;
     }
 
     @Override

@@ -19,7 +19,7 @@ public class LoopFlowParametersConfigLoader implements RaoParameters.ConfigLoade
     public LoopFlowParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         LoopFlowParametersExtension parameters = LoopFlowParametersExtension.loadDefault();
-        platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS)
+        platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS_SECTION)
                 .ifPresent(config -> {
                     parameters.setAcceptableIncrease(config.getDoubleProperty(ACCEPTABLE_INCREASE, LoopFlowParametersExtension.DEFAULT_ACCEPTABLE_INCREASE));
                     parameters.setApproximation(config.getEnumProperty(APPROXIMATION, LoopFlowParametersExtension.Approximation.class,
@@ -33,7 +33,7 @@ public class LoopFlowParametersConfigLoader implements RaoParameters.ConfigLoade
 
     @Override
     public String getExtensionName() {
-        return LOOP_FLOW_PARAMETERS;
+        return LOOP_FLOW_PARAMETERS_SECTION;
     }
 
     @Override

@@ -117,7 +117,7 @@ public class TopoOptimizationParameters {
     public static TopoOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         TopoOptimizationParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(TOPOLOGICAL_ACTIONS_OPTIMIZATION)
+        platformConfig.getOptionalModuleConfig(TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxSearchTreeDepth(config.getIntProperty(MAX_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
                     parameters.setPredefinedCombinations(ParametersUtil.convertListToListOfList(config.getStringListProperty(PREDEFINED_COMBINATIONS, ParametersUtil.convertListOfListToList(DEFAULT_PREDEFINED_COMBINATIONS))));

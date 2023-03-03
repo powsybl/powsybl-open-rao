@@ -67,7 +67,7 @@ public class SecondPreventiveRaoParameters {
     public static SecondPreventiveRaoParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         SecondPreventiveRaoParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(SECOND_PREVENTIVE_RAO)
+        platformConfig.getOptionalModuleConfig(SECOND_PREVENTIVE_RAO_SECTION)
                 .ifPresent(config -> {
                     parameters.setExecutionCondition(config.getEnumProperty(EXECUTION_CONDITION, ExecutionCondition.class, DEFAULT_EXECUTION_CONDITION));
                     parameters.setReOptimizeCurativeRangeActions(config.getBooleanProperty(RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS, DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS));

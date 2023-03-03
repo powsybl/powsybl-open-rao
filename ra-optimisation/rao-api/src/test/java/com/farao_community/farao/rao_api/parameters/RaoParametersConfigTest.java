@@ -39,7 +39,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkObjectiveFunctionConfig() {
-        MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("objective-function");
+        MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
         objectiveFunctionModuleConfig.setStringProperty("forbid-cost-increase", Objects.toString(true));
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
@@ -58,7 +58,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkRangeActionsOptimizationConfig() {
-        MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("range-actions-optimization");
+        MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("rao-range-actions-optimization");
         rangeActionsOptimizationModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(4));
         rangeActionsOptimizationModuleConfig.setStringProperty("pst-penalty-cost", Objects.toString(44));
         rangeActionsOptimizationModuleConfig.setStringProperty("pst-sensitivity-threshold", Objects.toString(7));
@@ -67,7 +67,7 @@ public class RaoParametersConfigTest {
         rangeActionsOptimizationModuleConfig.setStringProperty("hvdc-sensitivity-threshold", Objects.toString(8));
         rangeActionsOptimizationModuleConfig.setStringProperty("injection-ra-penalty-cost", Objects.toString(22));
         rangeActionsOptimizationModuleConfig.setStringProperty("injection-ra-sensitivity-threshold", Objects.toString(9));
-        MapModuleConfig linearOptimizationSolverModuleConfig = platformCfg.createModuleConfig("linear-optimization-solver");
+        MapModuleConfig linearOptimizationSolverModuleConfig = platformCfg.createModuleConfig("rao-linear-optimization-solver");
         linearOptimizationSolverModuleConfig.setStringProperty("solver", "XPRESS");
         linearOptimizationSolverModuleConfig.setStringProperty("relative-mip-gap", Objects.toString(22));
         linearOptimizationSolverModuleConfig.setStringProperty("solver-specific-parameters", "blabla");
@@ -89,7 +89,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkTopoActionsOptimizationConfig() {
-        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("topological-actions-optimization");
+        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringProperty("max-search-tree-depth", Objects.toString(3));
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} + {na22}", "{na41} + {na5} + {na6}"));
         topoActionsModuleConfig.setStringProperty("relative-minimum-impact-threshold", Objects.toString(0.9));
@@ -109,7 +109,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkMultiThreadingConfig() {
-        MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("multi-threading");
+        MapModuleConfig multiThreadingModuleConfig = platformCfg.createModuleConfig("rao-multi-threading");
         multiThreadingModuleConfig.setStringProperty("contingency-scenarios-in-parallel", Objects.toString(3));
         multiThreadingModuleConfig.setStringProperty("preventive-leaves-in-parallel", Objects.toString(23));
         multiThreadingModuleConfig.setStringProperty("curative-leaves-in-parallel", Objects.toString(43));
@@ -123,7 +123,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkSecondPreventiveRaoConfig() {
-        MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("second-preventive-rao");
+        MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("rao-second-preventive-rao");
         secondPreventiveRaoModuleConfig.setStringProperty("execution-condition", "POSSIBLE_CURATIVE_IMPROVEMENT");
         secondPreventiveRaoModuleConfig.setStringProperty("re-optimize-curative-range-actions", Objects.toString(false));
         secondPreventiveRaoModuleConfig.setStringProperty("hint-from-first-preventive-rao", Objects.toString(true));
@@ -137,7 +137,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkRaUsageLimitsPerContingencyConfig() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("ra-usage-limits-per-contingency");
+        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringProperty("max-curative-ra", Objects.toString(3));
         raUsageLimitsModuleConfig.setStringProperty("max-curative-tso", Objects.toString(13));
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC}:5", "{DEF}:6"));
@@ -159,7 +159,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkNotOptimizedCnecsConfig() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("not-optimized-cnecs");
+        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringProperty("do-not-optimize-curative-cnecs-for-tsos-without-cras", Objects.toString(false));
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
         RaoParameters parameters = new RaoParameters();
@@ -172,7 +172,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkLoadFlowParametersConfig() {
-        MapModuleConfig loadFlowModuleConfig = platformCfg.createModuleConfig("load-flow-and-sensitivity-computation");
+        MapModuleConfig loadFlowModuleConfig = platformCfg.createModuleConfig("rao-load-flow-and-sensitivity-computation");
         loadFlowModuleConfig.setStringProperty("load-flow-provider", "Bonjour");
         loadFlowModuleConfig.setStringProperty("sensitivity-provider", "Au revoir");
         loadFlowModuleConfig.setStringProperty("sensitivity-failure-overcost", Objects.toString(32));
@@ -192,7 +192,7 @@ public class RaoParametersConfigTest {
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("violation-cost"), anyDouble())).thenReturn(43.);
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("constraint-adjustment-coefficient"), anyDouble())).thenReturn(45.);
         Mockito.when(loopFlowModuleConfig.getStringListProperty(eq("countries"), anyList())).thenReturn(List.of("FR", "ES", "PT"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
         LoopFlowParametersConfigLoader configLoader = new LoopFlowParametersConfigLoader();
         LoopFlowParametersExtension parameters = configLoader.load(mockedPlatformConfig);
         assertEquals(32, parameters.getAcceptableIncrease(), DOUBLE_TOLERANCE);
@@ -209,7 +209,7 @@ public class RaoParametersConfigTest {
         Mockito.when(mnecModuleConfig.getDoubleProperty(eq("acceptable-margin-decrease"), anyDouble())).thenReturn(32.);
         Mockito.when(mnecModuleConfig.getDoubleProperty(eq("violation-cost"), anyDouble())).thenReturn(43.);
         Mockito.when(mnecModuleConfig.getDoubleProperty(eq("constraint-adjustment-coefficient"), anyDouble())).thenReturn(45.);
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("mnec-parameters")).thenReturn(Optional.of(mnecModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-mnec-parameters")).thenReturn(Optional.of(mnecModuleConfig));
         MnecParametersConfigLoader configLoader = new MnecParametersConfigLoader();
         MnecParametersExtension parameters = configLoader.load(mockedPlatformConfig);
         assertEquals(32, parameters.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
@@ -222,7 +222,7 @@ public class RaoParametersConfigTest {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getDoubleProperty(eq("ptdf-sum-lower-bound"), anyDouble())).thenReturn(32.);
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
         RelativeMarginsParametersExtension parameters = configLoader.load(mockedPlatformConfig);
         List<String> expectedBoundaries = List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
@@ -232,10 +232,10 @@ public class RaoParametersConfigTest {
 
     @Test
     public void checkMultipleConfigs() {
-        MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("objective-function");
+        MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN_IN_AMPERE");
         objectiveFunctionModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
-        MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("range-actions-optimization");
+        MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("rao-range-actions-optimization");
         rangeActionsOptimizationModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -249,7 +249,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentPredefinedCombinations1() {
-        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("topological-actions-optimization");
+        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12 + {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -257,7 +257,7 @@ public class RaoParametersConfigTest {
 
     @Test
     public void inconsistentPredefinedCombinations2() {
-        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("topological-actions-optimization");
+        MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -266,7 +266,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringIntMap1() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("ra-usage-limits-per-contingency");
+        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC:5", "{DEF}:6"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -274,7 +274,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringIntMap2() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("ra-usage-limits-per-contingency");
+        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC}+5", "{DEF}:6"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -282,7 +282,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringIntMap3() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("ra-usage-limits-per-contingency");
+        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC}", "{DEF}:6"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -290,7 +290,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringIntMap4() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("ra-usage-limits-per-contingency");
+        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
         raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("5", "{DEF}:6"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -298,7 +298,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringStringMap1() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("not-optimized-cnecs");
+        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -306,7 +306,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringStringMap2() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("not-optimized-cnecs");
+        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -314,7 +314,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringStringMap3() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("not-optimized-cnecs");
+        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -322,7 +322,7 @@ public class RaoParametersConfigTest {
 
     @Test (expected = FaraoException.class)
     public void inconsistentStringStringMap4() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("not-optimized-cnecs");
+        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -332,7 +332,7 @@ public class RaoParametersConfigTest {
     public void inconsistentLoopFlowCountries() {
         ModuleConfig loopFlowModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(loopFlowModuleConfig.getStringListProperty(eq("countries"), anyList())).thenReturn(List.of("France", "ES", "PT"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
         LoopFlowParametersConfigLoader configLoader = new LoopFlowParametersConfigLoader();
         configLoader.load(mockedPlatformConfig);
     }
@@ -341,7 +341,7 @@ public class RaoParametersConfigTest {
     public void inconsistentRelativeMarginsBoundaries1() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}{BE}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
         configLoader.load(mockedPlatformConfig);
     }
@@ -350,7 +350,7 @@ public class RaoParametersConfigTest {
     public void inconsistentRelativeMarginsBoundaries2() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR-{BE}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParametersConfigLoader configLoader = new RelativeMarginsParametersConfigLoader();
         configLoader.load(mockedPlatformConfig);
     }

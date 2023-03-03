@@ -76,7 +76,7 @@ public class LoadFlowAndSensitivityParameters {
     public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         LoadFlowAndSensitivityParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION)
+        platformConfig.getOptionalModuleConfig(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setLoadFlowProvider(config.getStringProperty(LOAD_FLOW_PROVIDER, DEFAULT_LOADFLOW_PROVIDER));
                     parameters.setSensitivityProvider(config.getStringProperty(SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER));

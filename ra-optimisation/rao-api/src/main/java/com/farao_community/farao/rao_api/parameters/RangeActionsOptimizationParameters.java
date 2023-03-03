@@ -115,7 +115,7 @@ public class RangeActionsOptimizationParameters {
         public static LinearOptimizationSolver load(PlatformConfig platformConfig) {
             Objects.requireNonNull(platformConfig);
             LinearOptimizationSolver parameters = loadDefault();
-            platformConfig.getOptionalModuleConfig(LINEAR_OPTIMIZATION_SOLVER)
+            platformConfig.getOptionalModuleConfig(LINEAR_OPTIMIZATION_SOLVER_SECTION)
                     .ifPresent(config -> {
                         parameters.setSolver(config.getEnumProperty(SOLVER, Solver.class, DEFAULT_SOLVER));
                         parameters.setRelativeMipGap(config.getDoubleProperty(RELATIVE_MIP_GAP, DEFAULT_RELATIVE_MIP_GAP));
@@ -207,16 +207,16 @@ public class RangeActionsOptimizationParameters {
     public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         RangeActionsOptimizationParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig("range-actions-optimization")
+        platformConfig.getOptionalModuleConfig(RANGE_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
-                    parameters.setMaxMipIterations(config.getIntProperty("max-mip-iterations", DEFAULT_MAX_MIP_ITERATIONS));
-                    parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", DEFAULT_PST_PENALTY_COST));
-                    parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
-                    parameters.setPstModel(config.getEnumProperty("pst-model", PstModel.class, DEFAULT_PST_MODEL));
-                    parameters.setHvdcPenaltyCost(config.getDoubleProperty("hvdc-penalty-cost", DEFAULT_HVDC_PENALTY_COST));
-                    parameters.setHvdcSensitivityThreshold(config.getDoubleProperty("hvdc-sensitivity-threshold", DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
-                    parameters.setInjectionRaPenaltyCost(config.getDoubleProperty("injection-ra-penalty-cost", DEFAULT_INJECTION_RA_PENALTY_COST));
-                    parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty("injection-ra-sensitivity-threshold", DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
+                    parameters.setMaxMipIterations(config.getIntProperty(MAX_MIP_ITERATIONS, DEFAULT_MAX_MIP_ITERATIONS));
+                    parameters.setPstPenaltyCost(config.getDoubleProperty(PST_PENALTY_COST, DEFAULT_PST_PENALTY_COST));
+                    parameters.setPstSensitivityThreshold(config.getDoubleProperty(PST_SENSITIVITY_THRESHOLD, DEFAULT_PST_SENSITIVITY_THRESHOLD));
+                    parameters.setPstModel(config.getEnumProperty(PST_MODEL, PstModel.class, DEFAULT_PST_MODEL));
+                    parameters.setHvdcPenaltyCost(config.getDoubleProperty(HVDC_PENALTY_COST, DEFAULT_HVDC_PENALTY_COST));
+                    parameters.setHvdcSensitivityThreshold(config.getDoubleProperty(HVDC_SENSITIVITY_THRESHOLD, DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
+                    parameters.setInjectionRaPenaltyCost(config.getDoubleProperty(INJECTION_RA_PENALTY_COST, DEFAULT_INJECTION_RA_PENALTY_COST));
+                    parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty(INJECTION_RA_SENSITIVITY_THRESHOLD, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
                 });
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;

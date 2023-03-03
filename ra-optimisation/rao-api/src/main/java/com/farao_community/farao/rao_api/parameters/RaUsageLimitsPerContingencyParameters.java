@@ -49,7 +49,7 @@ public class RaUsageLimitsPerContingencyParameters {
     public static RaUsageLimitsPerContingencyParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         RaUsageLimitsPerContingencyParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(RA_USAGE_LIMITS_PER_CONTINGENCY)
+        platformConfig.getOptionalModuleConfig(RA_USAGE_LIMITS_PER_CONTINGENCY_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxCurativeRa(config.getIntProperty(MAX_CURATIVE_RA, DEFAULT_MAX_CURATIVE_RA));
                     parameters.setMaxCurativeTso(config.getIntProperty(MAX_CURATIVE_TSO, DEFAULT_MAX_CURATIVE_TSO));

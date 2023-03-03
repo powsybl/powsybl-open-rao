@@ -121,7 +121,7 @@ public class ObjectiveFunctionParameters {
     public static ObjectiveFunctionParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         ObjectiveFunctionParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(OBJECTIVE_FUNCTION)
+        platformConfig.getOptionalModuleConfig(OBJECTIVE_FUNCTION_SECTION)
                 .ifPresent(config -> {
                     parameters.setObjectiveFunctionType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
                             DEFAULT_OBJECTIVE_FUNCTION));

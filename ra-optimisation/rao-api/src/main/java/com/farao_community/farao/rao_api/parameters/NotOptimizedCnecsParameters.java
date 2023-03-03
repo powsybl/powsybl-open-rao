@@ -44,7 +44,7 @@ public class NotOptimizedCnecsParameters {
     public static NotOptimizedCnecsParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         NotOptimizedCnecsParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(NOT_OPTIMIZED_CNECS)
+        platformConfig.getOptionalModuleConfig(NOT_OPTIMIZED_CNECS_SECTION)
                 .ifPresent(config -> {
                     parameters.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(config.getBooleanProperty(DO_NOT_OPTIMIZE_CURATIVE_CNECS, DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS));
                     parameters.setDoNotOptimizeCnecsSecuredByTheirPst(ParametersUtil.convertListToStringStringMap(config.getStringListProperty(DO_NOT_OPTIMIZE_CNECS_SECURED_BY_ITS_PST, ParametersUtil.convertStringStringMapToList(DEFAULT_DO_NOT_OPTIMIZE_CNECS_SECURED_BY_THEIR_PST))));

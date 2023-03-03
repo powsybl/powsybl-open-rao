@@ -18,7 +18,7 @@ public class RelativeMarginsParametersConfigLoader implements RaoParameters.Conf
     public RelativeMarginsParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         RelativeMarginsParametersExtension parameters = RelativeMarginsParametersExtension.loadDefault();
-        platformConfig.getOptionalModuleConfig(RELATIVE_MARGINS)
+        platformConfig.getOptionalModuleConfig(RELATIVE_MARGINS_SECTION)
                 .ifPresent(config -> {
                     parameters.setPtdfBoundariesFromString(config.getStringListProperty(PTDF_BOUNDARIES, new ArrayList<>()));
                     parameters.setPtdfSumLowerBound(config.getDoubleProperty(PTDF_SUM_LOWER_BOUND, RelativeMarginsParametersExtension.DEFAULT_PTDF_SUM_LOWER_BOUND));
@@ -28,7 +28,7 @@ public class RelativeMarginsParametersConfigLoader implements RaoParameters.Conf
 
     @Override
     public String getExtensionName() {
-        return RELATIVE_MARGINS;
+        return RELATIVE_MARGINS_SECTION;
     }
 
     @Override

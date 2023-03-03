@@ -63,7 +63,7 @@ public class MultithreadingParameters {
     public static MultithreadingParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         MultithreadingParameters parameters = loadDefault();
-        platformConfig.getOptionalModuleConfig(MULTI_THREADING)
+        platformConfig.getOptionalModuleConfig(MULTI_THREADING_SECTION)
                 .ifPresent(config -> {
                     parameters.setContingencyScenariosInParallel(config.getIntProperty(CONTINGENCY_SCENARIOS_IN_PARALLEL, DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL));
                     parameters.setPreventiveLeavesInParallel(config.getIntProperty(PREVENTIVE_LEAVES_IN_PARALLEL, DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL));
