@@ -13,6 +13,7 @@ import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsPa
 import com.powsybl.commons.config.*;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import org.junit.Test;
 
 import java.io.*;
@@ -288,5 +289,22 @@ public class RaoParametersYamlConfigTest extends AbstractConverterTest {
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withPartialExtensions.json");
+    }
+
+    @Test
+    public void testConfigWithOpenLoadFlowExtension() throws IOException {
+        RaoParameters parameters = loadRaoParameters("config_withOpenLoadFlowExtension");
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
+        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getLoadFlowProvider());
+        assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getSensitivityProvider());
+        assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
+        OpenLoadFlowParameters olfParams = loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class);
+        assertNotNull(olfParams);
+        assertEquals(0.444, olfParams.getMinPlausibleTargetVoltage(), DOUBLE_TOLERANCE);
+        assertEquals(1.444, olfParams.getMaxPlausibleTargetVoltage(), DOUBLE_TOLERANCE);
+        assertEquals(111, olfParams.getMaxIteration(), DOUBLE_TOLERANCE);
+
+        // Compare to json
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withOLFParams.json");
     }
 }

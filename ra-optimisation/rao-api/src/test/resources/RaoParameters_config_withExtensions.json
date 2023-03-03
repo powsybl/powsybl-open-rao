@@ -85,7 +85,44 @@
         "dcUseTransformerRatio" : true,
         "countriesToBalance" : [ ],
         "connectedComponentMode" : "MAIN",
-        "hvdcAcEmulation" : true
+        "hvdcAcEmulation" : true,
+        "extensions" : {
+          "open-load-flow-parameters" : {
+            "slackBusSelectionMode" : "MOST_MESHED",
+            "slackBusesIds" : [ ],
+            "throwsExceptionInCaseOfSlackDistributionFailure" : false,
+            "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
+            "loadPowerFactorConstant" : false,
+            "plausibleActivePowerLimit" : 5000.0,
+            "slackBusPMaxMismatch" : 1.0,
+            "voltagePerReactivePowerControl" : false,
+            "maxIteration" : 30,
+            "newtonRaphsonConvEpsPerEq" : 1.0E-4,
+            "voltageInitModeOverride" : "NONE",
+            "transformerVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
+            "shuntVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
+            "dcPowerFactor" : 1.0,
+            "minPlausibleTargetVoltage" : 0.8,
+            "maxPlausibleTargetVoltage" : 1.2,
+            "minRealisticVoltage" : 0.5,
+            "maxRealisticVoltage" : 1.5,
+            "lowImpedanceThreshold" : 1.0E-8,
+            "reactiveRangeCheckMode" : "MAX",
+            "networkCacheEnabled" : false,
+            "svcVoltageMonitoring" : true,
+            "stateVectorScalingMode" : "NONE",
+            "maxSlackBusCount" : 1,
+            "debugDir" : null,
+            "incrementalTransformerVoltageControlOuterLoopMaxTapShift" : 3,
+            "secondaryVoltageControl" : false,
+            "reactiveLimitsMaxPqPvSwitch" : 3
+          }
+        }
+      },
+      "extensions" : {
+        "open-sensitivity-parameters" : {
+          "debugDir" : null
+        }
       }
     }
   },
