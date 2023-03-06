@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -57,7 +56,7 @@ public class SweRemedialActionSeriesCreatorTest {
         rasccList.add(createRascc("hvdcEsFr", true, Set.of("hvdcFrEs + hvdcEsFr - 1", "hvdcFrEs + hvdcEsFr - 2"), false, "", "", true));
         rasccList.add(createRascc("hvdcPtEs", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", false));
         rasccList.add(createRascc("hvdcEsPt", true, Set.of("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs + hvdcEsPt - 2"), false, "", "", true));
-        Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContext()).thenReturn(rasccList);
+        Mockito.when(cracCreationContext.getRemedialActionSeriesCreationContexts()).thenReturn(rasccList);
 
         addRemedialActionToCrac("networkActionCreatedId", "networkActionName", NetworkAction.class);
         addRemedialActionToCrac("na_missing", "networkActionName", NetworkAction.class);

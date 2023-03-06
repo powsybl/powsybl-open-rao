@@ -142,14 +142,14 @@ public class CimCracCreationContext implements CracCreationContext {
 
     @Override
     public String getNetworkName() {
-        return null;
+        return networkName;
     }
 
     public void addAngleCnecCreationContext(AngleCnecCreationContext angleCnecCreationContext) {
         this.angleCnecCreationContexts.add(angleCnecCreationContext);
     }
 
-    public Set<AngleCnecCreationContext> getAngleCnecCreationContext() {
+    public Set<AngleCnecCreationContext> getAngleCnecCreationContexts() {
         return new HashSet<>(angleCnecCreationContexts);
     }
 
@@ -205,7 +205,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
     }
 
-    public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContext() {
+    public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts() {
         return remedialActionSeriesCreationContexts;
     }
 
