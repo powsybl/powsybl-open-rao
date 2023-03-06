@@ -454,7 +454,7 @@ public class SearchTreeTest {
         when(initialResult.getFunctionalCost()).thenReturn(0.);
         when(initialResult.getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
-        String expectedLog1 = "[INFO] Evaluating root leaf";
+        String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
@@ -480,7 +480,7 @@ public class SearchTreeTest {
         when(initialResult.getFunctionalCost()).thenReturn(0.);
         when(initialResult.getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
-        String expectedLog1 = "[INFO] Evaluating root leaf";
+        String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
@@ -589,8 +589,7 @@ public class SearchTreeTest {
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         when(rangeAction1.getName()).thenReturn("PST1");
         when(rangeAction2.getName()).thenReturn("PST2");
-        Map<State, Set<RangeAction<?>>> setFakeRas = Map.of(optimizedState, Set.of(rangeAction1, rangeAction2));
-        when(searchTreeInput.getOptimizationPerimeter().getRangeActionsPerState()).thenReturn(setFakeRas);
+        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
         when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
 
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");

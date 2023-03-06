@@ -123,7 +123,7 @@ public class SearchTree {
 
         applyForcedNetworkActionsOnRootLeaf();
 
-        TECHNICAL_LOGS.info("Evaluating root leaf");
+        TECHNICAL_LOGS.debug("Evaluating root leaf");
         rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation());
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);

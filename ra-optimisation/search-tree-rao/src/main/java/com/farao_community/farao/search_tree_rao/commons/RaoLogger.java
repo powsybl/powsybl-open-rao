@@ -77,22 +77,20 @@ public final class RaoLogger {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
-        List<String> rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
-            .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {
-                Set<RangeAction<?>> rangeActionSet = leaf.getActivatedRangeActions(eState.getKey());
-                if (rangeActionSet.contains(rangeAction)) {
-                    double rangeActionValue;
-                    rangeActionValue = rangeAction instanceof PstRangeAction ? leaf.getOptimizedTap((PstRangeAction) rangeAction, eState.getKey()) :
-                        leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
-                    return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue) :
-                        format("%s: %.0f", rangeAction.getName(), rangeActionValue);
-                }
-                return "";
+        List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state ->
+            leaf.getActivatedRangeActions(state).stream().map(rangeAction -> {
+                double rangeActionValue = rangeAction instanceof PstRangeAction ? leaf.getOptimizedTap((PstRangeAction) rangeAction, state) :
+                    leaf.getOptimizedSetpoint(rangeAction, state);
+                return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), state.getId(), rangeActionValue) :
+                    format("%s: %.0f", rangeAction.getName(), rangeActionValue);
             })).collect(Collectors.toList());
-        rangeActionSetpoints.removeAll(List.of(""));
+
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
-        logger.info(isRangeActionSetPointEmpty ? "{}No range actions activated" : "{}range action(s): {}",
-            prefix == null ? "" : prefix, isRangeActionSetPointEmpty ? null : String.join(", ", rangeActionSetpoints));
+        if (isRangeActionSetPointEmpty) {
+            logger.info("{}No range actions activated", prefix == null ? "" : prefix);
+        } else {
+            logger.info("{}range action(s): {}", prefix == null ? "" : prefix, String.join(", ", rangeActionSetpoints));
+        }
     }
 
     public static void logMostLimitingElementsResults(FaraoLogger logger, OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
