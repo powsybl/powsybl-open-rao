@@ -16,6 +16,7 @@ import java.util.Objects;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+// TODO : replace with RelativeMarginsParametersExtension
 public class MaxMinRelativeMarginParameters {
     private final double ptdfSumLowerBound;
 

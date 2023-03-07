@@ -14,6 +14,7 @@ import java.util.Objects;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+// TODO : replace with RangeActionsOptimizationParameters
 public class RangeActionParameters {
 
     private final RangeActionsOptimizationParameters.PstModel pstOptimizationApproximation;

@@ -13,7 +13,7 @@ import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExt
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-// TODO : classe doublon par rapport à la classe parametre ?
+// TODO : Replace with MnecParametersExtension
 public class MnecParameters {
     private final double mnecAcceptableMarginDiminution;
     private final double mnecViolationCost;

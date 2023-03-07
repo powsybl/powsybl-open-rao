@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParameter
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+// TODO : Replace with LoopFlowParametersExtension
 public class LoopFlowParameters {
     private final Approximation loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;

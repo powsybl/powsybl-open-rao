@@ -14,6 +14,7 @@ import java.util.Objects;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+// TODO l replace with RangeActionsOptimizationParameters.LinearOptimizationSolver
 public class SolverParameters {
 
     private final RangeActionsOptimizationParameters.Solver solver;
