@@ -210,7 +210,7 @@ public final class ToolProvider {
             );
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoParameters.hasExtension(raoParameters, RelativeMarginsParametersExtension.class)) {
+            if (!raoParameters.hasExtension(raoParameters, RelativeMarginsParametersExtension.class)) {
                 throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
             }
             toolProviderBuilder.withAbsolutePtdfSumsComputation(
