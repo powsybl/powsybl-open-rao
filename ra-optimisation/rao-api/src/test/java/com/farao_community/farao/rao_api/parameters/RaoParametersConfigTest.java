@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -255,7 +255,7 @@ public class RaoParametersConfigTest {
         RaoParameters.load(parameters, platformCfg);
     }
 
-    @Test
+    @Test (expected = FaraoException.class)
     public void inconsistentPredefinedCombinations2() {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringListProperty("predefined-combinations", List.of("{na12} - {na22}", "{na41} + {na5} + {na6}"));
@@ -324,6 +324,14 @@ public class RaoParametersConfigTest {
     public void inconsistentStringStringMap4() {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
         notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+    }
+
+    @Test (expected = FaraoException.class)
+    public void inconsistentStringStringMap5() {
+        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
+        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}{blabla}:{pst1}"));
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
     }

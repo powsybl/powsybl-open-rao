@@ -42,7 +42,7 @@ public class JsonRelativeMarginsParametersExtension implements JsonRaoParameters
 
     @Override
     public RelativeMarginsParametersExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return deserializeAndUpdate(jsonParser, deserializationContext, RelativeMarginsParametersExtension.loadDefault());
+        return deserializeAndUpdate(jsonParser, deserializationContext, new RelativeMarginsParametersExtension());
     }
 
     @Override

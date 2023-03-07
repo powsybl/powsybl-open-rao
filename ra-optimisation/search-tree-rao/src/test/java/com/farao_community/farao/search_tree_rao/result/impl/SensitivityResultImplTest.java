@@ -70,8 +70,6 @@ public class SensitivityResultImplTest {
 
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         assertEquals(ComputationStatus.DEFAULT, sensitivityResultImpl.getSensitivityStatus());
-        when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
-        assertEquals(ComputationStatus.FALLBACK, sensitivityResultImpl.getSensitivityStatus());
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, sensitivityResultImpl.getSensitivityStatus());
     }

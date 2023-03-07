@@ -82,7 +82,7 @@ public class ToolProviderTest {
 
     @Test
     public void testGetEicForObjectiveFunction() {
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(
                 List.of("{FR}-{BE}", "{ES}-{FR}")
         );
@@ -146,7 +146,7 @@ public class ToolProviderTest {
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1)));
         assertEquals(Set.of(cnec2), toolProvider.getLoopFlowCnecs(Set.of(cnec2)));
 
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setCountries(List.of("FR"));
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)));
     }

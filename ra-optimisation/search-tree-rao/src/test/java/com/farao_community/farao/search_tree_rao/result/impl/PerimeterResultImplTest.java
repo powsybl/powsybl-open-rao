@@ -216,8 +216,6 @@ public class PerimeterResultImplTest {
     public void testGetSensitivityStatus() {
         when(optimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, perimeterResultImpl.getSensitivityStatus());
-        when(optimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        assertEquals(ComputationStatus.FALLBACK, perimeterResultImpl.getSensitivityStatus());
     }
 
     @Test

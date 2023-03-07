@@ -10,8 +10,6 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 
-import java.util.Objects;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -41,7 +39,7 @@ public class MnecParameters {
 
     public static MnecParameters buildFromRaoParameters(RaoParameters raoParameters) {
         MnecParametersExtension mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
-        if (Objects.nonNull(mnecParameters)) {
+        if (raoParameters.hasExtension(raoParameters, MnecParametersExtension.class)) {
             return new MnecParameters(mnecParameters.getAcceptableMarginDecrease(),
                 mnecParameters.getViolationCost(),
                 mnecParameters.getConstraintAdjustmentCoefficient());

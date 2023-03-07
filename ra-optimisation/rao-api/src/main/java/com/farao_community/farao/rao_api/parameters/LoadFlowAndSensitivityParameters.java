@@ -19,26 +19,14 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class LoadFlowAndSensitivityParameters {
-    private String loadFlowProvider;
-    private String sensitivityProvider;
-
-    private double sensitivityFailureOvercost;
-    private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters;
-
     private static final String DEFAULT_LOADFLOW_PROVIDER = "OpenLoadFlow";
     private static final String DEFAULT_SENSITIVITY_PROVIDER = "OpenLoadFlow";
     private static final double DEFAULT_SENSITIVITY_FAILURE_OVERCOST = 10000;
+    private String loadFlowProvider = DEFAULT_LOADFLOW_PROVIDER;
+    private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
 
-    public LoadFlowAndSensitivityParameters(String loadFlowProvider, String sensitivityProvider, double sensitivityFailureOvercost, SensitivityAnalysisParameters sensitivityWithLoadFlowParameters) {
-        this.loadFlowProvider = loadFlowProvider;
-        this.sensitivityProvider = sensitivityProvider;
-        this.sensitivityFailureOvercost = sensitivityFailureOvercost;
-        this.sensitivityWithLoadFlowParameters = sensitivityWithLoadFlowParameters;
-    }
-
-    public static LoadFlowAndSensitivityParameters loadDefault() {
-        return new LoadFlowAndSensitivityParameters(DEFAULT_LOADFLOW_PROVIDER, DEFAULT_SENSITIVITY_PROVIDER, DEFAULT_SENSITIVITY_FAILURE_OVERCOST,  new SensitivityAnalysisParameters());
-    }
+    private double sensitivityFailureOvercost = DEFAULT_SENSITIVITY_FAILURE_OVERCOST;
+    private SensitivityAnalysisParameters sensitivityWithLoadFlowParameters = new SensitivityAnalysisParameters();
 
     // Getters and setters
     public SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters() {
@@ -75,7 +63,7 @@ public class LoadFlowAndSensitivityParameters {
 
     public static LoadFlowAndSensitivityParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        LoadFlowAndSensitivityParameters parameters = loadDefault();
+        LoadFlowAndSensitivityParameters parameters = new LoadFlowAndSensitivityParameters();
         platformConfig.getOptionalModuleConfig(LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setLoadFlowProvider(config.getStringProperty(LOAD_FLOW_PROVIDER, DEFAULT_LOADFLOW_PROVIDER));

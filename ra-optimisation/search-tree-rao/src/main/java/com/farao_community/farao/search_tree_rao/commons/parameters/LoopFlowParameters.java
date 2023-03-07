@@ -11,8 +11,6 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension.*;
 
-import java.util.Objects;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -47,7 +45,7 @@ public class LoopFlowParameters {
 
     public static LoopFlowParameters buildFromRaoParameters(RaoParameters raoParameters) {
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (Objects.nonNull(loopFlowParameters)) {
+        if (raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class)) {
             return new LoopFlowParameters(loopFlowParameters.getApproximation(),
                     loopFlowParameters.getAcceptableIncrease(),
                     loopFlowParameters.getViolationCost(),

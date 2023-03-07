@@ -89,7 +89,7 @@ public class PrePerimeterSensitivityAnalysisTest {
     @Test
     public void testRunNoPtdfNoLf() {
         assertNotNull(prePerimeterSensitivityAnalysis);
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -101,7 +101,7 @@ public class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     public void testRunWithPtdf() {
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, false);
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
         assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
@@ -109,9 +109,9 @@ public class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     public void testRunWithLf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -120,9 +120,9 @@ public class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     public void testRunWithPtdfAndLf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(true, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
@@ -131,9 +131,9 @@ public class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     public void testRunWithFixedPtdfAndLf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.FIXED_PTDF);
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());
@@ -144,9 +144,9 @@ public class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     public void testRunWithFixedPtdf() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO);
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, optimizationResult, rangeActionSetpointResult, Collections.emptySet(), new AppliedRemedialActions());

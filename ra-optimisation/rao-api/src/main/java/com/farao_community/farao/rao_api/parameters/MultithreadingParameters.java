@@ -17,24 +17,12 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class MultithreadingParameters {
-    private int contingencyScenariosInParallel;
-    private int preventiveLeavesInParallel;
-    private int curativeLeavesInParallel;
-
     private static final int DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL = 1;
     private static final int DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL = 1;
     private static final int DEFAULT_CURATIVE_LEAVES_IN_PARALLEL = 1;
-
-    public MultithreadingParameters(int contingencyScenariosInParallel, int preventiveLeavesInParallel, int curativeLeavesInParallel) {
-        this.contingencyScenariosInParallel = contingencyScenariosInParallel;
-        this.preventiveLeavesInParallel = preventiveLeavesInParallel;
-        this.curativeLeavesInParallel = curativeLeavesInParallel;
-    }
-
-    public static MultithreadingParameters loadDefault() {
-        return new MultithreadingParameters(DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL, DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL,
-                DEFAULT_CURATIVE_LEAVES_IN_PARALLEL);
-    }
+    private int contingencyScenariosInParallel = DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL;
+    private int preventiveLeavesInParallel = DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL;
+    private int curativeLeavesInParallel  = DEFAULT_CURATIVE_LEAVES_IN_PARALLEL;
 
     public int getContingencyScenariosInParallel() {
         return contingencyScenariosInParallel;
@@ -62,7 +50,7 @@ public class MultithreadingParameters {
 
     public static MultithreadingParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        MultithreadingParameters parameters = loadDefault();
+        MultithreadingParameters parameters = new MultithreadingParameters();
         platformConfig.getOptionalModuleConfig(MULTI_THREADING_SECTION)
                 .ifPresent(config -> {
                     parameters.setContingencyScenariosInParallel(config.getIntProperty(CONTINGENCY_SCENARIOS_IN_PARALLEL, DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL));

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.rao_api.parameters.extensions;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -16,7 +22,7 @@ public class MnecParametersConfigLoader implements RaoParameters.ConfigLoader<Mn
     @Override
     public MnecParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        MnecParametersExtension parameters = MnecParametersExtension.loadDefault();
+        MnecParametersExtension parameters = new MnecParametersExtension();
         platformConfig.getOptionalModuleConfig(MNEC_PARAMETERS_SECTION)
                 .ifPresent(config -> {
                     parameters.setAcceptableMarginDecrease(config.getDoubleProperty(ACCEPTABLE_MARGIN_DECREASE, MnecParametersExtension.DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION));

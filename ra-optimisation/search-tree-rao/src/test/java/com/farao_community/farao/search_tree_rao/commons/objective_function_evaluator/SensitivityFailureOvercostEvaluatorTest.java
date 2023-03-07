@@ -33,7 +33,6 @@ public class SensitivityFailureOvercostEvaluatorTest {
     private SensitivityResult sensitivityResult;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
-    private FlowCnec cnec3;
 
     @Before
     public void setUp() {
@@ -42,16 +41,12 @@ public class SensitivityFailureOvercostEvaluatorTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
-        cnec3 = Mockito.mock(FlowCnec.class);
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
-        State state3 = Mockito.mock(State.class);
         Mockito.when(cnec1.getState()).thenReturn(state1);
         Mockito.when(cnec2.getState()).thenReturn(state2);
-        Mockito.when(cnec3.getState()).thenReturn(state3);
         Mockito.when(sensitivityResult.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
-        Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FALLBACK);
-        Mockito.when(sensitivityResult.getSensitivityStatus(state3)).thenReturn(ComputationStatus.FAILURE);
+        Mockito.when(sensitivityResult.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FAILURE);
     }
 
     @Test
@@ -67,19 +62,10 @@ public class SensitivityFailureOvercostEvaluatorTest {
     }
 
     @Test
-    public void testCostWithNoStateInFailure() {
+    public void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(10000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testCostWithStateInFailure() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2, cnec3), 10000);
-        assertEquals(10000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
         assertEquals(10000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(10000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
     }
 
     @Test

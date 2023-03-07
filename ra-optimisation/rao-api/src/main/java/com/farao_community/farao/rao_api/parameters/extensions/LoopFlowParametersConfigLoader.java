@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.rao_api.parameters.extensions;
 
 import com.farao_community.farao.rao_api.parameters.ParametersUtil;
@@ -18,7 +24,7 @@ public class LoopFlowParametersConfigLoader implements RaoParameters.ConfigLoade
     @Override
     public LoopFlowParametersExtension load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        LoopFlowParametersExtension parameters = LoopFlowParametersExtension.loadDefault();
+        LoopFlowParametersExtension parameters = new LoopFlowParametersExtension();
         platformConfig.getOptionalModuleConfig(LOOP_FLOW_PARAMETERS_SECTION)
                 .ifPresent(config -> {
                     parameters.setAcceptableIncrease(config.getDoubleProperty(ACCEPTABLE_INCREASE, LoopFlowParametersExtension.DEFAULT_ACCEPTABLE_INCREASE));

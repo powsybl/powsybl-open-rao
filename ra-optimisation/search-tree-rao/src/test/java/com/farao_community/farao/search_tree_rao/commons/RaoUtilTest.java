@@ -81,38 +81,38 @@ public class RaoUtilTest {
 
     @Test(expected = FaraoException.class)
     public void testExceptionForGlskOnRelativeMargin() {
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test(expected = FaraoException.class)
     public void testAmpereWithDc() {
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }

@@ -20,35 +20,20 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RaUsageLimitsPerContingencyParameters {
-    private int maxCurativeRa;
-    private int maxCurativeTso;
-    private Map<String, Integer> maxCurativeTopoPerTso;
-    private Map<String, Integer> maxCurativePstPerTso;
-    private Map<String, Integer> maxCurativeRaPerTso;
-
     private static final int DEFAULT_MAX_CURATIVE_RA = Integer.MAX_VALUE;
     private static final int DEFAULT_MAX_CURATIVE_TSO = Integer.MAX_VALUE;
     private static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
     private static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
-
-    public RaUsageLimitsPerContingencyParameters(int maxCurativeRa, int maxCurativeTso, Map<String, Integer> maxCurativeTopoPerTso, Map<String, Integer> maxCurativePstPerTso, Map<String, Integer> maxCurativeRaPerTso) {
-        this.maxCurativeRa = maxCurativeRa;
-        this.maxCurativeTso = maxCurativeTso;
-        this.maxCurativeTopoPerTso = maxCurativeTopoPerTso;
-        this.maxCurativePstPerTso = maxCurativePstPerTso;
-        this.maxCurativeRaPerTso = maxCurativeRaPerTso;
-    }
-
-    public static RaUsageLimitsPerContingencyParameters loadDefault() {
-        return new RaUsageLimitsPerContingencyParameters(DEFAULT_MAX_CURATIVE_RA, DEFAULT_MAX_CURATIVE_TSO,
-                DEFAULT_MAX_CURATIVE_TOPO_PER_TSO, DEFAULT_MAX_CURATIVE_PST_PER_TSO,
-                DEFAULT_MAX_CURATIVE_RA_PER_TSO);
-    }
+    private int maxCurativeRa = DEFAULT_MAX_CURATIVE_RA;
+    private int maxCurativeTso = DEFAULT_MAX_CURATIVE_TSO;
+    private Map<String, Integer> maxCurativeTopoPerTso = DEFAULT_MAX_CURATIVE_TOPO_PER_TSO;
+    private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
+    private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
 
     public static RaUsageLimitsPerContingencyParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        RaUsageLimitsPerContingencyParameters parameters = loadDefault();
+        RaUsageLimitsPerContingencyParameters parameters = new RaUsageLimitsPerContingencyParameters();
         platformConfig.getOptionalModuleConfig(RA_USAGE_LIMITS_PER_CONTINGENCY_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxCurativeRa(config.getIntProperty(MAX_CURATIVE_RA, DEFAULT_MAX_CURATIVE_RA));

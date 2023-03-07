@@ -22,14 +22,14 @@ import java.util.Objects;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
-    private ObjectiveFunctionParameters objectiveFunctionParameters = ObjectiveFunctionParameters.loadDefault();
-    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = RangeActionsOptimizationParameters.loadDefault();
-    private TopoOptimizationParameters topoOptimizationParameters = TopoOptimizationParameters.loadDefault();
-    private MultithreadingParameters multithreadingParameters = MultithreadingParameters.loadDefault();
-    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = SecondPreventiveRaoParameters.loadDefault();
-    private RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters = RaUsageLimitsPerContingencyParameters.loadDefault();
-    private NotOptimizedCnecsParameters notOptimizedCnecsParameters = NotOptimizedCnecsParameters.loadDefault();
-    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = LoadFlowAndSensitivityParameters.loadDefault();
+    private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
+    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
+    private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
+    private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
+    private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
+    private RaUsageLimitsPerContingencyParameters raUsageLimitsPerContingencyParameters = new RaUsageLimitsPerContingencyParameters();
+    private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
+    private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -94,6 +94,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public LoadFlowAndSensitivityParameters getLoadFlowAndSensitivityParameters() {
         return loadFlowAndSensitivityParameters;
+    }
+
+    public boolean hasExtension(RaoParameters raoParameters, Class classType) {
+        return Objects.nonNull(raoParameters.getExtension(classType));
     }
 
     // ConfigLoader

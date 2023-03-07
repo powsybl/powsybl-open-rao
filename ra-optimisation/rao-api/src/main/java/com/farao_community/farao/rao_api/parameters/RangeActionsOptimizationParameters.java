@@ -20,16 +20,6 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  *
  */
 public class RangeActionsOptimizationParameters {
-    // Attributes
-    private int maxMipIterations;
-    private double pstPenaltyCost;
-    private double pstSensitivityThreshold;
-    private PstModel pstModel;
-    private double hvdcPenaltyCost;
-    private double hvdcSensitivityThreshold;
-    private double injectionRaPenaltyCost;
-    private double injectionRaSensitivityThreshold;
-    private LinearOptimizationSolver linearOptimizationSolver;
 
     // Default values
     private static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
@@ -40,28 +30,16 @@ public class RangeActionsOptimizationParameters {
     private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
     private static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
-
-    public RangeActionsOptimizationParameters(int maxMipIterations, double pstPenaltyCost, double pstSensitivityThreshold,
-                                              PstModel pstModel, double hvdcPenaltyCost, double hvdcSensitivityThreshold,
-                                              double injectionRaPenaltyCost, double injectionRaSensitivityThreshold, LinearOptimizationSolver linearOptimizationSolver) {
-        this.maxMipIterations = maxMipIterations;
-        this.pstPenaltyCost = pstPenaltyCost;
-        this.pstSensitivityThreshold = pstSensitivityThreshold;
-        this.pstModel = pstModel;
-        this.hvdcPenaltyCost = hvdcPenaltyCost;
-        this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
-        this.injectionRaPenaltyCost = injectionRaPenaltyCost;
-        this.injectionRaSensitivityThreshold = injectionRaSensitivityThreshold;
-        this.linearOptimizationSolver = linearOptimizationSolver;
-    }
-
-    public static RangeActionsOptimizationParameters loadDefault() {
-        return new RangeActionsOptimizationParameters(DEFAULT_MAX_MIP_ITERATIONS, DEFAULT_PST_PENALTY_COST,
-                DEFAULT_PST_SENSITIVITY_THRESHOLD, DEFAULT_PST_MODEL,
-                DEFAULT_HVDC_PENALTY_COST, DEFAULT_HVDC_SENSITIVITY_THRESHOLD,
-                DEFAULT_INJECTION_RA_PENALTY_COST, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD,
-                LinearOptimizationSolver.loadDefault());
-    }
+    // Attributes
+    private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
+    private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
+    private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
+    private PstModel pstModel = DEFAULT_PST_MODEL;
+    private double hvdcPenaltyCost = DEFAULT_HVDC_PENALTY_COST;
+    private double hvdcSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
+    private double injectionRaPenaltyCost = DEFAULT_INJECTION_RA_PENALTY_COST;
+    private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
+    private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
 
     // Enum
     public enum PstModel {
@@ -70,23 +48,12 @@ public class RangeActionsOptimizationParameters {
     }
 
     public static class LinearOptimizationSolver {
-        private Solver solver;
-        private double relativeMipGap;
-        private String solverSpecificParameters;
-
         private static final Solver DEFAULT_SOLVER = Solver.CBC;
         public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
         public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
-
-        public LinearOptimizationSolver(Solver solver, double relativeMipGap, String solverSpecificParameters) {
-            this.solver = solver;
-            this.relativeMipGap = relativeMipGap;
-            this.solverSpecificParameters = solverSpecificParameters;
-        }
-
-        public static LinearOptimizationSolver loadDefault() {
-            return new LinearOptimizationSolver(DEFAULT_SOLVER, DEFAULT_RELATIVE_MIP_GAP, DEFAULT_SOLVER_SPECIFIC_PARAMETERS);
-        }
+        private Solver solver = DEFAULT_SOLVER;
+        private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
+        private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
         public Solver getSolver() {
             return solver;
@@ -114,7 +81,7 @@ public class RangeActionsOptimizationParameters {
 
         public static LinearOptimizationSolver load(PlatformConfig platformConfig) {
             Objects.requireNonNull(platformConfig);
-            LinearOptimizationSolver parameters = loadDefault();
+            LinearOptimizationSolver parameters = new LinearOptimizationSolver();
             platformConfig.getOptionalModuleConfig(LINEAR_OPTIMIZATION_SOLVER_SECTION)
                     .ifPresent(config -> {
                         parameters.setSolver(config.getEnumProperty(SOLVER, Solver.class, DEFAULT_SOLVER));
@@ -206,7 +173,7 @@ public class RangeActionsOptimizationParameters {
 
     public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        RangeActionsOptimizationParameters parameters = loadDefault();
+        RangeActionsOptimizationParameters parameters = new RangeActionsOptimizationParameters();
         platformConfig.getOptionalModuleConfig(RANGE_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxMipIterations(config.getIntProperty(MAX_MIP_ITERATIONS, DEFAULT_MAX_MIP_ITERATIONS));

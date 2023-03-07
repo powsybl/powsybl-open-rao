@@ -50,7 +50,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         // Objective Function parameters
-        parameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         parameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
         parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
@@ -92,7 +92,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
         // Extensions
         // -- LoopFlow parameters
-        parameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        parameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         parameters.getExtension(LoopFlowParametersExtension.class).setAcceptableIncrease(20.);
         parameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
         parameters.getExtension(LoopFlowParametersExtension.class).setConstraintAdjustmentCoefficient(0.5);
@@ -101,12 +101,12 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         countries.add("FR");
         parameters.getExtension(LoopFlowParametersExtension.class).setCountries(countries);
         // -- Mnec parameters
-        parameters.addExtension(MnecParametersExtension.class, MnecParametersExtension.loadDefault());
+        parameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
         parameters.getExtension(MnecParametersExtension.class).setViolationCost(20);
         parameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(30);
         parameters.getExtension(MnecParametersExtension.class).setConstraintAdjustmentCoefficient(3);
         // -- Relative Margins parameters
-        parameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}"));
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);

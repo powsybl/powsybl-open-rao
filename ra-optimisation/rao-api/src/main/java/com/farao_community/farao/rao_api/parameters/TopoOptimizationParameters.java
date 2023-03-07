@@ -20,14 +20,6 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class TopoOptimizationParameters {
-    // Attributes
-    private int maxSearchTreeDepth;
-    private List<List<String>> predefinedCombinations;
-    private double relativeMinImpactThreshold;
-    private double absoluteMinImpactThreshold;
-    private boolean skipActionsFarFromMostLimitingElement;
-    private int maxNumberOfBoundariesForSkippingActions;
-
     // Default values
     private static final int DEFAULT_MAX_SEARCH_TREE_DEPTH = Integer.MAX_VALUE;
     private static final List<List<String>> DEFAULT_PREDEFINED_COMBINATIONS = new ArrayList<>();
@@ -35,23 +27,13 @@ public class TopoOptimizationParameters {
     private static final double DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD = 0;
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
-
-    public TopoOptimizationParameters(int maxSearchTreeDepth, List<List<String>> predefinedCombinations,
-                                      double relativeMinImpactThreshold, double absoluteMinImpactThreshold,
-                                      boolean skipActionsFarFromMostLimitingElement, int maxNumberOfBoundariesForSkippingActions) {
-        this.maxSearchTreeDepth = maxSearchTreeDepth;
-        this.predefinedCombinations = predefinedCombinations;
-        this.relativeMinImpactThreshold = relativeMinImpactThreshold;
-        this.absoluteMinImpactThreshold = absoluteMinImpactThreshold;
-        this.skipActionsFarFromMostLimitingElement = skipActionsFarFromMostLimitingElement;
-        this.maxNumberOfBoundariesForSkippingActions = maxNumberOfBoundariesForSkippingActions;
-    }
-
-    public static TopoOptimizationParameters loadDefault() {
-        return new TopoOptimizationParameters(DEFAULT_MAX_SEARCH_TREE_DEPTH, DEFAULT_PREDEFINED_COMBINATIONS,
-                DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD, DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD,
-                DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS);
-    }
+    // Attributes
+    private int maxSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
+    private List<List<String>> predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
+    private double relativeMinImpactThreshold = DEFAULT_RELATIVE_MIN_IMPACT_THRESHOLD;
+    private double absoluteMinImpactThreshold = DEFAULT_ABSOLUTE_MIN_IMPACT_THRESHOLD;
+    private boolean skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
+    private int maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
 
     public void setMaxSearchTreeDepth(int maxSearchTreeDepth) {
         this.maxSearchTreeDepth = maxSearchTreeDepth;
@@ -116,7 +98,7 @@ public class TopoOptimizationParameters {
 
     public static TopoOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        TopoOptimizationParameters parameters = loadDefault();
+        TopoOptimizationParameters parameters = new TopoOptimizationParameters();
         platformConfig.getOptionalModuleConfig(TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxSearchTreeDepth(config.getIntProperty(MAX_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));

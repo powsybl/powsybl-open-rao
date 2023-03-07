@@ -15,8 +15,6 @@ import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParameter
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
-
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.PATL_MEASUREMENT_TYPE;
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.TATL_MEASUREMENT_TYPE;
 
@@ -41,9 +39,8 @@ public class CneHelper {
         this.exporterParameters = exporterParameters;
 
         relativePositiveMargins = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        withLoopflows = Objects.nonNull(raoParameters.getExtension(LoopFlowParametersExtension.class));
-        MnecParametersExtension mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
-        mnecAcceptableMarginDiminution = Objects.nonNull(mnecParameters) ? mnecParameters.getAcceptableMarginDecrease() : 0;
+        withLoopflows = raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class);
+        mnecAcceptableMarginDiminution = raoParameters.hasExtension(raoParameters, MnecParametersExtension.class) ? raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease() : 0;
     }
 
     public RaoResult getRaoResult() {

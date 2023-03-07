@@ -36,7 +36,7 @@ public class JsonMnecParametersExtension implements JsonRaoParameters.ExtensionS
 
     @Override
     public MnecParametersExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return deserializeAndUpdate(jsonParser, deserializationContext, MnecParametersExtension.loadDefault());
+        return deserializeAndUpdate(jsonParser, deserializationContext, new MnecParametersExtension());
     }
 
     @Override

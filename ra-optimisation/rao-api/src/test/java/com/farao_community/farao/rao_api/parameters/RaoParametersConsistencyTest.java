@@ -38,7 +38,7 @@ public class RaoParametersConsistencyTest {
     public void testSetBoundariesFromCountryCodes() {
         RaoParameters parameters = new RaoParameters();
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}"));
-        parameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
         assertEquals(2, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());
         assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().get(0).getWeight(new EICode(Country.FR)), 1e-6);
@@ -50,7 +50,7 @@ public class RaoParametersConsistencyTest {
     @Test
     public void testSetBoundariesFromEiCodes() {
         RaoParameters parameters = new RaoParameters();
-        parameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{10YBE----------2}-{10YFR-RTE------C}", "{10YBE----------2}-{22Y201903144---9}"));
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
         assertEquals(2, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());
@@ -64,7 +64,7 @@ public class RaoParametersConsistencyTest {
     @Test
     public void testSetBoundariesFromMixOfCodes() {
         RaoParameters parameters = new RaoParameters();
-        parameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Collections.singletonList("{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
         assertEquals(1, parameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().size());

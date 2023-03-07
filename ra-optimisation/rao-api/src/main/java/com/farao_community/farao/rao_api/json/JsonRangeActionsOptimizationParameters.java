@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ *  Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.json.deserializers;
+package com.farao_community.farao.rao_api.json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
@@ -18,9 +19,27 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class RangeActionsOptimizationParametersDeserializer {
+final class JsonRangeActionsOptimizationParameters {
 
-    private RangeActionsOptimizationParametersDeserializer() {
+    private JsonRangeActionsOptimizationParameters() {
+    }
+
+    static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeObjectFieldStart(RANGE_ACTIONS_OPTIMIZATION);
+        jsonGenerator.writeNumberField(MAX_MIP_ITERATIONS, parameters.getRangeActionsOptimizationParameters().getMaxMipIterations());
+        jsonGenerator.writeNumberField(PST_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getPstPenaltyCost());
+        jsonGenerator.writeNumberField(PST_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold());
+        jsonGenerator.writeObjectField(PST_MODEL, parameters.getRangeActionsOptimizationParameters().getPstModel());
+        jsonGenerator.writeNumberField(HVDC_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost());
+        jsonGenerator.writeNumberField(HVDC_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold());
+        jsonGenerator.writeNumberField(INJECTION_RA_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
+        jsonGenerator.writeNumberField(INJECTION_RA_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold());
+        jsonGenerator.writeObjectFieldStart(LINEAR_OPTIMIZATION_SOLVER);
+        jsonGenerator.writeObjectField(SOLVER, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
+        jsonGenerator.writeNumberField(RELATIVE_MIP_GAP, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap());
+        jsonGenerator.writeStringField(SOLVER_SPECIFIC_PARAMETERS, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolverSpecificParameters());
+        jsonGenerator.writeEndObject();
+        jsonGenerator.writeEndObject();
     }
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {

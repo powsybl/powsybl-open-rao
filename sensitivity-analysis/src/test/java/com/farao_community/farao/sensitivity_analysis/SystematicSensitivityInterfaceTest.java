@@ -78,7 +78,6 @@ public class SystematicSensitivityInterfaceTest {
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
-        assertFalse(systematicSensitivityInterface.isFallback());
         for (FlowCnec cnec: crac.getFlowCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec, Side.LEFT), FLOW_TOLERANCE);

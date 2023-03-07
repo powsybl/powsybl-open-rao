@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.rao_api.json.deserializers.RaoParametersDeserializer;
-import com.farao_community.farao.rao_api.json.serializers.RaoParametersSerializer;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 

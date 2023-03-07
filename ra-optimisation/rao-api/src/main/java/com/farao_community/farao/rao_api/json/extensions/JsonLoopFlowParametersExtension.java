@@ -52,7 +52,7 @@ public class JsonLoopFlowParametersExtension implements JsonRaoParameters.Extens
 
     @Override
     public LoopFlowParametersExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return deserializeAndUpdate(jsonParser, deserializationContext, LoopFlowParametersExtension.loadDefault());
+        return deserializeAndUpdate(jsonParser, deserializationContext, new LoopFlowParametersExtension());
     }
 
     @Override

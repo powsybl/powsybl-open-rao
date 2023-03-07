@@ -20,7 +20,7 @@ public class LoopFlowParametersTest {
     @Test
     public void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
 
         loopFlowParameters.setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO);

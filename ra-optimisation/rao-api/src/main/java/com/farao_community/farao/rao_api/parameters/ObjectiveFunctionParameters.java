@@ -20,32 +20,18 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class ObjectiveFunctionParameters {
-    // Attributes
-    private ObjectiveFunctionType objectiveFunctionType;
-    private boolean forbidCostIncrease;
-    private double curativeMinObjImprovement;
-    private PreventiveStopCriterion preventiveStopCriterion;
-    private CurativeStopCriterion curativeStopCriterion;
-
     // Default values
     private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT;
     private static final boolean DEFAULT_FORBID_COST_INCREASE = false;
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     private static final PreventiveStopCriterion DEFAULT_PREVENTIVE_STOP_CRITERION = PreventiveStopCriterion.SECURE;
     private static final CurativeStopCriterion DEFAULT_CURATIVE_STOP_CRITERION = CurativeStopCriterion.MIN_OBJECTIVE;
-
-    public ObjectiveFunctionParameters(ObjectiveFunctionType objectiveFunctionType, boolean forbidCostIncrease, double curativeMinObjImprovement, PreventiveStopCriterion preventiveStopCriterion, CurativeStopCriterion curativeStopCriterion) {
-        this.objectiveFunctionType = objectiveFunctionType;
-        this.forbidCostIncrease = forbidCostIncrease;
-        this.curativeMinObjImprovement = curativeMinObjImprovement;
-        this.preventiveStopCriterion = preventiveStopCriterion;
-        this.curativeStopCriterion = curativeStopCriterion;
-    }
-
-    public static ObjectiveFunctionParameters loadDefault() {
-        return new ObjectiveFunctionParameters(DEFAULT_OBJECTIVE_FUNCTION, DEFAULT_FORBID_COST_INCREASE,
-                DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_PREVENTIVE_STOP_CRITERION, DEFAULT_CURATIVE_STOP_CRITERION);
-    }
+    // Attributes
+    private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
+    private boolean forbidCostIncrease = DEFAULT_FORBID_COST_INCREASE;
+    private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
+    private PreventiveStopCriterion preventiveStopCriterion = DEFAULT_PREVENTIVE_STOP_CRITERION;
+    private CurativeStopCriterion curativeStopCriterion = DEFAULT_CURATIVE_STOP_CRITERION;
 
     // Enum
     public enum ObjectiveFunctionType {
@@ -83,11 +69,11 @@ public class ObjectiveFunctionParameters {
 
     // Getters and setters
     public ObjectiveFunctionType getType() {
-        return objectiveFunctionType;
+        return type;
     }
 
-    public void setObjectiveFunctionType(ObjectiveFunctionType objectiveFunctionType) {
-        this.objectiveFunctionType = objectiveFunctionType;
+    public void setType(ObjectiveFunctionType type) {
+        this.type = type;
     }
 
     public boolean getForbidCostIncrease() {
@@ -120,10 +106,10 @@ public class ObjectiveFunctionParameters {
 
     public static ObjectiveFunctionParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        ObjectiveFunctionParameters parameters = loadDefault();
+        ObjectiveFunctionParameters parameters = new ObjectiveFunctionParameters();
         platformConfig.getOptionalModuleConfig(OBJECTIVE_FUNCTION_SECTION)
                 .ifPresent(config -> {
-                    parameters.setObjectiveFunctionType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
+                    parameters.setType(config.getEnumProperty(TYPE, ObjectiveFunctionType.class,
                             DEFAULT_OBJECTIVE_FUNCTION));
                     parameters.setForbidCostIncrease(config.getBooleanProperty(FORBID_COST_INCREASE, DEFAULT_FORBID_COST_INCREASE));
                     parameters.setCurativeMinObjImprovement(config.getDoubleProperty(CURATIVE_MIN_OBJ_IMPROVEMENT, DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT));

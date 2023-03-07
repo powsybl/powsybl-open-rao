@@ -102,7 +102,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
@@ -138,7 +138,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(false);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
@@ -160,7 +160,7 @@ public class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
@@ -186,7 +186,7 @@ public class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
@@ -239,7 +239,7 @@ public class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", Instant.CURATIVE), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
@@ -287,7 +287,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Set.of(networkAction));
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), new ArrayList<>());
 
@@ -307,7 +307,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
@@ -351,7 +351,7 @@ public class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", Instant.OUTAGE))).thenReturn(new HashSet());
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", Instant.CURATIVE))).thenReturn(Set.of(networkAction));
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
 
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, new MockCracCreationContext(crac), cnecsConstraintSeries);
@@ -397,7 +397,7 @@ public class CoreCneRemedialActionsCreatorTest {
 
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         StandardCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext)  cracCreationContext.getRemedialActionCreationContexts().get(0);
@@ -441,7 +441,7 @@ public class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         StandardCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext)  cracCreationContext.getRemedialActionCreationContexts().get(0);
@@ -497,7 +497,7 @@ public class CoreCneRemedialActionsCreatorTest {
         Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", Instant.CURATIVE), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getState("contingency-id", Instant.CURATIVE), pstRangeAction)).thenReturn(true);
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         StandardCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
         MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);

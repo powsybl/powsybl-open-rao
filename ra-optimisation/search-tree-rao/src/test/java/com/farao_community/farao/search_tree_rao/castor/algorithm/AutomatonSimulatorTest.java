@@ -218,7 +218,7 @@ public class AutomatonSimulatorTest {
         autoState = crac.getState(contingency1, Instant.AUTO);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
 
         mockedPreAutoPerimeterSensitivityAnalysis = mock(PrePerimeterSensitivityAnalysis.class);

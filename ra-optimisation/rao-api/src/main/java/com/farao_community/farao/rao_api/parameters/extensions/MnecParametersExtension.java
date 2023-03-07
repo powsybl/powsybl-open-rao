@@ -17,24 +17,13 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
-    private double acceptableMarginDecrease;
-    // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
-    private double violationCost;
-    private double constraintAdjustmentCoefficient;
-
     static final double DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
     static final double DEFAULT_VIOLATION_COST = 10.0;
     static final double DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-
-    public MnecParametersExtension(double acceptableMarginDecrease, double violationCost, double constraintAdjustmentCoefficient) {
-        this.acceptableMarginDecrease = acceptableMarginDecrease;
-        this.violationCost = violationCost;
-        this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
-    }
-
-    public static MnecParametersExtension loadDefault() {
-        return new MnecParametersExtension(DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION, DEFAULT_VIOLATION_COST, DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT);
-    }
+    private double acceptableMarginDecrease = DEFAULT_ACCEPTABLE_MARGIN_DIMINUTION;
+    // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
+    private double violationCost = DEFAULT_VIOLATION_COST;
+    private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
     @Override
     public String getName() {

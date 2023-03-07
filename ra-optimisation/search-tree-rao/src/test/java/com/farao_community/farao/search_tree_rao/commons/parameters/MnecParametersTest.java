@@ -20,7 +20,7 @@ public class MnecParametersTest {
     @Test
     public void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(MnecParametersExtension.class, MnecParametersExtension.loadDefault());
+        raoParameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
 
         raoParameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(45.0);
         raoParameters.getExtension(MnecParametersExtension.class).setViolationCost(111);

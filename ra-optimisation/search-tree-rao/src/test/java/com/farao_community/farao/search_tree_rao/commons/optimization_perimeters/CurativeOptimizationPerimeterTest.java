@@ -29,7 +29,7 @@ public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerim
 
     @Test
     public void curativePerimeterTest() {
-        raoParameters.addExtension(LoopFlowParametersExtension.class, LoopFlowParametersExtension.loadDefault());
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(500.);
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
 

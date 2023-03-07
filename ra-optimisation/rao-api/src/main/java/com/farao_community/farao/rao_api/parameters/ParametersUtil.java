@@ -28,49 +28,49 @@ public final class ParametersUtil {
             try {
                 countryList.add(Country.valueOf(countryString));
             } catch (Exception e) {
-                throw new FaraoException(String.format("[%s] in loopflow countries could not be recognized as a country", countryString));
+                throw new FaraoException(String.format("[%s] could not be recognized as a country", countryString));
             }
         }
         return countryList;
     }
 
-    public static Map<String, String> convertListToStringStringMap(List<String> stringList) {
+    protected static Map<String, String> convertListToStringStringMap(List<String> stringList) {
         Map<String, String> map = new HashMap<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split(":");
             if (splitListEntry.length != 2) {
-                throw new FaraoException("List<String> cannot be converted to a Map<String, String>");
+                throw new FaraoException(String.format("String pairs separated by \":\" must be defined, e.g {String1}:{String2} instead of %s", listEntry));
             }
             map.put(convertBracketIntoString(splitListEntry[0]), convertBracketIntoString(splitListEntry[1]));
         });
         return map;
     }
 
-    public static List<String> convertStringStringMapToList(Map<String, String> map) {
+    protected static List<String> convertStringStringMapToList(Map<String, String> map) {
         List<String> list = new ArrayList<>();
         map.forEach((key, value) -> list.add("{" + key + "}:{" + value + "}"));
         return list;
     }
 
-    public static Map<String, Integer> convertListToStringIntMap(List<String> stringList) {
+    protected static Map<String, Integer> convertListToStringIntMap(List<String> stringList) {
         Map<String, Integer> map = new HashMap<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split(":");
             if (splitListEntry.length != 2) {
-                throw new FaraoException("List<String> cannot be converted to a Map<String, Integer>");
+                throw new FaraoException(String.format("String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of %s", listEntry));
             }
             map.put(convertBracketIntoString(splitListEntry[0]), Integer.parseInt(splitListEntry[1]));
         });
         return map;
     }
 
-    public static List<String> convertStringIntMapToList(Map<String, Integer> map) {
+    protected static List<String> convertStringIntMapToList(Map<String, Integer> map) {
         List<String> list = new ArrayList<>();
         map.forEach((key, value) -> list.add("{" + key + "}:" + value.toString()));
         return list;
     }
 
-    public static List<List<String>> convertListToListOfList(List<String> stringList) {
+    protected static List<List<String>> convertListToListOfList(List<String> stringList) {
         List<List<String>> listOfList = new ArrayList<>();
         stringList.forEach(listEntry -> {
             String[] splitListEntry = listEntry.split("\\+");
@@ -83,7 +83,7 @@ public final class ParametersUtil {
         return listOfList;
     }
 
-    public static List<String> convertListOfListToList(List<List<String>> listOfList) {
+    protected static List<String> convertListOfListToList(List<List<String>> listOfList) {
         List<String> finalList = new ArrayList<>();
         listOfList.forEach(subList -> {
             if (!subList.isEmpty()) {
@@ -94,6 +94,10 @@ public final class ParametersUtil {
     }
 
     private static String convertBracketIntoString(String stringInBrackets) {
+        // Check that there are only one opening and one closing brackets
+        if (stringInBrackets.chars().filter(ch -> ch == '{').count() != 1 || stringInBrackets.chars().filter(ch -> ch == '}').count() != 1) {
+            throw new FaraoException(String.format("%s contains too few or too many occurences of \"{ or \"}", stringInBrackets));
+        }
         String insideString = StringUtils.substringBetween(stringInBrackets, "{", "}");
         if (insideString == null || insideString.length() == 0) {
             throw new FaraoException(String.format("%s is not contained into brackets", stringInBrackets));

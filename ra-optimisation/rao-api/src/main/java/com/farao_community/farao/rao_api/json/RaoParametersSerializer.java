@@ -4,9 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.json.serializers;
+package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -30,14 +29,14 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
     public void serialize(RaoParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(VERSION, RAO_PARAMETERS_VERSION);
-        ObjectiveFunctionParametersSerializer.serialize(parameters, jsonGenerator);
-        RangeActionsOptimizationParametersSerializer.serialize(parameters, jsonGenerator);
-        TopoOptimizationParametersSerializer.serialize(parameters, jsonGenerator);
-        SecondPreventiveRaoParametersSerializer.serialize(parameters, jsonGenerator);
-        RaUsageLimitsPerContingencyParametersSerializer.serialize(parameters, jsonGenerator);
-        NotOptimizedCnecsParametersSerializer.serialize(parameters, jsonGenerator);
-        LoadFlowAndSensitivityComputationParametersSerializer.serialize(parameters, jsonGenerator, serializerProvider);
-        MultiThreadingParametersSerializer.serialize(parameters, jsonGenerator);
+        JsonObjectiveFunctionParameters.serialize(parameters, jsonGenerator);
+        JsonRangeActionsOptimizationParameters.serialize(parameters, jsonGenerator);
+        JsonTopoOptimizationParameters.serialize(parameters, jsonGenerator);
+        JsonSecondPreventiveRaoParameters.serialize(parameters, jsonGenerator);
+        JsonRaUsageLimitsPerContingencyParameters.serialize(parameters, jsonGenerator);
+        JsonNotOptimizedCnecsParameters.serialize(parameters, jsonGenerator);
+        JsonLoadFlowAndSensitivityComputationParameters.serialize(parameters, jsonGenerator, serializerProvider);
+        JsonMultiThreadingParameters.serialize(parameters, jsonGenerator);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();
     }

@@ -4,10 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api.json.deserializers;
+package com.farao_community.farao.rao_api.json;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -46,35 +45,35 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case OBJECTIVE_FUNCTION:
                     parser.nextToken();
-                    ObjectiveFunctionParametersDeserializer.deserialize(parser, parameters);
+                    JsonObjectiveFunctionParameters.deserialize(parser, parameters);
                     break;
                 case RANGE_ACTIONS_OPTIMIZATION:
                     parser.nextToken();
-                    RangeActionsOptimizationParametersDeserializer.deserialize(parser, parameters);
+                    JsonRangeActionsOptimizationParameters.deserialize(parser, parameters);
                     break;
                 case TOPOLOGICAL_ACTIONS_OPTIMIZATION:
                     parser.nextToken();
-                    TopoOptimizationParametersDeserializer.deserialize(parser, parameters);
+                    JsonTopoOptimizationParameters.deserialize(parser, parameters);
                     break;
                 case MULTI_THREADING:
                     parser.nextToken();
-                    MultiThreadingParametersDeserializer.deserialize(parser, parameters);
+                    JsonMultiThreadingParameters.deserialize(parser, parameters);
                     break;
                 case SECOND_PREVENTIVE_RAO:
                     parser.nextToken();
-                    SecondPreventiveRaoParametersDeserializer.deserialize(parser, parameters);
+                    JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
                     break;
                 case RA_USAGE_LIMITS_PER_CONTINGENCY:
                     parser.nextToken();
-                    RaUsageLimitsPerContingencyParametersDeserializer.deserialize(parser, parameters);
+                    JsonRaUsageLimitsPerContingencyParameters.deserialize(parser, parameters);
                     break;
                 case NOT_OPTIMIZED_CNECS:
                     parser.nextToken();
-                    NotOptimizedCnecsParametersDeserializer.deserialize(parser, parameters);
+                    JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
                     break;
                 case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION:
                     parser.nextToken();
-                    LoadFlowAndSensitivityComputationParametersDeserializer.deserialize(parser, parameters);
+                    JsonLoadFlowAndSensitivityComputationParameters.deserialize(parser, parameters);
                     break;
                 case "extensions":
                     parser.nextToken();

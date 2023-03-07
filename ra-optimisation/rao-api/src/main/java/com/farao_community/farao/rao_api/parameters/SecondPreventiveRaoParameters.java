@@ -17,22 +17,13 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class SecondPreventiveRaoParameters {
-    private ExecutionCondition executionCondition;
-    private boolean reOptimizeCurativeRangeActions;
-    private boolean hintFromFirstPreventiveRao;
     private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
     private static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = false;
     private static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
 
-    public SecondPreventiveRaoParameters(ExecutionCondition executionCondition, boolean reOptimizeCurativeRangeActions, boolean hintFromFirstPreventiveRao) {
-        this.executionCondition = executionCondition;
-        this.reOptimizeCurativeRangeActions = reOptimizeCurativeRangeActions;
-        this.hintFromFirstPreventiveRao = hintFromFirstPreventiveRao;
-    }
-
-    public static SecondPreventiveRaoParameters loadDefault() {
-        return new SecondPreventiveRaoParameters(DEFAULT_EXECUTION_CONDITION, DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS, DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO);
-    }
+    private ExecutionCondition executionCondition =  DEFAULT_EXECUTION_CONDITION;
+    private boolean reOptimizeCurativeRangeActions = DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
+    private boolean hintFromFirstPreventiveRao = DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO;
 
     public enum ExecutionCondition {
         DISABLED, // do not run 2nd preventive RAO
@@ -66,7 +57,7 @@ public class SecondPreventiveRaoParameters {
 
     public static SecondPreventiveRaoParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        SecondPreventiveRaoParameters parameters = loadDefault();
+        SecondPreventiveRaoParameters parameters = new SecondPreventiveRaoParameters();
         platformConfig.getOptionalModuleConfig(SECOND_PREVENTIVE_RAO_SECTION)
                 .ifPresent(config -> {
                     parameters.setExecutionCondition(config.getEnumProperty(EXECUTION_CONDITION, ExecutionCondition.class, DEFAULT_EXECUTION_CONDITION));

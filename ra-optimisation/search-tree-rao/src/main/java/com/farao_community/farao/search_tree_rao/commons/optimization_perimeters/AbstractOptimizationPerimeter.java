@@ -120,14 +120,14 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     }
 
     static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
-        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (Objects.nonNull(loopFlowParameters) && !loopFlowParameters.getCountries().isEmpty()) {
+        if (raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class)
+                && !raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().isEmpty()) {
             // loopFlow limited, and set of country for which loop-flow are monitored is defined
             return flowCnecs.stream()
                 .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
-                    cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopFlowParameters.getCountries().contains(country.get())))
+                    cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().contains(country.get())))
                 .collect(Collectors.toSet());
-        } else if (Objects.nonNull(loopFlowParameters)) {
+        } else if (raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class)) {
 
             // loopFlow limited, but no set of country defined
             return flowCnecs.stream()

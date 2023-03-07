@@ -22,8 +22,8 @@ public class MaxMinRelativeMarginParametersTest {
     public void buildFromRaoParametersTestWithRelativeMargin() {
         RaoParameters raoParameters = new RaoParameters();
 
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, RelativeMarginsParametersExtension.loadDefault());
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.01);
 
         MaxMinRelativeMarginParameters mmrmp = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
@@ -35,7 +35,7 @@ public class MaxMinRelativeMarginParametersTest {
     @Test
     public void buildFromRaoParametersTestWithoutRelativeMargin() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().setObjectiveFunctionType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         MaxMinRelativeMarginParameters mmrmp = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
         assertNull(mmrmp);
     }

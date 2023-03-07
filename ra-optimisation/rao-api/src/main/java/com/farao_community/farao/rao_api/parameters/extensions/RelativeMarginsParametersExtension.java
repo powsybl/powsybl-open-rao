@@ -21,21 +21,12 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RelativeMarginsParametersExtension extends AbstractExtension<RaoParameters> {
-    private List<ZoneToZonePtdfDefinition> ptdfBoundaries;
-    // prevents relative margins from diverging to +infinity
-    private double ptdfSumLowerBound;
 
     static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     static final List<ZoneToZonePtdfDefinition> DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES = new ArrayList<>();
-
-    public RelativeMarginsParametersExtension(List<ZoneToZonePtdfDefinition> ptdfBoundaries, double ptdfSumLowerBound) {
-        this.ptdfBoundaries = ptdfBoundaries;
-        this.ptdfSumLowerBound = ptdfSumLowerBound;
-    }
-
-    public static RelativeMarginsParametersExtension loadDefault() {
-        return new RelativeMarginsParametersExtension(DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES, DEFAULT_PTDF_SUM_LOWER_BOUND);
-    }
+    private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
+    // prevents relative margins from diverging to +infinity
+    private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
 
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
         return ptdfBoundaries;
