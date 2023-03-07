@@ -8,7 +8,9 @@ package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
@@ -41,12 +44,12 @@ final class FlowCnecResultArraySerializer {
 
         jsonGenerator.writeArrayFieldStart(FLOWCNEC_RESULTS);
         for (FlowCnec flowCnec : sortedListOfFlowCnecs) {
-            serializeFlowCnecResult(flowCnec, raoResult, jsonGenerator);
+            serializeFlowCnecResult(flowCnec, raoResult, jsonGenerator, crac);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeFlowCnecResult(FlowCnec flowCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeFlowCnecResult(FlowCnec flowCnec, RaoResult raoResult, JsonGenerator jsonGenerator, Crac crac) throws IOException {
         if (!containsAnyResultForFlowCnec(raoResult, flowCnec, MEGAWATT) && !containsAnyResultForFlowCnec(raoResult, flowCnec, AMPERE)) {
             return;
         }
@@ -55,10 +58,14 @@ final class FlowCnecResultArraySerializer {
 
         serializeFlowCnecResultForOptimizationState(OptimizationState.INITIAL, flowCnec, raoResult, jsonGenerator);
         serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_PRA, flowCnec, raoResult, jsonGenerator);
-
-        if (!flowCnec.getState().isPreventive()) {
+        if (flowCnec.getState().getInstant().equals(Instant.AUTO) ||
+            (flowCnec.getState().getInstant().equals(Instant.CURATIVE) &&
+                !crac.getStatesFromContingency(flowCnec.getState().getContingency().toString()).stream().filter(state -> state.getInstant().equals(Instant.AUTO)).collect(Collectors.toSet()).isEmpty())) {
             serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_ARA, flowCnec, raoResult, jsonGenerator);
-            serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_CRA, flowCnec, raoResult, jsonGenerator);
+        } else {
+            if (flowCnec.getState().getInstant().equals(Instant.CURATIVE)) {
+                serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_CRA, flowCnec, raoResult, jsonGenerator);
+            }
         }
         jsonGenerator.writeEndObject();
     }
