@@ -8,7 +8,6 @@ package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
