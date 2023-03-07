@@ -23,7 +23,7 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @AutoService(JsonRaoParameters.ExtensionSerializer.class)
-public class MnecParametersExtensionSerializer implements JsonRaoParameters.ExtensionSerializer<MnecParametersExtension> {
+public class JsonMnecParametersExtension implements JsonRaoParameters.ExtensionSerializer<MnecParametersExtension> {
 
     @Override
     public void serialize(MnecParametersExtension mnecParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

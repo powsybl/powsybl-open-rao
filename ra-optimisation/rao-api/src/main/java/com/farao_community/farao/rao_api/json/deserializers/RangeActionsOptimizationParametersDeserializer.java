@@ -59,26 +59,30 @@ public final class RangeActionsOptimizationParametersDeserializer {
                     break;
                 case LINEAR_OPTIMIZATION_SOLVER:
                     jsonParser.nextToken();
-                    while (!jsonParser.nextToken().isStructEnd()) {
-                        switch (jsonParser.getCurrentName()) {
-                            case SOLVER:
-                                raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(stringToSolver(jsonParser.nextTextValue()));
-                                break;
-                            case RELATIVE_MIP_GAP:
-                                jsonParser.nextToken();
-                                raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(jsonParser.getDoubleValue());
-                                break;
-                            case SOLVER_SPECIFIC_PARAMETERS:
-                                jsonParser.nextToken();
-                                raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters(jsonParser.getValueAsString());
-                                break;
-                            default:
-                                throw new FaraoException(String.format("Cannot deserialize linear optimization solver in range action optimization parameters: unexpected field in %s (%s)", LINEAR_OPTIMIZATION_SOLVER, jsonParser.getCurrentName()));
-                        }
-                    }
+                    deserializeLinearOptimizationSolver(jsonParser, raoParameters);
                     break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+            }
+        }
+    }
+
+    private static void deserializeLinearOptimizationSolver(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
+        while (!jsonParser.nextToken().isStructEnd()) {
+            switch (jsonParser.getCurrentName()) {
+                case SOLVER:
+                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(stringToSolver(jsonParser.nextTextValue()));
+                    break;
+                case RELATIVE_MIP_GAP:
+                    jsonParser.nextToken();
+                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(jsonParser.getDoubleValue());
+                    break;
+                case SOLVER_SPECIFIC_PARAMETERS:
+                    jsonParser.nextToken();
+                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters(jsonParser.getValueAsString());
+                    break;
+                default:
+                    throw new FaraoException(String.format("Cannot deserialize linear optimization solver in range action optimization parameters: unexpected field in %s (%s)", LINEAR_OPTIMIZATION_SOLVER, jsonParser.getCurrentName()));
             }
         }
     }

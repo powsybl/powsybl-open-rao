@@ -3,9 +3,9 @@
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : false,
-    "curative-min-obj-improvement" : 0.0,
     "preventive-stop-criterion" : "SECURE",
-    "curative-stop-criterion" : "MIN_OBJECTIVE"
+    "curative-stop-criterion" : "MIN_OBJECTIVE",
+    "curative-min-obj-improvement" : 0.0
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
@@ -29,11 +29,6 @@
     "absolute-minimum-impact-threshold" : 0.0,
     "skip-actions-far-from-most-limiting-element" : false,
     "max-number-of-boundaries-for-skipping-actions" : 2
-  },
-  "multi-threading" : {
-    "contingency-scenarios-in-parallel" : 1,
-    "leaves-in-parallel" : 1,
-    "curative-leaves-in-parallel" : 1
   },
   "second-preventive-rao" : {
     "execution-condition" : "DISABLED",
@@ -76,5 +71,10 @@
         "hvdcAcEmulation" : true
       }
     }
+  },
+  "multi-threading" : {
+    "contingency-scenarios-in-parallel" : 1,
+    "leaves-in-parallel" : 1,
+    "curative-leaves-in-parallel" : 1
   }
 }

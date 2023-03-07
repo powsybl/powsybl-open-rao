@@ -71,7 +71,7 @@ public class SystematicSensitivityInterfaceTest {
         // run engine
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName("default-impl-name")
-            .withDefaultParameters(defaultParameters)
+            .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
         SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
@@ -102,7 +102,7 @@ public class SystematicSensitivityInterfaceTest {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName("default-impl-name")
-            .withDefaultParameters(defaultParameters)
+            .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
 

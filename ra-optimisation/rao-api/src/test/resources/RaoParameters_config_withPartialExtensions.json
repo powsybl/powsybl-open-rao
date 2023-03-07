@@ -3,9 +3,9 @@
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : true,
-    "curative-min-obj-improvement" : 3.0,
     "preventive-stop-criterion" : "MIN_OBJECTIVE",
-    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE"
+    "curative-stop-criterion" : "PREVENTIVE_OBJECTIVE",
+    "curative-min-obj-improvement" : 3.0
   },
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
@@ -29,11 +29,6 @@
     "absolute-minimum-impact-threshold" : 2.0,
     "skip-actions-far-from-most-limiting-element" : true,
     "max-number-of-boundaries-for-skipping-actions" : 2
-  },
-  "multi-threading" : {
-    "contingency-scenarios-in-parallel" : 1,
-    "preventive-leaves-in-parallel" : 5,
-    "curative-leaves-in-parallel" : 6
   },
   "second-preventive-rao" : {
     "execution-condition" : "DISABLED",
@@ -125,6 +120,11 @@
         }
       }
     }
+  },
+  "multi-threading" : {
+    "contingency-scenarios-in-parallel" : 1,
+    "preventive-leaves-in-parallel" : 5,
+    "curative-leaves-in-parallel" : 6
   },
   "extensions" : {
     "relative-margins-parameters" : {

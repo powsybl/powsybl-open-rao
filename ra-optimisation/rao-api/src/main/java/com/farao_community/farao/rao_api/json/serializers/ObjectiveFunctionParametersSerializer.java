@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, RTE (http://www.rte-france.com)
+ *  Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,11 +23,11 @@ final class ObjectiveFunctionParametersSerializer {
 
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
-        jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getObjectiveFunctionType());
+        jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
         jsonGenerator.writeBooleanField(FORBID_COST_INCREASE, parameters.getObjectiveFunctionParameters().getForbidCostIncrease());
-        jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
         jsonGenerator.writeObjectField(PREVENTIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         jsonGenerator.writeObjectField(CURATIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
+        jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
         jsonGenerator.writeEndObject();
     }
 }

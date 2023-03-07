@@ -35,7 +35,7 @@ public class SearchTreeParametersTest {
         SearchTreeParameters searchTreeParameters = builder.build();
         assertNotNull(searchTreeParameters);
 
-        assertEquals(raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType(), searchTreeParameters.getObjectiveFunction());
+        assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
         assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac), searchTreeParameters.getNetworkActionParameters());
         assertEquals(GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters()), searchTreeParameters.getRaLimitationParameters());
         assertEquals(RangeActionParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());

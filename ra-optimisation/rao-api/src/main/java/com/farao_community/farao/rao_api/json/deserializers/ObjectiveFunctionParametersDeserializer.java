@@ -33,15 +33,15 @@ public final class ObjectiveFunctionParametersDeserializer {
                     jsonParser.nextToken();
                     raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(jsonParser.getBooleanValue());
                     break;
-                case CURATIVE_MIN_OBJ_IMPROVEMENT:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
-                    break;
                 case PREVENTIVE_STOP_CRITERION:
                     raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(stringToPreventiveStopCriterion(jsonParser.nextTextValue()));
                     break;
                 case CURATIVE_STOP_CRITERION:
                     raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(stringToCurativeStopCriterion(jsonParser.nextTextValue()));
+                    break;
+                case CURATIVE_MIN_OBJ_IMPROVEMENT:
+                    jsonParser.nextToken();
+                    raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
                     break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.getCurrentName()));

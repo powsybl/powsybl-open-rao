@@ -82,7 +82,7 @@ public class ObjectiveFunctionParameters {
     }
 
     // Getters and setters
-    public ObjectiveFunctionType getObjectiveFunctionType() {
+    public ObjectiveFunctionType getType() {
         return objectiveFunctionType;
     }
 

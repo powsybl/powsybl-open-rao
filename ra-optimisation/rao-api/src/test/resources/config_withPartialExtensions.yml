@@ -1,8 +1,8 @@
 rao-objective-function:
     forbid-cost-increase: true
-    curative-min-obj-improvement: 3.0
     preventive-stop-criterion: MIN_OBJECTIVE
     curative-stop-criterion: PREVENTIVE_OBJECTIVE
+    curative-min-obj-improvement: 3.0
 
 rao-range-actions-optimization:
     pst-penalty-cost: 0.02
@@ -25,10 +25,6 @@ rao-topological-actions-optimization:
     skip-actions-far-from-most-limiting-element: true
     max-number-of-boundaries-for-skipping-actions: 2
 
-rao-multi-threading:
-    preventive-leaves-in-parallel: 5
-    curative-leaves-in-parallel: 6
-
 rao-second-preventive-rao:
     re-optimize-curative-range-actions: true
     hint-from-first-preventive-rao: true
@@ -45,6 +41,10 @@ rao-not-optimized-cnecs:
 rao-load-flow-and-sensitivity-computation:
     sensitivity-provider: SENSI_PROVIDER
     sensitivity-failure-overcost: 2
+
+rao-multi-threading:
+    preventive-leaves-in-parallel: 5
+    curative-leaves-in-parallel: 6
 
 rao-loop-flow-parameters:
     approximation: UPDATE_PTDF_WITH_TOPO

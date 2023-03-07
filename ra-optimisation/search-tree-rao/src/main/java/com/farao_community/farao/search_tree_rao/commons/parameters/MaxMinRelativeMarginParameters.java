@@ -29,9 +29,9 @@ public class MaxMinRelativeMarginParameters {
 
     public static MaxMinRelativeMarginParameters buildFromRaoParameters(RaoParameters raoParameters) {
         RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
-        if (raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType().relativePositiveMargins()) {
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             if (Objects.isNull(relativeMarginParameters)) {
-                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getObjectiveFunctionType());
+                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
             }
             return new MaxMinRelativeMarginParameters(relativeMarginParameters.getPtdfSumLowerBound());
         } else {

@@ -1,4 +1,4 @@
-load-flow-and-sensitivity-computation:
+rao-load-flow-and-sensitivity-computation:
     load-flow-provider: OpenLoadFlow
     sensitivity-provider: OpenLoadFlow
     sensitivity-failure-overcost: 2

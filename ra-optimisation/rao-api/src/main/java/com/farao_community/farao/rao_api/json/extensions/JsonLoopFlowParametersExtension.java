@@ -28,7 +28,7 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @AutoService(JsonRaoParameters.ExtensionSerializer.class)
-public class LoopFlowParametersExtensionSerializer implements JsonRaoParameters.ExtensionSerializer<LoopFlowParametersExtension> {
+public class JsonLoopFlowParametersExtension implements JsonRaoParameters.ExtensionSerializer<LoopFlowParametersExtension> {
 
     @Override
     public void serialize(LoopFlowParametersExtension loopFlowParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

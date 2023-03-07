@@ -77,7 +77,7 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withDefaultParameters(SensitivityAnalysisParameters defaultParameters) {
+        public SystematicSensitivityInterfaceBuilder withParameters(SensitivityAnalysisParameters defaultParameters) {
             this.defaultParameters = defaultParameters;
             return this;
         }

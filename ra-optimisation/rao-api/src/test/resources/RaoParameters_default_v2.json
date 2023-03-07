@@ -17,12 +17,12 @@
     "skip-actions-far-from-most-limiting-element" : false,
     "max-number-of-boundaries-for-skipping-actions" : 2
   },
+  "not-optimized-cnecs" : {
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
+  },
   "multi-threading" : {
     "preventive-leaves-in-parallel" : 8,
     "curative-leaves-in-parallel" : 3
-  },
-  "not-optimized-cnecs" : {
-    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
   },
   "extensions" : {
     "mnec-parameters" : {

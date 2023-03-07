@@ -1,9 +1,9 @@
 rao-objective-function:
     type: MAX_MIN_MARGIN_IN_AMPERE
     forbid-cost-increase: true
-    curative-min-obj-improvement: 3.0
     preventive-stop-criterion: MIN_OBJECTIVE
     curative-stop-criterion: PREVENTIVE_OBJECTIVE
+    curative-min-obj-improvement: 3.0
 
 rao-range-actions-optimization:
     max-mip-iterations: 2
@@ -28,11 +28,6 @@ rao-topological-actions-optimization:
     skip-actions-far-from-most-limiting-element: true
     max-number-of-boundaries-for-skipping-actions: 3
 
-rao-multi-threading:
-    contingency-scenarios-in-parallel: 4
-    preventive-leaves-in-parallel: 5
-    curative-leaves-in-parallel: 6
-
 rao-second-preventive-rao:
     execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
     re-optimize-curative-range-actions: true
@@ -53,3 +48,8 @@ rao-load-flow-and-sensitivity-computation:
     load-flow-provider: LOADFLOW_PROVIDER
     sensitivity-provider: SENSI_PROVIDER
     sensitivity-failure-overcost: 2
+
+rao-multi-threading:
+    contingency-scenarios-in-parallel: 4
+    preventive-leaves-in-parallel: 5
+    curative-leaves-in-parallel: 6

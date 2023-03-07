@@ -26,14 +26,14 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @AutoService(JsonRaoParameters.ExtensionSerializer.class)
-public class RelativeMarginsParametersExtensionSerializer implements JsonRaoParameters.ExtensionSerializer<RelativeMarginsParametersExtension> {
+public class JsonRelativeMarginsParametersExtension implements JsonRaoParameters.ExtensionSerializer<RelativeMarginsParametersExtension> {
 
     @Override
     public void serialize(RelativeMarginsParametersExtension relativeMarginParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeArrayFieldStart(PTDF_BOUNDARIES);
-        for (String countryPair : relativeMarginParameters.getPtdfBoundariesAsString()) {
-            jsonGenerator.writeString(countryPair);
+        for (String ptdfBoundary : relativeMarginParameters.getPtdfBoundariesAsString()) {
+            jsonGenerator.writeString(ptdfBoundary);
         }
         jsonGenerator.writeEndArray();
         jsonGenerator.writeNumberField(PTDF_SUM_LOWER_BOUND, relativeMarginParameters.getPtdfSumLowerBound());
