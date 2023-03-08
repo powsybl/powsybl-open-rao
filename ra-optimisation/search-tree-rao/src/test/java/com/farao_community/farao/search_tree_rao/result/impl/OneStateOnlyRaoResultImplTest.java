@@ -132,18 +132,6 @@ public class OneStateOnlyRaoResultImplTest {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
-
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        assertEquals(ComputationStatus.FALLBACK, output.getComputationStatus());
-
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
-
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 
     @Test

@@ -39,7 +39,7 @@
       "instant": "preventive"
     },
     {
-      "computationStatus": "FALLBACK",
+      "computationStatus": "DEFAULT",
       "instant": "auto",
       "contingency": "Co-1"
     },
@@ -54,7 +54,7 @@
       "contingency": "Co-2"
     },
     {
-      "computationStatus": "FALLBACK",
+      "computationStatus": "DEFAULT",
       "instant": "curative",
       "contingency": "Co-2"
     }

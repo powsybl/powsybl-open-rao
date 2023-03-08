@@ -27,7 +27,6 @@ import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 import java.util.*;
 
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
-import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FALLBACK;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -176,11 +175,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
             return FAILURE;
         }
-        if (initialResult.getSensitivityStatus() == FALLBACK
-                || secondPreventivePerimeterResult.getSensitivityStatus() == FALLBACK
-                || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FALLBACK)) {
-            return FALLBACK;
-        }
         return ComputationStatus.DEFAULT;
     }
 
@@ -280,7 +274,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+        FlowResult flowResult =  getFlowResult(optimizationState, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit);
         } else {
