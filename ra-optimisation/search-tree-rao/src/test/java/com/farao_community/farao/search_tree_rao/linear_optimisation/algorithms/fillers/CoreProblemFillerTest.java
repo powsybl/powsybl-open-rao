@@ -92,9 +92,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setPstSensitivityThreshold(pstSensitivityThreshold);
-        raoParameters.setHvdcSensitivityThreshold(hvdcSensitivityThreshold);
-        raoParameters.setInjectionRaSensitivityThreshold(injectionSensitivityThreshold);
+        raoParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(pstSensitivityThreshold);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(hvdcSensitivityThreshold);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(injectionSensitivityThreshold);
         RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(

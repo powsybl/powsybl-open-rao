@@ -7,11 +7,16 @@
 
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
+
+import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+// TODO : replace with RelativeMarginsParametersExtension
 public class MaxMinRelativeMarginParameters {
     private final double ptdfSumLowerBound;
 
@@ -24,8 +29,12 @@ public class MaxMinRelativeMarginParameters {
     }
 
     public static MaxMinRelativeMarginParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
-            return new MaxMinRelativeMarginParameters(raoParameters.getPtdfSumLowerBound());
+        RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (Objects.isNull(relativeMarginParameters)) {
+                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
+            }
+            return new MaxMinRelativeMarginParameters(relativeMarginParameters.getPtdfSumLowerBound());
         } else {
             return null;
         }

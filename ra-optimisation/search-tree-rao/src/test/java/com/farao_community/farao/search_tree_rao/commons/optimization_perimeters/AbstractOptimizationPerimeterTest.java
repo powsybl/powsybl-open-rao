@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -45,7 +44,6 @@ public abstract class AbstractOptimizationPerimeterTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         raoParameters = new RaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
 
         crac = CracFactory.findDefault().create("cracId");
 

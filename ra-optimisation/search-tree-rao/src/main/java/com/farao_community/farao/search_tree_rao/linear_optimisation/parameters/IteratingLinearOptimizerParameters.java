@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
@@ -17,7 +17,7 @@ import com.farao_community.farao.search_tree_rao.commons.parameters.*;
  */
 public final class IteratingLinearOptimizerParameters {
 
-    private final RaoParameters.ObjectiveFunction objectiveFunction;
+    private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
 
     private final RangeActionParameters rangeActionParameters;
     private final MnecParameters mnecParameters;
@@ -29,7 +29,7 @@ public final class IteratingLinearOptimizerParameters {
 
     private final int maxNumberOfIterations;
 
-    private IteratingLinearOptimizerParameters(RaoParameters.ObjectiveFunction objectiveFunction,
+    private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                RangeActionParameters rangeActionParameters,
                                                MnecParameters mnecParameters,
                                                MaxMinRelativeMarginParameters maxMinRelativeMarginParameters,
@@ -49,7 +49,7 @@ public final class IteratingLinearOptimizerParameters {
         this.maxNumberOfIterations = maxNumberOfIterations;
     }
 
-    public RaoParameters.ObjectiveFunction getObjectiveFunction() {
+    public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
         return objectiveFunction;
     }
 
@@ -112,7 +112,7 @@ public final class IteratingLinearOptimizerParameters {
 
     public static class LinearOptimizerParametersBuilder {
 
-        private RaoParameters.ObjectiveFunction objectiveFunction;
+        private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private RangeActionParameters rangeActionParameters;
         private MnecParameters mnecParameters;
         private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
@@ -122,7 +122,7 @@ public final class IteratingLinearOptimizerParameters {
         private SolverParameters solverParameters;
         private int maxNumberOfIterations;
 
-        public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
+        public LinearOptimizerParametersBuilder withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
             return this;
         }

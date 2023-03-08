@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import org.junit.Test;
 
@@ -20,13 +21,13 @@ public class SolverParametersTest {
     public void buildFromRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
 
-        raoParameters.setSolver(RaoParameters.Solver.CBC);
-        raoParameters.setRelativeMipGap(0.5);
-        raoParameters.setSolverSpecificParameters("coucouSpecificParameters");
+        raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.CBC);
+        raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(0.5);
+        raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("coucouSpecificParameters");
 
         SolverParameters sp = SolverParameters.buildFromRaoParameters(raoParameters);
 
-        assertEquals(RaoParameters.Solver.CBC, sp.getSolver());
+        assertEquals(RangeActionsOptimizationParameters.Solver.CBC, sp.getSolver());
         assertEquals(0.5, sp.getRelativeMipGap(), 1e-6);
         assertEquals("coucouSpecificParameters", sp.getSolverSpecificParameters());
     }

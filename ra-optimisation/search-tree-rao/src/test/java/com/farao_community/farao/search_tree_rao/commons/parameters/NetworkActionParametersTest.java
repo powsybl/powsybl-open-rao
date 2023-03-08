@@ -6,17 +6,21 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -38,15 +42,14 @@ public class NetworkActionParametersTest {
     @Test
     public void buildFromRaoParametersTestOk() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
 
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setNetworkActionIdCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20.);
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setRelativeNetworkActionMinimumImpactThreshold(0.01);
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setSkipNetworkActionsFarFromMostLimitingElement(true);
-        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(4);
+        raoParameters.getTopoOptimizationParameters().setPredefinedCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
+        raoParameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20.);
+        raoParameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.01);
+        raoParameters.getTopoOptimizationParameters().setSkipActionsFarFromMostLimitingElement(true);
+        raoParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(4);
 
-        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
+        NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
 
         assertEquals(1, nap.getNetworkActionCombinations().size());
         assertEquals(2, nap.getNetworkActionCombinations().get(0).getNetworkActionSet().size());
@@ -72,9 +75,47 @@ public class NetworkActionParametersTest {
         assertFalse(nap.getNetworkActionCombinations().contains(naCombination));
     }
 
-    @Test (expected = FaraoException.class)
-    public void buildFromRaoParametersWithMissingSearchTreeRaoParametersTest() {
-        RaoParameters raoParameters = new RaoParameters();
-        NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
+    @Test
+    public void testNetworkActionCombinations() {
+
+        Crac crac = CracFactory.findDefault().create("crac");
+
+        crac.newNetworkAction()
+                .withId("topological-action-1")
+                .withOperator("operator-1")
+                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
+                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .add();
+
+        crac.newNetworkAction()
+                .withId("topological-action-2")
+                .withOperator("operator-2")
+                .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
+                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .add();
+
+        crac.newNetworkAction()
+                .withId("pst-setpoint")
+                .withOperator("operator-2")
+                .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
+                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .add();
+
+        // test list
+        RaoParameters parameters = new RaoParameters();
+
+        parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(
+                List.of("topological-action-1", "topological-action-2"), // OK
+                List.of("topological-action-1", "topological-action-2", "pst-setpoint"), // OK
+                List.of("topological-action-1", "unknown-na-id"), // should be filtered
+                List.of("topological-action-1"), // should be filtered (one action only)
+                new ArrayList<>())); // should be filtered
+
+        List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters());
+
+        assertEquals(5, parameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
+        assertEquals(2, naCombinations.size());
+        Assert.assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
+        Assert.assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
 }

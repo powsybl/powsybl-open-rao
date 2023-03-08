@@ -6,7 +6,8 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,43 +18,44 @@ import static org.junit.Assert.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class TreeParametersTest {
-    SearchTreeRaoParameters searchTreeRaoParameters;
+    RaoParameters raoParameters;
+    private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Before
     public void setUp() {
-        searchTreeRaoParameters = new SearchTreeRaoParameters();
-        searchTreeRaoParameters.setMaximumSearchDepth(6);
-        searchTreeRaoParameters.setPreventiveLeavesInParallel(4);
-        searchTreeRaoParameters.setCurativeLeavesInParallel(2);
+        raoParameters = new RaoParameters();
+        raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(6);
+        raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(4);
+        raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(2);
     }
 
     @Test
     public void testPreventive() {
         // test with min objective
-        searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE);
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters);
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
         // test with secure, and different values of the parameters
-        searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
-        searchTreeRaoParameters.setPreventiveLeavesInParallel(8);
-        searchTreeRaoParameters.setMaximumSearchDepth(15);
-        treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters);
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(8);
+        raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(15);
+        treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(0, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(8, treeParameters.getLeavesInParallel());
         assertEquals(15, treeParameters.getMaximumSearchDepth());
     }
 
     @Test
     public void testCurativeMinObjective() {
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        searchTreeRaoParameters.setCurativeRaoOptimizeOperatorsNotSharingCras(false);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
+        raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(2, treeParameters.getLeavesInParallel());
@@ -62,12 +64,12 @@ public class TreeParametersTest {
 
     @Test
     public void testCurativeSecureStopCriterion() {
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
-        searchTreeRaoParameters.setCurativeLeavesInParallel(16);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
+        raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(16);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(0., treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(0., treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(16, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
@@ -75,40 +77,40 @@ public class TreeParametersTest {
 
     @Test
     public void testCurativePreventiveObjectiveStopCriterion() {
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE);
-        searchTreeRaoParameters.setCurativeRaoMinObjImprovement(35);
-        searchTreeRaoParameters.setMaximumSearchDepth(0);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE);
+        raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
+        raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(0);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(65, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(65, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(2, treeParameters.getLeavesInParallel());
         assertEquals(0, treeParameters.getMaximumSearchDepth());
     }
 
     @Test
     public void testCurativePreventiveObjectiveAndSecureStopCriterion() {
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
-        searchTreeRaoParameters.setCurativeRaoMinObjImprovement(35);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
 
         // limited by secure
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(0, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(2, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
         // limited by preventive_objective + minObjImprovement
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 30.0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 30.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(-5, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(-5, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(2, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
         // limited by preventive_objective + minObjImprovement
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, -50.0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, -50.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(-85, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(-85, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(2, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
     }
@@ -116,42 +118,42 @@ public class TreeParametersTest {
     @Test
     public void testSecondPreventive() {
         // test with min objective
-        searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        TreeParameters treeParameters = TreeParameters.buildForSecondPreventivePerimeter(searchTreeRaoParameters);
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
+        TreeParameters treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
         // test with secure
-        searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
-        treeParameters = TreeParameters.buildForSecondPreventivePerimeter(searchTreeRaoParameters);
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
+        treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(0, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
         // other combinations
-        searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        treeParameters = TreeParameters.buildForSecondPreventivePerimeter(searchTreeRaoParameters);
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
+        treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
 
         // still another combination
-        searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
-        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
-        searchTreeRaoParameters.setPreventiveLeavesInParallel(8);
-        searchTreeRaoParameters.setMaximumSearchDepth(15);
-        treeParameters = TreeParameters.buildForSecondPreventivePerimeter(searchTreeRaoParameters);
+        raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
+        raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(8);
+        raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(15);
+        treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
-        assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
+        assertEquals(0, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(8, treeParameters.getLeavesInParallel());
         assertEquals(15, treeParameters.getMaximumSearchDepth());
     }

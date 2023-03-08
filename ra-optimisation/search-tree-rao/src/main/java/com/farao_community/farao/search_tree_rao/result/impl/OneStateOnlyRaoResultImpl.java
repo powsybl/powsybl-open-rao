@@ -86,7 +86,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         if (initialResult.getSensitivityStatus() == postOptimizationResult.getSensitivityStatus()) {
             return initialResult.getSensitivityStatus();
         }
-        // TODO: specify what to return in case on is DEFAULT and the other one is FALLBACK
         return ComputationStatus.DEFAULT;
     }
 

@@ -57,7 +57,6 @@ public class SystematicSensitivityResult {
 
     public enum SensitivityComputationStatus {
         SUCCESS,
-        FALLBACK,
         FAILURE
     }
 

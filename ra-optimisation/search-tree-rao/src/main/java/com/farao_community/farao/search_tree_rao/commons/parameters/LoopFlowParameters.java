@@ -8,25 +8,27 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.parameters.RaoParameters.LoopFlowApproximationLevel;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+// TODO : Replace with LoopFlowParametersExtension
 public class LoopFlowParameters {
-    private final LoopFlowApproximationLevel loopFlowApproximationLevel;
+    private final Approximation loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
 
-    public LoopFlowParameters(LoopFlowApproximationLevel loopFlowApproximationLevel, double loopFlowAcceptableAugmentation, double loopFlowViolationCost, double loopFlowConstraintAdjustmentCoefficient) {
+    public LoopFlowParameters(Approximation loopFlowApproximationLevel, double loopFlowAcceptableAugmentation, double loopFlowViolationCost, double loopFlowConstraintAdjustmentCoefficient) {
         this.loopFlowApproximationLevel = loopFlowApproximationLevel;
         this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
         this.loopFlowViolationCost = loopFlowViolationCost;
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
     }
 
-    public LoopFlowApproximationLevel getLoopFlowApproximationLevel() {
+    public Approximation getLoopFlowApproximationLevel() {
         return loopFlowApproximationLevel;
     }
 
@@ -43,11 +45,12 @@ public class LoopFlowParameters {
     }
 
     public static LoopFlowParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            return new LoopFlowParameters(raoParameters.getLoopFlowApproximationLevel(),
-                raoParameters.getLoopFlowAcceptableAugmentation(),
-                raoParameters.getLoopFlowViolationCost(),
-                raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+            return new LoopFlowParameters(loopFlowParameters.getApproximation(),
+                    loopFlowParameters.getAcceptableIncrease(),
+                    loopFlowParameters.getViolationCost(),
+                    loopFlowParameters.getConstraintAdjustmentCoefficient());
         } else {
             return null;
         }

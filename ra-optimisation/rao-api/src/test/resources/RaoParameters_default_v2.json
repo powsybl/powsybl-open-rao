@@ -1,0 +1,34 @@
+{
+  "version" : "2.0",
+  "objective-function" : {
+    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
+    "preventive-stop-criterion" : "SECURE"
+  },
+  "range-actions-optimization" : {
+    "max-mip-iterations" : 5,
+    "pst-penalty-cost" : 0.01,
+    "pst-sensitivity-threshold" : 0.0
+  
+  },
+  "topological-actions-optimization" : {
+    "max-search-tree-depth" : 5,
+    "relative-minimum-impact-threshold" : 0.0,
+    "absolute-minimum-impact-threshold" : 0.0,
+    "skip-actions-far-from-most-limiting-element" : false,
+    "max-number-of-boundaries-for-skipping-actions" : 2
+  },
+  "not-optimized-cnecs" : {
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
+  },
+  "multi-threading" : {
+    "preventive-leaves-in-parallel" : 8,
+    "curative-leaves-in-parallel" : 3
+  },
+  "extensions" : {
+    "mnec-parameters" : {
+      "acceptable-margin-decrease" : 33.0,
+      "violation-cost" : 23.0,
+      "constraint-adjustment-coefficient" : 4.0
+    }
+  }
+}

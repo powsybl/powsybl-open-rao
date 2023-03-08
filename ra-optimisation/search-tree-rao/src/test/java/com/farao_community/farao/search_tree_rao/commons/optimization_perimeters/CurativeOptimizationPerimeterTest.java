@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,7 +29,7 @@ public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerim
 
     @Test
     public void curativePerimeterTest() {
-        raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(500.);
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
 

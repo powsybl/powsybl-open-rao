@@ -7,10 +7,8 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
-
-import javax.annotation.Nullable;
-import java.util.*;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 /**
  * This class contains internal FARAO parameters used in the SearchTree algorithm.
@@ -58,30 +56,27 @@ public final class TreeParameters {
         return leavesInParallel;
     }
 
-    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
-
-        SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
-        switch (parameters.getPreventiveRaoStopCriterion()) {
+    public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
+        switch (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion()) {
             case MIN_OBJECTIVE:
                 return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                    0.0, // value does not matter
-                    parameters.getMaximumSearchDepth(),
-                    parameters.getPreventiveLeavesInParallel());
+                        0.0, // value does not matter
+                        parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                        parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
             case SECURE:
                 return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                    0.0, // secure
-                    parameters.getMaximumSearchDepth(),
-                    parameters.getPreventiveLeavesInParallel());
+                        0.0, // secure
+                        parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                        parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
             default:
-                throw new FaraoException("Unknown preventive RAO stop criterion: " + parameters.getPreventiveRaoStopCriterion());
+                throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         }
     }
 
-    public static TreeParameters buildForCurativePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, Double preventiveOptimizedCost) {
-        SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
+    public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
         StopCriterion stopCriterion;
         double targetObjectiveValue;
-        switch (parameters.getCurativeRaoStopCriterion()) {
+        switch (parameters.getObjectiveFunctionParameters().getCurativeStopCriterion()) {
             case MIN_OBJECTIVE:
                 stopCriterion = StopCriterion.MIN_OBJECTIVE;
                 targetObjectiveValue = 0.0;
@@ -92,34 +87,33 @@ public final class TreeParameters {
                 break;
             case PREVENTIVE_OBJECTIVE:
                 stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
-                targetObjectiveValue = preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement();
+                targetObjectiveValue = preventiveOptimizedCost - parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement();
                 break;
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
-                targetObjectiveValue = Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0);
+                targetObjectiveValue = Math.min(preventiveOptimizedCost - parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 0);
                 break;
             default:
-                throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
+                throw new FaraoException("Unknown curative stop criterion: " + parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         }
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
-            parameters.getMaximumSearchDepth(),
-            parameters.getCurativeLeavesInParallel());
+                parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
     }
 
-    public static TreeParameters buildForSecondPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
-        SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
-        if (parameters.getPreventiveRaoStopCriterion().equals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE)
-            && !parameters.getCurativeRaoStopCriterion().equals(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE)) {
+    public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {
+        if (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
+                && !parameters.getObjectiveFunctionParameters().getCurativeStopCriterion().equals(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE)) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                0.0, // secure
-                parameters.getMaximumSearchDepth(),
-                parameters.getPreventiveLeavesInParallel());
+                    0.0, // secure
+                    parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                0.0, // value does not matter
-                parameters.getMaximumSearchDepth(),
-                parameters.getPreventiveLeavesInParallel());
+                    0.0, // value does not matter
+                    parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
         }
     }
 }

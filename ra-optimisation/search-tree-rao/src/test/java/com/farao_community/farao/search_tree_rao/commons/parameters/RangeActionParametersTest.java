@@ -20,12 +20,12 @@ public class RangeActionParametersTest {
     public void buildFromRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
 
-        raoParameters.setPstSensitivityThreshold(1.1);
-        raoParameters.setHvdcSensitivityThreshold(2.2);
-        raoParameters.setInjectionRaSensitivityThreshold(3.3);
-        raoParameters.setPstPenaltyCost(4.4);
-        raoParameters.setHvdcPenaltyCost(5.5);
-        raoParameters.setInjectionRaPenaltyCost(6.6);
+        raoParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(1.1);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(2.2);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(3.3);
+        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(4.4);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(5.5);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(6.6);
 
         RangeActionParameters rap = RangeActionParameters.buildFromRaoParameters(raoParameters);
 

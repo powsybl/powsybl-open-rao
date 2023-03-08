@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
@@ -39,8 +39,8 @@ public class LinearProblemBuilder {
 
     private final List<ProblemFiller> problemFillers = new ArrayList<>();
     private FaraoMPSolver solver;
-    private double relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
-    private String solverSpecificParameters = RaoParameters.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
+    private double relativeMipGap = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
+    private String solverSpecificParameters = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
 
@@ -79,7 +79,7 @@ public class LinearProblemBuilder {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             this.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
@@ -217,7 +217,7 @@ public class LinearProblemBuilder {
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
-            parameters.getRangeActionParameters().getPstOptimizationApproximation() == RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
+            parameters.getRangeActionParameters().getPstOptimizationApproximation() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {

@@ -1,0 +1,15 @@
+rao-load-flow-and-sensitivity-computation:
+    load-flow-provider: OpenLoadFlow
+    sensitivity-provider: OpenLoadFlow
+    sensitivity-failure-overcost: 2
+
+load-flow-default-parameters:
+    voltageInitMode: DC_VALUES
+    balanceType: PROPORTIONAL_TO_GENERATION_P
+    countriesToBalance: UA
+    phaseShifterRegulationOn: true
+
+open-loadflow-default-parameters:
+    minPlausibleTargetVoltage: 0.444
+    maxPlausibleTargetVoltage: 1.444
+    maxIteration: 111

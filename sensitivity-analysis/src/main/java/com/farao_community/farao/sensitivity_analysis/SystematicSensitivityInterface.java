@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -36,22 +35,14 @@ public final class SystematicSensitivityInterface {
     private String sensitivityProvider;
 
     /**
-     * Sensitivity configurations, containing the default and fallback configurations
-     * of the sensitivity analysis
+     * Sensitivity configurations, containing sensitivity analysis configuration
      */
-    private SensitivityAnalysisParameters defaultParameters;
-    private SensitivityAnalysisParameters fallbackParameters;
+    private SensitivityAnalysisParameters parameters;
 
     /**
      * The sensitivity provider to be used in the sensitivity analysis
      */
     private CnecSensitivityProvider cnecSensitivityProvider;
-
-    /**
-     * A boolean indicating whether the fallback mode of the sensitivity analysis
-     * engine is active.
-     */
-    private boolean fallbackMode = false;
 
     /**
      * The remedialActions that are applied in the initial network or after some contingencies
@@ -64,7 +55,6 @@ public final class SystematicSensitivityInterface {
     public static final class SystematicSensitivityInterfaceBuilder {
         private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
-        private SensitivityAnalysisParameters fallbackParameters;
         private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
@@ -78,12 +68,7 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withFallbackParameters(SensitivityAnalysisParameters fallbackParameters) {
-            this.fallbackParameters = fallbackParameters;
-            return this;
-        }
-
-        public SystematicSensitivityInterfaceBuilder withDefaultParameters(SensitivityAnalysisParameters defaultParameters) {
+        public SystematicSensitivityInterfaceBuilder withParameters(SensitivityAnalysisParameters defaultParameters) {
             this.defaultParameters = defaultParameters;
             return this;
         }
@@ -126,8 +111,7 @@ public final class SystematicSensitivityInterface {
             }
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
             systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
-            systematicSensitivityInterface.defaultParameters = defaultParameters;
-            systematicSensitivityInterface.fallbackParameters = fallbackParameters;
+            systematicSensitivityInterface.parameters = defaultParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             return systematicSensitivityInterface;
@@ -142,43 +126,16 @@ public final class SystematicSensitivityInterface {
 
     }
 
-    public boolean isFallback() {
-        return fallbackMode;
-    }
-
     /**
      * Run the systematic sensitivity analysis on the given network and crac, and associates the
      * SystematicSensitivityResult to the given network variant.
      */
     public SystematicSensitivityResult run(Network network) {
-        SensitivityAnalysisParameters sensitivityAnalysisParameters = fallbackMode ? fallbackParameters : defaultParameters;
-        SystematicSensitivityResult result = runWithConfig(network, sensitivityAnalysisParameters);
-        if (fallbackMode) {
-            result.setStatus(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
-        }
+        SystematicSensitivityResult result = runWithConfig(network, parameters);
         if (!result.isSuccess()) {
-            if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
-                BUSINESS_WARNS.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
-                fallbackMode = true;
-                refreshRequestedUnits();
-                return run(network);
-            } else if (!fallbackMode) { // no fallback mode available, throw an exception
-                BUSINESS_WARNS.warn("Sensitivity analysis failed with default parameters. No fallback parameters available.");
-            } else { // fallback mode fails, throw an exception
-                BUSINESS_WARNS.warn("Sensitivity analysis failed with all available sensitivity parameters.");
-            }
+            BUSINESS_WARNS.warn("Sensitivity analysis failed.");
         }
         return result;
-    }
-
-    private void refreshRequestedUnits() {
-        SensitivityAnalysisParameters sensitivityAnalysisParameters = fallbackMode ? fallbackParameters : defaultParameters;
-        Set<Unit> requestedUnits = new HashSet<>();
-        requestedUnits.add(Unit.MEGAWATT);
-        if (!sensitivityAnalysisParameters.getLoadFlowParameters().isDc()) {
-            requestedUnits.add(Unit.AMPERE);
-        }
-        cnecSensitivityProvider.setRequestedUnits(requestedUnits);
     }
 
     /**

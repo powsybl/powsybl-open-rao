@@ -106,7 +106,6 @@ public final class RaoResultJsonConstants {
     // computation statuses
     public static final String COMPUTATION_STATUS = "computationStatus";
     public static final String DEFAULT_STATUS = "default";
-    public static final String FALLBACK_STATUS = "fallback";
     public static final String FAILURE_STATUS = "failure";
     public static final String COMPUTATION_STATUS_MAP = "computationStatusMap";
 
@@ -261,8 +260,6 @@ public final class RaoResultJsonConstants {
         switch (computationStatus) {
             case DEFAULT:
                 return DEFAULT_STATUS;
-            case FALLBACK:
-                return FALLBACK_STATUS;
             case FAILURE:
                 return FAILURE_STATUS;
             default:
@@ -274,8 +271,6 @@ public final class RaoResultJsonConstants {
         switch (stringValue) {
             case DEFAULT_STATUS:
                 return ComputationStatus.DEFAULT;
-            case FALLBACK_STATUS:
-                return ComputationStatus.FALLBACK;
             case FAILURE_STATUS:
                 return ComputationStatus.FAILURE;
             default:

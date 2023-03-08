@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.Objects;
@@ -13,9 +14,10 @@ import java.util.Objects;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
+// TODO : replace with RangeActionsOptimizationParameters
 public class RangeActionParameters {
 
-    private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
+    private final RangeActionsOptimizationParameters.PstModel pstOptimizationApproximation;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
     private final double injectionSensitivityThreshold;
@@ -23,7 +25,7 @@ public class RangeActionParameters {
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
 
-    public RangeActionParameters(RaoParameters.PstOptimizationApproximation pstOptimizationApproximation,
+    public RangeActionParameters(RangeActionsOptimizationParameters.PstModel pstOptimizationApproximation,
                                  double pstSensitivityThreshold,
                                  double hvdcSensitivityThreshold,
                                  double injectionSensitivityThreshold,
@@ -39,7 +41,7 @@ public class RangeActionParameters {
         this.injectionPenaltyCost = injectionPenaltyCost;
     }
 
-    public RaoParameters.PstOptimizationApproximation getPstOptimizationApproximation() {
+    public RangeActionsOptimizationParameters.PstModel getPstOptimizationApproximation() {
         return pstOptimizationApproximation;
     }
 
@@ -68,13 +70,13 @@ public class RangeActionParameters {
     }
 
     public static RangeActionParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        return new RangeActionParameters(raoParameters.getPstOptimizationApproximation(),
-            raoParameters.getPstSensitivityThreshold(),
-            raoParameters.getHvdcSensitivityThreshold(),
-            raoParameters.getInjectionRaSensitivityThreshold(),
-            raoParameters.getPstPenaltyCost(),
-            raoParameters.getHvdcPenaltyCost(),
-            raoParameters.getInjectionRaPenaltyCost());
+        return new RangeActionParameters(raoParameters.getRangeActionsOptimizationParameters().getPstModel(),
+            raoParameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold(),
+            raoParameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold(),
+            raoParameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold(),
+            raoParameters.getRangeActionsOptimizationParameters().getPstPenaltyCost(),
+            raoParameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost(),
+            raoParameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
     }
 
     @Override

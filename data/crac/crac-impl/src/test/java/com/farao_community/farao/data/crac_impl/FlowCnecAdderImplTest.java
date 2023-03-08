@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 public class FlowCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private CracImpl crac;
-    private String contingency1Id = "condId1";
+    private final String contingency1Id = "condId1";
     private Contingency contingency1;
 
     @Before
@@ -57,7 +57,7 @@ public class FlowCnecAdderImplTest {
         assertEquals(2, crac.getFlowCnecs().size());
 
         // Verify 1st cnec content
-        assertEquals(cnec1, crac.getBranchCnec("cnecId1"));
+        assertEquals(cnec1, crac.getFlowCnec("cnecId1"));
         assertEquals("cnecName1", cnec1.getName());
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(Instant.OUTAGE, cnec1.getState().getInstant());
@@ -67,7 +67,7 @@ public class FlowCnecAdderImplTest {
         assertEquals(-1000.0, cnec1.getLowerBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
 
         // Verify 2nd cnec content
-        assertEquals(cnec2, crac.getBranchCnec("cnecId2"));
+        assertEquals(cnec2, crac.getFlowCnec("cnecId2"));
         assertEquals("cnecId2", cnec2.getName());
         assertEquals(Instant.PREVENTIVE, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());

@@ -23,7 +23,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
@@ -89,7 +89,7 @@ public class SearchTreeTest {
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         setSearchTreeParameters();
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true));
-        when(searchTreeParameters.getObjectiveFunction()).thenReturn(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         mockNetworkPool(network);
     }
 

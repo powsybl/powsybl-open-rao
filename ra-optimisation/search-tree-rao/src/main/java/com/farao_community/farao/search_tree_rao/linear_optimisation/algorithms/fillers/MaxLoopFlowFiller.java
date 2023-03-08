@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
@@ -32,7 +32,7 @@ import java.util.TreeSet;
 public class MaxLoopFlowFiller implements ProblemFiller {
     private final Set<FlowCnec> loopFlowCnecs;
     private final FlowResult initialFlowResult;
-    private final RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
+    private final LoopFlowParametersExtension.Approximation loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;

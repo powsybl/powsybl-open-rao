@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -53,10 +54,10 @@ public class PrePerimeterSensitivityAnalysis {
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
 
@@ -74,14 +75,14 @@ public class PrePerimeterSensitivityAnalysis {
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+            if (raoParameters.getExtension(LoopFlowParametersExtension.class).getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
                 sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
-        if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
         }
         if (appliedCurativeRemedialActions != null) {

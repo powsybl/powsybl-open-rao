@@ -44,8 +44,8 @@ public class FailedRaoResultImplTest {
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMostLimitingElements(optimizationState, 10));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState));
         assertThrows(FaraoException.class, failedRaoResultImpl::getVirtualCostNames);
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState, "sensitivity-fallback-cost"));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCostlyElements(optimizationState, "sensitivity-fallback-cost", 10));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState, ""));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCostlyElements(optimizationState, "", 10));
 
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
