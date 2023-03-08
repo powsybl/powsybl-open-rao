@@ -96,9 +96,9 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(crac.getPreventiveState(), Set.of(pstRangeActionInSeries)));
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setPstPenaltyCost(0.01);
-        raoParameters.setHvdcPenaltyCost(0.01);
-        raoParameters.setInjectionRaPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
         RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(

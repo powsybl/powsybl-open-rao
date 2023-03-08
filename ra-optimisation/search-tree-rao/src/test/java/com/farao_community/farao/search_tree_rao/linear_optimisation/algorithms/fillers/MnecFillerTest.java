@@ -102,9 +102,9 @@ public class MnecFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setPstPenaltyCost(0.01);
-        raoParameters.setHvdcPenaltyCost(0.01);
-        raoParameters.setInjectionRaPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
         RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(

@@ -138,11 +138,8 @@ public class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.FALLBACK, raoResult.getComputationStatus(crac.getState("contingency1Id", OUTAGE)));
         assertEquals(ComputationStatus.FAILURE, raoResult.getComputationStatus(crac.getState("contingency1Id", CURATIVE)));
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", AUTO)));
-        assertEquals(ComputationStatus.FALLBACK, raoResult.getComputationStatus(crac.getState("contingency2Id", CURATIVE)));
-
     }
 
     @Test
