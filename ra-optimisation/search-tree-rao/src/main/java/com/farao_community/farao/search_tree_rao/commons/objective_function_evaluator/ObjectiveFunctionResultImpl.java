@@ -29,6 +29,8 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
 
+    private Set<String> lastExcludedContingencies;
+
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
                                        RangeActionActivationResult rangeActionActivationResult,
@@ -78,7 +80,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        if (!areCostComputed) {
+        if (!areCostComputed && lastExcludedContingencies.isEmpty()) {
             computeCosts(new HashSet<>());
         }
         return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
@@ -91,7 +93,9 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
-        computeCosts(contingenciesToExclude);
+        if (!contingenciesToExclude.equals(lastExcludedContingencies)) {
+            computeCosts(contingenciesToExclude);
+        }
     }
 
     private void computeCosts(Set<String> contingenciesToExclude) {
@@ -99,5 +103,6 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         virtualCosts = new HashMap<>();
         getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn, contingenciesToExclude)));
         areCostComputed = true;
+        lastExcludedContingencies = contingenciesToExclude;
     }
 }
