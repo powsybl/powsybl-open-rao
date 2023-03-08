@@ -56,7 +56,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
         return getFactors(
             preContingencyContext,
-            cnecsPerContingencyId.get("").stream().filter(cnec -> cnec.isConnected(network))
+            cnecsPerContingencyId.getOrDefault("", new ArrayList<>()).stream().filter(cnec -> cnec.isConnected(network))
         );
     }
 

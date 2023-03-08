@@ -51,7 +51,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getFunctionalCost() {
-        if (!areCostComputed || !lastExcludedContingencies.isEmpty()) {
+        if (!areCostComputed) {
             computeCosts(new HashSet<>());
         }
         return functionalCost;
@@ -64,7 +64,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        if (!areCostComputed || !lastExcludedContingencies.isEmpty()) {
+        if (!areCostComputed) {
             computeCosts(new HashSet<>());
         }
         if (virtualCosts.size() > 0) {
@@ -80,7 +80,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        if (!areCostComputed || !lastExcludedContingencies.isEmpty()) {
+        if (!areCostComputed) {
             computeCosts(new HashSet<>());
         }
         return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
