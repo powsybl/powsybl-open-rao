@@ -11,6 +11,8 @@ package com.farao_community.farao.commons;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.glsk.commons.CountryEICode;
 
+import java.util.Optional;
+
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
@@ -22,25 +24,23 @@ public class EICode {
     public static final int EIC_LENGTH = 16;
 
     private String areaCode;
-    private boolean isCountryCode;
+    private Optional<Country> optionalCountry;
 
     public EICode(String areaCode) {
         if (areaCode.length() != EIC_LENGTH) {
             throw new IllegalArgumentException(String.format("Unvalid EICode %s, EICode must have %d characters", areaCode, EIC_LENGTH));
         }
         try {
-            Country country = new CountryEICode(areaCode).getCountry();
-            this.isCountryCode = country != null;
-
+            optionalCountry = Optional.ofNullable(new CountryEICode(areaCode).getCountry());
         } catch (IllegalArgumentException e) {
-            this.isCountryCode = false;
+            this.optionalCountry = Optional.empty();
         }
         this.areaCode = areaCode;
     }
 
     public EICode(Country country) {
         this.areaCode = new CountryEICode(country).getCode();
-        this.isCountryCode = true;
+        this.optionalCountry = Optional.of(country);
     }
 
     public String getAreaCode() {
@@ -48,12 +48,12 @@ public class EICode {
     }
 
     public boolean isCountryCode() {
-        return isCountryCode;
+        return optionalCountry.isPresent();
     }
 
     @Override
     public String toString() {
-        return isCountryCode ? new CountryEICode(areaCode).getCountry().toString() : areaCode;
+        return optionalCountry.isPresent() ? optionalCountry.get().toString() : areaCode;
     }
 
     @Override
@@ -65,24 +65,19 @@ public class EICode {
             return false;
         }
         EICode eiCode = (EICode) o;
-        try {
-            Country country = new CountryEICode(this.areaCode).getCountry();
-            Country otherCountry = new CountryEICode(eiCode.areaCode).getCountry();
-            return country == otherCountry;
-        } catch (IllegalArgumentException e) {
+        if (this.optionalCountry.isPresent()) {
+            return this.optionalCountry.get().equals(eiCode.optionalCountry.orElse(null));
+        } else {
             return areaCode.equals(eiCode.getAreaCode());
         }
     }
 
     @Override
     public int hashCode() {
-        int hashcode;
-        try {
-            Country country = new CountryEICode(areaCode).getCountry();
-            hashcode = country.hashCode();
-        } catch (IllegalArgumentException e) {
-            hashcode = areaCode.hashCode();
+        if (this.optionalCountry.isPresent()) {
+            return this.optionalCountry.get().hashCode();
+        } else {
+            return areaCode.hashCode();
         }
-        return hashcode;
     }
 }
