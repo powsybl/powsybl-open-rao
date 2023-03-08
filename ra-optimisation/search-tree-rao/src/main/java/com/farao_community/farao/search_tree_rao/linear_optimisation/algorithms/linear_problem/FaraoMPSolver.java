@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
 import com.google.ortools.linearsolver.*;
@@ -15,7 +16,6 @@ import com.google.ortools.linearsolver.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.farao_community.farao.rao_api.parameters.RaoParameters.Solver;
 import org.apache.commons.lang3.NotImplementedException;
 
 /**
@@ -37,7 +37,7 @@ public class FaraoMPSolver {
         mpSolver = null;
     }
 
-    public FaraoMPSolver(String optProblemName, Solver solver) {
+    public FaraoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
         switch (solver) {
             case CBC:
                 this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
