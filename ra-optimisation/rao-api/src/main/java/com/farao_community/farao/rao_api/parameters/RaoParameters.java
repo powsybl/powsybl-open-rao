@@ -96,8 +96,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return loadFlowAndSensitivityParameters;
     }
 
-    public boolean hasExtension(RaoParameters raoParameters, Class classType) {
-        return Objects.nonNull(raoParameters.getExtension(classType));
+    public boolean hasExtension(Class classType) {
+        return Objects.nonNull(this.getExtension(classType));
     }
 
     // ConfigLoader

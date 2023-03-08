@@ -39,8 +39,8 @@ public class CneHelper {
         this.exporterParameters = exporterParameters;
 
         relativePositiveMargins = raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins();
-        withLoopflows = raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class);
-        mnecAcceptableMarginDiminution = raoParameters.hasExtension(raoParameters, MnecParametersExtension.class) ? raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease() : 0;
+        withLoopflows = raoParameters.hasExtension(LoopFlowParametersExtension.class);
+        mnecAcceptableMarginDiminution = raoParameters.hasExtension(MnecParametersExtension.class) ? raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease() : 0;
     }
 
     public RaoResult getRaoResult() {

@@ -60,7 +60,7 @@ public final class ToolProvider {
 
     public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class) && !loopFlowParameters.getCountries().isEmpty()) {
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && !loopFlowParameters.getCountries().isEmpty()) {
             return allCnecs.stream()
                 .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParameters.getCountries()))
                 .collect(Collectors.toSet());
@@ -113,7 +113,7 @@ public final class ToolProvider {
     }
 
     Set<String> getEicForObjectiveFunction() {
-        if (!raoParameters.hasExtension(raoParameters, RelativeMarginsParametersExtension.class)) {
+        if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
             throw new FaraoException("No relative margins parameters were defined");
         }
         return raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().stream().
@@ -210,7 +210,7 @@ public final class ToolProvider {
             );
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (!raoParameters.hasExtension(raoParameters, RelativeMarginsParametersExtension.class)) {
+            if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
                 throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
             }
             toolProviderBuilder.withAbsolutePtdfSumsComputation(

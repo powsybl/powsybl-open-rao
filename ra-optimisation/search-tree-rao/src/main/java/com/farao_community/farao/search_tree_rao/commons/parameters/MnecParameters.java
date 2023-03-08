@@ -39,7 +39,7 @@ public class MnecParameters {
 
     public static MnecParameters buildFromRaoParameters(RaoParameters raoParameters) {
         MnecParametersExtension mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
-        if (raoParameters.hasExtension(raoParameters, MnecParametersExtension.class)) {
+        if (raoParameters.hasExtension(MnecParametersExtension.class)) {
             return new MnecParameters(mnecParameters.getAcceptableMarginDecrease(),
                 mnecParameters.getViolationCost(),
                 mnecParameters.getConstraintAdjustmentCoefficient());

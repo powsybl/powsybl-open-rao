@@ -161,7 +161,7 @@ public final class ObjectiveFunction {
             }
 
             // mnec virtual cost evaluator
-            if (raoParameters.hasExtension(raoParameters, MnecParametersExtension.class)) {
+            if (raoParameters.hasExtension(MnecParametersExtension.class)) {
                 this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
                     raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
@@ -171,7 +171,7 @@ public final class ObjectiveFunction {
             }
 
             // loop-flow virtual cost evaluator
-            if (raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class)) {
+            if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
                 this.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
                     loopFlowCnecs,
                     initialFlowResult,

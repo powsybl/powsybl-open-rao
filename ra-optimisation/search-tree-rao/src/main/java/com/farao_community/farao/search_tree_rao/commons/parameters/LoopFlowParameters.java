@@ -46,7 +46,7 @@ public class LoopFlowParameters {
 
     public static LoopFlowParameters buildFromRaoParameters(RaoParameters raoParameters) {
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (raoParameters.hasExtension(raoParameters, LoopFlowParametersExtension.class)) {
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
             return new LoopFlowParameters(loopFlowParameters.getApproximation(),
                     loopFlowParameters.getAcceptableIncrease(),
                     loopFlowParameters.getViolationCost(),
