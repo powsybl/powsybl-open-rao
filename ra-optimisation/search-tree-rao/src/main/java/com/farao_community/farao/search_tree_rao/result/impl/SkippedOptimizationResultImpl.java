@@ -103,7 +103,7 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public double getFunctionalCost() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
+        return 0;
     }
 
     @Override

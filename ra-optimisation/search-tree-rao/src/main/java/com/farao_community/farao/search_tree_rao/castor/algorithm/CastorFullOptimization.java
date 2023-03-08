@@ -442,7 +442,7 @@ public class CastorFullOptimization {
      * Returns true if any result has a positive functional cost
      */
     private static boolean isAnyResultUnsecure(Collection<OptimizationResult> results) {
-        return results.stream().anyMatch(optimizationResult -> optimizationResult.getFunctionalCost() >= 0 || optimizationResult.getVirtualCost() > 1e-6);
+        return results.stream().anyMatch(optimizationResult -> optimizationResult.getFunctionalCost() > 1e-6 || optimizationResult.getVirtualCost() > 1e-6);
     }
 
     /**
