@@ -65,6 +65,8 @@ public class SystematicSensitivityResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<Instant, Map<String, StateResult>> postContingencyResults = new EnumMap<>(Instant.class);
 
+    private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
+
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
         this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
@@ -277,6 +279,9 @@ public class SystematicSensitivityResult {
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {
+        if (memoizedStateResultPerCnec.containsKey(cnec)) {
+            return memoizedStateResultPerCnec.get(cnec);
+        }
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
             List<Instant> possibleInstants = postContingencyResults.keySet().stream()
@@ -285,8 +290,10 @@ public class SystematicSensitivityResult {
                     .collect(Collectors.toList());
             for (Instant instant : possibleInstants) {
                 // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.
-                if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
-                    return postContingencyResults.get(instant).get(optionalContingency.get().getId());
+                String contingencyId = optionalContingency.get().getId();
+                if (postContingencyResults.get(instant).containsKey(contingencyId)) {
+                    memoizedStateResultPerCnec.put(cnec, postContingencyResults.get(instant).get(contingencyId));
+                    return memoizedStateResultPerCnec.get(cnec);
                 }
             }
             return null;

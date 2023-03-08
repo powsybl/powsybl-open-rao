@@ -30,6 +30,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     private List<FlowCnec> sortedFlowCnecs;
 
     private Set<String> lastContingenciesToExclude;
+    private FlowResult lastFlowResult;
 
     public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;
@@ -54,7 +55,7 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
-        if (!contingenciesToExclude.equals(lastContingenciesToExclude)) {
+        if (!contingenciesToExclude.equals(lastContingenciesToExclude) || !flowResult.equals(lastFlowResult)) {
             Map<FlowCnec, Double> margins = new HashMap<>();
 
             flowCnecs.stream()
@@ -67,6 +68,7 @@ public class MinMarginEvaluator implements CostEvaluator {
                 .sorted(Comparator.comparing(margins::get))
                 .collect(Collectors.toList());
             lastContingenciesToExclude = contingenciesToExclude;
+            lastFlowResult = flowResult;
         }
 
         return sortedFlowCnecs.subList(0, Math.min(sortedFlowCnecs.size(), numberOfElements));
