@@ -27,6 +27,10 @@ public class MinMarginEvaluator implements CostEvaluator {
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
 
+    private List<FlowCnec> sortedFlowCnecs;
+
+    private Set<String> lastContingenciesToExclude;
+
     public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;
         this.unit = unit;
@@ -50,19 +54,22 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
-        Map<FlowCnec, Double> margins = new HashMap<>();
+        if (!contingenciesToExclude.equals(lastContingenciesToExclude)) {
+            Map<FlowCnec, Double> margins = new HashMap<>();
 
-        flowCnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-            .filter(Cnec::isOptimized)
-            .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit)));
+            flowCnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
+                .filter(Cnec::isOptimized)
+                .forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, rangeActionActivationResult, sensitivityResult, unit)));
 
-        List<FlowCnec> sortedElements = margins.keySet().stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparing(margins::get))
-            .collect(Collectors.toList());
+            sortedFlowCnecs = margins.keySet().stream()
+                .filter(Cnec::isOptimized)
+                .sorted(Comparator.comparing(margins::get))
+                .collect(Collectors.toList());
+            lastContingenciesToExclude = contingenciesToExclude;
+        }
 
-        return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
+        return sortedFlowCnecs.subList(0, Math.min(sortedFlowCnecs.size(), numberOfElements));
     }
 
     @Override
