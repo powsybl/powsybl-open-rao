@@ -103,7 +103,7 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public double getFunctionalCost() {
-        return 0;
+        return -Double.MAX_VALUE;
     }
 
     @Override
