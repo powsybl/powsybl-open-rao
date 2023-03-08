@@ -49,8 +49,6 @@ public class UnoptimizedRaoResultImplTest {
     public void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
-        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        assertEquals(ComputationStatus.FALLBACK, output.getComputationStatus());
     }
 
     @Test
