@@ -52,8 +52,6 @@ public class PrePerimeterSensitivityResultImplTest {
 
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getSensitivityStatus());
-        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
-        assertEquals(ComputationStatus.FALLBACK, output.getSensitivityStatus());
 
         when(sensitivityResult.getSensitivityValue(cnec1, RIGHT, ra1, Unit.MEGAWATT)).thenReturn(0.5);
         when(sensitivityResult.getSensitivityValue(cnec2, LEFT, ra1, Unit.AMPERE)).thenReturn(0.1);

@@ -1,0 +1,45 @@
+{
+  "version" : "2.0",
+  "objective-function" : {
+    "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
+    "preventive-stop-criterion" : "MIN_OBJECTIVE"
+  },
+  "range-actions-optimization" : {
+    "max-mip-iterations" : 5,
+    "pst-penalty-cost" : 0.01,
+    "pst-sensitivity-threshold" : 0.0
+  },
+  "topological-actions-optimization" : {
+    "absolute-minimum-impact-threshold" : 1.0,
+    "skip-actions-far-from-most-limiting-element" : true
+  },
+  "second-preventive-rao" : {
+    "execution-condition" : "COST_INCREASE",
+    "hint-from-first-preventive-rao" : true
+  },
+  "ra-usage-limits-per-contingency" : {
+    "max-curative-topo-per-tso" : {
+      "Elia" : 5,
+      "RTE" : 3
+    },
+    "max-curative-pst-per-tso" : {
+      "Amprion" : 0
+    },
+    "max-curative-ra-per-tso" : {
+      "50Hz" : 9,
+      "Tennet" : 1
+    }
+  },
+  "not-optimized-cnecs" : {
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : true
+  },
+  "extensions" : {
+  "mnec-parameters" : {
+    "acceptable-margin-decrease" : 888.0
+  },
+  "relative-margins-parameters" : {
+    "ptdf-boundaries" : [ "{FR}-{ES}"],
+    "ptdf-sum-lower-bound" : 0.06
+  }
+}
+}

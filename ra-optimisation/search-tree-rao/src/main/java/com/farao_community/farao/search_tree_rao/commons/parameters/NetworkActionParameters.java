@@ -6,22 +6,21 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.rao_api.parameters.TopoOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class NetworkActionParameters {
 
-    private final List<NetworkActionCombination> networkActionCombinations;
+    private final List<NetworkActionCombination> predefinedCombinations;
 
     private final double absoluteNetworkActionMinimumImpactThreshold;
     private final double relativeNetworkActionMinimumImpactThreshold;
@@ -29,12 +28,12 @@ public class NetworkActionParameters {
     private final boolean skipNetworkActionFarFromMostLimitingElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
 
-    public NetworkActionParameters(List<NetworkActionCombination> networkActionCombinations,
+    public NetworkActionParameters(List<NetworkActionCombination> predefinedCombinations,
                                    double absoluteNetworkActionMinimumImpactThreshold,
                                    double relativeNetworkActionMinimumImpactThreshold,
                                    boolean skipNetworkActionFarFromMostLimitingElements,
                                    int maxNumberOfBoundariesForSkippingNetworkActions) {
-        this.networkActionCombinations = networkActionCombinations;
+        this.predefinedCombinations = predefinedCombinations;
         this.absoluteNetworkActionMinimumImpactThreshold = absoluteNetworkActionMinimumImpactThreshold;
         this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
         this.skipNetworkActionFarFromMostLimitingElements = skipNetworkActionFarFromMostLimitingElements;
@@ -42,7 +41,7 @@ public class NetworkActionParameters {
     }
 
     public List<NetworkActionCombination> getNetworkActionCombinations() {
-        return networkActionCombinations;
+        return predefinedCombinations;
     }
 
     public double getAbsoluteNetworkActionMinimumImpactThreshold() {
@@ -61,27 +60,22 @@ public class NetworkActionParameters {
         return maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
-    public static NetworkActionParameters buildFromRaoParameters(RaoParameters raoParameters, Crac crac) {
-        SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
-        if (searchTreeRaoParameters == null) {
-            throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
-        }
-
-        return new NetworkActionParameters(searchTreeRaoParameters.getNetworkActionCombinations(crac),
-            searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(),
-            searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(),
-            searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
-            searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
+    public static NetworkActionParameters buildFromRaoParameters(TopoOptimizationParameters topoOptimizationParameters, Crac crac) {
+        return new NetworkActionParameters(computePredefinedCombinations(crac, topoOptimizationParameters),
+                topoOptimizationParameters.getAbsoluteMinImpactThreshold(),
+                topoOptimizationParameters.getRelativeMinImpactThreshold(),
+                topoOptimizationParameters.getSkipActionsFarFromMostLimitingElement(),
+                topoOptimizationParameters.getMaxNumberOfBoundariesForSkippingActions());
     }
 
     public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {
         // It may happen that the 1st preventive RAO finds an optimal combination that was already defined
         // In this case, remove the old combination and add the new one (marked "detected during RAO")
-        Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.networkActionCombinations
+        Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.predefinedCombinations
                 .stream().filter(naCombination -> naCombination.getNetworkActionSet().equals(networkActionCombination.getNetworkActionSet()))
                 .findAny();
-        alreadyExistingNetworkActionCombination.ifPresent(this.networkActionCombinations::remove);
-        this.networkActionCombinations.add(networkActionCombination);
+        alreadyExistingNetworkActionCombination.ifPresent(this.predefinedCombinations::remove);
+        this.predefinedCombinations.add(networkActionCombination);
     }
 
     @Override
@@ -93,11 +87,41 @@ public class NetworkActionParameters {
             return false;
         }
         NetworkActionParameters that = (NetworkActionParameters) o;
-        return Double.compare(that.absoluteNetworkActionMinimumImpactThreshold, absoluteNetworkActionMinimumImpactThreshold) == 0 && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0 && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions && Objects.equals(networkActionCombinations, that.networkActionCombinations);
+        return Double.compare(that.absoluteNetworkActionMinimumImpactThreshold, absoluteNetworkActionMinimumImpactThreshold) == 0 && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0 && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions && Objects.equals(predefinedCombinations, that.predefinedCombinations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(networkActionCombinations, absoluteNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold, skipNetworkActionFarFromMostLimitingElements, maxNumberOfBoundariesForSkippingNetworkActions);
+        return Objects.hash(predefinedCombinations, absoluteNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold, skipNetworkActionFarFromMostLimitingElements, maxNumberOfBoundariesForSkippingNetworkActions);
+    }
+
+    public static List<NetworkActionCombination> computePredefinedCombinations(Crac crac, TopoOptimizationParameters topoOptimizationParameters) {
+        List<List<String>> predefinedCombinationsIds = topoOptimizationParameters.getPredefinedCombinations();
+        List<NetworkActionCombination> computedPredefinedCombinations = new ArrayList<>();
+        predefinedCombinationsIds.forEach(networkActionIds -> {
+            Optional<NetworkActionCombination> optNaCombination = computePredefinedCombinationsFromIds(networkActionIds, crac);
+            optNaCombination.ifPresent(computedPredefinedCombinations::add);
+        });
+        return computedPredefinedCombinations;
+    }
+
+    private static Optional<NetworkActionCombination> computePredefinedCombinationsFromIds(List<String> networkActionIds, Crac crac) {
+
+        if (networkActionIds.size() < 2) {
+            BUSINESS_WARNS.warn("A predefined combination should contain at least 2 NetworkAction ids");
+            return Optional.empty();
+        }
+
+        Set<NetworkAction> networkActions = new HashSet<>();
+        for (String naId : networkActionIds) {
+            NetworkAction na = crac.getNetworkAction(naId);
+            if (na == null) {
+                BUSINESS_WARNS.warn("Unknown network action id in predefined-combinations parameter: {}", naId);
+                return Optional.empty();
+            }
+            networkActions.add(na);
+        }
+
+        return Optional.of(new NetworkActionCombination(networkActions));
     }
 }

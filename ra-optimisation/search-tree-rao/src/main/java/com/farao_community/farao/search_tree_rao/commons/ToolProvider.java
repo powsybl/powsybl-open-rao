@@ -18,6 +18,8 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXnodeGlskHandler;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.glsk.commons.ZonalData;
@@ -57,9 +59,10 @@ public final class ToolProvider {
     }
 
     public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
-        if (!raoParameters.getLoopflowCountries().isEmpty()) {
+        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+        if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && !loopFlowParameters.getCountries().isEmpty()) {
             return allCnecs.stream()
-                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
+                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParameters.getCountries()))
                 .collect(Collectors.toSet());
         } else {
             return allCnecs.stream()
@@ -86,13 +89,12 @@ public final class ToolProvider {
                                                                             AppliedRemedialActions appliedRemedialActions) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName(raoParameters.getSensitivityProvider())
-            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
+            .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
+            .withParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions);
 
-        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+        if (!raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
         }
 
@@ -111,7 +113,10 @@ public final class ToolProvider {
     }
 
     Set<String> getEicForObjectiveFunction() {
-        return raoParameters.getRelativeMarginPtdfBoundaries().stream().
+        if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
+            throw new FaraoException("No relative margins parameters were defined");
+        }
+        return raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().stream().
             flatMap(boundary -> boundary.getEiCodes().stream()).
             map(EICode::getAreaCode).
             collect(Collectors.toSet());
@@ -204,12 +209,15 @@ public final class ToolProvider {
                 )
             );
         }
-        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
+                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
+            }
             toolProviderBuilder.withAbsolutePtdfSumsComputation(
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                    raoParameters.getRelativeMarginPtdfBoundaries(),
+                        raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries(),
                     raoInput.getNetwork()
                 )
             );
