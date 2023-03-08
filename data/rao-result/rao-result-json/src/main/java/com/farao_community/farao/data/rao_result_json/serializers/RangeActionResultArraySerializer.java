@@ -123,6 +123,9 @@ final class RangeActionResultArraySerializer {
     }
 
     static void writeStateToTapAndSetpointArray(JsonGenerator jsonGenerator, Map<State, Pair<Integer, Double>> stateToTapAndSetpoint, String arrayName) throws IOException {
+        if (stateToTapAndSetpoint.isEmpty()) {
+            return;
+        }
         jsonGenerator.writeArrayFieldStart(arrayName);
         for (Map.Entry<State, Pair<Integer, Double>> entry : stateToTapAndSetpoint.entrySet()) {
             jsonGenerator.writeStartObject();

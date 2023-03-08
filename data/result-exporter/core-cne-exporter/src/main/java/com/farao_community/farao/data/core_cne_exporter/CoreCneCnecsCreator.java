@@ -221,6 +221,13 @@ public final class CoreCneCnecsCreator {
         if (resultState.equals(OptimizationState.AFTER_CRA) && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
             resultState = OptimizationState.AFTER_PRA;
         }
+        if (unit.equals(Unit.AMPERE)) {
+            double flow = cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
+            double nominalVoltage = getFlowUnitMultiplier(cnec, getMonitoredSide(cnec), Unit.MEGAWATT, unit);
+            if (nominalVoltage != 0) {
+                return flow / nominalVoltage;
+            }
+        }
         return cneHelper.getRaoResult().getFlow(resultState, cnec, side, unit);
     }
 

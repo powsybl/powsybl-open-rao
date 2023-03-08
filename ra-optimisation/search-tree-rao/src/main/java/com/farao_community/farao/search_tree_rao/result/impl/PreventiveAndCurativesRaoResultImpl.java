@@ -315,6 +315,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     private FlowResult getFlowResult(OptimizationState optimizationState, FlowCnec flowCnec) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult;
+        } else if (flowCnec.getState().getInstant().comesBefore(optimizationState.getFirstInstant())) {
+            return null;
         } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
                 (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
