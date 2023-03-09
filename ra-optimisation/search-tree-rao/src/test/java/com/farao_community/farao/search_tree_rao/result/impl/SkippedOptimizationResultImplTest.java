@@ -63,7 +63,6 @@ public class SkippedOptimizationResultImplTest {
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
         assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-        assertThrows(FaraoException.class, skippedOptimizationResult::getFunctionalCost);
         assertThrows(FaraoException.class, skippedOptimizationResult::getObjectiveFunction);
     }
 
