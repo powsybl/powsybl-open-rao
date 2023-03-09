@@ -230,14 +230,13 @@ public class PreventiveAndCurativesRaoResultImplTest {
         when(objectiveFunctionResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(lfCostlyElements);
     }
 
-    private boolean flowResultThrows(OptimizationState state, FlowCnec cnec) {
+    private void flowResultThrows(OptimizationState state, FlowCnec cnec) {
         assertThrows(FaraoException.class, () -> output.getFlow(state, cnec, Side.LEFT, Unit.MEGAWATT));
         assertThrows(FaraoException.class, () -> output.getMargin(state, cnec, Unit.MEGAWATT));
         assertThrows(FaraoException.class, () -> output.getRelativeMargin(state, cnec, Unit.MEGAWATT));
         assertThrows(FaraoException.class, () -> output.getCommercialFlow(state, cnec, Side.LEFT, Unit.MEGAWATT));
         assertThrows(FaraoException.class, () -> output.getLoopFlow(state, cnec, Side.LEFT, Unit.MEGAWATT));
         assertThrows(FaraoException.class, () -> output.getPtdfZonalSum(state, cnec, Side.LEFT));
-        return true;
     }
 
     @Test
@@ -540,9 +539,9 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     public void testGetFlowResult() {
-        assert flowResultThrows(AFTER_ARA, cnec4);
-        assert flowResultThrows(AFTER_CRA, cnec4);
-        assert flowResultThrows(AFTER_CRA, cnec1auto);
+        flowResultThrows(AFTER_ARA, cnec4);
+        flowResultThrows(AFTER_CRA, cnec4);
+        flowResultThrows(AFTER_CRA, cnec1auto);
     }
 
     @Test
