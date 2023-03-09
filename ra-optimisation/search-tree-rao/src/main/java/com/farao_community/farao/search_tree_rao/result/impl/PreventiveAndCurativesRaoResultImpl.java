@@ -316,7 +316,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult;
         } else if (flowCnec.getState().getInstant().comesBefore(optimizationState.getFirstInstant())) {
-            return null;
+            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizationState));
         } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
                 (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
