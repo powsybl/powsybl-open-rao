@@ -538,12 +538,12 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3, RIGHT), DOUBLE_TOLERANCE);
     }
 
-     @Test
-     public void testGetFlowResult() {
+    @Test
+    public void testGetFlowResult() {
         assert flowResultThrows(AFTER_ARA, cnec4);
         assert flowResultThrows(AFTER_CRA, cnec4);
         assert flowResultThrows(AFTER_CRA, cnec1auto);
-     }
+    }
 
     @Test
     public void testGetPerimeter() {
