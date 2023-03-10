@@ -11,7 +11,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.search_tree_rao.commons.adapter.SensitivityResultAdapter;
@@ -99,13 +100,13 @@ public class IteratingLinearOptimizerTest {
 
         IteratingLinearOptimizerParameters parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
         SolverParameters solverParameters = Mockito.mock(SolverParameters.class);
-        when(solverParameters.getSolver()).thenReturn(RaoParameters.Solver.CBC);
+        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.CBC);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         when(parameters.getMaxNumberOfIterations()).thenReturn(5);
         RangeActionParameters rangeActionParameters = Mockito.mock(RangeActionParameters.class);
-        when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RaoParameters.PstOptimizationApproximation.CONTINUOUS);
+        when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
-        when(parameters.getObjectiveFunction()).thenReturn(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         optimizer = new IteratingLinearOptimizer(input, parameters);
 
         linearProblem = Mockito.mock(LinearProblem.class);

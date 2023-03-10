@@ -33,7 +33,6 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     private final FlowResult initialFlowResult;
     private final double mnecAcceptableMarginDiminution;
     private final double mnecViolationCost;
-    private List<FlowCnec> sortedElements = new ArrayList<>();
 
     public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, FlowResult initialFlowResult, MnecParameters mnecParameters) {
         this.flowCnecs = flowCnecs;
@@ -65,7 +64,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             return Pair.of(0., new ArrayList<>());
         }
         double totalMnecMarginViolation = 0;
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult);
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
         for (FlowCnec mnec : costlyElements) {
             Optional<Contingency> contingency = mnec.getState().getContingency();
             if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId()))) {
@@ -80,25 +79,19 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         return unit;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
-        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, new HashSet<>());
-    }
-
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
-        if (sortedElements.isEmpty()) {
-            sortedElements = flowCnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-                .filter(Cnec::isMonitored)
-                .collect(Collectors.toMap(
-                    Function.identity(),
-                    cnec -> computeCost(flowResult, cnec)
-                ))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() != 0)
-                .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-        }
+    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        List<FlowCnec> sortedElements = flowCnecs.stream()
+            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
+            .filter(Cnec::isMonitored)
+            .collect(Collectors.toMap(
+                Function.identity(),
+                cnec -> computeCost(flowResult, cnec)
+            ))
+            .entrySet().stream()
+            .filter(entry -> entry.getValue() != 0)
+            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
         Collections.reverse(sortedElements);
 
         return sortedElements;

@@ -95,14 +95,6 @@ public class MinMarginEvaluatorTest {
     }
 
     @Test
-    public void getMostLimitingElementsWithLimitedElements() {
-        List<FlowCnec> costlyElements = minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight();
-        assertEquals(2, costlyElements.size());
-        assertSame(cnec3, costlyElements.get(0));
-        assertSame(cnec1, costlyElements.get(1));
-    }
-
-    @Test
     public void computeCost() {
         assertEquals(250., minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)).getLeft(), DOUBLE_TOLERANCE);
     }
@@ -129,7 +121,6 @@ public class MinMarginEvaluatorTest {
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
         assertTrue(minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().isEmpty());
-        assertNull(minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT, new HashSet<>()).getRight());
         assertEquals(-2000, minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)).getLeft(), DOUBLE_TOLERANCE);
     }
 

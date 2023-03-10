@@ -30,8 +30,8 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
     private final double sensitivityFailureOvercost;
     private final Set<State> states;
 
-    public SensitivityFailureOvercostEvaluator(Set<FlowCnec> flowCnecs) {
-        this.sensitivityFailureOvercost = 100000;
+    public SensitivityFailureOvercostEvaluator(Set<FlowCnec> flowCnecs, double sensitivityFailureOvercost) {
+        this.sensitivityFailureOvercost = sensitivityFailureOvercost;
         this.states = flowCnecs.stream().map(Cnec::getState).collect(Collectors.toSet());
     }
 

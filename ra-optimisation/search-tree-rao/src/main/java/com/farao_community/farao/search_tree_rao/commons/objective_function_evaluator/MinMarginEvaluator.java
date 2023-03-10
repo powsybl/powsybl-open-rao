@@ -44,10 +44,6 @@ public class MinMarginEvaluator implements CostEvaluator {
         return unit;
     }
 
-    private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
-        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, new HashSet<>());
-    }
-
     private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
         Map<FlowCnec, Double> margins = new HashMap<>();
 

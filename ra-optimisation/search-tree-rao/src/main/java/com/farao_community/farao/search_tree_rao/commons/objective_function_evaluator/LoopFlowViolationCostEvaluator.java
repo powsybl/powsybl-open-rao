@@ -52,7 +52,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, Integer.MAX_VALUE, contingenciesToExclude);
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
         double cost = costlyElements
             .stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
@@ -71,12 +71,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return Unit.MEGAWATT;
     }
 
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
-        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, numberOfElements, new HashSet<>());
-    }
-
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
-        List<FlowCnec> sortedElements = loopflowCnecs.stream()
+    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        List<FlowCnec> costlyElements = loopflowCnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .collect(Collectors.toMap(
                 Function.identity(),
@@ -88,7 +84,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
 
-        return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
+        Collections.reverse(costlyElements);
+        return costlyElements;
     }
 
     @Override
