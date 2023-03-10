@@ -146,7 +146,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         }
     }
 
-    @Override
     public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getMostLimitingElements(number);
@@ -185,7 +184,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         }
     }
 
-    @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
@@ -326,5 +324,10 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
         throw new FaraoException("Voltage cnecs are not computed in the rao");
+    }
+
+    @Override
+    public double getCost(OptimizationState optimizationState) {
+        return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
     }
 }

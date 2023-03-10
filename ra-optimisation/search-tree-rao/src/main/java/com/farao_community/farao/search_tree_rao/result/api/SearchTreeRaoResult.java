@@ -6,14 +6,9 @@
  */
 package com.farao_community.farao.search_tree_rao.result.api;
 
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-
-import java.util.List;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -46,43 +41,4 @@ public interface SearchTreeRaoResult extends RaoResult {
      */
     PrePerimeterResult getInitialResult();
 
-    /**
-     * It gives an ordered list of the most constraining elements at a given {@link OptimizationState} according to the
-     * objective function defined in the RAO. They are evaluated and ordered from the functional
-     * costs of the different CNECs.
-     *
-     * @param optimizationState: The state of optimization to be studied.
-     * @param number: The size of the list to be studied, so the number of limiting elements to be retrieved.
-     * @return The ordered list of the n first limiting elements.
-     */
-    List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number);
-
-    /**
-     * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost at a given
-     * {@link OptimizationState}. If the virtual is null the list would be empty. If the specified virtual cost does
-     * not imply any branch in its computation the list would be empty.
-     *
-     * @param optimizationState: The state of optimization to be studied.
-     * @param virtualCostName: The name of the virtual cost.
-     * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.
-     * @return The ordered list of the n first costly elements according to the given virtual cost.
-     */
-    List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
-
-    double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
-
-    double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
-
-    double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
-
-    double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
-
-    double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
-
-    double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side);
-
-    @Override
-    default double getCost(OptimizationState optimizationState) {
-        return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
-    }
 }

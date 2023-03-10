@@ -356,7 +356,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
-    @Override
     public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         //TODO : store values to be able to merge easily
         return null;
@@ -417,7 +416,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         }
     }
 
-    @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
@@ -628,5 +626,10 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
         throw new FaraoException("Voltage cnecs are not computed in the rao");
+    }
+
+    @Override
+    public double getCost(OptimizationState optimizationState) {
+        return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
     }
 }

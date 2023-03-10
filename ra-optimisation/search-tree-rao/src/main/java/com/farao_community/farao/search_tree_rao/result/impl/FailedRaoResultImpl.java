@@ -94,7 +94,6 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
     public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
@@ -114,7 +113,6 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
@@ -206,6 +204,11 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
 
     @Override
     public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
+    public double getCost(OptimizationState optimizationState) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 }
