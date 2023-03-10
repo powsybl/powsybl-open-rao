@@ -227,16 +227,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     }
 
     @Override
-    public PerimeterResult getPostPreventivePerimeterResult() {
-        return secondPreventivePerimeterResult;
-    }
-
-    @Override
-    public PrePerimeterResult getInitialResult() {
-        return initialResult;
-    }
-
-    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
@@ -356,7 +346,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public List<FlowCnec> getMostLimitingElements() {
         //TODO : store values to be able to merge easily
         return null;
     }

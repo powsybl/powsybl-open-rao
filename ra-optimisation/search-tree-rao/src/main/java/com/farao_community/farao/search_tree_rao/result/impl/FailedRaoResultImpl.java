@@ -20,11 +20,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.SearchTreeRaoResult;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,27 +71,20 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
-    public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
+    public void getPerimeterResult() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
-    public PerimeterResult getPostPreventivePerimeterResult() {
+    public void getPostPreventivePerimeterResult() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
-    public PrePerimeterResult getInitialResult() {
+    public void getInitialResult() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -110,10 +100,6 @@ public class FailedRaoResultImpl implements SearchTreeRaoResult {
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 

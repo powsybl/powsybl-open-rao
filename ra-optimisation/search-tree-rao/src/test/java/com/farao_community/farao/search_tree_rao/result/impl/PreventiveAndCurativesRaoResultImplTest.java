@@ -256,10 +256,10 @@ public class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     public void testGetMostLimitingElements() {
-        assertNull(output.getMostLimitingElements(INITIAL, 5));
-        assertNull(output.getMostLimitingElements(AFTER_PRA, 15));
-        assertNull(output.getMostLimitingElements(AFTER_ARA, 20));
-        assertNull(output.getMostLimitingElements(AFTER_CRA, 445));
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
     }
 
     @Test
@@ -588,10 +588,10 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(-1050., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
 
         // Test get most limiting elements
-        assertNull(output.getMostLimitingElements(INITIAL, 5));
-        assertNull(output.getMostLimitingElements(AFTER_PRA, 15));
-        assertNull(output.getMostLimitingElements(AFTER_ARA, 20));
-        assertNull(output.getMostLimitingElements(AFTER_CRA, 445));
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
+        assertNull(output.getMostLimitingElements());
 
         // Test get virtual cost
         assertEquals(100., output.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);

@@ -36,16 +36,14 @@ public class FailedRaoResultImplTest {
 
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPerimeterResult(optimizationState, state));
+        assertThrows(FaraoException.class, failedRaoResultImpl::getPerimeterResult);
         assertThrows(FaraoException.class, failedRaoResultImpl::getPostPreventivePerimeterResult);
         assertThrows(FaraoException.class, failedRaoResultImpl::getInitialResult);
 
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFunctionalCost(optimizationState));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMostLimitingElements(optimizationState, 10));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState));
         assertThrows(FaraoException.class, failedRaoResultImpl::getVirtualCostNames);
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState, ""));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCostlyElements(optimizationState, "", 10));
 
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
