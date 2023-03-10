@@ -10,7 +10,10 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -69,16 +72,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
-    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
-    }
-
-    @Override
-    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
-    }
-
-    @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return ComputationStatus.FAILURE;
@@ -92,6 +85,36 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public ComputationStatus getComputationStatus(State state) {
         return postOptimizationResult.getSensitivityStatus(state);
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getCommercialFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getLoopFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
+        return getAppropriateResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
@@ -283,5 +306,25 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         return optimizationStepsExecuted;
+    }
+
+    @Override
+    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the rao");
+    }
+
+    @Override
+    public double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
+        throw new FaraoException("Voltage cnecs are not computed in the rao");
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the rao");
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
+        throw new FaraoException("Voltage cnecs are not computed in the rao");
     }
 }

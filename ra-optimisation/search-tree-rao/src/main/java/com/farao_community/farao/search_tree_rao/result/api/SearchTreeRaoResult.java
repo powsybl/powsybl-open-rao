@@ -6,18 +6,14 @@
  */
 package com.farao_community.farao.search_tree_rao.result.api;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -73,97 +69,17 @@ public interface SearchTreeRaoResult extends RaoResult {
      */
     List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
 
-    @Override
-    default double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getFlow(flowCnec, side, unit);
-        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-            || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getFlow(flowCnec, side, unit);
-        } else {
-            return getPerimeterResult(optimizationState, flowCnec.getState()).getFlow(flowCnec, side, unit);
-        }
-    }
+    double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
-    @Override
-    default double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the search tree rao");
-    }
+    double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
 
-    @Override
-    default double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the search tree rao");
-    }
+    double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
 
-    @Override
-    default double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getMargin(flowCnec, unit);
-        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-            || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getMargin(flowCnec, unit);
-        } else {
-            return getPerimeterResult(optimizationState, flowCnec.getState()).getMargin(flowCnec, unit);
-        }
-    }
+    double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
-    @Override
-    default double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the search tree rao");
-    }
+    double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
-    @Override
-    default double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the search tree rao");
-    }
-
-    @Override
-    default double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getRelativeMargin(flowCnec, unit);
-        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-            || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getRelativeMargin(flowCnec, unit);
-        } else {
-            return getPerimeterResult(optimizationState, flowCnec.getState()).getRelativeMargin(flowCnec, unit);
-        }
-    }
-
-    @Override
-    default double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getCommercialFlow(flowCnec, side, unit);
-        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-            || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getCommercialFlow(flowCnec, side, unit);
-        } else {
-            return getPerimeterResult(optimizationState, flowCnec.getState()).getCommercialFlow(flowCnec, side, unit);
-        }
-    }
-
-    @Override
-    default double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getLoopFlow(flowCnec, side, unit);
-        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-            || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getLoopFlow(flowCnec, side, unit);
-        } else {
-            return getPerimeterResult(optimizationState, flowCnec.getState()).getLoopFlow(flowCnec, side, unit);
-        }
-    }
-
-    @Override
-    default double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getPtdfZonalSum(flowCnec, side);
-        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-            || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getPtdfZonalSum(flowCnec, side);
-        } else {
-            return getPerimeterResult(optimizationState, flowCnec.getState()).getPtdfZonalSum(flowCnec, side);
-        }
-    }
+    double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side);
 
     @Override
     default double getCost(OptimizationState optimizationState) {
