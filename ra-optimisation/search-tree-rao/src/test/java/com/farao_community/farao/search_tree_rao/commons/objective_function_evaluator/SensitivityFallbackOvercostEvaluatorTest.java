@@ -52,27 +52,27 @@ public class SensitivityFallbackOvercostEvaluatorTest {
     @Test
     public void testWithNullCost() {
         evaluator = new SensitivityFallbackOvercostEvaluator(0);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testWithCost() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(10, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
+        assertEquals(10, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testFailure() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetCostlyElements() {
         evaluator = new SensitivityFallbackOvercostEvaluator(10);
-        assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5).size());
-        assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5, Set.of("")).size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().size());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT, Set.of("")).getRight().size());
     }
 }

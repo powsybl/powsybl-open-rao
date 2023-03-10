@@ -15,6 +15,7 @@ import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParamete
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
@@ -54,23 +55,24 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
         if (Math.abs(mnecViolationCost) < 1e-10) {
-            return 0;
+            return Pair.of(0., new ArrayList<>());
         }
         double totalMnecMarginViolation = 0;
-        for (FlowCnec mnec : flowCnecs) {
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult);
+        for (FlowCnec mnec : costlyElements) {
             Optional<Contingency> contingency = mnec.getState().getContingency();
             if (mnec.isMonitored() && (mnec.getState().getContingency().isEmpty() || contingency.isPresent() && !contingenciesToExclude.contains(contingency.get().getId()))) {
                 totalMnecMarginViolation += computeCost(flowResult, mnec);
             }
         }
-        return mnecViolationCost * totalMnecMarginViolation;
+        return Pair.of(mnecViolationCost * totalMnecMarginViolation, costlyElements);
     }
 
     @Override
@@ -78,13 +80,11 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         return unit;
     }
 
-    @Override
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
-        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, numberOfElements, new HashSet<>());
+    private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult) {
+        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, new HashSet<>());
     }
 
-    @Override
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
+    private List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Set<String> contingenciesToExclude) {
         if (sortedElements.isEmpty()) {
             sortedElements = flowCnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
@@ -101,7 +101,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         }
         Collections.reverse(sortedElements);
 
-        return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
+        return sortedElements;
     }
 
     @Override

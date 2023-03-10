@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -69,24 +70,23 @@ public class SensitivityFailureOvercostEvaluatorTest {
     @Test
     public void testCostWithNoStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2));
-        assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(0, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
+        assertEquals(100000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getRight().isEmpty());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().isEmpty());
+        assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK).getRight().isEmpty());
     }
 
     @Test
     public void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2, cnec3));
-        assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE), DOUBLE_TOLERANCE);
-        assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT), DOUBLE_TOLERANCE);
-        assertEquals(100000, evaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testGetCostlyElements() {
-        evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2));
-        assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5).size());
-        assertEquals(0, evaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, 5, Set.of("")).size());
+        assertEquals(100000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getRight().isEmpty());
+        assertEquals(100000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().isEmpty());
+        assertEquals(100000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK).getLeft(), DOUBLE_TOLERANCE);
+        assertTrue(evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FALLBACK).getRight().isEmpty());
     }
 
     @Test

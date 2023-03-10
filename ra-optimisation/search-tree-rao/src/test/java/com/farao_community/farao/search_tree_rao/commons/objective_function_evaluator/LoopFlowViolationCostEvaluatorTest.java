@@ -200,7 +200,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.computeCost(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.computeCost(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
