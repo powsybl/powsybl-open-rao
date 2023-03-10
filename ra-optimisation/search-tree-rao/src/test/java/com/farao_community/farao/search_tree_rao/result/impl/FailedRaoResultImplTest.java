@@ -78,17 +78,17 @@ public class FailedRaoResultImplTest {
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optimizationState, angleCnec, MEGAWATT));
     }
 
-     @Test
+    @Test
     public void testgetFlowAndMargin() {
-         OptimizationState optimizationState = mock(OptimizationState.class);
-         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
-         FlowCnec flowCnec = mock(FlowCnec.class);
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optimizationState, flowCnec, Side.LEFT));
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, flowCnec, MEGAWATT));
-         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getRelativeMargin(optimizationState, flowCnec, MEGAWATT));
-     }
+        OptimizationState optimizationState = mock(OptimizationState.class);
+        FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
+        FlowCnec flowCnec = mock(FlowCnec.class);
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optimizationState, flowCnec, Side.LEFT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, flowCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getRelativeMargin(optimizationState, flowCnec, MEGAWATT));
+    }
 }
