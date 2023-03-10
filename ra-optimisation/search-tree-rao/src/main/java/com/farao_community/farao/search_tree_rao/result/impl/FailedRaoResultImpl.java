@@ -20,7 +20,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
-import com.farao_community.farao.search_tree_rao.result.api.SearchTreeRaoResult;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FailedRaoResultImpl implements SearchTreeRaoResult {
+public class FailedRaoResultImpl implements RaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
 
     @Override

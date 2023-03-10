@@ -141,7 +141,7 @@ public class OneStateOnlyRaoResultImplTest {
 
         assertSame(initialResult, output.getInitialResult());
         assertNotNull(output.getPostPreventivePerimeterResult());
-        assertNotNull(output.getPerimeterResult(OptimizationState.INITIAL, optimizedState));
+        assertNotNull(output.getPerimeterResult(optimizedState));
 
         assertEquals(1000., output.getFunctionalCost(OptimizationState.INITIAL), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getFunctionalCost(OptimizationState.AFTER_PRA), DOUBLE_TOLERANCE);
@@ -210,7 +210,7 @@ public class OneStateOnlyRaoResultImplTest {
 
         // using another state
         State otherState = mock(State.class);
-        assertNull(output.getPerimeterResult(OptimizationState.INITIAL, otherState));
+        assertNull(output.getPerimeterResult(otherState));
         assertThrows(FaraoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
         assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
         assertThrows(FaraoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));

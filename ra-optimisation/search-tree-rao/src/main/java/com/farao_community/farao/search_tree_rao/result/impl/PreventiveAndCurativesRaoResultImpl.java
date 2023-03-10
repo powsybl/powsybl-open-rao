@@ -23,6 +23,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 
@@ -33,7 +34,7 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult {
+public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult firstPreventivePerimeterResult;

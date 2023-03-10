@@ -121,7 +121,7 @@ public class CastorFullOptimization {
             return CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput));
         }
 
-        PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput).getPerimeterResult(OptimizationState.AFTER_PRA, raoInput.getCrac().getPreventiveState());
+        PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, raoParameters, stateTree, toolProvider, initialOutput).getPerimeterResult(raoInput.getCrac().getPreventiveState());
         BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
         Instant preventiveRaoEndInstant = Instant.now();
         long preventiveRaoTime = ChronoUnit.SECONDS.between(preventiveRaoStartInstant, preventiveRaoEndInstant);
@@ -588,7 +588,7 @@ public class CastorFullOptimization {
         // Run second preventive RAO
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [start]");
         PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult.getActivatedNetworkActions(), appliedArasAndCras)
-                .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
+                .join().getPerimeterResult(raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, raoInput.getCrac(), initialOutput, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {

@@ -20,6 +20,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 
 import java.util.HashSet;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
+public class OneStateOnlyRaoResultImpl implements RaoResult {
     public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
@@ -117,7 +118,7 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         return getAppropriateResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
-    public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
+    public PerimeterResult getPerimeterResult(State state) {
         if (!state.equals(optimizedState)) {
             // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
             return null;
