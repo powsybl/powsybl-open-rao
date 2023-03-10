@@ -8,6 +8,10 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -17,6 +21,7 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.Test;
 
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.mockito.Mockito.mock;
 import static org.junit.Assert.*;
 
@@ -60,4 +65,30 @@ public class FailedRaoResultImplTest {
         assertThrows(FaraoException.class, failedRaoResultImpl::getOptimizationStepsExecuted);
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
     }
+
+    @Test
+    public void testAngleAndVoltageCnec() {
+        OptimizationState optimizationState = mock(OptimizationState.class);
+        FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
+        AngleCnec angleCnec = mock(AngleCnec.class);
+        VoltageCnec voltageCnec = mock(VoltageCnec.class);
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVoltage(optimizationState, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optimizationState, angleCnec, MEGAWATT));
+    }
+
+     @Test
+    public void testgetFlowAndMargin() {
+         OptimizationState optimizationState = mock(OptimizationState.class);
+         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
+         FlowCnec flowCnec = mock(FlowCnec.class);
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optimizationState, flowCnec, Side.LEFT));
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, flowCnec, MEGAWATT));
+         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getRelativeMargin(optimizationState, flowCnec, MEGAWATT));
+     }
 }

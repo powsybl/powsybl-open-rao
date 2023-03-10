@@ -12,12 +12,15 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
@@ -268,6 +271,14 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(-150., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
         assertEquals(-125., output.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
         assertEquals(-270., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testGetCost() {
+        assertEquals(1100., output.getCost(INITIAL), DOUBLE_TOLERANCE);
+        assertEquals(-1200., output.getCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-1145., output.getCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(-1290., output.getCost(AFTER_CRA), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -882,5 +893,23 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+    }
+
+    @Test
+    public void testAngleAndVoltageCnec() {
+        AngleCnec angleCnec = mock(AngleCnec.class);
+        VoltageCnec voltageCnec = mock(VoltageCnec.class);
+        OptimizationState optimizationState = mock(OptimizationState.class);
+
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, angleCnec, AMPERE));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, voltageCnec, AMPERE));
+
+        assertThrows(FaraoException.class, () -> output.getVoltage(optimizationState, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getVoltage(optimizationState, voltageCnec, AMPERE));
+
+        assertThrows(FaraoException.class, () -> output.getAngle(optimizationState, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, angleCnec, AMPERE));
     }
 }
