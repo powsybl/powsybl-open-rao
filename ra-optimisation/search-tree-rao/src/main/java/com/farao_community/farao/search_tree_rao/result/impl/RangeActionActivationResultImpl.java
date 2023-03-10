@@ -131,7 +131,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
-    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+    public synchronized double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         if (!(memoizedSetpointPerStatePerRangeAction.containsKey(rangeAction) && memoizedSetpointPerStatePerRangeAction.get(rangeAction).containsKey(state))) {
             // find all range actions on same network elements
             Set<RangeAction<?>> correspondingRa = elementaryResultMap.keySet().stream()
