@@ -88,4 +88,13 @@ public enum OptimizationState {
     public String toString() {
         return name;
     }
+
+    /**
+     * Returns the earliest OptimizationState between the given one and the one that corresponds to the situation after
+     * optimizing an instant
+     */
+    public static OptimizationState compareWithInstant(OptimizationState optimizationState, Instant instant) {
+        return instant.comesBefore(optimizationState.getFirstInstant()) ?
+            OptimizationState.afterOptimizing(instant) : optimizationState;
+    }
 }

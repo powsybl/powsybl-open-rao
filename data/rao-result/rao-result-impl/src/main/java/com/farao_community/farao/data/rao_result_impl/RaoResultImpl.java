@@ -75,23 +75,9 @@ public class RaoResultImpl implements RaoResult {
         return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
-    private OptimizationState getNewOptimizationState(OptimizationState optimizationState, FlowCnec flowCnec) {
-        Instant cnecInstant = flowCnec.getState().getInstant();
-        Instant optInstant = optimizationState.getFirstInstant();
-        OptimizationState newOptimizationState = optimizationState;
-        if (cnecInstant.comesBefore(optInstant)) {
-            if (cnecInstant.equals(Instant.AUTO)) {
-                newOptimizationState = OptimizationState.AFTER_ARA;
-            } else {
-                newOptimizationState = OptimizationState.AFTER_PRA;
-            }
-        }
-        return newOptimizationState;
-    }
-
     @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getFlow(side, unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getFlow(side, unit);
     }
 
     @Override
@@ -106,7 +92,7 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getMargin(unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getMargin(unit);
     }
 
     @Override
@@ -121,22 +107,22 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getRelativeMargin(unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getRelativeMargin(unit);
     }
 
     @Override
     public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getLoopFlow(side, unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getLoopFlow(side, unit);
     }
 
     @Override
     public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getCommercialFlow(side, unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getCommercialFlow(side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getPtdfZonalSum(side);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getPtdfZonalSum(side);
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
