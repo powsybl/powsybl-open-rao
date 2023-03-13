@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_json.serializers.RaoResultJsonSerializerModule;
@@ -18,16 +19,17 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoResultExporter {
 
-    public void export(RaoResult raoResult, Crac crac, OutputStream outputStream) {
+    public void export(RaoResult raoResult, Crac crac, Set<Unit> units, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new RaoResultJsonSerializerModule(crac);
+            SimpleModule module = new RaoResultJsonSerializerModule(crac, units);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, raoResult);

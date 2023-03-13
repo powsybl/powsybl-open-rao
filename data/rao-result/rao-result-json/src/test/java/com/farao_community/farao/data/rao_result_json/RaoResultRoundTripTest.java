@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, outputStream);
+        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
         new JsonExport().exportCrac(crac, outputStream2);
@@ -430,7 +431,7 @@ public class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, outputStream);
+        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -495,5 +496,52 @@ public class RaoResultRoundTripTest {
         assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstAuto), DOUBLE_TOLERANCE);
         assertEquals(3, importedRaoResult.getOptimizedTapOnState(curativeState, pstCur));
         assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstCur), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testRoundTripWithUnits() {
+        // get exhaustive CRAC and RaoResult
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+
+        // 1st RoundTrip with no units
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, Collections.emptySet(), outputStream);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
+
+        FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
+        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResult.getMargin(INITIAL, cnecP, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.LEFT, AMPERE)));
+        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
+        assertTrue(Double.isNaN(importedRaoResult.getMargin(INITIAL, cnecP, AMPERE)));
+
+        // 2nd RoundTrip with Ampere only
+        ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, Set.of(AMPERE), outputStreamAmpere);
+        ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
+        RaoResult importedRaoResultAmpere = new RaoResultImporter().importRaoResult(inputStreamAmpere, crac);
+
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getMargin(INITIAL, cnecP, MEGAWATT)));
+        assertEquals(4120, importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
+        assertEquals(4121, importedRaoResultAmpere.getMargin(INITIAL, cnecP, AMPERE), DOUBLE_TOLERANCE);
+
+        // 3rd RoundTrip with MW only
+        ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT), outputStreamMegawatt);
+        ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
+        RaoResult importedRaoResultMegawatt = new RaoResultImporter().importRaoResult(inputStreamMegawatt, crac);
+
+        assertEquals(4110, importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
+        assertEquals(4111, importedRaoResultMegawatt.getMargin(INITIAL, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.LEFT, AMPERE)));
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getMargin(INITIAL, cnecP, AMPERE)));
     }
 }
