@@ -70,4 +70,27 @@ public class OptimizationStateTest {
         assertEquals("after ARA", AFTER_ARA.toString());
         assertEquals("after CRA", AFTER_CRA.toString());
     }
+
+    @Test
+    public void testCompareWithInstant() {
+        assertEquals(INITIAL, OptimizationState.compareWithInstant(INITIAL, PREVENTIVE));
+        assertEquals(INITIAL, OptimizationState.compareWithInstant(INITIAL, OUTAGE));
+        assertEquals(INITIAL, OptimizationState.compareWithInstant(INITIAL, AUTO));
+        assertEquals(INITIAL, OptimizationState.compareWithInstant(INITIAL, CURATIVE));
+
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_PRA, PREVENTIVE));
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_PRA, OUTAGE));
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_PRA, AUTO));
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_PRA, CURATIVE));
+
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_ARA, PREVENTIVE));
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_ARA, OUTAGE));
+        assertEquals(AFTER_ARA, OptimizationState.compareWithInstant(AFTER_ARA, AUTO));
+        assertEquals(AFTER_ARA, OptimizationState.compareWithInstant(AFTER_ARA, CURATIVE));
+
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_CRA, PREVENTIVE));
+        assertEquals(AFTER_PRA, OptimizationState.compareWithInstant(AFTER_CRA, OUTAGE));
+        assertEquals(AFTER_ARA, OptimizationState.compareWithInstant(AFTER_CRA, AUTO));
+        assertEquals(AFTER_CRA, OptimizationState.compareWithInstant(AFTER_CRA, CURATIVE));
+    }
 }
