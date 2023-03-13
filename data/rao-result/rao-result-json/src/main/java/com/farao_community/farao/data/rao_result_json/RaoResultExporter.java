@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -26,10 +27,18 @@ import java.util.Set;
  */
 public class RaoResultExporter {
 
-    public void export(RaoResult raoResult, Crac crac, Set<Unit> units, OutputStream outputStream) {
+    public void export(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
+        if (flowUnits.isEmpty()) {
+            throw new FaraoException("At least one flowUnit should be defined");
+        }
+        flowUnits.forEach(unit -> {
+            if ((!unit.equals(Unit.AMPERE)) && (!unit.equals(Unit.MEGAWATT))) {
+                throw new FaraoException("flowUnit should be AMPERE or MEGAWATT");
+            }
+        });
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new RaoResultJsonSerializerModule(crac, units);
+            SimpleModule module = new RaoResultJsonSerializerModule(crac, flowUnits);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, raoResult);

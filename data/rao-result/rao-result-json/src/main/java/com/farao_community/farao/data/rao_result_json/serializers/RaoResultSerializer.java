@@ -26,11 +26,11 @@ import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConsta
 class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     private final Crac crac;
-    private final Set<Unit> units;
+    private final Set<Unit> flowUnits;
 
-    RaoResultSerializer(Crac crac, Set<Unit> units) {
+    RaoResultSerializer(Crac crac, Set<Unit> flowUnits) {
         this.crac = crac;
-        this.units = units;
+        this.flowUnits = flowUnits;
     }
 
     @Override
@@ -51,7 +51,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             jsonGenerator.writeStringField(OPTIMIZATION_STEPS_EXECUTED, serializeOptimizedStepsExecuted(optimizationStepsExecuted));
             CostResultMapSerializer.serialize(raoResult, jsonGenerator);
             ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
-            FlowCnecResultArraySerializer.serialize(raoResult, crac, units, jsonGenerator);
+            FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
             AngleCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             VoltageCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);

@@ -75,9 +75,13 @@ public class RaoResultImpl implements RaoResult {
         return sensitivityStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
     }
 
+    private OptimizationState getNewOptimizationState(OptimizationState optimizationState, FlowCnec flowCnec) {
+        return OptimizationState.min(optimizationState, OptimizationState.afterOptimizing(flowCnec.getState().getInstant()));
+    }
+
     @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getFlow(side, unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getFlow(side, unit);
     }
 
     @Override
@@ -92,7 +96,7 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getMargin(unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getMargin(unit);
     }
 
     @Override
@@ -107,22 +111,22 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getRelativeMargin(unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getRelativeMargin(unit);
     }
 
     @Override
     public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getLoopFlow(side, unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getLoopFlow(side, unit);
     }
 
     @Override
     public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getCommercialFlow(side, unit);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getCommercialFlow(side, unit);
     }
 
     @Override
     public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(OptimizationState.compareWithInstant(optimizationState, flowCnec.getState().getInstant())).getPtdfZonalSum(side);
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(getNewOptimizationState(optimizationState, flowCnec)).getPtdfZonalSum(side);
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {

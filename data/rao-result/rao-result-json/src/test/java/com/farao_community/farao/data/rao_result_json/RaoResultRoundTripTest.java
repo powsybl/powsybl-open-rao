@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
@@ -504,19 +505,17 @@ public class RaoResultRoundTripTest {
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
 
-        // 1st RoundTrip with no units
+        // 1st RoundTrip with wrong units
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, Collections.emptySet(), outputStream);
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
-
-        FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getMargin(INITIAL, cnecP, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.LEFT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getMargin(INITIAL, cnecP, AMPERE)));
+        RaoResultExporter raoResultExporter = new RaoResultExporter();
+        Set<Unit> setDegree = Set.of(DEGREE);
+        Set<Unit> setTap = Set.of(TAP);
+        Set<Unit> setKilovolt = Set.of(KILOVOLT, AMPERE);
+        Set<Unit> emptySet = Collections.emptySet();
+        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, emptySet, outputStream));
+        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, setTap, outputStream));
+        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, setDegree, outputStream));
+        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, setKilovolt, outputStream));
 
         // 2nd RoundTrip with Ampere only
         ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
@@ -524,6 +523,7 @@ public class RaoResultRoundTripTest {
         ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
         RaoResult importedRaoResultAmpere = new RaoResultImporter().importRaoResult(inputStreamAmpere, crac);
 
+        FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
         assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT)));
         assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
         assertTrue(Double.isNaN(importedRaoResultAmpere.getMargin(INITIAL, cnecP, MEGAWATT)));

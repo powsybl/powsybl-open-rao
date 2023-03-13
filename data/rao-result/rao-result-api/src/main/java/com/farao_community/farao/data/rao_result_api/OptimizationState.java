@@ -15,15 +15,17 @@ import com.farao_community.farao.data.crac_api.State;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public enum OptimizationState {
-    INITIAL(Instant.PREVENTIVE, "initial"),
-    AFTER_PRA(Instant.PREVENTIVE, "after PRA"),
-    AFTER_ARA(Instant.AUTO, "after ARA"),
-    AFTER_CRA(Instant.CURATIVE, "after CRA");
+    INITIAL(0, Instant.PREVENTIVE, "initial"),
+    AFTER_PRA(1, Instant.PREVENTIVE, "after PRA"),
+    AFTER_ARA(2, Instant.AUTO, "after ARA"),
+    AFTER_CRA(3, Instant.CURATIVE, "after CRA");
 
+    private final int order;
     private final Instant firstInstant;
     private final String name;
 
-    OptimizationState(Instant firstInstant, String name) {
+    OptimizationState(int order, Instant firstInstant, String name) {
+        this.order = order;
         this.firstInstant = firstInstant;
         this.name = name;
     }
@@ -89,12 +91,14 @@ public enum OptimizationState {
         return name;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
     /**
-     * Returns the earliest OptimizationState between the given one and the one that corresponds to the situation after
-     * optimizing an instant
+     * Returns the earliest OptimizationState out of the 2 provided
      */
-    public static OptimizationState compareWithInstant(OptimizationState optimizationState, Instant instant) {
-        return instant.comesBefore(optimizationState.getFirstInstant()) ?
-            OptimizationState.afterOptimizing(instant) : optimizationState;
+    public static OptimizationState min(OptimizationState optimizationState1, OptimizationState optimizationState2) {
+        return optimizationState1.getOrder() < optimizationState2.getOrder() ? optimizationState1 : optimizationState2;
     }
 }
