@@ -36,13 +36,14 @@ public interface RaoResult {
     ComputationStatus getComputationStatus(State state);
 
     /**
-     * It gives the flow on a {@link FlowCnec} at a certain {@link OptimizationState} on a given {@link Side} and in a
+     * It gives the flow on a {@link FlowCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}.
-     * @param optimizationState: State of the branch to be studied.
+     *
+     * @param optimizationState: The state of optimization to be studied.
      * @param flowCnec: The branch to be studied.
      * @param side: The side of the branch to be queried.
      * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @return The flow on the branch in the given unit.
+     * @return The flow on the branch at the optimization state in the given unit.
      */
     double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
@@ -69,11 +70,14 @@ public interface RaoResult {
     double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit);
 
     /**
-     * It gives the margin on a {@link FlowCnec} at a certain {@link OptimizationState} in a given {@link Unit}.
-     * @param optimizationState: State of the branch to be studied.
+     * It gives the margin on a {@link FlowCnec} at a given {@link OptimizationState} and in a
+     * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
+     * flow direction of the given branch. If it is negative the branch is under constraint.
+     *
+     * @param optimizationState: The state of optimization to be studied.
      * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @return The margin on the branch in the given unit.
+     * @return The margin on the branch at the optimization state in the given unit.
      */
     double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
 
@@ -102,50 +106,52 @@ public interface RaoResult {
     double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit);
 
     /**
-     * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a certain
-     * {@link OptimizationState}in a given {@link Unit}.
-     * @param optimizationState: State of the branch to be studied.
+     * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
+     * {@link OptimizationState} and in a given {@link Unit}. If the margin is negative it gives it directly (same
+     * value as {@code getMargin} method. If the margin is positive it gives this value divided by the sum of the zonal
+     * PTDFs on this branch of the studied zone. Zones to include in this computation are defined in the
+     * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
+     * computation or the sum of them is null, this method could return {@code Double.NaN} values.
+     *
+     * @param optimizationState: The state of optimization to be studied.
      * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @return The relative margin on the branch in the given unit.
+     * @return The relative margin on the branch at the optimization state in the given unit.
      */
     double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit);
 
     /**
-     * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a certain
-     * {@link OptimizationState} in a given {@link Unit}. If the branch is not considered as a branch on which the
+     * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
+     * {@link OptimizationState} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @param optimizationState: State of the branch to be studied.
+     * @param optimizationState: The state of optimization to be studied.
      * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried
-     * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @return The loop flow on the branch in the given unit.
-     */
-    double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
-
-    /**
-     * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a certain
-     * {@link OptimizationState} in a given {@link Unit}. If the branch is not considered as a branch on which the
-     * loop flows are monitored, this method could return {@code Double.NaN} values.
-     *
-     * @param optimizationState: State of the branch to be studied.
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
      * @param unit: The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @return The commercial flow on the branch in the given unit.
+     * @return The commercial flow on the branch at the optimization state in the given unit.
      */
     double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
 
     /**
-     * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a certain
-     * {@link OptimizationState} on a given {@link Side}. If the computation does not consider PTDF values or if the
-     * RaoParameters does not define any list of considered areas, this method could return {@code Double.NaN} values.
+     * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
+     * {@link OptimizationState} and in a given {@link Unit}. If the branch is not considered as a branch on which the
+     * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @param optimizationState: State of the branch to be studied.
+     * @param optimizationState: The state of optimization to be studied.
      * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @return The sum of the computation areas' zonal PTDFs on the branch.
+     * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @return The loop flow on the branch at the optimization state in the given unit.
+     */
+    double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit);
+
+    /**
+     * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
+     * {@link OptimizationState}. If the computation does not consider PTDF values or if the RAO does
+     * not define any list of considered areas, this method could return {@code Double.NaN} values.
+     *
+     * @param optimizationState: The state of optimization to be studied.
+     * @param flowCnec: The branch to be studied.
+     * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
     double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side);
 
