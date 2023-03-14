@@ -500,24 +500,38 @@ public class RaoResultRoundTripTest {
     }
 
     @Test
+    public void testFailWithWrongFlowUnits() {
+        // get exhaustive CRAC and RaoResult
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        RaoResultExporter raoResultExporter = new RaoResultExporter();
+
+        // Empty set
+        Exception exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Collections.emptySet(), outputStream));
+        assertEquals("At least one flow unit should be defined", exception.getMessage());
+
+        // "TAP" unit
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(TAP), outputStream));
+        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+
+        // "DEGREE" unit
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(DEGREE), outputStream));
+        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+
+        // "KILOVOLT" + "AMPERE" units
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(KILOVOLT, AMPERE), outputStream));
+        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+    }
+
+    @Test
     public void testRoundTripWithUnits() {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
 
-        // 1st RoundTrip with wrong units
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        RaoResultExporter raoResultExporter = new RaoResultExporter();
-        Set<Unit> setDegree = Set.of(DEGREE);
-        Set<Unit> setTap = Set.of(TAP);
-        Set<Unit> setKilovolt = Set.of(KILOVOLT, AMPERE);
-        Set<Unit> emptySet = Collections.emptySet();
-        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, emptySet, outputStream));
-        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, setTap, outputStream));
-        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, setDegree, outputStream));
-        assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, setKilovolt, outputStream));
-
-        // 2nd RoundTrip with Ampere only
+        // RoundTrip with Ampere only
         ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
         new RaoResultExporter().export(raoResult, crac, Set.of(AMPERE), outputStreamAmpere);
         ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
@@ -531,7 +545,7 @@ public class RaoResultRoundTripTest {
         assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
         assertEquals(4121, importedRaoResultAmpere.getMargin(INITIAL, cnecP, AMPERE), DOUBLE_TOLERANCE);
 
-        // 3rd RoundTrip with MW only
+        // RoundTrip with MW only
         ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
         new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT), outputStreamMegawatt);
         ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());

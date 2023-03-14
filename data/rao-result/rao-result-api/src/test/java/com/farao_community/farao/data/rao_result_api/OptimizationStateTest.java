@@ -72,14 +72,6 @@ public class OptimizationStateTest {
     }
 
     @Test
-    public void testGetOrder() {
-        assertEquals(0, INITIAL.getOrder());
-        assertEquals(1, AFTER_PRA.getOrder());
-        assertEquals(2, AFTER_ARA.getOrder());
-        assertEquals(3, AFTER_CRA.getOrder());
-    }
-
-    @Test
     public void testMin() {
         assertEquals(INITIAL, OptimizationState.min(INITIAL, INITIAL));
         assertEquals(INITIAL, OptimizationState.min(INITIAL, AFTER_PRA));

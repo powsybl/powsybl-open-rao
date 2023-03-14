@@ -91,14 +91,10 @@ public enum OptimizationState {
         return name;
     }
 
-    public int getOrder() {
-        return order;
-    }
-
     /**
      * Returns the earliest OptimizationState out of the 2 provided
      */
     public static OptimizationState min(OptimizationState optimizationState1, OptimizationState optimizationState2) {
-        return optimizationState1.getOrder() < optimizationState2.getOrder() ? optimizationState1 : optimizationState2;
+        return optimizationState1.order < optimizationState2.order ? optimizationState1 : optimizationState2;
     }
 }

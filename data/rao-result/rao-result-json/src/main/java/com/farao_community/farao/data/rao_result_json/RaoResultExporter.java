@@ -29,13 +29,13 @@ public class RaoResultExporter {
 
     public void export(RaoResult raoResult, Crac crac, Set<Unit> flowUnits, OutputStream outputStream) {
         if (flowUnits.isEmpty()) {
-            throw new FaraoException("At least one flowUnit should be defined");
+            throw new FaraoException("At least one flow unit should be defined");
         }
-        flowUnits.forEach(unit -> {
-            if ((!unit.equals(Unit.AMPERE)) && (!unit.equals(Unit.MEGAWATT))) {
-                throw new FaraoException("flowUnit should be AMPERE or MEGAWATT");
-            }
-        });
+        if (flowUnits.stream().anyMatch(unit -> !unit.equals(Unit.AMPERE) && !unit.equals(Unit.MEGAWATT))) {
+            // TODO : we can actually handle all units with PhysicalParameter.FLOW
+            // but we'll have to add export feature for %Imax
+            throw new FaraoException("Flow unit should be AMPERE and/or MEGAWATT");
+        }
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
             SimpleModule module = new RaoResultJsonSerializerModule(crac, flowUnits);
