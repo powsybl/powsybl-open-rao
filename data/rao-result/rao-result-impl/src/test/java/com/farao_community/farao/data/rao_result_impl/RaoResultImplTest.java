@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.Test;
 
@@ -26,8 +27,7 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.INITIAL;
+import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 
 /**
@@ -74,8 +74,8 @@ public class RaoResultImplTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
-        elementaryFlowCnecResult = flowCnecResult.getResult(AFTER_CRA);
+        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        elementaryFlowCnecResult = flowCnecResult.getResult(AFTER_PRA);
 
         elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
         elementaryFlowCnecResult.setMargin(201., MEGAWATT);
@@ -109,8 +109,24 @@ public class RaoResultImplTest {
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
     }
 
+    private void getResultAtAGivenState(OptimizationState optimizationState) {
+        assertEquals(200., raoResult.getFlow(optimizationState, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(201., raoResult.getMargin(optimizationState, cnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(202., raoResult.getRelativeMargin(optimizationState, cnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(203., raoResult.getLoopFlow(optimizationState, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(raoResult.getCommercialFlow(optimizationState, cnec, Side.LEFT, MEGAWATT)));
+
+        assertEquals(210., raoResult.getFlow(optimizationState, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(211., raoResult.getMargin(optimizationState, cnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(212., raoResult.getRelativeMargin(optimizationState, cnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(213., raoResult.getLoopFlow(optimizationState, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(raoResult.getCommercialFlow(optimizationState, cnec, Side.LEFT, AMPERE)));
+
+        assertEquals(0.1, raoResult.getPtdfZonalSum(optimizationState, cnec, Side.LEFT), DOUBLE_TOLERANCE);
+    }
+
     @Test
-    public void testCurativeCnecResults() {
+    public void testPreventiveCnecResults() {
         setUp();
 
         assertEquals(100., raoResult.getFlow(INITIAL, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
@@ -127,20 +143,10 @@ public class RaoResultImplTest {
 
         assertEquals(0.1, raoResult.getPtdfZonalSum(INITIAL, cnec, Side.LEFT), DOUBLE_TOLERANCE);
 
-        // should have after cra results
-        assertEquals(200., raoResult.getFlow(AFTER_CRA, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(201., raoResult.getMargin(AFTER_CRA, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(202., raoResult.getRelativeMargin(AFTER_CRA, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(203., raoResult.getLoopFlow(AFTER_CRA, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(AFTER_CRA, cnec, Side.LEFT, MEGAWATT)));
-
-        assertEquals(210., raoResult.getFlow(AFTER_CRA, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(211., raoResult.getMargin(AFTER_CRA, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(212., raoResult.getRelativeMargin(AFTER_CRA, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(213., raoResult.getLoopFlow(AFTER_CRA, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(AFTER_CRA, cnec, Side.LEFT, AMPERE)));
-
-        assertEquals(0.1, raoResult.getPtdfZonalSum(AFTER_CRA, cnec, Side.LEFT), DOUBLE_TOLERANCE);
+        // should always return after pra results because the cnec is Preventive
+        getResultAtAGivenState(AFTER_PRA);
+        getResultAtAGivenState(AFTER_ARA);
+        getResultAtAGivenState(AFTER_CRA);
     }
 
     @Test
