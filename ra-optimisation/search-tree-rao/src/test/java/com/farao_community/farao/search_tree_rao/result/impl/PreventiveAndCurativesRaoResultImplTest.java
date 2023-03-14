@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
@@ -18,6 +19,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
@@ -62,6 +64,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     private FlowCnec cnec3;
     private FlowCnec cnec4;
     private State preventiveState;
+    private State outageState;
     private State autoState1;
     private State curativeState1;
     private State curativeState2;
@@ -80,6 +83,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
         cnec3 = mock(FlowCnec.class);
         cnec4 = mock(FlowCnec.class);
         preventiveState = mock(State.class);
+        outageState = mock(State.class);
         autoState1 = mock(State.class);
         curativeState1 = mock(State.class);
         curativeState2 = mock(State.class);
@@ -87,9 +91,12 @@ public class PreventiveAndCurativesRaoResultImplTest {
         when(cnec1.getState()).thenReturn(curativeState1);
         when(cnec1auto.getState()).thenReturn(autoState1);
         when(cnec2.getState()).thenReturn(curativeState2);
+        when(cnec4.getState()).thenReturn(outageState);
         when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
         Contingency contingency1 = mock(Contingency.class);
         Contingency contingency2 = mock(Contingency.class);
+        when(outageState.getInstant()).thenReturn(Instant.OUTAGE);
+        when(outageState.getContingency()).thenReturn(Optional.of(contingency1));
         when(autoState1.getInstant()).thenReturn(Instant.AUTO);
         when(autoState1.getContingency()).thenReturn(Optional.of(contingency1));
         when(curativeState1.getInstant()).thenReturn(Instant.CURATIVE);
@@ -221,6 +228,15 @@ public class PreventiveAndCurativesRaoResultImplTest {
         when(objectiveFunctionResult.getCostlyElements(eq("mnec"), anyInt())).thenReturn(mnecCostlyElements);
         when(objectiveFunctionResult.getVirtualCost("lf")).thenReturn(lfCost);
         when(objectiveFunctionResult.getCostlyElements(eq("lf"), anyInt())).thenReturn(lfCostlyElements);
+    }
+
+    private void flowResultThrows(OptimizationState state, FlowCnec cnec) {
+        assertThrows(FaraoException.class, () -> output.getFlow(state, cnec, Side.LEFT, Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(state, cnec, Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getRelativeMargin(state, cnec, Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getCommercialFlow(state, cnec, Side.LEFT, Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getLoopFlow(state, cnec, Side.LEFT, Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getPtdfZonalSum(state, cnec, Side.LEFT));
     }
 
     @Test
@@ -519,6 +535,13 @@ public class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1, LEFT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3, RIGHT), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testGetFlowResult() {
+        flowResultThrows(AFTER_ARA, cnec4);
+        flowResultThrows(AFTER_CRA, cnec4);
+        flowResultThrows(AFTER_CRA, cnec1auto);
     }
 
     @Test
