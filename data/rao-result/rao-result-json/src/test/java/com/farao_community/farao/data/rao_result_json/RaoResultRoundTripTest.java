@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
@@ -30,12 +31,15 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.commons.Unit.KILOVOLT;
 import static com.farao_community.farao.data.crac_api.Instant.*;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 
@@ -55,7 +59,7 @@ public class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, outputStream);
+        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
         new JsonExport().exportCrac(crac, outputStream2);
@@ -109,7 +113,7 @@ public class RaoResultRoundTripTest {
 
         /*
         cnec4prevId: preventive, no loop-flows, optimized
-        - contains result in INITIAL and in AFTER_PRA, no result in AFTER_ARA and AFTER_CRA
+        - contains result in INITIAL and in AFTER_PRA. Results in AFTER_ARA and AFTER_CRA are the same as AFTER_PRA because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
@@ -134,14 +138,14 @@ public class RaoResultRoundTripTest {
         assertEquals(0.4, importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecP, Side.LEFT), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecP, Side.RIGHT)));
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecP, Side.LEFT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecP, Side.RIGHT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecP, Side.LEFT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecP, Side.RIGHT, AMPERE)));
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in INITIAL and in AFTER_PRA, no result in AFTER_ARA and AFTER_CRA
+        - contains result in INITIAL and in AFTER_PRA. Results in AFTER_ARA and AFTER_CRA are the same as AFTER_PRA because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 
@@ -168,13 +172,13 @@ public class RaoResultRoundTripTest {
         assertEquals(0.6, importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecO, Side.RIGHT), DOUBLE_TOLERANCE);
 
         assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecO, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecO, Side.RIGHT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.RIGHT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         /*
         cnec3autoId: auto, without loop-flows, pureMNEC
-        - contains result in INITIAL, AFTER_PRA, and AFTER_ARA, but not in AFTER_CRA
+        - contains result in INITIAL, AFTER_PRA, and AFTER_ARA. Results in AFTER_CRA are the same as AFTER_ARA because the CNEC is auto
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -198,8 +202,8 @@ public class RaoResultRoundTripTest {
         assertEquals(3310.5, importedRaoResult.getFlow(AFTER_ARA, cnecA, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(3311., importedRaoResult.getMargin(AFTER_ARA, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.RIGHT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecA, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_ARA, cnecA, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecA, RIGHT, MEGAWATT), importedRaoResult.getFlow(AFTER_ARA, cnecA, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
          /*
         cnec3curId: curative, without loop-flows, pureMNEC
@@ -428,7 +432,7 @@ public class RaoResultRoundTripTest {
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new RaoResultExporter().export(raoResult, crac, outputStream);
+        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT, AMPERE), outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -493,5 +497,65 @@ public class RaoResultRoundTripTest {
         assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstAuto), DOUBLE_TOLERANCE);
         assertEquals(3, importedRaoResult.getOptimizedTapOnState(curativeState, pstCur));
         assertEquals(30., importedRaoResult.getOptimizedSetPointOnState(curativeState, pstCur), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testFailWithWrongFlowUnits() {
+        // get exhaustive CRAC and RaoResult
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        RaoResultExporter raoResultExporter = new RaoResultExporter();
+
+        // Empty set
+        Exception exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Collections.emptySet(), outputStream));
+        assertEquals("At least one flow unit should be defined", exception.getMessage());
+
+        // "TAP" unit
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(TAP), outputStream));
+        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+
+        // "DEGREE" unit
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(DEGREE), outputStream));
+        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+
+        // "KILOVOLT" + "AMPERE" units
+        exception = assertThrows(FaraoException.class, () -> raoResultExporter.export(raoResult, crac, Set.of(KILOVOLT, AMPERE), outputStream));
+        assertEquals("Flow unit should be AMPERE and/or MEGAWATT", exception.getMessage());
+    }
+
+    @Test
+    public void testRoundTripWithUnits() {
+        // get exhaustive CRAC and RaoResult
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+
+        // RoundTrip with Ampere only
+        ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, Set.of(AMPERE), outputStreamAmpere);
+        ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
+        RaoResult importedRaoResultAmpere = new RaoResultImporter().importRaoResult(inputStreamAmpere, crac);
+
+        FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getMargin(INITIAL, cnecP, MEGAWATT)));
+        assertEquals(4120, importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResultAmpere.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
+        assertEquals(4121, importedRaoResultAmpere.getMargin(INITIAL, cnecP, AMPERE), DOUBLE_TOLERANCE);
+
+        // RoundTrip with MW only
+        ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, Set.of(MEGAWATT), outputStreamMegawatt);
+        ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
+        RaoResult importedRaoResultMegawatt = new RaoResultImporter().importRaoResult(inputStreamMegawatt, crac);
+
+        assertEquals(4110, importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.RIGHT, MEGAWATT)));
+        assertEquals(4111, importedRaoResultMegawatt.getMargin(INITIAL, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.LEFT, AMPERE)));
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getFlow(INITIAL, cnecP, Side.RIGHT, AMPERE)));
+        assertTrue(Double.isNaN(importedRaoResultMegawatt.getMargin(INITIAL, cnecP, AMPERE)));
     }
 }
