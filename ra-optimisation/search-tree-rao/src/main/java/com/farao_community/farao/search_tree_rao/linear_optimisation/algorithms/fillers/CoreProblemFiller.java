@@ -19,14 +19,14 @@ import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -133,9 +133,9 @@ public class CoreProblemFiller implements ProblemFiller {
         flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
-            MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
+            FaraoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side);
 
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+            FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
             if (flowVariable == null) {
                 throw new FaraoException(format("Flow variable on %s (side %s) has not been defined yet.", cnec.getId(), side));
             }
@@ -154,7 +154,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         flowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
-            MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
+            FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
             if (flowConstraint == null) {
                 throw new FaraoException(format("Flow constraint on %s (side %s) has not been defined yet.", cnec.getId(), side));
             }
@@ -169,8 +169,8 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, Side side, RangeActionActivationResult rangeActionActivationResult) {
-        MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
-        MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
+        FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+        FaraoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side);
 
         if (flowVariable == null || flowConstraint == null) {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
@@ -195,8 +195,8 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, MPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, Side side, FaraoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
+        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
         }
@@ -248,16 +248,16 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
-        MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
+        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state);
+        FaraoMPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
             -LinearProblem.infinity(),
             LinearProblem.infinity(),
             rangeAction,
             state,
             LinearProblem.AbsExtension.NEGATIVE
         );
-        MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
+        FaraoMPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
             -LinearProblem.infinity(),
             LinearProblem.infinity(),
             rangeAction,
@@ -289,7 +289,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
             // range action have been activated in a previous instant
             // getRangeActionSetpointVariable from previous instant
-            MPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
+            FaraoMPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
             List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
             double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -302,7 +302,7 @@ public class CoreProblemFiller implements ProblemFiller {
             maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, LinearProblem.infinity());
             minRelativeSetpoint = Math.max(minRelativeSetpoint, -LinearProblem.infinity());
             maxRelativeSetpoint = Math.min(maxRelativeSetpoint, LinearProblem.infinity());
-            MPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state);
+            FaraoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state);
             relSetpointConstraint.setCoefficient(setPointVariable, 1);
             relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
 
@@ -411,7 +411,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-                MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+                FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
 
                 // If the range action has been filtered out, then absoluteVariationVariable is null
                 if (absoluteVariationVariable != null && ra instanceof PstRangeAction) {

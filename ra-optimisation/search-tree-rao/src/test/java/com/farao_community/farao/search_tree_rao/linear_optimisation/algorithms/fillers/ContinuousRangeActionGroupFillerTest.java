@@ -13,13 +13,13 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -81,12 +81,12 @@ public class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
-        MPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
-        MPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1, state);
-        MPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2, state);
+        FaraoMPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId, state);
+        FaraoMPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1, state);
+        FaraoMPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2, state);
 
-        MPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1, state);
-        MPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2, state);
+        FaraoMPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1, state);
+        FaraoMPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2, state);
 
         assertNotNull(groupSetpointV);
         assertNotNull(groupTap1C);

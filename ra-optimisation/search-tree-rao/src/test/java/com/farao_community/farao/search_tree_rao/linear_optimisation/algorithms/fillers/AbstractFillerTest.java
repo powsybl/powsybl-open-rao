@@ -18,13 +18,9 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.Map;
 
@@ -34,7 +30,6 @@ import static org.mockito.Mockito.when;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@PrepareForTest(MPSolver.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
@@ -84,8 +79,6 @@ abstract class AbstractFillerTest {
 
         // MPSolver and linearRaoProblem
         mpSolver = new MPSolverMock();
-        PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenAnswer((Answer<Double>) invocation -> Double.POSITIVE_INFINITY);
 
         flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
