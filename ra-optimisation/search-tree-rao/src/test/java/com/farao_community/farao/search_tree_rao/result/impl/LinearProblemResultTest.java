@@ -16,9 +16,9 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.PreventiveOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -106,36 +106,36 @@ public class LinearProblemResultTest {
                 ra3, 400.,
                 ra4, 1000.0));
 
-        Map<State, Map<RangeAction<?>, MPVariable>> setPointVariablePerRangeAction = Map.of(
+        Map<State, Map<RangeAction<?>, FaraoMPVariable>> setPointVariablePerRangeAction = Map.of(
             preventiveState, Map.of(
-                pst1, Mockito.mock(MPVariable.class),
-                pst2, Mockito.mock(MPVariable.class),
-                ra3, Mockito.mock(MPVariable.class),
-                ra4, Mockito.mock(MPVariable.class)),
+                pst1, Mockito.mock(FaraoMPVariable.class),
+                pst2, Mockito.mock(FaraoMPVariable.class),
+                ra3, Mockito.mock(FaraoMPVariable.class),
+                ra4, Mockito.mock(FaraoMPVariable.class)),
             aCurativeState, Map.of(
-                pst1, Mockito.mock(MPVariable.class),
-                pst2, Mockito.mock(MPVariable.class),
-                ra3, Mockito.mock(MPVariable.class),
-                ra4, Mockito.mock(MPVariable.class)));
+                pst1, Mockito.mock(FaraoMPVariable.class),
+                pst2, Mockito.mock(FaraoMPVariable.class),
+                ra3, Mockito.mock(FaraoMPVariable.class),
+                ra4, Mockito.mock(FaraoMPVariable.class)));
 
-        Map<State, Map<RangeAction<?>, MPVariable>> setPointVariationVariablePerRangeAction = Map.of(
+        Map<State, Map<RangeAction<?>, FaraoMPVariable>> setPointVariationVariablePerRangeAction = Map.of(
             preventiveState, Map.of(
-                pst1, Mockito.mock(MPVariable.class),
-                pst2, Mockito.mock(MPVariable.class),
-                ra3, Mockito.mock(MPVariable.class),
-                ra4, Mockito.mock(MPVariable.class)),
+                pst1, Mockito.mock(FaraoMPVariable.class),
+                pst2, Mockito.mock(FaraoMPVariable.class),
+                ra3, Mockito.mock(FaraoMPVariable.class),
+                ra4, Mockito.mock(FaraoMPVariable.class)),
             aCurativeState, Map.of(
-                pst1, Mockito.mock(MPVariable.class),
-                pst2, Mockito.mock(MPVariable.class),
-                ra3, Mockito.mock(MPVariable.class),
-                ra4, Mockito.mock(MPVariable.class)));
+                pst1, Mockito.mock(FaraoMPVariable.class),
+                pst2, Mockito.mock(FaraoMPVariable.class),
+                ra3, Mockito.mock(FaraoMPVariable.class),
+                ra4, Mockito.mock(FaraoMPVariable.class)));
 
         rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-            MPVariable setPointVariable = setPointVariablePerRangeAction.get(state).get(ra);
+            FaraoMPVariable setPointVariable = setPointVariablePerRangeAction.get(state).get(ra);
             Mockito.when(linearProblem.getRangeActionSetpointVariable(ra, state)).thenReturn(setPointVariable);
             Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(state).get(ra));
 
-            MPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(state).get(ra);
+            FaraoMPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(state).get(ra);
             Mockito.when(linearProblem.getAbsoluteRangeActionVariationVariable(ra, state)).thenReturn(setPointVariationVariable);
             Mockito.when(setPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(state).get(ra));
         }));

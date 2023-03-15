@@ -13,14 +13,14 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
-import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.google.ortools.linearsolver.*;
-import org.apache.commons.lang3.NotImplementedException;
+import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 
 import java.util.List;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemIdGenerator.*;
-import static java.lang.String.format;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -87,34 +87,12 @@ public final class LinearProblem {
     }
 
     public LinearProblemStatus solve() {
-        MPSolverParameters solveConfiguration = new MPSolverParameters();
-        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
-        if (solverSpecificParameters != null) {
-            solver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        }
-        return convertResultStatus(solver.solve(solveConfiguration));
+        solver.setRelativeMipGap(relativeMipGap);
+        solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        return solver.solve();
     }
 
-    private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
-        switch (status) {
-            case OPTIMAL:
-                return LinearProblemStatus.OPTIMAL;
-            case ABNORMAL:
-                return LinearProblemStatus.ABNORMAL;
-            case FEASIBLE:
-                return LinearProblemStatus.FEASIBLE;
-            case UNBOUNDED:
-                return LinearProblemStatus.UNBOUNDED;
-            case INFEASIBLE:
-                return LinearProblemStatus.INFEASIBLE;
-            case NOT_SOLVED:
-                return LinearProblemStatus.NOT_SOLVED;
-            default:
-                throw new NotImplementedException(format("Status %s not handled.", status));
-        }
-    }
-
-    public MPObjective getObjective() {
+    public FaraoMPObjective getObjective() {
         return solver.getObjective();
     }
 
@@ -126,288 +104,288 @@ public final class LinearProblem {
         return solver.numConstraints();
     }
 
-    public MPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, Side side) {
+    public FaraoMPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, Side side) {
         return solver.makeNumVar(lb, ub, flowVariableId(cnec, side));
     }
 
-    public MPVariable getFlowVariable(FlowCnec cnec, Side side) {
+    public FaraoMPVariable getFlowVariable(FlowCnec cnec, Side side) {
         return solver.getVariable(flowVariableId(cnec, side));
     }
 
-    public MPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, Side side) {
+    public FaraoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, Side side) {
         return solver.makeConstraint(lb, ub, flowConstraintId(cnec, side));
     }
 
-    public MPConstraint getFlowConstraint(FlowCnec cnec, Side side) {
+    public FaraoMPConstraint getFlowConstraint(FlowCnec cnec, Side side) {
         return solver.getConstraint(flowConstraintId(cnec, side));
     }
 
-    public MPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+    public FaraoMPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
         return solver.makeNumVar(lb, ub, rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public MPVariable getRangeActionSetpointVariable(RangeAction<?> rangeAction, State state) {
+    public FaraoMPVariable getRangeActionSetpointVariable(RangeAction<?> rangeAction, State state) {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public MPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state));
     }
 
-    public MPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
+    public FaraoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
         return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction, state));
     }
 
-    public MPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
+    public FaraoMPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
         return solver.getVariable(rangeActionBinaryVariableId(rangeAction, state));
     }
 
-    public MPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+    public FaraoMPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
         return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, state, variation));
     }
 
-    public MPVariable getPstTapVariationVariable(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+    public FaraoMPVariable getPstTapVariationVariable(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
         return solver.getVariable(pstTapVariableVariationId(rangeAction, state, variation));
     }
 
-    public MPVariable addPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+    public FaraoMPVariable addPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
         return solver.makeBoolVar(pstTapBinaryVariationInDirectionId(rangeAction, state, variation));
     }
 
-    public MPVariable getPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
+    public FaraoMPVariable getPstTapVariationBinary(PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
         return solver.getVariable(pstTapBinaryVariationInDirectionId(rangeAction, state, variation));
     }
 
-    public MPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
+    public FaraoMPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
         return solver.makeConstraint(lb, ub, tapToAngleConversionConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getTapToAngleConversionConstraint(PstRangeAction rangeAction, State state) {
+    public FaraoMPConstraint getTapToAngleConversionConstraint(PstRangeAction rangeAction, State state) {
         return solver.getConstraint(tapToAngleConversionConstraintId(rangeAction, state));
     }
 
-    public MPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
+    public FaraoMPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
         return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
+    public FaraoMPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
         return solver.getConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
     }
 
-    public MPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
         return solver.makeConstraint(lb, ub, isVariationConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getIsVariationConstraint(RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint getIsVariationConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(isVariationConstraintId(rangeAction, state));
     }
 
-    public MPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+    public FaraoMPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
         return solver.makeConstraint(lb, ub, isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
-    public MPConstraint getIsVariationInDirectionConstraint(RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+    public FaraoMPConstraint getIsVariationInDirectionConstraint(RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
         return solver.getConstraint(isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
-    public MPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId, State state) {
+    public FaraoMPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId, State state) {
         return solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId, state));
     }
 
-    public MPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId, State state) {
+    public FaraoMPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId, State state) {
         return solver.getVariable(rangeActionGroupSetpointVariableId(rangeActionGroupId, state));
     }
 
-    public MPVariable addPstGroupTapVariable(double lb, double ub, String rangeActionGroupId, State state) {
+    public FaraoMPVariable addPstGroupTapVariable(double lb, double ub, String rangeActionGroupId, State state) {
         return solver.makeNumVar(lb, ub, pstGroupTapVariableId(rangeActionGroupId, state));
     }
 
-    public MPVariable getPstGroupTapVariable(String rangeActionGroupId, State state) {
+    public FaraoMPVariable getPstGroupTapVariable(String rangeActionGroupId, State state) {
         return solver.getVariable(pstGroupTapVariableId(rangeActionGroupId, state));
     }
 
-    public MPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
         return solver.makeConstraint(lb, ub, rangeActionGroupSetpointConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(rangeActionGroupSetpointConstraintId(rangeAction, state));
     }
 
-    public MPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
+    public FaraoMPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
         return solver.makeConstraint(lb, ub, pstGroupTapConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getPstGroupTapConstraint(PstRangeAction rangeAction, State state) {
+    public FaraoMPConstraint getPstGroupTapConstraint(PstRangeAction rangeAction, State state) {
         return solver.getConstraint(pstGroupTapConstraintId(rangeAction, state));
     }
 
-    public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
+    public FaraoMPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
         return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
-    public MPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
+    public FaraoMPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
         return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
-    public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
+    public FaraoMPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
         return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
-    public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
+    public FaraoMPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
-    public MPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint getMinimumMarginConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint getMinimumMarginConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub) {
+    public FaraoMPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub) {
         return solver.makeConstraint(lb, ub, minimumRelMarginSignDefinitionConstraintId());
     }
 
-    public MPConstraint getMinimumRelMarginSignDefinitionConstraint() {
+    public FaraoMPConstraint getMinimumRelMarginSignDefinitionConstraint() {
         return solver.getConstraint(minimumRelMarginSignDefinitionConstraintId());
     }
 
-    public MPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub) {
+    public FaraoMPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub) {
         return solver.makeConstraint(lb, ub, minimumRelativeMarginSetToZeroConstraintId());
     }
 
-    public MPConstraint getMinimumRelMarginSetToZeroConstraint() {
+    public FaraoMPConstraint getMinimumRelMarginSetToZeroConstraint() {
         return solver.getConstraint(minimumRelativeMarginSetToZeroConstraintId());
     }
 
-    public MPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint getMinimumRelativeMarginConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint getMinimumRelativeMarginConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPVariable addMinimumMarginVariable(double lb, double ub) {
+    public FaraoMPVariable addMinimumMarginVariable(double lb, double ub) {
         return solver.makeNumVar(lb, ub, minimumMarginVariableId());
     }
 
-    public MPVariable getMinimumMarginVariable() {
+    public FaraoMPVariable getMinimumMarginVariable() {
         return solver.getVariable(minimumMarginVariableId());
     }
 
-    public MPVariable addMinimumRelativeMarginVariable(double lb, double ub) {
+    public FaraoMPVariable addMinimumRelativeMarginVariable(double lb, double ub) {
         return solver.makeNumVar(lb, ub, minimumRelativeMarginVariableId());
     }
 
-    public MPVariable getMinimumRelativeMarginVariable() {
+    public FaraoMPVariable getMinimumRelativeMarginVariable() {
         return solver.getVariable(minimumRelativeMarginVariableId());
     }
 
-    public MPVariable addMinimumRelativeMarginSignBinaryVariable() {
+    public FaraoMPVariable addMinimumRelativeMarginSignBinaryVariable() {
         return solver.makeBoolVar(minimumRelativeMarginSignBinaryVariableId());
     }
 
-    public MPVariable getMinimumRelativeMarginSignBinaryVariable() {
+    public FaraoMPVariable getMinimumRelativeMarginSignBinaryVariable() {
         return solver.getVariable(minimumRelativeMarginSignBinaryVariableId());
     }
 
     //Begin MaxLoopFlowFiller section
-    public MPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, Side side, BoundExtension lbOrUb) {
+    public FaraoMPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, Side side, BoundExtension lbOrUb) {
         return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, side, lbOrUb));
     }
 
-    public MPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, Side side, BoundExtension lbOrUb) {
+    public FaraoMPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, Side side, BoundExtension lbOrUb) {
         return solver.getConstraint(maxLoopFlowConstraintId(cnec, side, lbOrUb));
     }
 
-    public MPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, Side side) {
+    public FaraoMPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, Side side) {
         return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec, side));
     }
 
-    public MPVariable getLoopflowViolationVariable(FlowCnec cnec, Side side) {
+    public FaraoMPVariable getLoopflowViolationVariable(FlowCnec cnec, Side side) {
         return solver.getVariable(loopflowViolationVariableId(cnec, side));
     }
 
-    public MPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, Side side) {
+    public FaraoMPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, Side side) {
         return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec, side));
     }
 
-    public MPVariable getMnecViolationVariable(FlowCnec mnec, Side side) {
+    public FaraoMPVariable getMnecViolationVariable(FlowCnec mnec, Side side) {
         return solver.getVariable(mnecViolationVariableId(mnec, side));
     }
 
-    public MPConstraint addMnecFlowConstraint(double lb, double ub, FlowCnec mnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint addMnecFlowConstraint(double lb, double ub, FlowCnec mnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint getMnecFlowConstraint(FlowCnec mnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint getMnecFlowConstraint(FlowCnec mnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
     }
 
-    public MPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+    public FaraoMPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
         return solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side));
     }
 
-    public MPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
+    public FaraoMPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, Side side) {
         return solver.getVariable(optimizeCnecBinaryVariableId(cnec, side));
     }
 
-    public MPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
+    public FaraoMPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, Side side, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
     }
 
-    public MPConstraint addMaxRaConstraint(double lb, double ub, State state) {
+    public FaraoMPConstraint addMaxRaConstraint(double lb, double ub, State state) {
         return solver.makeConstraint(lb, ub, maxRaConstraintId(state));
     }
 
-    public MPConstraint getMaxRaConstraint(State state) {
+    public FaraoMPConstraint getMaxRaConstraint(State state) {
         return solver.getConstraint(maxRaConstraintId(state));
     }
 
-    public MPConstraint addMaxTsoConstraint(double lb, double ub, State state) {
+    public FaraoMPConstraint addMaxTsoConstraint(double lb, double ub, State state) {
         return solver.makeConstraint(lb, ub, maxTsoConstraintId(state));
     }
 
-    public MPConstraint getMaxTsoConstraint(State state) {
+    public FaraoMPConstraint getMaxTsoConstraint(State state) {
         return solver.getConstraint(maxTsoConstraintId(state));
     }
 
-    public MPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state) {
+    public FaraoMPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state) {
         return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator, state));
     }
 
-    public MPConstraint getMaxRaPerTsoConstraint(String operator, State state) {
+    public FaraoMPConstraint getMaxRaPerTsoConstraint(String operator, State state) {
         return solver.getConstraint(maxRaPerTsoConstraintId(operator, state));
     }
 
-    public MPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator, State state) {
+    public FaraoMPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator, State state) {
         return solver.makeConstraint(lb, ub, maxPstPerTsoConstraintId(operator, state));
     }
 
-    public MPConstraint getMaxPstPerTsoConstraint(String operator, State state) {
+    public FaraoMPConstraint getMaxPstPerTsoConstraint(String operator, State state) {
         return solver.getConstraint(maxPstPerTsoConstraintId(operator, state));
     }
 
-    public MPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state) {
+    public FaraoMPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state) {
         return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator, state));
     }
 
-    public MPVariable getTsoRaUsedVariable(String operator, State state) {
+    public FaraoMPVariable getTsoRaUsedVariable(String operator, State state) {
         return solver.getVariable(tsoRaUsedVariableId(operator, state));
     }
 
-    public MPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
         return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public MPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
+    public FaraoMPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 

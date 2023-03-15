@@ -20,11 +20,11 @@ public class MPVariableMock extends FaraoMPVariable {
     private double solutionValue;
 
     protected MPVariableMock() {
-        super(0, false, 0);
+        super(null, 0);
     }
 
     public MPVariableMock(String pName, double pLb, double pUb, boolean pIsIntVariable) {
-        super(0, false, 0);
+        super(null, 0);
         this.name = pName;
         this.lb = pLb;
         this.ub = pUb;

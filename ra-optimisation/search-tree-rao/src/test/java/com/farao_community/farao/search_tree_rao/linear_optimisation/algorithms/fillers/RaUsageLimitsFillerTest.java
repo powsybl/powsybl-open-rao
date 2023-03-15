@@ -17,13 +17,13 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -156,13 +156,13 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
-            MPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
-            MPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
+            FaraoMPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
+            FaraoMPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
 
             assertNotNull(binary);
             assertNotNull(constraint);
 
-            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+            FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
 
             assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
@@ -188,13 +188,13 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
-            MPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
-            MPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
+            FaraoMPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
+            FaraoMPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
 
             assertNotNull(binary);
             assertNotNull(constraint);
 
-            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+            FaraoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
             double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {
@@ -272,7 +272,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraint = linearProblem.getMaxRaConstraint(state);
+        FaraoMPConstraint constraint = linearProblem.getMaxRaConstraint(state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(4, constraint.ub(), DOUBLE_TOLERANCE);
@@ -281,7 +281,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     private void checkTsoToRaConstraint(String tso, RangeAction<?> ra) {
-        MPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra, state);
+        FaraoMPConstraint constraint = linearProblem.getTsoRaUsedConstraint(tso, ra, state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(LinearProblem.infinity(), constraint.ub(), DOUBLE_TOLERANCE);
@@ -305,7 +305,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
+        FaraoMPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(2, constraint.ub(), DOUBLE_TOLERANCE);
@@ -337,7 +337,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
+        FaraoMPConstraint constraint = linearProblem.getMaxTsoConstraint(state);
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
@@ -363,7 +363,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraintA = linearProblem.getMaxRaPerTsoConstraint("opA", state);
+        FaraoMPConstraint constraintA = linearProblem.getMaxRaPerTsoConstraint("opA", state);
         assertNotNull(constraintA);
         assertEquals(0, constraintA.lb(), DOUBLE_TOLERANCE);
         assertEquals(2, constraintA.ub(), DOUBLE_TOLERANCE);
@@ -373,7 +373,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(1, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
         assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        MPConstraint constraintC = linearProblem.getMaxRaPerTsoConstraint("opC", state);
+        FaraoMPConstraint constraintC = linearProblem.getMaxRaPerTsoConstraint("opC", state);
         assertNotNull(constraintC);
         assertEquals(0, constraintC.lb(), DOUBLE_TOLERANCE);
         assertEquals(0, constraintC.ub(), DOUBLE_TOLERANCE);
@@ -403,7 +403,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
 
-        MPConstraint constraintA = linearProblem.getMaxPstPerTsoConstraint("opA", state);
+        FaraoMPConstraint constraintA = linearProblem.getMaxPstPerTsoConstraint("opA", state);
         assertNotNull(constraintA);
         assertEquals(0, constraintA.lb(), DOUBLE_TOLERANCE);
         assertEquals(1, constraintA.ub(), DOUBLE_TOLERANCE);
@@ -413,7 +413,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, state)), DOUBLE_TOLERANCE);
         assertEquals(0, constraintA.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, state)), DOUBLE_TOLERANCE);
 
-        MPConstraint constraintC = linearProblem.getMaxPstPerTsoConstraint("opC", state);
+        FaraoMPConstraint constraintC = linearProblem.getMaxPstPerTsoConstraint("opC", state);
         assertNotNull(constraintC);
         assertEquals(0, constraintC.lb(), DOUBLE_TOLERANCE);
         assertEquals(3, constraintC.ub(), DOUBLE_TOLERANCE);

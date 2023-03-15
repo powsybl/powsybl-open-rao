@@ -6,8 +6,10 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks;
 
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPObjective;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +33,7 @@ public class MPSolverMock extends FaraoMPSolver {
     private List<MPVariableMock> variables;
 
     public MPSolverMock() {
-        super(0, false);
+        super();
         constraints = new ArrayList<>();
         variables = new ArrayList<>();
         objective = new MPObjectiveMock();
@@ -42,7 +44,7 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
-    public MPVariableMock makeNumVar(double lb, double ub, String name) {
+    public FaraoMPVariable makeNumVar(double lb, double ub, String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -52,7 +54,7 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
-    public MPConstraintMock makeConstraint(double lb, double ub, String name) {
+    public FaraoMPConstraint makeConstraint(double lb, double ub, String name) {
         // check that constraint does not already exists
         assertFalse(constraints.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -62,7 +64,7 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
-    public MPVariable makeBoolVar(String name) {
+    public FaraoMPVariable makeBoolVar(String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -72,7 +74,7 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
-    public MPVariable makeIntVar(double lb, double ub, String name) {
+    public FaraoMPVariable makeIntVar(double lb, double ub, String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
@@ -82,21 +84,14 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
-    public MPConstraintMock makeConstraint(double lb, double ub) {
-        MPConstraintMock newConstraint = new MPConstraintMock("", lb, ub);
-        constraints.add(newConstraint);
-        return newConstraint;
-    }
-
-    @Override
-    public MPConstraintMock makeConstraint(String name) {
+    public FaraoMPConstraint makeConstraint(String name) {
         MPConstraintMock newConstraint = new MPConstraintMock(name, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         constraints.add(newConstraint);
         return newConstraint;
     }
 
     @Override
-    public MPVariableMock getVariable(String varName) {
+    public FaraoMPVariable getVariable(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
         if (variablesWithSameName.size() == 0) {
             return null;
@@ -105,17 +100,17 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
-    public MPObjectiveMock objective() {
+    public FaraoMPObjective objective() {
         return objective;
     }
 
     @Override
-    public MPObjectiveMock getObjective() {
+    public FaraoMPObjective getObjective() {
         return objective;
     }
 
     @Override
-    public MPConstraintMock getConstraint(String constraintName) {
+    public FaraoMPConstraint getConstraint(String constraintName) {
         List<MPConstraintMock> constraintsWithSameName = constraints.stream().filter(v -> v.name().equals(constraintName)).collect(Collectors.toList());
         if (constraintsWithSameName.size() == 0) {
             return null;
