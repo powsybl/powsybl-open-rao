@@ -204,6 +204,7 @@ public class CoreProblemFiller implements ProblemFiller {
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
 
         if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
+            //TODO: compute this only once somehow
             double currentSetPoint = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
 
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant

@@ -200,7 +200,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.computeCost(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.computeCost(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -240,32 +240,10 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, 5);
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight();
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
-    }
-
-    @Test
-    public void testCostlyElementsWithLimitedElements() {
-        setViolationCost(1);
-        setAcceptableAugmentationInMW(0);
-
-        // Loop-flow excess is 100MW
-        setInputThresholdWithReliabilityMargin(cnec1, 100);
-        setInitialLoopFLow(cnec1, 0);
-        setCurrentLoopFLow(cnec1, 200);
-
-        // Loop-flow excess is 50MW
-        setInputThresholdWithReliabilityMargin(cnec2, 100);
-        setInitialLoopFLow(cnec2, 150);
-        setCurrentLoopFLow(cnec2, 200);
-
-        buildLoopFlowViolationCostEvaluator();
-
-        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, 1);
-        assertEquals(1, costlyElements.size());
-        assertSame(cnec1, costlyElements.get(0));
     }
 
     @Test
@@ -285,7 +263,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, 5);
+        List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentLoopFlows, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getRight();
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

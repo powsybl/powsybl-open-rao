@@ -59,12 +59,6 @@ public class PostContingencyStateTest {
     }
 
     @Test
-    public void testHashCode() {
-        State state = new PostContingencyState(contingency1, Instant.CURATIVE);
-        assertEquals("contingency1curative".hashCode(), state.hashCode());
-    }
-
-    @Test
     public void testToStringAfterContingency() {
         PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
         assertEquals("contingency1 - outage", state1.toString());

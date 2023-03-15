@@ -14,9 +14,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -24,12 +22,23 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
     protected Set<FlowCnec> cnecs;
+    protected Map<String, ArrayList<FlowCnec> > cnecsPerContingencyId = new HashMap<>();
     protected boolean factorsInMegawatt = false;
     protected boolean factorsInAmpere = false;
     protected boolean afterContingencyOnly = false;
 
     AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits) {
         this.cnecs = cnecs;
+        for (FlowCnec cnec : cnecs) {
+            if (cnec.getState().isPreventive()) {
+                cnecsPerContingencyId.computeIfAbsent(null, string -> new ArrayList<>());
+                cnecsPerContingencyId.get(null).add(cnec);
+            } else {
+                String contingencyId = cnec.getState().getContingency().orElseThrow().getId();
+                cnecsPerContingencyId.computeIfAbsent(contingencyId, string -> new ArrayList<>());
+                cnecsPerContingencyId.get(contingencyId).add(cnec);
+            }
+        }
         this.setRequestedUnits(requestedUnits);
     }
 

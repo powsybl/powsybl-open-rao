@@ -67,7 +67,7 @@ public class PostContingencyState implements State {
 
     @Override
     public int hashCode() {
-        return String.format("%s%s", contingency.getId(), instant.toString()).hashCode();
+        return contingency.hashCode() * 19 + instant.hashCode();
     }
 
     @Override

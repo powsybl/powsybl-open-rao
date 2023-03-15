@@ -197,11 +197,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public State getState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
-        return states.values().stream()
-            .filter(state -> state.getInstant() == instant)
-            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
-            .findAny()
-            .orElse(null);
+        return states.get(contingency.getId() + " - " + instant.toString());
     }
 
     State addPreventiveState() {

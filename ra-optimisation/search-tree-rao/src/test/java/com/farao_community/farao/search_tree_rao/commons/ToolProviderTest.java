@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.glsk.commons.ZonalData;
@@ -47,6 +48,10 @@ public class ToolProviderTest {
         raoParameters = new RaoParameters();
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
+        State preventiveState = Mockito.mock(State.class);
+        Mockito.when(preventiveState.isPreventive()).thenReturn(true);
+        Mockito.when(cnec1.getState()).thenReturn(preventiveState);
+        Mockito.when(cnec2.getState()).thenReturn(preventiveState);
         Mockito.when(cnec1.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.of(Country.BE)));
         Mockito.when(cnec2.getLocation(network)).thenReturn(Set.of(Optional.empty()));
     }
