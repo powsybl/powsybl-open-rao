@@ -31,8 +31,8 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         this.cnecs = cnecs;
         for (FlowCnec cnec : cnecs) {
             if (cnec.getState().isPreventive()) {
-                cnecsPerContingencyId.computeIfAbsent("", string -> new ArrayList<>());
-                cnecsPerContingencyId.get("").add(cnec);
+                cnecsPerContingencyId.computeIfAbsent(null, string -> new ArrayList<>());
+                cnecsPerContingencyId.get(null).add(cnec);
             } else {
                 String contingencyId = cnec.getState().getContingency().orElseThrow().getId();
                 cnecsPerContingencyId.computeIfAbsent(contingencyId, string -> new ArrayList<>());

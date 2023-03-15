@@ -79,7 +79,6 @@ public class ObjectiveFunctionTest {
 
         // virtual cost
         assertTrue(objectiveFunction.getVirtualCostNames().isEmpty());
-        assertEquals(0., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getLeft()));
         assertTrue(objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getRight().isEmpty());
 
@@ -114,7 +113,6 @@ public class ObjectiveFunctionTest {
         // virtual cost sum
         assertEquals(2, objectiveFunction.getVirtualCostNames().size());
         assertTrue(objectiveFunction.getVirtualCostNames().containsAll(Set.of("mnec-cost", "loop-flow-cost")));
-        assertEquals(1100., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus).getLeft(), DOUBLE_TOLERANCE);
 
         // mnec virtual cost
         assertEquals(1000., objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, "mnec-cost").getLeft(), DOUBLE_TOLERANCE);

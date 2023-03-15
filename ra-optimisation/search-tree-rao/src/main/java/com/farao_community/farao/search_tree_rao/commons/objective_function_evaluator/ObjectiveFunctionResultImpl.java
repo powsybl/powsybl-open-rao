@@ -26,13 +26,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final RangeActionActivationResult rangeActionActivationResult;
     private final SensitivityResult sensitivityResult;
     private final ComputationStatus sensitivityStatus;
-    private boolean areCostComputed;
+    private boolean areCostsComputed;
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
     private List<FlowCnec> orderedLimitingElements;
     private Map<String, List<FlowCnec>> orderedCostlyElements;
 
-    private Set<String> lastExcludedContingencies;
+    private Set<String> excludedContingencies;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
@@ -44,7 +44,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         this.rangeActionActivationResult = rangeActionActivationResult;
         this.sensitivityResult = sensitivityResult;
         this.sensitivityStatus = sensitivityStatus;
-        this.areCostComputed = false;
+        this.areCostsComputed = false;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getFunctionalCost() {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         return functionalCost;
@@ -62,7 +62,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         return orderedLimitingElements.subList(0, Math.min(orderedLimitingElements.size(), number));
@@ -70,7 +70,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         if (virtualCosts.size() > 0) {
@@ -86,7 +86,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
@@ -94,7 +94,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         return orderedCostlyElements.get(virtualCostName).subList(0, Math.min(orderedCostlyElements.get(virtualCostName).size(), number));
@@ -102,7 +102,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
-        if (!contingenciesToExclude.equals(lastExcludedContingencies)) {
+        if (!contingenciesToExclude.equals(excludedContingencies)) {
             computeCosts(contingenciesToExclude);
         }
     }
@@ -118,7 +118,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
             virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
             orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
         });
-        areCostComputed = true;
-        lastExcludedContingencies = contingenciesToExclude;
+        areCostsComputed = true;
+        excludedContingencies = contingenciesToExclude;
     }
 }

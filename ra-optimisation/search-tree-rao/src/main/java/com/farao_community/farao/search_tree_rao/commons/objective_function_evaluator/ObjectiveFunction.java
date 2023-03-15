@@ -21,7 +21,6 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -62,27 +61,8 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public  Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
-    }
-
-    public  Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        AtomicReference<Double> totalCost = new AtomicReference<>((double) 0);
-        List<FlowCnec> allCostlyElements = new ArrayList<>();
-        virtualCostEvaluators.forEach(costEvaluator -> {
-            Pair<Double, List<FlowCnec>> costAndCostlyElements = costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
-            totalCost.updateAndGet(v -> v + costAndCostlyElements.getLeft());
-            allCostlyElements.addAll(costAndCostlyElements.getRight());
-        });
-        return Pair.of(totalCost.get(), allCostlyElements);
-    }
-
     public  Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
-        return virtualCostEvaluators.stream()
-                .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-                .findAny()
-                .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
-                .orElse(Pair.of(Double.NaN, new ArrayList()));
+        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, virtualCostName, new HashSet<>());
     }
 
     public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExlude) {
