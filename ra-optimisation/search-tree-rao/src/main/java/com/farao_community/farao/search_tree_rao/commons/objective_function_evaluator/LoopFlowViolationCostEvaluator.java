@@ -16,6 +16,7 @@ import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowPara
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
@@ -29,7 +30,6 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private final FlowResult initialLoopFLowResult;
     private final double loopFlowViolationCost;
     private final double loopFlowAcceptableAugmentation;
-    private List<FlowCnec> sortedElements = new ArrayList<>();
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
                                           FlowResult initialLoopFlowResult,
@@ -46,13 +46,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, new HashSet<>());
-    }
-
-    @Override
-    public double computeCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        double cost = loopflowCnecs
+    public Pair<Double, List<FlowCnec>> computeCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, contingenciesToExclude);
+        double cost = costlyElements
             .stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
             .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
@@ -62,7 +58,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
             FaraoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
-        return cost;
+        return Pair.of(cost, costlyElements);
     }
 
     @Override
@@ -70,29 +66,21 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return Unit.MEGAWATT;
     }
 
-    @Override
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements) {
-        return getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, numberOfElements, new HashSet<>());
-    }
+    private List<FlowCnec> getCostlyElements(FlowResult flowResult, Set<String> contingenciesToExclude) {
+        List<FlowCnec> costlyElements = loopflowCnecs.stream()
+            .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
+            .collect(Collectors.toMap(
+                Function.identity(),
+                cnec -> getLoopFlowExcess(flowResult, cnec)
+            ))
+            .entrySet().stream()
+            .filter(entry -> entry.getValue() != 0)
+            .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
 
-    @Override
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int numberOfElements, Set<String> contingenciesToExclude) {
-        if (sortedElements.isEmpty()) {
-            sortedElements = loopflowCnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isEmpty() || !contingenciesToExclude.contains(cnec.getState().getContingency().get().getId()))
-                .collect(Collectors.toMap(
-                    Function.identity(),
-                    cnec -> getLoopFlowExcess(flowResult, cnec)
-                ))
-                .entrySet().stream()
-                .filter(entry -> entry.getValue() != 0)
-                .sorted(Comparator.comparingDouble(Map.Entry::getValue))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-        }
-        Collections.reverse(sortedElements);
-
-        return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
+        Collections.reverse(costlyElements);
+        return costlyElements;
     }
 
     @Override

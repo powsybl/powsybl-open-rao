@@ -70,4 +70,21 @@ public class OptimizationStateTest {
         assertEquals("after ARA", AFTER_ARA.toString());
         assertEquals("after CRA", AFTER_CRA.toString());
     }
+
+    @Test
+    public void testMin() {
+        assertEquals(INITIAL, OptimizationState.min(INITIAL, INITIAL));
+        assertEquals(INITIAL, OptimizationState.min(INITIAL, AFTER_PRA));
+        assertEquals(INITIAL, OptimizationState.min(INITIAL, AFTER_ARA));
+        assertEquals(INITIAL, OptimizationState.min(INITIAL, AFTER_CRA));
+
+        assertEquals(AFTER_PRA, OptimizationState.min(AFTER_PRA, AFTER_PRA));
+        assertEquals(AFTER_PRA, OptimizationState.min(AFTER_PRA, AFTER_ARA));
+        assertEquals(AFTER_PRA, OptimizationState.min(AFTER_PRA, AFTER_CRA));
+
+        assertEquals(AFTER_ARA, OptimizationState.min(AFTER_ARA, AFTER_ARA));
+        assertEquals(AFTER_ARA, OptimizationState.min(AFTER_ARA, AFTER_CRA));
+
+        assertEquals(AFTER_CRA, OptimizationState.min(AFTER_CRA, AFTER_CRA));
+    }
 }

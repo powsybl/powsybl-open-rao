@@ -12,12 +12,12 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -78,13 +78,13 @@ public class MnecFiller implements ProblemFiller {
         getMonitoredCnecs().forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
                 double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, side, unit) * RaoUtil.getFlowUnitMultiplier(mnec, side, unit, MEGAWATT);
 
-                MPVariable flowVariable = linearProblem.getFlowVariable(mnec, side);
+                FaraoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side);
 
                 if (flowVariable == null) {
                     throw new FaraoException(String.format("Flow variable has not yet been created for Mnec %s (side %s)", mnec.getId(), side));
                 }
 
-                MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side);
+                FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side);
 
                 if (mnecViolationVariable == null) {
                     throw new FaraoException(String.format("Mnec violation variable has not yet been created for Mnec %s (side %s)", mnec.getId(), side));
@@ -93,7 +93,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
-                    MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                    FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
@@ -101,7 +101,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> minFlow = mnec.getLowerBound(side, MEGAWATT);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
-                    MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                    FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
                 }

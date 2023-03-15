@@ -18,6 +18,7 @@ import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowPara
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,59 +49,28 @@ public final class ObjectiveFunction {
         return allFlowCnecs;
     }
 
-    public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }
 
-    public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
-    }
-
-    public List<FlowCnec> getMostLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
-        return functionalCostEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
-    }
-
-    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return virtualCostEvaluators.stream()
-                .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
-                .sum();
-    }
-
-    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return virtualCostEvaluators.stream()
-            .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
-            .sum();
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
     }
 
     public Set<String> getVirtualCostNames() {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
-        return virtualCostEvaluators.stream()
-                .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-                .findAny()
-                .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
-                .orElse(Double.NaN);
+    public  Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
+        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, virtualCostName, new HashSet<>());
     }
 
-    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExlude) {
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExlude) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExlude))
-            .orElse(Double.NaN);
-    }
-
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, String virtualCostName, int number) {
-        Optional<CostEvaluator> optionalCostEvaluator =  virtualCostEvaluators.stream()
-                .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-                .findAny();
-        if (optionalCostEvaluator.isPresent()) {
-            return optionalCostEvaluator.get().getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
-        } else {
-            return Collections.emptyList();
-        }
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExlude))
+            .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 
     public static class ObjectiveFunctionBuilder {

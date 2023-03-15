@@ -12,12 +12,12 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -95,13 +95,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
     private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
-        MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        FaraoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
 
         optimizedCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            MPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
+            FaraoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side);
 
             if (flowVariable == null) {
                 throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s (side %s)", cnec.getId(), side));
@@ -114,13 +114,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
             double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
 
             if (minFlow.isPresent()) {
-                MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                FaraoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                FaraoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
@@ -133,7 +133,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
-        MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        FaraoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
 
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
