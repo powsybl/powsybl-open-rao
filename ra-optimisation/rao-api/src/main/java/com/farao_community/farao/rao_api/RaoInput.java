@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.rao_api;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
@@ -17,7 +16,6 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -78,9 +76,8 @@ public final class RaoInput {
 
         public RaoInput build() {
             RaoInput raoInput = new RaoInput();
-            raoInput.crac = Optional.ofNullable(crac).orElseThrow(() -> requiredArgumentError("CRAC"));
-
-            raoInput.network = Optional.ofNullable(network).orElseThrow(() -> requiredArgumentError("Network"));
+            raoInput.crac = Objects.requireNonNull(crac, format(REQUIRED_ARGUMENT_MESSAGE, "CRAC"));
+            raoInput.network = Objects.requireNonNull(network, format(REQUIRED_ARGUMENT_MESSAGE, "Network"));
             raoInput.networkVariantId = networkVariantId != null ? networkVariantId : network.getVariantManager().getWorkingVariantId();
             raoInput.optimizedState = optimizedState;
             raoInput.perimeter = perimeter;
@@ -88,11 +85,6 @@ public final class RaoInput {
             raoInput.glsk = glsk;
             return raoInput;
         }
-
-        private FaraoException requiredArgumentError(String type) {
-            return new FaraoException(format(REQUIRED_ARGUMENT_MESSAGE, type));
-        }
-
     }
 
     private Crac crac;
