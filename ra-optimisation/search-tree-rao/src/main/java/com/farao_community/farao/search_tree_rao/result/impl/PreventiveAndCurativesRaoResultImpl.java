@@ -13,10 +13,8 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -599,30 +597,5 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         return optimizationStepsExecuted;
-    }
-
-    @Override
-    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getCost(OptimizationState optimizationState) {
-        return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
     }
 }

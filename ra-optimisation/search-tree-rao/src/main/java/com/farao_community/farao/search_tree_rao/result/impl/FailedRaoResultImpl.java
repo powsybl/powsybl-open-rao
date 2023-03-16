@@ -10,10 +10,8 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -68,18 +66,6 @@ public class FailedRaoResultImpl implements RaoResult {
 
     @Override
     public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    public void getPerimeterResult() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    public void getPostPreventivePerimeterResult() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    public void getInitialResult() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -170,31 +156,6 @@ public class FailedRaoResultImpl implements RaoResult {
 
     @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public double getCost(OptimizationState optimizationState) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 }

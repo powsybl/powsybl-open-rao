@@ -41,9 +41,6 @@ public class FailedRaoResultImplTest {
 
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
-        assertThrows(FaraoException.class, failedRaoResultImpl::getPerimeterResult);
-        assertThrows(FaraoException.class, failedRaoResultImpl::getPostPreventivePerimeterResult);
-        assertThrows(FaraoException.class, failedRaoResultImpl::getInitialResult);
 
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFunctionalCost(optimizationState));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState));

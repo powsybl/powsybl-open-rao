@@ -10,10 +10,8 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -23,10 +21,7 @@ import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -305,30 +300,5 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     @Override
     public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         return optimizationStepsExecuted;
-    }
-
-    @Override
-    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getCost(OptimizationState optimizationState) {
-        return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
     }
 }
