@@ -6,9 +6,11 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_json.RaoResultExporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
@@ -20,7 +22,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.Set;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -30,7 +35,6 @@ public class RaoTool implements Tool {
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String CRAC_FILE_OPTION = "crac-file";
     private static final String CASE_FILE_OPTION = "case-file";
-    private static final String OUTPUT_FORMAT_OPTION = "output-format";
 
     @Override
     public Command getCommand() {
@@ -74,13 +78,6 @@ public class RaoTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder()
-                        .longOpt(OUTPUT_FORMAT_OPTION)
-                        .desc("Rao results output format")
-                        .hasArg()
-                        .argName("FORMAT")
-                        .required()
-                        .build());
                 return options;
             }
 
@@ -119,12 +116,10 @@ public class RaoTool implements Tool {
         RaoResult raoResult = Rao.run(raoInput, raoParameters);
 
         //Output
-        //todo: export some results
-        /*
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         OutputStream outputStream = new FileOutputStream(String.valueOf(outputFile));
-        JsonRaoResult.write(raoResult, outputStream);
-         */
+        RaoResultExporter raoResultExporter = new RaoResultExporter();
+        raoResultExporter.export(raoResult, crac, Set.of(com.farao_community.farao.commons.Unit.AMPERE, Unit.MEGAWATT), outputStream);
 
     }
 }

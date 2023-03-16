@@ -39,11 +39,10 @@ public class RaoToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), COMMAND_NAME, 4, 4);
+        assertCommand(tool.getCommand(), COMMAND_NAME, 3, 3);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "crac-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);
-        assertOption(tool.getCommand().getOptions(), "output-format", true, true);
 
         Assert.assertEquals("Computation", tool.getCommand().getTheme());
         Assert.assertEquals("Run a RAO computation", tool.getCommand().getDescription());
@@ -57,7 +56,6 @@ public class RaoToolTest extends AbstractToolTest {
             "--case-file", "testCase.xiidm",
             "--crac-file", "crac.json",
             "--output-file", "output.json",
-            "--output-format", "Json"
         }, 3, "", "");
     }
 }

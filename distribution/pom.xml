@@ -192,6 +192,12 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-open-loadflow</artifactId>
+            <version>${powsybl.openloadflow.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-tools</artifactId>
             <version>${powsybl.core.version}</version>
             <scope>runtime</scope>
@@ -265,6 +271,8 @@
                     <copyToEtc>
                         <files>
                             <file>src/main/resources/config.yml</file>
+                            <file>src/main/resources/crac_example.json</file>
+                            <file>src/main/resources/network_4nodes.uct</file>
                         </files>
                     </copyToEtc>
                 </configuration>
