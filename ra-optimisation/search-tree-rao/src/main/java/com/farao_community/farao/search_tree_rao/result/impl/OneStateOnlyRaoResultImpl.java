@@ -11,24 +11,23 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
+public class OneStateOnlyRaoResultImpl implements RaoResult {
     public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
@@ -69,16 +68,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     }
 
     @Override
-    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
-    }
-
-    @Override
-    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
-    }
-
-    @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return ComputationStatus.FAILURE;
@@ -94,7 +83,37 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         return postOptimizationResult.getSensitivityStatus(state);
     }
 
-    public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
+    @Override
+    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
+    }
+
+    @Override
+    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getCommercialFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getLoopFlow(flowCnec, side, unit);
+    }
+
+    @Override
+    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
+        return getAppropriateResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
+    }
+
+    public PerimeterResult getPerimeterResult(State state) {
         if (!state.equals(optimizedState)) {
             // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
             return null;
@@ -123,7 +142,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         }
     }
 
-    @Override
     public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getMostLimitingElements(number);
@@ -162,7 +180,6 @@ public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
         }
     }
 
-    @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
