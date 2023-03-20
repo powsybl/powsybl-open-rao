@@ -220,6 +220,7 @@ public class OneStateOnlyRaoResultImplTest {
         assertEquals(-150, output.getCommercialFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(0, output.getLoopFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(0, output.getLoopFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getPtdfZonalSum(OptimizationState.INITIAL, cnec1, Side.RIGHT), DOUBLE_TOLERANCE);
 
         // cnec2 initial
         assertEquals(-500., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
