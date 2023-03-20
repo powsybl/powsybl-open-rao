@@ -10,7 +10,10 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -24,6 +27,8 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.farao_community.farao.commons.Unit.AMPERE;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -80,10 +85,22 @@ public class OneStateOnlyRaoResultImplTest {
         when(initialResult.getMargin(cnec1, Unit.AMPERE)).thenReturn(-500.);
         when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(-2000.);
         when(initialResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(-1000.);
+        when(initialResult.getFlow(cnec1, Side.LEFT, MEGAWATT)).thenReturn(-300.);
+        when(initialResult.getFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(-150.);
+        when(initialResult.getCommercialFlow(cnec1, Side.LEFT, MEGAWATT)).thenReturn(-300.);
+        when(initialResult.getCommercialFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(-150.);
+        when(initialResult.getLoopFlow(cnec1, Side.LEFT, MEGAWATT)).thenReturn(0.);
+        when(initialResult.getLoopFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(-0.);
         when(initialResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-500.);
         when(initialResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(-250.);
         when(initialResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(-1500.);
         when(initialResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(-750.);
+        when(initialResult.getFlow(cnec2, Side.LEFT, MEGAWATT)).thenReturn(-1000.);
+        when(initialResult.getFlow(cnec2, Side.RIGHT, Unit.AMPERE)).thenReturn(500.);
+        when(initialResult.getCommercialFlow(cnec2, Side.LEFT, MEGAWATT)).thenReturn(-700.);
+        when(initialResult.getCommercialFlow(cnec2, Side.RIGHT, Unit.AMPERE)).thenReturn(450.);
+        when(initialResult.getLoopFlow(cnec2, Side.LEFT, MEGAWATT)).thenReturn(-300.);
+        when(initialResult.getLoopFlow(cnec2, Side.RIGHT, Unit.AMPERE)).thenReturn(50.);
 
         when(postOptimizationResult.getFunctionalCost()).thenReturn(-1000.);
         when(postOptimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
@@ -105,10 +122,22 @@ public class OneStateOnlyRaoResultImplTest {
         when(postOptimizationResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(500.);
         when(postOptimizationResult.getRelativeMargin(cnec2, Unit.MEGAWATT)).thenReturn(2000.);
         when(postOptimizationResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(1000.);
+        when(postOptimizationResult.getFlow(cnec2, Side.LEFT, MEGAWATT)).thenReturn(-700.);
+        when(postOptimizationResult.getFlow(cnec2, Side.RIGHT, Unit.AMPERE)).thenReturn(300.);
+        when(postOptimizationResult.getCommercialFlow(cnec2, Side.LEFT, MEGAWATT)).thenReturn(-600.);
+        when(postOptimizationResult.getCommercialFlow(cnec2, Side.RIGHT, Unit.AMPERE)).thenReturn(250.);
+        when(postOptimizationResult.getLoopFlow(cnec2, Side.LEFT, MEGAWATT)).thenReturn(-100.);
+        when(postOptimizationResult.getLoopFlow(cnec2, Side.RIGHT, Unit.AMPERE)).thenReturn(50.);
         when(postOptimizationResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(500.);
         when(postOptimizationResult.getMargin(cnec1, Unit.AMPERE)).thenReturn(250.);
         when(postOptimizationResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(1500.);
         when(postOptimizationResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(750.);
+        when(postOptimizationResult.getFlow(cnec1, Side.LEFT, MEGAWATT)).thenReturn(20.);
+        when(postOptimizationResult.getFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(10.);
+        when(postOptimizationResult.getCommercialFlow(cnec1, Side.LEFT, MEGAWATT)).thenReturn(20.);
+        when(postOptimizationResult.getCommercialFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(10.);
+        when(postOptimizationResult.getLoopFlow(cnec1, Side.LEFT, MEGAWATT)).thenReturn(0.);
+        when(postOptimizationResult.getLoopFlow(cnec1, Side.RIGHT, Unit.AMPERE)).thenReturn(0.);
 
         Set<FlowCnec> cnecs = new HashSet<>();
         cnecs.add(cnec1);
@@ -141,7 +170,7 @@ public class OneStateOnlyRaoResultImplTest {
 
         assertSame(initialResult, output.getInitialResult());
         assertNotNull(output.getPostPreventivePerimeterResult());
-        assertNotNull(output.getPerimeterResult(OptimizationState.INITIAL, optimizedState));
+        assertNotNull(output.getPerimeterResult(optimizedState));
 
         assertEquals(1000., output.getFunctionalCost(OptimizationState.INITIAL), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getFunctionalCost(OptimizationState.AFTER_PRA), DOUBLE_TOLERANCE);
@@ -180,37 +209,82 @@ public class OneStateOnlyRaoResultImplTest {
         assertEquals(Map.of(pstRangeAction, 2), output.getOptimizedTapsOnState(optimizedState));
         assertEquals(Map.of(pstRangeAction, 8.9, rangeAction, 5.6), output.getOptimizedSetPointsOnState(optimizedState));
 
-        // margins
+        // cnec1 initial
         assertEquals(-1000., output.getMargin(OptimizationState.INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getMargin(OptimizationState.INITIAL, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-2000., output.getRelativeMargin(OptimizationState.INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getRelativeMargin(OptimizationState.INITIAL, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getCommercialFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getCommercialFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getPtdfZonalSum(OptimizationState.INITIAL, cnec1, Side.RIGHT), DOUBLE_TOLERANCE);
+
+        // cnec2 initial
         assertEquals(-500., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-250., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-1500., output.getRelativeMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-750., output.getRelativeMargin(OptimizationState.INITIAL, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1000, output.getFlow(OptimizationState.INITIAL, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500, output.getFlow(OptimizationState.INITIAL, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-700, output.getCommercialFlow(OptimizationState.INITIAL, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(450, output.getCommercialFlow(OptimizationState.INITIAL, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getLoopFlow(OptimizationState.INITIAL, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(50, output.getLoopFlow(OptimizationState.INITIAL, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
+        // cnec1 afterPRA
         assertEquals(500., output.getMargin(OptimizationState.AFTER_PRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(250., output.getMargin(OptimizationState.AFTER_PRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(1500., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(750., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getFlow(OptimizationState.AFTER_PRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getFlow(OptimizationState.AFTER_PRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getCommercialFlow(OptimizationState.AFTER_PRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getCommercialFlow(OptimizationState.AFTER_PRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_PRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_PRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+
+        // cnec2 afterPRA
         assertEquals(1000., output.getMargin(OptimizationState.AFTER_PRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(500., output.getMargin(OptimizationState.AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(2000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-700, output.getFlow(OptimizationState.AFTER_PRA, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(300, output.getFlow(OptimizationState.AFTER_PRA, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-600, output.getCommercialFlow(OptimizationState.AFTER_PRA, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(250, output.getCommercialFlow(OptimizationState.AFTER_PRA, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-100, output.getLoopFlow(OptimizationState.AFTER_PRA, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(50, output.getLoopFlow(OptimizationState.AFTER_PRA, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
+        // cnec1 afterCRA
         assertEquals(500., output.getMargin(OptimizationState.AFTER_CRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(250., output.getMargin(OptimizationState.AFTER_CRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(1500., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(750., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getFlow(OptimizationState.AFTER_CRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getFlow(OptimizationState.AFTER_CRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getCommercialFlow(OptimizationState.AFTER_CRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getCommercialFlow(OptimizationState.AFTER_CRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_CRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_CRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+
+        // cnec2 afterCRA
         assertEquals(1000., output.getMargin(OptimizationState.AFTER_CRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(500., output.getMargin(OptimizationState.AFTER_CRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(2000., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-700, output.getFlow(OptimizationState.AFTER_CRA, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(300, output.getFlow(OptimizationState.AFTER_CRA, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-600, output.getCommercialFlow(OptimizationState.AFTER_CRA, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(250, output.getCommercialFlow(OptimizationState.AFTER_CRA, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-100, output.getLoopFlow(OptimizationState.AFTER_CRA, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(50, output.getLoopFlow(OptimizationState.AFTER_CRA, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // using another state
         State otherState = mock(State.class);
-        assertNull(output.getPerimeterResult(OptimizationState.INITIAL, otherState));
+        assertNull(output.getPerimeterResult(otherState));
         assertThrows(FaraoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
         assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
         assertThrows(FaraoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
@@ -241,28 +315,47 @@ public class OneStateOnlyRaoResultImplTest {
         when(cnec2state.getContingency()).thenReturn(Optional.of(contingency));
         when(cnec2state.compareTo(optimizedState)).thenReturn(0);
 
+        // cnec1
         assertEquals(-1000., output.getMargin(OptimizationState.INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getMargin(OptimizationState.INITIAL, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-2000., output.getRelativeMargin(OptimizationState.INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getRelativeMargin(OptimizationState.INITIAL, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-250., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-1500., output.getRelativeMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-750., output.getRelativeMargin(OptimizationState.INITIAL, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-
+        assertEquals(-300, output.getFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getCommercialFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getCommercialFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.INITIAL, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.INITIAL, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getMargin(OptimizationState.AFTER_PRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getMargin(OptimizationState.AFTER_PRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-2000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getMargin(OptimizationState.AFTER_PRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(500., output.getMargin(OptimizationState.AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(2000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-
+        assertEquals(-300, output.getFlow(OptimizationState.AFTER_PRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getFlow(OptimizationState.AFTER_PRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getCommercialFlow(OptimizationState.AFTER_PRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getCommercialFlow(OptimizationState.AFTER_PRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_PRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_PRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getMargin(OptimizationState.AFTER_CRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getMargin(OptimizationState.AFTER_CRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-2000., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getFlow(OptimizationState.AFTER_CRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getFlow(OptimizationState.AFTER_CRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getCommercialFlow(OptimizationState.AFTER_CRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getCommercialFlow(OptimizationState.AFTER_CRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_CRA, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(OptimizationState.AFTER_CRA, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+
+        // cnec2
+        assertEquals(-500., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-250., output.getMargin(OptimizationState.INITIAL, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1500., output.getRelativeMargin(OptimizationState.INITIAL, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-750., output.getRelativeMargin(OptimizationState.INITIAL, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(OptimizationState.AFTER_PRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(OptimizationState.AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(2000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(OptimizationState.AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(1000., output.getMargin(OptimizationState.AFTER_CRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(500., output.getMargin(OptimizationState.AFTER_CRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(2000., output.getRelativeMargin(OptimizationState.AFTER_CRA, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -320,5 +413,23 @@ public class OneStateOnlyRaoResultImplTest {
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
         assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+    }
+
+    @Test
+    public void testAngleAndVoltageCnec() {
+        AngleCnec angleCnec = mock(AngleCnec.class);
+        VoltageCnec voltageCnec = mock(VoltageCnec.class);
+        OptimizationState optimizationState = mock(OptimizationState.class);
+
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, angleCnec, AMPERE));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, voltageCnec, AMPERE));
+
+        assertThrows(FaraoException.class, () -> output.getVoltage(optimizationState, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getVoltage(optimizationState, voltageCnec, AMPERE));
+
+        assertThrows(FaraoException.class, () -> output.getAngle(optimizationState, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(optimizationState, angleCnec, AMPERE));
     }
 }
