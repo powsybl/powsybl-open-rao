@@ -58,28 +58,8 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the rao");
-    }
-
-    @Override
     public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         return initialResult.getMargin(flowCnec, unit);
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
-        throw new FaraoException("Angle cnecs are not computed in the rao");
-    }
-
-    @Override
-    public double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
-        throw new FaraoException("Voltage cnecs are not computed in the rao");
     }
 
     @Override
