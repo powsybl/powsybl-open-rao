@@ -181,7 +181,7 @@ public class CimCracCreatorTest {
     }
 
     private void assertAngleCnecImportedWithContingency(String id, String contingencyId, Set<String> networkElementIds) {
-        AngleCnecCreationContext angleCnecCreationContext = cracCreationContext.getAngleCnecCreationContexts(id);
+        AngleCnecCreationContext angleCnecCreationContext = cracCreationContext.getAngleCnecCreationContext(id);
         assertNotNull(angleCnecCreationContext);
         assertTrue(angleCnecCreationContext.isImported());
         assertNotNull(importedCrac.getAngleCnec(id));
@@ -193,28 +193,28 @@ public class CimCracCreatorTest {
     }
 
     private void assertAngleCnecNotImported(String id, ImportStatus importStatus) {
-        AngleCnecCreationContext angleCnecCreationContext = cracCreationContext.getAngleCnecCreationContexts(id);
+        AngleCnecCreationContext angleCnecCreationContext = cracCreationContext.getAngleCnecCreationContext(id);
         assertNotNull(angleCnecCreationContext);
         assertFalse(angleCnecCreationContext.isImported());
         assertEquals(importStatus, angleCnecCreationContext.getImportStatus());
     }
 
     private void assertRemedialActionNotImported(String id, ImportStatus importStatus) {
-        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertFalse(remedialActionSeriesCreationContext.isImported());
         assertEquals(importStatus, remedialActionSeriesCreationContext.getImportStatus());
     }
 
     private void assertRemedialActionImportedWithOperator(String remedialActionId, String operator) {
-        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(remedialActionId);
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(remedialActionId);
         assertNotNull(remedialActionSeriesCreationContext);
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(operator, importedCrac.getRemedialAction(remedialActionId).getOperator());
     }
 
     private void assertPstRangeActionImported(String id, String networkElement, boolean isAltered) {
-        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
@@ -224,7 +224,7 @@ public class CimCracCreatorTest {
     }
 
     private void assertHvdcRangeActionImported(String expectedNativeId, Set<String> expectedCreatedIds, Set<String> expectedNetworkElements, Set<String> expectedOperators, boolean isInverted) {
-        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(expectedNativeId);
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(expectedNativeId);
         assertNotNull(remedialActionSeriesCreationContext);
         assertEquals(expectedCreatedIds, remedialActionSeriesCreationContext.getCreatedIds());
         assertTrue(remedialActionSeriesCreationContext.isImported());
@@ -239,7 +239,7 @@ public class CimCracCreatorTest {
     }
 
     private void assertNetworkActionImported(String id, Set<String> networkElements, boolean isAltered) {
-        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContexts(id);
+        RemedialActionSeriesCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionSeriesCreationContext(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());

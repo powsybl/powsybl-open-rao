@@ -30,19 +30,21 @@ public class CimCracCreationContext implements CracCreationContext {
     private Crac crac;
     private boolean isCreationSuccessful;
     private Set<CimContingencyCreationContext> contingencyCreationContexts;
-    private Set<AngleCnecCreationContext> angleCnecCreationContexts;
+    private final Set<AngleCnecCreationContext> angleCnecCreationContexts;
     private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
-    private Set<VoltageCnecCreationContext> voltageCnecCreationContexts;
+    private final Set<VoltageCnecCreationContext> voltageCnecCreationContexts;
     private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
-    private CracCreationReport creationReport;
-    private OffsetDateTime timeStamp;
+    private final CracCreationReport creationReport;
+    private final OffsetDateTime timeStamp;
+    private final String networkName;
 
-    public CimCracCreationContext(Crac crac, OffsetDateTime timeStamp) {
+    CimCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
         this.crac = crac;
         creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.angleCnecCreationContexts = new HashSet<>();
         this.voltageCnecCreationContexts = new HashSet<>();
+        this.networkName = networkName;
     }
 
     protected CimCracCreationContext(CimCracCreationContext toCopy) {
@@ -55,6 +57,7 @@ public class CimCracCreationContext implements CracCreationContext {
         this.remedialActionSeriesCreationContexts = new HashSet<>(toCopy.remedialActionSeriesCreationContexts);
         this.creationReport = toCopy.creationReport;
         this.timeStamp = toCopy.timeStamp;
+        this.networkName = toCopy.networkName;
     }
 
     @Override
@@ -132,8 +135,14 @@ public class CimCracCreationContext implements CracCreationContext {
         return creationReport;
     }
 
+    @Override
     public OffsetDateTime getTimeStamp() {
         return timeStamp;
+    }
+
+    @Override
+    public String getNetworkName() {
+        return networkName;
     }
 
     public void addAngleCnecCreationContext(AngleCnecCreationContext angleCnecCreationContext) {
@@ -144,7 +153,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return new HashSet<>(angleCnecCreationContexts);
     }
 
-    public AngleCnecCreationContext getAngleCnecCreationContexts(String seriesId) {
+    public AngleCnecCreationContext getAngleCnecCreationContext(String seriesId) {
         return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 
@@ -200,7 +209,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return remedialActionSeriesCreationContexts;
     }
 
-    public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContexts(String seriesId) {
+    public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId) {
         return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElse(null);
     }
 

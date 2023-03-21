@@ -8,13 +8,12 @@ package com.farao_community.farao.data.crac_creation.creator.api.std_creation_co
 
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * The StandardCracCreationContext is a {@link CracCreationContext} which has been designed so
- * as to cover information which are pertinent for several native CRAC formats.
- *
+ * The UcteCracCreationContext is a {@link CracCreationContext} which has been designed
+ * to cover information which are pertinent for UCTE CRAC formats.
+ * <p>
  * It is fitted to native CRAC formats which share some common assumptions, such as:
  * <ul>
  *     <li>the native CNECs are defined for the preventive state, or for several states sharing the same contingency</li>
@@ -25,17 +24,27 @@ import java.util.List;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface StandardCracCreationContext extends CracCreationContext {
+public interface UcteCracCreationContext extends CracCreationContext {
 
+    /**
+     * Get all branch CNEC creation contexts
+     */
     List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
 
-    BranchCnecCreationContext getBranchCnecCreationContext(String brancCnecId);
+    /**
+     * Get a specific branch CNEC creation context
+     * @param branchCnecId: the native branch CNEC ID (as it figures in the native CRAC)
+     */
+    BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId);
 
+    /**
+     * Get all remedial-action creation contexts
+     */
     List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
 
+    /**
+     * Get a specific remedial-action creation context
+     * @param remedialActionId: the native remedial-action ID (as it figures in the native CRAC)
+     */
     RemedialActionCreationContext getRemedialActionCreationContext(String remedialActionId);
-
-    OffsetDateTime getTimeStamp();
-
-    String getNetworkName();
 }

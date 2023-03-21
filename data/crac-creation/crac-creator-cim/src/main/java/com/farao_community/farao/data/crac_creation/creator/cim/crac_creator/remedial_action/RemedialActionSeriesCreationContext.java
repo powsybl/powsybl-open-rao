@@ -44,24 +44,28 @@ public class RemedialActionSeriesCreationContext implements ElementaryCreationCo
         return new RemedialActionSeriesCreationContext(nativeId, createdIds, ImportStatus.IMPORTED, isAltered, isInverted, importStatusDetail);
     }
 
+    @Override
     public String getNativeId() {
         return nativeId;
     }
 
+    @Override
     public boolean isImported() {
         return importStatus.equals(ImportStatus.IMPORTED);
     }
 
+    @Override
     public ImportStatus getImportStatus() {
         return importStatus;
     }
 
+    @Override
     public String getImportStatusDetail() {
         return importStatusDetail;
     }
 
+    @Override
     public boolean isAltered() {
-
         return isAltered;
     }
 

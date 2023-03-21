@@ -23,7 +23,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.PstRangeActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
 import java.util.ArrayList;
@@ -44,12 +44,12 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneClassCreat
 public final class CoreCneRemedialActionsCreator {
 
     private CneHelper cneHelper;
-    private StandardCracCreationContext cracCreationContext;
+    private UcteCracCreationContext cracCreationContext;
     private List<ConstraintSeries> cnecsConstraintSeries;
 
     private static final String RA_SERIES = "RAseries";
 
-    public CoreCneRemedialActionsCreator(CneHelper cneHelper, StandardCracCreationContext cracCreationContext, List<ConstraintSeries> cnecsConstraintSeries) {
+    public CoreCneRemedialActionsCreator(CneHelper cneHelper, UcteCracCreationContext cracCreationContext, List<ConstraintSeries> cnecsConstraintSeries) {
         this.cneHelper = cneHelper;
         this.cnecsConstraintSeries = new ArrayList<>(cnecsConstraintSeries);
         this.cracCreationContext = cracCreationContext;

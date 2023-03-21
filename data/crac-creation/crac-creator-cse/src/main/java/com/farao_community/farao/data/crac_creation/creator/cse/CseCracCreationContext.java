@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.CracCreationRepo
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CseCriticalBranchCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.outage.CseOutageCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.remedial_action.CseRemedialActionCreationContext;
@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CseCracCreationContext implements StandardCracCreationContext {
+public class CseCracCreationContext implements UcteCracCreationContext {
 
     private Crac crac;
     private boolean isCreationSuccessful;
@@ -85,7 +85,7 @@ public class CseCracCreationContext implements StandardCracCreationContext {
         return crac;
     }
 
-    public void buildCreationReport() {
+    void buildCreationReport() {
         addToReport(outageCreationContexts.values(), "Outage");
         addToReport(criticalBranchCreationContexts.values(), "Critical branch");
         addToReport(monitoredElementCreationContexts.values(), "Monitored element");
