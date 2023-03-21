@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.rao_result_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RemedialAction;
@@ -62,7 +63,9 @@ public interface RaoResult {
      * @param unit: The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
-    double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
+    default double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the rao");
+    }
 
     /**
      * It gives the voltage on a {@link VoltageCnec} at a given {@link OptimizationState} and in a
@@ -73,7 +76,9 @@ public interface RaoResult {
      * @param unit: The unit in which the flow is queried. Only accepted value for now is KILOVOLT.
      * @return The voltage on the cnec at the optimization state in the given unit.
      */
-    double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit);
+    default double getVoltage(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
+        throw new FaraoException("Voltage cnecs are not computed in the rao");
+    }
 
     /**
      * It gives the margin on a {@link FlowCnec} at a given {@link OptimizationState} and in a
@@ -97,7 +102,9 @@ public interface RaoResult {
      * @param unit: The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
-    double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
+    default double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit) {
+        throw new FaraoException("Angle cnecs are not computed in the rao");
+    }
 
     /**
      * It gives the margin on a {@link VoltageCnec} at a given {@link OptimizationState} and in a
@@ -109,7 +116,9 @@ public interface RaoResult {
      * @param unit: The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
-    double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit);
+    default double getMargin(OptimizationState optimizationState, VoltageCnec voltageCnec, Unit unit) {
+        throw new FaraoException("Voltage cnecs are not computed in the rao");
+    }
 
     /**
      * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -168,7 +177,9 @@ public interface RaoResult {
      * @param optimizationState: The state of optimization to be studied.
      * @return The global cost of the situation state.
      */
-    double getCost(OptimizationState optimizationState);
+    default double getCost(OptimizationState optimizationState) {
+        return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
+    }
 
     /**
      * It gives the functional cost of the situation at a given {@link OptimizationState} according to the objective

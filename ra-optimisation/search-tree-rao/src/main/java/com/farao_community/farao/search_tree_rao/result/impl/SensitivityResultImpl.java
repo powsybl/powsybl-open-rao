@@ -37,8 +37,6 @@ public class SensitivityResultImpl implements SensitivityResult {
         switch (systematicSensitivityResult.getStatus()) {
             case SUCCESS:
                 return ComputationStatus.DEFAULT;
-            case FALLBACK:
-                return ComputationStatus.FALLBACK;
             default:
             case FAILURE:
                 return ComputationStatus.FAILURE;
@@ -50,8 +48,6 @@ public class SensitivityResultImpl implements SensitivityResult {
         switch (systematicSensitivityResult.getStatus(state)) {
             case SUCCESS:
                 return ComputationStatus.DEFAULT;
-            case FALLBACK:
-                return ComputationStatus.FALLBACK;
             default:
             case FAILURE:
                 return ComputationStatus.FAILURE;

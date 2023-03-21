@@ -13,6 +13,7 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -25,9 +26,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final RangeActionActivationResult rangeActionActivationResult;
     private final SensitivityResult sensitivityResult;
     private final ComputationStatus sensitivityStatus;
-    private boolean areCostComputed;
+    private boolean areCostsComputed;
     private Double functionalCost;
     private Map<String, Double> virtualCosts;
+    private List<FlowCnec> orderedLimitingElements;
+    private Map<String, List<FlowCnec>> orderedCostlyElements;
+
+    private Set<String> excludedContingencies;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
@@ -39,7 +44,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         this.rangeActionActivationResult = rangeActionActivationResult;
         this.sensitivityResult = sensitivityResult;
         this.sensitivityStatus = sensitivityStatus;
-        this.areCostComputed = false;
+        this.areCostsComputed = false;
     }
 
     @Override
@@ -49,7 +54,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getFunctionalCost() {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         return functionalCost;
@@ -57,12 +62,15 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        return objectiveFunction.getMostLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
+        if (!areCostsComputed) {
+            computeCosts(new HashSet<>());
+        }
+        return orderedLimitingElements.subList(0, Math.min(orderedLimitingElements.size(), number));
     }
 
     @Override
     public double getVirtualCost() {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         if (virtualCosts.size() > 0) {
@@ -78,7 +86,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        if (!areCostComputed) {
+        if (!areCostsComputed) {
             computeCosts(new HashSet<>());
         }
         return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
@@ -86,18 +94,31 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        return objectiveFunction.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, virtualCostName, number);
+        if (!areCostsComputed) {
+            computeCosts(new HashSet<>());
+        }
+        return orderedCostlyElements.get(virtualCostName).subList(0, Math.min(orderedCostlyElements.get(virtualCostName).size(), number));
     }
 
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
-        computeCosts(contingenciesToExclude);
+        if (!contingenciesToExclude.equals(excludedContingencies)) {
+            computeCosts(contingenciesToExclude);
+        }
     }
 
     private void computeCosts(Set<String> contingenciesToExclude) {
-        functionalCost = objectiveFunction.getFunctionalCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
+        Pair<Double, List<FlowCnec>> functionalCostAndLimitingElements = objectiveFunction.getFunctionalCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
+        functionalCost = functionalCostAndLimitingElements.getLeft();
+        orderedLimitingElements = functionalCostAndLimitingElements.getRight();
         virtualCosts = new HashMap<>();
-        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn, contingenciesToExclude)));
-        areCostComputed = true;
+        orderedCostlyElements = new HashMap<>();
+        getVirtualCostNames().forEach(vcn -> {
+            Pair<Double, List<FlowCnec>> virtualCostAndCostlyElements = objectiveFunction.getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, vcn, contingenciesToExclude);
+            virtualCosts.put(vcn, virtualCostAndCostlyElements.getLeft());
+            orderedCostlyElements.put(vcn, virtualCostAndCostlyElements.getRight());
+        });
+        areCostsComputed = true;
+        excludedContingencies = contingenciesToExclude;
     }
 }

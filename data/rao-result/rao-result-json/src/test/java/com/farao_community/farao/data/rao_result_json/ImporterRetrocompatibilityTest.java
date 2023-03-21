@@ -138,11 +138,8 @@ public class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
         // Test computation status map
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.FALLBACK, raoResult.getComputationStatus(crac.getState("contingency1Id", OUTAGE)));
         assertEquals(ComputationStatus.FAILURE, raoResult.getComputationStatus(crac.getState("contingency1Id", CURATIVE)));
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", AUTO)));
-        assertEquals(ComputationStatus.FALLBACK, raoResult.getComputationStatus(crac.getState("contingency2Id", CURATIVE)));
-
     }
 
     @Test
@@ -200,7 +197,7 @@ public class ImporterRetrocompatibilityTest {
 
         /*
         cnec4prevId: preventive, no loop-flows, optimized
-        - contains result in INITIAL and in AFTER_PRA, no result in AFTER_ARA and AFTER_CRA
+        - contains result in INITIAL and in AFTER_PRA. Results in AFTER_ARA and AFTER_CRA are the same as AFTER_PRA because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
@@ -218,12 +215,12 @@ public class ImporterRetrocompatibilityTest {
 
         Assert.assertEquals(0.4, importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecP, LEFT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecP, LEFT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecP, LEFT, AMPERE)));
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in INITIAL and in AFTER_PRA, no result in AFTER_ARA and AFTER_CRA
+        - contains result in INITIAL and in AFTER_PRA. Results in AFTER_ARA and AFTER_CRA are the same as AFTER_PRA because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 
@@ -242,12 +239,12 @@ public class ImporterRetrocompatibilityTest {
 
         Assert.assertEquals(0.1, importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecO, LEFT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecO, LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, LEFT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecO, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
 
         /*
         cnec3autoId: auto, without loop-flows, pureMNEC
-        - contains result in INITIAL, AFTER_PRA, and AFTER_ARA, but not in AFTER_CRA
+        - contains result in INITIAL, AFTER_PRA, and AFTER_ARA. Results in AFTER_CRA are the same as AFTER_ARA because the CNEC is auto
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -265,7 +262,7 @@ public class ImporterRetrocompatibilityTest {
         Assert.assertEquals(3310., importedRaoResult.getFlow(AFTER_ARA, cnecA, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         Assert.assertEquals(3311., importedRaoResult.getMargin(AFTER_ARA, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, LEFT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_ARA, cnecO, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
 
          /*
         cnec3curId: curative, without loop-flows, pureMNEC
@@ -471,7 +468,7 @@ public class ImporterRetrocompatibilityTest {
 
         /*
         cnec4prevId: preventive, no loop-flows, optimized
-        - contains result in INITIAL and in AFTER_PRA, no result in AFTER_ARA and AFTER_CRA
+        - contains result in INITIAL and in AFTER_PRA. Results in AFTER_ARA and AFTER_CRA are the same as AFTER_PRA because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
@@ -496,14 +493,14 @@ public class ImporterRetrocompatibilityTest {
         assertEquals(0.4, importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecP, Side.LEFT), DOUBLE_TOLERANCE);
         assertTrue(Double.isNaN(importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecP, Side.RIGHT)));
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecP, Side.LEFT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecP, Side.RIGHT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecP, Side.LEFT, AMPERE)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecP, Side.RIGHT, AMPERE)));
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecP, LEFT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecP, RIGHT, AMPERE), importedRaoResult.getFlow(AFTER_PRA, cnecP, RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
-        - contains result in INITIAL and in AFTER_PRA, no result in AFTER_ARA and AFTER_CRA
+        - contains result in INITIAL and in AFTER_PRA. Results in AFTER_ARA and AFTER_CRA are the same as AFTER_PRA because the CNEC is preventive
         - contains result for loop-flows, commercial flows, relative margin and PTDF sum
          */
 
@@ -529,14 +526,14 @@ public class ImporterRetrocompatibilityTest {
         assertTrue(Double.isNaN(importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecO, Side.LEFT)));
         assertEquals(0.6, importedRaoResult.getPtdfZonalSum(AFTER_PRA, cnecO, Side.RIGHT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecO, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_ARA, cnecO, Side.RIGHT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.RIGHT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecO, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_ARA, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(AFTER_PRA, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
         /*
         cnec3autoId: auto, without loop-flows, pureMNEC
-        - contains result in INITIAL, AFTER_PRA, and AFTER_ARA, but not in AFTER_CRA
+        - contains result in INITIAL, AFTER_PRA, and AFTER_ARA. Results in AFTER_CRA are the same as AFTER_ARA because the CNEC is auto
         - do not contain results for loop-flows, or relative margin
          */
 
@@ -560,8 +557,8 @@ public class ImporterRetrocompatibilityTest {
         assertEquals(3310.5, importedRaoResult.getFlow(AFTER_ARA, cnecA, Side.RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(3311., importedRaoResult.getMargin(AFTER_ARA, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.LEFT, MEGAWATT)));
-        assertTrue(Double.isNaN(importedRaoResult.getFlow(AFTER_CRA, cnecO, Side.RIGHT, MEGAWATT)));
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, LEFT, MEGAWATT), importedRaoResult.getFlow(AFTER_ARA, cnecO, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(importedRaoResult.getFlow(AFTER_CRA, cnecO, RIGHT, MEGAWATT), importedRaoResult.getFlow(AFTER_ARA, cnecO, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
 
          /*
         cnec3curId: curative, without loop-flows, pureMNEC

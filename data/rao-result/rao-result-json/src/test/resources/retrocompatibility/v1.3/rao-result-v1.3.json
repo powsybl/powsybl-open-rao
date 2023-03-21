@@ -39,7 +39,7 @@
       "instant": "preventive"
     },
     {
-      "computationStatus": "FALLBACK",
+      "computationStatus": "DEFAULT",
       "instant": "outage",
       "contingency": "contingency1Id"
     },
@@ -54,7 +54,7 @@
       "contingency": "contingency2Id"
     },
     {
-      "computationStatus": "FALLBACK",
+      "computationStatus": "DEFAULT",
       "instant": "curative",
       "contingency": "contingency2Id"
     }

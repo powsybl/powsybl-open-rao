@@ -9,30 +9,40 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPVariable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPObjective extends MPObjective {
+public class FaraoMPObjective {
+    private final MPObjective mpObjective;
     private final int numberOfBitsToRoundOff;
-    List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPObjective(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
-        super(cPtr, cMemoryOwn);
+    protected FaraoMPObjective(MPObjective mpObjective, int numberOfBitsToRoundOff) {
+        this.mpObjective = mpObjective;
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
-    @Override
-    public void setCoefficient(MPVariable variable, double coeff) {
-        variables.add(variable);
-        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+    public double getCoefficient(FaraoMPVariable variable) {
+        return mpObjective.getCoefficient(variable.getMPVariable());
     }
 
-    public List<MPVariable> getVariables() {
-        return variables;
+    public void setCoefficient(FaraoMPVariable variable, double coeff) {
+        mpObjective.setCoefficient(variable.getMPVariable(), RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+    }
+
+    public boolean minimization() {
+        return mpObjective.minimization();
+    }
+
+    public void setMinimization() {
+        mpObjective.setMinimization();
+    }
+
+    public boolean maximization() {
+        return mpObjective.maximization();
+    }
+
+    public void setMaximization() {
+        mpObjective.setMaximization();
     }
 }

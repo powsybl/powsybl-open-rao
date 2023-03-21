@@ -27,6 +27,8 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     private final Map<RangeAction<?>, ElementaryResult> elementaryResultMap = new HashMap<>();
 
+    private Map<RangeAction<?>, Map<State, Double> > memoizedSetpointPerStatePerRangeAction;
+
     private static class ElementaryResult {
         private final double refSetpoint;
         private final Map<State, Double> setPointPerState;
@@ -98,10 +100,12 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     public RangeActionActivationResultImpl(RangeActionSetpointResult rangeActionSetpointResult) {
+        memoizedSetpointPerStatePerRangeAction = new HashMap<>();
         rangeActionSetpointResult.getRangeActions().forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(rangeActionSetpointResult.getSetpoint(ra))));
     }
 
     public void activate(RangeAction<?> rangeAction, State state, double setpoint) {
+        memoizedSetpointPerStatePerRangeAction = new HashMap<>();
         elementaryResultMap.get(rangeAction).activate(state, setpoint);
     }
 
@@ -127,28 +131,32 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
-    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+    public synchronized double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+        if (!(memoizedSetpointPerStatePerRangeAction.containsKey(rangeAction) && memoizedSetpointPerStatePerRangeAction.get(rangeAction).containsKey(state))) {
+            // find all range actions on same network elements
+            Set<RangeAction<?>> correspondingRa = elementaryResultMap.keySet().stream()
+                .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
+                .collect(Collectors.toSet());
 
-        // find all range actions on same network elements
-        Set<RangeAction<?>> correspondingRa = elementaryResultMap.keySet().stream()
-            .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
-            .collect(Collectors.toSet());
+            if (correspondingRa.isEmpty()) {
+                throw new FaraoException(format("range action %s is not present in the result", rangeAction.getName()));
+            }
 
-        if (correspondingRa.isEmpty()) {
-            throw new FaraoException(format("range action %s is not present in the result", rangeAction.getName()));
+            Optional<RangeAction<?>> lastActivatedRaOpt = correspondingRa.stream()
+                .max(Comparator.comparingInt(ra -> {
+                    Optional<State> lastActivation = elementaryResultMap.get(ra).getSetpointAndLastActivation(state).getRight();
+                    return lastActivation.isPresent() ? lastActivation.get().getInstant().getOrder() : -1;
+                }));
+
+            if (lastActivatedRaOpt.isPresent()) {
+                memoizedSetpointPerStatePerRangeAction.computeIfAbsent(rangeAction, ra -> new HashMap<>());
+                memoizedSetpointPerStatePerRangeAction.get(rangeAction).put(state, elementaryResultMap.get(lastActivatedRaOpt.get()).getSetpoint(state));
+            } else {
+                throw new FaraoException("Range action optimized setpoint not found.");
+            }
         }
 
-        Optional<RangeAction<?>> lastActivatedRaOpt = correspondingRa.stream()
-            .max(Comparator.comparingInt(ra -> {
-                Optional<State> lastActivation = elementaryResultMap.get(ra).getSetpointAndLastActivation(state).getRight();
-                return lastActivation.isPresent() ? lastActivation.get().getInstant().getOrder() : -1;
-            }));
-
-        if (lastActivatedRaOpt.isPresent()) {
-            return elementaryResultMap.get(lastActivatedRaOpt.get()).getSetpoint(state);
-        } else {
-            throw new FaraoException("Range action optimized setpoint not found.");
-        }
+        return memoizedSetpointPerStatePerRangeAction.get(rangeAction).get(state);
     }
 
     @Override

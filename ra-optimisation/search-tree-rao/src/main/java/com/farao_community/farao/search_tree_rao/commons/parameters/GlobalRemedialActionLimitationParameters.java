@@ -6,9 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaUsageLimitsPerContingencyParameters;
 
 import java.util.Map;
 import java.util.Objects;
@@ -56,22 +54,18 @@ public class GlobalRemedialActionLimitationParameters {
         return maxCurativeRaPerTso;
     }
 
-    public static GlobalRemedialActionLimitationParameters buildFromRaoParameters(RaoParameters raoParameters) {
+    public static GlobalRemedialActionLimitationParameters buildFromRaoParameters(RaUsageLimitsPerContingencyParameters parameters) {
 
         /*
         GlobalRemedialActionLimitationParameters only contains values that are not dependant of the perimeter. It can
         therefore be instantiated from a RaoParameters alone.
          */
-        SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
-        if (searchTreeRaoParameters == null) {
-            throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
-        }
 
-        return new GlobalRemedialActionLimitationParameters(searchTreeRaoParameters.getMaxCurativeRa(),
-            searchTreeRaoParameters.getMaxCurativeTso(),
-            searchTreeRaoParameters.getMaxCurativePstPerTso(),
-            searchTreeRaoParameters.getMaxCurativeTopoPerTso(),
-            searchTreeRaoParameters.getMaxCurativeRaPerTso());
+        return new GlobalRemedialActionLimitationParameters(parameters.getMaxCurativeRa(),
+                parameters.getMaxCurativeTso(),
+                parameters.getMaxCurativePstPerTso(),
+                parameters.getMaxCurativeTopoPerTso(),
+                parameters.getMaxCurativeRaPerTso());
     }
 
     @Override
