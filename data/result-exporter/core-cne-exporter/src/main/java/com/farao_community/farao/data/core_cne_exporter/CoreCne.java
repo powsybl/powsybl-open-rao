@@ -16,7 +16,7 @@ import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkEleme
 import com.farao_community.farao.data.core_cne_exporter.xsd.Point;
 import com.farao_community.farao.data.core_cne_exporter.xsd.SeriesPeriod;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -41,9 +41,9 @@ import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
 public class CoreCne {
     private CriticalNetworkElementMarketDocument marketDocument;
     private CneHelper cneHelper;
-    private StandardCracCreationContext cracCreationContext;
+    private UcteCracCreationContext cracCreationContext;
 
-    public CoreCne(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
+    public CoreCne(Crac crac, Network network, UcteCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
         cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         this.cracCreationContext = cracCreationContext;

@@ -41,7 +41,7 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
         return createdAngleCnecId;
     }
 
-    public String getCreatedAngleCnecId() {
+    public String getCreatedCnecId() {
         return createdAngleCnecId;
     }
 

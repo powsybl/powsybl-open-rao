@@ -24,7 +24,7 @@ public class VoltageThreshold {
     protected Double min;
     protected Double max;
 
-    VoltageThreshold(Unit unit, Double min, Double max) {
+    public VoltageThreshold(Unit unit, Double min, Double max) {
         this.unit = unit;
         this.min = min;
         this.max = max;
