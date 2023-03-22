@@ -9,18 +9,20 @@ package com.farao_community.farao.data.crac_creation.creator.api;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
+import java.time.OffsetDateTime;
+
 /**
  *  Common interface of a Crac creation context
- *
+ * <p>
  *  A CracCreationContext contains the results of a CRAC creation, notably the created Crac
  *  object.
- *
+ * <p>
  *  It also contains additional information on how the {@link Crac} has been created from a
  *  {@link NativeCrac}, for instance on how the object of the NativeCrac has been mapped in
  *  the created Crac.
- *
- *  The CracCreationContext is notably required by some Crac exporters, so as to rollback
- *  some of the Crac information with their native values.
+ * <p>
+ *  The CracCreationContext is notably required by some Crac exporters, to roll-back
+ *  some Crac information with their native values.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -35,6 +37,17 @@ public interface CracCreationContext {
      * Get the created Crac object
      */
     Crac getCrac();
+
+    /**
+     * Get the timestamp for which the CRAC has been created
+     */
+    OffsetDateTime getTimeStamp();
+
+    /**
+     * Get the name of the network used to create the CRAC
+     * @return
+     */
+    String getNetworkName();
 
     /**
      * Get a report with important information about the creation process

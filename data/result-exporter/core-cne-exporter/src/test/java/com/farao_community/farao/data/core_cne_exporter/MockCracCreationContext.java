@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * to function with cracs that were created in the code or using a json file
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MockCracCreationContext implements StandardCracCreationContext {
+public class MockCracCreationContext implements UcteCracCreationContext {
 
     private Crac crac;
     private List<MockCnecCreationContext> mockCnecCreationContexts;

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.CriticalNetworkElementMarketDocument;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.StandardCracCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
@@ -35,7 +35,7 @@ public class CoreCneTest {
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private CneExporterParameters exporterParameters;
-    private StandardCracCreationContext cracCreationContext;
+    private UcteCracCreationContext cracCreationContext;
 
     @Before
     public void setUp() {
@@ -44,7 +44,7 @@ public class CoreCneTest {
         crac = CracFactory.findDefault().create("test-crac");
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
-        cracCreationContext = Mockito.mock(StandardCracCreationContext.class);
+        cracCreationContext = Mockito.mock(UcteCracCreationContext.class);
         Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());
         Mockito.when(cracCreationContext.getRemedialActionCreationContexts()).thenReturn(new ArrayList<>());
         Mockito.when(cracCreationContext.getTimeStamp()).thenReturn(OffsetDateTime.of(2021, 11, 15, 11, 50, 0, 0, ZoneOffset.of("+1")));

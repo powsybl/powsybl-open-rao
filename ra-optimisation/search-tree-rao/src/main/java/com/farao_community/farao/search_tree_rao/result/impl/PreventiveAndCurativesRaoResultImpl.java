@@ -21,6 +21,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 
@@ -31,7 +32,7 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult {
+public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult firstPreventivePerimeterResult;
@@ -225,16 +226,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     }
 
     @Override
-    public PerimeterResult getPostPreventivePerimeterResult() {
-        return secondPreventivePerimeterResult;
-    }
-
-    @Override
-    public PrePerimeterResult getInitialResult() {
-        return initialResult;
-    }
-
-    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
@@ -356,8 +347,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
-    @Override
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public List<FlowCnec> getMostLimitingElements() {
         //TODO : store values to be able to merge easily
         return null;
     }
@@ -417,7 +407,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         }
     }
 
-    @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
