@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,27 +30,25 @@ public class SearchTreeParametersTest {
     @Test
     public void testWithConstantParametersOverAllRao() {
         RaoParameters raoParameters = new RaoParameters();
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
         SearchTreeParameters searchTreeParameters = builder.build();
         assertNotNull(searchTreeParameters);
 
-        assertEquals(raoParameters.getObjectiveFunction(), searchTreeParameters.getObjectiveFunction());
-        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters, crac), searchTreeParameters.getNetworkActionParameters());
-        assertEquals(GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRaLimitationParameters());
+        assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
+        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac), searchTreeParameters.getNetworkActionParameters());
+        assertEquals(GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters()), searchTreeParameters.getRaLimitationParameters());
         assertEquals(RangeActionParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());
         assertEquals(MnecParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getMnecParameters());
         assertEquals(MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getMaxMinRelativeMarginParameters());
         assertEquals(LoopFlowParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getLoopFlowParameters());
         assertEquals(SolverParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getSolverParameters());
-        assertEquals(raoParameters.getMaxIterations(), searchTreeParameters.getMaxNumberOfIterations());
+        assertEquals(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
     }
 
     @Test
     public void testIndividualSetters() {
-        RaoParameters.ObjectiveFunction objectiveFunction = Mockito.mock(RaoParameters.ObjectiveFunction.class);
+        ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         GlobalRemedialActionLimitationParameters raLimitationParameters = Mockito.mock(GlobalRemedialActionLimitationParameters.class);

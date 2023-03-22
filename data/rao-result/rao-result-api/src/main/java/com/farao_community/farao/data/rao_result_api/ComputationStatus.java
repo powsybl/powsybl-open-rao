@@ -12,6 +12,5 @@ package com.farao_community.farao.data.rao_result_api;
  */
 public enum ComputationStatus {
     DEFAULT,
-    FALLBACK,
     FAILURE
 }

@@ -7,17 +7,18 @@
 
 package com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,94 +49,52 @@ public final class ObjectiveFunction {
         return allFlowCnecs;
     }
 
-    public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus);
     }
 
-    public double getFunctionalCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return functionalCostEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
-    }
-
-    public List<FlowCnec> getMostLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, int number) {
-        return functionalCostEvaluator.getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
-    }
-
-    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus) {
-        return virtualCostEvaluators.stream()
-                .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
-                .sum();
-    }
-
-    public double getVirtualCost(FlowResult flowResult,  RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
-        return virtualCostEvaluators.stream()
-            .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
-            .sum();
+    public Pair<Double, List<FlowCnec>> getFunctionalCostAndLimitingElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, Set<String> contingenciesToExclude) {
+        return functionalCostEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude);
     }
 
     public Set<String> getVirtualCostNames() {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
-        return virtualCostEvaluators.stream()
-                .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-                .findAny()
-                .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus))
-                .orElse(Double.NaN);
+    public  Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName) {
+        return getVirtualCostAndCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, virtualCostName, new HashSet<>());
     }
 
-    public double getVirtualCost(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExclude) {
+    public Pair<Double, List<FlowCnec>> getVirtualCostAndCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, ComputationStatus sensitivityStatus, String virtualCostName, Set<String> contingenciesToExlude) {
         return virtualCostEvaluators.stream()
             .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
             .findAny()
-            .map(costEvaluator -> costEvaluator.computeCost(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExclude))
-            .orElse(Double.NaN);
-    }
-
-    public List<FlowCnec> getCostlyElements(FlowResult flowResult, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, String virtualCostName, int number) {
-        Optional<CostEvaluator> optionalCostEvaluator =  virtualCostEvaluators.stream()
-                .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
-                .findAny();
-        if (optionalCostEvaluator.isPresent()) {
-            return optionalCostEvaluator.get().getCostlyElements(flowResult, rangeActionActivationResult, sensitivityResult, number);
-        } else {
-            return Collections.emptyList();
-        }
+            .map(costEvaluator -> costEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, sensitivityStatus, contingenciesToExlude))
+            .orElse(Pair.of(Double.NaN, new ArrayList<>()));
     }
 
     public static class ObjectiveFunctionBuilder {
         private CostEvaluator functionalCostEvaluator;
         private final List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
-        private SearchTreeRaoParameters getSearchTreeRaoParameters(RaoParameters raoParameters) {
-            SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
-            if (searchTreeRaoParameters == null) {
-                throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
-            }
-            return searchTreeRaoParameters;
-        }
-
         public ObjectiveFunction buildForInitialSensitivityComputation(Set<FlowCnec> flowCnecs,
                                                                        RaoParameters raoParameters,
                                                                        Crac crac,
                                                                        RangeActionSetpointResult prePerimeterRangeActionSetpointResult) {
-
-            SearchTreeRaoParameters searchTreeRaoParameters = getSearchTreeRaoParameters(raoParameters);
-
             // min margin objective function
             MarginEvaluator marginEvaluator;
-            if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+            if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
                 marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
             // Unoptimized cnecs in series with psts
-            if (!searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
-                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters, crac), prePerimeterRangeActionSetpointResult)));
+            if (!raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac), prePerimeterRangeActionSetpointResult)));
             } else  {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }
             return this.build();
         }
@@ -149,43 +108,40 @@ public final class ObjectiveFunction {
                                        Set<String> operatorsNotToOptimizeInCurative,
                                        RaoParameters raoParameters) {
 
-            SearchTreeRaoParameters searchTreeRaoParameters = getSearchTreeRaoParameters(raoParameters);
-
             // min margin objective function
             MarginEvaluator marginEvaluator;
-            if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+            if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
                 marginEvaluator = new BasicRelativeMarginEvaluator();
             } else {
                 marginEvaluator = new BasicMarginEvaluator();
             }
 
             // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
-            if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()
+            if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
                 && !operatorsNotToOptimizeInCurative.isEmpty()) {
 
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
                     new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));
                 // Unoptimized cnecs in series with psts
-            } else if (!searchTreeRaoParameters.getUnoptimizedCnecsInSeriesWithPstsIds().isEmpty()) {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
-                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters, crac), prePerimeterRangeActionSetpointResult)));
+            } else if (!raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac), prePerimeterRangeActionSetpointResult)));
             } else  {
-                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(), marginEvaluator));
+                this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }
 
             // mnec virtual cost evaluator
-            if (raoParameters.isRaoWithMnecLimitation()) {
-
+            if (raoParameters.hasExtension(MnecParametersExtension.class)) {
                 this.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    raoParameters.getObjectiveFunction().getUnit(),
+                    raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
                     initialFlowResult,
                     MnecParameters.buildFromRaoParameters(raoParameters)
                 ));
             }
 
             // loop-flow virtual cost evaluator
-            if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
                 this.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
                     loopFlowCnecs,
                     initialFlowResult,
@@ -193,12 +149,9 @@ public final class ObjectiveFunction {
                 ));
             }
 
-            // sensi fall-back overcost
-            this.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost()));
-
             // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
             // to ensure that corresponding leaf is not selected
-            this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs));
+            this.withVirtualCostEvaluator(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
 
             return this.build();
         }

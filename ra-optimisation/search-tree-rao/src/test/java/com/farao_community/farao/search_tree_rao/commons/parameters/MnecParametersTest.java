@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -19,11 +20,11 @@ public class MnecParametersTest {
     @Test
     public void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
 
-        raoParameters.setRaoWithMnecLimitation(true);
-        raoParameters.setMnecAcceptableMarginDiminution(45.0);
-        raoParameters.setMnecViolationCost(111);
-        raoParameters.setMnecConstraintAdjustmentCoefficient(1.1);
+        raoParameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(45.0);
+        raoParameters.getExtension(MnecParametersExtension.class).setViolationCost(111);
+        raoParameters.getExtension(MnecParametersExtension.class).setConstraintAdjustmentCoefficient(1.1);
 
         MnecParameters mp = MnecParameters.buildFromRaoParameters(raoParameters);
 
@@ -36,7 +37,6 @@ public class MnecParametersTest {
     @Test
     public void buildFromRaoParametersTestWithoutLimitation() {
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setRaoWithMnecLimitation(false);
         MnecParameters mp = MnecParameters.buildFromRaoParameters(raoParameters);
         assertNull(mp);
     }

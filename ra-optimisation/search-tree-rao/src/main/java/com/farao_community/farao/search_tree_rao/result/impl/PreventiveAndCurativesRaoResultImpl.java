@@ -21,18 +21,18 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
 
 import java.util.*;
 
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
-import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FALLBACK;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult {
+public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult firstPreventivePerimeterResult;
@@ -176,11 +176,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FAILURE)) {
             return FAILURE;
         }
-        if (initialResult.getSensitivityStatus() == FALLBACK
-                || secondPreventivePerimeterResult.getSensitivityStatus() == FALLBACK
-                || postContingencyResults.entrySet().stream().anyMatch(entry -> Objects.isNull(entry.getValue()) || entry.getValue().getSensitivityStatus(entry.getKey()) == FALLBACK)) {
-            return FALLBACK;
-        }
         return ComputationStatus.DEFAULT;
     }
 
@@ -231,16 +226,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     }
 
     @Override
-    public PerimeterResult getPostPreventivePerimeterResult() {
-        return secondPreventivePerimeterResult;
-    }
-
-    @Override
-    public PrePerimeterResult getInitialResult() {
-        return initialResult;
-    }
-
-    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
@@ -280,7 +265,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
 
     @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+        FlowResult flowResult =  getFlowResult(optimizationState, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit);
         } else {
@@ -321,6 +306,8 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     private FlowResult getFlowResult(OptimizationState optimizationState, FlowCnec flowCnec) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult;
+        } else if (flowCnec.getState().getInstant().comesBefore(optimizationState.getFirstInstant())) {
+            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizationState));
         } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
                 (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
@@ -360,8 +347,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
-    @Override
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public List<FlowCnec> getMostLimitingElements() {
         //TODO : store values to be able to merge easily
         return null;
     }
@@ -421,7 +407,6 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
         }
     }
 
-    @Override
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
