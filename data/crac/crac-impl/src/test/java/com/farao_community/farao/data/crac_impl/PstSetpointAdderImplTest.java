@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstSetpointAdderImplTest {
+class PstSetpointAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
@@ -34,7 +34,7 @@ public class PstSetpointAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
 
         NetworkAction networkAction = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
@@ -52,7 +52,7 @@ public class PstSetpointAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElement() {
+    void testNoNetworkElement() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newPstSetPoint()
                 .withSetpoint(0)
@@ -61,7 +61,7 @@ public class PstSetpointAdderImplTest {
     }
 
     @Test
-    public void testNoSetpoint() {
+    void testNoSetpoint() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")

@@ -35,10 +35,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class CracImportExportTest {
+class CracImportExportTest {
 
     @Test
-    public void roundTripTest() {
+    void roundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
 
         Crac importedCrac = RoundTripUtil.roundTrip(crac);

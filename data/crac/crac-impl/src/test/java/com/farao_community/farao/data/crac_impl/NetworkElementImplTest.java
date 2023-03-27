@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-public class NetworkElementImplTest {
+class NetworkElementImplTest {
 
     @Test
-    public void testConstructorElementTest() {
+    void testConstructorElementTest() {
         NetworkElementImpl networkElement = new NetworkElementImpl("basicElemId", "basicElemName");
         assertEquals("basicElemId", networkElement.getId());
         assertEquals("basicElemName", networkElement.getName());
@@ -33,7 +33,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testEqualsLimits() {
+    void testEqualsLimits() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element-1", "name-1");
         assertEquals(networkElement, networkElement);
         assertNotEquals(networkElement, null);
@@ -41,7 +41,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testDifferent() {
+    void testDifferent() {
         NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
         NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-2", "name-2");
 
@@ -49,7 +49,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testEqualWithDifferentNames() {
+    void testEqualWithDifferentNames() {
         NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
         NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-1", "name-2");
 
@@ -57,7 +57,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testEqualWithSameNames() {
+    void testEqualWithSameNames() {
         NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
         NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-1", "name-1");
 
@@ -65,7 +65,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testSimpleConstructor() {
+    void testSimpleConstructor() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element", networkElement.getId());
@@ -73,14 +73,14 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element".hashCode(), networkElement.hashCode());
     }
 
     @Test
-    public void testGetLocation() {
+    void testGetLocation() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
 
         Set<Optional<Country>> countries;
@@ -128,19 +128,19 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testGetLocationAbsent() {
+    void testGetLocationAbsent() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         assertThrows(FaraoException.class, () -> new NetworkElementImpl("non-existent").getLocation(network));
     }
 
     @Test
-    public void testGetLocationOnUnsupportedType() {
+    void testGetLocationOnUnsupportedType() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         assertThrows(NotImplementedException.class, () -> new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network));
     }
 
     @Test
-    public void testGetLocationAbsentSubstation() {
+    void testGetLocationAbsentSubstation() {
         Network network = Mockito.mock(Network.class);
         Switch switchMock = Mockito.mock(Switch.class);
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);

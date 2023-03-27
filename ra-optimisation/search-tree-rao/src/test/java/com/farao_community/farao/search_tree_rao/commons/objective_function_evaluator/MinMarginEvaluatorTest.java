@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MinMarginEvaluatorTest {
+class MinMarginEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private FlowCnec cnec1;
@@ -76,17 +76,17 @@ public class MinMarginEvaluatorTest {
     }
 
     @Test
-    public void getName() {
+    void getName() {
         assertEquals("min-margin-evaluator", minMarginEvaluator.getName());
     }
 
     @Test
-    public void getUnit() {
+    void getUnit() {
         assertEquals(MEGAWATT, minMarginEvaluator.getUnit());
     }
 
     @Test
-    public void getMostLimitingElements() {
+    void getMostLimitingElements() {
         List<FlowCnec> costlyElements = minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight();
         assertEquals(3, costlyElements.size());
         assertSame(cnec3, costlyElements.get(0));
@@ -95,12 +95,12 @@ public class MinMarginEvaluatorTest {
     }
 
     @Test
-    public void computeCost() {
+    void computeCost() {
         assertEquals(250., minMarginEvaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testWithPureMnecs() {
+    void testWithPureMnecs() {
         State state = Mockito.mock(State.class);
         when(state.getContingency()).thenReturn(Optional.empty());
         FlowCnec mnec1 = Mockito.mock(FlowCnec.class);
@@ -130,7 +130,7 @@ public class MinMarginEvaluatorTest {
     }
 
     @Test
-    public void testAllCnecsUnoptimized() {
+    void testAllCnecsUnoptimized() {
         when(marginEvaluator.getMargin(eq(flowResult), any(), any(), any(), eq(MEGAWATT))).thenReturn(Double.MAX_VALUE);
         mockCnecThresholds(cnec1, 1000);
         mockCnecThresholds(cnec2, 2000);

@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ToolProviderTest {
+class ToolProviderTest {
     private Network network;
     private RaoParameters raoParameters;
     private FlowCnec cnec1;
@@ -57,7 +57,7 @@ public class ToolProviderTest {
     }
 
     @Test
-    public void testBasicConstructor() {
+    void testBasicConstructor() {
         ToolProvider toolProvider = ToolProvider.create()
                 .withNetwork(network)
                 .withRaoParameters(raoParameters)
@@ -73,7 +73,7 @@ public class ToolProviderTest {
     }
 
     @Test
-    public void testCnecInCountry() {
+    void testCnecInCountry() {
         assertTrue(ToolProvider.cnecIsInCountryList(cnec1, network, Set.of(Country.FR, Country.DE)));
         assertTrue(ToolProvider.cnecIsInCountryList(cnec1, network, Set.of(Country.BE, Country.DE)));
         assertFalse(ToolProvider.cnecIsInCountryList(cnec1, network, Set.of(Country.NL, Country.DE)));
@@ -86,7 +86,7 @@ public class ToolProviderTest {
     }
 
     @Test
-    public void testGetEicForObjectiveFunction() {
+    void testGetEicForObjectiveFunction() {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(
                 List.of("{FR}-{BE}", "{ES}-{FR}")
@@ -99,7 +99,7 @@ public class ToolProviderTest {
     }
 
     @Test
-    public void testGetEicForLoopFlows() {
+    void testGetEicForLoopFlows() {
         ReferenceProgram referenceProgram = Mockito.mock(ReferenceProgram.class);
         Mockito.when(referenceProgram.getListOfAreas()).thenReturn(
                 Set.of(new EICode("10YFR-RTE------C"), new EICode("10YES-REE------0"), new EICode("10YBE----------2"))
@@ -113,7 +113,7 @@ public class ToolProviderTest {
     }
 
     @Test
-    public void testGetGlskForEic() {
+    void testGetGlskForEic() {
         ZonalData<SensitivityVariableSet> glskProvider = Mockito.mock(ZonalData.class);
 
         SensitivityVariableSet linearGlsk1 = Mockito.mock(SensitivityVariableSet.class);
@@ -135,7 +135,7 @@ public class ToolProviderTest {
     }
 
     @Test
-    public void testGetLoopFlowCnecs() {
+    void testGetLoopFlowCnecs() {
         ToolProvider toolProvider = ToolProvider.create()
                 .withNetwork(network)
                 .withRaoParameters(raoParameters)

@@ -36,17 +36,17 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonRaoParametersTest extends AbstractConverterTest {
+class JsonRaoParametersTest extends AbstractConverterTest {
     static double DOUBLE_TOLERANCE = 1e-6;
 
     @Test
-    public void roundTripDefault() throws IOException {
+    void roundTripDefault() throws IOException {
         RaoParameters parameters = new RaoParameters();
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_v2.json");
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
@@ -114,7 +114,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void update() {
+    void update() {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
         assertEquals(1, parameters.getExtensions().size());
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
@@ -150,14 +150,14 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeExtension() throws IOException {
+    void writeExtension() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonRaoParameters::write, ComparisonUtils::compareTxt, "/RaoParametersWithExtension_v2.json");
     }
 
     @Test
-    public void readExtension() {
+    void readExtension() {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension_v2.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -165,7 +165,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readErrorUnexpectedExtension() throws IOException {
+    void readErrorUnexpectedExtension() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/RaoParametersError_v2.json")) {
             JsonRaoParameters.read(is);
             fail();
@@ -176,27 +176,27 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void loopFlowApproximationLevelError() {
+    void loopFlowApproximationLevelError() {
         assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError_v2.json")));
     }
 
     @Test
-    public void testWrongStopCriterionError() {
+    void testWrongStopCriterionError() {
         assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithPrevStopCriterionError_v2.json")));
     }
 
     @Test
-    public void curativeRaoStopCriterionError() {
+    void curativeRaoStopCriterionError() {
         assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithCurStopCriterionError_v2.json")));
     }
 
     @Test
-    public void testWrongFieldError() {
+    void testWrongFieldError() {
         assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithWrongField_v2.json")));
     }
 
     @Test
-    public void testMapNegativeError() {
+    void testMapNegativeError() {
         assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithNegativeField_v2.json")));
     }
 

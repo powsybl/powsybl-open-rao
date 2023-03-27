@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class GlobalRemedialActionLimitationParametersTest {
+class GlobalRemedialActionLimitationParametersTest {
 
     @Test
-    public void buildFromRaoParametersTestOk() {
+    void buildFromRaoParametersTestOk() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeRa(3);
         raoParameters.getRaUsageLimitsPerContingencyParameters().setMaxCurativeTso(1);

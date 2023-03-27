@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MnecFillerTest extends AbstractFillerTest {
+class MnecFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private FlowCnec mnec1;
@@ -133,7 +133,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecViolationVariables() {
+    void testAddMnecViolationVariables() {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
@@ -148,7 +148,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecMinFlowConstraints() {
+    void testAddMnecMinFlowConstraints() {
         fillProblemWithFiller(Unit.MEGAWATT);
 
         crac.getFlowCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
@@ -188,7 +188,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecPenaltyCostMW() {
+    void testAddMnecPenaltyCostMW() {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
@@ -197,7 +197,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecPenaltyCostA() {
+    void testAddMnecPenaltyCostA() {
         fillProblemWithFiller(Unit.AMPERE);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);

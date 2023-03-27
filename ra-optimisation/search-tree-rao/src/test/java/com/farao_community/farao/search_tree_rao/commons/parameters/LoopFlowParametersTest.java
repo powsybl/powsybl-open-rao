@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowParametersTest {
+class LoopFlowParametersTest {
 
     @Test
-    public void buildFromRaoParametersTestWithLimitation() {
+    void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
@@ -38,7 +38,7 @@ public class LoopFlowParametersTest {
     }
 
     @Test
-    public void buildFromRaoParametersTestWithoutLimitation() {
+    void buildFromRaoParametersTestWithoutLimitation() {
         RaoParameters raoParameters = new RaoParameters();
         LoopFlowParameters lfp = LoopFlowParameters.buildFromRaoParameters(raoParameters);
         assertNull(lfp);

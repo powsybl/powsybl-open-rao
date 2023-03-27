@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
+class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private final FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
@@ -57,13 +57,13 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     }
 
     @Test
-    public void optimizedCnec() {
+    void optimizedCnec() {
         double margin = marginEvaluatorWithPstLimitationUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void unoptimizedCnecTest1() {
+    void unoptimizedCnecTest1() {
         // Sensi > 0
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(50.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
@@ -78,7 +78,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     }
 
     @Test
-    public void unoptimizedCnecTest2() {
+    void unoptimizedCnecTest2() {
         // Sensi > 0
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
@@ -93,7 +93,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     }
 
     @Test
-    public void unoptimizedCnecTest3() {
+    void unoptimizedCnecTest3() {
         // Sensi > 0
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
@@ -108,7 +108,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     }
 
     @Test
-    public void unoptimizedCnecTest4() {
+    void unoptimizedCnecTest4() {
         // Sensi < 0
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-1.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
@@ -123,7 +123,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     }
 
     @Test
-    public void unoptimizedCnecTest5() {
+    void unoptimizedCnecTest5() {
         // Sensi < 0
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
@@ -137,7 +137,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
     }
 
     @Test
-    public void unoptimizedCnecTest6() {
+    void unoptimizedCnecTest6() {
         // Sensi < 0
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);

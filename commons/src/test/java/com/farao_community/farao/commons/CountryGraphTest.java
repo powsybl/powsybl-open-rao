@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CountryGraphTest {
+class CountryGraphTest {
 
     @Test
-    public void testGraphOnSmallNetwork() {
+    void testGraphOnSmallNetwork() {
 
         Network network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         CountryGraph graph = new CountryGraph(network);

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionSetpointAdderImplTest {
+class InjectionSetpointAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
@@ -34,7 +34,7 @@ public class InjectionSetpointAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = networkActionAdder.newInjectionSetPoint()
             .withNetworkElement("groupNetworkElementId")
             .withSetpoint(100.)
@@ -51,7 +51,7 @@ public class InjectionSetpointAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElement() {
+    void testNoNetworkElement() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newInjectionSetPoint()
                 .withSetpoint(100.)
@@ -60,7 +60,7 @@ public class InjectionSetpointAdderImplTest {
     }
 
     @Test
-    public void testNoSetpoint() {
+    void testNoSetpoint() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newInjectionSetPoint()
                 .withNetworkElement("groupNetworkElementId")

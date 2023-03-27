@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PerimeterResultImplTest {
+class PerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private PerimeterResultImpl perimeterResultImpl;
@@ -77,7 +77,7 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetActivatedRangeActions() {
+    void testGetActivatedRangeActions() {
         when(prePerimeterRangeActionActivationResult.getSetpoint(ra1)).thenReturn(5.);
         when(optimizationResult.getOptimizedSetpoint(ra1, mainOptimizationState)).thenReturn(5.);
         when(prePerimeterRangeActionActivationResult.getSetpoint(ra2)).thenReturn(15.);
@@ -87,7 +87,7 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetFlow() {
+    void testGetFlow() {
         when(optimizationResult.getFlow(flowCnec1, LEFT, Unit.MEGAWATT)).thenReturn(100.);
         when(optimizationResult.getFlow(flowCnec2, RIGHT, Unit.AMPERE)).thenReturn(200.);
         assertEquals(100., perimeterResultImpl.getFlow(flowCnec1, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -95,7 +95,7 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetCommercialFlow() {
+    void testGetCommercialFlow() {
         when(optimizationResult.getCommercialFlow(flowCnec1, LEFT, Unit.MEGAWATT)).thenReturn(100.);
         when(optimizationResult.getCommercialFlow(flowCnec2, RIGHT, Unit.AMPERE)).thenReturn(200.);
         assertEquals(100., perimeterResultImpl.getCommercialFlow(flowCnec1, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -103,7 +103,7 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetPtdfZonalSum() {
+    void testGetPtdfZonalSum() {
         when(optimizationResult.getPtdfZonalSum(flowCnec1, LEFT)).thenReturn(100.);
         when(optimizationResult.getPtdfZonalSum(flowCnec2, RIGHT)).thenReturn(200.);
         assertEquals(100., perimeterResultImpl.getPtdfZonalSum(flowCnec1, LEFT), DOUBLE_TOLERANCE);
@@ -111,14 +111,14 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetPtdfZonalSums() {
+    void testGetPtdfZonalSums() {
         Map<FlowCnec, Map<Side, Double>> map = Map.of(flowCnec1, Map.of(LEFT, 100.), flowCnec2, Map.of(RIGHT, 200.));
         when(optimizationResult.getPtdfZonalSums()).thenReturn(map);
         assertEquals(map, perimeterResultImpl.getPtdfZonalSums());
     }
 
     @Test
-    public void testIsActivated() {
+    void testIsActivated() {
         when(optimizationResult.isActivated(na1)).thenReturn(true);
         when(optimizationResult.isActivated(na2)).thenReturn(false);
         assertTrue(perimeterResultImpl.isActivated(na1));
@@ -126,37 +126,37 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetActivatedNetworkActions() {
+    void testGetActivatedNetworkActions() {
         when(optimizationResult.getActivatedNetworkActions()).thenReturn(Set.of(na1));
         assertEquals(Set.of(na1), perimeterResultImpl.getActivatedNetworkActions());
     }
 
     @Test
-    public void testGetFunctionalCost() {
+    void testGetFunctionalCost() {
         when(optimizationResult.getFunctionalCost()).thenReturn(1000.);
         assertEquals(1000., perimeterResultImpl.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testGetMostLimitingElements() {
+    void testGetMostLimitingElements() {
         when(optimizationResult.getMostLimitingElements(anyInt())).thenReturn(List.of(flowCnec2, flowCnec1));
         assertEquals(List.of(flowCnec2, flowCnec1), perimeterResultImpl.getMostLimitingElements(100));
     }
 
     @Test
-    public void testGetVirtualCost() {
+    void testGetVirtualCost() {
         when(optimizationResult.getVirtualCost()).thenReturn(1000.);
         assertEquals(1000., perimeterResultImpl.getVirtualCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testGetVirtualCostNames() {
+    void testGetVirtualCostNames() {
         when(optimizationResult.getVirtualCostNames()).thenReturn(Set.of("lf", "mnec"));
         assertEquals(Set.of("lf", "mnec"), perimeterResultImpl.getVirtualCostNames());
     }
 
     @Test
-    public void testGetVirtualCostByName() {
+    void testGetVirtualCostByName() {
         when(optimizationResult.getVirtualCost("lf")).thenReturn(1000.);
         when(optimizationResult.getVirtualCost("mnec")).thenReturn(2000.);
         assertEquals(1000., perimeterResultImpl.getVirtualCost("lf"), DOUBLE_TOLERANCE);
@@ -164,7 +164,7 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetCostlyElements() {
+    void testGetCostlyElements() {
         when(optimizationResult.getCostlyElements("lf", 100)).thenReturn(List.of(flowCnec2, flowCnec1));
         when(optimizationResult.getCostlyElements("mnec", 100)).thenReturn(List.of(flowCnec1));
         assertEquals(List.of(flowCnec2, flowCnec1), perimeterResultImpl.getCostlyElements("lf", 100));
@@ -172,12 +172,12 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetRangeActions() {
+    void testGetRangeActions() {
         assertEquals(Set.of(ra1, ra2), perimeterResultImpl.getRangeActions());
     }
 
     @Test
-    public void testGetOptimizedTap() {
+    void testGetOptimizedTap() {
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
 
         when(optimizationResult.getOptimizedTap(pst1, mainOptimizationState)).thenReturn(10);
@@ -189,7 +189,7 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetOptimizedSetPoint() {
+    void testGetOptimizedSetPoint() {
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1));
         when(optimizationResult.getOptimizedSetpoint(ra1, mainOptimizationState)).thenReturn(10.7);
         when(prePerimeterRangeActionActivationResult.getSetpoint(ra2)).thenReturn(3.5);
@@ -199,33 +199,33 @@ public class PerimeterResultImplTest {
     }
 
     @Test
-    public void testGetOptimizedTaps() {
+    void testGetOptimizedTaps() {
         Map<PstRangeAction, Integer> map = Map.of(pst1, 10, pst2, 5);
         when(optimizationResult.getOptimizedTapsOnState(mainOptimizationState)).thenReturn(map);
         assertEquals(map, perimeterResultImpl.getOptimizedTapsOnState(mainOptimizationState));
     }
 
     @Test
-    public void testGetOptimizedSetPoints() {
+    void testGetOptimizedSetPoints() {
         Map<RangeAction<?>, Double> map = Map.of(pst1, 10.6, pst2, 5.8, ra1, 52.5, ra2, 100.6);
         when(optimizationResult.getOptimizedSetpointsOnState(mainOptimizationState)).thenReturn(map);
         assertEquals(map, perimeterResultImpl.getOptimizedSetpointsOnState(mainOptimizationState));
     }
 
     @Test
-    public void testGetSensitivityStatus() {
+    void testGetSensitivityStatus() {
         when(optimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, perimeterResultImpl.getSensitivityStatus());
     }
 
     @Test
-    public void testGetSensitivityValueOnRa() {
+    void testGetSensitivityValueOnRa() {
         assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, ra1, Unit.MEGAWATT));
         assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, ra2, Unit.AMPERE));
     }
 
     @Test
-    public void testGetSensitivityValueOnGlsk() {
+    void testGetSensitivityValueOnGlsk() {
         assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, mock(SensitivityVariableSet.class), Unit.MEGAWATT));
         assertThrows(NotImplementedException.class, () -> perimeterResultImpl.getSensitivityValue(flowCnec1, LEFT, mock(SensitivityVariableSet.class), Unit.AMPERE));
     }

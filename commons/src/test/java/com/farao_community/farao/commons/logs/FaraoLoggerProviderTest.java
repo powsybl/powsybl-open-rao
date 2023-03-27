@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FaraoLoggerProviderTest {
+class FaraoLoggerProviderTest {
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
         Logger logger = (Logger) LoggerFactory.getLogger(clazz);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
@@ -30,7 +30,7 @@ public class FaraoLoggerProviderTest {
     }
 
     @Test
-    public void testBusinessLogs() {
+    void testBusinessLogs() {
         assertTrue(FaraoLoggerProvider.BUSINESS_LOGS.isInfoEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
@@ -52,7 +52,7 @@ public class FaraoLoggerProviderTest {
     }
 
     @Test
-    public void testBusinessWarns() {
+    void testBusinessWarns() {
         assertTrue(FaraoLoggerProvider.BUSINESS_WARNS.isInfoEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
@@ -75,7 +75,7 @@ public class FaraoLoggerProviderTest {
     }
 
     @Test
-    public void testTechnicalLogs() {
+    void testTechnicalLogs() {
         assertTrue(FaraoLoggerProvider.TECHNICAL_LOGS.isInfoEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(TechnicalLogs.class);

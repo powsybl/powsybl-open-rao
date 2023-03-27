@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class AppliedRemedialActionsTest {
+class AppliedRemedialActionsTest {
 
     private Network network;
     private Crac crac;
@@ -44,7 +44,7 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testAppliedRemedialActionOnOneState() {
+    void testAppliedRemedialActionOnOneState() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), pstRangeAction, 3.1);
@@ -67,7 +67,7 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testAppliedRemedialActionOnTwoStates() {
+    void testAppliedRemedialActionOnTwoStates() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
@@ -86,7 +86,7 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testEmptyAppliedRemedialActions() {
+    void testEmptyAppliedRemedialActions() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
 
         assertTrue(appliedRemedialActions.isEmpty(network));
@@ -94,7 +94,7 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testAppliedRangeActionWithSetpointEqualToInitialNetwork() {
+    void testAppliedRangeActionWithSetpointEqualToInitialNetwork() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 0.0);
         // should not be taken into account, as PST setpoint is the same as in the initial network
@@ -104,13 +104,13 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testAppliedRemedialActionOnPreventiveState() {
+    void testAppliedRemedialActionOnPreventiveState() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         assertThrows(FaraoException.class, () -> appliedRemedialActions.addAppliedNetworkAction(crac.getPreventiveState(), networkAction));
     }
 
     @Test
-    public void testCopy() {
+    void testCopy() {
         AppliedRemedialActions originalAra = new AppliedRemedialActions();
         originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
         originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
@@ -129,7 +129,7 @@ public class AppliedRemedialActionsTest {
     }
 
     @Test
-    public void testCopyNetworkActions() {
+    void testCopyNetworkActions() {
         AppliedRemedialActions originalAra = new AppliedRemedialActions();
         originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
         originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);

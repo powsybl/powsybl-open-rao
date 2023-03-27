@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class BestTapFinderTest {
+class BestTapFinderTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
     private static final double INITIAL_PST_SET_POINT = 1.2;
     private static final double REF_FLOW_1 = 100;
@@ -152,7 +152,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginWhenTheSetPointIsTooFarFromTheMiddle() {
+    void testMarginWhenTheSetPointIsTooFarFromTheMiddle() {
         // Set point is really close to tap 1, so there is no computation and margin is considered the best for tap 1
         double startingSetPoint = 0.8;
         setClosestTapPosition(pstRangeAction, startingSetPoint, 1);
@@ -166,7 +166,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapDecreasingTheMinMargin() {
+    void testMarginsWithOtherTapDecreasingTheMinMargin() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
         // The closest tap is still 1, and the next tap worsen the margin so it is not considered
         double startingSetPoint = 1.5;
@@ -181,7 +181,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingTheMinMargin() {
+    void testMarginsWithOtherTapIncreasingTheMinMargin() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
         // The closest tap is still 1, and the other tap increases the margin so it is considered
         double startingSetPoint = 1.5;
@@ -197,7 +197,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingTheMinMarginWithNegativeMargins() {
+    void testMarginsWithOtherTapIncreasingTheMinMarginWithNegativeMargins() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
         // The closest tap is still 1, and the next tap increase the margin so it is considered
         double startingSetPoint = 1.5;
@@ -213,7 +213,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingTheMinMarginOnUpperBound() {
+    void testMarginsWithOtherTapIncreasingTheMinMarginOnUpperBound() {
         // Set point is close enough to the middle of the range between tap 1 and 2, so we consider the two taps
         // The closest tap is 2 which is the upper bound, and the other tap increases the margin so it is considered
         double startingSetPoint = 1.7;
@@ -229,7 +229,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testMarginsWithOtherTapIncreasingTheMinMarginOnLowerBound() {
+    void testMarginsWithOtherTapIncreasingTheMinMarginOnLowerBound() {
         // Set point is close enough to the middle of the range between tap -1 and -2, so we consider the two taps
         // The closest tap is -2 which is the lower bound, and the other tap increases the margin so it is considered
         double startingSetPoint = -1.7;
@@ -245,7 +245,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testComputeBestTapPerPstGroup() {
+    void testComputeBestTapPerPstGroup() {
         PstRangeAction pst1 = createPst();
         PstRangeAction pst2 = createPstWithGroupId("group1");
         PstRangeAction pst3 = createPstWithGroupId("group1");
@@ -272,7 +272,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testUpdatedRangeActionResultWithOtherTapSelected() {
+    void testUpdatedRangeActionResultWithOtherTapSelected() {
         double startingSetPoint = 0.;
         double notRoundedSetpoint = 1.7;
         setClosestTapPosition(pstRangeAction, notRoundedSetpoint, 2);
@@ -301,7 +301,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testUpdatedRangeActionResultWithClosestTapSelected() {
+    void testUpdatedRangeActionResultWithClosestTapSelected() {
         double startingSetPoint = 0.;
         double notRoundedSetpoint = 1.7;
         setClosestTapPosition(pstRangeAction, notRoundedSetpoint, 2);
@@ -330,7 +330,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testUpdatedRangeActionResultNoOptimizationOfTheTap() {
+    void testUpdatedRangeActionResultNoOptimizationOfTheTap() {
         double startingSetPoint = 0.;
         double notRoundedSetpoint = 0.8;
         // Starting point is really close to set point of tap 1 so it will be set to tap 1
@@ -360,7 +360,7 @@ public class BestTapFinderTest {
     }
 
     @Test
-    public void testUpdatedRangeActionResultWithGroups() {
+    void testUpdatedRangeActionResultWithGroups() {
         double startingSetPoint = 0.;
         double notRoundedSetpoint = 0.8;
         setClosestTapPosition(pstRangeAction, notRoundedSetpoint, 2);

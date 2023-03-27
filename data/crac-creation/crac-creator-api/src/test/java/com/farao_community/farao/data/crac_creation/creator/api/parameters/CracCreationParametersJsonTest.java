@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreationParametersJsonTest {
+class CracCreationParametersJsonTest {
 
     @Test
-    public void testRoundTripJson() {
+    void testRoundTripJson() {
         // prepare parameters to export
         CracCreationParameters exportedParameters = new CracCreationParameters();
         exportedParameters.setCracFactoryName("coucouFactory");
@@ -38,19 +38,19 @@ public class CracCreationParametersJsonTest {
     }
 
     @Test
-    public void importOkTest() {
+    void importOkTest() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-ok.json"));
         assertNotNull(importedParameters);
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());
     }
 
     @Test
-    public void importNokTest() {
+    void importNokTest() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json")));
     }
 
     @Test
-    public void importFromFile() throws URISyntaxException {
+    void importFromFile() throws URISyntaxException {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(Paths.get(getClass().getResource("/parameters/crac-creator-parameters-ok.json").toURI()));
         assertNotNull(importedParameters);
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());

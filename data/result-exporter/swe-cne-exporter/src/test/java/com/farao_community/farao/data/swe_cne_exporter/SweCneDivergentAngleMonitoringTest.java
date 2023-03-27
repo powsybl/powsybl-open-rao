@@ -37,7 +37,7 @@ import static com.farao_community.farao.data.swe_cne_exporter.SweCneTest.compare
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SweCneDivergentAngleMonitoringTest {
+class SweCneDivergentAngleMonitoringTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
@@ -77,7 +77,7 @@ public class SweCneDivergentAngleMonitoringTest {
     }
 
     @Test
-    public void testExport() {
+    void testExport() {
         CneExporterParameters params = new CneExporterParameters(
                 "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
                 "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,

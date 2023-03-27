@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class HvdcRangeActionImplTest {
+class HvdcRangeActionImplTest {
     private HvdcRangeActionAdder hvdcRangeActionAdder;
     private Network network;
     private Network networkWithAngleDroop;
@@ -55,14 +55,14 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void getInitialSetpoint() {
+    void getInitialSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         assertEquals(0, hvdcRa.getCurrentSetpoint(network), 1e-6);
     }
 
     @Test
-    public void applyPositiveSetpoint() {
+    void applyPositiveSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 5);
@@ -73,7 +73,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void applyNegativeSetpoint() {
+    void applyNegativeSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, -3);
@@ -84,7 +84,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void getPositiveSetpoint() {
+    void getPositiveSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 5);
@@ -93,7 +93,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void getNegativeSetpoint() {
+    void getNegativeSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 3);
@@ -102,19 +102,19 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void applyOnUnknownHvdc() {
+    void applyOnUnknownHvdc() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .withNetworkElement("unknownNetworkElement").add();
         assertThrows(FaraoException.class, () -> hvdcRa.apply(network, 50));
     }
 
     @Test
-    public void hvdcWithoutSpecificRange() {
+    void hvdcWithoutSpecificRange() {
         assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.add());
     }
 
     @Test
-    public void hvdcWithSpecificRange() {
+    void hvdcWithSpecificRange() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -123,21 +123,21 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void hvdcWithNoMin() {
+    void hvdcWithNoMin() {
         assertThrows(FaraoException.class, () ->
             hvdcRangeActionAdder.newRange().withMax(10).add()
                     .add());
     }
 
     @Test
-    public void hvdcWithNoMax() {
+    void hvdcWithNoMax() {
         assertThrows(FaraoException.class, () ->
             hvdcRangeActionAdder.newRange().withMin(10).add()
                     .add());
     }
 
     @Test
-    public void testGetLocation() {
+    void testGetLocation() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         Set<Optional<Country>> countries = hvdcRa.getLocation(network);
@@ -147,7 +147,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void hvdcEquals() {
+    void hvdcEquals() {
         HvdcRangeAction hvdcRa1 = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction hvdcRa2 = hvdcRangeActionAdder.withId("anotherId").newRange().withMin(-5).withMax(10).add()

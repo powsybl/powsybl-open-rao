@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AngleCnecImplTest {
+class AngleCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
 
     private Crac crac;
@@ -46,7 +46,7 @@ public class AngleCnecImplTest {
     }
 
     @Test
-    public void testGetLocation1() {
+    void testGetLocation1() {
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
@@ -79,7 +79,7 @@ public class AngleCnecImplTest {
     // test threshold on branches whose nominal voltage is the same on both side
 
     @Test
-    public void testAngleCnecWithOneMaxThreshold() {
+    void testAngleCnecWithOneMaxThreshold() {
 
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMax(500.).add()
@@ -95,7 +95,7 @@ public class AngleCnecImplTest {
     }
 
     @Test
-    public void testAngleCnecWithSeveralThresholds() {
+    void testAngleCnecWithSeveralThresholds() {
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.).add()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).add()
@@ -111,7 +111,7 @@ public class AngleCnecImplTest {
     }
 
     @Test
-    public void marginsWithNegativeAndPositiveLimits() {
+    void marginsWithNegativeAndPositiveLimits() {
 
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()
@@ -126,7 +126,7 @@ public class AngleCnecImplTest {
     // other
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         AngleCnec cnec1 = initPreventiveCnecAdder().newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add().add();
         AngleCnec cnec2 = initPreventiveCnecAdder().withId("anotherId").newThreshold().withUnit(Unit.DEGREE).withMin(-1000.).add().add();
 

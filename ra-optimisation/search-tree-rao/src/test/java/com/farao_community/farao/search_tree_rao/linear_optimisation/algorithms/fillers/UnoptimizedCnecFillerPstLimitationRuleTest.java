@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
+class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
@@ -219,7 +219,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizePositiveSensiBinaryVar() {
+    void testCnecsNotToOptimizePositiveSensiBinaryVar() {
         buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue();
 
         // Verify existence of optimize_cnec binary variable
@@ -253,7 +253,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizeNegativeSensiBinaryVar() {
+    void testCnecsNotToOptimizeNegativeSensiBinaryVar() {
         buildLinearProblemWithMaxMinMarginAndNegativeSensitivityValue();
 
         // Verify existence of optimize_cnec binary variable
@@ -287,7 +287,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizePositiveSensiBinaryVarRelative() {
+    void testCnecsNotToOptimizePositiveSensiBinaryVarRelative() {
         buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi();
 
         // Verify existence of margin_decrease binary variable
@@ -321,7 +321,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizeNegativeSensiBinaryVarRelative() {
+    void testCnecsNotToOptimizeNegativeSensiBinaryVarRelative() {
         buildLinearProblemWithMaxMinRelativeMarginAndNegativeSensi();
 
         // Verify existence of margin_decrease binary variable
@@ -355,7 +355,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testExcludeCnecsNotToOptimizeInMinMargin() {
+    void testExcludeCnecsNotToOptimizeInMinMargin() {
         buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue();
 
         // Test that classicCnec's constraint does not have a bigM
@@ -373,7 +373,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testExcludeCnecsNotToOptimizeInMinMarginRelative() {
+    void testExcludeCnecsNotToOptimizeInMinMarginRelative() {
         buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi();
 
         // Test that classicCnec's constraint does not have a bigM

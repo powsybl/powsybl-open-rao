@@ -47,12 +47,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoResultRoundTripTest {
+class RaoResultRoundTripTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Test
-    public void roundTripTest() {
+    void roundTripTest() {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
@@ -385,7 +385,7 @@ public class RaoResultRoundTripTest {
     }
 
     @Test
-    public void testRoundTripRangeActionsCrossResults() {
+    void testRoundTripRangeActionsCrossResults() {
         Crac crac = CracFactory.findDefault().create("crac");
         PstRangeAction pstPrev = crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
                 .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
@@ -500,7 +500,7 @@ public class RaoResultRoundTripTest {
     }
 
     @Test
-    public void testFailWithWrongFlowUnits() {
+    void testFailWithWrongFlowUnits() {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
@@ -526,7 +526,7 @@ public class RaoResultRoundTripTest {
     }
 
     @Test
-    public void testRoundTripWithUnits() {
+    void testRoundTripWithUnits() {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ContingencyImplTest {
+class ContingencyImplTest {
 
     private Network network;
     private ComputationManager computationManager;
@@ -35,7 +35,7 @@ public class ContingencyImplTest {
     }
 
     @Test
-    public void testDifferentWithDifferentIds() {
+    void testDifferentWithDifferentIds() {
         ContingencyImpl contingencyImpl1 = new ContingencyImpl(
             "contingency-1", "contingency",
             Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
@@ -50,7 +50,7 @@ public class ContingencyImplTest {
     }
 
     @Test
-    public void testDifferentWithDifferentObjects() {
+    void testDifferentWithDifferentObjects() {
         ContingencyImpl contingencyImpl1 = new ContingencyImpl(
             "contingency-1", "contingency-1",
             Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
@@ -65,7 +65,7 @@ public class ContingencyImplTest {
     }
 
     @Test
-    public void testEqual() {
+    void testEqual() {
         ContingencyImpl contingencyImpl1 = new ContingencyImpl(
             "contingency-1", "contingency-1",
             Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
@@ -92,14 +92,14 @@ public class ContingencyImplTest {
     }
 
     @Test
-    public void testApplyFails() {
+    void testApplyFails() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("None")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
         assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
     }
 
     @Test
-    public void testApplyOnBranch() {
+    void testApplyOnBranch() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("FRANCE_BELGIUM_1")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
         assertFalse(network.getBranch("FRANCE_BELGIUM_1").getTerminal1().connect());
@@ -108,7 +108,7 @@ public class ContingencyImplTest {
     }
 
     @Test
-    public void testApplyOnGenerator() {
+    void testApplyOnGenerator() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("GENERATOR_FR_2")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
         assertTrue(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
@@ -117,7 +117,7 @@ public class ContingencyImplTest {
     }
 
     @Test
-    public void testApplyOnDanglingLine() {
+    void testApplyOnDanglingLine() {
         Network network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("BBE2AA1  XLI_OB1B 1")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());

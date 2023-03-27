@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NumberFormatterTest {
+class NumberFormatterTest {
 
     @Test
-    public void printFloatTest() {
+    void printFloatTest() {
 
         // perfect match
         assertEquals("10000000", printFloat(1e7F));

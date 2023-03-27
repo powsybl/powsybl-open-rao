@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowViolationCostEvaluatorTest {
+class LoopFlowViolationCostEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private FlowCnec cnec1;
@@ -94,19 +94,19 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testGetName() {
+    void testGetName() {
         buildLoopFlowViolationCostEvaluator();
         assertEquals("loop-flow-cost", evaluator.getName());
     }
 
     @Test
-    public void testGetUnit() {
+    void testGetUnit() {
         buildLoopFlowViolationCostEvaluator();
         assertEquals(Unit.MEGAWATT, evaluator.getUnit());
     }
 
     @Test
-    public void testLoopFlowExcessWithInitialAndCurrentLoopFlowBelowInputThreshold() {
+    void testLoopFlowExcessWithInitialAndCurrentLoopFlowBelowInputThreshold() {
         // When initial loop-flow + acceptable augmentation is below input threshold, it is the limiting element
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
@@ -119,7 +119,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testLoopFlowExcessWithCurrentLoopFLowAboveInputThresholdAndNoAcceptableDiminution() {
+    void testLoopFlowExcessWithCurrentLoopFLowAboveInputThresholdAndNoAcceptableDiminution() {
         // When initial loop-flow + acceptable augmentation is below input threshold, it is the limiting element
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
@@ -132,7 +132,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testLoopFlowExcessWithCurrentLoopFLowAboveInputThresholdAndWithAcceptableAugmentation() {
+    void testLoopFlowExcessWithCurrentLoopFLowAboveInputThresholdAndWithAcceptableAugmentation() {
         // Acceptable augmentation should have no effect when the loop-flow is limited by input threshold
         setAcceptableAugmentationInMW(20);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
@@ -145,7 +145,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testLoopFlowExcessWithNegativeLoopFlow() {
+    void testLoopFlowExcessWithNegativeLoopFlow() {
         // Loop-flow excess must be computed toward absolute value of loop-flow
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
@@ -158,7 +158,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testLoopFlowExcessInitialLoopFlowAboveThreshold() {
+    void testLoopFlowExcessInitialLoopFlowAboveThreshold() {
         // When initial loop-flow + acceptable augmentation is above input threshold, they are the limiting elements
         setAcceptableAugmentationInMW(0);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
@@ -171,7 +171,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testLoopFlowExcessInitialLoopFlowAboveThresholdAndAcceptableAugmentation() {
+    void testLoopFlowExcessInitialLoopFlowAboveThresholdAndAcceptableAugmentation() {
         // When initial loop-flow + acceptable augmentation is above input threshold, they are the limiting elements
         setAcceptableAugmentationInMW(20);
         setInputThresholdWithReliabilityMargin(cnec1, 100);
@@ -184,7 +184,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testCostWithTwoCnecs() {
+    void testCostWithTwoCnecs() {
         setViolationCost(1);
         setAcceptableAugmentationInMW(0);
 
@@ -204,7 +204,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testCostWithTwoCnecsWithDifferentCost() {
+    void testCostWithTwoCnecsWithDifferentCost() {
         setViolationCost(2);
         setAcceptableAugmentationInMW(0);
 
@@ -224,7 +224,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testCostlyElements() {
+    void testCostlyElements() {
         setViolationCost(1);
         setAcceptableAugmentationInMW(0);
 
@@ -247,7 +247,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testCostlyElementsWithNonCostlyElements() {
+    void testCostlyElementsWithNonCostlyElements() {
         setViolationCost(1);
         setAcceptableAugmentationInMW(0);
 

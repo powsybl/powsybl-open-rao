@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class NetworkPoolTest {
+class NetworkPoolTest {
     private Network network;
     private String initialVariant;
     private String otherVariant = "otherVariant";
@@ -30,13 +30,13 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         assertTrue(AbstractNetworkPool.create(network, otherVariant, 10) instanceof MultipleNetworkPool);
         assertTrue(AbstractNetworkPool.create(network, otherVariant, 1) instanceof SingleNetworkPool);
     }
 
     @Test
-    public void networkPoolUsageTest() {
+    void networkPoolUsageTest() {
         try (AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 10)) {
             Network networkCopy = pool.getAvailableNetwork();
 
@@ -52,7 +52,7 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void singleNetworkPoolUsageTest() throws InterruptedException {
+    void singleNetworkPoolUsageTest() throws InterruptedException {
         AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 1);
         Network networkCopy = pool.getAvailableNetwork();
 
@@ -68,7 +68,7 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void checkMDCIsCopied() throws InterruptedException {
+    void checkMDCIsCopied() throws InterruptedException {
         Logger logger = (Logger) LoggerFactory.getLogger("LOGGER");
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();

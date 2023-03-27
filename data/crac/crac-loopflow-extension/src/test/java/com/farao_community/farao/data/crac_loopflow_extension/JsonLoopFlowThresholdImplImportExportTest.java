@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonLoopFlowThresholdImplImportExportTest {
+class JsonLoopFlowThresholdImplImportExportTest {
 
     @Test
-    public void roundTripTest() {
+    void roundTripTest() {
         Crac crac = new CracImpl("cracId");
 
         crac.newFlowCnec()

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UnoptimizedCnecParametersTest {
+class UnoptimizedCnecParametersTest {
 
     private Crac crac;
 
@@ -39,7 +39,7 @@ public class UnoptimizedCnecParametersTest {
     }
 
     @Test
-    public void buildWithoutOptimizingOperatorsNotSharingCras() {
+    void buildWithoutOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
@@ -50,7 +50,7 @@ public class UnoptimizedCnecParametersTest {
     }
 
     @Test
-    public void buildWhileOptimizingOperatorsNotSharingCras() {
+    void buildWhileOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
@@ -59,7 +59,7 @@ public class UnoptimizedCnecParametersTest {
     }
 
     @Test
-    public void testUnoptimizedCnecsInSeriesWithPsts() {
+    void testUnoptimizedCnecsInSeriesWithPsts() {
 
         Crac crac = CracFactory.findDefault().create("crac");
 

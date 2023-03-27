@@ -31,11 +31,11 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PrePerimeterSensitivityResultImplTest {
+class PrePerimeterSensitivityResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
         FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
 

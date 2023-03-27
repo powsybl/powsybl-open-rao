@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintImplTest {
+class OnFlowConstraintImplTest {
     FlowCnec flowCnec;
     State preventiveState;
     State curativeState;
@@ -37,7 +37,7 @@ public class OnFlowConstraintImplTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
 
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
@@ -48,7 +48,7 @@ public class OnFlowConstraintImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
@@ -70,7 +70,7 @@ public class OnFlowConstraintImplTest {
     }
 
     @Test
-    public void testGetUsageMethod() {
+    void testGetUsageMethod() {
         State curativeState2 = Mockito.mock(State.class);
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);

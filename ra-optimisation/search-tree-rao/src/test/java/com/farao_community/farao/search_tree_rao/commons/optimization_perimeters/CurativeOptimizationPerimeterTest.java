@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
+class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
     @BeforeEach
     public void setUp() {
@@ -27,7 +27,7 @@ public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerim
     }
 
     @Test
-    public void curativePerimeterTest() {
+    void curativePerimeterTest() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(500.);
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
@@ -50,7 +50,7 @@ public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerim
     }
 
     @Test
-    public void curativePerimeterbuildOnPreventiveStateTest() {
+    void curativePerimeterbuildOnPreventiveStateTest() {
         assertThrows(FaraoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));
     }
 }

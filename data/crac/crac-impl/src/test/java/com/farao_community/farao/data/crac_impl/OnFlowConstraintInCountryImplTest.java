@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintInCountryImplTest {
+class OnFlowConstraintInCountryImplTest {
     State preventiveState;
     State curativeState;
 
@@ -34,7 +34,7 @@ public class OnFlowConstraintInCountryImplTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.EC);
 
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
@@ -45,7 +45,7 @@ public class OnFlowConstraintInCountryImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         OnFlowConstraintInCountry onFlowConstraint1 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());

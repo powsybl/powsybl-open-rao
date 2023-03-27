@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteFlowElementHelperTest {
+class UcteFlowElementHelperTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private UcteNetworkAnalyzer networkHelper;
@@ -29,7 +29,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidInternalBranch() {
+    void testValidInternalBranch() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
         // internal branch with order code, from/to same as network
         UcteFlowElementHelper branchHelper = new UcteFlowElementHelper("BBE1AA1 ", "BBE2AA1 ", "1", null, networkHelper);
@@ -87,7 +87,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidInternalBranchReplace8th() {
+    void testValidInternalBranchReplace8th() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
         // internal branch with order code, from/to same as network
         UcteFlowElementHelper branchHelper = new UcteFlowElementHelper("BBE1AA18", "BBE2AA18", "1", null, alternativeNetworkHelper);
@@ -145,7 +145,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidInternalBranchReplace8thWithSeveralMatches() {
+    void testValidInternalBranchReplace8thWithSeveralMatches() {
         setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         // if exact branch is found, we do not replace the 8th character
@@ -170,7 +170,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidInternalBranch() {
+    void testInvalidInternalBranch() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // unknown from
@@ -188,7 +188,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidTransformer() {
+    void testValidTransformer() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         /* note that transformers from/to node are systematically inverted by PowSyBl UCTE importer
@@ -285,7 +285,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidTransformer() {
+    void testInvalidTransformer() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // transformer exists but not with this order code
@@ -296,7 +296,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidTieLine() {
+    void testValidTieLine() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // tie-line with order code
@@ -375,7 +375,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidTieLine() {
+    void testInvalidTieLine() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // tie-line exists but not with this order code
@@ -386,7 +386,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidDanglingLine() {
+    void testValidDanglingLine() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // dangling-line with order code
@@ -425,7 +425,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidDanglingLine() {
+    void testInvalidDanglingLine() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // dangling-line exists but not with this order code
@@ -436,7 +436,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testWithSevenCharacters() {
+    void testWithSevenCharacters() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         /*
@@ -466,7 +466,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testOtherConstructors() {
+    void testOtherConstructors() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // element name
@@ -505,7 +505,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidConstructor() {
+    void testInvalidConstructor() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // no from
@@ -526,7 +526,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidBranchIdConstructor() {
+    void testInvalidBranchIdConstructor() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         /*
@@ -559,7 +559,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidBranchesWithWildCard() {
+    void testValidBranchesWithWildCard() {
         setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         // internal branch with order code, from/to same as network
@@ -583,7 +583,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testInvalidBranchesWithWildCard() {
+    void testInvalidBranchesWithWildCard() {
         setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         // multiple matches
@@ -592,7 +592,7 @@ public class UcteFlowElementHelperTest {
     }
 
     @Test
-    public void testValidTransformerWithWildcardAmbiguity() {
+    void testValidTransformerWithWildcardAmbiguity() {
         // In this case, from->to and to->from match, because of the ambiguity introduced by the wildcard:
         // "BBE2AA1*" -> "BBE2AA1*" "1" can match BBE2AA13 BBE2AA11 1 or BBE2AA11 BBE2AA13 1
         // Priority should be given to first match (as written in the network), although Powsybl has the opposite convention

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class CracCleanerTest {
+class CracCleanerTest {
 
     private Network network;
 
@@ -36,7 +36,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testCleanCrac() {
+    void testCleanCrac() {
         Crac crac = CracFactory.findDefault().create("cracId");
 
         // contingencies
@@ -280,7 +280,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testIgnoreRemoveUnmonitoredCnecs() {
+    void testIgnoreRemoveUnmonitoredCnecs() {
         Crac crac = createTestCrac();
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
@@ -290,7 +290,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testRemoveUnmonitoredCnecs() {
+    void testRemoveUnmonitoredCnecs() {
         Crac crac = createTestCrac();
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.enableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
@@ -301,7 +301,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testRemoveOnStateUsageRule() {
+    void testRemoveOnStateUsageRule() {
         Crac crac = CracFactory.findDefault().create("cracId");
 
         crac.newContingency()

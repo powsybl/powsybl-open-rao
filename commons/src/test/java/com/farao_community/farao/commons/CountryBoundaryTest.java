@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CountryBoundaryTest {
+class CountryBoundaryTest {
 
     private CountryBoundary boundaryFrBe;
 
@@ -27,13 +27,13 @@ public class CountryBoundaryTest {
     }
 
     @Test
-    public void testGetCountry() {
+    void testGetCountry() {
         assertTrue(boundaryFrBe.getCountryLeft().equals(Country.FR) || boundaryFrBe.getCountryRight().equals(Country.FR));
         assertTrue(boundaryFrBe.getCountryLeft().equals(Country.BE) || boundaryFrBe.getCountryRight().equals(Country.BE));
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         assertEquals(boundaryFrBe, new CountryBoundary(Country.FR, Country.BE));
         assertEquals(boundaryFrBe, new CountryBoundary(Country.BE, Country.FR));
         assertNotEquals(boundaryFrBe, new CountryBoundary(Country.BE, Country.DE));
@@ -42,7 +42,7 @@ public class CountryBoundaryTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("FR/BE", boundaryFrBe.toString());
     }
 }

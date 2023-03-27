@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UcteNetworkAnalyzerTest {
+class UcteNetworkAnalyzerTest {
 
     @Test
-    public void testGetter() {
+    void testGetter() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
         UcteNetworkAnalyzerProperties properties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS);
         UcteNetworkAnalyzer networkAnalyzer = new UcteNetworkAnalyzer(network, properties);
@@ -28,7 +28,7 @@ public class UcteNetworkAnalyzerTest {
     }
 
     @Test
-    public void testBusIdMatchPolicy() {
+    void testBusIdMatchPolicy() {
 
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
 
@@ -44,7 +44,7 @@ public class UcteNetworkAnalyzerTest {
     }
 
     @Test
-    public void testMethodFindDependingOnSoughtElement1() {
+    void testMethodFindDependingOnSoughtElement1() {
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         UcteNetworkAnalyzer networkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES));

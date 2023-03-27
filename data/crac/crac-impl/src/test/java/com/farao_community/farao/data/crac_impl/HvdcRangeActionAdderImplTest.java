@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class HvdcRangeActionAdderImplTest {
+class HvdcRangeActionAdderImplTest {
     private CracImpl crac;
     private String networkElementId;
 
@@ -31,7 +31,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -54,7 +54,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddAuto() {
+    void testAddAuto() {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -81,7 +81,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddAutoWithoutSpeed() {
+    void testAddAutoWithoutSpeed() {
         assertThrows(FaraoException.class, () ->
             crac.newHvdcRangeAction()
                     .withId("id1")
@@ -98,7 +98,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutGroupId() {
+    void testAddWithoutGroupId() {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -118,7 +118,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutUsageRule() {
+    void testAddWithoutUsageRule() {
         /*
         This behaviour is considered admissible:
             - without usage rule, the remedial action will never be available
@@ -140,7 +140,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutOperator() {
+    void testAddWithoutOperator() {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withNetworkElement(networkElementId)
@@ -159,7 +159,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoIdFail() {
+    void testNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newHvdcRangeAction()
                     .withOperator("BE")
@@ -168,7 +168,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElementFail() {
+    void testNoNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newHvdcRangeAction()
                     .withId("id1")
@@ -177,7 +177,7 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testIdNotUnique() {
+    void testIdNotUnique() {
         crac.newNetworkAction()
                 .withId("sameId")
                 .withOperator("BE")

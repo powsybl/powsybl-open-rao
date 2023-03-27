@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class StateDeserializerTest {
+class StateDeserializerTest {
 
     @Test
-    public void testGetState() {
+    void testGetState() {
         Crac crac = Mockito.mock(Crac.class);
         State preventiveState = Mockito.mock(State.class);
         State curativeState = Mockito.mock(State.class);

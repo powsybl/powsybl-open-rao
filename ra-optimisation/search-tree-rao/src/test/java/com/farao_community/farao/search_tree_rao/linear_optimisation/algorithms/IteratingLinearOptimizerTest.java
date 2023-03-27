@@ -52,7 +52,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class IteratingLinearOptimizerTest {
+class IteratingLinearOptimizerTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
 
     private RangeAction<?> rangeAction;
@@ -183,7 +183,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void firstOptimizationFails() {
+    void firstOptimizationFails() {
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
@@ -193,7 +193,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void firstLinearProblemDoesNotChangeSetPoint() {
+    void firstLinearProblemDoesNotChangeSetPoint() {
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(0.));
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
@@ -207,7 +207,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void secondLinearProblemDoesNotChangeSetPoint() {
+    void secondLinearProblemDoesNotChangeSetPoint() {
         mockLinearProblem(Collections.nCopies(2, LinearProblemStatus.OPTIMAL), List.of(1., 1.));
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
@@ -221,7 +221,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void firstLinearProblemChangesSetPointButWorsenFunctionalCost() {
+    void firstLinearProblemChangesSetPointButWorsenFunctionalCost() {
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100., 140.);
         prepareLinearProblemBuilder();
@@ -235,7 +235,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void reachMaxIterations() {
+    void reachMaxIterations() {
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
         prepareLinearProblemBuilder();
@@ -249,7 +249,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void optimizeWithInfeasibility() {
+    void optimizeWithInfeasibility() {
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.INFEASIBLE), List.of(1.));
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
@@ -263,7 +263,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void optimizeWithSensitivityComputationFailure() {
+    void optimizeWithSensitivityComputationFailure() {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
@@ -281,7 +281,7 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
-    public void testUnapplyRangeAction() {
+    void testUnapplyRangeAction() {
         network = NetworkImportsUtil.import12NodesNetwork();
         when(input.getNetwork()).thenReturn(network);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.OPTIMAL), List.of(1., 2.));

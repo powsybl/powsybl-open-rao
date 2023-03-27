@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class JsonFlowbasedDomainTest extends AbstractConverterTest {
+class JsonFlowbasedDomainTest extends AbstractConverterTest {
 
     private static final double EPSILON = 1e-3;
 
@@ -57,12 +57,12 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), JsonFlowbasedDomainTest::write, JsonFlowbasedDomainTest::read, "/dataDomain.json");
     }
 
     @Test
-    public void testUtilityMethods() {
+    void testUtilityMethods() {
         DataDomain flowbasedDomain = JsonFlowbasedDomainTest.create();
 
         assertNotNull(flowbasedDomain.getDataPreContingency().findMonitoredBranchById("FLOWBASED_DATA_DOMAIN_BRANCH_1"));
@@ -73,13 +73,13 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExceptionCases() {
+    void testExceptionCases() {
         InputStream resource = getClass().getResourceAsStream("/notExistingFile.json");
         assertThrows(IllegalArgumentException.class, () -> JsonFlowbasedDomain.read(resource));
     }
 
     @Test
-    public void testGetters() {
+    void testGetters() {
         DataDomain flowbasedDomain = JsonFlowbasedDomainTest.create();
         assertEquals("FLOWBASED_DATA_DOMAIN_ID", flowbasedDomain.getId());
         assertEquals("This is an example of Flow-based data domain inputs for FARAO", flowbasedDomain.getName());

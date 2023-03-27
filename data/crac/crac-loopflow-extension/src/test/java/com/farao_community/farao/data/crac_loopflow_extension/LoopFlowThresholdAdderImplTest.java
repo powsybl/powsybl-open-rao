@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LoopFlowThresholdAdderImplTest {
+class LoopFlowThresholdAdderImplTest {
 
     private FlowCnec flowCnec;
 
@@ -37,7 +37,7 @@ public class LoopFlowThresholdAdderImplTest {
     }
 
     @Test
-    public void addLoopFlowThreshold() {
+    void addLoopFlowThreshold() {
 
         flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT)
@@ -51,7 +51,7 @@ public class LoopFlowThresholdAdderImplTest {
     }
 
     @Test
-    public void addLoopFlowThresholdNoValue() {
+    void addLoopFlowThresholdNoValue() {
         assertThrows(FaraoException.class, () ->
             flowCnec.newExtension(LoopFlowThresholdAdder.class)
                 .withUnit(Unit.MEGAWATT)
@@ -59,7 +59,7 @@ public class LoopFlowThresholdAdderImplTest {
     }
 
     @Test
-    public void addLoopFlowThresholdNoUnit() {
+    void addLoopFlowThresholdNoUnit() {
         assertThrows(FaraoException.class, () ->
             flowCnec.newExtension(LoopFlowThresholdAdder.class)
                 .withValue(100.0)
@@ -67,7 +67,7 @@ public class LoopFlowThresholdAdderImplTest {
     }
 
     @Test
-    public void addLoopFlowThresholdNegativeThreshold() {
+    void addLoopFlowThresholdNegativeThreshold() {
         assertThrows(FaraoException.class, () ->
             flowCnec.newExtension(LoopFlowThresholdAdder.class)
                 .withUnit(Unit.MEGAWATT)
@@ -76,7 +76,7 @@ public class LoopFlowThresholdAdderImplTest {
     }
 
     @Test
-    public void addLoopFlowThresholdPercentGreaterThanOne() {
+    void addLoopFlowThresholdPercentGreaterThanOne() {
         assertThrows(FaraoException.class, () ->
             flowCnec.newExtension(LoopFlowThresholdAdder.class)
                 .withUnit(Unit.PERCENT_IMAX)

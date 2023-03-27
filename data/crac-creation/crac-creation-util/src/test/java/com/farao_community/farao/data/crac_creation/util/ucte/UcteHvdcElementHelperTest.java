@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UcteHvdcElementHelperTest {
+class UcteHvdcElementHelperTest {
 
     private UcteNetworkAnalyzer networkHelper;
 
@@ -22,7 +22,7 @@ public class UcteHvdcElementHelperTest {
     }
 
     @Test
-    public void testValidHvdc() {
+    void testValidHvdc() {
         setUp("TestCase16NodesWithHvdc.xiidm");
 
         // from/to same as network
@@ -39,7 +39,7 @@ public class UcteHvdcElementHelperTest {
     }
 
     @Test
-    public void testInvalidHvdc() {
+    void testInvalidHvdc() {
         setUp("TestCase16NodesWithHvdc.xiidm");
 
         // invalid order code
@@ -50,7 +50,7 @@ public class UcteHvdcElementHelperTest {
     }
 
     @Test
-    public void testOtherConstructor() {
+    void testOtherConstructor() {
         setUp("TestCase16NodesWithHvdc.xiidm");
         assertTrue(new UcteHvdcElementHelper("FFR3AA11", "BBE2AA11", "1", networkHelper).isValid());
         assertTrue(new UcteHvdcElementHelper("BBE2AA11 FFR3AA11 1", networkHelper).isValid());

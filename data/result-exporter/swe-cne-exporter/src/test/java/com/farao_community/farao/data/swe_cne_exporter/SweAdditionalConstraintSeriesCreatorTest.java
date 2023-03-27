@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SweAdditionalConstraintSeriesCreatorTest {
+class SweAdditionalConstraintSeriesCreatorTest {
 
     private SweCneHelper sweCneHelper;
     private Crac crac;
@@ -65,7 +65,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generatePreventiveAdditionalConstraintSeriesTest() {
+    void generatePreventiveAdditionalConstraintSeriesTest() {
         AngleCnecCreationContext accPrev = createAdcs("AngleCnecIdPrev", null);
         AngleCnec angleCnecPrev = Mockito.mock(AngleCnec.class);
         Mockito.when(crac.getAngleCnec(accPrev.getCreatedCnecId())).thenReturn(angleCnecPrev);
@@ -80,7 +80,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generateWrongPostContingencyAdditionalConstraintSeriesTest() {
+    void generateWrongPostContingencyAdditionalConstraintSeriesTest() {
         AngleCnecCreationContext accOutage = createAdcs("AngleCnecIdOutage", "contingency");
         AngleCnecCreationContext accAuto = createAdcs("AngleCnecIdAuto", "contingency");
         AngleCnec angleCnecOutage = Mockito.mock(AngleCnec.class);
@@ -104,7 +104,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generateContingencyAdditionalConstraintSeriesTest() {
+    void generateContingencyAdditionalConstraintSeriesTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = setUpAngleCnecs(contingency);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
@@ -120,7 +120,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringTest() {
+    void generateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(angleMonitoringResult.isDivergent()).thenReturn(true);
         setUpAngleCnecs(contingency);

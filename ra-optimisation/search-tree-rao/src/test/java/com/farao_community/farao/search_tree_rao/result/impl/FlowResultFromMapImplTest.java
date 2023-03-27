@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowResultFromMapImplTest {
+class FlowResultFromMapImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
@@ -48,7 +48,7 @@ public class FlowResultFromMapImplTest {
     }
 
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, LEFT)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, RIGHT)).thenReturn(250.);
         when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, LEFT)).thenReturn(58.);
@@ -82,7 +82,7 @@ public class FlowResultFromMapImplTest {
     }
 
     @Test
-    public void testNanFlow() {
+    void testNanFlow() {
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, LEFT)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, LEFT)).thenReturn(500.);
@@ -94,7 +94,7 @@ public class FlowResultFromMapImplTest {
     }
 
     @Test
-    public void testWrongFlowUnit() {
+    void testWrongFlowUnit() {
         assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT));
         assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
         assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));

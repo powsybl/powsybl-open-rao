@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class StandardRangeAdderImplTest {
+class StandardRangeAdderImplTest {
     private HvdcRangeActionAdder hvdcRangeActionAdder;
 
     @BeforeEach
@@ -34,7 +34,7 @@ public class StandardRangeAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -46,21 +46,21 @@ public class StandardRangeAdderImplTest {
     }
 
     @Test
-    public void testNoMin() {
+    void testNoMin() {
         assertThrows(FaraoException.class, () ->
             hvdcRangeActionAdder.newRange().withMax(16).add()
                 .add());
     }
 
     @Test
-    public void testNoMax() {
+    void testNoMax() {
         assertThrows(FaraoException.class, () ->
             hvdcRangeActionAdder.newRange().withMin(16).add()
                 .add());
     }
 
     @Test
-    public void testMinGreaterThanMax() {
+    void testMinGreaterThanMax() {
         assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.newRange().withMin(10).withMax(-5).add());
     }
 }

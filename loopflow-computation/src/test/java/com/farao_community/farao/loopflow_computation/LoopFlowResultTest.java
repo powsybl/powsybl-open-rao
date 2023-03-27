@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowResultTest {
+class LoopFlowResultTest {
 
     private final static double DOUBLE_TOLERANCE = 0.01;
     private BranchCnec<?> cnec;
@@ -30,7 +30,7 @@ public class LoopFlowResultTest {
     }
 
     @Test
-    public void loopFlowResultTest() {
+    void loopFlowResultTest() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
         loopFlowResult.addCnecResult(cnec, Side.RIGHT, 1., 2., 3.);
         assertEquals(1., loopFlowResult.getLoopFlow(cnec, Side.RIGHT), DOUBLE_TOLERANCE);
@@ -39,7 +39,7 @@ public class LoopFlowResultTest {
     }
 
     @Test
-    public void loopFlowResultCnecNotFound() {
+    void loopFlowResultCnecNotFound() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
         assertThrows(FaraoException.class, () -> loopFlowResult.getLoopFlow(cnec, Side.RIGHT));
     }

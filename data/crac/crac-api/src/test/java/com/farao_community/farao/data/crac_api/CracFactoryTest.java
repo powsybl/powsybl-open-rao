@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CracFactoryTest {
+class CracFactoryTest {
 
     @Test
-    public void testGetFactory() {
+    void testGetFactory() {
         CracFactory cf1 = CracFactory.find("MockCracFactory1");
         assertNotNull(cf1);
         assertEquals(cf1.getClass(), MockCracFactory1.class);
@@ -28,17 +28,17 @@ public class CracFactoryTest {
     }
 
     @Test
-    public void mustThrowIfImplemNotFound() {
+    void mustThrowIfImplemNotFound() {
         assertThrows(FaraoException.class, () -> CracFactory.find("SimpleCracFactory"));
     }
 
     @Test
-    public void mustThrowIfNameNullAndMultipleImplem() {
+    void mustThrowIfNameNullAndMultipleImplem() {
         assertThrows(FaraoException.class, () -> CracFactory.find(null));
     }
 
     @Test
-    public void testDefaultConfig() {
+    void testDefaultConfig() {
         CracFactory cf = CracFactory.findDefault();
         assertNotNull(cf);
         assertEquals(cf.getClass(), MockCracFactory1.class);

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionCombinationTest {
+class NetworkActionCombinationTest {
 
     private NetworkAction networkAction1;
     private NetworkAction networkAction2;
@@ -57,7 +57,7 @@ public class NetworkActionCombinationTest {
     }
 
     @Test
-    public void individualCombinationTest() {
+    void individualCombinationTest() {
 
         NetworkActionCombination naCombination = new NetworkActionCombination(networkAction1);
 
@@ -69,7 +69,7 @@ public class NetworkActionCombinationTest {
     }
 
     @Test
-    public void multipleCombinationTest() {
+    void multipleCombinationTest() {
 
         NetworkActionCombination naCombination = new NetworkActionCombination(Set.of(networkAction1, networkAction2, networkAction3));
 

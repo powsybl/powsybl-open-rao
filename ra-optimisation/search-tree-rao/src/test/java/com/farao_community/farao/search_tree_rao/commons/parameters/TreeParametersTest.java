@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class TreeParametersTest {
+class TreeParametersTest {
     RaoParameters raoParameters;
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
@@ -30,7 +30,7 @@ public class TreeParametersTest {
     }
 
     @Test
-    public void testPreventive() {
+    void testPreventive() {
         // test with min objective
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
@@ -52,7 +52,7 @@ public class TreeParametersTest {
     }
 
     @Test
-    public void testCurativeMinObjective() {
+    void testCurativeMinObjective() {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
@@ -63,7 +63,7 @@ public class TreeParametersTest {
     }
 
     @Test
-    public void testCurativeSecureStopCriterion() {
+    void testCurativeSecureStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
         raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(16);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
@@ -76,7 +76,7 @@ public class TreeParametersTest {
     }
 
     @Test
-    public void testCurativePreventiveObjectiveStopCriterion() {
+    void testCurativePreventiveObjectiveStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE);
         raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
         raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(0);
@@ -89,7 +89,7 @@ public class TreeParametersTest {
     }
 
     @Test
-    public void testCurativePreventiveObjectiveAndSecureStopCriterion() {
+    void testCurativePreventiveObjectiveAndSecureStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
 
@@ -116,7 +116,7 @@ public class TreeParametersTest {
     }
 
     @Test
-    public void testSecondPreventive() {
+    void testSecondPreventive() {
         // test with min objective
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);

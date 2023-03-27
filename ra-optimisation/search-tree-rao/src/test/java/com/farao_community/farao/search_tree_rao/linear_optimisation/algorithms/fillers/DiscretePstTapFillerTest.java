@@ -34,10 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class DiscretePstTapFillerTest extends AbstractFillerTest {
+class DiscretePstTapFillerTest extends AbstractFillerTest {
 
     @Test
-    public void testFillAndUpdateMethods() {
+    void testFillAndUpdateMethods() {
 
         // prepare data
         init();

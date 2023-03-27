@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionRangeActionSensiHandlerTest {
+class InjectionRangeActionSensiHandlerTest {
 
     @Test
-    public void checkConsistencyOKTest() {
+    void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -47,7 +47,7 @@ public class InjectionRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void getSensitivityOnFlowSimpleTest() {
+    void getSensitivityOnFlowSimpleTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -67,7 +67,7 @@ public class InjectionRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void getSensitivityOnFlowComplexTest() {
+    void getSensitivityOnFlowComplexTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -92,7 +92,7 @@ public class InjectionRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void checkConsistencyNotAnInjection() {
+    void checkConsistencyNotAnInjection() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -107,7 +107,7 @@ public class InjectionRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void checkConsistencyNotANetworkElement() {
+    void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")

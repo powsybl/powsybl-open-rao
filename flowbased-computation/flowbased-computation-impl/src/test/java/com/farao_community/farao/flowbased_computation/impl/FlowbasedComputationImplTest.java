@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowbasedComputationImplTest {
+class FlowbasedComputationImplTest {
     private static final double EPSILON = 1e-3;
     private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
@@ -58,17 +58,17 @@ public class FlowbasedComputationImplTest {
     }
 
     @Test
-    public void testProviderName() {
+    void testProviderName() {
         assertEquals("SimpleIterativeFlowBased", flowBasedComputationProvider.getName());
     }
 
     @Test
-    public void testProviderVersion() {
+    void testProviderVersion() {
         assertEquals("1.0.0", flowBasedComputationProvider.getVersion());
     }
 
     @Test
-    public void testRunWithCra() {
+    void testRunWithCra() {
         crac = ExampleGenerator.crac("crac.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
@@ -78,7 +78,7 @@ public class FlowbasedComputationImplTest {
     }
 
     @Test
-    public void testRunWithCraRaoResult() {
+    void testRunWithCraRaoResult() {
         crac = ExampleGenerator.crac("crac_for_rao_result.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
@@ -89,14 +89,14 @@ public class FlowbasedComputationImplTest {
     }
 
     @Test
-    public void testRunPraWithForced() {
+    void testRunPraWithForced() {
         crac = ExampleGenerator.crac("crac_with_forced.json");
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
     @Test
-    public void testRunPraWithExtension() {
+    void testRunPraWithExtension() {
         crac = ExampleGenerator.crac("crac_with_extension.json");
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);

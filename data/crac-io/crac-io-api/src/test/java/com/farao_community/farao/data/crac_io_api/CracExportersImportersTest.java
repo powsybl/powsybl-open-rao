@@ -22,25 +22,25 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class CracExportersImportersTest {
+class CracExportersImportersTest {
 
     private String cracFile = "/empty.txt";
 
     @Test
-    public void testExport() {
+    void testExport() {
         Crac crac = Mockito.mock(Crac.class);
         Path path = Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath());
         assertThrows(NotImplementedException.class, () -> CracExporters.exportCrac(crac, "Mock", path));
     }
 
     @Test
-    public void testImport() {
+    void testImport() {
         Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
         assertNotNull(crac);
     }
 
     @Test
-    public void testImportWithInstant() {
+    void testImportWithInstant() {
         Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
         assertNotNull(crac);
     }

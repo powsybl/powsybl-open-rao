@@ -24,11 +24,11 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SensitivityResultImplTest {
+class SensitivityResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testSensitivitiesOnRangeAction() {
+    void testSensitivitiesOnRangeAction() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
                 systematicSensitivityResult
@@ -47,7 +47,7 @@ public class SensitivityResultImplTest {
     }
 
     @Test
-    public void testSensitivitiesOnLinearGLSK() {
+    void testSensitivitiesOnLinearGLSK() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
                 systematicSensitivityResult
@@ -62,7 +62,7 @@ public class SensitivityResultImplTest {
     }
 
     @Test
-    public void testStatus() {
+    void testStatus() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
                 systematicSensitivityResult

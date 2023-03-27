@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
  */
-public class EICodeTest {
+class EICodeTest {
 
     @Test
-    public void constructorWithStringOk() {
+    void constructorWithStringOk() {
         EICode eiCodeNotACountry = new EICode("RANDOM_EIC_CODE_");
         assertEquals("RANDOM_EIC_CODE_", eiCodeNotACountry.getAreaCode());
         assertFalse(eiCodeNotACountry.isCountryCode());
@@ -28,12 +28,12 @@ public class EICodeTest {
     }
 
     @Test
-    public void constructorWithStringNOk() {
+    void constructorWithStringNOk() {
         assertThrows(IllegalArgumentException.class, () -> new EICode("RANDOM_EIC_CODE_WITH_TOO_MUCH_CHARACTERS"));
     }
 
     @Test
-    public void constructorWithCountryOk() {
+    void constructorWithCountryOk() {
         EICode eiCodeFr = new EICode(Country.FR);
         assertEquals("10YFR-RTE------C", eiCodeFr.getAreaCode());
         assertTrue(eiCodeFr.isCountryCode());
@@ -44,12 +44,12 @@ public class EICodeTest {
     }
 
     @Test
-    public void constructorWithCountryNOk() {
+    void constructorWithCountryNOk() {
         assertThrows(IllegalArgumentException.class, () -> new EICode(Country.NP));
     }
 
     @Test
-    public void toStringTest() {
+    void toStringTest() {
         EICode eiCodeNotACountry = new EICode("RANDOM_EIC_CODE_");
         assertEquals("RANDOM_EIC_CODE_", eiCodeNotACountry.toString());
 

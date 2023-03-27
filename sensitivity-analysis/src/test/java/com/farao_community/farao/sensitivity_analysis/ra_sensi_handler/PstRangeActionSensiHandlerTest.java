@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeActionSensiHandlerTest {
+class PstRangeActionSensiHandlerTest {
 
     @Test
-    public void checkConsistencyOKTest() {
+    void checkConsistencyOKTest() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(crac.getPstRangeAction("pst"));
@@ -39,7 +39,7 @@ public class PstRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void getSensitivityOnFlowTest() {
+    void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(crac.getPstRangeAction("pst"));
@@ -53,7 +53,7 @@ public class PstRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void checkConsistencyNotAPst() {
+    void checkConsistencyNotAPst() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
@@ -70,7 +70,7 @@ public class PstRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void checkConsistencyNotANetworkElement() {
+    void checkConsistencyNotANetworkElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         PstRangeAction pstRangeAction = crac.newPstRangeAction()

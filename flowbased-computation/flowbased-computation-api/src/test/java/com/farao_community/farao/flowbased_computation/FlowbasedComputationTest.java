@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class FlowbasedComputationTest {
+class FlowbasedComputationTest {
 
     private Network network;
 
@@ -38,7 +38,7 @@ public class FlowbasedComputationTest {
     }
 
     @Test
-    public void testDefaultProvider() {
+    void testDefaultProvider() {
         // case with only one provider, no need for config
         FlowbasedComputation.Runner defaultFlowBased = FlowbasedComputation.find();
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());

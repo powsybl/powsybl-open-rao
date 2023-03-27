@@ -36,7 +36,7 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowResultAdapterImplTest {
+class FlowResultAdapterImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Network network;
@@ -57,7 +57,7 @@ public class FlowResultAdapterImplTest {
     }
 
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .build();
 
@@ -75,7 +75,7 @@ public class FlowResultAdapterImplTest {
     }
 
     @Test
-    public void testWithFixedPtdfs() {
+    void testWithFixedPtdfs() {
         FlowResult fixedPtdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
             .withPtdfsResults(fixedPtdfFlowResult)
@@ -87,7 +87,7 @@ public class FlowResultAdapterImplTest {
     }
 
     @Test
-    public void testWithFixedPtdfsAndCommercialFlows() {
+    void testWithFixedPtdfsAndCommercialFlows() {
         FlowResult ptdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         FlowResult commercialFlowFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(RIGHT, 300.)), new HashMap<>());
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
@@ -102,7 +102,7 @@ public class FlowResultAdapterImplTest {
     }
 
     @Test
-    public void testWithFixedPtdfsAndUpdatedCommercialFlows() {
+    void testWithFixedPtdfsAndUpdatedCommercialFlows() {
         LoopFlowComputation loopFlowComputation = Mockito.mock(LoopFlowComputation.class);
         FlowResult ptdfFlowResult = new FlowResultFromMapImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(LEFT, 20.)));
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder.withPtdfsResults(ptdfFlowResult)
@@ -120,7 +120,7 @@ public class FlowResultAdapterImplTest {
     }
 
     @Test
-    public void testWithAbsolutePtdfSumsComputation() {
+    void testWithAbsolutePtdfSumsComputation() {
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = Mockito.mock(AbsolutePtdfSumsComputation.class);
         Map<FlowCnec, Map<Side, Double>> ptdfZonalSums = Map.of(cnec1, Map.of(LEFT, 1.63), cnec2, Map.of(RIGHT, 0.57));
         when(absolutePtdfSumsComputation.computeAbsolutePtdfSums(any(), any())).thenReturn(ptdfZonalSums);

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CoreCneTest {
+class CoreCneTest {
     private Crac crac;
     private Network network;
     private RaoResult raoResult;
@@ -51,7 +51,7 @@ public class CoreCneTest {
     }
 
     @Test
-    public void testHeader() {
+    void testHeader() {
         exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
             "22XCORESO------S", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00:00Z/2021-10-31T23:00:00Z");

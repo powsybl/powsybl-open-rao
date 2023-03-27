@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeActionImplTest {
+class PstRangeActionImplTest {
     private Crac crac;
     private PstRangeActionAdder pstRangeActionAdder;
     private String networkElementId;
@@ -56,7 +56,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void apply() {
+    void apply() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
         assertEquals(0, pstRa.getCurrentTapPosition(network));
@@ -68,26 +68,26 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void applyOutOfBound() {
+    void applyOutOfBound() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
         assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test
-    public void applyOnUnknownPst() {
+    void applyOnUnknownPst() {
         PstRangeAction pstRa = pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
         assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test
-    public void applyOnTransformerWithNoPhaseShifter() {
+    void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = pstRangeActionAdder.add();
         assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test
-    public void pstWithoutSpecificRange() {
+    void pstWithoutSpecificRange() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
 
         double minAngleInNetwork = phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha();
@@ -98,7 +98,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void pstWithAbsoluteCenteredZeroRange() {
+    void pstWithAbsoluteCenteredZeroRange() {
         PstRangeAction pstRa = pstRangeActionAdder
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.ABSOLUTE).add()
             .add();
@@ -112,7 +112,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void pstWithRelativeToPreviousInstantRange() {
+    void pstWithRelativeToPreviousInstantRange() {
 
         PstRangeAction pstRa = pstRangeActionAdder
             .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -134,7 +134,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void pstWithRelativeToInitialNetworkRange() {
+    void pstWithRelativeToInitialNetworkRange() {
 
         PstRangeAction pstRa = pstRangeActionAdder
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).add()
@@ -149,7 +149,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void computeCurrentValue() {
+    void computeCurrentValue() {
 
         PstRangeAction pstRa = pstRangeActionAdder.add();
 
@@ -160,7 +160,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void getCurrentSetpointTest() {
+    void getCurrentSetpointTest() {
 
         PstRangeAction pstRa = pstRangeActionAdder.add();
 
@@ -171,7 +171,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void handleDecreasingAnglesMinMax() {
+    void handleDecreasingAnglesMinMax() {
         // First test case where deltaU is negative
         PstRangeAction pstRa1 = pstRangeActionAdder
             .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
@@ -199,7 +199,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void testGetLocation() {
+    void testGetLocation() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
         Set<Optional<Country>> countries = pstRa.getLocation(network);
         assertEquals(1, countries.size());
@@ -207,7 +207,7 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void pstEquals() {
+    void pstEquals() {
 
         PstRangeAction pstRa1 = pstRangeActionAdder.add();
         PstRangeAction pstRa2 = pstRangeActionAdder.withId("anotherId").add();

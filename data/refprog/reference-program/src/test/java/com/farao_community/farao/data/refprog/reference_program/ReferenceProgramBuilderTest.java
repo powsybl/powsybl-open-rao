@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ReferenceProgramBuilderTest {
+class ReferenceProgramBuilderTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private EICode eiCodeFrance;
@@ -35,7 +35,7 @@ public class ReferenceProgramBuilderTest {
     }
 
     @Test
-    public void testLines() {
+    void testLines() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(1000.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
@@ -45,7 +45,7 @@ public class ReferenceProgramBuilderTest {
     }
 
     @Test
-    public void testDanglingLines() {
+    void testDanglingLines() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(0.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
@@ -53,7 +53,7 @@ public class ReferenceProgramBuilderTest {
     }
 
     @Test
-    public void testHvdcLines() {
+    void testHvdcLines() {
         Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(272.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);

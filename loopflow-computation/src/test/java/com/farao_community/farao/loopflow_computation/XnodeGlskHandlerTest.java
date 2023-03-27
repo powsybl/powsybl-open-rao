@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class XnodeGlskHandlerTest {
+class XnodeGlskHandlerTest {
 
     @Test
-    public void test() {
+    void test() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
         String glskFileName = "glsk_with_virtual_hubs.xml";
 

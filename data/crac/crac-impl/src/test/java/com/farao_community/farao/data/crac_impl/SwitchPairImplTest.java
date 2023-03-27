@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SwitchPairImplTest {
+class SwitchPairImplTest {
 
     private Network network;
     private NetworkElement switch1 = new NetworkElementImpl("NNL3AA11 NNL3AA12 1");
@@ -34,7 +34,7 @@ public class SwitchPairImplTest {
     }
 
     @Test
-    public void hasImpactOnNetwork() {
+    void hasImpactOnNetwork() {
         SwitchPair sp1 = new SwitchPairImpl(switch1, switch2);
         SwitchPair sp2 = new SwitchPairImpl(switch2, switch1);
         assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
@@ -57,7 +57,7 @@ public class SwitchPairImplTest {
     }
 
     @Test
-    public void testCanBeApplied() {
+    void testCanBeApplied() {
         SwitchPair sp1 = new SwitchPairImpl(switch1, switch2);
         SwitchPair sp2 = new SwitchPairImpl(switch2, switch1);
         assertEquals(Set.of(switch1, switch2), sp1.getNetworkElements());
@@ -80,7 +80,7 @@ public class SwitchPairImplTest {
     }
 
     @Test
-    public void testApply() {
+    void testApply() {
         network.getSwitch(switch1.getId()).setOpen(false);
         network.getSwitch(switch2.getId()).setOpen(true);
 
@@ -101,7 +101,7 @@ public class SwitchPairImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         assertNotEquals(new SwitchPairImpl(switch1, switch2), null);
         assertNotEquals(new SwitchPairImpl(switch1, switch2), Mockito.mock(TopologicalAction.class));
         assertNotEquals(new SwitchPairImpl(switch1, switch2), new SwitchPairImpl(switch2, switch1));

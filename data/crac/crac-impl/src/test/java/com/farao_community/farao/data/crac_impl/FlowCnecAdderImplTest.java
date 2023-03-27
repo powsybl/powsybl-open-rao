@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FlowCnecAdderImplTest {
+class FlowCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private CracImpl crac;
     private final String contingency1Id = "condId1";
@@ -37,7 +37,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnecId1")
             .withName("cnecName1")
@@ -95,7 +95,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testFrmHandling() {
+    void testFrmHandling() {
         double maxValueInMw = 100.0;
         double frmInMw = 5.0;
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
@@ -110,7 +110,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedMonitored() {
+    void testNotOptimizedMonitored() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -123,7 +123,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testOptimizedNotMonitored() {
+    void testOptimizedNotMonitored() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -136,7 +136,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedNotMonitored() {
+    void testNotOptimizedNotMonitored() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -150,7 +150,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedNotMonitored2() {
+    void testNotOptimizedNotMonitored2() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.OUTAGE)
                 .withContingency(contingency1Id)
@@ -165,7 +165,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void checkThresholdSideInitialisation1() {
+    void checkThresholdSideInitialisation1() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -185,7 +185,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void checkThresholdSideInitialisation2() {
+    void checkThresholdSideInitialisation2() {
         FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -205,12 +205,12 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNullParentFail() {
+    void testNullParentFail() {
         assertThrows(NullPointerException.class, () -> new FlowCnecAdderImpl(null));
     }
 
     @Test
-    public void testUniqueNetworkElement() {
+    void testUniqueNetworkElement() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec()
                 .withNetworkElement("neId1", "neName1")
@@ -218,7 +218,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNoIdFail() {
+    void testNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec()
                 .withName("cnecName1")
@@ -232,7 +232,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNoStateInstantFail() {
+    void testNoStateInstantFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec()
                 .withId("cnecId1")
@@ -246,7 +246,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElementFail() {
+    void testNoNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec()
                 .withId("cnecId1")
@@ -260,7 +260,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testNoThresholdFail() {
+    void testNoThresholdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec()
                 .withId("cnecId1")
@@ -274,7 +274,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAddTwiceError() {
+    void testAddTwiceError() {
         crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.PREVENTIVE)
             .withNetworkElement("Network Element ID")
@@ -293,7 +293,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAddPreventiveCnecWithContingencyError() {
+    void testAddPreventiveCnecWithContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.PREVENTIVE)
@@ -306,7 +306,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAddOutageCnecWithNoContingencyError() {
+    void testAddOutageCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.OUTAGE)
@@ -318,7 +318,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAddAutoCnecWithNoContingencyError() {
+    void testAddAutoCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.AUTO)
@@ -330,7 +330,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAddCurativeCnecWithNoContingencyError() {
+    void testAddCurativeCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.CURATIVE)
@@ -342,7 +342,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testAddCurativeCnecWithAbsentContingencyError() {
+    void testAddCurativeCnecWithAbsentContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.CURATIVE)
@@ -355,7 +355,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdInPercentImaxButNoIMax1() {
+    void testThresholdInPercentImaxButNoIMax1() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.PREVENTIVE)
@@ -366,7 +366,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdInPercentImaxButNoIMax2() {
+    void testThresholdInPercentImaxButNoIMax2() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.PREVENTIVE)
@@ -378,7 +378,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdInAmpereButNoNominalVoltage() {
+    void testThresholdInAmpereButNoNominalVoltage() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.PREVENTIVE)
@@ -389,7 +389,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdInPercentImaxButNoNominalVoltage() {
+    void testThresholdInPercentImaxButNoNominalVoltage() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.PREVENTIVE)
@@ -401,7 +401,7 @@ public class FlowCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdWithUnitKiloVolt() {
+    void testThresholdWithUnitKiloVolt() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.PREVENTIVE)

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ContingencyAdderImplTest {
+class ContingencyAdderImplTest {
 
     private Crac crac;
 
@@ -31,7 +31,7 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testAddContingencies() {
+    void testAddContingencies() {
         Contingency con1 = crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
@@ -77,7 +77,7 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testAddWithNoIdFail() {
+    void testAddWithNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newContingency()
                     .withName("conName1")
@@ -86,12 +86,12 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testNullParentFail() {
+    void testNullParentFail() {
         assertThrows(NullPointerException.class, () -> new ContingencyAdderImpl(null));
     }
 
     @Test
-    public void testAddEmptyContingency() {
+    void testAddEmptyContingency() {
         crac.newContingency().withId("cont").add();
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("cont"));
@@ -100,7 +100,7 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testAddExistingSameContingency() {
+    void testAddExistingSameContingency() {
         Contingency contingency1 = crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
@@ -115,7 +115,7 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testAddExistingDifferentContingency() {
+    void testAddExistingDifferentContingency() {
         crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")

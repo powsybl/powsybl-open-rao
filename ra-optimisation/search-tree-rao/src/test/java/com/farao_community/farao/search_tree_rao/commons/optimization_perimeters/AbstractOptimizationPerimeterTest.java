@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
-public abstract class AbstractOptimizationPerimeterTest {
+abstract class AbstractOptimizationPerimeterTest {
 
     protected Network network;
     protected Crac crac;

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class OnAngleConstraintImplTest {
+class OnAngleConstraintImplTest {
     AngleCnec angleCnec;
     State preventiveState;
     State curativeState;
@@ -37,7 +37,7 @@ public class OnAngleConstraintImplTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
 
         assertEquals(Instant.PREVENTIVE, onAngleConstraint.getInstant());
@@ -48,7 +48,7 @@ public class OnAngleConstraintImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         OnAngleConstraint onAngleConstraint1 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
         assertEquals(onAngleConstraint1, onAngleConstraint1);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint1.hashCode());
@@ -70,7 +70,7 @@ public class OnAngleConstraintImplTest {
     }
 
     @Test
-    public void testGetUsageMethod() {
+    void testGetUsageMethod() {
         State curativeState2 = Mockito.mock(State.class);
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);

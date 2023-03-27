@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class AngleMonitoringTest {
+class AngleMonitoringTest {
     private static final double ANGLE_TOLERANCE = 0.5;
     private OffsetDateTime glskOffsetDateTime;
     private Network network;
@@ -130,7 +130,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testDivergentAngleMonitoring() {
+    void testDivergentAngleMonitoring() {
         // LoadFlow diverges
         setUpCracFactory("networkKO.xiidm");
         mockCurativeStates();
@@ -142,14 +142,14 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testNoAngleCnecsDefined() {
+    void testNoAngleCnecsDefined() {
         setUpCracFactory("network.xiidm");
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isSecure());
     }
 
     @Test
-    public void testPreventiveStateOnly() {
+    void testPreventiveStateOnly() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
@@ -160,7 +160,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testCurativeStateOnlyWithNoRa() {
+    void testCurativeStateOnlyWithNoRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
         runAngleMonitoring();
@@ -170,7 +170,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testCurativeStateOnlyWithAvailableTopoRa() {
+    void testCurativeStateOnlyWithAvailableTopoRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
         naL1Cur = crac.newNetworkAction()
@@ -185,7 +185,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testCurativeStateOnlyWithAvailableInjectionRa() {
+    void testCurativeStateOnlyWithAvailableInjectionRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStatesSecure();
         naL1Cur = crac.newNetworkAction()
@@ -200,7 +200,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testGetAngleExceptions1() {
+    void testGetAngleExceptions1() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
@@ -209,7 +209,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testGetAngleExceptions2() {
+    void testGetAngleExceptions2() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
@@ -217,7 +217,7 @@ public class AngleMonitoringTest {
     }
 
     @Test
-    public void testCracCim() {
+    void testCracCim() {
         setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
         assertEquals(2, crac.getAngleCnecs().size());
         assertEquals(Set.of("AngleCnec1", "AngleCnec2"), crac.getAngleCnecs().stream().map(Identifiable::getId).collect(Collectors.toSet()));

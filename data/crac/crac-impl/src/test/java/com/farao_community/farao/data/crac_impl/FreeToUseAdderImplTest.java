@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FreeToUseAdderImplTest {
+class FreeToUseAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
@@ -42,7 +42,7 @@ public class FreeToUseAdderImplTest {
     }
 
     @Test
-    public void testOkPreventive() {
+    void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newFreeToUseUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withUsageMethod(UsageMethod.AVAILABLE)
@@ -58,7 +58,7 @@ public class FreeToUseAdderImplTest {
     }
 
     @Test
-    public void testOkCurative() {
+    void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newFreeToUseUsageRule()
                 .withInstant(Instant.CURATIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -72,7 +72,7 @@ public class FreeToUseAdderImplTest {
     }
 
     @Test
-    public void testNoInstant() {
+    void testNoInstant() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newFreeToUseUsageRule()
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -80,7 +80,7 @@ public class FreeToUseAdderImplTest {
     }
 
     @Test
-    public void testNoUsageMethod() {
+    void testNoUsageMethod() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
@@ -88,7 +88,7 @@ public class FreeToUseAdderImplTest {
     }
 
     @Test
-    public void testOutageInstant() {
+    void testOutageInstant() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newFreeToUseUsageRule()
                 .withInstant(Instant.OUTAGE)

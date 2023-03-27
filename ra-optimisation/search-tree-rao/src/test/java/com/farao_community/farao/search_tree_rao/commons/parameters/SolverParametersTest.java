@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SolverParametersTest {
+class SolverParametersTest {
 
     @Test
-    public void buildFromRaoParametersTest() {
+    void buildFromRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.CBC);

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionParametersTest {
+class NetworkActionParametersTest {
 
     private Crac crac;
 
@@ -39,7 +39,7 @@ public class NetworkActionParametersTest {
     }
 
     @Test
-    public void buildFromRaoParametersTestOk() {
+    void buildFromRaoParametersTestOk() {
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.getTopoOptimizationParameters().setPredefinedCombinations(Collections.singletonList(List.of("complexNetworkActionId", "switchPairRaId")));
@@ -75,7 +75,7 @@ public class NetworkActionParametersTest {
     }
 
     @Test
-    public void testNetworkActionCombinations() {
+    void testNetworkActionCombinations() {
 
         Crac crac = CracFactory.findDefault().create("crac");
 

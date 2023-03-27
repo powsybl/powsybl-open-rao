@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeActionLimitationParametersTest {
+class RangeActionLimitationParametersTest {
 
     private State state0;
     private State state1;
@@ -36,7 +36,7 @@ public class RangeActionLimitationParametersTest {
     }
 
     @Test
-    public void testGetterAndSetters() {
+    void testGetterAndSetters() {
 
         RangeActionLimitationParameters ralp = new RangeActionLimitationParameters();
 

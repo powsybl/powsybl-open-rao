@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoResultImplTest {
+class RaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private RaoResultImpl raoResult;
     private Crac crac;
@@ -126,7 +126,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testPreventiveCnecResults() {
+    void testPreventiveCnecResults() {
         setUp();
 
         assertEquals(100., raoResult.getFlow(INITIAL, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
@@ -150,7 +150,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testPstRangeActionResults() {
+    void testPstRangeActionResults() {
         setUp();
         assertEquals(6, raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
         assertEquals(2.3, raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
@@ -164,7 +164,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testNetworkActionResults() {
+    void testNetworkActionResults() {
         setUp();
         assertFalse(raoResult.wasActivatedBeforeState(crac.getPreventiveState(), na));
         assertFalse(raoResult.isActivatedDuringState(crac.getPreventiveState(), na));
@@ -194,7 +194,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testCostResults() {
+    void testCostResults() {
         setUp();
 
         assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
@@ -215,7 +215,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testOptimizedStepsExecuted() {
+    void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(raoResult.getOptimizationStepsExecuted().hasRunSecondPreventive());
         raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
@@ -226,7 +226,7 @@ public class RaoResultImplTest {
     }
 
     @Test
-    public void testSensitivityStatus() {
+    void testSensitivityStatus() {
         setUp();
         raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", Instant.AUTO), ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", Instant.AUTO)));

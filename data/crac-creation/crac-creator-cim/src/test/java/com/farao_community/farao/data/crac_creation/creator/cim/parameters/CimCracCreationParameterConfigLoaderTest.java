@@ -23,10 +23,10 @@ import static org.mockito.ArgumentMatchers.eq;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CimCracCreationParameterConfigLoaderTest {
+class CimCracCreationParameterConfigLoaderTest {
 
     @Test
-    public void configLoaderTest() {
+    void configLoaderTest() {
         PlatformConfig platformConfig = Mockito.mock(PlatformConfig.class);
         ModuleConfig cimCracCreatorModuleConfig = Mockito.mock(ModuleConfig.class);
 

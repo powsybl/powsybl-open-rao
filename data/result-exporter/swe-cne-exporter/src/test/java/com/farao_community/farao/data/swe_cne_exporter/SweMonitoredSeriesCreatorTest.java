@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class SweMonitoredSeriesCreatorTest {
+class SweMonitoredSeriesCreatorTest {
 
     private SweCneHelper sweCneHelper;
     private Crac crac;
@@ -57,7 +57,7 @@ public class SweMonitoredSeriesCreatorTest {
     }
 
     @Test
-    public void generateMonitoredSeriesTest() {
+    void generateMonitoredSeriesTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
 

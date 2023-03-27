@@ -24,12 +24,12 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SystematicSensitivityAdapterTest {
+class SystematicSensitivityAdapterTest {
 
     public static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Test
-    public void testWithoutAppliedRa() {
+    void testWithoutAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -62,7 +62,7 @@ public class SystematicSensitivityAdapterTest {
     }
 
     @Test
-    public void testWithoutAppliedRaLeftSideOnly() {
+    void testWithoutAppliedRaLeftSideOnly() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT));
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -95,7 +95,7 @@ public class SystematicSensitivityAdapterTest {
     }
 
     @Test
-    public void testWithAppliedRa() {
+    void testWithAppliedRa() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(LEFT, RIGHT));
         crac.newFlowCnec()

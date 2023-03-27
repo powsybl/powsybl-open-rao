@@ -16,38 +16,38 @@ import static com.farao_community.farao.data.crac_api.Instant.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-public class InstantTest {
+class InstantTest {
 
     @Test
-    public void testPreventive() {
+    void testPreventive() {
         Instant instant = Instant.PREVENTIVE;
         assertEquals(0, instant.getOrder());
         assertEquals("preventive", instant.toString());
     }
 
     @Test
-    public void testOutage() {
+    void testOutage() {
         Instant instant = Instant.OUTAGE;
         assertEquals(1, instant.getOrder());
         assertEquals("outage", instant.toString());
     }
 
     @Test
-    public void testAuto() {
+    void testAuto() {
         Instant instant = Instant.AUTO;
         assertEquals(2, instant.getOrder());
         assertEquals("auto", instant.toString());
     }
 
     @Test
-    public void testCurative() {
+    void testCurative() {
         Instant instant = Instant.CURATIVE;
         assertEquals(3, instant.getOrder());
         assertEquals("curative", instant.toString());
     }
 
     @Test
-    public void testComesBefore() {
+    void testComesBefore() {
         assertFalse(PREVENTIVE.comesBefore(PREVENTIVE));
         assertTrue(PREVENTIVE.comesBefore(OUTAGE));
         assertTrue(PREVENTIVE.comesBefore(AUTO));

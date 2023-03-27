@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CimCracCreationParametersTest {
+class CimCracCreationParametersTest {
 
     @Test
-    public void testDefaultParameters() {
+    void testDefaultParameters() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
 
         assertEquals(0, parameters.getRangeActionGroupsAsString().size());
@@ -30,7 +30,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testParallelRaConf() {
+    void testParallelRaConf() {
 
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
@@ -45,7 +45,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testAlignedRaWithSameSpeed() {
+    void testAlignedRaWithSameSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
         parallelRaAsConcatenatedString.add("rangeAction1 + rangeAction2 + rangeAction7");
@@ -59,7 +59,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testAlignedRaWithDifferentSpeed() {
+    void testAlignedRaWithDifferentSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
         parallelRaAsConcatenatedString.add("rangeAction1 + rangeAction2 + rangeAction7");
@@ -70,7 +70,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testUnalignedRaWithSameSpeed() {
+    void testUnalignedRaWithSameSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
         parallelRaAsConcatenatedString.add("rangeAction1 + rangeAction2 + rangeAction7");
@@ -81,7 +81,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testParametersWithinExtendable() {
+    void testParametersWithinExtendable() {
         CracCreationParameters parameters = new CracCreationParameters();
         assertNull(parameters.getExtension(CimCracCreationParameters.class));
 

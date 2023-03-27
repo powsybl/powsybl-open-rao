@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class TapRangeImplTest {
+class TapRangeImplTest {
 
     private final int relMin = -4;
     private final int relMax = 4;
@@ -35,25 +35,25 @@ public class TapRangeImplTest {
     }
 
     @Test
-    public void getMinTest() {
+    void getMinTest() {
         assertEquals(relMin, relativeFixedRange.getMinTap(), 1e-6);
         assertEquals(absMin, absoluteFixedRange.getMinTap(), 1e-6);
     }
 
     @Test
-    public void getMaxTest() {
+    void getMaxTest() {
         assertEquals(relMax, relativeFixedRange.getMaxTap(), 1e-6);
         assertEquals(absMax, absoluteFixedRange.getMaxTap(), 1e-6);
     }
 
     @Test
-    public void getRangeTypeTest() {
+    void getRangeTypeTest() {
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, relativeFixedRange.getRangeType());
         assertEquals(RangeType.ABSOLUTE, absoluteFixedRange.getRangeType());
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE);
@@ -65,7 +65,7 @@ public class TapRangeImplTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE);

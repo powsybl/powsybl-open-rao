@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MaxMinMarginFillerTest extends AbstractFillerTest {
+class MaxMinMarginFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
@@ -83,7 +83,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinMarginInMegawatt() {
+    void fillWithMaxMinMarginInMegawatt() {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         buildLinearProblem();
 
@@ -125,7 +125,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinMarginInAmpere() {
+    void fillWithMaxMinMarginInAmpere() {
         createMaxMinMarginFiller(Unit.AMPERE);
         buildLinearProblem();
 
@@ -162,7 +162,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMissingFlowVariables() {
+    void fillWithMissingFlowVariables() {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
@@ -180,7 +180,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMissingRangeActionVariables() {
+    void fillWithMissingRangeActionVariables() {
         try {
             createMaxMinMarginFiller(Unit.MEGAWATT);
             linearProblem = new LinearProblemBuilder()

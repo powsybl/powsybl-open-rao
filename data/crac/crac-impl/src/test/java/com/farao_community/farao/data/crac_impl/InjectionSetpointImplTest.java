@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class InjectionSetpointImplTest {
+class InjectionSetpointImplTest {
 
     @Test
-    public void basicMethods() {
+    void basicMethods() {
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10.);
         assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
@@ -35,7 +35,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void hasImpactOnNetworkForGenerator() {
+    void hasImpactOnNetworkForGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _generator"),
@@ -45,7 +45,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void hasNoImpactOnNetworkForGenerator() {
+    void hasNoImpactOnNetworkForGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _generator"),
@@ -55,7 +55,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void applyOnGenerator() {
+    void applyOnGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("FFR1AA1 _generator"),
@@ -66,7 +66,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void hasImpactOnNetworkForLoad() {
+    void hasImpactOnNetworkForLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _load"),
@@ -76,7 +76,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void hasNoImpactOnNetworkForLoad() {
+    void hasNoImpactOnNetworkForLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _load"),
@@ -86,7 +86,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void applyOnLoad() {
+    void applyOnLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("FFR1AA1 _load"),
@@ -97,7 +97,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void hasImpactOnNetworkForDanglingLine() {
+    void hasImpactOnNetworkForDanglingLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
@@ -108,7 +108,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void hasNoImpactOnNetworkForDanglingLine() {
+    void hasNoImpactOnNetworkForDanglingLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
@@ -119,7 +119,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void applyOnDanglingLine() {
+    void applyOnDanglingLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
@@ -131,7 +131,7 @@ public class InjectionSetpointImplTest {
     }
 
     @Test
-    public void equals() {
+    void equals() {
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
             mockedNetworkElement,

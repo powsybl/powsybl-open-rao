@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot <baptiste.seguinot at rte-france.com>
  */
-public class RaoTest {
+class RaoTest {
 
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
@@ -54,7 +54,7 @@ public class RaoTest {
     }
 
     @Test
-    public void testDefaultOneProvider() {
+    void testDefaultOneProvider() {
         // case with only one provider, no need for config
         // find rao
         Rao.Runner defaultRao = Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig);
@@ -71,13 +71,13 @@ public class RaoTest {
     }
 
     @Test
-    public void testDefaultTwoProviders() {
+    void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
         assertThrows(FaraoException.class, () -> Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig));
     }
 
     @Test
-    public void testDefinedAmongTwoProviders() {
+    void testDefinedAmongTwoProviders() {
         // case with two providers where one the two RAOs is specifically selected
         Rao.Runner definedRao = Rao.find("GlobalRAOptimizer", ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
@@ -85,13 +85,13 @@ public class RaoTest {
     }
 
     @Test
-    public void testDefaultNoProvider() {
+    void testDefaultNoProvider() {
         // case with no provider
         assertThrows(FaraoException.class, () -> Rao.find(null, ImmutableList.of(), platformConfig));
     }
 
     @Test
-    public void testDefaultTwoProvidersPlatformConfig() {
+    void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
         Rao.Runner globalRaOptimizer = Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
@@ -100,7 +100,7 @@ public class RaoTest {
     }
 
     @Test
-    public void testOneProviderAndMistakeInPlatformConfig() {
+    void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         assertThrows(FaraoException.class, () -> Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig));

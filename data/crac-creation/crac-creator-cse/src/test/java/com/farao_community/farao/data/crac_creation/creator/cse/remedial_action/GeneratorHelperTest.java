@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class GeneratorHelperTest {
+class GeneratorHelperTest {
     private Network network;
     private UcteNetworkAnalyzer ucteNetworkAnalyzer;
 
@@ -28,7 +28,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testElementNotInNetwork() {
+    void testElementNotInNetwork() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         GeneratorHelper generatorHelper = new GeneratorHelper("AAAAAAAA", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, generatorHelper.getImportStatus());
@@ -39,7 +39,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testOneMatch() {
+    void testOneMatch() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.IMPORTED, generatorHelper.getImportStatus());
@@ -53,7 +53,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testMultipleBusMatchesButOneGenerator() {
+    void testMultipleBusMatchesButOneGenerator() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA1*", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.IMPORTED, generatorHelper.getImportStatus());
@@ -64,7 +64,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testMultipleGeneratorMatches() {
+    void testMultipleGeneratorMatches() {
         setUp("/networks/TestCase12Nodes_forCSE_multipleGenerators.uct");
         GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA1*", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
@@ -75,7 +75,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testBusHasNoGenerator() {
+    void testBusHasNoGenerator() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA12", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
@@ -86,7 +86,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testTwoGeneratorsOnOneBus() {
+    void testTwoGeneratorsOnOneBus() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         ((Bus) network.getIdentifiable("BBE1AA11"))
             .getVoltageLevel()
@@ -112,7 +112,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testGeneratorNotConnected() {
+    void testGeneratorNotConnected() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         network.getGenerator("BBE1AA11_generator").getTerminal().disconnect();
 
@@ -125,7 +125,7 @@ public class GeneratorHelperTest {
     }
 
     @Test
-    public void testGeneratorNotInMainComponent() {
+    void testGeneratorNotInMainComponent() {
         setUp("/networks/TestCase12Nodes_forCSE.uct");
         network.getBranch("NNL1AA1  NNL2AA1  1").getTerminal1().disconnect();
         network.getBranch("NNL1AA1  NNL3AA1  1").getTerminal1().disconnect();

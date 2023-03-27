@@ -18,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class CracAliasesCreatorTest {
+class CracAliasesCreatorTest {
 
     @Test
-    public void testCracAliasesUtil7Char() {
+    void testCracAliasesUtil7Char() {
         Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
         Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 
@@ -37,7 +37,7 @@ public class CracAliasesCreatorTest {
     }
 
     @Test
-    public void testCracAliasesUtil8Char() {
+    void testCracAliasesUtil8Char() {
         Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
         Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 

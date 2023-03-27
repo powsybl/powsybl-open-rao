@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionRangeActionAdderImplTest {
+class InjectionRangeActionAdderImplTest {
     private CracImpl crac;
     private String injectionId1;
     private String injectionId2;
@@ -34,7 +34,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -65,7 +65,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithSumOnSameInjection() {
+    void testAddWithSumOnSameInjection() {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -98,7 +98,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutGroupId() {
+    void testAddWithoutGroupId() {
         InjectionRangeAction injectionRangeAction =  crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -120,7 +120,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutUsageRule() {
+    void testAddWithoutUsageRule() {
         /*
         This behaviour is considered admissible:
             - without usage rule, the remedial action will never be available
@@ -145,7 +145,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutOperator() {
+    void testAddWithoutOperator() {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withGroupId("groupId1")
@@ -166,7 +166,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoIdFail() {
+    void testNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newInjectionRangeAction()
                     .withOperator("BE")
@@ -179,7 +179,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElementFail() {
+    void testNoNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newInjectionRangeAction()
                     .withId("id1")
@@ -191,7 +191,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoRangeFail() {
+    void testNoRangeFail() {
         assertThrows(FaraoException.class, () ->
             crac.newInjectionRangeAction()
                     .withId("id1")
@@ -203,7 +203,7 @@ public class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    public void testIdNotUnique() {
+    void testIdNotUnique() {
         crac.newInjectionRangeAction()
                 .withId("sameId")
                 .withNetworkElementAndKey(1., injectionId1)

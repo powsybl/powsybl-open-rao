@@ -17,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonSerializationConstantsTest {
+class JsonSerializationConstantsTest {
 
     @Test
-    public void versionNumberOkTest() {
+    void versionNumberOkTest() {
         assertEquals(1, getPrimaryVersionNumber("1.2"));
         assertEquals(2, getSubVersionNumber("1.2"));
         assertEquals(2, getPrimaryVersionNumber("2.51"));
@@ -28,17 +28,17 @@ public class JsonSerializationConstantsTest {
     }
 
     @Test
-    public void versionNumberNok1Test() {
+    void versionNumberNok1Test() {
         assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("v1.2"));
     }
 
     @Test
-    public void versionNumberNok2Test() {
+    void versionNumberNok2Test() {
         assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("1.3.1"));
     }
 
     @Test
-    public void versionNumberNok3Test() {
+    void versionNumberNok3Test() {
         assertThrows(FaraoException.class, () -> getPrimaryVersionNumber("1.2b"));
     }
 }

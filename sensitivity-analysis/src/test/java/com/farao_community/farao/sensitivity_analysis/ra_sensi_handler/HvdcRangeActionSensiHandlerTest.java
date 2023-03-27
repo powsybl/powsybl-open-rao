@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class HvdcRangeActionSensiHandlerTest {
+class HvdcRangeActionSensiHandlerTest {
 
     @Test
-    public void checkConsistencyOKTest() {
+    void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
@@ -44,7 +44,7 @@ public class HvdcRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void getSensitivityOnFlowTest() {
+    void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
@@ -64,7 +64,7 @@ public class HvdcRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void checkConsistencyNotAHvdc() {
+    void checkConsistencyNotAHvdc() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
 
@@ -80,7 +80,7 @@ public class HvdcRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void checkConsistencyNotANetworkElement() {
+    void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
 

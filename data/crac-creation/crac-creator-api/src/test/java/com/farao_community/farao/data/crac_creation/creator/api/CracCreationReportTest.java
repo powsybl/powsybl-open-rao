@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CracCreationReportTest {
+class CracCreationReportTest {
 
     private CracCreationReport cracCreationReport;
 
@@ -33,49 +33,49 @@ public class CracCreationReportTest {
     }
 
     @Test
-    public void testError() {
+    void testError() {
         cracCreationReport.error("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ERROR] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testRemoved() {
+    void testRemoved() {
         cracCreationReport.removed("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[REMOVED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testAdded() {
+    void testAdded() {
         cracCreationReport.added("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ADDED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testAltered() {
+    void testAltered() {
         cracCreationReport.altered("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ALTERED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testWarn() {
+    void testWarn() {
         cracCreationReport.warn("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[WARN] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testInfo() {
+    void testInfo() {
         cracCreationReport.info("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[INFO] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testTextReport() {
+    void testTextReport() {
         cracCreationReport.error("message1");
         cracCreationReport.info("message2");
         cracCreationReport.altered("message3");
@@ -96,7 +96,7 @@ public class CracCreationReportTest {
     }
 
     @Test
-    public void testCopyConstructor() {
+    void testCopyConstructor() {
         cracCreationReport.error("message1");
         cracCreationReport.info("message2");
 
@@ -114,7 +114,7 @@ public class CracCreationReportTest {
     }
 
     @Test
-    public void testPrintReport() {
+    void testPrintReport() {
         cracCreationReport.warn("message1");
         cracCreationReport.error("message2");
 

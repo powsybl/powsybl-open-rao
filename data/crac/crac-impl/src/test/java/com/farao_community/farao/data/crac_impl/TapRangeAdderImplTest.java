@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class TapRangeAdderImplTest {
+class TapRangeAdderImplTest {
     private PstRangeActionAdder pstRangeActionAdder;
 
     @BeforeEach
@@ -40,7 +40,7 @@ public class TapRangeAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-5)
@@ -56,7 +56,7 @@ public class TapRangeAdderImplTest {
     }
 
     @Test
-    public void testNoMin() {
+    void testNoMin() {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK)
             .withMaxTap(16)
@@ -71,7 +71,7 @@ public class TapRangeAdderImplTest {
     }
 
     @Test
-    public void testNoRangeType() {
+    void testNoRangeType() {
         assertThrows(FaraoException.class, () ->
             pstRangeActionAdder.newTapRange()
                 .withMinTap(-5)
@@ -80,7 +80,7 @@ public class TapRangeAdderImplTest {
     }
 
     @Test
-    public void testNoTapConventionInRelative() {
+    void testNoTapConventionInRelative() {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK)
             .withMinTap(-5)
@@ -92,7 +92,7 @@ public class TapRangeAdderImplTest {
     }
 
     @Test
-    public void testMinGreaterThanMax() {
+    void testMinGreaterThanMax() {
         assertThrows(FaraoException.class, () ->
             pstRangeActionAdder.newTapRange()
                 .withRangeType(RangeType.ABSOLUTE)

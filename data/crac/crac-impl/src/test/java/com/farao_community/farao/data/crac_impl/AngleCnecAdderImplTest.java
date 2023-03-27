@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AngleCnecAdderImplTest {
+class AngleCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private CracImpl crac;
     private String contingency1Id = "condId1";
@@ -58,7 +58,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testCheckCnecs() {
+    void testCheckCnecs() {
         createAngleCnecs();
         assertEquals(2, crac.getAngleCnecs().size());
 
@@ -87,7 +87,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         createAngleCnecs();
         // Verify that network elements were created
         crac.newAngleCnec()
@@ -111,7 +111,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testReliabilityMarginHandling() {
+    void testReliabilityMarginHandling() {
         double maxValue = 100.0;
         double reliabilityMargin = 5.0;
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
@@ -127,7 +127,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedMonitored() {
+    void testNotOptimizedMonitored() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -141,7 +141,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testOptimizedNotMonitored() {
+    void testOptimizedNotMonitored() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec().withId("Cnec ID")
                 .withInstant(Instant.OUTAGE)
@@ -154,7 +154,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedNotMonitored() {
+    void testNotOptimizedNotMonitored() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -167,7 +167,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedNotMonitored2() {
+    void testNotOptimizedNotMonitored2() {
         AngleCnec cnec = crac.newAngleCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -182,19 +182,19 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNullParentFail() {
+    void testNullParentFail() {
         assertThrows(NullPointerException.class, () -> new AngleCnecAdderImpl(null));
     }
 
     @Test
-    public void testNetworkElementNotImportingNotExporting() {
+    void testNetworkElementNotImportingNotExporting() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withNetworkElement("neId1", "neName1"));
     }
 
     @Test
-    public void testNoIdFail() {
+    void testNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withName("cnecName")
@@ -207,7 +207,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNoStateInstantFail() {
+    void testNoStateInstantFail() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -219,7 +219,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNoExportingNetworkElementFail() {
+    void testNoExportingNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -231,7 +231,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNoImportingNetworkElementFail() {
+    void testNoImportingNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -243,7 +243,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testNoThresholdFail() {
+    void testNoThresholdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -255,7 +255,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAddTwiceError() {
+    void testAddTwiceError() {
         crac.newAngleCnec()
             .withId("cnecId")
             .withInstant(Instant.OUTAGE)
@@ -276,7 +276,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAddPreventiveCnecWithContingencyError() {
+    void testAddPreventiveCnecWithContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -289,7 +289,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAddOutageCnecWithNoContingencyError() {
+    void testAddOutageCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -301,7 +301,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAddAutoCnecWithNoContingencyError() {
+    void testAddAutoCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -313,7 +313,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAddCurativeCnecWithNoContingencyError() {
+    void testAddCurativeCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -325,7 +325,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testAddCurativeCnecWithAbsentContingencyError() {
+    void testAddCurativeCnecWithAbsentContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")
@@ -338,7 +338,7 @@ public class AngleCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdWithUnitKiloVolt() {
+    void testThresholdWithUnitKiloVolt() {
         assertThrows(FaraoException.class, () ->
             crac.newAngleCnec()
                 .withId("cnecId")

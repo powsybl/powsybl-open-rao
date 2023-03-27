@@ -18,9 +18,9 @@ import static com.farao_community.farao.data.crac_api.Instant.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OptimizationStateTest {
+class OptimizationStateTest {
     @Test
-    public void testBuildFromInstant() {
+    void testBuildFromInstant() {
         assertEquals(INITIAL, OptimizationState.beforeOptimizing(PREVENTIVE));
         assertEquals(AFTER_PRA, OptimizationState.afterOptimizing(PREVENTIVE));
 
@@ -35,7 +35,7 @@ public class OptimizationStateTest {
     }
 
     @Test
-    public void testBuildFromState() {
+    void testBuildFromState() {
         State state = Mockito.mock(State.class);
 
         Mockito.when(state.getInstant()).thenReturn(PREVENTIVE);
@@ -56,7 +56,7 @@ public class OptimizationStateTest {
     }
 
     @Test
-    public void testGetFirstInstant() {
+    void testGetFirstInstant() {
         assertEquals(PREVENTIVE, INITIAL.getFirstInstant());
         assertEquals(PREVENTIVE, AFTER_PRA.getFirstInstant());
         assertEquals(AUTO, AFTER_ARA.getFirstInstant());
@@ -64,7 +64,7 @@ public class OptimizationStateTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("initial", INITIAL.toString());
         assertEquals("after PRA", AFTER_PRA.toString());
         assertEquals("after ARA", AFTER_ARA.toString());
@@ -72,7 +72,7 @@ public class OptimizationStateTest {
     }
 
     @Test
-    public void testMin() {
+    void testMin() {
         assertEquals(INITIAL, OptimizationState.min(INITIAL, INITIAL));
         assertEquals(INITIAL, OptimizationState.min(INITIAL, AFTER_PRA));
         assertEquals(INITIAL, OptimizationState.min(INITIAL, AFTER_ARA));

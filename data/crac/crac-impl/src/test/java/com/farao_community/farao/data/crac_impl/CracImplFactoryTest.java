@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CracImplFactoryTest {
+class CracImplFactoryTest {
     private final String factoryName = "CracImplFactory";
 
     @Test
-    public void testDependencyInjection() {
+    void testDependencyInjection() {
         assertEquals(factoryName, new CracImplFactory().getName());
         CracFactory factory = CracFactory.find(factoryName);
         assertNotNull(factory);
@@ -25,7 +25,7 @@ public class CracImplFactoryTest {
     }
 
     @Test
-    public void testCreateSimpleCrac() {
+    void testCreateSimpleCrac() {
         String id = "idForTest";
         String name = "testName";
         Crac crac = new CracImplFactory().create(id, name);

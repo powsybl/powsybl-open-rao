@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CneExporterParametersTest {
+class CneExporterParametersTest {
     @Test
-    public void basicTest() {
+    void basicTest() {
         CneExporterParameters params = new CneExporterParameters(
             "a", 3, "b", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
             "c", CneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,

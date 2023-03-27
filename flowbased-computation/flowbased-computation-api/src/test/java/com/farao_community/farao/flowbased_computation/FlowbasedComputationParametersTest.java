@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowbasedComputationParametersTest {
+class FlowbasedComputationParametersTest {
 
     protected PlatformConfig config;
 
@@ -28,7 +28,7 @@ public class FlowbasedComputationParametersTest {
     }
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -40,7 +40,7 @@ public class FlowbasedComputationParametersTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -50,7 +50,7 @@ public class FlowbasedComputationParametersTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());

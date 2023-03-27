@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class OutageReaderTest {
+class OutageReaderTest {
 
     private Crac crac;
     private OutageType outageType;
@@ -69,12 +69,12 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testNeitherBranchNorHvdcVh() {
+    void testNeitherBranchNorHvdcVh() {
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidBranch() {
+    void testOneValidBranch() {
         outageType.getBranch().add(validBranch1);
         OutageReader outageReader = new OutageReader(outageType, ucteNetworkAnalyzer);
         outageReader.addContingency(crac);
@@ -87,7 +87,7 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testTwoValidBranches() {
+    void testTwoValidBranches() {
         outageType.getBranch().add(validBranch1);
         outageType.getBranch().add(validBranch2);
         OutageReader outageReader = new OutageReader(outageType, ucteNetworkAnalyzer);
@@ -101,20 +101,20 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testOneInvalidBranch() {
+    void testOneInvalidBranch() {
         outageType.getBranch().add(invalidBranch);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidAndOneInvalidBranch() {
+    void testOneValidAndOneInvalidBranch() {
         outageType.getBranch().add(invalidBranch);
         outageType.getBranch().add(validBranch1);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidHvdc() {
+    void testOneValidHvdc() {
         outageType.getHvdcVH().add(validHvdc);
         OutageReader outageReader = new OutageReader(outageType, ucteNetworkAnalyzer);
         outageReader.addContingency(crac);
@@ -128,13 +128,13 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testOneInvalidHvdc() {
+    void testOneInvalidHvdc() {
         outageType.getHvdcVH().add(invalidHvdc);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidAndOneInvalidHvdc() {
+    void testOneValidAndOneInvalidHvdc() {
         outageType.getHvdcVH().add(invalidHvdc);
         outageType.getHvdcVH().add(validHvdc);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());

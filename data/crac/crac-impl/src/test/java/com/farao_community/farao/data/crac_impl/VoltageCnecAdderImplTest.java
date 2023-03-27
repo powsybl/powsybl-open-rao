@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class VoltageCnecAdderImplTest {
+class VoltageCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private CracImpl crac;
     private String contingency1Id = "condId1";
@@ -56,7 +56,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testCheckCnecs() {
+    void testCheckCnecs() {
         createVoltageCnecs();
         assertEquals(2, crac.getVoltageCnecs().size());
 
@@ -83,7 +83,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         createVoltageCnecs();
         // Verify that network elements were created
         crac.newVoltageCnec()
@@ -104,7 +104,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testReliabilityMarginHandling() {
+    void testReliabilityMarginHandling() {
         double maxValue = 100.0;
         double reliabilityMargin = 5.0;
         VoltageCnec cnec = crac.newVoltageCnec().withId("Cnec ID")
@@ -119,7 +119,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedMonitored() {
+    void testNotOptimizedMonitored() {
         VoltageCnec cnec = crac.newVoltageCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -132,7 +132,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testOptimizedNotMonitored() {
+    void testOptimizedNotMonitored() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec().withId("Cnec ID")
                 .withInstant(Instant.OUTAGE)
@@ -144,7 +144,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedNotMonitored() {
+    void testNotOptimizedNotMonitored() {
         VoltageCnec cnec = crac.newVoltageCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -156,7 +156,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNotOptimizedNotMonitored2() {
+    void testNotOptimizedNotMonitored2() {
         VoltageCnec cnec = crac.newVoltageCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
@@ -170,12 +170,12 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNullParentFail() {
+    void testNullParentFail() {
         assertThrows(NullPointerException.class, () -> new VoltageCnecAdderImpl(null));
     }
 
     @Test
-    public void testNoIdFail() {
+    void testNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withName("cnecName")
@@ -187,7 +187,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNoStateInstantFail() {
+    void testNoStateInstantFail() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -198,7 +198,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElementFail() {
+    void testNoNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -209,7 +209,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testNoThresholdFail() {
+    void testNoThresholdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -220,7 +220,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAddTwiceError() {
+    void testAddTwiceError() {
         crac.newVoltageCnec()
             .withId("cnecId")
             .withInstant(Instant.OUTAGE)
@@ -240,7 +240,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAddPreventiveCnecWithContingencyError() {
+    void testAddPreventiveCnecWithContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -252,7 +252,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAddOutageCnecWithNoContingencyError() {
+    void testAddOutageCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -263,7 +263,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAddAutoCnecWithNoContingencyError() {
+    void testAddAutoCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -274,7 +274,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAddCurativeCnecWithNoContingencyError() {
+    void testAddCurativeCnecWithNoContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -285,7 +285,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testAddCurativeCnecWithAbsentContingencyError() {
+    void testAddCurativeCnecWithAbsentContingencyError() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")
@@ -297,7 +297,7 @@ public class VoltageCnecAdderImplTest {
     }
 
     @Test
-    public void testThresholdWithUnitAmpere() {
+    void testThresholdWithUnitAmpere() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec()
                 .withId("cnecId")

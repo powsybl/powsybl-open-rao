@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ReferenceProgramTest {
+class ReferenceProgramTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private EICode eiCodeFrance;
@@ -39,7 +39,7 @@ public class ReferenceProgramTest {
     }
 
     @Test
-    public void testGlobalNetPositionMap() {
+    void testGlobalNetPositionMap() {
         List<ReferenceExchangeData> list = Arrays.asList(
                 new ReferenceExchangeData(eiCodeFrance, eiCodeBelgium, 100),
                 new ReferenceExchangeData(eiCodeFrance, eiCodeGermany, -250),

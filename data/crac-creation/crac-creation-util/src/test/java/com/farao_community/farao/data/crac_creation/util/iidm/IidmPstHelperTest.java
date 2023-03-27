@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class IidmPstHelperTest {
+class IidmPstHelperTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
@@ -29,21 +29,21 @@ public class IidmPstHelperTest {
     }
 
     @Test
-    public void testInvalidPst() {
+    void testInvalidPst() {
         IidmPstHelper pstHelper = new IidmPstHelper("BBE1AA1  BBE2AA1  1", network);
         assertFalse(pstHelper.isValid());
         assertTrue(pstHelper.getInvalidReason().contains("was not found in network"));
     }
 
     @Test
-    public void testInvalidPst2() {
+    void testInvalidPst2() {
         IidmPstHelper pstHelper = new IidmPstHelper("FFR3AA1  FFR3AA2  1", network);
         assertFalse(pstHelper.isValid());
         assertTrue(pstHelper.getInvalidReason().contains("does not have a phase tap changer"));
     }
 
     @Test
-    public void testValidPst() {
+    void testValidPst() {
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
         assertTrue(pstHelper.isValid());

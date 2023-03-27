@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaUsageLimitsFillerTest extends AbstractFillerTest {
+class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
@@ -119,7 +119,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testSkipFiller() {
+    void testSkipFiller() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
             rangeActionsPerState,
@@ -137,7 +137,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testVariationVariableAndConstraints() {
+    void testVariationVariableAndConstraints() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxRangeAction(state, 1);
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -169,7 +169,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testVariationVariableAndConstraintsApproxPsts() {
+    void testVariationVariableAndConstraintsApproxPsts() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxRangeAction(state, 1);
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -209,7 +209,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testSkipConstraints1() {
+    void testSkipConstraints1() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxRangeAction(state, 5);
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -234,7 +234,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testSkipConstraints2() {
+    void testSkipConstraints2() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxTso(state, 3);
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -253,7 +253,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testMaxRa() {
+    void testMaxRa() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxRangeAction(state, 4);
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -287,7 +287,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testMaxTso() {
+    void testMaxTso() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxTso(state, 2);
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -318,7 +318,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testMaxTsoWithExclusion() {
+    void testMaxTsoWithExclusion() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxTso(state, 1);
         raLimitationParameters.setMaxTsoExclusion(state, Set.of("opC"));
@@ -344,7 +344,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testMaxRaPerTso() {
+    void testMaxRaPerTso() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxRangeActionPerTso(state, Map.of("opA", 2, "opC", 0));
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
@@ -384,7 +384,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testMaxPstPerTso() {
+    void testMaxPstPerTso() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxPstPerTso(state, Map.of("opA", 1, "opC", 3));
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(

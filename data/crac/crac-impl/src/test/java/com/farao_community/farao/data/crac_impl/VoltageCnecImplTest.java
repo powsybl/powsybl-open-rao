@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class VoltageCnecImplTest {
+class VoltageCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
 
     private Crac crac;
@@ -46,7 +46,7 @@ public class VoltageCnecImplTest {
     }
 
     @Test
-    public void testGetLocation1() {
+    void testGetLocation1() {
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
@@ -74,7 +74,7 @@ public class VoltageCnecImplTest {
     }
 
     @Test
-    public void testVoltageCnecWithOneMaxThreshold() {
+    void testVoltageCnecWithOneMaxThreshold() {
 
         VoltageCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.).add()
@@ -90,7 +90,7 @@ public class VoltageCnecImplTest {
     }
 
     @Test
-    public void testVoltageCnecWithSeveralThresholds() {
+    void testVoltageCnecWithSeveralThresholds() {
         VoltageCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.).add()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).add()
@@ -106,7 +106,7 @@ public class VoltageCnecImplTest {
     }
 
     @Test
-    public void marginsWithNegativeAndPositiveLimits() {
+    void marginsWithNegativeAndPositiveLimits() {
 
         VoltageCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
@@ -121,7 +121,7 @@ public class VoltageCnecImplTest {
     // other
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         VoltageCnec cnec1 = initPreventiveCnecAdder().newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add().add();
         VoltageCnec cnec2 = initPreventiveCnecAdder().withId("anotherId").newThreshold().withUnit(Unit.KILOVOLT).withMin(-1000.).add().add();
 

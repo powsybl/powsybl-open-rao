@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class NativeLibraryLoaderTest {
+class NativeLibraryLoaderTest {
 
     @Test
-    public void shouldFailWhenLibraryNotFound() {
+    void shouldFailWhenLibraryNotFound() {
         assertThrows(FaraoException.class, () -> NativeLibraryLoader.loadNativeLibrary("thisLibraryWillNeverExist"));
     }
 }

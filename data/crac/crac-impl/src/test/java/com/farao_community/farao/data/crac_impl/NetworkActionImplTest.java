@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class NetworkActionImplTest {
+class NetworkActionImplTest {
 
     private ElementaryAction mockedElementaryAction1;
     private ElementaryAction mockedElementaryAction2;
@@ -42,7 +42,7 @@ public class NetworkActionImplTest {
     }
 
     @Test
-    public void networkActionWithOneElementaryAction() {
+    void networkActionWithOneElementaryAction() {
         NetworkAction networkAction = new NetworkActionImpl(
             "id",
             "name",
@@ -60,7 +60,7 @@ public class NetworkActionImplTest {
     }
 
     @Test
-    public void networkActionWithTwoElementaryActions() {
+    void networkActionWithTwoElementaryActions() {
         NetworkAction networkAction = new NetworkActionImpl(
             "id",
             "name",
@@ -78,7 +78,7 @@ public class NetworkActionImplTest {
     }
 
     @Test
-    public void testApply() {
+    void testApply() {
         Network network = Mockito.mock(Network.class);
         NetworkAction networkAction = new NetworkActionImpl(
             "id",
@@ -100,7 +100,7 @@ public class NetworkActionImplTest {
     }
 
     @Test
-    public void testHasImpactOnNetworkAction() {
+    void testHasImpactOnNetworkAction() {
         Network network = Mockito.mock(Network.class);
         NetworkAction networkAction = new NetworkActionImpl(
             "id",

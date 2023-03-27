@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CoreCneUtilTest {
+class CoreCneUtilTest {
     @Test
-    public void testInterval() {
+    void testInterval() {
         OffsetDateTime odt = OffsetDateTime.parse("2021-10-30T22:00:00Z");
         ESMPDateTimeInterval interval = CoreCneUtil.createEsmpDateTimeInterval(odt);
         assertEquals("2021-10-30T22:00Z", interval.getStart());
@@ -32,7 +32,7 @@ public class CoreCneUtilTest {
     }
 
     @Test
-    public void testIntervalWholeDay() {
+    void testIntervalWholeDay() {
         ESMPDateTimeInterval interval = CoreCneUtil.createEsmpDateTimeIntervalForWholeDay("2021-10-30T22:00Z/2021-10-31T23:00Z");
         assertEquals("2021-10-30T22:00Z", interval.getStart());
         assertEquals("2021-10-31T23:00Z", interval.getEnd());

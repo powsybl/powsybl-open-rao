@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeActionAdderImplTest {
+class PstRangeActionAdderImplTest {
     private CracImpl crac;
     private String networkElementId;
     private Map<Integer, Double> validTapToAngleConversionMap;
@@ -39,7 +39,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
@@ -68,7 +68,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddAutoWithoutSpeed() {
+    void testAddAutoWithoutSpeed() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -90,7 +90,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddAutoWithSpeed() {
+    void testAddAutoWithSpeed() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -114,7 +114,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutGroupId() {
+    void testAddWithoutGroupId() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
@@ -140,7 +140,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutRangeAndUsageRule() {
+    void testAddWithoutRangeAndUsageRule() {
         /*
         This behaviour is considered admissible:
             - without range, the default range will be defined by the min/max value of the network
@@ -164,7 +164,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutOperator() {
+    void testAddWithoutOperator() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
@@ -189,7 +189,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoIdFail() {
+    void testNoIdFail() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withOperator("BE")
@@ -200,7 +200,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElementFail() {
+    void testNoNetworkElementFail() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -211,7 +211,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testIdNotUnique() {
+    void testIdNotUnique() {
         crac.newNetworkAction()
             .withId("sameId")
             .withOperator("BE")
@@ -228,7 +228,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoInitialTap() {
+    void testNoInitialTap() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -239,7 +239,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNoTapToAngleConversionMap() {
+    void testNoTapToAngleConversionMap() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -250,7 +250,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testEmptyTapToAngleConversionMap() {
+    void testEmptyTapToAngleConversionMap() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -262,7 +262,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testIncompleteTapToAngleConversionMap() {
+    void testIncompleteTapToAngleConversionMap() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -274,7 +274,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testNotMonotonousTapToAngleConversionMap() {
+    void testNotMonotonousTapToAngleConversionMap() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -286,7 +286,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testInitialTapNotInMap() {
+    void testInitialTapNotInMap() {
         assertThrows(FaraoException.class, () ->
             crac.newPstRangeAction()
                 .withId("id1")
@@ -298,7 +298,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testPraRelativeToPreviousInstantRange() {
+    void testPraRelativeToPreviousInstantRange() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)

@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class SweCneTest {
+class SweCneTest {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
@@ -93,7 +93,7 @@ public class SweCneTest {
     }
 
     @Test
-    public void testExport() {
+    void testExport() {
         CneExporterParameters params = new CneExporterParameters(
             "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
             "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
@@ -110,7 +110,7 @@ public class SweCneTest {
     }
 
     @Test
-    public void testExportWithFailure() {
+    void testExportWithFailure() {
         CneExporterParameters params = new CneExporterParameters(
                 "documentId", 1, null, CneExporterParameters.ProcessType.Z01,
                 "senderId", CneExporterParameters.RoleType.SYSTEM_OPERATOR,
@@ -127,7 +127,7 @@ public class SweCneTest {
     }
 
     @Test
-    public void testValidateSchemaOk() {
+    void testValidateSchemaOk() {
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
             assertTrue(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
@@ -137,7 +137,7 @@ public class SweCneTest {
     }
 
     @Test
-    public void testValidateSchemaNok() {
+    void testValidateSchemaNok() {
         try {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_wrong.xml").getFile());
             assertFalse(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));

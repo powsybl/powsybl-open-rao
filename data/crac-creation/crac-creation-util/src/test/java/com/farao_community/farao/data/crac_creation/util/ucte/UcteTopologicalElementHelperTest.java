@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UcteTopologicalElementHelperTest {
+class UcteTopologicalElementHelperTest {
 
     private UcteNetworkAnalyzer networkHelper;
 
@@ -22,7 +22,7 @@ public class UcteTopologicalElementHelperTest {
     }
 
     @Test
-    public void testSwitch() {
+    void testSwitch() {
         setUp("TestCase16Nodes_with_different_imax.uct");
 
         UcteTopologicalElementHelper topoHelper = new UcteTopologicalElementHelper("BBE1AA1", "BBE4AA1", "1", null, networkHelper);
@@ -35,7 +35,7 @@ public class UcteTopologicalElementHelperTest {
     }
 
     @Test
-    public void testOtherValidTopologicalElements() {
+    void testOtherValidTopologicalElements() {
         setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         assertTrue(new UcteTopologicalElementHelper("DDE1AA12", "DDE2AA11", "1", null, networkHelper).isValid());
@@ -46,7 +46,7 @@ public class UcteTopologicalElementHelperTest {
     }
 
     @Test
-    public void testOtherConstructor() {
+    void testOtherConstructor() {
         setUp("TestCase16Nodes_with_different_imax.uct");
         assertTrue(new UcteTopologicalElementHelper("BBE1AA1 ", "BBE4AA1 ", "1", networkHelper).isValid());
         assertTrue(new UcteTopologicalElementHelper("BBE1AA1  BBE4AA1  1", networkHelper).isValid());

@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BranchThresholdAdderImplTest {
+class BranchThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private Crac crac;
     private Contingency contingency;
@@ -36,7 +36,7 @@ public class BranchThresholdAdderImplTest {
     }
 
     @Test
-    public void testAddThresholdInMW() {
+    void testAddThresholdInMW() {
         FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("neID")
@@ -47,7 +47,7 @@ public class BranchThresholdAdderImplTest {
     }
 
     @Test
-    public void testAddThresholdInA() {
+    void testAddThresholdInA() {
         FlowCnec  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
@@ -59,7 +59,7 @@ public class BranchThresholdAdderImplTest {
     }
 
     @Test
-    public void testAddThresholdInPercent() {
+    void testAddThresholdInPercent() {
         FlowCnec  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.CURATIVE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
@@ -73,17 +73,17 @@ public class BranchThresholdAdderImplTest {
     }
 
     @Test
-    public void testNullParentFail() {
+    void testNullParentFail() {
         assertThrows(NullPointerException.class, () -> new BranchThresholdAdderImpl(null));
     }
 
     @Test
-    public void testUnsupportedUnitFail() {
+    void testUnsupportedUnitFail() {
         assertThrows(FaraoException.class, () -> crac.newFlowCnec().newThreshold().withUnit(Unit.KILOVOLT));
     }
 
     @Test
-    public void testNoUnitFail() {
+    void testNoUnitFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().newThreshold()
                 .withMax(1000.0)
@@ -92,7 +92,7 @@ public class BranchThresholdAdderImplTest {
     }
 
     @Test
-    public void testNoValueFail() {
+    void testNoValueFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().newThreshold()
                 .withUnit(Unit.AMPERE)
@@ -101,7 +101,7 @@ public class BranchThresholdAdderImplTest {
     }
 
     @Test
-    public void testNoSideFail() {
+    void testNoSideFail() {
         assertThrows(FaraoException.class, () ->
             crac.newFlowCnec().newThreshold()
                 .withUnit(Unit.AMPERE)

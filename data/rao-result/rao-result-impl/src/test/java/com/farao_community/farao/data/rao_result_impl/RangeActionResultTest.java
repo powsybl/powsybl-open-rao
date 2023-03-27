@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeActionResultTest {
+class RangeActionResultTest {
 
     private Crac crac;
 
@@ -48,7 +48,7 @@ public class RangeActionResultTest {
     }
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         assertFalse(rangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
@@ -62,7 +62,7 @@ public class RangeActionResultTest {
     }
 
     @Test
-    public void pstActivatedInPreventiveTest() {
+    void pstActivatedInPreventiveTest() {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         rangeActionResult.setInitialSetpoint(0.3);
@@ -88,7 +88,7 @@ public class RangeActionResultTest {
     }
 
     @Test
-    public void pstActivatedInCurativeTest() {
+    void pstActivatedInCurativeTest() {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         rangeActionResult.setInitialSetpoint(0.3);
@@ -114,7 +114,7 @@ public class RangeActionResultTest {
     }
 
     @Test
-    public void pstActivatedInPreventiveAndCurative() {
+    void pstActivatedInPreventiveAndCurative() {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         rangeActionResult.setInitialSetpoint(0.3);
@@ -142,7 +142,7 @@ public class RangeActionResultTest {
     }
 
     @Test
-    public void pstActivatedInPreventiveAndAutoAndCurative() {
+    void pstActivatedInPreventiveAndAutoAndCurative() {
         RangeActionResult rangeActionResult = new RangeActionResult();
 
         // Add dummy flow cnec to create auto state

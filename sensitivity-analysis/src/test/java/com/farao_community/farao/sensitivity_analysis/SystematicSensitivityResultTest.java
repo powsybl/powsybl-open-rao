@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SystematicSensitivityResultTest {
+class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
 
     private Network network;
@@ -71,7 +71,7 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testPostTreatIntensities() {
+    void testPostTreatIntensities() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -95,7 +95,7 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testPstResultManipulation() {
+    void testPstResultManipulation() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -126,7 +126,7 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testPtdfResultManipulation() {
+    void testPtdfResultManipulation() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             ptdfSensitivityProvider.getAllFactors(network),
@@ -152,7 +152,7 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testFailureSensiResult() {
+    void testFailureSensiResult() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, com.farao_community.farao.data.crac_api.Instant.OUTAGE).postTreatIntensities();
@@ -193,7 +193,7 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testPostTreatHvdcNoEffect() {
+    void testPostTreatHvdcNoEffect() {
         setUpForHvdc();
         Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
@@ -216,7 +216,7 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testPostTreatHvdcInvert() {
+    void testPostTreatHvdcInvert() {
         setUpForHvdc();
         Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);

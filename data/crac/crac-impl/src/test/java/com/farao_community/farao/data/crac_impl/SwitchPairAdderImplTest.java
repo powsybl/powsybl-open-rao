@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SwitchPairAdderImplTest {
+class SwitchPairAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
@@ -36,7 +36,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("open-id", "open-name")
             .withSwitchToClose("close-id", "close-name")
@@ -58,7 +58,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testNoName() {
+    void testNoName() {
         NetworkAction networkAction = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("open-id")
             .withSwitchToClose("close-id")
@@ -73,7 +73,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testNoSwitchToOpen() {
+    void testNoSwitchToOpen() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newSwitchPair()
                 .withSwitchToClose("test")
@@ -82,7 +82,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testNoSwitchToClose() {
+    void testNoSwitchToClose() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newSwitchPair()
                 .withSwitchToOpen("test")
@@ -91,7 +91,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testSameSwitch() {
+    void testSameSwitch() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newSwitchPair()
                 .withSwitchToOpen("test")

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteConnectableCollectionTest {
+class UcteConnectableCollectionTest {
 
     private Network network;
     private UcteConnectableCollection ucteConnectableCollection;
@@ -28,7 +28,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testInternalBranch() {
+    void testInternalBranch() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // internal branch with order code, from/to same as network
@@ -61,7 +61,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testInvalidInternalBranch() {
+    void testInvalidInternalBranch() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // unknown from
@@ -91,7 +91,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testValidTransformer() {
+    void testValidTransformer() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         /*
@@ -158,7 +158,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testInvalidTransformer() {
+    void testInvalidTransformer() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // transformer exists but not with this order code
@@ -173,7 +173,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testValidTieLine() {
+    void testValidTieLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // tie-line with order code
@@ -228,7 +228,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testInvalidTieLine() {
+    void testInvalidTieLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // tie-line exists but not with this order code
@@ -243,7 +243,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testValidDanglingLine() {
+    void testValidDanglingLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // dangling-line with order code
@@ -274,7 +274,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testInvalidDanglingLine() {
+    void testInvalidDanglingLine() {
         init("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // dangling-line exists but not with this order code
@@ -289,7 +289,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testSwitch() {
+    void testSwitch() {
         init("TestCase16Nodes_with_different_imax.uct");
 
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE4AA1 ", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.SWITCH);
@@ -306,7 +306,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testHvdc() {
+    void testHvdc() {
         init("TestCase16NodesWithHvdc.xiidm");
 
         // hvdc in good direction
@@ -325,7 +325,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void someMoreTestsWithWildcards() {
+    void someMoreTestsWithWildcards() {
         init("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "2", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
@@ -354,7 +354,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testYNode() {
+    void testYNode() {
         init("TestCase_severalVoltageLevels_Xnodes_Ynode.uct");
 
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("NNL3AA11", "XDENL111", "TL NL3X", COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE);
@@ -371,7 +371,7 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
-    public void testTooManyMatches() {
+    void testTooManyMatches() {
         init("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);

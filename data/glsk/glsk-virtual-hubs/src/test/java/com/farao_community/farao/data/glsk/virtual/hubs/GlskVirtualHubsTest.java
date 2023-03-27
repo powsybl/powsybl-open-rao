@@ -20,12 +20,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class GlskVirtualHubsTest {
+class GlskVirtualHubsTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     @Test
-    public void testGetVirtualHubsOk() {
+    void testGetVirtualHubsOk() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
         Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
@@ -48,7 +48,7 @@ public class GlskVirtualHubsTest {
     }
 
     @Test
-    public void testGetVirtualHubsNotFound() {
+    void testGetVirtualHubsNotFound() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
         Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");

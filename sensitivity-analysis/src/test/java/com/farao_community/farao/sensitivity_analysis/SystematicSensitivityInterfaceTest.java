@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SystematicSensitivityInterfaceTest {
+class SystematicSensitivityInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
 
@@ -64,7 +64,7 @@ public class SystematicSensitivityInterfaceTest {
     }
 
     @Test
-    public void testRunDefaultConfigOk() {
+    void testRunDefaultConfigOk() {
         // mock sensi service - run OK
         Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
@@ -95,7 +95,7 @@ public class SystematicSensitivityInterfaceTest {
     }
 
     @Test
-    public void testRunDefaultConfigFails() {
+    void testRunDefaultConfigFails() {
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);

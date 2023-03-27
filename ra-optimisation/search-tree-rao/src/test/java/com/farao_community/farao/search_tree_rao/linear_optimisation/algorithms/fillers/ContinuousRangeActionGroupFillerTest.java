@@ -33,10 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
+class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
 
     @Test
-    public void testFillAndUpdateMethods() {
+    void testFillAndUpdateMethods() {
 
         // prepare data
         init();

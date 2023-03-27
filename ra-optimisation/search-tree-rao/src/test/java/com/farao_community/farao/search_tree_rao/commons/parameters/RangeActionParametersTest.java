@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeActionParametersTest {
+class RangeActionParametersTest {
 
     @Test
-    public void buildFromRaoParametersTest() {
+    void buildFromRaoParametersTest() {
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(1.1);

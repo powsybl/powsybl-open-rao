@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SideTest {
+class SideTest {
     @Test
-    public void basicTests() {
+    void basicTests() {
         assertEquals(Branch.Side.ONE, Side.LEFT.iidmSide());
         assertEquals(Branch.Side.TWO, Side.RIGHT.iidmSide());
         assertEquals(Side.LEFT, Side.fromIidmSide(Branch.Side.ONE));

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionResultTest {
+class NetworkActionResultTest {
 
     private Crac crac;
 
@@ -31,7 +31,7 @@ public class NetworkActionResultTest {
     }
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
 
         assertFalse(networkActionResult.isActivated(crac.getPreventiveState()));
@@ -41,7 +41,7 @@ public class NetworkActionResultTest {
     }
 
     @Test
-    public void activatedInOnePreventiveTest() {
+    void activatedInOnePreventiveTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
         networkActionResult.addActivationForState(crac.getPreventiveState());
 
@@ -52,7 +52,7 @@ public class NetworkActionResultTest {
     }
 
     @Test
-    public void activatedInTwoCurativeStatesTest() {
+    void activatedInTwoCurativeStatesTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
         networkActionResult.addActivationForStates(Set.of(crac.getState("Contingency FR1 FR3", CURATIVE), crac.getState("Contingency FR1 FR2", CURATIVE)));
 

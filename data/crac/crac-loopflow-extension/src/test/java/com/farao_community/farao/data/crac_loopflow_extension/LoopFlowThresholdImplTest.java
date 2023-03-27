@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowThresholdImplTest {
+class LoopFlowThresholdImplTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
@@ -43,7 +43,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void basicSetterAndGetterTest() {
+    void basicSetterAndGetterTest() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.PERCENT_IMAX)
             .withValue(1.)
@@ -57,7 +57,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void convertFromPercent() {
+    void convertFromPercent() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.PERCENT_IMAX)
             .withValue(0.5)
@@ -72,7 +72,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void convertFromA() {
+    void convertFromA() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.AMPERE)
             .withValue(750)
@@ -87,7 +87,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void convertFromMW() {
+    void convertFromMW() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT)
             .withValue(1000)
@@ -102,7 +102,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void getThresholdWithFrm() {
+    void getThresholdWithFrm() {
 
         FlowCnec cnecWithFrm = crac.getFlowCnec("cnec2stateCurativeContingency2"); // contains frm of 95. MW
 

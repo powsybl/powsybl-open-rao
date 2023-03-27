@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RaoToolTest extends AbstractToolTest {
+class RaoToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "rao";
     private static RaoTool tool = new RaoTool();
@@ -52,7 +52,7 @@ public class RaoToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void run() throws IOException {
+    void run() throws IOException {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",

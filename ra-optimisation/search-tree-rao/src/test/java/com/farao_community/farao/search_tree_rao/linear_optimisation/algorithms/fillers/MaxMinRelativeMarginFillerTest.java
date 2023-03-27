@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
+class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     private LinearProblem linearProblem;
@@ -104,7 +104,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinRelativeMarginInMegawatt() {
+    void fillWithMaxMinRelativeMarginInMegawatt() {
         createMaxMinRelativeMarginFiller(MEGAWATT, 0.9);
         buildLinearProblem();
 
@@ -148,7 +148,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinRelativeMarginInAmpere() {
+    void fillWithMaxMinRelativeMarginInAmpere() {
         createMaxMinRelativeMarginFiller(AMPERE, 0.005);
         buildLinearProblem();
 

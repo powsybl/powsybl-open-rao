@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class OnStateAdderImplTest {
+class OnStateAdderImplTest {
 
     private Crac crac;
     private Contingency contingency;
@@ -43,7 +43,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnStateUsageRule()
             .withInstant(Instant.CURATIVE)
             .withContingency("contingencyId")
@@ -61,7 +61,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testOkPreventive() {
+    void testOkPreventive() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnStateUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withUsageMethod(UsageMethod.FORCED)
@@ -75,7 +75,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testNoInstant() {
+    void testNoInstant() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newOnStateUsageRule()
                 .withContingency("contingencyId")
@@ -84,7 +84,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testNoContingency() {
+    void testNoContingency() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newOnStateUsageRule()
                 .withInstant(Instant.CURATIVE)
@@ -93,7 +93,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testNoUsageMethod() {
+    void testNoUsageMethod() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newOnStateUsageRule()
                 .withInstant(Instant.CURATIVE)
@@ -102,7 +102,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testUnknownContingency() {
+    void testUnknownContingency() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newOnStateUsageRule()
                 .withInstant(Instant.CURATIVE)
@@ -112,7 +112,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testPreventiveInstant() {
+    void testPreventiveInstant() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newOnStateUsageRule()
                 .withInstant(Instant.PREVENTIVE)
@@ -122,7 +122,7 @@ public class OnStateAdderImplTest {
     }
 
     @Test
-    public void testOutageInstant() {
+    void testOutageInstant() {
         assertThrows(FaraoException.class, () ->
             remedialActionAdder.newOnStateUsageRule()
                 .withInstant(Instant.OUTAGE)

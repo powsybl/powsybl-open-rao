@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class LinearProblemBuilderTest {
+class LinearProblemBuilderTest {
     private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
@@ -64,7 +64,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginContinuous() {
+    void testBuildMaxMarginContinuous() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
 
@@ -78,7 +78,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginDiscrete() {
+    void testBuildMaxMarginDiscrete() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
 
@@ -94,7 +94,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxRelativeMarginContinuous() {
+    void testBuildMaxRelativeMarginContinuous() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
 
@@ -108,7 +108,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
+    void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         when(parameters.isRaoWithMnecLimitation()).thenReturn(true);
@@ -128,7 +128,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginContinuousRaLimitation() {
+    void testBuildMaxMarginContinuousRaLimitation() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         RangeActionLimitationParameters raLimitationParameters = Mockito.mock(RangeActionLimitationParameters.class);

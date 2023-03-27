@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionAdderImplTest {
+class NetworkActionAdderImplTest {
 
     private Crac crac;
 
@@ -36,7 +36,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -60,7 +60,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithTwoElementaryActions() {
+    void testOkWithTwoElementaryActions() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -84,7 +84,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithTwoUsageRules() {
+    void testOkWithTwoUsageRules() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -113,7 +113,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithoutName() {
+    void testOkWithoutName() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withOperator("operator")
@@ -131,7 +131,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithoutOperator() {
+    void testOkWithoutOperator() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -148,7 +148,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testNokWithoutId() {
+    void testNokWithoutId() {
 
         assertThrows(FaraoException.class, () ->
             crac.newNetworkAction()
@@ -162,7 +162,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testIdNotUnique() {
+    void testIdNotUnique() {
         crac.newPstRangeAction()
             .withId("sameId")
             .withOperator("BE")
@@ -184,7 +184,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testNokWithoutElementaryAction() {
+    void testNokWithoutElementaryAction() {
         assertThrows(FaraoException.class, () ->
             crac.newNetworkAction()
                     .withId("networkActionName")

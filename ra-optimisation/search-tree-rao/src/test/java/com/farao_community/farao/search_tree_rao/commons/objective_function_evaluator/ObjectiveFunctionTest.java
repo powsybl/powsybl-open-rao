@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ObjectiveFunctionTest {
+class ObjectiveFunctionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private MinMarginEvaluator minMarginEvaluator;
@@ -67,7 +67,7 @@ public class ObjectiveFunctionTest {
     }
 
     @Test
-    public void testWithFunctionalCostOnly() {
+    void testWithFunctionalCostOnly() {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create()
                 .withFunctionalCostEvaluator(minMarginEvaluator)
                 .build();
@@ -91,7 +91,7 @@ public class ObjectiveFunctionTest {
     }
 
     @Test
-    public void testWithVirtualCostOnly() {
+    void testWithVirtualCostOnly() {
         assertThrows(NullPointerException.class, () ->
             ObjectiveFunction.create()
                     .withVirtualCostEvaluator(mnecViolationCostEvaluator)
@@ -99,7 +99,7 @@ public class ObjectiveFunctionTest {
     }
 
     @Test
-    public void testWithFunctionalAndVirtualCost() {
+    void testWithFunctionalAndVirtualCost() {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create()
                 .withFunctionalCostEvaluator(minMarginEvaluator)
                 .withVirtualCostEvaluator(mnecViolationCostEvaluator)

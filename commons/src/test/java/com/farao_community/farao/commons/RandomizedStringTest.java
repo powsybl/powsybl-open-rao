@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mockStatic;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class RandomizedStringTest {
+class RandomizedStringTest {
     private static MockedStatic<UUID> uuidMock;
 
     @BeforeAll
@@ -33,7 +33,7 @@ public class RandomizedStringTest {
     }
 
     @Test
-    public void generateRandomString() {
+    void generateRandomString() {
         String generatedString = RandomizedString.getRandomizedString();
         assertNotNull(generatedString);
         assertFalse(generatedString.isEmpty());
@@ -48,7 +48,7 @@ public class RandomizedStringTest {
     }
 
     @Test
-    public void generateStringDifferentToInvalidOnes() {
+    void generateStringDifferentToInvalidOnes() {
         UUID uuid = UUID.fromString("2937ed60-9511-11ea-bb37-0242ac130002");
         UUID otherUuid = UUID.fromString("622fc1d6-41ba-43bc-9c54-c11073fc2ce7");
         uuidMock.when(() -> UUID.randomUUID()).thenReturn(uuid, otherUuid);
@@ -58,7 +58,7 @@ public class RandomizedStringTest {
     }
 
     @Test
-    public void generateStringFailsIfNotEnoughTries() {
+    void generateStringFailsIfNotEnoughTries() {
         UUID uuid = UUID.fromString("2937ed60-9511-11ea-bb37-0242ac130002");
         UUID otherUuid = UUID.fromString("622fc1d6-41ba-43bc-9c54-c11073fc2ce7");
         uuidMock.when(UUID::randomUUID).thenReturn(uuid, otherUuid);
@@ -67,7 +67,7 @@ public class RandomizedStringTest {
     }
 
     @Test
-    public void exceptionIfInvalidMaxTry() {
+    void exceptionIfInvalidMaxTry() {
         assertThrows(IllegalArgumentException.class, () -> RandomizedString.getRandomizedString("", Collections.emptyList(), 0));
     }
 }

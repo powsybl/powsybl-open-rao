@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorsTest {
+class CracCreatorsTest {
 
     private Network network;
     private OffsetDateTime offsetDateTime;
@@ -36,20 +36,20 @@ public class CracCreatorsTest {
     }
 
     @Test
-    public void testFindCreatorKnownFormat() {
+    void testFindCreatorKnownFormat() {
         CracCreator cracCreator = findCreator("MockedNativeCracFormat");
         assertNotNull(cracCreator);
         assertTrue(cracCreator instanceof CracCreatorMock);
     }
 
     @Test
-    public void testFindCreatorTestFormat() {
+    void testFindCreatorTestFormat() {
         CracCreator cracCreator = findCreator("UnknownFormat");
         assertNull(cracCreator);
     }
 
     @Test
-    public void testCreateCrac() {
+    void testCreateCrac() {
         CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime);
         assertTrue(cracCreationContext.isCreationSuccessful());
 
@@ -58,19 +58,19 @@ public class CracCreatorsTest {
     }
 
     @Test
-    public void testCreateCracWithFactory() {
+    void testCreateCracWithFactory() {
         CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime, new CracCreationParameters());
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
-    public void testCreateAndImportCracFromInputStream() {
+    void testCreateAndImportCracFromInputStream() {
         CracCreationContext cracCreationContext = CracCreators.importAndCreateCrac("empty.txt", getClass().getResourceAsStream("/empty.txt"), network, offsetDateTime);
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
-    public void testCreateAndImportCracFromPath() {
+    void testCreateAndImportCracFromPath() {
         CracCreationContext cracCreationContext = CracCreators.importAndCreateCrac(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()), network, offsetDateTime);
         assertTrue(cracCreationContext.isCreationSuccessful());
     }

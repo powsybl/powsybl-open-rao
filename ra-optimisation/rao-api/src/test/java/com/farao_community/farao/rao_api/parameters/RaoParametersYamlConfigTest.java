@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RaoParametersYamlConfigTest extends AbstractConverterTest {
+class RaoParametersYamlConfigTest extends AbstractConverterTest {
     static double DOUBLE_TOLERANCE = 1e-6;
 
     public RaoParameters loadRaoParameters(String configFile) {
@@ -37,7 +37,7 @@ public class RaoParametersYamlConfigTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConfigWithExtensions() throws IOException {
+    void testConfigWithExtensions() throws IOException {
         RaoParameters parameters = loadRaoParameters("config_withExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
@@ -127,7 +127,7 @@ public class RaoParametersYamlConfigTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConfigWithoutExtensions() throws IOException {
+    void testConfigWithoutExtensions() throws IOException {
         RaoParameters parameters = loadRaoParameters("config_withoutExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
@@ -205,7 +205,7 @@ public class RaoParametersYamlConfigTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConfigWithPartialExtensions() throws IOException {
+    void testConfigWithPartialExtensions() throws IOException {
         RaoParameters parameters = loadRaoParameters("config_withPartialExtensions");
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
@@ -292,7 +292,7 @@ public class RaoParametersYamlConfigTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConfigWithOpenLoadFlowExtension() throws IOException {
+    void testConfigWithOpenLoadFlowExtension() throws IOException {
         RaoParameters parameters = loadRaoParameters("config_withOpenLoadFlowExtension");
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters();
         assertEquals("OpenLoadFlow", loadFlowAndSensitivityParameters.getLoadFlowProvider());

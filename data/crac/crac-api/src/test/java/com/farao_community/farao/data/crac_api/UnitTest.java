@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UnitTest {
+class UnitTest {
 
     @Test
-    public void checkPhysicalParameterTestOk() {
+    void checkPhysicalParameterTestOk() {
         Unit.AMPERE.checkPhysicalParameter(PhysicalParameter.FLOW);
         Unit.DEGREE.checkPhysicalParameter(PhysicalParameter.ANGLE);
         Unit.KILOVOLT.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
@@ -27,7 +27,7 @@ public class UnitTest {
     }
 
     @Test
-    public void checkPhysicalParameterTestNok() {
+    void checkPhysicalParameterTestNok() {
 
         try {
             Unit.AMPERE.checkPhysicalParameter(PhysicalParameter.ANGLE);

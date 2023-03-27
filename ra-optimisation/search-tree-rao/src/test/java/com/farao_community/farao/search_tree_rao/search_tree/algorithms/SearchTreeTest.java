@@ -53,7 +53,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SearchTreeTest {
+class SearchTreeTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
@@ -138,7 +138,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runOnAFailingRootLeaf() throws Exception {
+    void runOnAFailingRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -149,7 +149,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runWithoutOptimizingRootLeaf() throws Exception {
+    void runWithoutOptimizingRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
 
         setStopCriterionAtTargetObjectiveValue(3.);
@@ -170,7 +170,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndOptimizeOnlyRootLeaf() throws Exception {
+    void runAndOptimizeOnlyRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         when(rootLeaf.getCost()).thenReturn(2.);
@@ -182,7 +182,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void rootLeafMeetsTargetObjectiveValue() throws Exception {
+    void rootLeafMeetsTargetObjectiveValue() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(3.);
         searchTreeWithOneChildLeaf();
@@ -212,7 +212,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithChildLeafInError() throws Exception {
+    void runAndIterateOnTreeWithChildLeafInError() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
@@ -231,7 +231,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithABetterChildLeaf() throws Exception {
+    void runAndIterateOnTreeWithABetterChildLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
@@ -247,7 +247,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithAWorseChildLeaf() throws Exception {
+    void runAndIterateOnTreeWithAWorseChildLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
@@ -263,7 +263,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeStopCriterionReached() throws Exception {
+    void runAndIterateOnTreeStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
 
@@ -302,7 +302,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithSlightlyBetterChildLeafAndStopCriterionReached() throws Exception {
+    void runAndIterateOnTreeWithSlightlyBetterChildLeafAndStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.getTargetObjectiveValue()).thenReturn(0.0);
@@ -320,7 +320,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void optimizeRootLeafWithRangeActions() throws Exception {
+    void optimizeRootLeafWithRangeActions() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
 
@@ -413,7 +413,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testPurelyVirtualStopCriterion() {
+    void testPurelyVirtualStopCriterion() {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(-30.);
 
@@ -441,7 +441,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogsVerbose() {
+    void testLogsVerbose() {
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -463,7 +463,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogsDontVerbose() {
+    void testLogsDontVerbose() {
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
         raoWithoutLoopFlowLimitation();
 
@@ -494,7 +494,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testCostSatisfiesStopCriterion() {
+    void testCostSatisfiesStopCriterion() {
         setSearchTreeParameters();
 
         // MIN_OBJECTIVE
@@ -539,7 +539,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testGetCostlyElementsLogs() {
+    void testGetCostlyElementsLogs() {
         setUpForVirtualLogs();
 
         List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
@@ -548,7 +548,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogVirtualCostDetails() {
+    void testLogVirtualCostDetails() {
         setUpForVirtualLogs();
 
         when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
@@ -570,7 +570,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testSortNaCombinations() {
+    void testSortNaCombinations() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         when(na1.getId()).thenReturn("na1");

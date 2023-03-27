@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveStateTest {
+class PreventiveStateTest {
 
     @Test
-    public void testEqualsForPreventive() {
+    void testEqualsForPreventive() {
         PreventiveState state1 = new PreventiveState();
         PreventiveState state2 = new PreventiveState();
 
@@ -25,13 +25,13 @@ public class PreventiveStateTest {
     }
 
     @Test
-    public void testHashCodeForPreventive() {
+    void testHashCodeForPreventive() {
         PreventiveState state = new PreventiveState();
         assertEquals("preventive".hashCode(), state.hashCode());
     }
 
     @Test
-    public void testToStringForPreventive() {
+    void testToStringForPreventive() {
         PreventiveState state = new PreventiveState();
         assertEquals("preventive", state.toString());
     }

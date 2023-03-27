@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintAdderImplTest {
+class OnFlowConstraintAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
@@ -71,7 +71,7 @@ public class OnFlowConstraintAdderImplTest {
     }
 
     @Test
-    public void testOkPreventive() {
+    void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withFlowCnec("cnec2stateCurativeContingency1")
@@ -90,7 +90,7 @@ public class OnFlowConstraintAdderImplTest {
     }
 
     @Test
-    public void testOkCurative() {
+    void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintUsageRule()
             .withInstant(Instant.CURATIVE)
             .withFlowCnec("cnec2stateCurativeContingency1")
@@ -107,26 +107,26 @@ public class OnFlowConstraintAdderImplTest {
     }
 
     @Test
-    public void testOutageException() {
+    void testOutageException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.OUTAGE).withFlowCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testAbsentCnecException() {
+    void testAbsentCnecException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE)
             .withFlowCnec("fake_cnec");
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testNoCnecException() {
+    void testNoCnecException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testNoInstantException() {
+    void testNoInstantException() {
         OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
@@ -149,7 +149,7 @@ public class OnFlowConstraintAdderImplTest {
     }
 
     @Test
-    public void testOnConstraintInstantCheck() {
+    void testOnConstraintInstantCheck() {
         // todo : mm chose pour on flow constraint in country, dans le code
         addCnec("cnec-prev", Instant.PREVENTIVE);
         addCnec("cnec-out", Instant.OUTAGE);

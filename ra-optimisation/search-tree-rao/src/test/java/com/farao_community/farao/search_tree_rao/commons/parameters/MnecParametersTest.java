@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MnecParametersTest {
+class MnecParametersTest {
 
     @Test
-    public void buildFromRaoParametersTestWithLimitation() {
+    void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
 
@@ -35,7 +35,7 @@ public class MnecParametersTest {
     }
 
     @Test
-    public void buildFromRaoParametersTestWithoutLimitation() {
+    void buildFromRaoParametersTestWithoutLimitation() {
         RaoParameters raoParameters = new RaoParameters();
         MnecParameters mp = MnecParameters.buildFromRaoParameters(raoParameters);
         assertNull(mp);

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PostContingencyStateTest {
+class PostContingencyStateTest {
 
     private Contingency contingency1;
     private Contingency contingency2;
@@ -35,7 +35,7 @@ public class PostContingencyStateTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
         PostContingencyState state2 = new PostContingencyState(contingency1, Instant.OUTAGE);
 
@@ -43,7 +43,7 @@ public class PostContingencyStateTest {
     }
 
     @Test
-    public void testNotEqualsByInstant() {
+    void testNotEqualsByInstant() {
         PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
         PostContingencyState state2 = new PostContingencyState(contingency1, Instant.CURATIVE);
 
@@ -51,7 +51,7 @@ public class PostContingencyStateTest {
     }
 
     @Test
-    public void testNotEqualsByContingency() {
+    void testNotEqualsByContingency() {
         PostContingencyState state1 = new PostContingencyState(contingency1, Instant.CURATIVE);
         PostContingencyState state2 = new PostContingencyState(contingency2, Instant.CURATIVE);
 
@@ -59,13 +59,13 @@ public class PostContingencyStateTest {
     }
 
     @Test
-    public void testToStringAfterContingency() {
+    void testToStringAfterContingency() {
         PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
         assertEquals("contingency1 - outage", state1.toString());
     }
 
     @Test
-    public void testCompareTo() {
+    void testCompareTo() {
         PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
         PostContingencyState state2 = new PostContingencyState(contingency1, Instant.CURATIVE);
 

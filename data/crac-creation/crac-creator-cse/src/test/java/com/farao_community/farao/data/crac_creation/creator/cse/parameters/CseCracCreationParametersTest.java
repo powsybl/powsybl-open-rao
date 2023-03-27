@@ -17,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CseCracCreationParametersTest {
+class CseCracCreationParametersTest {
 
     @Test
-    public void testDefaultParameters() {
+    void testDefaultParameters() {
         CseCracCreationParameters parameters = new CseCracCreationParameters();
 
         assertEquals(0, parameters.getRangeActionGroupsAsString().size());
@@ -28,7 +28,7 @@ public class CseCracCreationParametersTest {
     }
 
     @Test
-    public void testParallelRaConf() {
+    void testParallelRaConf() {
 
         CseCracCreationParameters parameters = new CseCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
@@ -43,7 +43,7 @@ public class CseCracCreationParametersTest {
     }
 
     @Test
-    public void testParametersWithinExtendable() {
+    void testParametersWithinExtendable() {
         CracCreationParameters parameters = new CracCreationParameters();
         assertNull(parameters.getExtension(CseCracCreationParameters.class));
 

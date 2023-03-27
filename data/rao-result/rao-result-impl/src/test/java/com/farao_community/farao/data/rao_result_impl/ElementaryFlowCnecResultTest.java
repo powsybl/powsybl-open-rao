@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ElementaryFlowCnecResultTest {
+class ElementaryFlowCnecResultTest {
 
     private void assertMarginsAreNan(ElementaryFlowCnecResult elementaryFlowCnecResult, Unit unit) {
         assertEquals(Double.NaN, elementaryFlowCnecResult.getMargin(unit), 1e-3);
@@ -31,7 +31,7 @@ public class ElementaryFlowCnecResultTest {
     }
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
 
         assertMarginsAreNan(elementaryFlowCnecResult, Unit.MEGAWATT);
@@ -47,7 +47,7 @@ public class ElementaryFlowCnecResultTest {
     }
 
     @Test
-    public void getterAndSetters() {
+    void getterAndSetters() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
 
         // Per unit
@@ -95,7 +95,7 @@ public class ElementaryFlowCnecResultTest {
     }
 
     @Test
-    public void notAFlowUnitTest() {
+    void notAFlowUnitTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
         assertThrows(FaraoException.class, () -> elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 100, Unit.KILOVOLT));
     }

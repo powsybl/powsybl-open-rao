@@ -21,7 +21,7 @@ import java.util.Collections;
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowbasedComputationToolTest extends AbstractToolTest {
+class FlowbasedComputationToolTest extends AbstractToolTest {
 
     //how to use itools to test flowbased-computation:
     //command line example, from git farao root directory:
@@ -68,12 +68,12 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkCommandFail() throws IOException {
+    void checkCommandFail() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--case-file", "testCase.xiidm"}, 2, "", "");
     }
 
     @Test
-    public void checkCommandFailBis() throws IOException {
+    void checkCommandFailBis() throws IOException {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",
@@ -83,7 +83,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkCommandOK() throws IOException {
+    void checkCommandOK() throws IOException {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",

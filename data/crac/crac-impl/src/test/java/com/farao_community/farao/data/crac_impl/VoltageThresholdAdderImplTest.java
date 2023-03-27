@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class VoltageThresholdAdderImplTest {
+class VoltageThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private Crac crac;
     private Contingency contingency;
@@ -34,7 +34,7 @@ public class VoltageThresholdAdderImplTest {
     }
 
     @Test
-    public void testAddThresholdInDegree() {
+    void testAddThresholdInDegree() {
         VoltageCnec cnec = crac.newVoltageCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("neID")
@@ -45,17 +45,17 @@ public class VoltageThresholdAdderImplTest {
     }
 
     @Test
-    public void testNullParentFail() {
+    void testNullParentFail() {
         assertThrows(NullPointerException.class, () -> new VoltageThresholdAdderImpl(null));
     }
 
     @Test
-    public void testUnsupportedUnitFail() {
+    void testUnsupportedUnitFail() {
         assertThrows(FaraoException.class, () -> crac.newVoltageCnec().newThreshold().withUnit(Unit.MEGAWATT));
     }
 
     @Test
-    public void testNoUnitFail() {
+    void testNoUnitFail() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec().newThreshold()
                 .withMax(1000.0)
@@ -63,7 +63,7 @@ public class VoltageThresholdAdderImplTest {
     }
 
     @Test
-    public void testNoValueFail() {
+    void testNoValueFail() {
         assertThrows(FaraoException.class, () ->
             crac.newVoltageCnec().newThreshold()
                 .withUnit(Unit.AMPERE)

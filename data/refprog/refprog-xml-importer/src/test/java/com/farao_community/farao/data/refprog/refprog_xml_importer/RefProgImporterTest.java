@@ -22,33 +22,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RefProgImporterTest {
+class RefProgImporterTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private OffsetDateTime offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
 
     @Test
-    public void testUnexistantFile() {
+    void testUnexistantFile() {
         assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(Paths.get("/refProg_12nodes_doesntexist.xml"), offsetDateTime));
     }
 
     @Test
-    public void testWrongXml() {
+    void testWrongXml() {
         assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/wrong_refProg.xml"), offsetDateTime));
     }
 
     @Test
-    public void testRefProgWithoutInterval() {
+    void testRefProgWithoutInterval() {
         assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_noInterval.xml"), offsetDateTime));
     }
 
     @Test
-    public void testWrongTimestamp() {
+    void testWrongTimestamp() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
         assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime));
     }
 
     @Test
-    public void testImportSimpleFile() {
+    void testImportSimpleFile() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 21, 00, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
         assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
@@ -64,7 +64,7 @@ public class RefProgImporterTest {
     }
 
     @Test
-    public void testImportSimpleFileWithoutFlowForTimestamp() {
+    void testImportSimpleFileWithoutFlowForTimestamp() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 19, 00, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
         assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
@@ -80,7 +80,7 @@ public class RefProgImporterTest {
     }
 
     @Test
-    public void testImportLargeFile1() {
+    void testImportLargeFile1() {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 6, 30, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime);
         assertEquals(77, referenceProgram.getReferenceExchangeDataList().size());
@@ -94,7 +94,7 @@ public class RefProgImporterTest {
     }
 
     @Test
-    public void testImportLargeFile2() {
+    void testImportLargeFile2() {
         offsetDateTime = OffsetDateTime.of(2015, 1, 11, 19, 15, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime);
         assertEquals(77, referenceProgram.getReferenceExchangeDataList().size());

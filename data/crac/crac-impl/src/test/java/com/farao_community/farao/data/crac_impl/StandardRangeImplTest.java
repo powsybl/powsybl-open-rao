@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class StandardRangeImplTest {
+class StandardRangeImplTest {
 
     private final double min = 1;
     private final double max = 32;
@@ -28,22 +28,22 @@ public class StandardRangeImplTest {
     }
 
     @Test
-    public void getMinTest() {
+    void getMinTest() {
         assertEquals(min, fixedRange.getMin(), 1e-6);
     }
 
     @Test
-    public void getMaxTest() {
+    void getMaxTest() {
         assertEquals(max, fixedRange.getMax(), 1e-6);
     }
 
     @Test
-    public void getRangeTypeTest() {
+    void getRangeTypeTest() {
         assertEquals(RangeType.ABSOLUTE, fixedRange.getRangeType());
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         StandardRangeImpl range1 = new StandardRangeImpl(0, 10);
         StandardRangeImpl range2 = new StandardRangeImpl(0, 10);
         StandardRangeImpl range3 = new StandardRangeImpl(0, 11);
@@ -53,7 +53,7 @@ public class StandardRangeImplTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         StandardRangeImpl range1 = new StandardRangeImpl(0, 10);
         StandardRangeImpl range2 = new StandardRangeImpl(0, 10);
         StandardRangeImpl range3 = new StandardRangeImpl(0, 11);

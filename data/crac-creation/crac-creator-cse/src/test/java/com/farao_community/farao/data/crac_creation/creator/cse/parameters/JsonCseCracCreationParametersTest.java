@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonCseCracCreationParametersTest {
+class JsonCseCracCreationParametersTest {
 
     private void checkBusBarChangeSwitchesContent(CseCracCreationParameters parameters, String remedialActionId, Set<SwitchPairId> switchPairs) {
         assertNotNull(parameters.getBusBarChangeSwitches(remedialActionId));
@@ -30,7 +30,7 @@ public class JsonCseCracCreationParametersTest {
     }
 
     @Test
-    public void roundTripTest() {
+    void roundTripTest() {
         // prepare parameters to export
         CracCreationParameters exportedParameters = new CracCreationParameters();
         CseCracCreationParameters exportedCseParameters = new CseCracCreationParameters();
@@ -64,7 +64,7 @@ public class JsonCseCracCreationParametersTest {
     }
 
     @Test
-    public void importOkTest() {
+    void importOkTest() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-ok.json"));
 
         CseCracCreationParameters cseCracCreationParameters = importedParameters.getExtension(CseCracCreationParameters.class);
@@ -81,27 +81,27 @@ public class JsonCseCracCreationParametersTest {
     }
 
     @Test
-    public void importNokTest() {
+    void importNokTest() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok.json")));
     }
 
     @Test
-    public void importNokTest2() {
+    void importNokTest2() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok2.json")));
     }
 
     @Test
-    public void importNokTest3() {
+    void importNokTest3() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok3.json")));
     }
 
     @Test
-    public void importMissingSwitch1() {
+    void importMissingSwitch1() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok4.json")));
     }
 
     @Test
-    public void importMissingSwitch2() {
+    void importMissingSwitch2() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok5.json")));
     }
 }

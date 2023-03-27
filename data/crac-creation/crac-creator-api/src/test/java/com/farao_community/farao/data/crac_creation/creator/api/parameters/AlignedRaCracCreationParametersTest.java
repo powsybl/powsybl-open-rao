@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AlignedRaCracCreationParametersTest {
+class AlignedRaCracCreationParametersTest {
 
     @Test
-    public void setRangeActionGroupsAsStringTest() {
+    void setRangeActionGroupsAsStringTest() {
         CracCreationParametersMock cracCreationParameters = new CracCreationParametersMock();
         cracCreationParameters.setRangeActionGroupsAsString(List.of("rangeAction3 + rangeAction4", "hvdc1 + hvdc2"));
         assertEquals(2, cracCreationParameters.getRangeActionGroups().size());

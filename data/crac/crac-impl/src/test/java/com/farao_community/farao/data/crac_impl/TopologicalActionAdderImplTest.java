@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class TopologicalActionAdderImplTest {
+class TopologicalActionAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
@@ -35,7 +35,7 @@ public class TopologicalActionAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId")
             .withActionType(ActionType.OPEN)
@@ -52,7 +52,7 @@ public class TopologicalActionAdderImplTest {
     }
 
     @Test
-    public void testNoNetworkElement() {
+    void testNoNetworkElement() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newTopologicalAction()
                 .withActionType(ActionType.OPEN)
@@ -61,7 +61,7 @@ public class TopologicalActionAdderImplTest {
     }
 
     @Test
-    public void testNoActionType() {
+    void testNoActionType() {
         assertThrows(FaraoException.class, () ->
             networkActionAdder.newTopologicalAction()
                 .withNetworkElement("branchNetworkElementId")

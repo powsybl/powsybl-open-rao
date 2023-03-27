@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ImporterRetrocompatibilityTest {
+class ImporterRetrocompatibilityTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
@@ -55,7 +55,7 @@ public class ImporterRetrocompatibilityTest {
      */
 
     @Test
-    public void importV1Point0Test() {
+    void importV1Point0Test() {
 
         // JSON file of farao-core v3.4.3
         /*
@@ -72,7 +72,7 @@ public class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point1Test() {
+    void importV1Point1Test() {
 
         // JSON file of farao-core v3.5.0
         /*
@@ -91,7 +91,7 @@ public class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    public void importAfterV1Point1FieldDeprecationTest() {
+    void importAfterV1Point1FieldDeprecationTest() {
 
         // unused field should throw an exception
 
@@ -104,7 +104,7 @@ public class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point2Test() {
+    void importV1Point2Test() {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/rao-result-v1.2.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/crac-for-rao-result-v1.2.json");
 
@@ -115,7 +115,7 @@ public class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point2FieldDeprecationTest() {
+    void importV1Point2FieldDeprecationTest() {
         // RaoResult copied from v1.1 but version set to v1.2
         // Should not be imported because CNEC side is not defined properly
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/rao-result-v1.2-error.json");
@@ -127,7 +127,7 @@ public class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point3Test() {
+    void importV1Point3Test() {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
 
@@ -142,7 +142,7 @@ public class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point3TestFieldDeprecationTest() {
+    void importV1Point3TestFieldDeprecationTest() {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
         Crac crac = new JsonImport().importCrac(cracFile);
         RaoResultImporter importer = new RaoResultImporter();

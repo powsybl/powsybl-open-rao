@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CriticalBranchReaderTest {
+class CriticalBranchReaderTest {
 
     @Test
-    public void isCrossZonalTest() {
+    void isCrossZonalTest() {
 
         CriticalBranchType.Branch branch = new CriticalBranchType.Branch();
 

@@ -10,12 +10,12 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ZoneToZonePtdfDefinitionTest {
+class ZoneToZonePtdfDefinitionTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testSimpleZoneToZonePtdfWithCountryCode() {
+    void testSimpleZoneToZonePtdfWithCountryCode() {
 
         ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{FR}-{ES}");
 
@@ -25,7 +25,7 @@ public class ZoneToZonePtdfDefinitionTest {
     }
 
     @Test
-    public void testSimpleZoneToZonePtdfWithEiCode() {
+    void testSimpleZoneToZonePtdfWithEiCode() {
 
         ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{22Y201903145---4}-{22Y201903144---9}");
 
@@ -36,7 +36,7 @@ public class ZoneToZonePtdfDefinitionTest {
     }
 
     @Test
-    public void testSimpleZoneToZonePtdfWithMixedCode() {
+    void testSimpleZoneToZonePtdfWithMixedCode() {
 
         ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}");
 
@@ -46,7 +46,7 @@ public class ZoneToZonePtdfDefinitionTest {
     }
 
     @Test
-    public void testComplexZoneToZonePtdfWithMixedCode() {
+    void testComplexZoneToZonePtdfWithMixedCode() {
 
         ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
 
@@ -64,42 +64,42 @@ public class ZoneToZonePtdfDefinitionTest {
     }
 
     @Test
-    public void testWrongSyntax1() {
+    void testWrongSyntax1() {
         assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR-ES"));
     }
 
     @Test
-    public void testWrongSyntax2() {
+    void testWrongSyntax2() {
         assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR/ES"));
     }
 
     @Test
-    public void testWrongSyntax3() {
+    void testWrongSyntax3() {
         assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{{FR}-{ES}"));
     }
 
     @Test
-    public void testWrongSyntax4() {
+    void testWrongSyntax4() {
         assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FR}/{ES}"));
     }
 
     @Test
-    public void testWrongSyntax5() {
+    void testWrongSyntax5() {
         assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FRANCE}-{ES}"));
     }
 
     @Test
-    public void testWrongSyntax6() {
+    void testWrongSyntax6() {
         assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{}/{ES}"));
     }
 
     @Test
-    public void testWrongCountryCode() {
+    void testWrongCountryCode() {
         assertThrows(IllegalArgumentException.class, () -> new ZoneToZonePtdfDefinition("{XX}/{ES}"));
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         ZoneToZonePtdfDefinition zTozPtdf1 = new ZoneToZonePtdfDefinition("{FR}-{ES}");
         assertEquals("{FR}-{ES}", zTozPtdf1.toString());
 

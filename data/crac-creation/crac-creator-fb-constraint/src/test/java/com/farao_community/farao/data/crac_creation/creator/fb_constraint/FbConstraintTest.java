@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FbConstraintTest {
+class FbConstraintTest {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         FlowBasedConstraintDocument flowBasedConstraintDocument = Mockito.mock(FlowBasedConstraintDocument.class);
         FbConstraint fbConstraint = new FbConstraint(flowBasedConstraintDocument, 20);
 

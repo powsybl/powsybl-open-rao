@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImplTest {
+class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private State optimizedState;
     private PrePerimeterResult initialResult;
@@ -147,7 +147,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testGetComputationStatus() {
+    void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
@@ -164,7 +164,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testPreventiveCase() {
+    void testPreventiveCase() {
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
         when(optimizedState.isPreventive()).thenReturn(true);
 
@@ -301,7 +301,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testCurativeCase1() {
+    void testCurativeCase1() {
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
@@ -363,7 +363,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testCurativeCase2() {
+    void testCurativeCase2() {
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
@@ -405,7 +405,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testOptimizedStepsExecuted() {
+    void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
@@ -416,7 +416,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testAngleAndVoltageCnec() {
+    void testAngleAndVoltageCnec() {
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         OptimizationState optimizationState = mock(OptimizationState.class);

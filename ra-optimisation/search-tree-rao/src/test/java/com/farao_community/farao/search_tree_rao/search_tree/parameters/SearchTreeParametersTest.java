@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class SearchTreeParametersTest {
+class SearchTreeParametersTest {
     SearchTreeParameters.SearchTreeParametersBuilder builder;
 
     @BeforeEach
@@ -28,7 +28,7 @@ public class SearchTreeParametersTest {
     }
 
     @Test
-    public void testWithConstantParametersOverAllRao() {
+    void testWithConstantParametersOverAllRao() {
         RaoParameters raoParameters = new RaoParameters();
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
@@ -47,7 +47,7 @@ public class SearchTreeParametersTest {
     }
 
     @Test
-    public void testIndividualSetters() {
+    void testIndividualSetters() {
         ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionRangeActionImplTest {
+class InjectionRangeActionImplTest {
 
     private Network network;
     private Crac crac;
@@ -34,7 +34,7 @@ public class InjectionRangeActionImplTest {
     }
 
     @Test
-    public void applyOnTwoGeneratorsTest() {
+    void applyOnTwoGeneratorsTest() {
         InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _generator")
@@ -57,7 +57,7 @@ public class InjectionRangeActionImplTest {
     }
 
     @Test
-    public void applyOnCombinationOfLoadAndGeneratorsTest() {
+    void applyOnCombinationOfLoadAndGeneratorsTest() {
         InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(0.2, "BBE3AA1 _load")
@@ -83,7 +83,7 @@ public class InjectionRangeActionImplTest {
     }
 
     @Test
-    public void rangeActionOnNonExistingElementTest() {
+    void rangeActionOnNonExistingElementTest() {
         InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "unknown _load")
@@ -107,7 +107,7 @@ public class InjectionRangeActionImplTest {
     }
 
     @Test
-    public void rangeActionOnNotAnInjectionTest() {
+    void rangeActionOnNotAnInjectionTest() {
         InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
@@ -131,7 +131,7 @@ public class InjectionRangeActionImplTest {
     }
 
     @Test
-    public void getCurrentSetpointTest() {
+    void getCurrentSetpointTest() {
         InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
@@ -160,7 +160,7 @@ public class InjectionRangeActionImplTest {
     }
 
     @Test
-    public void getMinMaxAdmissibleSetpointTest() {
+    void getMinMaxAdmissibleSetpointTest() {
         InjectionRangeAction ira = crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
+class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
     @BeforeEach
     public void setUp() {
@@ -30,7 +30,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullPreventivePerimeter1Test() {
+    void fullPreventivePerimeter1Test() {
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
@@ -54,7 +54,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullPreventivePerimeter2Test() {
+    void fullPreventivePerimeter2Test() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
@@ -67,7 +67,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullPreventivePerimeter3Test() {
+    void fullPreventivePerimeter3Test() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setCountries(Set.of(Country.BE));
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
@@ -78,7 +78,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullWithPreventiveCnecOnlyTest() {
+    void fullWithPreventiveCnecOnlyTest() {
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);

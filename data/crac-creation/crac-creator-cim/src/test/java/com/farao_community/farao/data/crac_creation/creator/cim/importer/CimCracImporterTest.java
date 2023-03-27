@@ -18,16 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class CimCracImporterTest {
+class CimCracImporterTest {
 
     @Test
-    public void getFormat() {
+    void getFormat() {
         CimCracImporter cimCracImporter = new CimCracImporter();
         assertEquals("CimCrac", cimCracImporter.getFormat());
     }
 
     @Test
-    public void importNativeCrac() {
+    void importNativeCrac() {
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter importer = new CimCracImporter();
         CimCrac cimCrac = importer.importNativeCrac(is);

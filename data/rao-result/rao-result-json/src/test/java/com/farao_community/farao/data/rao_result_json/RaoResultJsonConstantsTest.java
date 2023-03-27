@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoResultJsonConstantsTest {
+class RaoResultJsonConstantsTest {
 
     @Test
-    public void testSerializeUnit() {
+    void testSerializeUnit() {
         assertEquals("ampere", serializeUnit(AMPERE));
         assertEquals("degree", serializeUnit(DEGREE));
         assertEquals("megawatt", serializeUnit(MEGAWATT));
@@ -41,7 +41,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testDeserializeUnit() {
+    void testDeserializeUnit() {
         assertEquals(AMPERE, deserializeUnit("ampere"));
         assertEquals(DEGREE, deserializeUnit("degree"));
         assertEquals(MEGAWATT, deserializeUnit("megawatt"));
@@ -51,7 +51,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testSerializeInstant() {
+    void testSerializeInstant() {
         assertEquals("preventive", serializeInstant(PREVENTIVE));
         assertEquals("outage", serializeInstant(OUTAGE));
         assertEquals("auto", serializeInstant(AUTO));
@@ -59,7 +59,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testDeserializeInstant() {
+    void testDeserializeInstant() {
         assertEquals(PREVENTIVE, deserializeInstant("preventive"));
         assertEquals(OUTAGE, deserializeInstant("outage"));
         assertEquals(AUTO, deserializeInstant("auto"));
@@ -67,7 +67,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testSerializeOptimizationState() {
+    void testSerializeOptimizationState() {
         assertEquals("initial", serializeOptimizationState(INITIAL));
         assertEquals("afterPRA", serializeOptimizationState(AFTER_PRA));
         assertEquals("afterARA", serializeOptimizationState(AFTER_ARA));
@@ -75,7 +75,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testDeserializeOptimizationState() {
+    void testDeserializeOptimizationState() {
         assertEquals(INITIAL, deserializeOptimizationState("initial"));
         assertEquals(AFTER_PRA, deserializeOptimizationState("afterPRA"));
         assertEquals(AFTER_ARA, deserializeOptimizationState("afterARA"));
@@ -83,19 +83,19 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testSerializeStatus() {
+    void testSerializeStatus() {
         assertEquals("default", serializeStatus(DEFAULT));
         assertEquals("failure", serializeStatus(FAILURE));
     }
 
     @Test
-    public void testDeserializeStatus() {
+    void testDeserializeStatus() {
         assertEquals(DEFAULT, deserializeStatus("default"));
         assertEquals(FAILURE, deserializeStatus("failure"));
     }
 
     @Test
-    public void testCompareStates() {
+    void testCompareStates() {
         State state1 = Mockito.spy(State.class);
         State state2 = Mockito.spy(State.class);
 
@@ -122,7 +122,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testSerializeOptimizedStepsExecuted() {
+    void testSerializeOptimizedStepsExecuted() {
         assertEquals("The RAO only went through first preventive", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
         assertEquals("First preventive fellback to initial situation", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
         assertEquals("Second preventive improved first preventive results", serializeOptimizedStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST));
@@ -131,7 +131,7 @@ public class RaoResultJsonConstantsTest {
     }
 
     @Test
-    public void testDeserializeOptimizedStepsExecuted() {
+    void testDeserializeOptimizedStepsExecuted() {
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, deserializeOptimizedStepsExecuted("The RAO only went through first preventive"));
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, deserializeOptimizedStepsExecuted("First preventive fellback to initial situation"));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, deserializeOptimizedStepsExecuted("Second preventive improved first preventive results"));

@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class JsonCimCracCreationParametersTest {
+class JsonCimCracCreationParametersTest {
 
     @Test
-    public void roundTripTest() {
+    void roundTripTest() {
         // prepare parameters to export
         CracCreationParameters exportedParameters = new CracCreationParameters();
         CimCracCreationParameters exportedCimParameters = new CimCracCreationParameters();
@@ -50,7 +50,7 @@ public class JsonCimCracCreationParametersTest {
     }
 
     @Test
-    public void importOkTest() {
+    void importOkTest() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok.json"));
 
         CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
@@ -62,7 +62,7 @@ public class JsonCimCracCreationParametersTest {
     }
 
     @Test
-    public void importOkTest2() {
+    void importOkTest2() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok2.json"));
 
         CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
@@ -76,7 +76,7 @@ public class JsonCimCracCreationParametersTest {
     }
 
     @Test
-    public void importOkTest3() {
+    void importOkTest3() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok-aligned.json"));
 
         CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
@@ -90,37 +90,37 @@ public class JsonCimCracCreationParametersTest {
     }
 
     @Test
-    public void importNokTest() {
+    void importNokTest() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok.json")));
     }
 
     @Test
-    public void importNokTest2() {
+    void importNokTest2() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok-same-speed.json")));
     }
 
     @Test
-    public void importNokTest3() {
+    void importNokTest3() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok3.json")));
     }
 
     @Test
-    public void importNokTest4() {
+    void importNokTest4() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok4.json")));
     }
 
     @Test
-    public void importNokTest5() {
+    void importNokTest5() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok5.json")));
     }
 
     @Test
-    public void importNokTest6() {
+    void importNokTest6() {
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-nok-aligned.json")));
     }
 
     @Test
-    public void testImportTimeseriesMrid() {
+    void testImportTimeseriesMrid() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-ok-timeseries.json"));
 
         CimCracCreationParameters cimCracCreationParameters = importedParameters.getExtension(CimCracCreationParameters.class);
@@ -130,7 +130,7 @@ public class JsonCimCracCreationParametersTest {
     }
 
     @Test
-    public void roundTripTestTimeseriesMrid() {
+    void roundTripTestTimeseriesMrid() {
         // prepare parameters to export
         CracCreationParameters exportedParameters = new CracCreationParameters();
         CimCracCreationParameters exportedCimParameters = new CimCracCreationParameters();

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
+class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
     @BeforeEach
     public void setUp() {
@@ -27,7 +27,7 @@ public class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimet
     }
 
     @Test
-    public void globalOptimizationPerimeterTest() {
+    void globalOptimizationPerimeterTest() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);

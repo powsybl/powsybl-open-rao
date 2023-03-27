@@ -17,22 +17,22 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FreeToUseImplTest {
+class FreeToUseImplTest {
 
     @Test
-    public void testGetterSetter() {
+    void testGetterSetter() {
         FreeToUseImpl freeToUse = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         assertEquals(Instant.PREVENTIVE, freeToUse.getInstant());
     }
 
     @Test
-    public void testEqualsSameObject() {
+    void testEqualsSameObject() {
         FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         assertEquals(rule1, rule1);
     }
 
     @Test
-    public void testEqualsTrue() {
+    void testEqualsTrue() {
         FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
 
@@ -41,7 +41,7 @@ public class FreeToUseImplTest {
     }
 
     @Test
-    public void testEqualsFalseForUsageMethod() {
+    void testEqualsFalseForUsageMethod() {
         FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.FORCED, Instant.PREVENTIVE);
 
@@ -50,7 +50,7 @@ public class FreeToUseImplTest {
     }
 
     @Test
-    public void testEqualsFalseForInstant() {
+    void testEqualsFalseForInstant() {
         FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.CURATIVE);
 

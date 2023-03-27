@@ -36,10 +36,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class RangeActionSensitivityProviderTest {
+class RangeActionSensitivityProviderTest {
 
     @Test
-    public void contingenciesCracPstWithRange() {
+    void contingenciesCracPstWithRange() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addHvdcLine(network);
 
@@ -118,7 +118,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void testDisableFactorForBaseCase() {
+    void testDisableFactorForBaseCase() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
@@ -135,7 +135,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void testFailureOnContingency() {
+    void testFailureOnContingency() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
 
@@ -164,7 +164,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void factorsCracPstWithRange() {
+    void factorsCracPstWithRange() {
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
@@ -188,7 +188,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void cracWithoutRangeActionButWithPst() {
+    void cracWithoutRangeActionButWithPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
@@ -207,7 +207,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void cracWithoutRangeActionNorPst() {
+    void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
@@ -231,7 +231,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void testHvdcSensi() {
+    void testHvdcSensi() {
         Crac crac = CracFactory.findDefault().create("test-crac");
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
@@ -280,7 +280,7 @@ public class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    public void testUnhandledElement() {
+    void testUnhandledElement() {
         Crac crac = CracFactory.findDefault().create("test-crac");
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")

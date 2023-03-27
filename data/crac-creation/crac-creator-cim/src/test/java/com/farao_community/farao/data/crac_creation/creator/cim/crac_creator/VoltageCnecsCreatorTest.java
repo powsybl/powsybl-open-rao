@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class VoltageCnecsCreatorTest {
+class VoltageCnecsCreatorTest {
     private Crac crac;
     private CimCracCreationContext cracCreationContext;
     private Network network;
@@ -101,7 +101,7 @@ public class VoltageCnecsCreatorTest {
     }
 
     @Test
-    public void testWrongNetworkElements() {
+    void testWrongNetworkElements() {
         // Test to monitor one element not in network, one element that is a generator, one that is a transformer (different nominalV on two ends)
         String missing = "missing";
         String generator = "_2844585c-0d35-488d-a449-685bcd57afbf";
@@ -130,7 +130,7 @@ public class VoltageCnecsCreatorTest {
     }
 
     @Test
-    public void testWrongContingencies() {
+    void testWrongContingencies() {
         // One contingency was not imported, one contingency does not even exist in CRAC
         monitoredStatesAndThresholds = Map.of(
             Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-4-name", "co-missing"), Map.of(225., mockVoltageThreshold(360., 440.)))
@@ -153,7 +153,7 @@ public class VoltageCnecsCreatorTest {
     }
 
     @Test
-    public void testNominalVNotDefinedInThreshold() {
+    void testNominalVNotDefinedInThreshold() {
         // Nominal V is 225, not defined in thresholds
         monitoredStatesAndThresholds = Map.of(
             Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(100., mockVoltageThreshold(0., 1000.)))
@@ -175,7 +175,7 @@ public class VoltageCnecsCreatorTest {
     }
 
     @Test
-    public void testWrongThreshold() {
+    void testWrongThreshold() {
         // unacceptable threshold
         monitoredStatesAndThresholds = Map.of(
             Instant.CURATIVE, new VoltageMonitoredContingenciesAndThresholds(Set.of("Co-3-name"), Map.of(220., mockVoltageThreshold(null, null), 400., mockVoltageThreshold(null, null)))
@@ -218,7 +218,7 @@ public class VoltageCnecsCreatorTest {
     }
 
     @Test
-    public void testCreateVoltageCnecsSuccessfully() {
+    void testCreateVoltageCnecsSuccessfully() {
         new VoltageCnecsCreator(voltageCnecsCreationParameters, cracCreationContext, network).createAndAddCnecs();
 
         assertEquals(12, crac.getVoltageCnecs().size());

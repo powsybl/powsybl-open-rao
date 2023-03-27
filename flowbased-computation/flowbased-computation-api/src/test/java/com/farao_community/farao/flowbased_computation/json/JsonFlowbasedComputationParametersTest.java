@@ -15,9 +15,9 @@ import java.io.IOException;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class JsonFlowbasedComputationParametersTest extends AbstractConverterTest {
+class JsonFlowbasedComputationParametersTest extends AbstractConverterTest {
     @Test
-    public void roundTripDefault() throws IOException {
+    void roundTripDefault() throws IOException {
         FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
         roundTripTest(parameters, JsonFlowbasedComputationParameters::write, JsonFlowbasedComputationParameters::read, "/FlowbasedComputationParameters.json");
     }

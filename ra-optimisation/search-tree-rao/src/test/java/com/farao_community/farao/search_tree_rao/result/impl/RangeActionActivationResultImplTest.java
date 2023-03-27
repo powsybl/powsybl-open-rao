@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionActivationResultImplTest {
+class RangeActionActivationResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     private PstRangeAction pstRangeAction1;
@@ -90,7 +90,7 @@ public class RangeActionActivationResultImplTest {
     }
 
     @Test
-    public void test1() {
+    void test1() {
 
         // pstRangeAction1 is activated in preventive, pstRangeAction3 is activated in curative
 
@@ -151,7 +151,7 @@ public class RangeActionActivationResultImplTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
 
         // pstRangeAction1 is activated in preventive,
         // pstRangeAction2, on same PST, is activated in curative

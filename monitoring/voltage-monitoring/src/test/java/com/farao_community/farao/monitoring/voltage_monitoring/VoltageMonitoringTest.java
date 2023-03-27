@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class VoltageMonitoringTest {
+class VoltageMonitoringTest {
     private static final double VOLTAGE_TOLERANCE = 0.5;
 
     private Network network;
@@ -114,7 +114,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testOneSecurePreventiveCnec() {
+    void testOneSecurePreventiveCnec() {
         addVoltageCnec("vc", Instant.PREVENTIVE, null, "VL1", null, 500.);
         runVoltageMonitoring();
         assertEquals(400., voltageMonitoringResult.getMinVoltage("vc"), VOLTAGE_TOLERANCE);
@@ -125,7 +125,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testTwoSecurePreventiveCnecs() {
+    void testTwoSecurePreventiveCnecs() {
         addVoltageCnec("vc1", Instant.PREVENTIVE, null, "VL1", 400., 400.);
         addVoltageCnec("vc2", Instant.PREVENTIVE, null, "VL2", 385., null);
         runVoltageMonitoring();
@@ -137,7 +137,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testOneHighVoltagePreventiveCnec() {
+    void testOneHighVoltagePreventiveCnec() {
         addVoltageCnec("vc", Instant.PREVENTIVE, null, "VL1", 300., 350.);
         runVoltageMonitoring();
         assertEquals(400., voltageMonitoringResult.getMinVoltage("vc"), VOLTAGE_TOLERANCE);
@@ -148,7 +148,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testOneLowVoltagePreventiveCnec() {
+    void testOneLowVoltagePreventiveCnec() {
         addVoltageCnec("vc", Instant.PREVENTIVE, null, "VL1", 401., 410.);
         runVoltageMonitoring();
         assertEquals(400., voltageMonitoringResult.getMinVoltage("vc"), VOLTAGE_TOLERANCE);
@@ -159,7 +159,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testPrevNetworkActionMakesVoltageLowOn1Cnec() {
+    void testPrevNetworkActionMakesVoltageLowOn1Cnec() {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -178,7 +178,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testPrevNetworkActionMakesVoltageLowOn2Cnecs() {
+    void testPrevNetworkActionMakesVoltageLowOn2Cnecs() {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL1));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -197,7 +197,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testPrevNetworkActionMakesVoltageHighOn1Cnec() {
+    void testPrevNetworkActionMakesVoltageHighOn1Cnec() {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL2));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -216,7 +216,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testPrevNetworkActionMakesHighAndLowConstraints() {
+    void testPrevNetworkActionMakesHighAndLowConstraints() {
         when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(naOpenL2));
 
         // Before NA, VL2 = 386kV, VL3 = 393kV
@@ -235,7 +235,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testPrevPstMakesVoltageLowOn1Cnec() {
+    void testPrevPstMakesVoltageLowOn1Cnec() {
         when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(pst));
         when(raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst)).thenReturn(-20.);
 
@@ -255,7 +255,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testCurativeStatesConstraints() {
+    void testCurativeStatesConstraints() {
         // In this test, L1 and L2 are open by contingencies
         // We define CNECs on these contingencies, one should have low voltage and one should have high voltage
         VoltageCnec vc1 = addVoltageCnec("vc1", Instant.CURATIVE, "coL1", "VL2", 375., 395.);
@@ -281,7 +281,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testCurativeStatesConstraintsSolvedByCras() {
+    void testCurativeStatesConstraintsSolvedByCras() {
         // Same as previous case, except here applied CRAs revert the contingencies
         VoltageCnec vc1 = addVoltageCnec("vc1", Instant.CURATIVE, "coL1", "VL2", 375., 395.);
         VoltageCnec vc2 = addVoltageCnec("vc2", Instant.CURATIVE, "coL2", "VL3", 375., 395.);
@@ -307,7 +307,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testCurPstMakesVoltageLowOn1Cnec() {
+    void testCurPstMakesVoltageLowOn1Cnec() {
         crac.newContingency().withId("co3").withNetworkElement("L3").add();
 
         VoltageCnec vc = addVoltageCnec("vc", Instant.CURATIVE, "co3", "VL2", 375., 395.);
@@ -325,7 +325,7 @@ public class VoltageMonitoringTest {
     }
 
     @Test
-    public void testMultipleVoltageValuesPerVoltageLevel() {
+    void testMultipleVoltageValuesPerVoltageLevel() {
         network = Network.read("ieee14.xiidm", getClass().getResourceAsStream("/ieee14.xiidm"));
         // VL45 : Min = 144.38, Max = 148.41
         // VL46 : Min = 143.10, Max = 147.66

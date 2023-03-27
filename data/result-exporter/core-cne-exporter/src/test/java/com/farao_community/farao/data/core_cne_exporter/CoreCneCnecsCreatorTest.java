@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CoreCneCnecsCreatorTest {
+class CoreCneCnecsCreatorTest {
 
     private Crac crac;
     private Network network;
@@ -134,7 +134,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testExportTwoPreventiveCnecs() {
+    void testExportTwoPreventiveCnecs() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("bbb_cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -199,7 +199,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testExportPreventivePureMnec() {
+    void testExportPreventivePureMnec() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -236,7 +236,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testExportPreventiveCnecAndMnec() {
+    void testExportPreventiveCnecAndMnec() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -285,7 +285,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testCurativeCnecs() {
+    void testCurativeCnecs() {
         crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -365,7 +365,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testWithLoopFlow() {
+    void testWithLoopFlow() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
