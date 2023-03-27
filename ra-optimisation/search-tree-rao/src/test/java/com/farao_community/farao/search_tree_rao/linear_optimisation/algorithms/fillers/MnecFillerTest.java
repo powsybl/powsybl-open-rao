@@ -33,7 +33,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -92,11 +92,11 @@ public class MnecFillerTest extends AbstractFillerTest {
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2, mnec3));
+        when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2, mnec3));
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
         rangeActions.put(cnec1.getState(), Collections.emptySet());
-        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);

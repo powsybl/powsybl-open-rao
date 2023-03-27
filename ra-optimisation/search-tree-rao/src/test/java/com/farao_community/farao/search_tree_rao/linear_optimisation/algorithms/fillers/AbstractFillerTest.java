@@ -19,7 +19,6 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.when;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 abstract class AbstractFillerTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
 

@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.commons.Unit.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
