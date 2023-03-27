@@ -7,9 +7,9 @@
 package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
@@ -27,9 +27,9 @@ public class EICodeTest {
         assertTrue(eiCodeCountry.isCountryCode());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void constructorWithStringNOk() {
-        new EICode("RANDOM_EIC_CODE_WITH_TOO_MUCH_CHARACTERS");
+        assertThrows(IllegalArgumentException.class, () -> new EICode("RANDOM_EIC_CODE_WITH_TOO_MUCH_CHARACTERS"));
     }
 
     @Test
@@ -43,9 +43,9 @@ public class EICodeTest {
         assertTrue(eiCodePt.isCountryCode());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void constructorWithCountryNOk() {
-        new EICode(Country.NP);
+        assertThrows(IllegalArgumentException.class, () -> new EICode(Country.NP));
     }
 
     @Test

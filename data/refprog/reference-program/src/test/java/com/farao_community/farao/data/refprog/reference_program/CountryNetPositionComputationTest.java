@@ -9,12 +9,12 @@ package com.farao_community.farao.data.refprog.reference_program;
 import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -27,7 +27,7 @@ public class CountryNetPositionComputationTest {
     private EICode eiCodeNetherlands;
     private EICode eiCodeGermany;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         eiCodeFrance = new EICode(Country.FR);
         eiCodeBelgium = new EICode(Country.BE);

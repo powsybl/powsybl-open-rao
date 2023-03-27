@@ -9,9 +9,9 @@ package com.farao_community.farao.flowbased_computation;
 import com.farao_community.farao.commons.AbstractToolTest;
 import com.farao_community.farao.flowbased_computation.tools.FlowbasedComputationTool;
 import com.powsybl.tools.Tool;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,7 +39,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     private final FlowbasedComputationTool tool = new FlowbasedComputationTool();
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         createFile("testCase.xiidm", "");
@@ -63,8 +63,8 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "instant", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
 
-        Assert.assertEquals("Computation", tool.getCommand().getTheme());
-        Assert.assertEquals("Run modular FlowBased computation", tool.getCommand().getDescription());
+        Assertions.assertEquals("Computation", tool.getCommand().getTheme());
+        Assertions.assertEquals("Run modular FlowBased computation", tool.getCommand().getDescription());
     }
 
     @Test

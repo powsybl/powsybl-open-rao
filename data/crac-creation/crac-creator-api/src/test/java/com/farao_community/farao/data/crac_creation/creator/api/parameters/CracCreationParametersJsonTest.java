@@ -7,15 +7,14 @@
 package com.farao_community.farao.data.crac_creation.creator.api.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,9 +44,9 @@ public class CracCreationParametersJsonTest {
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void importNokTest() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json"));
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json")));
     }
 
     @Test

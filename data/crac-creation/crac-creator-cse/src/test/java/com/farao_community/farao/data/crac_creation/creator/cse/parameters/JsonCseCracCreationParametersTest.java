@@ -9,15 +9,14 @@ package com.farao_community.farao.data.crac_creation.creator.cse.parameters;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -81,28 +80,28 @@ public class JsonCseCracCreationParametersTest {
         checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction3", Set.of());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void importNokTest() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok.json"));
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok.json")));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void importNokTest2() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok2.json"));
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok2.json")));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void importNokTest3() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok3.json"));
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok3.json")));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void importMissingSwitch1() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok4.json"));
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok4.json")));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void importMissingSwitch2() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok5.json"));
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok5.json")));
     }
 }

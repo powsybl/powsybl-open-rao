@@ -15,15 +15,15 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
@@ -48,7 +48,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
                     rangeActionSetpointResult
             );
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
         when(flowCnecInSeries.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));

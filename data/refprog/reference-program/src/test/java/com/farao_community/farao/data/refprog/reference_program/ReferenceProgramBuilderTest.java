@@ -10,10 +10,10 @@ import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -26,7 +26,7 @@ public class ReferenceProgramBuilderTest {
     private EICode eiCodeNetherlands;
     private EICode eiCodeGermany;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         eiCodeFrance = new EICode(Country.FR);
         eiCodeBelgium = new EICode(Country.BE);

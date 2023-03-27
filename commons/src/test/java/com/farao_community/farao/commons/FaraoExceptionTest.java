@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.commons;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

@@ -8,11 +8,11 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -21,7 +21,7 @@ public class TreeParametersTest {
     RaoParameters raoParameters;
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         raoParameters = new RaoParameters();
         raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(6);

@@ -7,12 +7,12 @@
 package com.farao_community.farao.data.crac_creation.creator.cse.parameters;
 
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

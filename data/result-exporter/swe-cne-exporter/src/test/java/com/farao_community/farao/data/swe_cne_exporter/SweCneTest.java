@@ -23,9 +23,9 @@ import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResu
 import com.farao_community.farao.monitoring.angle_monitoring.json.AngleMonitoringResultImporter;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -38,8 +38,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -52,7 +52,7 @@ public class SweCneTest {
     private RaoResult raoResultWithFailure;
     private AngleMonitoringResult angleMonitoringResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
@@ -105,7 +105,7 @@ public class SweCneTest {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -122,7 +122,7 @@ public class SweCneTest {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNEWithFailure_Z01.xml").getFile());
             compareCneFiles(inputStream, new ByteArrayInputStream(outputStream.toByteArray()));
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -132,7 +132,7 @@ public class SweCneTest {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE.xml").getFile());
             assertTrue(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -142,7 +142,7 @@ public class SweCneTest {
             InputStream inputStream = new FileInputStream(SweCneTest.class.getResource("/SweCNE_wrong.xml").getFile());
             assertFalse(SweCneExporter.validateCNESchema(new String(inputStream.readAllBytes())));
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 

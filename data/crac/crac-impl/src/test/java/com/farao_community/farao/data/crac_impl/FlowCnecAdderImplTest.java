@@ -12,14 +12,14 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -30,7 +30,7 @@ public class FlowCnecAdderImplTest {
     private final String contingency1Id = "condId1";
     private Contingency contingency1;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
         contingency1 = crac.newContingency().withId(contingency1Id).add();
@@ -204,71 +204,76 @@ public class FlowCnecAdderImplTest {
         assertTrue(cnec.getThresholds().stream().allMatch(th -> th.getSide().equals(RIGHT)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullParentFail() {
-        new FlowCnecAdderImpl(null);
+        assertThrows(NullPointerException.class, () -> new FlowCnecAdderImpl(null));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testUniqueNetworkElement() {
-        crac.newFlowCnec()
-            .withNetworkElement("neId1", "neName1")
-            .withNetworkElement("neId2", "neName2");
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec()
+                .withNetworkElement("neId1", "neName1")
+                .withNetworkElement("neId2", "neName2"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoIdFail() {
-        crac.newFlowCnec()
-            .withName("cnecName1")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withNetworkElement("neId1", "neName1")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(1000.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec()
+                .withName("cnecName1")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withNetworkElement("neId1", "neName1")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(1000.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoStateInstantFail() {
-        crac.newFlowCnec()
-            .withId("cnecId1")
-            .withName("cnecName1")
-            .withContingency(contingency1Id)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.0).add()
-            .withNetworkElement("neId1", "neName1")
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec()
+                .withId("cnecId1")
+                .withName("cnecName1")
+                .withContingency(contingency1Id)
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.0).add()
+                .withNetworkElement("neId1", "neName1")
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoNetworkElementFail() {
-        crac.newFlowCnec()
-            .withId("cnecId1")
-            .withName("cnecName1")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .newThreshold().withSide(LEFT).withUnit(Unit.MEGAWATT).withMax(1000.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec()
+                .withId("cnecId1")
+                .withName("cnecName1")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .newThreshold().withSide(LEFT).withUnit(Unit.MEGAWATT).withMax(1000.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoThresholdFail() {
-        crac.newFlowCnec()
-            .withId("cnecId1")
-            .withName("cnecName1")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withNetworkElement("neId1", "neName1")
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec()
+                .withId("cnecId1")
+                .withName("cnecName1")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withNetworkElement("neId1", "neName1")
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddTwiceError() {
         crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.PREVENTIVE)
@@ -277,122 +282,133 @@ public class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.)
             .add();
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddPreventiveCnecWithContingencyError() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withContingency(contingency1Id)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withContingency(contingency1Id)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddOutageCnecWithNoContingencyError() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.OUTAGE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.OUTAGE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddAutoCnecWithNoContingencyError() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.AUTO)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.AUTO)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddCurativeCnecWithNoContingencyError() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.CURATIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.CURATIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddCurativeCnecWithAbsentContingencyError() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.CURATIVE)
-            .withContingency("absent-from-crac-contingency")
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
-            .withNominalVoltage(220)
-            .withIMax(2000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.CURATIVE)
+                .withContingency("absent-from-crac-contingency")
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.MEGAWATT).withSide(LEFT).withMax(100.0).withMin(-100.0).add()
+                .withNominalVoltage(220)
+                .withIMax(2000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testThresholdInPercentImaxButNoIMax1() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-1.).add()
-            .withNominalVoltage(220.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-1.).add()
+                .withNominalVoltage(220.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testThresholdInPercentImaxButNoIMax2() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-1.).add()
-            .withNominalVoltage(220.)
-            .withIMax(1000., RIGHT) // threshold on left side cannot be interpreted
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1.).withMin(-1.).add()
+                .withNominalVoltage(220.)
+                .withIMax(1000., RIGHT) // threshold on left side cannot be interpreted
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testThresholdInAmpereButNoNominalVoltage() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(1000.).add()
-            .withIMax(1000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.AMPERE).withSide(LEFT).withMax(1000.).add()
+                .withIMax(1000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testThresholdInPercentImaxButNoNominalVoltage() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1000.).add()
-            .withNominalVoltage(220., LEFT) // should be defined on both side
-            .withIMax(1000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(LEFT).withMax(1000.).add()
+                .withNominalVoltage(220., LEFT) // should be defined on both side
+                .withIMax(1000.)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testThresholdWithUnitKiloVolt() {
-        crac.newFlowCnec().withId("Cnec ID")
-            .withInstant(Instant.PREVENTIVE)
-            .withNetworkElement("Network Element ID")
-            .newThreshold().withUnit(Unit.KILOVOLT).withSide(LEFT).withMax(100.).add()
-            .withNominalVoltage(220.)
-            .withIMax(1000.)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().withId("Cnec ID")
+                .withInstant(Instant.PREVENTIVE)
+                .withNetworkElement("Network Element ID")
+                .newThreshold().withUnit(Unit.KILOVOLT).withSide(LEFT).withMax(100.).add()
+                .withNominalVoltage(220.)
+                .withIMax(1000.)
+                .add());
     }
 }

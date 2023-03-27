@@ -24,13 +24,13 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -43,7 +43,7 @@ public class SweMonitoredSeriesCreatorTest {
     private CimCracCreationContext cracCreationContext;
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);

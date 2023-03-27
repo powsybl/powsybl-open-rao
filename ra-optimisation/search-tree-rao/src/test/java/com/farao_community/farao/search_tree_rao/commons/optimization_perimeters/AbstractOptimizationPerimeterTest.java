@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdA
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 public abstract class AbstractOptimizationPerimeterTest {
@@ -40,7 +40,7 @@ public abstract class AbstractOptimizationPerimeterTest {
     protected RaoParameters raoParameters;
     protected PrePerimeterResult prePerimeterResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         raoParameters = new RaoParameters();

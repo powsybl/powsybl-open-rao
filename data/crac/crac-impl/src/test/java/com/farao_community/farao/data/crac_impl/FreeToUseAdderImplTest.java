@@ -14,10 +14,10 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -27,7 +27,7 @@ public class FreeToUseAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         crac.newContingency()
@@ -71,25 +71,28 @@ public class FreeToUseAdderImplTest {
         assertEquals(UsageMethod.AVAILABLE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getUsageMethod());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoInstant() {
-        remedialActionAdder.newFreeToUseUsageRule()
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newFreeToUseUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoUsageMethod() {
-        remedialActionAdder.newFreeToUseUsageRule()
-            .withInstant(Instant.PREVENTIVE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testOutageInstant() {
-        remedialActionAdder.newFreeToUseUsageRule()
-            .withInstant(Instant.OUTAGE)
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newFreeToUseUsageRule()
+                .withInstant(Instant.OUTAGE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 }

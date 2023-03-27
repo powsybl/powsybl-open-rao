@@ -10,11 +10,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -29,7 +28,7 @@ public class TapRangeImplTest {
     private TapRangeImpl relativeFixedRange;
     private TapRangeImpl absoluteFixedRange;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         relativeFixedRange = new TapRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK);
         absoluteFixedRange = new TapRangeImpl(absMin, absMax, RangeType.ABSOLUTE);

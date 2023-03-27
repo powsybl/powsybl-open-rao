@@ -11,14 +11,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -28,7 +28,7 @@ public class ContingencyImplTest {
     private Network network;
     private ComputationManager computationManager;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         computationManager = LocalComputationManager.getDefault();
         network = Network.read("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
@@ -91,11 +91,11 @@ public class ContingencyImplTest {
         assertTrue(contingencyImpl1.hashCode() < contingencyImpl3.hashCode());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testApplyFails() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("None")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
-        contingencyImpl.apply(network, computationManager);
+        assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
     }
 
     @Test

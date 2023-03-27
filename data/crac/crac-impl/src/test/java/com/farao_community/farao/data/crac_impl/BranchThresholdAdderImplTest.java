@@ -14,11 +14,12 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -28,7 +29,7 @@ public class BranchThresholdAdderImplTest {
     private Crac crac;
     private Contingency contingency;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
         contingency = crac.newContingency().withId("conId").add();
@@ -71,37 +72,40 @@ public class BranchThresholdAdderImplTest {
         assertEquals(-0.8 * 5000., cnec.getLowerBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullParentFail() {
-        new BranchThresholdAdderImpl(null);
+        assertThrows(NullPointerException.class, () -> new BranchThresholdAdderImpl(null));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testUnsupportedUnitFail() {
-        crac.newFlowCnec().newThreshold().withUnit(Unit.KILOVOLT);
+        assertThrows(FaraoException.class, () -> crac.newFlowCnec().newThreshold().withUnit(Unit.KILOVOLT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoUnitFail() {
-        crac.newFlowCnec().newThreshold()
-            .withMax(1000.0)
-            .withSide(Side.LEFT)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().newThreshold()
+                .withMax(1000.0)
+                .withSide(Side.LEFT)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoValueFail() {
-        crac.newFlowCnec().newThreshold()
-            .withUnit(Unit.AMPERE)
-            .withSide(Side.LEFT)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withSide(Side.LEFT)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoSideFail() {
-        crac.newFlowCnec().newThreshold()
-            .withUnit(Unit.AMPERE)
-            .withMax(1000.0)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newFlowCnec().newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withMax(1000.0)
+                .add());
     }
 }

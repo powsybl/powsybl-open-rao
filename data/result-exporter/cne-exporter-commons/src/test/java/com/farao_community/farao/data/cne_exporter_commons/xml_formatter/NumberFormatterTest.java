@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.data.cne_exporter_commons.xml_formatter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.farao_community.farao.data.cne_exporter_commons.xml_formatter.NumberFormatter.printFloat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

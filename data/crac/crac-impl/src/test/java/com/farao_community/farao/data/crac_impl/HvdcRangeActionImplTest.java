@@ -17,13 +17,13 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -35,7 +35,7 @@ public class HvdcRangeActionImplTest {
     private HvdcLine hvdcLine;
     private HvdcLine hvdcLineWithAngleDroop;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Crac crac = new CracImplFactory().create("cracId");
         network = NetworkImportsUtil.import16NodesNetworkWithHvdc();
@@ -101,16 +101,16 @@ public class HvdcRangeActionImplTest {
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void applyOnUnknownHvdc() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .withNetworkElement("unknownNetworkElement").add();
-        hvdcRa.apply(network, 50);
+        assertThrows(FaraoException.class, () -> hvdcRa.apply(network, 50));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void hvdcWithoutSpecificRange() {
-        hvdcRangeActionAdder.add();
+        assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.add());
     }
 
     @Test
@@ -122,16 +122,18 @@ public class HvdcRangeActionImplTest {
         assertEquals(10, hvdcRa.getMaxAdmissibleSetpoint(0), 1e-3);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void hvdcWithNoMin() {
-        hvdcRangeActionAdder.newRange().withMax(10).add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            hvdcRangeActionAdder.newRange().withMax(10).add()
+                    .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void hvdcWithNoMax() {
-        hvdcRangeActionAdder.newRange().withMin(10).add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            hvdcRangeActionAdder.newRange().withMin(10).add()
+                    .add());
     }
 
     @Test

@@ -21,8 +21,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +53,7 @@ public class VoltageMonitoringTest {
     private NetworkAction naCloseL2;
     private PstRangeAction pst;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
         crac = CracFactory.findDefault().create("test-crac");

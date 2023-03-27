@@ -13,13 +13,13 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -34,7 +34,7 @@ public class SensitivityFailureOvercostEvaluatorTest {
     private FlowCnec cnec1;
     private FlowCnec cnec2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);

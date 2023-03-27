@@ -8,13 +8,13 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -58,7 +58,7 @@ public class CimCracCreationParametersTest {
 
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testAlignedRaWithDifferentSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
@@ -66,10 +66,10 @@ public class CimCracCreationParametersTest {
         Set<RangeActionSpeed> speedSet = Set.of(new RangeActionSpeed("rangeAction1", 1), new RangeActionSpeed("rangeAction2", 2));
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
-        parameters.setRemedialActionSpeed(speedSet);
+        assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testUnalignedRaWithSameSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
@@ -77,7 +77,7 @@ public class CimCracCreationParametersTest {
         Set<RangeActionSpeed> speedSet = Set.of(new RangeActionSpeed("rangeAction1", 1), new RangeActionSpeed("rangeAction3", 1));
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
-        parameters.setRemedialActionSpeed(speedSet);
+        assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
     }
 
     @Test

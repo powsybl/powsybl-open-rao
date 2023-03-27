@@ -17,13 +17,13 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
@@ -38,7 +38,7 @@ public class UnoptimizedRaoResultImplTest {
     private FlowCnec flowCnec;
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         initialResult = Mockito.mock(PrePerimeterResult.class);
         output = new UnoptimizedRaoResultImpl(initialResult);

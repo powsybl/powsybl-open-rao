@@ -10,13 +10,13 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.AUTO;
 import static com.farao_community.farao.data.crac_api.Instant.OUTAGE;
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -25,7 +25,7 @@ public class RangeActionResultTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = CommonCracCreation.create();
 

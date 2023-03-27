@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.iidm.network.Branch;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

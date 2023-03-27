@@ -8,9 +8,9 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.impor
 
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.FbConstraint;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

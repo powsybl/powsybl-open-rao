@@ -12,11 +12,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -27,7 +27,7 @@ public class OnStateImplTest {
     private State curativeState1;
     private State curativeState2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         initialState = new PreventiveState();
         Crac crac = new CracImplFactory().create("cracId");

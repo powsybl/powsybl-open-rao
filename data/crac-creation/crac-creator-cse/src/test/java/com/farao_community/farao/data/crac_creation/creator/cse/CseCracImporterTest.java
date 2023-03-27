@@ -6,11 +6,11 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

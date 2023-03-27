@@ -14,14 +14,14 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -33,7 +33,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     private AngleMonitoringResult angleMonitoringResult;
     private CimCracCreationContext cracCreationContext;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);

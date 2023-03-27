@@ -20,8 +20,8 @@ import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +53,7 @@ public class PerimeterResultImplTest {
     private PstRangeAction pst1;
     private PstRangeAction pst2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         prePerimeterRangeActionActivationResult = mock(RangeActionSetpointResult.class);
         optimizationResult = mock(OptimizationResult.class);

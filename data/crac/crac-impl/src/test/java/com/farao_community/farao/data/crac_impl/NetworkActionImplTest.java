@@ -12,14 +12,14 @@ import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -31,7 +31,7 @@ public class NetworkActionImplTest {
     private UsageRule mockedUsageRule1;
     private UsageRule mockedUsageRule2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockedUsageRule1 = Mockito.mock(UsageRule.class);
         mockedUsageRule2 = Mockito.mock(UsageRule.class);

@@ -8,10 +8,10 @@
 package com.farao_community.farao.data.rao_result_api;
 
 import com.farao_community.farao.data.crac_api.State;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static com.farao_community.farao.data.crac_api.Instant.*;
 

@@ -39,14 +39,14 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.MultipleNetworkPool;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -83,7 +83,7 @@ public class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);

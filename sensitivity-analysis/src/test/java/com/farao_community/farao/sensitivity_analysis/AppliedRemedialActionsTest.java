@@ -16,10 +16,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -31,7 +31,7 @@ public class AppliedRemedialActionsTest {
     private NetworkAction networkAction;
     private PstRangeAction pstRangeAction;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithCurativePstRange();
@@ -103,10 +103,10 @@ public class AppliedRemedialActionsTest {
         assertEquals(0, appliedRemedialActions.getStatesWithRa(network).size());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testAppliedRemedialActionOnPreventiveState() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        appliedRemedialActions.addAppliedNetworkAction(crac.getPreventiveState(), networkAction);
+        assertThrows(FaraoException.class, () -> appliedRemedialActions.addAppliedNetworkAction(crac.getPreventiveState(), networkAction));
     }
 
     @Test

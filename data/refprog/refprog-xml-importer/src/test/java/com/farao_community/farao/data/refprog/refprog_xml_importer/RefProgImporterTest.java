@@ -10,13 +10,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -25,25 +26,25 @@ public class RefProgImporterTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private OffsetDateTime offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testUnexistantFile() {
-        RefProgImporter.importRefProg(Paths.get("/refProg_12nodes_doesntexist.xml"), offsetDateTime);
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(Paths.get("/refProg_12nodes_doesntexist.xml"), offsetDateTime));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongXml() {
-        RefProgImporter.importRefProg(getClass().getResourceAsStream("/wrong_refProg.xml"), offsetDateTime);
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/wrong_refProg.xml"), offsetDateTime));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testRefProgWithoutInterval() {
-        RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_noInterval.xml"), offsetDateTime);
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_noInterval.xml"), offsetDateTime));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongTimestamp() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
-        RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime));
     }
 
     @Test

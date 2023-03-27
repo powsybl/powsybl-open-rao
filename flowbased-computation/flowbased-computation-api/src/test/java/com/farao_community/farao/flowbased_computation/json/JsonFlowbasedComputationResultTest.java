@@ -10,7 +10,7 @@ import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResultImpl;
 import com.powsybl.commons.test.AbstractConverterTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;

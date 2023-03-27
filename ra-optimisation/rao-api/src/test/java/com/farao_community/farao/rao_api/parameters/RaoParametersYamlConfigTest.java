@@ -14,14 +14,14 @@ import com.powsybl.commons.config.*;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

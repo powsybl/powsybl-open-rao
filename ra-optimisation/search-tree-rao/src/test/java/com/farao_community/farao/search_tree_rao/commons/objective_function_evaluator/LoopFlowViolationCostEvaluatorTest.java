@@ -16,16 +16,16 @@ import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowPara
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,7 +44,7 @@ public class LoopFlowViolationCostEvaluatorTest {
     private RangeActionActivationResult rangeActionActivationResult;
     private SensitivityResult sensitivityResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         State state = Mockito.mock(State.class);
         when(state.getContingency()).thenReturn(Optional.empty());

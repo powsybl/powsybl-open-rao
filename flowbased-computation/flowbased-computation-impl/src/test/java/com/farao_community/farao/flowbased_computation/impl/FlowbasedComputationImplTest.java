@@ -24,8 +24,8 @@ import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvi
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.INITIAL;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -48,7 +48,7 @@ public class FlowbasedComputationImplTest {
     private ZonalData<SensitivityVariableSet> glsk;
     private FlowbasedComputationParameters parameters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         flowBasedComputationProvider = new FlowbasedComputationImpl();
         network = ExampleGenerator.network();

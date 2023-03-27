@@ -12,10 +12,10 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 public class StandardRangeAdderImplTest {
     private HvdcRangeActionAdder hvdcRangeActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Crac crac = new CracImplFactory().create("cracId");
         hvdcRangeActionAdder = crac.newHvdcRangeAction()
@@ -45,20 +45,22 @@ public class StandardRangeAdderImplTest {
         assertEquals(Unit.MEGAWATT, hvdcRangeAction.getRanges().get(0).getUnit());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoMin() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMax(16).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            hvdcRangeActionAdder.newRange().withMax(16).add()
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoMax() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMin(16).add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            hvdcRangeActionAdder.newRange().withMin(16).add()
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testMinGreaterThanMax() {
-        hvdcRangeActionAdder.newRange().withMin(10).withMax(-5).add();
+        assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.newRange().withMin(10).withMax(-5).add());
     }
 }

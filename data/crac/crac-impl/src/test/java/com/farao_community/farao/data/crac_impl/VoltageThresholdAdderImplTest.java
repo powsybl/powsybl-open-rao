@@ -13,10 +13,11 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -26,7 +27,7 @@ public class VoltageThresholdAdderImplTest {
     private Crac crac;
     private Contingency contingency;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
         contingency = crac.newContingency().withId("conId").add();
@@ -43,27 +44,29 @@ public class VoltageThresholdAdderImplTest {
         assertEquals(-250.0, cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullParentFail() {
-        new VoltageThresholdAdderImpl(null);
+        assertThrows(NullPointerException.class, () -> new VoltageThresholdAdderImpl(null));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testUnsupportedUnitFail() {
-        crac.newVoltageCnec().newThreshold().withUnit(Unit.MEGAWATT);
+        assertThrows(FaraoException.class, () -> crac.newVoltageCnec().newThreshold().withUnit(Unit.MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoUnitFail() {
-        crac.newVoltageCnec().newThreshold()
-            .withMax(1000.0)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newVoltageCnec().newThreshold()
+                .withMax(1000.0)
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoValueFail() {
-        crac.newVoltageCnec().newThreshold()
-            .withUnit(Unit.AMPERE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newVoltageCnec().newThreshold()
+                .withUnit(Unit.AMPERE)
+                .add());
     }
 }

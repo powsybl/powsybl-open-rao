@@ -26,14 +26,14 @@ import com.farao_community.farao.data.crac_creation.creator.fb_constraint.import
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -43,7 +43,7 @@ public class FbConstraintCracCreatorTest {
     private CracCreationParameters parameters;
     private FbConstraintCreationContext creationContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parameters = new CracCreationParameters();
         parameters.setCracFactoryName(CracFactory.findDefault().getName());

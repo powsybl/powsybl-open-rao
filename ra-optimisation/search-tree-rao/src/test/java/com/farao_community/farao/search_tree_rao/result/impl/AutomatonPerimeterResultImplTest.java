@@ -17,8 +17,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
@@ -49,7 +49,7 @@ public class AutomatonPerimeterResultImplTest {
     private AutomatonPerimeterResultImpl result;
     private PrePerimeterResult postAutoSensitivity;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         state1 = mock(State.class);
         cnec1 = mock(FlowCnec.class);

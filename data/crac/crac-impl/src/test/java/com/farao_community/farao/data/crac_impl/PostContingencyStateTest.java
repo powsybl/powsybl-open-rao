@@ -8,10 +8,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -21,7 +21,7 @@ public class PostContingencyStateTest {
     private Contingency contingency1;
     private Contingency contingency2;
 
-    @Before
+    @BeforeEach
     public void create() {
         Crac crac = new CracImplFactory().create("cracId");
         contingency1 = crac.newContingency()

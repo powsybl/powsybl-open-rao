@@ -8,11 +8,10 @@ package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.farao_community.farao.data.crac_creation.util.ConnectableType;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -68,27 +67,27 @@ public class UcteConnectableCollectionTest {
         // unknown from
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("UNKNOW1 ", "BBE1AA1 ", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // unknown to
         result = ucteConnectableCollection.lookForConnectable("BBE3AA1 ", "UNKNOW1 ", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // branch exists but not with this order code
         result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "4", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // branch exists but not with this element name
         result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE3AA1 ", "COUCOU", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
         assertFalse(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
 
         // branch exists but not of the right type
         result = ucteConnectableCollection.lookForConnectable("BBE1AA1 ", "BBE2AA1 ", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.TIE_LINE, ConnectableType.HVDC);
         assertFalse(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.NOT_FOUND, result.getStatus());
     }
 
     @Test
@@ -377,10 +376,10 @@ public class UcteConnectableCollectionTest {
 
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
 
         result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "E_NAME_1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
-        Assert.assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
+        assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
     }
 }

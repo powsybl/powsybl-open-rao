@@ -10,8 +10,8 @@ import com.farao_community.farao.data.crac_creation.creator.api.mock.CracCreator
 import com.farao_community.farao.data.crac_creation.creator.api.mock.NativeCracMock;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.CracCreators.*;
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -29,7 +29,7 @@ public class CracCreatorsTest {
     private Network network;
     private OffsetDateTime offsetDateTime;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Mockito.mock(Network.class);
         offsetDateTime = OffsetDateTime.parse("2020-01-01T01:00:00Z");

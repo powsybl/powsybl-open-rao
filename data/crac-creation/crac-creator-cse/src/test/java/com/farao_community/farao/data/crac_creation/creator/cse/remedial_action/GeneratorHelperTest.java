@@ -11,9 +11,9 @@ import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyze
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

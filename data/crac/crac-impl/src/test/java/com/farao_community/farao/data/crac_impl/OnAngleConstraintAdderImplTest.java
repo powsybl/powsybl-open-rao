@@ -17,10 +17,10 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -29,7 +29,7 @@ public class OnAngleConstraintAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
 

@@ -10,14 +10,14 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -27,7 +27,7 @@ public class BasecaseScenarioTest {
     private State otherState1;
     private State otherState2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         basecaseState = Mockito.mock(State.class);
         Mockito.when(basecaseState.getInstant()).thenReturn(Instant.PREVENTIVE);

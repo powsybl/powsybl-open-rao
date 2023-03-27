@@ -16,14 +16,14 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

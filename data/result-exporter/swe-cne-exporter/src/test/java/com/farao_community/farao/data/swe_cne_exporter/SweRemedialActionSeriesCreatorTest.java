@@ -17,13 +17,13 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.rem
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.RemedialActionSeries;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -35,7 +35,7 @@ public class SweRemedialActionSeriesCreatorTest {
     private RaoResult raoResult;
     private CimCracCreationContext cracCreationContext;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);

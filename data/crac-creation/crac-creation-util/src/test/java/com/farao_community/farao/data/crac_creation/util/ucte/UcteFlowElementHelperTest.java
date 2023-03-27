@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}

@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.rao_result_api;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}

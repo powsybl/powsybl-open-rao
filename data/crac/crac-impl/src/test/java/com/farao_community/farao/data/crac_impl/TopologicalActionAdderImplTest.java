@@ -12,11 +12,10 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -26,7 +25,7 @@ public class TopologicalActionAdderImplTest {
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
@@ -52,19 +51,21 @@ public class TopologicalActionAdderImplTest {
         assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoNetworkElement() {
-        networkActionAdder.newTopologicalAction()
-            .withActionType(ActionType.OPEN)
-            .add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            networkActionAdder.newTopologicalAction()
+                .withActionType(ActionType.OPEN)
+                .add()
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoActionType() {
-        networkActionAdder.newTopologicalAction()
-            .withNetworkElement("branchNetworkElementId")
-            .add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            networkActionAdder.newTopologicalAction()
+                .withNetworkElement("branchNetworkElementId")
+                .add()
+                .add());
     }
 }

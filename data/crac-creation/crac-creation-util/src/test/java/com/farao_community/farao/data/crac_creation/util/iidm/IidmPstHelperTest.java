@@ -8,13 +8,12 @@
 package com.farao_community.farao.data.crac_creation.util.iidm;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -24,7 +23,7 @@ public class IidmPstHelperTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
     }
@@ -54,12 +53,12 @@ public class IidmPstHelperTest {
         assertEquals(16, pstHelper.getHighTapPosition());
         assertEquals(0, pstHelper.getInitialTap());
 
-        Assert.assertEquals(-5, pstHelper.normalizeTap(-5, IidmPstHelper.TapConvention.CENTERED_ON_ZERO));
-        Assert.assertEquals(9, pstHelper.normalizeTap(9, IidmPstHelper.TapConvention.CENTERED_ON_ZERO));
-        Assert.assertEquals(-16, pstHelper.normalizeTap(1, IidmPstHelper.TapConvention.STARTS_AT_ONE));
-        Assert.assertEquals(16, pstHelper.normalizeTap(33, IidmPstHelper.TapConvention.STARTS_AT_ONE));
-        Assert.assertEquals(0, pstHelper.normalizeTap(17, IidmPstHelper.TapConvention.STARTS_AT_ONE));
-        Assert.assertEquals(3, pstHelper.normalizeTap(20, IidmPstHelper.TapConvention.STARTS_AT_ONE));
+        assertEquals(-5, pstHelper.normalizeTap(-5, IidmPstHelper.TapConvention.CENTERED_ON_ZERO));
+        assertEquals(9, pstHelper.normalizeTap(9, IidmPstHelper.TapConvention.CENTERED_ON_ZERO));
+        assertEquals(-16, pstHelper.normalizeTap(1, IidmPstHelper.TapConvention.STARTS_AT_ONE));
+        assertEquals(16, pstHelper.normalizeTap(33, IidmPstHelper.TapConvention.STARTS_AT_ONE));
+        assertEquals(0, pstHelper.normalizeTap(17, IidmPstHelper.TapConvention.STARTS_AT_ONE));
+        assertEquals(3, pstHelper.normalizeTap(20, IidmPstHelper.TapConvention.STARTS_AT_ONE));
 
         Map<Integer, Double> conversionMap = pstHelper.getTapToAngleConversionMap();
         assertEquals(33, conversionMap.size());

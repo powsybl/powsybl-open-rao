@@ -18,8 +18,8 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.impl.FlowResultFromMapImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
@@ -45,7 +45,7 @@ public class FlowResultAdapterImplTest {
     private SystematicSensitivityResult systematicSensitivityResult;
     private BranchResultAdapterImpl.BranchResultAdpaterBuilder branchResultAdpaterBuilder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cnec1 = Mockito.mock(FlowCnec.class);
         when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(LEFT));

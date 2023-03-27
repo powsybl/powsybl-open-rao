@@ -27,22 +27,19 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
 public class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
 
@@ -54,7 +51,7 @@ public class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerT
     private double  constraintCoeff;
     private OptimizationPerimeter optimizationPerimeter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
 

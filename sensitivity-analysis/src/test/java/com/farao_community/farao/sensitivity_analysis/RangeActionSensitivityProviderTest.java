@@ -24,14 +24,14 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -134,7 +134,7 @@ public class RangeActionSensitivityProviderTest {
         assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailureOnContingency() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
@@ -155,11 +155,12 @@ public class RangeActionSensitivityProviderTest {
             .add()
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-fail")
+            .withNominalVoltage(380.)
             .add();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
             Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
-        provider.getContingencies(network);
+        assertThrows(FaraoException.class, () -> provider.getContingencies(network));
     }
 
     @Test

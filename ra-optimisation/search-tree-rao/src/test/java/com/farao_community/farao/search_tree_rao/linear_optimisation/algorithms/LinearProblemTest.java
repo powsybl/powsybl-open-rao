@@ -14,9 +14,8 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -24,7 +23,7 @@ import java.util.Optional;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationDirectionExtension.*;
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationReferenceExtension.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -45,9 +44,9 @@ public class LinearProblemTest {
     private State state;
     private PstRangeAction rangeAction;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        FaraoMPSolver solver = new MPSolverMock();
+        FaraoMPSolver solver = new FaraoMPSolver();
         linearProblem = new LinearProblemBuilder().withSolver(solver).build();
 
         rangeAction = Mockito.mock(PstRangeAction.class);

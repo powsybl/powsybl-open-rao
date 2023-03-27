@@ -12,12 +12,12 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -30,7 +30,7 @@ public class AngleCnecAdderImplTest {
     private AngleCnec cnec1;
     private AngleCnec cnec2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
         contingency1 = crac.newContingency().withId(contingency1Id).add();
@@ -140,16 +140,17 @@ public class AngleCnecAdderImplTest {
         assertTrue(cnec.isMonitored());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testOptimizedNotMonitored() {
-        crac.newAngleCnec().withId("Cnec ID")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .withOptimized()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec().withId("Cnec ID")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .withOptimized()
+                .add());
     }
 
     @Test
@@ -180,74 +181,80 @@ public class AngleCnecAdderImplTest {
         assertFalse(cnec.isMonitored());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullParentFail() {
-        new AngleCnecAdderImpl(null);
+        assertThrows(NullPointerException.class, () -> new AngleCnecAdderImpl(null));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNetworkElementNotImportingNotExporting() {
-        crac.newAngleCnec()
-            .withNetworkElement("neId1", "neName1");
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withNetworkElement("neId1", "neName1"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoIdFail() {
-        crac.newAngleCnec()
-            .withName("cnecName")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withName("cnecName")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoStateInstantFail() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoExportingNetworkElementFail() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoImportingNetworkElementFail() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoThresholdFail() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddTwiceError() {
         crac.newAngleCnec()
             .withId("cnecId")
@@ -257,82 +264,89 @@ public class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
             .add();
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddPreventiveCnecWithContingencyError() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.PREVENTIVE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.PREVENTIVE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddOutageCnecWithNoContingencyError() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.OUTAGE)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.OUTAGE)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddAutoCnecWithNoContingencyError() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.AUTO)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.AUTO)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddCurativeCnecWithNoContingencyError() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.CURATIVE)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.CURATIVE)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddCurativeCnecWithAbsentContingencyError() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.CURATIVE)
-            .withContingency("absent-from-crac")
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.CURATIVE)
+                .withContingency("absent-from-crac")
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testThresholdWithUnitKiloVolt() {
-        crac.newAngleCnec()
-            .withId("cnecId")
-            .withInstant(Instant.OUTAGE)
-            .withContingency(contingency1Id)
-            .withExportingNetworkElement("eneId")
-            .withImportingNetworkElement("ineId")
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-            .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newAngleCnec()
+                .withId("cnecId")
+                .withInstant(Instant.OUTAGE)
+                .withContingency(contingency1Id)
+                .withExportingNetworkElement("eneId")
+                .withImportingNetworkElement("ineId")
+                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
+                .add());
     }
 }

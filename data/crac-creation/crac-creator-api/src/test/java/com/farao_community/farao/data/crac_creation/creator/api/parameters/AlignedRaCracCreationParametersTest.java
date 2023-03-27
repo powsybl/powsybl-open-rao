@@ -6,11 +6,11 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.api.parameters;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

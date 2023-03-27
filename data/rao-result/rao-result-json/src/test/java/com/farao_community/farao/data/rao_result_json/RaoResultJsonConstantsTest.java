@@ -10,7 +10,7 @@ package com.farao_community.farao.data.rao_result_json;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Optional;
@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.*;
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

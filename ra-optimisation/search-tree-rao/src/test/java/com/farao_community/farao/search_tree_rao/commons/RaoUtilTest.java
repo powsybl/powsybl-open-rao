@@ -32,8 +32,8 @@ import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -59,7 +59,7 @@ public class RaoUtilTest {
     private Crac crac;
     private String variantId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -79,42 +79,42 @@ public class RaoUtilTest {
             .build();
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testExceptionForGlskOnRelativeMargin() {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAmpereWithDc() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
     @Test

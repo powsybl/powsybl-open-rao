@@ -22,14 +22,14 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ public class OneStateOnlyRaoResultImplTest {
     private State cnec2state;
     private OneStateOnlyRaoResultImpl output;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         optimizedState = mock(State.class);
 
@@ -297,7 +297,7 @@ public class OneStateOnlyRaoResultImplTest {
         assertThrows(FaraoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
         assertThrows(FaraoException.class, () -> output.getOptimizedTapsOnState(otherState));
         assertThrows(FaraoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertThrows("Cnec not optimized in this perimeter.", FaraoException.class, () -> output.getMargin(OptimizationState.AFTER_CRA, mock(FlowCnec.class), Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(OptimizationState.AFTER_CRA, mock(FlowCnec.class), Unit.MEGAWATT), "Cnec not optimized in this perimeter.");
     }
 
     @Test

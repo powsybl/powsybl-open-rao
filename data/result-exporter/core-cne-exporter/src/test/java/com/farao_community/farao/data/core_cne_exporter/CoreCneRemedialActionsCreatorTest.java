@@ -28,13 +28,13 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 
 /**
@@ -49,7 +49,7 @@ public class CoreCneRemedialActionsCreatorTest {
     private List<ConstraintSeries> cnecsConstraintSeries;
     private CneExporterParameters exporterParameters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));

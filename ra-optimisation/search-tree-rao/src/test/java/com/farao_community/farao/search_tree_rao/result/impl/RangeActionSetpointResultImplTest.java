@@ -13,14 +13,14 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -32,7 +32,7 @@ public class RangeActionSetpointResultImplTest {
     private RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
     private PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         rangeAction = Mockito.mock(RangeAction.class);
         pstRangeAction = Mockito.mock(PstRangeAction.class);

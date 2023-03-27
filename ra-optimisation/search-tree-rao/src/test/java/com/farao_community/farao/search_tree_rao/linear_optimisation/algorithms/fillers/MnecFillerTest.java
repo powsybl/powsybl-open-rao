@@ -26,21 +26,18 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
 public class MnecFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -48,7 +45,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     private FlowCnec mnec2;
     private FlowCnec mnec3;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
         mnec1 = crac.newFlowCnec()

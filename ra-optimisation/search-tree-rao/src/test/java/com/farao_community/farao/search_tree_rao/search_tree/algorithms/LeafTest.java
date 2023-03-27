@@ -38,31 +38,25 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.commons.Unit.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({IteratingLinearOptimizer.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LeafTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
@@ -80,7 +74,10 @@ public class LeafTest {
 
     private String virtualCostName;
 
-    @Before
+    private MockedStatic<LinearProblem> linearProblemMockedStatic;
+    private MockedStatic<IteratingLinearOptimizer> iteratingLinearOptimizerMockedStatic;
+
+    @BeforeEach
     public void setUp() {
         // network
         network = NetworkImportsUtil.import12NodesNetwork();
@@ -104,6 +101,14 @@ public class LeafTest {
         optimizedState = Mockito.mock(State.class);
 
         virtualCostName = "VirtualCost";
+        linearProblemMockedStatic = mockStatic(LinearProblem.class);
+        iteratingLinearOptimizerMockedStatic = mockStatic(IteratingLinearOptimizer.class);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        linearProblemMockedStatic.close();
+        iteratingLinearOptimizerMockedStatic.close();
     }
 
     private Leaf buildNotEvaluatedRootLeaf() {
@@ -114,12 +119,9 @@ public class LeafTest {
         LinearProblemBuilder linearProblemBuilder = Mockito.mock(LinearProblemBuilder.class);
         LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
         when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any())).thenReturn(linearProblem);
-        try {
-            PowerMockito.whenNew(LinearProblemBuilder.class).withNoArguments().thenReturn(linearProblemBuilder);
-            PowerMockito.whenNew(IteratingLinearOptimizationResultImpl.class).withAnyArguments().thenReturn(linearOptimizationResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        linearProblemMockedStatic.when(LinearProblem::create).thenReturn(linearProblemBuilder);
+        iteratingLinearOptimizerMockedStatic.when(() -> IteratingLinearOptimizer.optimize(Mockito.any(), Mockito.any())).thenReturn(linearOptimizationResult);
+
     }
 
     @Test
@@ -372,31 +374,31 @@ public class LeafTest {
 
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        leaf.getFlow(flowCnec, LEFT, MEGAWATT);
+        assertThrows(FaraoException.class, () -> leaf.getFlow(flowCnec, LEFT, MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getCommercialFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        leaf.getCommercialFlow(flowCnec, LEFT, MEGAWATT);
+        assertThrows(FaraoException.class, () -> leaf.getCommercialFlow(flowCnec, LEFT, MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getPtdfZonalSumOnCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        leaf.getPtdfZonalSum(flowCnec, LEFT);
+        assertThrows(FaraoException.class, () -> leaf.getPtdfZonalSum(flowCnec, LEFT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getPtdfZonalSumsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getPtdfZonalSums();
+        assertThrows(FaraoException.class, leaf::getPtdfZonalSums);
     }
 
     @Test
@@ -425,10 +427,10 @@ public class LeafTest {
         assertEquals(expectedFunctionalCost, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getFunctionalCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getFunctionalCost();
+        assertThrows(FaraoException.class, leaf::getFunctionalCost);
     }
 
     @Test
@@ -461,16 +463,16 @@ public class LeafTest {
         assertEquals(expectedVirtualCost, leaf.getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getVirtualCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getVirtualCost();
+        assertThrows(FaraoException.class, leaf::getVirtualCost);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getSpecificVirtualCostBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getVirtualCost(virtualCostName);
+        assertThrows(FaraoException.class, () -> leaf.getVirtualCost(virtualCostName));
     }
 
     @Test
@@ -505,16 +507,16 @@ public class LeafTest {
         assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getMostLimitingElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getMostLimitingElements(0);
+        assertThrows(FaraoException.class, () -> leaf.getMostLimitingElements(0));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getCostlyElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getCostlyElements(virtualCostName, 0);
+        assertThrows(FaraoException.class, () -> leaf.getCostlyElements(virtualCostName, 0));
     }
 
     @Test
@@ -602,36 +604,36 @@ public class LeafTest {
         assertEquals(optimizedSetPoints, leaf.getOptimizedSetpointsOnState(optimizedState));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getRangeActions();
+        assertThrows(FaraoException.class, leaf::getRangeActions);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getOptimizedTapBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        leaf.getOptimizedTap(pstRangeAction, optimizedState);
+        assertThrows(FaraoException.class, () -> leaf.getOptimizedTap(pstRangeAction, optimizedState));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getOptimizedTapsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getOptimizedTapsOnState(optimizedState);
+        assertThrows(FaraoException.class, () -> leaf.getOptimizedTapsOnState(optimizedState));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getOptimizedSetpointsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getOptimizedSetpointsOnState(optimizedState);
+        assertThrows(FaraoException.class, () -> leaf.getOptimizedSetpointsOnState(optimizedState));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getOptimizedSetPointBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        leaf.getOptimizedSetpoint(rangeAction, optimizedState);
+        assertThrows(FaraoException.class, () -> leaf.getOptimizedSetpoint(rangeAction, optimizedState));
     }
 
     @Test
@@ -659,10 +661,10 @@ public class LeafTest {
         assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getSensitivityStatusBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getSensitivityStatus();
+        assertThrows(FaraoException.class, leaf::getSensitivityStatus);
     }
 
     @Test
@@ -705,26 +707,26 @@ public class LeafTest {
         assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getSensitivityValueOnRangeActionBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT);
+        assertThrows(FaraoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, rangeAction, MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getSensitivityValueOnLinearGlskBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
-        leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT);
+        assertThrows(FaraoException.class, () -> leaf.getSensitivityValue(flowCnec, RIGHT, linearGlsk, MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void getObjectiveFunctionBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getObjectiveFunction();
+        assertThrows(FaraoException.class, leaf::getObjectiveFunction);
     }
 
     @Test
@@ -739,7 +741,7 @@ public class LeafTest {
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        when(linearOptimizationResult.getObjectiveFunction()).thenReturn(objectiveFunction);
+        doReturn(objectiveFunction).when(linearOptimizationResult).getObjectiveFunction();
 
         assertEquals(objectiveFunction, leaf.getObjectiveFunction());
     }
@@ -775,7 +777,7 @@ public class LeafTest {
     public void testToStringOnRootLeaf() {
         Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         IteratingLinearOptimizationResultImpl linearOptimizationResult = Mockito.mock(IteratingLinearOptimizationResultImpl.class);
-        when(iteratingLinearOptimizer.optimize()).thenReturn(linearOptimizationResult);
+        when(iteratingLinearOptimizer.optimize(Mockito.any(), Mockito.any())).thenReturn(linearOptimizationResult);
         SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunction.class));
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);

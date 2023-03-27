@@ -7,11 +7,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -23,7 +22,7 @@ public class StandardRangeImplTest {
 
     private StandardRangeImpl fixedRange;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         fixedRange = new StandardRangeImpl(min, max);
     }

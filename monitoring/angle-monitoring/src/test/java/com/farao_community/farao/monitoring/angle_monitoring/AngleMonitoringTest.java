@@ -25,8 +25,8 @@ import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -36,7 +36,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +59,7 @@ public class AngleMonitoringTest {
     private AngleCnec acCur1;
     private NetworkAction naL1Cur;
 
-    @Before
+    @BeforeEach
     public void generalSetUp() {
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
@@ -199,21 +199,21 @@ public class AngleMonitoringTest {
         assertEquals(angleMonitoringResult.printConstraints(), List.of("All AngleCnecs are secure."));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testGetAngleExceptions1() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
         mockCurativeStates();
-        angleMonitoringResult.getAngle(acCur1, Unit.DEGREE);
+        assertThrows(FaraoException.class, () -> angleMonitoringResult.getAngle(acCur1, Unit.DEGREE));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testGetAngleExceptions2() {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         runAngleMonitoring();
-        angleMonitoringResult.getAngle(acPrev, Unit.KILOVOLT);
+        assertThrows(FaraoException.class, () -> angleMonitoringResult.getAngle(acPrev, Unit.KILOVOLT));
     }
 
     @Test

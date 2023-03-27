@@ -20,8 +20,8 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
@@ -33,7 +33,7 @@ import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -43,7 +43,7 @@ public class AbsolutePtdfSumsComputationTest {
 
     private SystematicSensitivityResult systematicSensitivityResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);

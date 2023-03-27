@@ -10,11 +10,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class SearchTreeParametersTest {
     SearchTreeParameters.SearchTreeParametersBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setup() {
         builder = SearchTreeParameters.create();
     }

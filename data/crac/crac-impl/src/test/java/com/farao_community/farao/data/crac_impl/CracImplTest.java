@@ -23,16 +23,16 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.*;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * General test file
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 public class CracImplTest {
     private CracImpl crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
     }
@@ -101,9 +101,9 @@ public class CracImplTest {
         assertEquals(0, crac.getStates().size());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testGetStateWithNotExistingContingencyId() {
-        crac.getState("fail-contingency", CURATIVE);
+        assertThrows(FaraoException.class, () -> crac.getState("fail-contingency", CURATIVE));
     }
 
     @Test
@@ -397,11 +397,11 @@ public class CracImplTest {
         assertTrue(crac.getStates(PREVENTIVE).isEmpty());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddStateWithPreventiveError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
-        crac.addState(contingency1, PREVENTIVE);
+        assertThrows(FaraoException.class, () -> crac.addState(contingency1, PREVENTIVE));
     }
 
     @Test
@@ -413,10 +413,10 @@ public class CracImplTest {
         assertSame(state1, state2);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddStateBeforecontingencyError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        crac.addState(contingency1, CURATIVE);
+        assertThrows(FaraoException.class, () -> crac.addState(contingency1, CURATIVE));
     }
 
     @Test

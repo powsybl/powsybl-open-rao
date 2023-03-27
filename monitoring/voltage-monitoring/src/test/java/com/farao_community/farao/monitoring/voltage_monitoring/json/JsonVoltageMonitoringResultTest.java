@@ -14,8 +14,8 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.HIGH_AND_LOW_VOLTAGE_CONSTRAINTS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -36,7 +37,7 @@ public class JsonVoltageMonitoringResultTest {
     VoltageCnec vc1;
     VoltageCnec vc2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac");
         vc1 = addVoltageCnec("VL45", "VL45", 145., 150.);
@@ -75,48 +76,48 @@ public class JsonVoltageMonitoringResultTest {
         assertEquals(expected, os.toString());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfCnecIdNull() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok1.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok1.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfMinNull() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok2.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok2.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfMaxNull() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok3.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok3.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfCnecIdUsedTwice() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok4.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok4.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfCnecNotInCrac() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok5.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok5.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfWrongField1() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok6.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok6.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfWrongField2() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok7.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok7.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfNoType() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok8.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok8.json"), crac));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testFailsIfWrongType() {
-        new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok9.json"), crac);
+        assertThrows(FaraoException.class, () -> new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result-nok9.json"), crac));
     }
 }

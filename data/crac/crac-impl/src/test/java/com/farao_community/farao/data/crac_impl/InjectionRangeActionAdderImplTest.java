@@ -11,10 +11,10 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -25,7 +25,7 @@ public class InjectionRangeActionAdderImplTest {
     private String injectionId2;
     private String injectionName2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
         injectionId1 = "BBE2AA11_Generator";
@@ -165,38 +165,41 @@ public class InjectionRangeActionAdderImplTest {
         assertEquals(2, crac.getNetworkElements().size());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoIdFail() {
-        crac.newInjectionRangeAction()
-                .withOperator("BE")
-                .withGroupId("groupId1")
-                .withNetworkElementAndKey(1., injectionId1)
-                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-                .newRange().withMin(-5).withMax(10).add()
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newInjectionRangeAction()
+                    .withOperator("BE")
+                    .withGroupId("groupId1")
+                    .withNetworkElementAndKey(1., injectionId1)
+                    .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                    .newRange().withMin(-5).withMax(10).add()
+                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                    .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoNetworkElementFail() {
-        crac.newInjectionRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .withGroupId("groupId1")
-                .newRange().withMin(-5).withMax(10).add()
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newInjectionRangeAction()
+                    .withId("id1")
+                    .withOperator("BE")
+                    .withGroupId("groupId1")
+                    .newRange().withMin(-5).withMax(10).add()
+                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                    .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoRangeFail() {
-        crac.newInjectionRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .withNetworkElementAndKey(1., injectionId1)
-                .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newInjectionRangeAction()
+                    .withId("id1")
+                    .withOperator("BE")
+                    .withNetworkElementAndKey(1., injectionId1)
+                    .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                    .add());
     }
 
     @Test

@@ -11,7 +11,7 @@ import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPostContingency;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.farao_community.farao.data.flowbased_domain.DataDomain;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

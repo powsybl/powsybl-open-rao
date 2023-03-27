@@ -31,8 +31,8 @@ import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
@@ -41,7 +41,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,7 +77,7 @@ public class PreventiveAndCurativesRaoResultImplTest {
     private OptimizationResult curativeResult2;
     private StateTree stateTree;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cnec1 = mock(FlowCnec.class);
         cnec1auto = mock(FlowCnec.class);

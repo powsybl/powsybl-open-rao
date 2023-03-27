@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -78,7 +77,7 @@ abstract class AbstractFillerTest {
         pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
         // MPSolver and linearRaoProblem
-        mpSolver = new MPSolverMock();
+        mpSolver = new FaraoMPSolver();
 
         flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);

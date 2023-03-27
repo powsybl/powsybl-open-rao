@@ -19,11 +19,11 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.mockito.Mockito.mock;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

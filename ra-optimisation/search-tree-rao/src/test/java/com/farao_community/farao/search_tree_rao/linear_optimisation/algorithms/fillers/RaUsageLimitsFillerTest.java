@@ -24,23 +24,20 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
 public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
@@ -58,7 +55,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
 
-    @Before
+    @BeforeEach
     public void setup() {
         init();
         state = crac.getPreventiveState();

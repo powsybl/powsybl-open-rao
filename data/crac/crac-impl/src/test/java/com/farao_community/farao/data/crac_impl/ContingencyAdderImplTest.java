@@ -11,12 +11,12 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -25,7 +25,7 @@ public class ContingencyAdderImplTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
     }
@@ -76,17 +76,18 @@ public class ContingencyAdderImplTest {
         assertNotNull(((CracImpl) crac).getNetworkElement("neId2-2"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddWithNoIdFail() {
-        crac.newContingency()
-                .withName("conName1")
-                .withNetworkElement("neId1", "neName1")
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newContingency()
+                    .withName("conName1")
+                    .withNetworkElement("neId1", "neName1")
+                    .add());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullParentFail() {
-        ContingencyAdderImpl tmp = new ContingencyAdderImpl(null);
+        assertThrows(NullPointerException.class, () -> new ContingencyAdderImpl(null));
     }
 
     @Test
@@ -113,17 +114,18 @@ public class ContingencyAdderImplTest {
         assertSame(contingency1, contingency2);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testAddExistingDifferentContingency() {
         crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
                 .withNetworkElement("neId1", "neName1")
                 .add();
-        crac.newContingency()
-                .withId("conId1")
-                .withName("conName1")
-                .withNetworkElement("neId2", "neName1")
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newContingency()
+                    .withId("conId1")
+                    .withName("conName1")
+                    .withNetworkElement("neId2", "neName1")
+                    .add());
     }
 }

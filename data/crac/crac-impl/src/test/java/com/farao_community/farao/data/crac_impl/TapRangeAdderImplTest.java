@@ -13,12 +13,12 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 public class TapRangeAdderImplTest {
     private PstRangeActionAdder pstRangeActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Crac crac = new CracImplFactory().create("cracId");
         pstRangeActionAdder = crac.newPstRangeAction()
@@ -70,12 +70,13 @@ public class TapRangeAdderImplTest {
         assertEquals(Unit.TAP, pstRangeAction.getRanges().get(0).getUnit());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoRangeType() {
-        pstRangeActionAdder.newTapRange()
-            .withMinTap(-5)
-            .withMaxTap(10)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            pstRangeActionAdder.newTapRange()
+                .withMinTap(-5)
+                .withMaxTap(10)
+                .add());
     }
 
     @Test
@@ -90,12 +91,13 @@ public class TapRangeAdderImplTest {
         assertEquals(1, pstRangeAction.getRanges().size());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testMinGreaterThanMax() {
-        pstRangeActionAdder.newTapRange()
-            .withRangeType(RangeType.ABSOLUTE)
-            .withMinTap(5)
-            .withMaxTap(-10)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            pstRangeActionAdder.newTapRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withMinTap(5)
+                .withMaxTap(-10)
+                .add());
     }
 }

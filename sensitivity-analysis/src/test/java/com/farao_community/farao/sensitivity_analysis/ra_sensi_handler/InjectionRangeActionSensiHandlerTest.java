@@ -17,10 +17,11 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -90,7 +91,7 @@ public class InjectionRangeActionSensiHandlerTest {
         assertEquals(10 * 0.8 - 30 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void checkConsistencyNotAnInjection() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
@@ -102,10 +103,10 @@ public class InjectionRangeActionSensiHandlerTest {
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
-        sensiHandler.checkConsistency(network); // should throw
+        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
@@ -117,6 +118,6 @@ public class InjectionRangeActionSensiHandlerTest {
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
-        sensiHandler.checkConsistency(network); // should throw
+        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
     }
 }

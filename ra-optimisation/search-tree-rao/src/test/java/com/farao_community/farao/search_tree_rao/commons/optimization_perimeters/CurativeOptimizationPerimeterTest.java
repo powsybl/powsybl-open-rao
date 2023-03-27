@@ -8,21 +8,20 @@ package com.farao_community.farao.search_tree_rao.commons.optimization_perimeter
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }
@@ -50,8 +49,8 @@ public class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerim
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void curativePerimeterbuildOnPreventiveStateTest() {
-        CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult);
+        assertThrows(FaraoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));
     }
 }

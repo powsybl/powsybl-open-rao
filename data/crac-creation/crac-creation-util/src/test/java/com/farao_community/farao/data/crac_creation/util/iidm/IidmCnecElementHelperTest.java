@@ -9,10 +9,10 @@ package com.farao_community.farao.data.crac_creation.util.iidm;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -22,7 +22,7 @@ public class IidmCnecElementHelperTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
     }

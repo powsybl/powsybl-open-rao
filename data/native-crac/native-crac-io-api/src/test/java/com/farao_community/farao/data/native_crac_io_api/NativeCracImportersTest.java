@@ -9,12 +9,12 @@ package com.farao_community.farao.data.native_crac_io_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -56,8 +56,8 @@ public class NativeCracImportersTest {
 
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testImportFileNotFound() {
-        NativeCracImporters.importData(Paths.get("not_found", "file"));
+        assertThrows(FaraoException.class, () -> NativeCracImporters.importData(Paths.get("not_found", "file")));
     }
 }

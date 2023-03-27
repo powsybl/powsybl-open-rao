@@ -12,14 +12,14 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards{@literal <philippe.edwards at rte-france.com>}
@@ -29,7 +29,7 @@ public class CgmesBranchHelperTest {
     private static Network network;
     private CgmesBranchHelper cgmesBranchHelper;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");

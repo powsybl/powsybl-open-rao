@@ -21,13 +21,13 @@ import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivati
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,7 +54,7 @@ public class BestTapFinderTest {
     private OptimizationPerimeter optimizationPerimeter;
     private RangeActionSetpointResult rangeActionSetpointResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cnec1 = Mockito.mock(FlowCnec.class);
         when(cnec1.getMonitoredSides()).thenReturn(Collections.singleton(Side.LEFT));

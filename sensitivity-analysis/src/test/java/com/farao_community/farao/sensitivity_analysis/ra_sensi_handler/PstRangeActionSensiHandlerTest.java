@@ -18,10 +18,11 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -51,7 +52,7 @@ public class PstRangeActionSensiHandlerTest {
         assertEquals(104.32, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void checkConsistencyNotAPst() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
@@ -65,10 +66,10 @@ public class PstRangeActionSensiHandlerTest {
                 .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
-        sensiHandler.checkConsistency(network); // should throw
+        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void checkConsistencyNotANetworkElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
@@ -82,6 +83,6 @@ public class PstRangeActionSensiHandlerTest {
                 .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
-        sensiHandler.checkConsistency(network); // should throw
+        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
     }
 }

@@ -22,7 +22,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -176,29 +175,29 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         }
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void loopFlowApproximationLevelError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError_v2.json"));
+        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError_v2.json")));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongStopCriterionError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithPrevStopCriterionError_v2.json"));
+        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithPrevStopCriterionError_v2.json")));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void curativeRaoStopCriterionError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithCurStopCriterionError_v2.json"));
+        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithCurStopCriterionError_v2.json")));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongFieldError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithWrongField_v2.json"));
+        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithWrongField_v2.json")));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testMapNegativeError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithNegativeField_v2.json"));
+        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithNegativeField_v2.json")));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

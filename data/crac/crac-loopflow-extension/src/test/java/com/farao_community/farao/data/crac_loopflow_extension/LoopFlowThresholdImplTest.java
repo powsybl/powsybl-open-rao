@@ -12,13 +12,12 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.sqrt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -33,7 +32,7 @@ public class LoopFlowThresholdImplTest {
     private double iMax;
     private double nominalV;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -53,8 +52,8 @@ public class LoopFlowThresholdImplTest {
         LoopFlowThreshold loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class);
 
         assertNotNull(loopFlowThreshold);
-        Assert.assertEquals(1., loopFlowThreshold.getValue(), DOUBLE_TOLERANCE);
-        Assert.assertEquals(Unit.PERCENT_IMAX, loopFlowThreshold.getUnit());
+        assertEquals(1., loopFlowThreshold.getValue(), DOUBLE_TOLERANCE);
+        assertEquals(Unit.PERCENT_IMAX, loopFlowThreshold.getUnit());
     }
 
     @Test

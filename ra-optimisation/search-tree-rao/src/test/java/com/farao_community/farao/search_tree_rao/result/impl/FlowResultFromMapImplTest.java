@@ -10,8 +10,8 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
@@ -19,8 +19,8 @@ import java.util.Map;
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +35,7 @@ public class FlowResultFromMapImplTest {
     FlowCnec optimizedCnec;
     FlowResultFromMapImpl branchResultFromMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         loopFlowCnec = Mockito.mock(FlowCnec.class);

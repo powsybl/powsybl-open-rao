@@ -35,8 +35,8 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -47,7 +47,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -58,14 +58,14 @@ public class CimCracCreatorTest {
     private static Network baseNetwork;
     private static Network hvdcNetwork;
 
-    @BeforeClass
+    @BeforeAll
     public static void loadNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         baseNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid_missingImax.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void loadHvdcNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");

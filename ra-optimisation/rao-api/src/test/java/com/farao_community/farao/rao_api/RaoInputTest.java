@@ -14,14 +14,14 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -35,7 +35,7 @@ public class RaoInputTest {
     private Crac crac;
     private RaoInput.RaoInputBuilder defaultBuilder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);

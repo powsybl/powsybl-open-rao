@@ -18,14 +18,14 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot <baptiste.seguinot at rte-france.com>
@@ -36,7 +36,7 @@ public class RaoTest {
     private InMemoryPlatformConfig platformConfig;
     private RaoInput raoInput;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -48,7 +48,7 @@ public class RaoTest {
         raoInput = RaoInput.build(network, crac).withNetworkVariantId("variant-id").build();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         fileSystem.close();
     }
@@ -70,10 +70,10 @@ public class RaoTest {
         // todo: assertEquals(RaoResultImpl.Status.DEFAULT, resultAsync.getStatus());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
-        Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
+        assertThrows(FaraoException.class, () -> Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig));
     }
 
     @Test
@@ -84,10 +84,10 @@ public class RaoTest {
         assertEquals("2.3", definedRao.getVersion());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testDefaultNoProvider() {
         // case with no provider
-        Rao.find(null, ImmutableList.of(), platformConfig);
+        assertThrows(FaraoException.class, () -> Rao.find(null, ImmutableList.of(), platformConfig));
     }
 
     @Test
@@ -99,10 +99,10 @@ public class RaoTest {
         assertEquals("2.3", globalRaOptimizer.getVersion());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
-        Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig);
+        assertThrows(FaraoException.class, () -> Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig));
     }
 }

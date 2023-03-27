@@ -15,9 +15,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -34,7 +33,7 @@ public class NetworkActionParametersTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = ExhaustiveCracCreation.create();
     }
@@ -115,7 +114,7 @@ public class NetworkActionParametersTest {
 
         assertEquals(5, parameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());
-        Assert.assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
-        Assert.assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
+        assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
+        assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
 }

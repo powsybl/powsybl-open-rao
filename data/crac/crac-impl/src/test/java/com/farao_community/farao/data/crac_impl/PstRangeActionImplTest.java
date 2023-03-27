@@ -17,12 +17,12 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -36,7 +36,7 @@ public class PstRangeActionImplTest {
     private PhaseTapChanger phaseTapChanger;
     private Map<Integer, Double> tapToAngleConversionMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         network = NetworkImportsUtil.import12NodesNetwork();
@@ -67,23 +67,23 @@ public class PstRangeActionImplTest {
         assertEquals(12, pstRa.getCurrentTapPosition(network));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void applyOutOfBound() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        pstRa.apply(network, 50);
+        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void applyOnUnknownPst() {
         PstRangeAction pstRa = pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
-        pstRa.apply(network, 50);
+        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        pstRa.apply(network, 50);
+        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
     }
 
     @Test

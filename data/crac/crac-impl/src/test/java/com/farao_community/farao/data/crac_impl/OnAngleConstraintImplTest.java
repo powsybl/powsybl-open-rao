@@ -11,11 +11,11 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -25,7 +25,7 @@ public class OnAngleConstraintImplTest {
     State preventiveState;
     State curativeState;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         angleCnec = Mockito.mock(AngleCnec.class);
         preventiveState = Mockito.mock(State.class);

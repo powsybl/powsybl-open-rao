@@ -12,13 +12,10 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -27,7 +24,7 @@ public class HvdcRangeActionAdderImplTest {
     private CracImpl crac;
     private String networkElementId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
         networkElementId = "BBE2AA11 FFR3AA11 1";
@@ -83,20 +80,21 @@ public class HvdcRangeActionAdderImplTest {
         assertEquals(1.0, hvdcRangeAction.getInitialSetpoint());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testAddAutoWithoutSpeed() {
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .withNetworkElement(networkElementId)
-                .withGroupId("groupId1")
-                .withInitialSetpoint(1)
-                .newRange().withMin(-5).withMax(10).add()
-                .newFreeToUseUsageRule()
-                .withInstant(Instant.AUTO)
-                .withUsageMethod(UsageMethod.FORCED)
-                .add()
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newHvdcRangeAction()
+                    .withId("id1")
+                    .withOperator("BE")
+                    .withNetworkElement(networkElementId)
+                    .withGroupId("groupId1")
+                    .withInitialSetpoint(1)
+                    .newRange().withMin(-5).withMax(10).add()
+                    .newFreeToUseUsageRule()
+                    .withInstant(Instant.AUTO)
+                    .withUsageMethod(UsageMethod.FORCED)
+                    .add()
+                    .add());
     }
 
     @Test
@@ -160,20 +158,22 @@ public class HvdcRangeActionAdderImplTest {
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoIdFail() {
-        crac.newHvdcRangeAction()
-                .withOperator("BE")
-                .withNetworkElement(networkElementId)
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newHvdcRangeAction()
+                    .withOperator("BE")
+                    .withNetworkElement(networkElementId)
+                    .add());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testNoNetworkElementFail() {
-        crac.newHvdcRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .add();
+        assertThrows(FaraoException.class, () ->
+            crac.newHvdcRangeAction()
+                    .withId("id1")
+                    .withOperator("BE")
+                    .add());
     }
 
     @Test

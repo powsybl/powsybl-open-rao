@@ -9,12 +9,12 @@ package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.farao_community.farao.data.crac_creation.util.ConnectableType;
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

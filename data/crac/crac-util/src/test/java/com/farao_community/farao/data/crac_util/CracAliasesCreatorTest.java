@@ -10,9 +10,9 @@ package com.farao_community.farao.data.crac_util;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

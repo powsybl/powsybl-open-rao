@@ -17,14 +17,14 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
@@ -36,7 +36,7 @@ public class LoopFlowComputationImplTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = ExampleGenerator.crac();
 

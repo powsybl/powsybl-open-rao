@@ -7,11 +7,12 @@
 package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -20,7 +21,7 @@ public class CountryBoundaryTest {
 
     private CountryBoundary boundaryFrBe;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         boundaryFrBe = new CountryBoundary(Country.FR, Country.BE);
     }

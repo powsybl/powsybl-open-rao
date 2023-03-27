@@ -8,11 +8,11 @@
 package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.data.core_cne_exporter.xsd.ESMPDateTimeInterval;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

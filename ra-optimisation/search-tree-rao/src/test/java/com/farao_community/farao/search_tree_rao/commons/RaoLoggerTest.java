@@ -26,15 +26,15 @@ import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionRes
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,7 +59,7 @@ public class RaoLoggerTest {
     private State stateCo2Curative;
     private OptimizationResult basecaseOptimResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);

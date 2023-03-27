@@ -7,9 +7,9 @@
 package com.farao_community.farao.rao_api.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

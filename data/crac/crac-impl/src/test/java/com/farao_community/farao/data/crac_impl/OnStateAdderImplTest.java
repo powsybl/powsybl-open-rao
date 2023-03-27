@@ -7,18 +7,15 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -29,7 +26,7 @@ public class OnStateAdderImplTest {
     private Contingency contingency;
     private NetworkActionAdder remedialActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
 
@@ -77,54 +74,60 @@ public class OnStateAdderImplTest {
         assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoInstant() {
-        remedialActionAdder.newOnStateUsageRule()
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newOnStateUsageRule()
+                .withContingency("contingencyId")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoContingency() {
-        remedialActionAdder.newOnStateUsageRule()
-            .withInstant(Instant.CURATIVE)
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newOnStateUsageRule()
+                .withInstant(Instant.CURATIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testNoUsageMethod() {
-        remedialActionAdder.newOnStateUsageRule()
-            .withInstant(Instant.CURATIVE)
-            .withContingency("contingencyId")
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newOnStateUsageRule()
+                .withInstant(Instant.CURATIVE)
+                .withContingency("contingencyId")
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testUnknownContingency() {
-        remedialActionAdder.newOnStateUsageRule()
-            .withInstant(Instant.CURATIVE)
-            .withContingency("unknownContingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newOnStateUsageRule()
+                .withInstant(Instant.CURATIVE)
+                .withContingency("unknownContingencyId")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testPreventiveInstant() {
-        remedialActionAdder.newOnStateUsageRule()
-            .withInstant(Instant.PREVENTIVE)
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newOnStateUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withContingency("contingencyId")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test
     public void testOutageInstant() {
-        remedialActionAdder.newOnStateUsageRule()
-            .withInstant(Instant.OUTAGE)
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
+        assertThrows(FaraoException.class, () ->
+            remedialActionAdder.newOnStateUsageRule()
+                .withInstant(Instant.OUTAGE)
+                .withContingency("contingencyId")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add());
     }
 }

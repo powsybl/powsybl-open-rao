@@ -13,14 +13,14 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -41,7 +41,7 @@ public class MinMarginEvaluatorTest {
     private MarginEvaluator marginEvaluator;
     private MinMarginEvaluator minMarginEvaluator;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         State state = Mockito.mock(State.class);
         when(state.getContingency()).thenReturn(Optional.empty());

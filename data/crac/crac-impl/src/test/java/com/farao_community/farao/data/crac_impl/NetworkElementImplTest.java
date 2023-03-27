@@ -10,13 +10,13 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -127,16 +127,16 @@ public class NetworkElementImplTest {
         assertTrue(countries.contains(Optional.of(Country.DE)));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testGetLocationAbsent() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        new NetworkElementImpl("non-existent").getLocation(network);
+        assertThrows(FaraoException.class, () -> new NetworkElementImpl("non-existent").getLocation(network));
     }
 
-    @Test(expected = NotImplementedException.class)
+    @Test
     public void testGetLocationOnUnsupportedType() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network);
+        assertThrows(NotImplementedException.class, () -> new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network));
     }
 
     @Test

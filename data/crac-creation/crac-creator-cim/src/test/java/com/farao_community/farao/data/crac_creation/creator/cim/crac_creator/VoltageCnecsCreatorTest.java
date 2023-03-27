@@ -24,8 +24,8 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -37,7 +37,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -50,7 +50,7 @@ public class VoltageCnecsCreatorTest {
     private Set<String> monitoredElements;
     private Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");

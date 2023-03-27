@@ -30,7 +30,7 @@ import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCr
 import com.farao_community.farao.data.crac_creation.creator.cse.remedial_action.CsePstCreationContext;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.time.OffsetDateTime;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

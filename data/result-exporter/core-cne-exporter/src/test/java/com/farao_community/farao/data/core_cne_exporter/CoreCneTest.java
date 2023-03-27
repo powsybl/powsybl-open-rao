@@ -16,15 +16,15 @@ import com.farao_community.farao.data.crac_creation.creator.api.std_creation_con
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -37,7 +37,7 @@ public class CoreCneTest {
     private CneExporterParameters exporterParameters;
     private UcteCracCreationContext cracCreationContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));

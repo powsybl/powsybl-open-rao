@@ -3,13 +3,12 @@ package com.farao_community.farao.rao_api;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ZoneToZonePtdfDefinitionTest {
 
@@ -64,39 +63,39 @@ public class ZoneToZonePtdfDefinitionTest {
         assertEquals(1, zTozPtdf.getWeight(new EICode("22Y201903145---4")), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongSyntax1() {
-        new ZoneToZonePtdfDefinition("FR-ES");
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR-ES"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongSyntax2() {
-        new ZoneToZonePtdfDefinition("FR/ES");
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR/ES"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongSyntax3() {
-        new ZoneToZonePtdfDefinition("{{FR}-{ES}");
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{{FR}-{ES}"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongSyntax4() {
-        new ZoneToZonePtdfDefinition("{FR}/{ES}");
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FR}/{ES}"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongSyntax5() {
-        new ZoneToZonePtdfDefinition("{FRANCE}-{ES}");
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FRANCE}-{ES}"));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testWrongSyntax6() {
-        new ZoneToZonePtdfDefinition("{}/{ES}");
+        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{}/{ES}"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWrongCountryCode() {
-        new ZoneToZonePtdfDefinition("{XX}/{ES}");
+        assertThrows(IllegalArgumentException.class, () -> new ZoneToZonePtdfDefinition("{XX}/{ES}"));
     }
 
     @Test

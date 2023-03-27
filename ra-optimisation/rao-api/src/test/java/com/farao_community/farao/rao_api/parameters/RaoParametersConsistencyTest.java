@@ -11,10 +11,10 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -166,22 +166,22 @@ public class RaoParametersConsistencyTest {
         assertEquals(0, rulpcp.getMaxCurativeTso());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testIncompatibleParameters1() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
 
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
+        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true));
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void testIncompatibleParameters2() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
 
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
+        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1")));
     }
 
     @Test
