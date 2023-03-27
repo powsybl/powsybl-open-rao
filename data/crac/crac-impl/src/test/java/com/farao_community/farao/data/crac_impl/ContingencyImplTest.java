@@ -72,8 +72,8 @@ class ContingencyImplTest {
         );
         assertEquals(contingencyImpl1, contingencyImpl1);
         assertEquals(contingencyImpl1.hashCode(), contingencyImpl1.hashCode());
-        assertNotEquals(contingencyImpl1, null);
-        assertNotEquals(contingencyImpl1, 1.0);
+        assertNotNull(contingencyImpl1);
+        assertNotEquals(1.0, contingencyImpl1);
 
         ContingencyImpl contingencyImpl2 = new ContingencyImpl(
             "contingency-1", "contingency-1",

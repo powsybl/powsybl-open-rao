@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.threshold.AngleThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,17 +58,14 @@ class AngleThresholdAdderImplTest {
 
     @Test
     void testNoUnitFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newAngleCnec().newThreshold()
-                .withMax(1000.0)
-                .add());
+        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold()
+            .withMax(1000.0);
+        assertThrows(FaraoException.class, angleThresholdAdder::add);
     }
 
     @Test
     void testNoValueFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newAngleCnec().newThreshold()
-                .withUnit(Unit.AMPERE)
-                .add());
+        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold();
+        assertThrows(FaraoException.class, () -> angleThresholdAdder.withUnit(Unit.AMPERE));
     }
 }

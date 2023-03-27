@@ -58,46 +58,55 @@ class JsonVoltageCnecsCreationParametersTest {
 
     @Test
     void testFailIfPreventiveWithContingencies() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok1.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok1.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfInstantDefinedMultipleTimes() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok2.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok2.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfNominalVDefinedMultipleTimes() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok3.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok3.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfUnitNotKv() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok4.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok4.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfNoMonitoredElements() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok5.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok5.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfNoMonitoredStates() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok6.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok6.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfNoThresholds() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok7.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok7.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailIfNoNominalV() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok8.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok8.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void testFailOnUnexpectedField() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok9.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok9.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 }

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -82,26 +83,31 @@ class JsonCseCracCreationParametersTest {
 
     @Test
     void importNokTest() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void importNokTest2() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok2.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok2.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void importNokTest3() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok3.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok3.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void importMissingSwitch1() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok4.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok4.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
     void importMissingSwitch2() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok5.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok5.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 }

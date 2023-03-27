@@ -11,6 +11,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,11 +64,13 @@ class RandomizedStringTest {
         UUID otherUuid = UUID.fromString("622fc1d6-41ba-43bc-9c54-c11073fc2ce7");
         uuidMock.when(UUID::randomUUID).thenReturn(uuid, otherUuid);
 
-        assertThrows(FaraoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", Collections.singletonList("RANDOMIZED_STRING_" + uuid), 1));
+        List<String> usedStrings = Collections.singletonList("RANDOMIZED_STRING_" + uuid);
+        assertThrows(FaraoException.class, () -> RandomizedString.getRandomizedString("RANDOMIZED_STRING_", usedStrings, 1));
     }
 
     @Test
     void exceptionIfInvalidMaxTry() {
-        assertThrows(IllegalArgumentException.class, () -> RandomizedString.getRandomizedString("", Collections.emptyList(), 0));
+        List<String> usedStrings = Collections.emptyList();
+        assertThrows(IllegalArgumentException.class, () -> RandomizedString.getRandomizedString("", usedStrings, 0));
     }
 }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
@@ -46,7 +47,8 @@ class CracCreationParametersJsonTest {
 
     @Test
     void importNokTest() {
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json")));
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test

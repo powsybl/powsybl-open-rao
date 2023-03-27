@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,33 +80,31 @@ class BranchThresholdAdderImplTest {
 
     @Test
     void testUnsupportedUnitFail() {
-        assertThrows(FaraoException.class, () -> crac.newFlowCnec().newThreshold().withUnit(Unit.KILOVOLT));
+        BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold();
+        assertThrows(FaraoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
     }
 
     @Test
     void testNoUnitFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newFlowCnec().newThreshold()
-                .withMax(1000.0)
-                .withSide(Side.LEFT)
-                .add());
+        BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
+            .withMax(1000.0)
+            .withSide(Side.LEFT);
+        assertThrows(FaraoException.class, branchThresholdAdder::add);
     }
 
     @Test
     void testNoValueFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newFlowCnec().newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withSide(Side.LEFT)
-                .add());
+        BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT);
+        assertThrows(FaraoException.class, branchThresholdAdder::add);
     }
 
     @Test
     void testNoSideFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newFlowCnec().newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withMax(1000.0)
-                .add());
+        BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
+            .withUnit(Unit.AMPERE)
+            .withMax(1000.0);
+        assertThrows(FaraoException.class, branchThresholdAdder::add);
     }
 }

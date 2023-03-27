@@ -116,7 +116,7 @@ class UcteConnectableTest {
         UcteConnectable ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
         assertEquals(ucteElement1, ucteElement1);
         assertEquals(ucteElement1, ucteElement2);
-        assertNotEquals(ucteElement1, null);
+        assertNotNull(ucteElement1);
 
         // different from
         ucteElement2 = new UcteConnectable("DIF12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
