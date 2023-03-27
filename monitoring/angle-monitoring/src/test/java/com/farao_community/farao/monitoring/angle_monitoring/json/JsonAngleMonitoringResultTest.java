@@ -85,7 +85,6 @@ class JsonAngleMonitoringResultTest {
     void testRoundTrip() throws IOException {
         AngleMonitoringResult angleMonitoringResult =
             new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-roundTrip.json"), crac);
-        System.out.println(angleMonitoringResult.getAngleCnecsWithAngle().iterator().next().getAngleCnec().getId());
         assertEquals("SECURE", angleMonitoringResult.getStatus().toString());
         assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
         assertEquals(2, angleMonitoringResult.getAppliedCras().keySet().size());

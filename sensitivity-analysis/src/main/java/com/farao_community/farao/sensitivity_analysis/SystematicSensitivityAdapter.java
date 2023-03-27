@@ -42,7 +42,6 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
-            System.out.println("looking for: " + sensitivityProvider);
             result = SensitivityAnalysis.find(sensitivityProvider).run(network,
                     network.getVariantManager().getWorkingVariantId(),
                     cnecSensitivityProvider.getAllFactors(network),
@@ -62,12 +61,9 @@ final class SystematicSensitivityAdapter {
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider) {
-        System.out.println("looking for1: " + sensitivityProvider);
-
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider);
         }
-        System.out.println("looking for2: " + sensitivityProvider);
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
         // Information : for contingencies with auto RA but no curative RA, SystematicSensitivityResult::getCnecStateResult will
@@ -77,7 +73,6 @@ final class SystematicSensitivityAdapter {
         Set<State> statesWithRa = appliedRemedialActions.getStatesWithRa(network);
         Set<State> statesWithoutRa = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
         statesWithoutRa.removeAll(statesWithRa);
-        System.out.println("looking for3: " + sensitivityProvider);
 
         // systematic analysis for states without RA
         TECHNICAL_LOGS.debug("... (1/{}) {} state(s) without RA ", statesWithRa.size() + 1, statesWithoutRa.size());
