@@ -236,7 +236,7 @@ class FlowCnecAdderImplTest {
             .withId("cnecId1")
             .withName("cnecName1")
             .withContingency(contingency1Id)
-            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.0).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.0).withSide(LEFT).add()
             .withNetworkElement("neId1", "neName1")
             .withNominalVoltage(220)
             .withIMax(2000.);
