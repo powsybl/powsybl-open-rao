@@ -10,10 +10,13 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -24,8 +27,10 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
@@ -56,6 +61,7 @@ public final class RaoLogger {
                 formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
                 formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
                 formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
+        Map<String, Double> virtualCosts = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
                 sensitivityAnalysisResult,
@@ -65,34 +71,25 @@ public final class RaoLogger {
 
     public static void logRangeActions(FaraoLogger logger,
                                        Leaf leaf,
-                                       OptimizationPerimeter optimizationContext) {
-        logRangeActions(logger, leaf, optimizationContext, null);
-    }
-
-    public static void logRangeActions(FaraoLogger logger,
-                                       Leaf leaf,
                                        OptimizationPerimeter
                                                optimizationContext, String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
-        String rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
-                .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {
-                    double rangeActionValue;
-                    if (rangeAction instanceof PstRangeAction) {
-                        rangeActionValue = leaf.getOptimizedTap((PstRangeAction) rangeAction, eState.getKey());
-                    } else {
-                        rangeActionValue = leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
-                    }
-                    if (globalPstOptimization) {
-                        return format("%s@%s: %.0f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue);
-                    } else {
-                        return format("%s: %.0f", rangeAction.getName(), rangeActionValue);
-                    }
-                }))
-                .collect(Collectors.joining(", "));
+        List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state ->
+            leaf.getActivatedRangeActions(state).stream().map(rangeAction -> {
+                double rangeActionValue = rangeAction instanceof PstRangeAction ? leaf.getOptimizedTap((PstRangeAction) rangeAction, state) :
+                    leaf.getOptimizedSetpoint(rangeAction, state);
+                return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), state.getId(), rangeActionValue) :
+                    format("%s: %.0f", rangeAction.getName(), rangeActionValue);
+            })).collect(Collectors.toList());
 
-        logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
+        boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
+        if (isRangeActionSetPointEmpty) {
+            logger.info("{}No range actions activated", prefix == null ? "" : prefix);
+        } else {
+            logger.info("{}range action(s): {}", prefix == null ? "" : prefix, String.join(", ", rangeActionSetpoints));
+        }
     }
 
     public static void logMostLimitingElementsResults(FaraoLogger logger, OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, int numberOfLoggedElements) {
@@ -249,40 +246,55 @@ public final class RaoLogger {
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
-        Optional<Contingency> optionalContingency = optimizedState.getContingency();
-        String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
-        String raResult = "";
-        if (activatedNetworkActions + activatedRangeActions == 0) {
-            raResult = "no remedial actions activated";
-        } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            raResult = String.format("%s network action(s) activated", activatedNetworkActions);
-        } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            raResult = String.format("%s range action(s) activated", activatedRangeActions);
-        } else {
-            raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
-        }
-        String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-                String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost));
-
-        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
-                formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
+    public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+        String scenarioName = getScenarioName(optimizedState);
+        String raResult = getRaResult(networkActions, rangeActions);
+        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
     }
 
-    public static void logFailedOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions) {
-        Optional<Contingency> optionalContingency = optimizedState.getContingency();
-        String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
-        String raResult = "";
-        if (activatedNetworkActions + activatedRangeActions == 0) {
-            raResult = "no remedial actions activated";
-        } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            raResult = String.format("%s network action(s) activated", activatedNetworkActions);
-        } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            raResult = String.format("%s range action(s) activated", activatedRangeActions);
+    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
+        String scenarioName = getScenarioName(optimizedState);
+        String raResult = getRaResult(networkActions, rangeActions);
+        Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
+        String initialCostString;
+        if (preOptimObjectiveFunctionResult == null) {
+            initialCostString = "";
         } else {
-            raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
+            Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
+            if (initialVirtualCostDetailed.isEmpty()) {
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()));
+            } else {
+                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
+            }
         }
-        logger.info("Scenario \"{}\": {}", scenarioName, raResult);
+        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
+            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+    }
+
+    public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
+        long activatedNetworkActions = networkActions.size();
+        long activatedRangeActions = rangeActions.size();
+        String networkActionsNames = StringUtils.join(networkActions.stream().map(Identifiable::getName).collect(Collectors.toSet()), ", ");
+
+        Set<String> rangeActionsSet = new HashSet<>();
+        rangeActions.forEach((key, value) -> rangeActionsSet.add(format("%s: %.0f", key.getName(), value)));
+        String rangeActionsNames = StringUtils.join(rangeActionsSet, ", ");
+
+        if (activatedNetworkActions + activatedRangeActions == 0) {
+            return "no remedial actions activated";
+        } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
+            return String.format("%s network action(s) activated : %s", activatedNetworkActions, networkActionsNames);
+        } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
+            return String.format("%s range action(s) activated : %s", activatedRangeActions, rangeActionsNames);
+        } else {
+            return String.format("%s network action(s) and %s range action(s) activated : %s and %s",
+                activatedNetworkActions, activatedRangeActions, networkActionsNames, rangeActionsNames);
+        }
+    }
+
+    public static String getScenarioName(State state) {
+        Optional<Contingency> optionalContingency = state.getContingency();
+        return optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
     }
 
     public static String formatDouble(double value) {
@@ -293,5 +305,16 @@ public final class RaoLogger {
         } else {
             return String.format(Locale.ENGLISH, "%.2f", value);
         }
+    }
+
+    /**
+     * For a given virtual-cost-name, if its associated virtual cost is positive, this method will return a map containing
+     * these information to be used in the Rao logs
+     */
+    public static Map<String, Double> getVirtualCostDetailed(ObjectiveFunctionResult objectiveFunctionResult) {
+        return objectiveFunctionResult.getVirtualCostNames().stream()
+            .filter(virtualCostName -> objectiveFunctionResult.getVirtualCost(virtualCostName) > 1e-6)
+            .collect(Collectors.toMap(Function.identity(),
+                name -> Math.round(objectiveFunctionResult.getVirtualCost(name) * 100.0) / 100.0));
     }
 }

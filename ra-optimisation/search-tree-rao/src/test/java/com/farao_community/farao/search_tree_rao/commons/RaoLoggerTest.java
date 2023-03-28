@@ -20,6 +20,8 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
@@ -34,7 +36,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static java.lang.String.format;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -290,61 +294,114 @@ class RaoLoggerTest {
     void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
         when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
-
         State curative = Mockito.mock(State.class);
         when(curative.getInstant()).thenReturn(Instant.CURATIVE);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
-
-        when(objectiveFunctionResult.getCost()).thenReturn(-100.);
-        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-150.);
-        when(objectiveFunctionResult.getVirtualCost()).thenReturn(50.);
-
         FaraoLogger logger = FaraoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
 
-        RaoLogger.logOptimizationSummary(logger, preventive, 0, 0, 1., 2., objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"preventive\": initial cost = 3.00 (functional: 1.00, virtual: 2.00), no remedial actions activated, cost after PRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        // initial objective
+        ObjectiveFunctionResult initialObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialObjectiveFunctionResult.getCost()).thenReturn(-200.);
+        when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(-210.3);
+        when(initialObjectiveFunctionResult.getVirtualCost()).thenReturn(10.3);
+        when(initialObjectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("sensi-fallback-cost"));
+        when(initialObjectiveFunctionResult.getVirtualCost("sensi-fallback-cost")).thenReturn(10.3);
+        // final objective
+        when(objectiveFunctionResult.getCost()).thenReturn(-100.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-150.);
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(50.);
+        when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("mnec-violation-cost", "loopflow-violation-cost"));
+        when(objectiveFunctionResult.getVirtualCost("mnec-violation-cost")).thenReturn(42.2);
+        when(objectiveFunctionResult.getVirtualCost("loopflow-violation-cost")).thenReturn(7.8);
 
-        RaoLogger.logOptimizationSummary(logger, curative, 1, 0, -100., 40., objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": initial cost = -60.00 (functional: -100.00, virtual: 40.00), 1 network action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        // Create Remedial actions
+        NetworkAction fakeRA = Mockito.mock(NetworkAction.class);
+        when(fakeRA.getName()).thenReturn("Open_fake_RA");
+        Set<NetworkAction> networkActions = Set.of(fakeRA);
+        Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
+        RangeAction<?> fakePST1 = Mockito.mock(RangeAction.class);
+        RangeAction<?> fakePST2 = Mockito.mock(RangeAction.class);
+        when(fakePST1.getName()).thenReturn("PST_1");
+        when(fakePST2.getName()).thenReturn("PST_2");
+        rangeActions.put(fakePST1, -2.);
+        rangeActions.put(fakePST2, 4.);
 
-        RaoLogger.logOptimizationSummary(logger, curative, 0, 2, 1., null, objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": 2 range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        RaoLogger.logOptimizationSummary(logger, preventive, networkActions, rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -210.30, virtual: 10.30 {sensi-fallback-cost=10.3})," +
+            " 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2," +
+            " cost after PRA = -100.00 (functional: -150.00, virtual: 50.00 {mnec-violation-cost=42.2, loopflow-violation-cost=7.8})", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logOptimizationSummary(logger, curative, 3, 2, null, 200., objectiveFunctionResult);
-        assertEquals("[INFO] Scenario \"contingency\": 3 network action(s) and 2 range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+        // Remove virtual cost for visibility
+        when(initialObjectiveFunctionResult.getCost()).thenReturn(-200.);
+        when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(-200.);
+        when(initialObjectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(initialObjectiveFunctionResult.getVirtualCost("sensi-fallback-cost")).thenReturn(0.);
+        when(objectiveFunctionResult.getCost()).thenReturn(-100.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-100.);
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("mnec-violation-cost", "loopflow-violation-cost"));
+        when(objectiveFunctionResult.getVirtualCost("mnec-violation-cost")).thenReturn(0.);
+        when(objectiveFunctionResult.getVirtualCost("loopflow-violation-cost")).thenReturn(0.);
+
+        RaoLogger.logOptimizationSummary(logger, curative, Collections.emptySet(), rangeActions, initialObjectiveFunctionResult, objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"contingency\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
+            " 2 range action(s) activated : PST_2: 4, PST_1: -2, cost after CRA = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+
+        RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
+            " no remedial actions activated, cost after PRA = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+
+        RaoLogger.logOptimizationSummary(logger, preventive, networkActions, Collections.emptyMap(), initialObjectiveFunctionResult, objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = -200.00 (functional: -200.00, virtual: 0.00)," +
+            " 1 network action(s) activated : Open_fake_RA, cost after PRA = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+
+        RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), null, objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"preventive\":" +
+            " no remedial actions activated, cost after PRA = -100.00 (functional: -100.00, virtual: 0.00)", logsList.get(logsList.size() - 1).toString());
+
+        assertThrows(java.lang.NullPointerException.class, () -> RaoLogger.logOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap(), initialObjectiveFunctionResult, null));
     }
 
     @Test
     void testLogFailedOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
         when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
-
         State curative = Mockito.mock(State.class);
         when(curative.getInstant()).thenReturn(Instant.CURATIVE);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
-
-        when(objectiveFunctionResult.getCost()).thenReturn(-100.);
-        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-150.);
-        when(objectiveFunctionResult.getVirtualCost()).thenReturn(50.);
-
         FaraoLogger logger = FaraoLoggerProvider.BUSINESS_LOGS;
         List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
 
-        RaoLogger.logFailedOptimizationSummary(logger, preventive, 0, 0);
+        // Create Objective Function
+        ObjectiveFunctionResult initialObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
+
+        // Create Remedial actions
+        NetworkAction fakeRA = Mockito.mock(NetworkAction.class);
+        when(fakeRA.getName()).thenReturn("Open_fake_RA");
+        Set<NetworkAction> networkActions = Set.of(fakeRA);
+        Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
+        RangeAction<?> fakePST1 = Mockito.mock(RangeAction.class);
+        RangeAction<?> fakePST2 = Mockito.mock(RangeAction.class);
+        when(fakePST1.getName()).thenReturn("PST_1");
+        when(fakePST2.getName()).thenReturn("PST_2");
+        rangeActions.put(fakePST1, -2.);
+        rangeActions.put(fakePST2, 4.);
+
+        RaoLogger.logFailedOptimizationSummary(logger, preventive, Collections.emptySet(), Collections.emptyMap());
         assertEquals("[INFO] Scenario \"preventive\": no remedial actions activated", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logFailedOptimizationSummary(logger, curative, 1, 0);
-        assertEquals("[INFO] Scenario \"contingency\": 1 network action(s) activated", logsList.get(logsList.size() - 1).toString());
+        RaoLogger.logFailedOptimizationSummary(logger, curative, networkActions, Collections.emptyMap());
+        assertEquals("[INFO] Scenario \"contingency\": 1 network action(s) activated : Open_fake_RA", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logFailedOptimizationSummary(logger, curative, 0, 2);
-        assertEquals("[INFO] Scenario \"contingency\": 2 range action(s) activated", logsList.get(logsList.size() - 1).toString());
+        RaoLogger.logFailedOptimizationSummary(logger, curative, Collections.emptySet(), rangeActions);
+        assertEquals("[INFO] Scenario \"contingency\": 2 range action(s) activated : PST_2: 4, PST_1: -2", logsList.get(logsList.size() - 1).toString());
 
-        RaoLogger.logFailedOptimizationSummary(logger, curative, 3, 2);
-        assertEquals("[INFO] Scenario \"contingency\": 3 network action(s) and 2 range action(s) activated", logsList.get(logsList.size() - 1).toString());
+        RaoLogger.logFailedOptimizationSummary(logger, curative, networkActions, rangeActions);
+        assertEquals("[INFO] Scenario \"contingency\": 1 network action(s) and 2 range action(s) activated : Open_fake_RA and PST_2: 4, PST_1: -2", logsList.get(logsList.size() - 1).toString());
     }
 }

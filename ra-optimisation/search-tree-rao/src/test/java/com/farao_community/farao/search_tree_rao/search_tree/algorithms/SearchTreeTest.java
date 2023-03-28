@@ -31,6 +31,7 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -46,6 +47,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.logRangeActions;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -447,7 +450,10 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialResult.getFunctionalCost()).thenReturn(0.);
+        when(initialResult.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
@@ -470,7 +476,10 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialResult.getFunctionalCost()).thenReturn(0.);
+        when(initialResult.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
@@ -561,12 +570,33 @@ class SearchTreeTest {
         when(rootLeaf.getVirtualCost("loop-flow-cost")).thenReturn(200.);
 
         // Functional cost does not satisfy stop criterion
-        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
         assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
+    }
+
+    @Test
+    public void testLogRangeActions() {
+        setUpForVirtualLogs();
+        List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
+        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
+
+        // apply 2 range actions
+        rangeAction1 = Mockito.mock(PstRangeAction.class);
+        rangeAction2 = Mockito.mock(PstRangeAction.class);
+        when(rangeAction1.getName()).thenReturn("PST1");
+        when(rangeAction2.getName()).thenReturn("PST2");
+        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
+        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
+
+        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        // PST can be logged in any order
+        assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
+        assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");
+        assert logsList.get(logsList.size() - 1).toString().contains("PST2: 0");
     }
 
     @Test
