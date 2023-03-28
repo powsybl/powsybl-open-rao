@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,20 +48,19 @@ class StandardRangeAdderImplTest {
 
     @Test
     void testNoMin() {
-        assertThrows(FaraoException.class, () ->
-            hvdcRangeActionAdder.newRange().withMax(16).add()
-                .add());
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(16);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
     }
 
     @Test
     void testNoMax() {
-        assertThrows(FaraoException.class, () ->
-            hvdcRangeActionAdder.newRange().withMin(16).add()
-                .add());
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(16);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
     }
 
     @Test
     void testMinGreaterThanMax() {
-        assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.newRange().withMin(10).withMax(-5).add());
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10).withMax(-5);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
     }
 }

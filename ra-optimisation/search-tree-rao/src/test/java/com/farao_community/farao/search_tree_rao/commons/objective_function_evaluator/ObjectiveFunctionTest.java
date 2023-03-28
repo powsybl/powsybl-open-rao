@@ -92,10 +92,9 @@ class ObjectiveFunctionTest {
 
     @Test
     void testWithVirtualCostOnly() {
-        assertThrows(NullPointerException.class, () ->
-            ObjectiveFunction.create()
-                    .withVirtualCostEvaluator(mnecViolationCostEvaluator)
-                    .build());
+        ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create()
+                .withVirtualCostEvaluator(mnecViolationCostEvaluator);
+        assertThrows(NullPointerException.class, objectiveFunctionBuilder::build);
     }
 
     @Test

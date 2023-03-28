@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
+import com.farao_community.farao.data.crac_api.network_action.SwitchPairAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -74,29 +75,23 @@ class SwitchPairAdderImplTest {
 
     @Test
     void testNoSwitchToOpen() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newSwitchPair()
-                .withSwitchToClose("test")
-                .add()
-                .add());
+        SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
+            .withSwitchToClose("test");
+        assertThrows(FaraoException.class, switchPairAdder::add);
     }
 
     @Test
     void testNoSwitchToClose() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newSwitchPair()
-                .withSwitchToOpen("test")
-                .add()
-                .add());
+        SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
+            .withSwitchToOpen("test");
+        assertThrows(FaraoException.class, switchPairAdder::add);
     }
 
     @Test
     void testSameSwitch() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newSwitchPair()
-                .withSwitchToOpen("test")
-                .withSwitchToClose("test")
-                .add()
-                .add());
+        SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
+            .withSwitchToOpen("test")
+            .withSwitchToClose("test");
+        assertThrows(FaraoException.class, switchPairAdder::add);
     }
 }

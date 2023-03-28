@@ -52,35 +52,31 @@ class LoopFlowThresholdAdderImplTest {
 
     @Test
     void addLoopFlowThresholdNoValue() {
-        assertThrows(FaraoException.class, () ->
-            flowCnec.newExtension(LoopFlowThresholdAdder.class)
-                .withUnit(Unit.MEGAWATT)
-                .add());
+        LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
+                .withUnit(Unit.MEGAWATT);
+        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
     }
 
     @Test
     void addLoopFlowThresholdNoUnit() {
-        assertThrows(FaraoException.class, () ->
-            flowCnec.newExtension(LoopFlowThresholdAdder.class)
-                .withValue(100.0)
-                .add());
+        LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0);
+        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
     }
 
     @Test
     void addLoopFlowThresholdNegativeThreshold() {
-        assertThrows(FaraoException.class, () ->
-            flowCnec.newExtension(LoopFlowThresholdAdder.class)
-                .withUnit(Unit.MEGAWATT)
-                .withValue(-100.0)
-                .add());
+        LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
+            .withUnit(Unit.MEGAWATT)
+            .withValue(-100.0);
+        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
     }
 
     @Test
     void addLoopFlowThresholdPercentGreaterThanOne() {
-        assertThrows(FaraoException.class, () ->
-            flowCnec.newExtension(LoopFlowThresholdAdder.class)
-                .withUnit(Unit.PERCENT_IMAX)
-                .withValue(25)
-                .add());
+        LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
+            .withUnit(Unit.PERCENT_IMAX)
+            .withValue(25);
+        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
     }
 }

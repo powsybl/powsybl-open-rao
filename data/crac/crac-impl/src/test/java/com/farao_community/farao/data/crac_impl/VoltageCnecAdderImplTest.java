@@ -12,6 +12,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
+import com.farao_community.farao.data.crac_api.threshold.ThresholdAdder;
+import com.farao_community.farao.data.crac_api.threshold.VoltageThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -133,14 +136,13 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testOptimizedNotMonitored() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec().withId("Cnec ID")
-                .withInstant(Instant.OUTAGE)
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .withOptimized()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec().withId("Cnec ID")
+            .withInstant(Instant.OUTAGE)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
+            .withOptimized();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
@@ -176,47 +178,43 @@ class VoltageCnecAdderImplTest {
 
     @Test
     void testNoIdFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withName("cnecName")
-                .withInstant(Instant.OUTAGE)
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withName("cnecName")
+            .withInstant(Instant.OUTAGE)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testNoStateInstantFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testNoNetworkElementFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.OUTAGE)
-                .withContingency(contingency1Id)
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.OUTAGE)
+            .withContingency(contingency1Id)
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testNoThresholdFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.OUTAGE)
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.OUTAGE)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId");
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
@@ -228,83 +226,75 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
             .add();
-
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.OUTAGE)
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.OUTAGE)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testAddPreventiveCnecWithContingencyError() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.PREVENTIVE)
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.PREVENTIVE)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testAddOutageCnecWithNoContingencyError() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.OUTAGE)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.OUTAGE)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testAddAutoCnecWithNoContingencyError() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.AUTO)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.AUTO)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testAddCurativeCnecWithNoContingencyError() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.CURATIVE)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.CURATIVE)
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testAddCurativeCnecWithAbsentContingencyError() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.CURATIVE)
-                .withContingency("absent-from-crac")
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add()
-                .add());
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.CURATIVE)
+            .withContingency("absent-from-crac")
+            .withNetworkElement("neId")
+            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
+        assertThrows(FaraoException.class, voltageCnecAdder::add);
     }
 
     @Test
     void testThresholdWithUnitAmpere() {
-        assertThrows(FaraoException.class, () ->
-            crac.newVoltageCnec()
-                .withId("cnecId")
-                .withInstant(Instant.OUTAGE)
-                .withContingency(contingency1Id)
-                .withNetworkElement("neId")
-                .newThreshold().withUnit(Unit.AMPERE).withMax(100.0).withMin(-100.0).add()
-                .add());
+        ThresholdAdder<VoltageThresholdAdder> thresholdAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(Instant.OUTAGE)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId")
+            .newThreshold();
+        assertThrows(FaraoException.class, () -> thresholdAdder.withUnit(Unit.AMPERE));
     }
 }

@@ -53,7 +53,7 @@ class OnFlowConstraintImplTest {
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
-        assertNotEquals(onFlowConstraint1, null);
+        assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(FreeToUseImpl.class));
 
         OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);

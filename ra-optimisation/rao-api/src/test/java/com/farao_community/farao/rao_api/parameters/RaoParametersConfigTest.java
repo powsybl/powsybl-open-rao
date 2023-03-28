@@ -14,10 +14,14 @@ import com.powsybl.commons.config.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -263,76 +267,41 @@ class RaoParametersConfigTest {
         assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
     }
 
-    @Test
-    void inconsistentStringIntMap1() {
+    @ParameterizedTest
+    @MethodSource("generateIntMap")
+    void inconsistentStringIntMap(List<String> source) {
         MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC:5", "{DEF}:6"));
+        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", source);
         RaoParameters parameters = new RaoParameters();
         assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
     }
 
-    @Test
-    void inconsistentStringIntMap2() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC}+5", "{DEF}:6"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
+    static Stream<Arguments> generateIntMap() {
+        return Stream.of(
+            Arguments.of(List.of("{ABC:5", "{DEF}:6")),
+            Arguments.of(List.of("{ABC}+5", "{DEF}:6")),
+            Arguments.of(List.of("{ABC}", "{DEF}:6")),
+            Arguments.of(List.of("5", "{DEF}:6"))
+        );
     }
 
-    @Test
-    void inconsistentStringIntMap3() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("{ABC}", "{DEF}:6"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    @Test
-    void inconsistentStringIntMap4() {
-        MapModuleConfig raUsageLimitsModuleConfig = platformCfg.createModuleConfig("rao-ra-usage-limits-per-contingency");
-        raUsageLimitsModuleConfig.setStringListProperty("max-curative-topo-per-tso", List.of("5", "{DEF}:6"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    @Test
-    void inconsistentStringStringMap1() {
+    @ParameterizedTest
+    @MethodSource("generateStringStringMap")
+    void inconsistentStringStringMap(List<String> source) {
         MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
+        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", source);
         RaoParameters parameters = new RaoParameters();
         assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
     }
 
-    @Test
-    void inconsistentStringStringMap2() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    @Test
-    void inconsistentStringStringMap3() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    @Test
-    void inconsistentStringStringMap4() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
-    }
-
-    @Test
-    void inconsistentStringStringMap5() {
-        MapModuleConfig notOptimizedModuleConfig = platformCfg.createModuleConfig("rao-not-optimized-cnecs");
-        notOptimizedModuleConfig.setStringListProperty("do-not-optimize-cnec-secured-by-its-pst", List.of("{cnec1}{blabla}:{pst1}"));
-        RaoParameters parameters = new RaoParameters();
-        assertThrows(FaraoException.class, () -> RaoParameters.load(parameters, platformCfg));
+    static Stream<Arguments> generateStringStringMap() {
+        return Stream.of(
+            Arguments.of(List.of("{cnec1:{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of("{cnec1}:pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of("{cnec1}:", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of(":{pst1}", "{halfline1Cnec2 + halfline2Cnec2}:{pst2}")),
+            Arguments.of(List.of("{cnec1}{blabla}:{pst1}"))
+        );
     }
 
     @Test

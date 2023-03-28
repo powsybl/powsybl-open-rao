@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,58 +77,52 @@ class OnStateAdderImplTest {
 
     @Test
     void testNoInstant() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnStateUsageRule()
-                .withContingency("contingencyId")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        OnStateAdder<NetworkActionAdder> onStateAdder = remedialActionAdder.newOnStateUsageRule()
+            .withContingency("contingencyId")
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, onStateAdder::add);
     }
 
     @Test
     void testNoContingency() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        OnStateAdder<NetworkActionAdder> onStateAdder = remedialActionAdder.newOnStateUsageRule()
+            .withInstant(Instant.CURATIVE)
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, onStateAdder::add);
     }
 
     @Test
     void testNoUsageMethod() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withContingency("contingencyId")
-                .add());
+        OnStateAdder<NetworkActionAdder> onStateAdder = remedialActionAdder.newOnStateUsageRule()
+            .withInstant(Instant.CURATIVE)
+            .withContingency("contingencyId");
+        assertThrows(FaraoException.class, onStateAdder::add);
     }
 
     @Test
     void testUnknownContingency() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withContingency("unknownContingencyId")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        OnStateAdder<NetworkActionAdder> onStateAdder = remedialActionAdder.newOnStateUsageRule()
+            .withInstant(Instant.CURATIVE)
+            .withContingency("unknownContingencyId")
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, onStateAdder::add);
     }
 
     @Test
     void testPreventiveInstant() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnStateUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .withContingency("contingencyId")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        OnStateAdder<NetworkActionAdder> onStateAdder = remedialActionAdder.newOnStateUsageRule()
+            .withInstant(Instant.PREVENTIVE)
+            .withContingency("contingencyId")
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, onStateAdder::add);
     }
 
     @Test
     void testOutageInstant() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnStateUsageRule()
-                .withInstant(Instant.OUTAGE)
-                .withContingency("contingencyId")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        OnStateAdder<NetworkActionAdder> onStateAdder = remedialActionAdder.newOnStateUsageRule()
+            .withInstant(Instant.OUTAGE)
+            .withContingency("contingencyId")
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, onStateAdder::add);
     }
 }

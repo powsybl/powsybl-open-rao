@@ -67,7 +67,7 @@ class OnStateImplTest {
     @Test
     void testEqualsFalseNotTheSameObject() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertNotEquals(rule1, Instant.PREVENTIVE);
+        assertNotEquals(Instant.PREVENTIVE, rule1);
     }
 
     @Test

@@ -452,8 +452,8 @@ class FlowCnecImplTest {
 
         assertEquals(cnec1, cnec1);
         assertNotEquals(cnec1, cnec2);
-        assertNotEquals(cnec1, null);
-        assertNotEquals(cnec1, 1);
+        assertNotNull(cnec1);
+        assertNotEquals(1, cnec1);
 
         assertEquals(cnec1.hashCode(), cnec1.hashCode());
         assertNotEquals(cnec1.hashCode(), cnec2.hashCode());

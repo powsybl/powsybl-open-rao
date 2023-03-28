@@ -9,6 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -106,7 +107,8 @@ class AppliedRemedialActionsTest {
     @Test
     void testAppliedRemedialActionOnPreventiveState() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        assertThrows(FaraoException.class, () -> appliedRemedialActions.addAppliedNetworkAction(crac.getPreventiveState(), networkAction));
+        State state = crac.getPreventiveState();
+        assertThrows(FaraoException.class, () -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction));
     }
 
     @Test

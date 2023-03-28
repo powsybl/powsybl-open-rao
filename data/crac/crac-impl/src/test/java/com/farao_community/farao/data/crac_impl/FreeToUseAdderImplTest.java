@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.FreeToUseAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,26 +74,23 @@ class FreeToUseAdderImplTest {
 
     @Test
     void testNoInstant() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newFreeToUseUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        FreeToUseAdder<NetworkActionAdder> freeToUseAdder = remedialActionAdder.newFreeToUseUsageRule()
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, freeToUseAdder::add);
     }
 
     @Test
     void testNoUsageMethod() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newFreeToUseUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .add());
+        FreeToUseAdder<NetworkActionAdder> freeToUseAdder = remedialActionAdder.newFreeToUseUsageRule()
+            .withInstant(Instant.PREVENTIVE);
+        assertThrows(FaraoException.class, freeToUseAdder::add);
     }
 
     @Test
     void testOutageInstant() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newFreeToUseUsageRule()
-                .withInstant(Instant.OUTAGE)
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add());
+        FreeToUseAdder<NetworkActionAdder> freeToUseAdder = remedialActionAdder.newFreeToUseUsageRule()
+            .withInstant(Instant.OUTAGE)
+            .withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, freeToUseAdder::add);
     }
 }

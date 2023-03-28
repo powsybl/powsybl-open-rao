@@ -8,10 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.network_action.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,19 +50,15 @@ class TopologicalActionAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newTopologicalAction()
-                .withActionType(ActionType.OPEN)
-                .add()
-                .add());
+        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+            .withActionType(ActionType.OPEN);
+        assertThrows(FaraoException.class, topologicalActionAdder::add);
     }
 
     @Test
     void testNoActionType() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newTopologicalAction()
-                .withNetworkElement("branchNetworkElementId")
-                .add()
-                .add());
+        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+            .withNetworkElement("branchNetworkElementId");
+        assertThrows(FaraoException.class, topologicalActionAdder::add);
     }
 }

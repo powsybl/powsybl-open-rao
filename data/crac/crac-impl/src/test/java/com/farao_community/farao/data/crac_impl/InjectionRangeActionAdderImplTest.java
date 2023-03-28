@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -167,39 +168,36 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testNoIdFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newInjectionRangeAction()
-                    .withOperator("BE")
-                    .withGroupId("groupId1")
-                    .withNetworkElementAndKey(1., injectionId1)
-                    .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-                    .newRange().withMin(-5).withMax(10).add()
-                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                    .add());
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
+            .withOperator("BE")
+            .withGroupId("groupId1")
+            .withNetworkElementAndKey(1., injectionId1)
+            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+            .newRange().withMin(-5).withMax(10).add()
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
     }
 
     @Test
     void testNoNetworkElementFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newInjectionRangeAction()
-                    .withId("id1")
-                    .withOperator("BE")
-                    .withGroupId("groupId1")
-                    .newRange().withMin(-5).withMax(10).add()
-                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                    .add());
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withGroupId("groupId1")
+            .newRange().withMin(-5).withMax(10).add()
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
     }
 
     @Test
     void testNoRangeFail() {
-        assertThrows(FaraoException.class, () ->
-            crac.newInjectionRangeAction()
-                    .withId("id1")
-                    .withOperator("BE")
-                    .withNetworkElementAndKey(1., injectionId1)
-                    .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                    .add());
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElementAndKey(1., injectionId1)
+            .withNetworkElementAndKey(-1., injectionId2, injectionName2)
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
     }
 
     @Test
@@ -210,17 +208,11 @@ class InjectionRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
-
-        try {
-            crac.newInjectionRangeAction()
-                    .withId("sameId")
-                    .withNetworkElementAndKey(1., injectionId1)
-                    .newRange().withMin(-5).withMax(10).add()
-                    .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                    .add();
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
+                .withId("sameId")
+                .withNetworkElementAndKey(1., injectionId1)
+                .newRange().withMin(-5).withMax(10).add()
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        assertThrows(FaraoException.class, injectionRangeActionAdder::add);
     }
 }

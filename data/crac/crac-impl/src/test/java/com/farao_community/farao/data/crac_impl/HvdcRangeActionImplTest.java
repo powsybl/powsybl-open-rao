@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -124,16 +125,14 @@ class HvdcRangeActionImplTest {
 
     @Test
     void hvdcWithNoMin() {
-        assertThrows(FaraoException.class, () ->
-            hvdcRangeActionAdder.newRange().withMax(10).add()
-                    .add());
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(10);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
     }
 
     @Test
     void hvdcWithNoMax() {
-        assertThrows(FaraoException.class, () ->
-            hvdcRangeActionAdder.newRange().withMin(10).add()
-                    .add());
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
     }
 
     @Test

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -72,11 +73,10 @@ class TapRangeAdderImplTest {
 
     @Test
     void testNoRangeType() {
-        assertThrows(FaraoException.class, () ->
-            pstRangeActionAdder.newTapRange()
-                .withMinTap(-5)
-                .withMaxTap(10)
-                .add());
+        TapRangeAdder tapRangeAdder = pstRangeActionAdder.newTapRange()
+            .withMinTap(-5)
+            .withMaxTap(10);
+        assertThrows(FaraoException.class, tapRangeAdder::add);
     }
 
     @Test
@@ -93,11 +93,10 @@ class TapRangeAdderImplTest {
 
     @Test
     void testMinGreaterThanMax() {
-        assertThrows(FaraoException.class, () ->
-            pstRangeActionAdder.newTapRange()
-                .withRangeType(RangeType.ABSOLUTE)
-                .withMinTap(5)
-                .withMaxTap(-10)
-                .add());
+        TapRangeAdder tapRangeAdder = pstRangeActionAdder.newTapRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMinTap(5)
+            .withMaxTap(-10);
+        assertThrows(FaraoException.class, tapRangeAdder::add);
     }
 }

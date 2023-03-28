@@ -12,6 +12,8 @@ import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -28,23 +30,27 @@ class RefProgImporterTest {
 
     @Test
     void testUnexistantFile() {
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(Paths.get("/refProg_12nodes_doesntexist.xml"), offsetDateTime));
+        Path path = Paths.get("/refProg_12nodes_doesntexist.xml");
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(path, offsetDateTime));
     }
 
     @Test
     void testWrongXml() {
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/wrong_refProg.xml"), offsetDateTime));
+        InputStream inputStream = getClass().getResourceAsStream("/wrong_refProg.xml");
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
     }
 
     @Test
     void testRefProgWithoutInterval() {
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_noInterval.xml"), offsetDateTime));
+        InputStream inputStream = getClass().getResourceAsStream("/refProg_noInterval.xml");
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
     }
 
     @Test
     void testWrongTimestamp() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime));
+        InputStream inputStream = getClass().getResourceAsStream("/refProg_12nodes.xml");
+        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
     }
 
     @Test

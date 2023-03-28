@@ -6,6 +6,8 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,57 +58,10 @@ class JsonVoltageCnecsCreationParametersTest {
         assertEquals(new String(inputStream.readAllBytes()), exportedString);
     }
 
-    @Test
-    void testFailIfPreventiveWithContingencies() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok1.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfInstantDefinedMultipleTimes() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok2.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfNominalVDefinedMultipleTimes() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok3.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfUnitNotKv() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok4.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfNoMonitoredElements() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok5.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfNoMonitoredStates() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok6.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfNoThresholds() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok7.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailIfNoNominalV() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok8.json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
-    }
-
-    @Test
-    void testFailOnUnexpectedField() {
-        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-nok9.json");
+    @ParameterizedTest
+    @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9"})
+    void importNokTest(String source) {
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-" + source + ".json");
         assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 }

@@ -181,7 +181,8 @@ class RaoParametersConsistencyTest {
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
 
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1")));
+        Map<String, String> stringMap = Map.of("cnec1", "pst1");
+        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(stringMap));
     }
 
     @Test

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpointAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,19 +53,15 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newInjectionSetPoint()
-                .withSetpoint(100.)
-                .add()
-                .add());
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+            .withSetpoint(100.);
+        assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
 
     @Test
     void testNoSetpoint() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newInjectionSetPoint()
-                .withNetworkElement("groupNetworkElementId")
-                .add()
-                .add());
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+            .withNetworkElement("groupNetworkElementId");
+        assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
 }

@@ -36,8 +36,8 @@ class NetworkElementImplTest {
     void testEqualsLimits() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element-1", "name-1");
         assertEquals(networkElement, networkElement);
-        assertNotEquals(networkElement, null);
-        assertNotEquals(networkElement, 1);
+        assertNotNull(networkElement);
+        assertNotEquals(1, networkElement);
     }
 
     @Test
@@ -130,13 +130,15 @@ class NetworkElementImplTest {
     @Test
     void testGetLocationAbsent() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        assertThrows(FaraoException.class, () -> new NetworkElementImpl("non-existent").getLocation(network));
+        NetworkElementImpl networkElement = new NetworkElementImpl("non-existent");
+        assertThrows(FaraoException.class, () -> networkElement.getLocation(network));
     }
 
     @Test
     void testGetLocationOnUnsupportedType() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        assertThrows(NotImplementedException.class, () -> new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network));
+        NetworkElementImpl networkElement = new NetworkElementImpl("TestCase12NodesWithSwitch");
+        assertThrows(NotImplementedException.class, () -> networkElement.getLocation(network));
     }
 
     @Test

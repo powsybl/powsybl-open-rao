@@ -53,7 +53,8 @@ class AngleThresholdAdderImplTest {
 
     @Test
     void testUnsupportedUnitFail() {
-        assertThrows(FaraoException.class, () -> crac.newAngleCnec().newThreshold().withUnit(Unit.MEGAWATT));
+        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold();
+        assertThrows(FaraoException.class, () -> angleThresholdAdder.withUnit(Unit.MEGAWATT));
     }
 
     @Test

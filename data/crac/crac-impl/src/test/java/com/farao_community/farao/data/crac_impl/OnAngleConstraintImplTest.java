@@ -53,7 +53,7 @@ class OnAngleConstraintImplTest {
         assertEquals(onAngleConstraint1, onAngleConstraint1);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint1.hashCode());
 
-        assertNotEquals(onAngleConstraint1, null);
+        assertNotNull(onAngleConstraint1);
         assertNotEquals(onAngleConstraint1, Mockito.mock(FreeToUseImpl.class));
 
         OnAngleConstraint onAngleConstraint2 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);

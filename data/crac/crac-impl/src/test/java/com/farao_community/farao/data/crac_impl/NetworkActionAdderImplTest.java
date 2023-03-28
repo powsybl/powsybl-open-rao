@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -149,16 +150,14 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testNokWithoutId() {
-
-        assertThrows(FaraoException.class, () ->
-            crac.newNetworkAction()
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
                 .withName("networkActionName")
                 .withOperator("operator")
                 .newPstSetPoint()
                     .withNetworkElement("pstNetworkElementId")
                     .withSetpoint(6)
-                    .add()
-                .add());
+                    .add();
+        assertThrows(FaraoException.class, networkActionAdder::add);
     }
 
     @Test
@@ -170,26 +169,18 @@ class NetworkActionAdderImplTest {
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.))
             .add();
-
-        try {
-            crac.newNetworkAction()
-                .withId("sameId")
-                .withOperator("BE")
-                .add();
-
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+            .withId("sameId")
+            .withOperator("BE");
+        assertThrows(FaraoException.class, networkActionAdder::add);
     }
 
     @Test
     void testNokWithoutElementaryAction() {
-        assertThrows(FaraoException.class, () ->
-            crac.newNetworkAction()
-                    .withId("networkActionName")
-                    .withName("networkActionName")
-                    .withOperator("operator")
-                    .add());
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+            .withId("networkActionName")
+            .withName("networkActionName")
+            .withOperator("operator");
+        assertThrows(FaraoException.class, networkActionAdder::add);
     }
 }

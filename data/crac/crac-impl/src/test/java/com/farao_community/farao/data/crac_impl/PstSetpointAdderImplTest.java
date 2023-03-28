@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.PstSetpointAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,19 +54,15 @@ class PstSetpointAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newPstSetPoint()
-                .withSetpoint(0)
-                .add()
-                .add());
+        PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
+            .withSetpoint(0);
+        assertThrows(FaraoException.class, pstSetpointAdder::add);
     }
 
     @Test
     void testNoSetpoint() {
-        assertThrows(FaraoException.class, () ->
-            networkActionAdder.newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .add()
-                .add());
+        PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
+            .withNetworkElement("pstNetworkElementId");
+        assertThrows(FaraoException.class, pstSetpointAdder::add);
     }
 }

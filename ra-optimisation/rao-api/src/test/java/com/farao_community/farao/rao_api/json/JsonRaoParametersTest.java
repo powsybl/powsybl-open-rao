@@ -23,6 +23,8 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -175,29 +177,11 @@ class JsonRaoParametersTest extends AbstractConverterTest {
         }
     }
 
-    @Test
-    void loopFlowApproximationLevelError() {
-        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError_v2.json")));
-    }
-
-    @Test
-    void testWrongStopCriterionError() {
-        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithPrevStopCriterionError_v2.json")));
-    }
-
-    @Test
-    void curativeRaoStopCriterionError() {
-        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithCurStopCriterionError_v2.json")));
-    }
-
-    @Test
-    void testWrongFieldError() {
-        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithWrongField_v2.json")));
-    }
-
-    @Test
-    void testMapNegativeError() {
-        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithNegativeField_v2.json")));
+    @ParameterizedTest
+    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField", "NegativeField"})
+    void importNokTest(String source) {
+        InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
+        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(inputStream));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

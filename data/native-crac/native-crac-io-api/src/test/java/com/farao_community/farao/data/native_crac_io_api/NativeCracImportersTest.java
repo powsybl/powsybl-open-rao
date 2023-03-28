@@ -12,6 +12,7 @@ import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,6 +59,7 @@ class NativeCracImportersTest {
 
     @Test
     void testImportFileNotFound() {
-        assertThrows(FaraoException.class, () -> NativeCracImporters.importData(Paths.get("not_found", "file")));
+        Path path = Paths.get("not_found", "file");
+        assertThrows(FaraoException.class, () -> NativeCracImporters.importData(path));
     }
 }
