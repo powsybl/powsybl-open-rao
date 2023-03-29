@@ -98,7 +98,7 @@ class NetworkActionAdderImplTest {
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
-            .newOnStateUsageRule()
+            .newOnContingencyStateUsageRule()
                 .withInstant(Instant.CURATIVE)
                 .withContingency("contingencyId")
                 .withUsageMethod(UsageMethod.AVAILABLE)

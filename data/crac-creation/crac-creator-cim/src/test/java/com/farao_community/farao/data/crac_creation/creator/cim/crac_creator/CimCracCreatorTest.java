@@ -632,8 +632,8 @@ class CimCracCreatorTest {
         );
         assertTrue(
             ra3.getUsageRules().stream()
-                .filter(OnState.class::isInstance)
-                .map(OnState.class::cast)
+                .filter(OnContingencyState.class::isInstance)
+                .map(OnContingencyState.class::cast)
                 .anyMatch(ur -> ur.getInstant().equals(Instant.CURATIVE) && ur.getContingency().getId().equals("CO_1"))
         );
         assertEquals(2, ra3.getElementaryActions().size());

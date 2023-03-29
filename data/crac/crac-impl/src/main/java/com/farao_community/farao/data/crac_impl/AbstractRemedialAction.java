@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
@@ -38,7 +38,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     @Override
-    public OnStateAdderToRemedialAction<I> newOnStateUsageRule() {
+    public OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule() {
         return new OnStateAdderToRemedialActionImpl(this);
     }
 

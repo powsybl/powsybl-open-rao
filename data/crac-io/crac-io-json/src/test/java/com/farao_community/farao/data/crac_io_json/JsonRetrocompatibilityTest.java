@@ -21,10 +21,10 @@ import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -271,15 +271,15 @@ class JsonRetrocompatibilityTest {
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
 
-        // check onState usage Rule
-        OnState onState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
-                .filter(ur -> ur instanceof OnState)
-                .map(ur -> (OnState) ur)
+        // check onContingencyState usage Rule
+        OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
+                .filter(ur -> ur instanceof OnContingencyState)
+                .map(ur -> (OnContingencyState) ur)
                 .findAny().orElse(null);
-        assertNotNull(onState);
-        assertEquals("contingency1Id", onState.getContingency().getId());
-        assertEquals(CURATIVE, onState.getInstant());
-        assertEquals(FORCED, onState.getUsageMethod());
+        assertNotNull(onContingencyState);
+        assertEquals("contingency1Id", onContingencyState.getContingency().getId());
+        assertEquals(CURATIVE, onContingencyState.getInstant());
+        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());

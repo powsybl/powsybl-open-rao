@@ -108,7 +108,7 @@ abstract class AbstractOptimizationPerimeterTest {
         cRA = crac.newInjectionRangeAction().withId("curative-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         // one preventive network action and one curative
@@ -120,7 +120,7 @@ abstract class AbstractOptimizationPerimeterTest {
         cNA = crac.newNetworkAction().withId("curative-na")
             .withName("complexNetworkActionName")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         pState = crac.getPreventiveState();

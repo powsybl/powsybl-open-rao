@@ -451,7 +451,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
-            adder.newOnStateUsageRule()
+            adder.newOnContingencyStateUsageRule()
                 .withInstant(raApplicationInstant)
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())

@@ -41,8 +41,8 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     }
 
     @Override
-    public OnStateAdder<T> newOnStateUsageRule() {
-        return new OnStateAdderImpl(this);
+    public OnContingencyStateAdder<T> newOnContingencyStateUsageRule() {
+        return new OnContingencyStateAdderImpl(this);
     }
 
     @Override

@@ -13,8 +13,8 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
 import java.util.*;
@@ -118,7 +118,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
     private boolean isPreventiveUsageRule(UsageRule usageRule) {
         return  (usageRule instanceof OnInstant && ((OnInstant) usageRule).getInstant().equals(Instant.PREVENTIVE))
-            || (usageRule instanceof OnState && ((OnState) usageRule).getInstant().equals(Instant.PREVENTIVE));
+            || (usageRule instanceof OnContingencyState && ((OnContingencyState) usageRule).getInstant().equals(Instant.PREVENTIVE));
     }
 
     private List<TapRange> checkRanges() {

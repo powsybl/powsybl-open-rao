@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-class OnStateImplTest {
+class OnContingencyStateImplTest {
 
     private State initialState;
     private State curativeState1;
@@ -45,7 +45,7 @@ class OnStateImplTest {
 
     @Test
     void testSetterGetter() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
         assertEquals(curativeState1, rule1.getState());
         assertEquals("contingency1", rule1.getContingency().getId());
         assertEquals(Instant.CURATIVE, rule1.getInstant());
@@ -53,55 +53,55 @@ class OnStateImplTest {
 
     @Test
     void testEqualsSameObject() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1, rule1);
     }
 
     @Test
     void testEqualsTrue() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1, rule2);
     }
 
     @Test
     void testEqualsFalseNotTheSameObject() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
         assertNotEquals(Instant.PREVENTIVE, rule1);
     }
 
     @Test
     void testEqualsFalseForUsageMethod() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnStateImpl rule2 = new OnStateImpl(UsageMethod.FORCED, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED, initialState);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
     void testEqualsFalseForState() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
-        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState2);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState2);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
     void testHashCode() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
     void testHashCodeFalseForUsageMethod() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnStateImpl rule2 = new OnStateImpl(UsageMethod.FORCED, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED, initialState);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
     void testHashCodeFalseForContingency() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
-        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState2);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 

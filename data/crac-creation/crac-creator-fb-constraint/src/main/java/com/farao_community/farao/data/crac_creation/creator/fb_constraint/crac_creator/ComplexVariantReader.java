@@ -175,7 +175,7 @@ class ComplexVariantReader {
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
             for (String co : afterCoList) {
-                remedialActionAdder.newOnStateUsageRule()
+                remedialActionAdder.newOnContingencyStateUsageRule()
                         .withContingency(co)
                         .withInstant(Instant.CURATIVE)
                         .withUsageMethod(AVAILABLE)

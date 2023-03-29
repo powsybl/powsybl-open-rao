@@ -40,7 +40,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
         this.addSerializer(OnInstant.class, new OnInstantSerializer());
-        this.addSerializer(OnState.class, new OnStateSerializer());
+        this.addSerializer(OnContingencyState.class, new OnStateSerializer());
         this.addSerializer(OnFlowConstraint.class, new OnFlowConstraintSerializer());
         this.addSerializer(OnAngleConstraint.class, new OnAngleConstraintSerializer());
         this.addSerializer(OnFlowConstraintInCountry.class, new OnFlowConstraintInCountrySerializer());

@@ -10,21 +10,21 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 
 /**
- * The OnState UsageRule is defined on a given State. For instance, if a RemedialAction
- * have a OnState UsageRule with State "curative-co1" and UsageMethod FORCED, this
+ * The OnContingencyState UsageRule is defined on a given State. For instance, if a RemedialAction
+ * have a OnContingencyState UsageRule with State "curative-co1" and UsageMethod FORCED, this
  * RemedialAction will be forced in the State "curative-co1".
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface OnState extends UsageRule {
+public interface OnContingencyState extends UsageRule {
 
     /**
-     * Get the State of the OnState usage rule
+     * Get the State of the OnContingencyState usage rule
      */
     State getState();
 
     /**
-     * Get the Contingency associated to the state of the OnState usage rule
+     * Get the Contingency associated to the state of the OnContingencyState usage rule
      */
     Contingency getContingency();
 }

@@ -183,26 +183,26 @@ class CracImportExportTest {
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
 
-        // check onState usage Rule (curative)
-        OnState onState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
-                .filter(ur -> ur instanceof OnState)
-                .map(ur -> (OnState) ur)
+        // check onContingencyState usage Rule (curative)
+        OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
+                .filter(ur -> ur instanceof OnContingencyState)
+                .map(ur -> (OnContingencyState) ur)
                 .findAny().orElse(null);
-        assertNotNull(onState);
-        assertEquals("contingency1Id", onState.getContingency().getId());
-        assertEquals(CURATIVE, onState.getInstant());
-        assertEquals(FORCED, onState.getUsageMethod());
+        assertNotNull(onContingencyState);
+        assertEquals("contingency1Id", onContingencyState.getContingency().getId());
+        assertEquals(CURATIVE, onContingencyState.getInstant());
+        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
-        // check onState usage Rule (preventive)
-        onState = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
-            .filter(ur -> ur instanceof OnState)
-            .map(ur -> (OnState) ur)
+        // check onContingencyState usage Rule (preventive)
+        onContingencyState = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+            .filter(ur -> ur instanceof OnContingencyState)
+            .map(ur -> (OnContingencyState) ur)
             .findAny().orElse(null);
-        assertNotNull(onState);
-        assertNull(onState.getContingency());
-        assertEquals(crac.getPreventiveState(), onState.getState());
-        assertEquals(PREVENTIVE, onState.getInstant());
-        assertEquals(FORCED, onState.getUsageMethod());
+        assertNotNull(onContingencyState);
+        assertNull(onContingencyState.getContingency());
+        assertEquals(crac.getPreventiveState(), onContingencyState.getState());
+        assertEquals(PREVENTIVE, onContingencyState.getInstant());
+        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());

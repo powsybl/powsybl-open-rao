@@ -18,7 +18,7 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     OnInstantAdder<T> newOnInstantUsageRule();
 
-    OnStateAdder<T> newOnStateUsageRule();
+    OnContingencyStateAdder<T> newOnContingencyStateUsageRule();
 
     OnFlowConstraintAdder<T> newOnFlowConstraintUsageRule();
 
