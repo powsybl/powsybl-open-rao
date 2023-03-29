@@ -139,8 +139,8 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
         flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
-        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.TO_BE_EVALUATED));
-        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.TO_BE_EVALUATED));
+        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
+        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
@@ -195,7 +195,7 @@ public final class AutomatonSimulator {
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis) {
         // -- Apply network actions
         // -- First get forced network actions
-        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE);
+        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED);
 
         // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
@@ -308,8 +308,9 @@ public final class AutomatonSimulator {
     Set<FlowCnec> gatherFlowCnecsForAutoRangeAction(RangeAction<?> availableRa,
                                                     State automatonState,
                                                     Network network) {
-        // UsageMethod is either FORCED_IF_AVAILABLE or TO_BE_EVALUATED
-        if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED_IF_AVAILABLE)) {
+        // UsageMethod is either FORCED_IF_AVAILABLE or FORCED or TO_BE_EVALUATED
+        if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED_IF_AVAILABLE)
+            || availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
             return crac.getFlowCnecs().stream()
                     .filter(flowCnec -> flowCnec.getState().equals(automatonState))
                     .collect(Collectors.toSet());
@@ -333,7 +334,7 @@ public final class AutomatonSimulator {
                     .collect(Collectors.toSet()));
             return flowCnecs;
         } else {
-            throw new FaraoException(String.format("Range action %s has usage method %s although FORCED_IF_AVAILABLE or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
+            throw new FaraoException(String.format("Range action %s has usage method %s although FORCED_IF_AVAILABLE or FORCED or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
     }
 
@@ -343,7 +344,7 @@ public final class AutomatonSimulator {
     List<List<RangeAction<?>>> buildRangeActionsGroupsOrderedBySpeed(PrePerimeterResult rangeActionSensitivity, State automatonState, Network network) {
         // 1) Get available range actions
         // -- First get forced range actions
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE);
+        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED);
         // -- Then add those with an OnFlowConstraint or OnFlowConstraintInCountry usage rule if their constraint is verified
         crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
             .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
@@ -426,7 +427,7 @@ public final class AutomatonSimulator {
     private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, State curativeState, Network network) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE);
+        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED);
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         flowCnecs.addAll(crac.getFlowCnecs(curativeState));

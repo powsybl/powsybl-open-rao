@@ -165,7 +165,7 @@ public final class CoreCneRemedialActionsCreator {
 
     public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, OptimizationState optimizationState, State state, ConstraintSeries constraintSeriesB56) {
         if (rangeAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED_IF_AVAILABLE)))  {
+                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED_IF_AVAILABLE)  || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED)))  {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -226,7 +226,7 @@ public final class CoreCneRemedialActionsCreator {
 
     public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, OptimizationState optimizationState, State state, ConstraintSeries constraintSeriesB56) {
         if (networkAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED_IF_AVAILABLE)))  {
+                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED_IF_AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED)))  {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
