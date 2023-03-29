@@ -217,7 +217,7 @@ public class Leaf implements OptimizationResult {
                     .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
                     .build();
 
-            postOptimResult = new IteratingLinearOptimizer(linearOptimizerInput, linearOptimizerParameters).optimize();
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

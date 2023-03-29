@@ -25,7 +25,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -33,15 +33,14 @@ import java.util.Map;
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class JsonRetrocompatibilityTest {
+class JsonRetrocompatibilityTest {
 
     /*
     The goal of this test class is to ensure that former JSON CRAC files are still
@@ -59,7 +58,7 @@ public class JsonRetrocompatibilityTest {
      */
 
     @Test
-    public void importV1Point0Test() {
+    void importV1Point0Test() {
 
         // JSON file of farao-core v3.4.3
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json");
@@ -75,7 +74,7 @@ public class JsonRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point1Test() {
+    void importV1Point1Test() {
 
         // JSON file of farao-core v3.5
         // addition of switch pairs
@@ -92,7 +91,7 @@ public class JsonRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point2Test() {
+    void importV1Point2Test() {
 
         // JSON file of farao-core v3.6
         // addition of injection range action
@@ -110,7 +109,7 @@ public class JsonRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point3Test() {
+    void importV1Point3Test() {
 
         // JSON file of farao-core v3.9
         // addition of initial setpoints for InjectionRangeActions and HvdcRangeActions
@@ -128,7 +127,7 @@ public class JsonRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point4Test() {
+    void importV1Point4Test() {
 
         // JSON file of farao-core v4.0
         // addition of angle cnecs
@@ -147,7 +146,7 @@ public class JsonRetrocompatibilityTest {
     }
 
     @Test
-    public void importV1Point5Test() {
+    void importV1Point5Test() {
 
         // JSON file of farao-core v4.1
         // addition of voltage cnecs
@@ -358,7 +357,7 @@ public class JsonRetrocompatibilityTest {
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
     }
 
-    public void testContentOfV1Point1Crac(Crac crac) {
+    void testContentOfV1Point1Crac(Crac crac) {
 
         testContentOfV1Crac(crac);
 
@@ -375,7 +374,7 @@ public class JsonRetrocompatibilityTest {
         assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
     }
 
-    public void testContentOfV1Point2Crac(Crac crac) {
+    void testContentOfV1Point2Crac(Crac crac) {
 
         testContentOfV1Point1Crac(crac);
 
@@ -393,7 +392,7 @@ public class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
     }
 
-    public void testContentOfV1Point3Crac(Crac crac) {
+    void testContentOfV1Point3Crac(Crac crac) {
 
         testContentOfV1Point1Crac(crac);
         testContentOfV1Point2Crac(crac);
@@ -403,7 +402,7 @@ public class JsonRetrocompatibilityTest {
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
     }
 
-    public void testContentOfV1Point4Crac(Crac crac) {
+    void testContentOfV1Point4Crac(Crac crac) {
 
         testContentOfV1Point1Crac(crac);
         testContentOfV1Point2Crac(crac);
@@ -435,7 +434,7 @@ public class JsonRetrocompatibilityTest {
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
     }
 
-    public void testContentOfV1Point5Crac(Crac crac) {
+    void testContentOfV1Point5Crac(Crac crac) {
 
         testContentOfV1Point1Crac(crac);
         testContentOfV1Point2Crac(crac);

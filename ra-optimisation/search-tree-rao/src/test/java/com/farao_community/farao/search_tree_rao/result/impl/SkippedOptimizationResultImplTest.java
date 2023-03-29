@@ -18,22 +18,22 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SkippedOptimizationResultImplTest {
+class SkippedOptimizationResultImplTest {
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         FlowCnec flowCnec = mock(FlowCnec.class);
         Side side = mock(Side.class);
         Unit unit = mock(Unit.class);
@@ -67,7 +67,7 @@ public class SkippedOptimizationResultImplTest {
     }
 
     @Test
-    public void testDefaultStatus() {
+    void testDefaultStatus() {
         State state = mock(State.class);
         Optional<Contingency> optContingency = mock(Optional.class);
         Contingency contingency = mock(Contingency.class);
@@ -82,7 +82,7 @@ public class SkippedOptimizationResultImplTest {
     }
 
     @Test
-    public void testActivation() {
+    void testActivation() {
         State state = mock(State.class);
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);

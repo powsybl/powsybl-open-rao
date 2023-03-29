@@ -17,19 +17,19 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnAngleConstraintAdderImplTest {
+class OnAngleConstraintAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
 
@@ -57,7 +57,7 @@ public class OnAngleConstraintAdderImplTest {
     }
 
     @Test
-    public void testOkPreventive() {
+    void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnAngleConstraintUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withAngleCnec("cnec2stateCurativeContingency1")
@@ -76,7 +76,7 @@ public class OnAngleConstraintAdderImplTest {
     }
 
     @Test
-    public void testOkCurative() {
+    void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnAngleConstraintUsageRule()
             .withInstant(Instant.CURATIVE)
             .withAngleCnec("cnec2stateCurativeContingency1")
@@ -93,26 +93,26 @@ public class OnAngleConstraintAdderImplTest {
     }
 
     @Test
-    public void testOutageException() {
+    void testOutageException() {
         OnAngleConstraintAdder adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.OUTAGE).withAngleCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testAbsentCnecException() {
+    void testAbsentCnecException() {
         OnAngleConstraintAdder adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE)
             .withAngleCnec("fake_cnec");
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testNoCnecException() {
+    void testNoCnecException() {
         OnAngleConstraintAdder adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testNoInstantException() {
+    void testNoInstantException() {
         OnAngleConstraintAdder adder = remedialActionAdder.newOnAngleConstraintUsageRule().withAngleCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
@@ -132,7 +132,7 @@ public class OnAngleConstraintAdderImplTest {
     }
 
     @Test
-    public void testOnConstraintInstantCheck() {
+    void testOnConstraintInstantCheck() {
         // todo : mm chose pour on flow constraint in country, dans le code
         addCnec("cnec-prev", Instant.PREVENTIVE);
         addCnec("cnec-out", Instant.OUTAGE);

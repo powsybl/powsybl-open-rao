@@ -11,31 +11,31 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RaoParametersConsistencyTest {
+class RaoParametersConsistencyTest {
     @Test
-    public void testUpdatePtdfWithTopo() {
+    void testUpdatePtdfWithTopo() {
         assertFalse(LoopFlowParametersExtension.Approximation.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
         assertTrue(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());
         assertTrue(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithTopologicalChange());
     }
 
     @Test
-    public void testUpdatePtdfWithPst() {
+    void testUpdatePtdfWithPst() {
         assertFalse(LoopFlowParametersExtension.Approximation.FIXED_PTDF.shouldUpdatePtdfWithPstChange());
         assertFalse(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithPstChange());
         assertTrue(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithPstChange());
     }
 
     @Test
-    public void testSetBoundariesFromCountryCodes() {
+    void testSetBoundariesFromCountryCodes() {
         RaoParameters parameters = new RaoParameters();
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}"));
         parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
@@ -48,7 +48,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testSetBoundariesFromEiCodes() {
+    void testSetBoundariesFromEiCodes() {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{10YBE----------2}-{10YFR-RTE------C}", "{10YBE----------2}-{22Y201903144---9}"));
@@ -62,7 +62,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testSetBoundariesFromMixOfCodes() {
+    void testSetBoundariesFromMixOfCodes() {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Collections.singletonList("{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
@@ -75,7 +75,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testRelativePositiveMargins() {
+    void testRelativePositiveMargins() {
         assertTrue(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE.relativePositiveMargins());
         assertTrue(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT.relativePositiveMargins());
         assertFalse(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE.relativePositiveMargins());
@@ -83,7 +83,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testRelativeNetworkActionMinimumImpactThresholdBounds() {
+    void testRelativeNetworkActionMinimumImpactThresholdBounds() {
         RaoParameters parameters = new RaoParameters();
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(-0.5);
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), 1e-6);
@@ -92,7 +92,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
+    void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
         RaoParameters parameters = new RaoParameters();
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
         topoOptimizationParameters.setMaxNumberOfBoundariesForSkippingActions(300);
@@ -102,7 +102,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testNegativeCurativeRaoMinObjImprovement() {
+    void testNegativeCurativeRaoMinObjImprovement() {
         RaoParameters parameters = new RaoParameters();
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         objectiveFunctionParameters.setCurativeMinObjImprovement(100);
@@ -112,7 +112,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testNonNullMaps() {
+    void testNonNullMaps() {
         RaoParameters parameters = new RaoParameters();
         RaUsageLimitsPerContingencyParameters rulpcp = parameters.getRaUsageLimitsPerContingencyParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
@@ -153,7 +153,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testIllegalValues() {
+    void testIllegalValues() {
         RaoParameters parameters = new RaoParameters();
         RaUsageLimitsPerContingencyParameters rulpcp = parameters.getRaUsageLimitsPerContingencyParameters();
 
@@ -166,26 +166,27 @@ public class RaoParametersConsistencyTest {
         assertEquals(0, rulpcp.getMaxCurativeTso());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testIncompatibleParameters1() {
+    @Test
+    void testIncompatibleParameters1() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
 
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testIncompatibleParameters2() {
-        RaoParameters parameters = new RaoParameters();
-        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
-
-        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
-        nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
+        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true));
     }
 
     @Test
-    public void testIncompatibleParameters3() {
+    void testIncompatibleParameters2() {
+        RaoParameters parameters = new RaoParameters();
+        NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
+
+        nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
+        Map<String, String> stringMap = Map.of("cnec1", "pst1");
+        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(stringMap));
+    }
+
+    @Test
+    void testIncompatibleParameters3() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
@@ -194,7 +195,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testIncompatibleParameters4() {
+    void testIncompatibleParameters4() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(null);
@@ -204,7 +205,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testIncompatibleParameters5() {
+    void testIncompatibleParameters5() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
@@ -213,7 +214,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testIncompatibleParameters6() {
+    void testIncompatibleParameters6() {
         RaoParameters parameters = new RaoParameters();
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
@@ -222,7 +223,7 @@ public class RaoParametersConsistencyTest {
     }
 
     @Test
-    public void testIncompatibleMaxCraParameters() {
+    void testIncompatibleMaxCraParameters() {
         RaoParameters parameters = new RaoParameters();
         RaUsageLimitsPerContingencyParameters rulpcp = parameters.getRaUsageLimitsPerContingencyParameters();
 

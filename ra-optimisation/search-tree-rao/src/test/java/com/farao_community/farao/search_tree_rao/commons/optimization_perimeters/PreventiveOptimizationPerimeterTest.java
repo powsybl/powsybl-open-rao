@@ -10,27 +10,27 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.powsybl.iidm.network.Country;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
+class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }
 
     @Test
-    public void fullPreventivePerimeter1Test() {
+    void fullPreventivePerimeter1Test() {
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
@@ -54,7 +54,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullPreventivePerimeter2Test() {
+    void fullPreventivePerimeter2Test() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
@@ -67,7 +67,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullPreventivePerimeter3Test() {
+    void fullPreventivePerimeter3Test() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         raoParameters.getExtension(LoopFlowParametersExtension.class).setCountries(Set.of(Country.BE));
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
@@ -78,7 +78,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPer
     }
 
     @Test
-    public void fullWithPreventiveCnecOnlyTest() {
+    void fullWithPreventiveCnecOnlyTest() {
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);

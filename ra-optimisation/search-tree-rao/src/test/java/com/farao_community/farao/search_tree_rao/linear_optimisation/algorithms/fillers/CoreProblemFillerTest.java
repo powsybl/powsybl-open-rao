@@ -23,25 +23,22 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-public class CoreProblemFillerTest extends AbstractFillerTest {
+class CoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
@@ -50,7 +47,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     private double maxAlpha;
     private double initialAlpha;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
         // arrange some additional data
@@ -107,7 +104,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillTestOnPreventive() {
+    void fillTestOnPreventive() {
         initializeForPreventive(0, 0, 0);
         State state = cnec1.getState();
 
@@ -167,7 +164,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillTestOnPreventiveFiltered() {
+    void fillTestOnPreventiveFiltered() {
         initializeForPreventive(2.5, 2.5, 2.5);
         State state = cnec1.getState();
 
@@ -227,7 +224,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillTestOnCurative() {
+    void fillTestOnCurative() {
         initializeForCurative();
         State state = cnec2.getState();
 
@@ -287,7 +284,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillTestOnGlobal() {
+    void fillTestOnGlobal() {
         initializeForGlobal();
         State prevState = cnec1.getState();
         State curState = cnec2.getState();
@@ -396,7 +393,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void updateTestOnPreventive() {
+    void updateTestOnPreventive() {
         initializeForPreventive(0, 0, 0);
         State state = cnec1.getState();
         // update the problem with new data
@@ -441,7 +438,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void updateTestOnCurative() {
+    void updateTestOnCurative() {
         initializeForCurative();
         State state = cnec2.getState();
         // update the problem with new data
@@ -486,7 +483,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void updateWithoutFillingTest() {
+    void updateWithoutFillingTest() {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1));
 
@@ -515,7 +512,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testSensitivityFilter1() {
+    void testSensitivityFilter1() {
         FaraoMPConstraint flowConstraint;
         FaraoMPVariable rangeActionSetpoint;
         when(flowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);
@@ -531,7 +528,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testSensitivityFilter2() {
+    void testSensitivityFilter2() {
         FaraoMPConstraint flowConstraint;
         FaraoMPVariable rangeActionSetpoint;
         when(flowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.5);

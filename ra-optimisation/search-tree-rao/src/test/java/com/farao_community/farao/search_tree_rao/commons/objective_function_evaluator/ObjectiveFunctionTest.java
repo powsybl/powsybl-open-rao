@@ -14,22 +14,21 @@ import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionRes
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ObjectiveFunctionTest {
+class ObjectiveFunctionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private MinMarginEvaluator minMarginEvaluator;
@@ -42,7 +41,7 @@ public class ObjectiveFunctionTest {
     private FlowCnec cnec1;
     private FlowCnec cnec2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
         sensitivityStatus = Mockito.mock(ComputationStatus.class);
@@ -68,7 +67,7 @@ public class ObjectiveFunctionTest {
     }
 
     @Test
-    public void testWithFunctionalCostOnly() {
+    void testWithFunctionalCostOnly() {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create()
                 .withFunctionalCostEvaluator(minMarginEvaluator)
                 .build();
@@ -91,15 +90,15 @@ public class ObjectiveFunctionTest {
         assertTrue(result.getVirtualCostNames().isEmpty());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testWithVirtualCostOnly() {
-        ObjectiveFunction.create()
-                .withVirtualCostEvaluator(mnecViolationCostEvaluator)
-                .build();
+    @Test
+    void testWithVirtualCostOnly() {
+        ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create()
+                .withVirtualCostEvaluator(mnecViolationCostEvaluator);
+        assertThrows(NullPointerException.class, objectiveFunctionBuilder::build);
     }
 
     @Test
-    public void testWithFunctionalAndVirtualCost() {
+    void testWithFunctionalAndVirtualCost() {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.create()
                 .withFunctionalCostEvaluator(minMarginEvaluator)
                 .withVirtualCostEvaluator(mnecViolationCostEvaluator)

@@ -25,21 +25,21 @@ import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CoreCneCnecsCreatorTest {
+class CoreCneCnecsCreatorTest {
 
     private Crac crac;
     private Network network;
@@ -47,7 +47,7 @@ public class CoreCneCnecsCreatorTest {
     private RaoParameters raoParameters;
     private CneExporterParameters exporterParameters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
@@ -134,7 +134,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testExportTwoPreventiveCnecs() {
+    void testExportTwoPreventiveCnecs() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("bbb_cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -199,7 +199,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testExportPreventivePureMnec() {
+    void testExportPreventivePureMnec() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -236,7 +236,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testExportPreventiveCnecAndMnec() {
+    void testExportPreventiveCnecAndMnec() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -285,7 +285,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testCurativeCnecs() {
+    void testCurativeCnecs() {
         crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
@@ -365,7 +365,7 @@ public class CoreCneCnecsCreatorTest {
     }
 
     @Test
-    public void testWithLoopFlow() {
+    void testWithLoopFlow() {
         FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")

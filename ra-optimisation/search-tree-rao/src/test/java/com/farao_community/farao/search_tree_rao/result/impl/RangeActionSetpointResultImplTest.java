@@ -13,26 +13,26 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionSetpointResultImplTest {
+class RangeActionSetpointResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     private RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
     private PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         rangeAction = Mockito.mock(RangeAction.class);
         pstRangeAction = Mockito.mock(PstRangeAction.class);
@@ -40,7 +40,7 @@ public class RangeActionSetpointResultImplTest {
     }
 
     @Test
-    public void testInitWithMap() {
+    void testInitWithMap() {
         RangeActionSetpointResultImpl rangeActionSetpointResult = new RangeActionSetpointResultImpl(
                 Map.of(rangeAction, 200.,
                     pstRangeAction, 2.75));
@@ -48,7 +48,7 @@ public class RangeActionSetpointResultImplTest {
     }
 
     @Test
-    public void testInitWithNetwork() {
+    void testInitWithNetwork() {
         Network network = Mockito.mock(Network.class);
         when(rangeAction.getCurrentSetpoint(network)).thenReturn(200.);
         when(pstRangeAction.getCurrentSetpoint(network)).thenReturn(2.75);
@@ -58,7 +58,7 @@ public class RangeActionSetpointResultImplTest {
     }
 
     @Test
-    public void testInitWithRangeActionActivationResult() {
+    void testInitWithRangeActionActivationResult() {
         RangeActionActivationResult raar = Mockito.mock(RangeActionActivationResult.class);
         State anyState = Mockito.mock(State.class);
 

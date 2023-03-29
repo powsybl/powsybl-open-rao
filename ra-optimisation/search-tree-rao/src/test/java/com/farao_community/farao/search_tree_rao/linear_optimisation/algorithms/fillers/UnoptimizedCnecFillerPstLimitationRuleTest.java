@@ -28,25 +28,22 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
+class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
@@ -59,7 +56,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     private Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap = new HashMap<>();
     private double constraintCoeff;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
 
@@ -222,7 +219,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizePositiveSensiBinaryVar() {
+    void testCnecsNotToOptimizePositiveSensiBinaryVar() {
         buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue();
 
         // Verify existence of optimize_cnec binary variable
@@ -256,7 +253,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizeNegativeSensiBinaryVar() {
+    void testCnecsNotToOptimizeNegativeSensiBinaryVar() {
         buildLinearProblemWithMaxMinMarginAndNegativeSensitivityValue();
 
         // Verify existence of optimize_cnec binary variable
@@ -290,7 +287,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizePositiveSensiBinaryVarRelative() {
+    void testCnecsNotToOptimizePositiveSensiBinaryVarRelative() {
         buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi();
 
         // Verify existence of margin_decrease binary variable
@@ -324,7 +321,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testCnecsNotToOptimizeNegativeSensiBinaryVarRelative() {
+    void testCnecsNotToOptimizeNegativeSensiBinaryVarRelative() {
         buildLinearProblemWithMaxMinRelativeMarginAndNegativeSensi();
 
         // Verify existence of margin_decrease binary variable
@@ -358,7 +355,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testExcludeCnecsNotToOptimizeInMinMargin() {
+    void testExcludeCnecsNotToOptimizeInMinMargin() {
         buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue();
 
         // Test that classicCnec's constraint does not have a bigM
@@ -376,7 +373,7 @@ public class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTe
     }
 
     @Test
-    public void testExcludeCnecsNotToOptimizeInMinMarginRelative() {
+    void testExcludeCnecsNotToOptimizeInMinMarginRelative() {
         buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi();
 
         // Test that classicCnec's constraint does not have a bigM

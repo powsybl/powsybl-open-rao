@@ -19,20 +19,20 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LinearProblemResultTest {
+class LinearProblemResultTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private LinearProblem linearProblem;
@@ -46,7 +46,7 @@ public class LinearProblemResultTest {
     private Map<State, Set<RangeAction<?>>> rangeActionsPerState;
     private RangeActionSetpointResult prePerimeterRangeActionSetpoints;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
@@ -145,7 +145,7 @@ public class LinearProblemResultTest {
     }
 
     @Test
-    public void testGetOptimizedSetPointPreventivePerimeter() {
+    void testGetOptimizedSetPointPreventivePerimeter() {
         OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
             preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
 
@@ -157,7 +157,7 @@ public class LinearProblemResultTest {
     }
 
     @Test
-    public void testGetOptimizedSetPointCurativePerimeter() {
+    void testGetOptimizedSetPointCurativePerimeter() {
         OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(
             aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(aCurativeState));
 
@@ -169,7 +169,7 @@ public class LinearProblemResultTest {
     }
 
     @Test
-    public void testGetOptimizedSetPointGlobalPerimeter() {
+    void testGetOptimizedSetPointGlobalPerimeter() {
         OptimizationPerimeter optimizationPerimeter = new GlobalOptimizationPerimeter(
             aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState);
 

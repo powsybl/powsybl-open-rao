@@ -9,26 +9,26 @@ package com.farao_community.farao.flowbased_computation;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Di Gallo Luc  {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowbasedComputationParametersTest {
+class FlowbasedComputationParametersTest {
 
     protected PlatformConfig config;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         config = Mockito.mock(PlatformConfig.class);
     }
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -40,7 +40,7 @@ public class FlowbasedComputationParametersTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         FlowbasedComputationParameters parameters = new FlowbasedComputationParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -50,7 +50,7 @@ public class FlowbasedComputationParametersTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());

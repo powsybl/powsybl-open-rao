@@ -24,13 +24,13 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SearchTreeBloomerTest {
+class SearchTreeBloomerTest {
 
     private Crac crac;
     private Network network;
@@ -67,7 +67,7 @@ public class SearchTreeBloomerTest {
     private NetworkActionCombination comb2FrNl;
     private NetworkActionCombination comb2FrDeBe;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -124,7 +124,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testRemoveAlreadyActivatedNetworkActions() {
+    void testRemoveAlreadyActivatedNetworkActions() {
 
         // arrange naCombination list
         List<NetworkActionCombination> naCombinations = List.of(indFr1, indFr2, indBe1, indFrDe, comb3Fr, comb2Fr, comb2FrDeBe);
@@ -143,7 +143,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testRemoveAlreadyTestedCombinations() {
+    void testRemoveAlreadyTestedCombinations() {
 
         // arrange naCombination list
         List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe2, indNl1, indDe1, indFrDe, comb2Fr, comb2FrNl);
@@ -163,7 +163,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testRemoveCombinationsWhichExceedMaxNumberOfRa() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfRa() {
 
         // arrange naCombination list
         List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe1, indNlBe, indNl1, comb2Fr, comb3Be, comb2BeNl, comb2FrDeBe);
@@ -203,7 +203,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso() {
 
         // arrange naCombination list
         List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
@@ -269,7 +269,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testRemoveCombinationsWhichExceedMaxNumberOfTsos() {
+    void testRemoveCombinationsWhichExceedMaxNumberOfTsos() {
 
         // arrange naCombination list
         List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
@@ -302,7 +302,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testRemoveNetworkActionsFarFromMostLimitingElement() {
+    void testRemoveNetworkActionsFarFromMostLimitingElement() {
 
         // arrange naCombination list
         List<NetworkActionCombination> naCombinations = List.of(indFr2, indDe1, indBe1, indNl1, indNlBe, indFrDe, indDeNl, comb3Be, comb2De, comb2FrDeBe, comb2BeNl);
@@ -336,7 +336,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testGetOptimizedMostLimitingElementsLocation() {
+    void testGetOptimizedMostLimitingElementsLocation() {
 
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, 0, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>());
 
@@ -370,7 +370,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testIsNetworkActionCloseToLocations() {
+    void testIsNetworkActionCloseToLocations() {
         NetworkAction na1 = crac.newNetworkAction().withId("na")
             .newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
@@ -401,7 +401,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testGetActivatedTsos() {
+    void testGetActivatedTsos() {
         RangeAction<?> nonActivatedRa = createPstRangeActionWithOperator("NNL2AA1  NNL3AA1  1", "nl");
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         rangeActions.add(nonActivatedRa);
@@ -421,7 +421,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testDoNotRemoveCombinationDetectedInRao() {
+    void testDoNotRemoveCombinationDetectedInRao() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
 
@@ -455,7 +455,7 @@ public class SearchTreeBloomerTest {
     }
 
     @Test
-    public void testFilterIdenticalCombinations() {
+    void testFilterIdenticalCombinations() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
 

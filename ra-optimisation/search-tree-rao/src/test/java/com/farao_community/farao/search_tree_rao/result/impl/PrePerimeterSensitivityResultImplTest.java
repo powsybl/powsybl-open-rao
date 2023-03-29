@@ -17,13 +17,13 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
@@ -31,11 +31,11 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PrePerimeterSensitivityResultImplTest {
+class PrePerimeterSensitivityResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
         FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
 

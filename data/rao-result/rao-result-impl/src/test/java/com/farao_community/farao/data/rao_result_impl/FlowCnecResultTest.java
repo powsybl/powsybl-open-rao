@@ -9,17 +9,17 @@ package com.farao_community.farao.data.rao_result_impl;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FlowCnecResultTest {
+class FlowCnecResultTest {
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         FlowCnecResult defaultFlowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(OptimizationState.INITIAL).getCommercialFlow(Side.LEFT, Unit.MEGAWATT), 1e-3);
         assertEquals(Double.NaN, defaultFlowCnecResult.getResult(OptimizationState.INITIAL).getFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
@@ -30,7 +30,7 @@ public class FlowCnecResultTest {
     }
 
     @Test
-    public void testGetAndCreateIfAbsent() {
+    void testGetAndCreateIfAbsent() {
         FlowCnecResult flowCnecResult = new FlowCnecResult();
         assertEquals(Double.NaN, flowCnecResult.getResult(OptimizationState.INITIAL).getFlow(Side.LEFT, Unit.MEGAWATT));
         assertEquals(Double.NaN, flowCnecResult.getResult(OptimizationState.INITIAL).getFlow(Side.RIGHT, Unit.MEGAWATT));

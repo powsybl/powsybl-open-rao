@@ -266,7 +266,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
     @Override
     public String getVersion() {
-        return "0";
+        return "1.0";
     }
 
 }

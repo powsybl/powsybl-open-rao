@@ -17,29 +17,29 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UnoptimizedCnecParametersTest {
+class UnoptimizedCnecParametersTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
     }
 
     @Test
-    public void buildWithoutOptimizingOperatorsNotSharingCras() {
+    void buildWithoutOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
@@ -50,7 +50,7 @@ public class UnoptimizedCnecParametersTest {
     }
 
     @Test
-    public void buildWhileOptimizingOperatorsNotSharingCras() {
+    void buildWhileOptimizingOperatorsNotSharingCras() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
@@ -59,7 +59,7 @@ public class UnoptimizedCnecParametersTest {
     }
 
     @Test
-    public void testUnoptimizedCnecsInSeriesWithPsts() {
+    void testUnoptimizedCnecsInSeriesWithPsts() {
 
         Crac crac = CracFactory.findDefault().create("crac");
 

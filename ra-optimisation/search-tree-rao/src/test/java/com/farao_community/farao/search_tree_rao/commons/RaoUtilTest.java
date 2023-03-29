@@ -32,8 +32,8 @@ import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-public class RaoUtilTest {
+class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private RaoParameters raoParameters;
     private RaoInput raoInput;
@@ -59,7 +59,7 @@ public class RaoUtilTest {
     private Crac crac;
     private String variantId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -79,46 +79,46 @@ public class RaoUtilTest {
             .build();
     }
 
-    @Test(expected = FaraoException.class)
-    public void testExceptionForGlskOnRelativeMargin() {
+    @Test
+    void testExceptionForGlskOnRelativeMargin() {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testExceptionForNoPtdfParametersOnRelativeMargin() {
+    @Test
+    void testExceptionForNoPtdfParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testExceptionForNullBoundariesOnRelativeMargin() {
+    @Test
+    void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testExceptionForEmptyBoundariesOnRelativeMargin() {
+    @Test
+    void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        RaoUtil.checkParameters(raoParameters, raoInput);
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testAmpereWithDc() {
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        RaoUtil.checkParameters(raoParameters, raoInput);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
     @Test
-    public void testGetBranchFlowUnitMultiplier() {
+    void testAmpereWithDc() {
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        assertThrows(FaraoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+    }
+
+    @Test
+    void testGetBranchFlowUnitMultiplier() {
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec.getNominalVoltage(Side.LEFT)).thenReturn(400.);
         Mockito.when(cnec.getNominalVoltage(Side.RIGHT)).thenReturn(200.);
@@ -141,7 +141,7 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testRounding() {
+    void testRounding() {
         double d1 = 1.;
 
         // big enough deltas are not rounded out by the rounding method
@@ -160,7 +160,7 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testGetLargestCnecThreshold() {
+    void testGetLargestCnecThreshold() {
         FlowCnec cnecA = Mockito.mock(FlowCnec.class);
         FlowCnec cnecB = Mockito.mock(FlowCnec.class);
         FlowCnec cnecC = Mockito.mock(FlowCnec.class);
@@ -188,7 +188,7 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testIsOnFlowConstraintAvailable() {
+    void testIsOnFlowConstraintAvailable() {
         State optimizedState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
@@ -225,7 +225,7 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testIsOnFlowConstraintInCountryAvailable() {
+    void testIsOnFlowConstraintInCountryAvailable() {
         State optimizedState = Mockito.mock(State.class);
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
 

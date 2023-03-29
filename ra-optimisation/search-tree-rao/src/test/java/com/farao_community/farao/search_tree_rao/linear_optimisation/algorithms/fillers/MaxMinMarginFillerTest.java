@@ -21,30 +21,27 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-public class MaxMinMarginFillerTest extends AbstractFillerTest {
+class MaxMinMarginFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
@@ -86,7 +83,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinMarginInMegawatt() {
+    void fillWithMaxMinMarginInMegawatt() {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         buildLinearProblem();
 
@@ -128,7 +125,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinMarginInAmpere() {
+    void fillWithMaxMinMarginInAmpere() {
         createMaxMinMarginFiller(Unit.AMPERE);
         buildLinearProblem();
 
@@ -165,7 +162,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMissingFlowVariables() {
+    void fillWithMissingFlowVariables() {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
@@ -182,20 +179,24 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         }
     }
 
-    @Test(expected = Test.None.class) // no exception expected
-    public void fillWithMissingRangeActionVariables() {
-        createMaxMinMarginFiller(Unit.MEGAWATT);
-        linearProblem = new LinearProblemBuilder()
-            .withProblemFiller(maxMinMarginFiller)
-            .withSolver(mpSolver)
-            .build();
+    @Test
+    void fillWithMissingRangeActionVariables() {
+        try {
+            createMaxMinMarginFiller(Unit.MEGAWATT);
+            linearProblem = new LinearProblemBuilder()
+                .withProblemFiller(maxMinMarginFiller)
+                .withSolver(mpSolver)
+                .build();
 
-        // FlowVariables present , but not the absoluteRangeActionVariables present,
-        // This should work since range actions can be filtered out by the CoreProblemFiller if their number
-        // exceeds the max-pst-per-tso parameter
-        linearProblem.addFlowVariable(0.0, 0.0, cnec1, Side.LEFT);
-        linearProblem.addFlowVariable(0.0, 0.0, cnec2, Side.RIGHT);
-        linearProblem.fill(flowResult, sensitivityResult);
+            // FlowVariables present , but not the absoluteRangeActionVariables present,
+            // This should work since range actions can be filtered out by the CoreProblemFiller if their number
+            // exceeds the max-pst-per-tso parameter
+            linearProblem.addFlowVariable(0.0, 0.0, cnec1, Side.LEFT);
+            linearProblem.addFlowVariable(0.0, 0.0, cnec2, Side.RIGHT);
+            linearProblem.fill(flowResult, sensitivityResult);
+        } catch (Exception e) {
+            fail();
+        }
     }
 }
 

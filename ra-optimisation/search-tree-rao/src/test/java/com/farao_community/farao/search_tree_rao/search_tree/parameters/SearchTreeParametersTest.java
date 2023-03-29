@@ -10,25 +10,25 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class SearchTreeParametersTest {
+class SearchTreeParametersTest {
     SearchTreeParameters.SearchTreeParametersBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setup() {
         builder = SearchTreeParameters.create();
     }
 
     @Test
-    public void testWithConstantParametersOverAllRao() {
+    void testWithConstantParametersOverAllRao() {
         RaoParameters raoParameters = new RaoParameters();
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
@@ -47,7 +47,7 @@ public class SearchTreeParametersTest {
     }
 
     @Test
-    public void testIndividualSetters() {
+    void testIndividualSetters() {
         ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);

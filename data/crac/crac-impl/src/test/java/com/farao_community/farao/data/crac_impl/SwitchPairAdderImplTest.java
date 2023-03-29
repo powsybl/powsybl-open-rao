@@ -11,23 +11,23 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
-import org.junit.Before;
-import org.junit.Test;
+import com.farao_community.farao.data.crac_api.network_action.SwitchPairAdder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SwitchPairAdderImplTest {
+class SwitchPairAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
@@ -37,7 +37,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("open-id", "open-name")
             .withSwitchToClose("close-id", "close-name")
@@ -59,7 +59,7 @@ public class SwitchPairAdderImplTest {
     }
 
     @Test
-    public void testNoName() {
+    void testNoName() {
         NetworkAction networkAction = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("open-id")
             .withSwitchToClose("close-id")
@@ -73,28 +73,25 @@ public class SwitchPairAdderImplTest {
         assertEquals("close-id", switchPair.getSwitchToClose().getName());
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoSwitchToOpen() {
-        networkActionAdder.newSwitchPair()
-            .withSwitchToClose("test")
-            .add()
-            .add();
+    @Test
+    void testNoSwitchToOpen() {
+        SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
+            .withSwitchToClose("test");
+        assertThrows(FaraoException.class, switchPairAdder::add);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoSwitchToClose() {
-        networkActionAdder.newSwitchPair()
-            .withSwitchToOpen("test")
-            .add()
-            .add();
+    @Test
+    void testNoSwitchToClose() {
+        SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
+            .withSwitchToOpen("test");
+        assertThrows(FaraoException.class, switchPairAdder::add);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testSameSwitch() {
-        networkActionAdder.newSwitchPair()
+    @Test
+    void testSameSwitch() {
+        SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("test")
-            .withSwitchToClose("test")
-            .add()
-            .add();
+            .withSwitchToClose("test");
+        assertThrows(FaraoException.class, switchPairAdder::add);
     }
 }

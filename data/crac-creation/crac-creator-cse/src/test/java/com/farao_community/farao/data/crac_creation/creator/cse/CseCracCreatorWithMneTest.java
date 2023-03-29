@@ -15,17 +15,17 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.CseCriticalBranchCreationContext;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
-public class CseCracCreatorWithMneTest {
+class CseCracCreatorWithMneTest {
     private final OffsetDateTime offsetDateTime = null;
     private CracCreationParameters parameters = new CracCreationParameters();
     private Crac importedCrac;
@@ -191,7 +191,7 @@ public class CseCracCreatorWithMneTest {
     }
 
     @Test
-    public void createCracWithMNELittleCase() {
+    void createCracWithMNELittleCase() {
         setUp("/cracs/cse_crac_with_MNE.xml", "/networks/TestCase12Nodes_with_Xnodes.uct");
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();

@@ -12,14 +12,14 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -29,7 +29,7 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FlowResultImplTest {
+class FlowResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
@@ -37,7 +37,7 @@ public class FlowResultImplTest {
     FlowCnec optimizedCnec;
     FlowResultImpl branchResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         loopFlowCnec = Mockito.mock(FlowCnec.class);
@@ -60,7 +60,7 @@ public class FlowResultImplTest {
     }
 
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, LEFT)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, LEFT)).thenReturn(58.);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT)).thenReturn(500.);
@@ -81,7 +81,7 @@ public class FlowResultImplTest {
     }
 
     @Test
-    public void testNanFlow() {
+    void testNanFlow() {
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, RIGHT)).thenReturn(500.);
         when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
@@ -90,7 +90,7 @@ public class FlowResultImplTest {
     }
 
     @Test
-    public void testWrongFlowUnit() {
+    void testWrongFlowUnit() {
         assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.KILOVOLT));
         assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.DEGREE));
         assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.PERCENT_IMAX));

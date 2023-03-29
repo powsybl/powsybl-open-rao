@@ -10,10 +10,10 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
@@ -29,27 +29,24 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class IteratingLinearOptimizer {
+public final class IteratingLinearOptimizer {
 
-    private final IteratingLinearOptimizerInput input;
-    private final IteratingLinearOptimizerParameters parameters;
+    private IteratingLinearOptimizer() {
 
-    public IteratingLinearOptimizer(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
-        this.input = input;
-        this.parameters = parameters;
     }
 
-    public LinearOptimizationResult optimize() {
+    public static LinearOptimizationResult optimize(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
         IteratingLinearOptimizationResultImpl bestResult = createResult(
                 input.getPreOptimizationFlowResult(),
                 input.getPreOptimizationSensitivityResult(),
                 input.getRaActivationFromParentLeaf(),
-                0);
+                0,
+                input.getObjectiveFunction());
 
         SensitivityComputer sensitivityComputer = null;
 
-        LinearProblem linearProblem = new LinearProblemBuilder()
+        LinearProblem linearProblem = LinearProblem.create()
                 .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.getPreOptimizationFlowResult(), input.getPreOptimizationSensitivityResult());
@@ -70,9 +67,9 @@ public class IteratingLinearOptimizer {
             }
 
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationPerimeter());
-            RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult);
+            RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
 
-            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult);
+            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
 
             if (!hasRemedialActionsChanged(currentRangeActionActivationResult, bestResult, input.getOptimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
@@ -80,7 +77,7 @@ public class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult);
+            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters);
             if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
@@ -90,12 +87,13 @@ public class IteratingLinearOptimizer {
                     sensitivityComputer.getBranchResult(input.getNetwork()),
                     sensitivityComputer.getSensitivityResult(),
                     currentRangeActionActivationResult,
-                    iteration
+                    iteration,
+                    input.getObjectiveFunction()
             );
 
             if (currentResult.getCost() >= bestResult.getCost()) {
                 logWorseResult(iteration, bestResult, currentResult);
-                applyRangeActions(bestResult);
+                applyRangeActions(bestResult, input);
                 return bestResult;
             }
 
@@ -107,22 +105,22 @@ public class IteratingLinearOptimizer {
         return bestResult;
     }
 
-    private SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
-            AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult);
-            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates);
+            AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult, input);
+            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters);
         } else {
-            applyRangeActions(currentRangeActionActivationResult);
+            applyRangeActions(currentRangeActionActivationResult, input);
             if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions());
+                tmpSensitivityComputer = createSensitivityComputer(input.getPreOptimizationAppliedRemedialActions(), input, parameters);
             }
         }
         runSensitivityAnalysis(tmpSensitivityComputer, input.getNetwork(), iteration);
         return tmpSensitivityComputer;
     }
 
-    private RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult) {
+    private static RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
         if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
@@ -137,7 +135,7 @@ public class IteratingLinearOptimizer {
             solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationPerimeter());
-                rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult);
+                rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult, input, parameters);
             }
         }
         return rangeActionActivationResult;
@@ -150,13 +148,13 @@ public class IteratingLinearOptimizer {
         return status;
     }
 
-    private boolean hasRemedialActionsChanged(RangeActionActivationResult newRangeActionActivationResult, RangeActionActivationResult oldRangeActionActivationResult, OptimizationPerimeter optimizationContext) {
+    private static boolean hasRemedialActionsChanged(RangeActionActivationResult newRangeActionActivationResult, RangeActionActivationResult oldRangeActionActivationResult, OptimizationPerimeter optimizationContext) {
         return optimizationContext.getRangeActionsPerState().entrySet().stream()
                 .anyMatch(e -> e.getValue().stream()
                         .anyMatch(ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >= 1e-6));
     }
 
-    private AppliedRemedialActions applyRangeActions(RangeActionActivationResult rangeActionActivationResult) {
+    private static AppliedRemedialActions applyRangeActions(RangeActionActivationResult rangeActionActivationResult, IteratingLinearOptimizerInput input) {
 
         OptimizationPerimeter optimizationContext = input.getOptimizationPerimeter();
 
@@ -176,7 +174,7 @@ public class IteratingLinearOptimizer {
         }
     }
 
-    private SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions) {
+    private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
                 .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
@@ -196,22 +194,23 @@ public class IteratingLinearOptimizer {
         return builder.build();
     }
 
-    private void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {
+    private static void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {
         sensitivityComputer.compute(network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
         }
     }
 
-    private IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,
+    private static IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,
                                                                SensitivityResult sensitivityResult,
                                                                RangeActionActivationResult rangeActionActivation,
-                                                               int nbOfIterations) {
+                                                               int nbOfIterations,
+                                                               ObjectiveFunction objectiveFunction) {
         return new IteratingLinearOptimizationResultImpl(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionActivation, flowResult,
-                input.getObjectiveFunction().evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
+                objectiveFunction.evaluate(flowResult, rangeActionActivation, sensitivityResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
-    private RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult) {
+    private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult, IteratingLinearOptimizationResultImpl previousResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         return BestTapFinder.round(
                 linearProblemResult,
                 input.getNetwork(),
@@ -243,4 +242,5 @@ public class IteratingLinearOptimizer {
     private static String formatDouble(double value) {
         return String.format(Locale.ENGLISH, "%.2f", value);
     }
+
 }

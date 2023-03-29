@@ -10,24 +10,24 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeActionLimitationParametersTest {
+class RangeActionLimitationParametersTest {
 
     private State state0;
     private State state1;
     private State state2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Crac crac = ExhaustiveCracCreation.create();
         state0 = crac.getPreventiveState();
@@ -36,7 +36,7 @@ public class RangeActionLimitationParametersTest {
     }
 
     @Test
-    public void testGetterAndSetters() {
+    void testGetterAndSetters() {
 
         RangeActionLimitationParameters ralp = new RangeActionLimitationParameters();
 

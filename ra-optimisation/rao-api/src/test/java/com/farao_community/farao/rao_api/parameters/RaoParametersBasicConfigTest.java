@@ -7,16 +7,16 @@
 package com.farao_community.farao.rao_api.parameters;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class RaoParametersBasicConfigTest {
+class RaoParametersBasicConfigTest {
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         RaoParameters parameters = new RaoParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -28,7 +28,7 @@ public class RaoParametersBasicConfigTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         RaoParameters parameters = new RaoParameters();
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));

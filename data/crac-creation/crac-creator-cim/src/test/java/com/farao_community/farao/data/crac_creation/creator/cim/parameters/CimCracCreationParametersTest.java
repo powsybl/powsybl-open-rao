@@ -8,21 +8,21 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CimCracCreationParametersTest {
+class CimCracCreationParametersTest {
 
     @Test
-    public void testDefaultParameters() {
+    void testDefaultParameters() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
 
         assertEquals(0, parameters.getRangeActionGroupsAsString().size());
@@ -30,7 +30,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testParallelRaConf() {
+    void testParallelRaConf() {
 
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
@@ -45,7 +45,7 @@ public class CimCracCreationParametersTest {
     }
 
     @Test
-    public void testAlignedRaWithSameSpeed() {
+    void testAlignedRaWithSameSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
         parallelRaAsConcatenatedString.add("rangeAction1 + rangeAction2 + rangeAction7");
@@ -58,30 +58,30 @@ public class CimCracCreationParametersTest {
 
     }
 
-    @Test (expected = FaraoException.class)
-    public void testAlignedRaWithDifferentSpeed() {
+    @Test
+    void testAlignedRaWithDifferentSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
         parallelRaAsConcatenatedString.add("rangeAction1 + rangeAction2 + rangeAction7");
         Set<RangeActionSpeed> speedSet = Set.of(new RangeActionSpeed("rangeAction1", 1), new RangeActionSpeed("rangeAction2", 2));
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
-        parameters.setRemedialActionSpeed(speedSet);
+        assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
     }
 
-    @Test (expected = FaraoException.class)
-    public void testUnalignedRaWithSameSpeed() {
+    @Test
+    void testUnalignedRaWithSameSpeed() {
         CimCracCreationParameters parameters = new CimCracCreationParameters();
         List<String> parallelRaAsConcatenatedString = new ArrayList<>();
         parallelRaAsConcatenatedString.add("rangeAction1 + rangeAction2 + rangeAction7");
         Set<RangeActionSpeed> speedSet = Set.of(new RangeActionSpeed("rangeAction1", 1), new RangeActionSpeed("rangeAction3", 1));
 
         parameters.setRangeActionGroupsAsString(parallelRaAsConcatenatedString);
-        parameters.setRemedialActionSpeed(speedSet);
+        assertThrows(FaraoException.class, () -> parameters.setRemedialActionSpeed(speedSet));
     }
 
     @Test
-    public void testParametersWithinExtendable() {
+    void testParametersWithinExtendable() {
         CracCreationParameters parameters = new CracCreationParameters();
         assertNull(parameters.getExtension(CimCracCreationParameters.class));
 

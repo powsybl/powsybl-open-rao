@@ -8,30 +8,30 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionResultTest {
+class NetworkActionResultTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = CommonCracCreation.create();
     }
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
 
         assertFalse(networkActionResult.isActivated(crac.getPreventiveState()));
@@ -41,7 +41,7 @@ public class NetworkActionResultTest {
     }
 
     @Test
-    public void activatedInOnePreventiveTest() {
+    void activatedInOnePreventiveTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
         networkActionResult.addActivationForState(crac.getPreventiveState());
 
@@ -52,7 +52,7 @@ public class NetworkActionResultTest {
     }
 
     @Test
-    public void activatedInTwoCurativeStatesTest() {
+    void activatedInTwoCurativeStatesTest() {
         NetworkActionResult networkActionResult = new NetworkActionResult();
         networkActionResult.addActivationForStates(Set.of(crac.getState("Contingency FR1 FR3", CURATIVE), crac.getState("Contingency FR1 FR2", CURATIVE)));
 

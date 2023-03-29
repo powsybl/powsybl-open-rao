@@ -7,18 +7,18 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CriticalBranchReaderTest {
+class CriticalBranchReaderTest {
 
     @Test
-    public void isCrossZonalTest() {
+    void isCrossZonalTest() {
 
         CriticalBranchType.Branch branch = new CriticalBranchType.Branch();
 

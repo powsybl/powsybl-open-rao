@@ -8,17 +8,17 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowParametersTest {
+class LoopFlowParametersTest {
 
     @Test
-    public void buildFromRaoParametersTestWithLimitation() {
+    void buildFromRaoParametersTestWithLimitation() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
@@ -38,7 +38,7 @@ public class LoopFlowParametersTest {
     }
 
     @Test
-    public void buildFromRaoParametersTestWithoutLimitation() {
+    void buildFromRaoParametersTestWithoutLimitation() {
         RaoParameters raoParameters = new RaoParameters();
         LoopFlowParameters lfp = LoopFlowParameters.buildFromRaoParameters(raoParameters);
         assertNull(lfp);

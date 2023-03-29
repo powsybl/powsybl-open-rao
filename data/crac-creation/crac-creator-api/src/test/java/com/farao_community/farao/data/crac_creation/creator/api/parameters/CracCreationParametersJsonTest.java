@@ -7,23 +7,23 @@
 package com.farao_community.farao.data.crac_creation.creator.api.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreationParametersJsonTest {
+class CracCreationParametersJsonTest {
 
     @Test
-    public void testRoundTripJson() {
+    void testRoundTripJson() {
         // prepare parameters to export
         CracCreationParameters exportedParameters = new CracCreationParameters();
         exportedParameters.setCracFactoryName("coucouFactory");
@@ -39,19 +39,20 @@ public class CracCreationParametersJsonTest {
     }
 
     @Test
-    public void importOkTest() {
+    void importOkTest() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-ok.json"));
         assertNotNull(importedParameters);
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());
     }
 
-    @Test (expected = FaraoException.class)
-    public void importNokTest() {
-        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json"));
+    @Test
+    void importNokTest() {
+        InputStream inputStream = getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json");
+        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
     }
 
     @Test
-    public void importFromFile() throws URISyntaxException {
+    void importFromFile() throws URISyntaxException {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(Paths.get(getClass().getResource("/parameters/crac-creator-parameters-ok.json").toURI()));
         assertNotNull(importedParameters);
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());

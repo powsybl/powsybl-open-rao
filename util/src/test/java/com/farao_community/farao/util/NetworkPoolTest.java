@@ -4,25 +4,25 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class NetworkPoolTest {
+class NetworkPoolTest {
     private Network network;
     private String initialVariant;
     private String otherVariant = "otherVariant";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         initialVariant = network.getVariantManager().getWorkingVariantId();
@@ -30,13 +30,13 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         assertTrue(AbstractNetworkPool.create(network, otherVariant, 10) instanceof MultipleNetworkPool);
         assertTrue(AbstractNetworkPool.create(network, otherVariant, 1) instanceof SingleNetworkPool);
     }
 
     @Test
-    public void networkPoolUsageTest() {
+    void networkPoolUsageTest() {
         try (AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 10)) {
             Network networkCopy = pool.getAvailableNetwork();
 
@@ -52,7 +52,7 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void singleNetworkPoolUsageTest() throws InterruptedException {
+    void singleNetworkPoolUsageTest() throws InterruptedException {
         AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 1);
         Network networkCopy = pool.getAvailableNetwork();
 
@@ -68,7 +68,7 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void checkMDCIsCopied() throws InterruptedException {
+    void checkMDCIsCopied() throws InterruptedException {
         Logger logger = (Logger) LoggerFactory.getLogger("LOGGER");
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
