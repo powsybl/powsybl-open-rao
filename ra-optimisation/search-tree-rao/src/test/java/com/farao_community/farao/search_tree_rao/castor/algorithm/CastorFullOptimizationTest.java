@@ -26,34 +26,25 @@ import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.SecondPreventiveRaoParameters;
-import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SensitivityComputer.class, SearchTree.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
-public class CastorFullOptimizationTest {
+class CastorFullOptimizationTest {
     private Crac crac;
     private Network network;
     private State state1;
@@ -69,7 +60,7 @@ public class CastorFullOptimizationTest {
     private RangeAction<?> ra9;
     private NetworkAction na1;
 
-    @Before
+    @BeforeEach
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
@@ -83,7 +74,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testShouldRunSecondPreventiveRaoSimple() {
+    void testShouldRunSecondPreventiveRaoSimple() {
         RaoParameters parameters = new RaoParameters();
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
@@ -128,7 +119,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testShouldRunSecondPreventiveRaoAdvanced() {
+    void testShouldRunSecondPreventiveRaoAdvanced() {
         RaoParameters parameters = new RaoParameters();
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         RaoResult postFirstPreventiveRaoResult = Mockito.mock(RaoResult.class);
@@ -178,7 +169,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testShouldRunSecondPreventiveRaoTime() {
+    void testShouldRunSecondPreventiveRaoTime() {
         RaoParameters parameters = new RaoParameters();
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
@@ -198,7 +189,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testShouldRunSecondPreventiveRaoCostIncrease() {
+    void testShouldRunSecondPreventiveRaoCostIncrease() {
         RaoParameters parameters = new RaoParameters();
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
@@ -325,7 +316,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testIsRangeActionAvailableInState() {
+    void testIsRangeActionAvailableInState() {
         setUpCracWithRAs();
 
         // ra1 is available in preventive only
@@ -359,7 +350,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testIsRangeActionPreventive() {
+    void testIsRangeActionPreventive() {
         setUpCracWithRAs();
         // ra1 is available in preventive only
         assertTrue(CastorFullOptimization.isRangeActionPreventive(ra1, crac));
@@ -375,7 +366,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testIsRangeActionCurative() {
+    void testIsRangeActionCurative() {
         setUpCracWithRAs();
         // ra1 is available in preventive only
         assertFalse(CastorFullOptimization.isRangeActionAutoOrCurative(ra1, crac));
@@ -391,7 +382,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testIsRangeActionAuto() {
+    void testIsRangeActionAuto() {
         setUpCracWithRAs();
         // ra7 is auto
         assertTrue(CastorFullOptimization.isRangeActionAutoOrCurative(ra7, crac));
@@ -402,7 +393,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testGetRangeActionsExcludedFromSecondPreventive() {
+    void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
         // detect range actions that are preventive and curative
         Set<RangeAction<?>> rangeActionsExcludedFrom2P = CastorFullOptimization.getRangeActionsExcludedFromSecondPreventive(crac);
@@ -418,7 +409,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testRemoveRangeActionsExcludedFromSecondPreventive() {
+    void testRemoveRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
         Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
         CastorFullOptimization.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
@@ -463,7 +454,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testApplyPreventiveResultsForCurativeRangeActions() {
+    void testApplyPreventiveResultsForCurativeRangeActions() {
         PerimeterResult perimeterResult = Mockito.mock(PerimeterResult.class);
         String pstNeId = "BBE2AA1  BBE3AA1  1";
 
@@ -481,7 +472,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testGetAppliedRemedialActionsInCurative() {
+    void testGetAppliedRemedialActionsInCurative() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
 
         String pstNeId = "BBE2AA1  BBE3AA1  1";
@@ -531,7 +522,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void smallRaoWithDivergingInitialSensi() {
+    void smallRaoWithDivergingInitialSensi() {
         // Small RAO with diverging initial sensi
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
@@ -546,7 +537,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void smallRaoWithout2P() {
+    void smallRaoWithout2P() {
         // Small RAO without second preventive optimization and only topological actions
         // Cannot optimize range actions in unit tests (needs OR-Tools installed)
 
@@ -566,7 +557,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void smallRaoWith2P() {
+    void smallRaoWith2P() {
         // Same RAO as before but activating 2P => results should be better
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
@@ -589,7 +580,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void smallRaoWithGlobal2P() {
+    void smallRaoWithGlobal2P() {
         // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
@@ -613,7 +604,7 @@ public class CastorFullOptimizationTest {
     }
 
     @Test
-    public void testOptimizedStepsExecutedWhenFallbackOnFirstPrev() {
+    void testOptimizedStepsExecutedWhenFallbackOnFirstPrev() {
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"));
         RaoInput raoInput = RaoInput.build(network, crac).build();

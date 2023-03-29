@@ -12,22 +12,22 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OnStateImplTest {
+class OnStateImplTest {
 
     private State initialState;
     private State curativeState1;
     private State curativeState2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         initialState = new PreventiveState();
         Crac crac = new CracImplFactory().create("cracId");
@@ -44,7 +44,7 @@ public class OnStateImplTest {
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
         assertEquals(curativeState1, rule1.getState());
         assertEquals("contingency1", rule1.getContingency().getId());
@@ -52,54 +52,54 @@ public class OnStateImplTest {
     }
 
     @Test
-    public void testEqualsSameObject() {
+    void testEqualsSameObject() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1, rule1);
     }
 
     @Test
-    public void testEqualsTrue() {
+    void testEqualsTrue() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1, rule2);
     }
 
     @Test
-    public void testEqualsFalseNotTheSameObject() {
+    void testEqualsFalseNotTheSameObject() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertNotEquals(rule1, Instant.PREVENTIVE);
+        assertNotEquals(Instant.PREVENTIVE, rule1);
     }
 
     @Test
-    public void testEqualsFalseForUsageMethod() {
+    void testEqualsFalseForUsageMethod() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         OnStateImpl rule2 = new OnStateImpl(UsageMethod.FORCED, initialState);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
-    public void testEqualsFalseForState() {
+    void testEqualsFalseForState() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
         OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState2);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
-    public void testHashCodeFalseForUsageMethod() {
+    void testHashCodeFalseForUsageMethod() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         OnStateImpl rule2 = new OnStateImpl(UsageMethod.FORCED, initialState);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
-    public void testHashCodeFalseForContingency() {
+    void testHashCodeFalseForContingency() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
         OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());

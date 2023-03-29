@@ -10,24 +10,24 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ContingencyScenarioTest {
+class ContingencyScenarioTest {
     private Contingency contingency;
     private State automatonState;
     private State curativeState;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         contingency = Mockito.mock(Contingency.class);
         automatonState = Mockito.mock(State.class);
@@ -37,7 +37,7 @@ public class ContingencyScenarioTest {
     }
 
     @Test
-    public void test3ArgumentConstructor() {
+    void test3ArgumentConstructor() {
         ContingencyScenario contingencyScenario = new ContingencyScenario(contingency, automatonState, curativeState);
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.of(automatonState), contingencyScenario.getAutomatonState());
@@ -45,7 +45,7 @@ public class ContingencyScenarioTest {
     }
 
     @Test
-    public void test2ArgumentConstructor() {
+    void test2ArgumentConstructor() {
         ContingencyScenario contingencyScenario = new ContingencyScenario(automatonState, curativeState);
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.of(automatonState), contingencyScenario.getAutomatonState());
@@ -58,18 +58,18 @@ public class ContingencyScenarioTest {
     }
 
     @Test
-    public void testNoContingency() {
+    void testNoContingency() {
         assertThrows(NullPointerException.class, () -> new ContingencyScenario(null, automatonState, curativeState));
     }
 
     @Test
-    public void testNoCurative() {
+    void testNoCurative() {
         assertThrows(NullPointerException.class, () -> new ContingencyScenario(contingency, automatonState, null));
         assertThrows(NullPointerException.class, () -> new ContingencyScenario(automatonState, null));
     }
 
     @Test
-    public void testWrongAutoContingency() {
+    void testWrongAutoContingency() {
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.empty());
         assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
 
@@ -78,7 +78,7 @@ public class ContingencyScenarioTest {
     }
 
     @Test
-    public void testWrongCurativeContingency() {
+    void testWrongCurativeContingency() {
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.empty());
         assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
 

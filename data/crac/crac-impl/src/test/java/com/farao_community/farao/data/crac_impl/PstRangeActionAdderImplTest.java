@@ -14,26 +14,24 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeActionAdderImplTest {
+class PstRangeActionAdderImplTest {
     private CracImpl crac;
     private String networkElementId;
     private Map<Integer, Double> validTapToAngleConversionMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
         networkElementId = "BBE2AA1  BBE3AA1  1";
@@ -41,7 +39,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
@@ -69,29 +67,29 @@ public class PstRangeActionAdderImplTest {
         assertNotNull(crac.getNetworkElement(networkElementId));
     }
 
-    @Test (expected = FaraoException.class)
-    public void testAddAutoWithoutSpeed() {
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .withNetworkElement(networkElementId)
-                .withGroupId("groupId1")
-                .newTapRange()
-                .withMinTap(-10)
-                .withMaxTap(10)
-                .withRangeType(RangeType.ABSOLUTE)
-                .add()
-                .newFreeToUseUsageRule()
-                .withInstant(Instant.AUTO)
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
-                .withInitialTap(1)
-                .withTapToAngleConversionMap(validTapToAngleConversionMap)
-                .add();
+    @Test
+    void testAddAutoWithoutSpeed() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withGroupId("groupId1")
+            .newTapRange()
+            .withMinTap(-10)
+            .withMaxTap(10)
+            .withRangeType(RangeType.ABSOLUTE)
+            .add()
+            .newFreeToUseUsageRule()
+            .withInstant(Instant.AUTO)
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap);
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
     @Test
-    public void testAddAutoWithSpeed() {
+    void testAddAutoWithSpeed() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("id1")
                 .withOperator("BE")
@@ -115,7 +113,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutGroupId() {
+    void testAddWithoutGroupId() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
@@ -141,7 +139,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutRangeAndUsageRule() {
+    void testAddWithoutRangeAndUsageRule() {
         /*
         This behaviour is considered admissible:
             - without range, the default range will be defined by the min/max value of the network
@@ -165,7 +163,7 @@ public class PstRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutOperator() {
+    void testAddWithoutOperator() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
@@ -189,28 +187,28 @@ public class PstRangeActionAdderImplTest {
         assertEquals(1, pstRangeAction.getUsageRules().size());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoIdFail() {
-        crac.newPstRangeAction()
+    @Test
+    void testNoIdFail() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
             .withOperator("BE")
             .withNetworkElement(networkElementId)
             .withInitialTap(1)
-            .withTapToAngleConversionMap(validTapToAngleConversionMap)
-            .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testNoNetworkElementFail() {
-        crac.newPstRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withInitialTap(1)
-            .withTapToAngleConversionMap(validTapToAngleConversionMap)
-            .add();
+            .withTapToAngleConversionMap(validTapToAngleConversionMap);
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
     @Test
-    public void testIdNotUnique() {
+    void testNoNetworkElementFail() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap);
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+    }
+
+    @Test
+    void testIdNotUnique() {
         crac.newNetworkAction()
             .withId("sameId")
             .withOperator("BE")
@@ -226,72 +224,72 @@ public class PstRangeActionAdderImplTest {
         assertThrows(FaraoException.class, adder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoInitialTap() {
-        crac.newPstRangeAction()
+    @Test
+    void testNoInitialTap() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .withOperator("BE")
-            .withTapToAngleConversionMap(validTapToAngleConversionMap)
-            .add();
+            .withTapToAngleConversionMap(validTapToAngleConversionMap);
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoTapToAngleConversionMap() {
-        crac.newPstRangeAction()
+    @Test
+    void testNoTapToAngleConversionMap() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .withOperator("BE")
-            .withInitialTap(0)
-            .add();
+            .withInitialTap(0);
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testEmptyTapToAngleConversionMap() {
-        crac.newPstRangeAction()
-            .withId("id1")
-            .withNetworkElement(networkElementId)
-            .withOperator("BE")
-            .withInitialTap(0)
-            .withTapToAngleConversionMap(new HashMap<>())
-            .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testIncompleteTapToAngleConversionMap() {
-        crac.newPstRangeAction()
+    @Test
+    void testEmptyTapToAngleConversionMap() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withInitialTap(0)
-            .withTapToAngleConversionMap(Map.of(-2, -20., 2, 20.))
-            .add();
+            .withTapToAngleConversionMap(new HashMap<>());
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNotMonotonousTapToAngleConversionMap() {
-        crac.newPstRangeAction()
+    @Test
+    void testIncompleteTapToAngleConversionMap() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withInitialTap(0)
-            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -15., 0, 0., 1, -10., 2, 20.))
-            .add();
+            .withTapToAngleConversionMap(Map.of(-2, -20., 2, 20.));
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testInitialTapNotInMap() {
-        crac.newPstRangeAction()
+    @Test
+    void testNotMonotonousTapToAngleConversionMap() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -15., 0, 0., 1, -10., 2, 20.));
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+    }
+
+    @Test
+    void testInitialTapNotInMap() {
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withInitialTap(10)
-            .withTapToAngleConversionMap(validTapToAngleConversionMap)
-            .add();
+            .withTapToAngleConversionMap(validTapToAngleConversionMap);
+        assertThrows(FaraoException.class, pstRangeActionAdder::add);
     }
 
     @Test
-    public void testPraRelativeToPreviousInstantRange() {
+    void testPraRelativeToPreviousInstantRange() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)

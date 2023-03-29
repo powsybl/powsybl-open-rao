@@ -28,16 +28,17 @@ import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionRes
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,7 +48,7 @@ import static com.farao_community.farao.commons.Unit.AMPERE;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoLoggerTest {
+class RaoLoggerTest {
 
     private ObjectiveFunctionResult objectiveFunctionResult;
     private FlowResult flowResult;
@@ -62,7 +63,7 @@ public class RaoLoggerTest {
     private State stateCo2Curative;
     private OptimizationResult basecaseOptimResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);
@@ -124,7 +125,7 @@ public class RaoLoggerTest {
     }
 
     @Test
-    public void testGetSummaryFromObjFunctionResultOnAllStates() {
+    void testGetSummaryFromObjFunctionResultOnAllStates() {
         // Absolute MW
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         List<String> summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, null, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5);
@@ -167,7 +168,7 @@ public class RaoLoggerTest {
     }
 
     @Test
-    public void testGetSummaryFromObjFunctionResultOnSomeStates() {
+    void testGetSummaryFromObjFunctionResultOnSomeStates() {
         // Absolute MW
         when(objectiveFunctionResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1, cnec2, cnec3, cnec4, cnec5));
         List<String> summary = RaoLogger.getMostLimitingElementsResults(objectiveFunctionResult, flowResult, Set.of(), ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT, 5);
@@ -199,7 +200,7 @@ public class RaoLoggerTest {
     }
 
     @Test
-    public void testGetSummaryFromScenarios() {
+    void testGetSummaryFromScenarios() {
         Contingency contingency2 = mock(Contingency.class);
         when(stateCo2Curative.getContingency()).thenReturn(Optional.of(contingency2));
 
@@ -271,7 +272,7 @@ public class RaoLoggerTest {
     }
 
     @Test
-    public void testFormatDouble() {
+    void testFormatDouble() {
         assertEquals("10.00", RaoLogger.formatDouble(10.));
         assertEquals("-53.63", RaoLogger.formatDouble(-53.634));
         assertEquals("-53.64", RaoLogger.formatDouble(-53.635));
@@ -290,7 +291,7 @@ public class RaoLoggerTest {
     }
 
     @Test
-    public void testLogOptimizationSummary() {
+    void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
         when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
         State curative = Mockito.mock(State.class);
@@ -365,7 +366,7 @@ public class RaoLoggerTest {
     }
 
     @Test
-    public void testLogFailedOptimizationSummary() {
+    void testLogFailedOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
         when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
         State curative = Mockito.mock(State.class);

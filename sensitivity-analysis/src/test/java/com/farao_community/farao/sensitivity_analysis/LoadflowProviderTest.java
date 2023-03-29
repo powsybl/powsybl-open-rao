@@ -16,22 +16,22 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class LoadflowProviderTest {
+class LoadflowProviderTest {
 
     @Test
-    public void inAmpereAndMegawattOnOneSide() {
+    void inAmpereAndMegawattOnOneSide() {
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -48,7 +48,7 @@ public class LoadflowProviderTest {
     }
 
     @Test
-    public void inAmpereAndMegawattOnTwoSides() {
+    void inAmpereAndMegawattOnTwoSides() {
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
@@ -71,7 +71,7 @@ public class LoadflowProviderTest {
     }
 
     @Test
-    public void inAmpereOnTransformer() {
+    void inAmpereOnTransformer() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
         network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal2().getVoltageLevel().setNominalV(200);
@@ -86,7 +86,7 @@ public class LoadflowProviderTest {
     }
 
     @Test
-    public void inMegawattOnly() {
+    void inMegawattOnly() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
         LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));

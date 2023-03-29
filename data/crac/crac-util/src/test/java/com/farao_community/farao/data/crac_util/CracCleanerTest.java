@@ -15,28 +15,28 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class CracCleanerTest {
+class CracCleanerTest {
 
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
     }
 
     @Test
-    public void testCleanCrac() {
+    void testCleanCrac() {
         Crac crac = CracFactory.findDefault().create("cracId");
 
         // contingencies
@@ -280,7 +280,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testIgnoreRemoveUnmonitoredCnecs() {
+    void testIgnoreRemoveUnmonitoredCnecs() {
         Crac crac = createTestCrac();
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
@@ -290,7 +290,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testRemoveUnmonitoredCnecs() {
+    void testRemoveUnmonitoredCnecs() {
         Crac crac = createTestCrac();
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.enableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
@@ -301,7 +301,7 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testRemoveOnStateUsageRule() {
+    void testRemoveOnStateUsageRule() {
         Crac crac = CracFactory.findDefault().create("cracId");
 
         crac.newContingency()

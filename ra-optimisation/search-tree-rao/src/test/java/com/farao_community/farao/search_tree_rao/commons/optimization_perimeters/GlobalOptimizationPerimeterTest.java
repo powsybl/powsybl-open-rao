@@ -7,27 +7,27 @@
 package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
+class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }
 
     @Test
-    public void globalOptimizationPerimeterTest() {
+    void globalOptimizationPerimeterTest() {
         raoParameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);

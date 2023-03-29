@@ -12,20 +12,20 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstSetpointImplTest {
+class PstSetpointImplTest {
 
     @Test
-    public void basicMethods() {
+    void basicMethods() {
         NetworkElement ne = new NetworkElementImpl("BBE2AA1  BBE3AA1  1");
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(ne, 12);
 
@@ -36,7 +36,7 @@ public class PstSetpointImplTest {
     }
 
     @Test
-    public void hasImpactOnNetwork() {
+    void hasImpactOnNetwork() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9);
@@ -46,7 +46,7 @@ public class PstSetpointImplTest {
     }
 
     @Test
-    public void hasNoImpactOnNetwork() {
+    void hasNoImpactOnNetwork() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             0);
@@ -56,7 +56,7 @@ public class PstSetpointImplTest {
     }
 
     @Test
-    public void applyCenteredOnZero() {
+    void applyCenteredOnZero() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9);
@@ -67,7 +67,7 @@ public class PstSetpointImplTest {
     }
 
     @Test
-    public void applyOutOfBoundStartsAtOne() {
+    void applyOutOfBoundStartsAtOne() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
@@ -81,7 +81,7 @@ public class PstSetpointImplTest {
     }
 
     @Test
-    public void applyOutOfBoundCenteredOnZero() {
+    void applyOutOfBoundCenteredOnZero() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
@@ -95,7 +95,7 @@ public class PstSetpointImplTest {
     }
 
     @Test
-    public void equals() {
+    void equals() {
         PstSetpoint pstSetpoint = new PstSetpointImpl(
             new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9);

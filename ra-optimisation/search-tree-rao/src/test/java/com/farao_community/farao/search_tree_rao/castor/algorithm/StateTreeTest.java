@@ -17,20 +17,20 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class StateTreeTest {
+class StateTreeTest {
     private Crac crac;
     private StateTree stateTree;
     private State preventiveState;
@@ -52,7 +52,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testNoCraStartFromPreventive() {
+    void testNoCraStartFromPreventive() {
         setUpCommonCrac(false);
         assertEquals(0, stateTree.getContingencyScenarios().size());
         assertEquals(crac.getStates(), stateTree.getBasecaseScenario().getAllStates());
@@ -63,7 +63,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testInitFromPreventive() {
+    void testInitFromPreventive() {
         setUpCommonCrac(true); // PST is operated by operator1, usable after CURATIVE_STATE_2
 
         assertEquals(Set.of(preventiveState, curativeState1), stateTree.getBasecaseScenario().getAllStates());
@@ -141,7 +141,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testCreatePerimetersWithNoRemedialActions() {
+    void testCreatePerimetersWithNoRemedialActions() {
         setUpCustomCrac();
         stateTree = new StateTree(crac);
         assertTrue(stateTree.getContingencyScenarios().isEmpty());
@@ -153,7 +153,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testCreatePerimetersWithOneRemedialActionOnCurative() {
+    void testCreatePerimetersWithOneRemedialActionOnCurative() {
         setUpCustomCrac();
         crac.newPstRangeAction()
             .withId("pst-ra")
@@ -173,7 +173,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testCreatePerimetersWithTwoRemedialActions() {
+    void testCreatePerimetersWithTwoRemedialActions() {
         setUpCustomCrac();
         crac.newPstRangeAction()
             .withId("pst-ra-1")
@@ -195,7 +195,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testCreatePerimetersWithTwoRemedialActionsOnSameContingency() {
+    void testCreatePerimetersWithTwoRemedialActionsOnSameContingency() {
         setUpCustomCrac();
         crac.newPstRangeAction()
             .withId("pst-ra-1")
@@ -217,7 +217,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testErrorOnOutageRa() {
+    void testErrorOnOutageRa() {
         setUpCustomCrac();
         Crac mockCrac = Mockito.spy(crac);
         State outageState = crac.getState("contingency-1", Instant.OUTAGE);
@@ -290,7 +290,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testAutoPerimeters1() {
+    void testAutoPerimeters1() {
         // 1. Neither AUTO nor CURATIVE states exist
         setUpCustomCracWithAutoInstant(false, false, false, false);
         stateTree = new StateTree(crac);
@@ -299,7 +299,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testAutoPerimeters2() {
+    void testAutoPerimeters2() {
         // 2. Only AUTO exists
 
         // 2.1 Only AUTO exists but has no RAs
@@ -314,7 +314,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testAutoPerimeters3() {
+    void testAutoPerimeters3() {
         // 3. Only CURATIVE exists
 
         // 3.1 Only CURATIVE exists but has no RAs
@@ -335,7 +335,7 @@ public class StateTreeTest {
     }
 
     @Test
-    public void testAutoPerimeters4() {
+    void testAutoPerimeters4() {
         // 4. Both AUTO and CURATIVE exist
 
         // 4.1 Both AUTO and CURATIVE exist but have no RAs

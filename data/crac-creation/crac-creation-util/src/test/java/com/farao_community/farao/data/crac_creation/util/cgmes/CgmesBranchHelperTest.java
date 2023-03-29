@@ -12,24 +12,24 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards{@literal <philippe.edwards at rte-france.com>}
  */
-public class CgmesBranchHelperTest {
+class CgmesBranchHelperTest {
 
     private static Network network;
     private CgmesBranchHelper cgmesBranchHelper;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
@@ -37,7 +37,7 @@ public class CgmesBranchHelperTest {
     }
 
     @Test
-    public void testValidNonTieLine() {
+    void testValidNonTieLine() {
         cgmesBranchHelper = new CgmesBranchHelper("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", network);
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
@@ -46,7 +46,7 @@ public class CgmesBranchHelperTest {
     }
 
     @Test
-    public void testTieLineSideOne() {
+    void testTieLineSideOne() {
         cgmesBranchHelper = new CgmesBranchHelper("_b18cd1aa-7808-49b9-a7cf-605eaf07b006", network);
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
@@ -56,7 +56,7 @@ public class CgmesBranchHelperTest {
     }
 
     @Test
-    public void testTieLineSideTwo() {
+    void testTieLineSideTwo() {
         cgmesBranchHelper = new CgmesBranchHelper("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", network);
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
@@ -66,7 +66,7 @@ public class CgmesBranchHelperTest {
     }
 
     @Test
-    public void testAbsentLine() {
+    void testAbsentLine() {
         cgmesBranchHelper = new CgmesBranchHelper("_ffbabc27-1ccd-4fdc-b037-e341706c8d20", network);
         assertFalse(cgmesBranchHelper.isValid());
         assertEquals("Branch with id _ffbabc27-1ccd-4fdc-b037-e341706c8d20 was not found in network.", cgmesBranchHelper.getInvalidReason());

@@ -12,18 +12,17 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.Math.sqrt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowThresholdImplTest {
+class LoopFlowThresholdImplTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
@@ -33,7 +32,7 @@ public class LoopFlowThresholdImplTest {
     private double iMax;
     private double nominalV;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -44,7 +43,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void basicSetterAndGetterTest() {
+    void basicSetterAndGetterTest() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.PERCENT_IMAX)
             .withValue(1.)
@@ -53,12 +52,12 @@ public class LoopFlowThresholdImplTest {
         LoopFlowThreshold loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class);
 
         assertNotNull(loopFlowThreshold);
-        Assert.assertEquals(1., loopFlowThreshold.getValue(), DOUBLE_TOLERANCE);
-        Assert.assertEquals(Unit.PERCENT_IMAX, loopFlowThreshold.getUnit());
+        assertEquals(1., loopFlowThreshold.getValue(), DOUBLE_TOLERANCE);
+        assertEquals(Unit.PERCENT_IMAX, loopFlowThreshold.getUnit());
     }
 
     @Test
-    public void convertFromPercent() {
+    void convertFromPercent() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.PERCENT_IMAX)
             .withValue(0.5)
@@ -73,7 +72,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void convertFromA() {
+    void convertFromA() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.AMPERE)
             .withValue(750)
@@ -88,7 +87,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void convertFromMW() {
+    void convertFromMW() {
         cnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT)
             .withValue(1000)
@@ -103,7 +102,7 @@ public class LoopFlowThresholdImplTest {
     }
 
     @Test
-    public void getThresholdWithFrm() {
+    void getThresholdWithFrm() {
 
         FlowCnec cnecWithFrm = crac.getFlowCnec("cnec2stateCurativeContingency2"); // contains frm of 95. MW
 

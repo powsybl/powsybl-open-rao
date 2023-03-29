@@ -9,23 +9,23 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpointAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionSetpointAdderImplTest {
+class InjectionSetpointAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
@@ -35,7 +35,7 @@ public class InjectionSetpointAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = networkActionAdder.newInjectionSetPoint()
             .withNetworkElement("groupNetworkElementId")
             .withSetpoint(100.)
@@ -51,19 +51,17 @@ public class InjectionSetpointAdderImplTest {
         assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoNetworkElement() {
-        networkActionAdder.newInjectionSetPoint()
-            .withSetpoint(100.)
-            .add()
-            .add();
+    @Test
+    void testNoNetworkElement() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+            .withSetpoint(100.);
+        assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoSetpoint() {
-        networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement("groupNetworkElementId")
-            .add()
-            .add();
+    @Test
+    void testNoSetpoint() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+            .withNetworkElement("groupNetworkElementId");
+        assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
 }

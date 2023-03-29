@@ -22,7 +22,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -30,16 +30,15 @@ import java.util.Map;
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class CracImportExportTest {
+class CracImportExportTest {
 
     @Test
-    public void roundTripTest() {
+    void roundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
 
         Crac importedCrac = RoundTripUtil.roundTrip(crac);

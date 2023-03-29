@@ -12,21 +12,21 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class TopologicalActionImplTest {
+class TopologicalActionImplTest {
 
     private TopologicalActionImpl topologyOpen;
     private TopologicalActionImpl topologyClose;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         topologyOpen = new TopologicalActionImpl(
                 new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
@@ -39,7 +39,7 @@ public class TopologicalActionImplTest {
     }
 
     @Test
-    public void basicMethods() {
+    void basicMethods() {
         assertEquals(ActionType.OPEN, topologyOpen.getActionType());
         assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElement().getId());
         assertEquals(1, topologyOpen.getNetworkElements().size());
@@ -47,7 +47,7 @@ public class TopologicalActionImplTest {
     }
 
     @Test
-    public void hasImpactOnNetworkForLine() {
+    void hasImpactOnNetworkForLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         assertTrue(topologyOpen.hasImpactOnNetwork(network));
@@ -55,7 +55,7 @@ public class TopologicalActionImplTest {
     }
 
     @Test
-    public void applyOpenCloseLine() {
+    void applyOpenCloseLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().isConnected());
         assertTrue(network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal2().isConnected());
@@ -70,7 +70,7 @@ public class TopologicalActionImplTest {
     }
 
     @Test
-    public void hasImpactOnNetworkForSwitch() {
+    void hasImpactOnNetworkForSwitch() {
         Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
 
@@ -89,7 +89,7 @@ public class TopologicalActionImplTest {
     }
 
     @Test
-    public void switchTopology() {
+    void switchTopology() {
         Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
 
@@ -109,18 +109,18 @@ public class TopologicalActionImplTest {
         assertFalse(network.getSwitch(switchNetworkElementId).isOpen());
     }
 
-    @Test (expected = NotImplementedException.class)
-    public void applyOnUnsupportedElement() {
+    @Test
+    void applyOnUnsupportedElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         TopologicalActionImpl topologyOnNode = new TopologicalActionImpl(
                 new NetworkElementImpl("FFR2AA1"),
                 ActionType.OPEN);
 
-        topologyOnNode.apply(network);
+        assertThrows(NotImplementedException.class, () -> topologyOnNode.apply(network));
     }
 
     @Test
-    public void equals() {
+    void equals() {
         assertEquals(topologyClose, topologyClose);
         assertNotEquals(topologyClose, topologyOpen);
     }

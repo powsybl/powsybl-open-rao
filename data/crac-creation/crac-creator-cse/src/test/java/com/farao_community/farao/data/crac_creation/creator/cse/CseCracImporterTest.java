@@ -6,25 +6,25 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class CseCracImporterTest {
+class CseCracImporterTest {
 
     @Test
-    public void getFormat() {
+    void getFormat() {
         CseCracImporter cseCracImporter = new CseCracImporter();
         assertEquals("CseCrac", cseCracImporter.getFormat());
     }
 
     @Test
-    public void importNativeCrac() {
+    void importNativeCrac() {
         InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_1.xml");
         CseCracImporter importer = new CseCracImporter();
         CseCrac cseCrac = importer.importNativeCrac(is);
@@ -32,7 +32,7 @@ public class CseCracImporterTest {
     }
 
     @Test
-    public void importNativeCracWithMNE() {
+    void importNativeCracWithMNE() {
         InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_with_MNE.xml");
         CseCracImporter importer = new CseCracImporter();
         CseCrac cseCrac = importer.importNativeCrac(is);

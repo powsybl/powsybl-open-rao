@@ -10,15 +10,15 @@ import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ReferenceProgramBuilderTest {
+class ReferenceProgramBuilderTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private EICode eiCodeFrance;
@@ -26,7 +26,7 @@ public class ReferenceProgramBuilderTest {
     private EICode eiCodeNetherlands;
     private EICode eiCodeGermany;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         eiCodeFrance = new EICode(Country.FR);
         eiCodeBelgium = new EICode(Country.BE);
@@ -35,7 +35,7 @@ public class ReferenceProgramBuilderTest {
     }
 
     @Test
-    public void testLines() {
+    void testLines() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(1000.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
@@ -45,7 +45,7 @@ public class ReferenceProgramBuilderTest {
     }
 
     @Test
-    public void testDanglingLines() {
+    void testDanglingLines() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(0.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
@@ -53,7 +53,7 @@ public class ReferenceProgramBuilderTest {
     }
 
     @Test
-    public void testHvdcLines() {
+    void testHvdcLines() {
         Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
         ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(272.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);

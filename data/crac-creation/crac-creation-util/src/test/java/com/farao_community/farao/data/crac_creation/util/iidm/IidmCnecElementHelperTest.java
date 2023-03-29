@@ -9,26 +9,26 @@ package com.farao_community.farao.data.crac_creation.util.iidm;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class IidmCnecElementHelperTest {
+class IidmCnecElementHelperTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
     }
 
     @Test
-    public void testValidBranch() {
+    void testValidBranch() {
         // internal branch
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE1AA1  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
@@ -53,7 +53,7 @@ public class IidmCnecElementHelperTest {
     }
 
     @Test
-    public void testInvalidInternalBranch() {
+    void testInvalidInternalBranch() {
         // unknown from
         assertFalse(new IidmCnecElementHelper("UNKNOW1 BBE1AA1 1", network).isValid());
 
@@ -65,7 +65,7 @@ public class IidmCnecElementHelperTest {
     }
 
     @Test
-    public void testValidTransformer() {
+    void testValidTransformer() {
 
         /* note that transformers from/to node are systematically inverted by PowSyBl UCTE importer
         For instance, the transformer with id "UCTNODE1 UCTNODE2 1" have :
@@ -102,7 +102,7 @@ public class IidmCnecElementHelperTest {
     }
 
     @Test
-    public void testInvalidTransformer() {
+    void testInvalidTransformer() {
 
         // transformer exists but not with this order code
         assertFalse(new IidmCnecElementHelper("BBE2AA1  BBE3AA1  2", network).isValid());
@@ -112,7 +112,7 @@ public class IidmCnecElementHelperTest {
     }
 
     @Test
-    public void testValidDanglingLine() {
+    void testValidDanglingLine() {
 
         // dangling-line with order code
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE2AA1  XBE2AL1  1", network);
@@ -129,13 +129,13 @@ public class IidmCnecElementHelperTest {
     }
 
     @Test
-    public void testInvalidDanglingLine() {
+    void testInvalidDanglingLine() {
         // dangling-line exists but not with this order code
         assertFalse(new IidmCnecElementHelper("XBE2AL1  BBE2AA1  2", network).isValid());
     }
 
     @Test
-    public void testValidHalfLine() {
+    void testValidHalfLine() {
 
         // if half-line is put in argument, the associated tie-line is recognized
         IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("FFR3AA1  XBEFR11  1", network);
@@ -160,7 +160,7 @@ public class IidmCnecElementHelperTest {
     }
 
     @Test
-    public void testInvalidConstructor() {
+    void testInvalidConstructor() {
         assertFalse(new IidmCnecElementHelper(null, network).isValid());
     }
 }

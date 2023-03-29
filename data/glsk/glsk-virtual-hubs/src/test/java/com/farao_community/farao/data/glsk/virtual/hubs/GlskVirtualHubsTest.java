@@ -9,23 +9,23 @@ package com.farao_community.farao.data.glsk.virtual.hubs;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class GlskVirtualHubsTest {
+class GlskVirtualHubsTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     @Test
-    public void testGetVirtualHubsOk() {
+    void testGetVirtualHubsOk() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
         Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
@@ -48,7 +48,7 @@ public class GlskVirtualHubsTest {
     }
 
     @Test
-    public void testGetVirtualHubsNotFound() {
+    void testGetVirtualHubsNotFound() {
         String networkFileName = "network_with_virtual_hubs.xiidm";
         Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");

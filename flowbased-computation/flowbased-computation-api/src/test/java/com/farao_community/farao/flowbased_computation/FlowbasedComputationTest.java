@@ -11,18 +11,18 @@ import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class FlowbasedComputationTest {
+class FlowbasedComputationTest {
 
     private Network network;
 
@@ -30,7 +30,7 @@ public class FlowbasedComputationTest {
 
     private ZonalData<SensitivityVariableSet> glsk;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Mockito.mock(Network.class);
         crac = Mockito.mock(Crac.class);
@@ -38,7 +38,7 @@ public class FlowbasedComputationTest {
     }
 
     @Test
-    public void testDefaultProvider() {
+    void testDefaultProvider() {
         // case with only one provider, no need for config
         FlowbasedComputation.Runner defaultFlowBased = FlowbasedComputation.find();
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());

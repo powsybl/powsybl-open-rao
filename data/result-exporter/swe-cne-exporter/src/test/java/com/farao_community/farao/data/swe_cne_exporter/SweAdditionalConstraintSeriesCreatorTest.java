@@ -14,26 +14,26 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.AdditionalConstraintSeries;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SweAdditionalConstraintSeriesCreatorTest {
+class SweAdditionalConstraintSeriesCreatorTest {
 
     private SweCneHelper sweCneHelper;
     private Crac crac;
     private AngleMonitoringResult angleMonitoringResult;
     private CimCracCreationContext cracCreationContext;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.angleMonitoringResult = Mockito.mock(AngleMonitoringResult.class);
@@ -65,7 +65,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generatePreventiveAdditionalConstraintSeriesTest() {
+    void generatePreventiveAdditionalConstraintSeriesTest() {
         AngleCnecCreationContext accPrev = createAdcs("AngleCnecIdPrev", null);
         AngleCnec angleCnecPrev = Mockito.mock(AngleCnec.class);
         Mockito.when(crac.getAngleCnec(accPrev.getCreatedCnecId())).thenReturn(angleCnecPrev);
@@ -80,7 +80,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generateWrongPostContingencyAdditionalConstraintSeriesTest() {
+    void generateWrongPostContingencyAdditionalConstraintSeriesTest() {
         AngleCnecCreationContext accOutage = createAdcs("AngleCnecIdOutage", "contingency");
         AngleCnecCreationContext accAuto = createAdcs("AngleCnecIdAuto", "contingency");
         AngleCnec angleCnecOutage = Mockito.mock(AngleCnec.class);
@@ -104,7 +104,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generateContingencyAdditionalConstraintSeriesTest() {
+    void generateContingencyAdditionalConstraintSeriesTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = setUpAngleCnecs(contingency);
         List<AdditionalConstraintSeries> contingencyAngleSeries = additionalConstraintSeriesCreator.generateAdditionalConstraintSeries(contingency);
@@ -120,7 +120,7 @@ public class SweAdditionalConstraintSeriesCreatorTest {
     }
 
     @Test
-    public void generateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringTest() {
+    void generateContingencyAdditionalConstraintSeriesWithDivergentAngleMonitoringTest() {
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(angleMonitoringResult.isDivergent()).thenReturn(true);
         setUpAngleCnecs(contingency);

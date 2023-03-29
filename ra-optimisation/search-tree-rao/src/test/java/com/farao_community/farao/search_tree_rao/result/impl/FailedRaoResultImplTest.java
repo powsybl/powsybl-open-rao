@@ -19,18 +19,18 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.mockito.Mockito.mock;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FailedRaoResultImplTest {
+class FailedRaoResultImplTest {
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         OptimizationState optimizationState = mock(OptimizationState.class);
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
@@ -64,7 +64,7 @@ public class FailedRaoResultImplTest {
     }
 
     @Test
-    public void testAngleAndVoltageCnec() {
+    void testAngleAndVoltageCnec() {
         OptimizationState optimizationState = mock(OptimizationState.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         AngleCnec angleCnec = mock(AngleCnec.class);
@@ -76,7 +76,7 @@ public class FailedRaoResultImplTest {
     }
 
     @Test
-    public void testgetFlowAndMargin() {
+    void testgetFlowAndMargin() {
         OptimizationState optimizationState = mock(OptimizationState.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         FlowCnec flowCnec = mock(FlowCnec.class);

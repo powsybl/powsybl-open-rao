@@ -13,22 +13,22 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.commons.Unit.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SensitivityResultImplTest {
+class SensitivityResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testSensitivitiesOnRangeAction() {
+    void testSensitivitiesOnRangeAction() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
                 systematicSensitivityResult
@@ -47,7 +47,7 @@ public class SensitivityResultImplTest {
     }
 
     @Test
-    public void testSensitivitiesOnLinearGLSK() {
+    void testSensitivitiesOnLinearGLSK() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
                 systematicSensitivityResult
@@ -62,7 +62,7 @@ public class SensitivityResultImplTest {
     }
 
     @Test
-    public void testStatus() {
+    void testStatus() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
                 systematicSensitivityResult

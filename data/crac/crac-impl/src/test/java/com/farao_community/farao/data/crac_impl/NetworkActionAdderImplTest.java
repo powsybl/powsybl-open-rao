@@ -10,24 +10,23 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionAdderImplTest {
+class NetworkActionAdderImplTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
 
@@ -38,7 +37,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -62,7 +61,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithTwoElementaryActions() {
+    void testOkWithTwoElementaryActions() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -86,7 +85,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithTwoUsageRules() {
+    void testOkWithTwoUsageRules() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -115,7 +114,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithoutName() {
+    void testOkWithoutName() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withOperator("operator")
@@ -133,7 +132,7 @@ public class NetworkActionAdderImplTest {
     }
 
     @Test
-    public void testOkWithoutOperator() {
+    void testOkWithoutOperator() {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -149,20 +148,20 @@ public class NetworkActionAdderImplTest {
         assertEquals(1, networkAction.getElementaryActions().size());
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNokWithoutId() {
-        crac.newNetworkAction()
-            .withName("networkActionName")
-            .withOperator("operator")
-            .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
-            .add();
+    @Test
+    void testNokWithoutId() {
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+                .withName("networkActionName")
+                .withOperator("operator")
+                .newPstSetPoint()
+                    .withNetworkElement("pstNetworkElementId")
+                    .withSetpoint(6)
+                    .add();
+        assertThrows(FaraoException.class, networkActionAdder::add);
     }
 
     @Test
-    public void testIdNotUnique() {
+    void testIdNotUnique() {
         crac.newPstRangeAction()
             .withId("sameId")
             .withOperator("BE")
@@ -170,25 +169,18 @@ public class NetworkActionAdderImplTest {
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.))
             .add();
-
-        try {
-            crac.newNetworkAction()
-                .withId("sameId")
-                .withOperator("BE")
-                .add();
-
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+            .withId("sameId")
+            .withOperator("BE");
+        assertThrows(FaraoException.class, networkActionAdder::add);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNokWithoutElementaryAction() {
-        crac.newNetworkAction()
-                .withId("networkActionName")
-                .withName("networkActionName")
-                .withOperator("operator")
-                .add();
+    @Test
+    void testNokWithoutElementaryAction() {
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+            .withId("networkActionName")
+            .withName("networkActionName")
+            .withOperator("operator");
+        assertThrows(FaraoException.class, networkActionAdder::add);
     }
 }

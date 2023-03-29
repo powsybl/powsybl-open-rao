@@ -14,22 +14,22 @@ import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParamete
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class MnecViolationCostEvaluatorTest {
+class MnecViolationCostEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
 
     private FlowCnec mnec1;
@@ -42,7 +42,7 @@ public class MnecViolationCostEvaluatorTest {
     private MnecViolationCostEvaluator evaluator1;
     private MnecViolationCostEvaluator evaluator2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         State state = Mockito.mock(State.class);
         when(state.getContingency()).thenReturn(Optional.empty());
@@ -107,17 +107,17 @@ public class MnecViolationCostEvaluatorTest {
     }
 
     @Test
-    public void getUnit() {
+    void getUnit() {
         assertEquals(Unit.MEGAWATT, evaluator1.getUnit());
     }
 
     @Test
-    public void getName() {
+    void getName() {
         assertEquals("mnec-cost", evaluator1.getName());
     }
 
     @Test
-    public void getCostlyElements() {
+    void getCostlyElements() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
         List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight();
@@ -127,14 +127,14 @@ public class MnecViolationCostEvaluatorTest {
     }
 
     @Test
-    public void computeCostWithTooLowCost() {
+    void computeCostWithTooLowCost() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10, Unit.MEGAWATT);
 
         assertEquals(0, evaluator.computeCostAndLimitingElements(currentFlowResult, rangeActionActivationResult, sensitivityResult, Mockito.mock(ComputationStatus.class)).getLeft(), 1e-12);
     }
 
     @Test
-    public void testVirtualCostComputationInMW() {
+    void testVirtualCostComputationInMW() {
         testCost(-100, 0, 0, 0);
         testCost(-100, -50, 0, 0);
         testCost(-100, -150, 0, 60);
@@ -167,7 +167,7 @@ public class MnecViolationCostEvaluatorTest {
     }
 
     @Test
-    public void testAmperes() {
+    void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
         List<FlowCnec> costlyElements = evaluator.computeCostAndLimitingElements(currentFlowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight();

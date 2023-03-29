@@ -14,9 +14,8 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -24,13 +23,13 @@ import java.util.Optional;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationDirectionExtension.*;
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem.VariationReferenceExtension.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LinearProblemTest {
+class LinearProblemTest {
 
     private static final double LB = -11.1;
     private static final double UB = 22.2;
@@ -45,9 +44,9 @@ public class LinearProblemTest {
     private State state;
     private PstRangeAction rangeAction;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        FaraoMPSolver solver = new MPSolverMock();
+        FaraoMPSolver solver = new FaraoMPSolver();
         linearProblem = new LinearProblemBuilder().withSolver(solver).build();
 
         rangeAction = Mockito.mock(PstRangeAction.class);
@@ -61,7 +60,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void flowVariableTest() {
+    void flowVariableTest() {
         assertNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
         linearProblem.addFlowVariable(LB, UB, cnec, Side.LEFT);
         assertNotNull(linearProblem.getFlowVariable(cnec, Side.LEFT));
@@ -70,7 +69,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void flowConstraintTest() {
+    void flowConstraintTest() {
         assertNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
         linearProblem.addFlowConstraint(LB, UB, cnec, Side.LEFT);
         assertNotNull(linearProblem.getFlowConstraint(cnec, Side.LEFT));
@@ -79,7 +78,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void rangeActionSetPointVariableTest() {
+    void rangeActionSetPointVariableTest() {
         assertNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
         linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction, state);
         assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction, state));
@@ -88,7 +87,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void rangeActionAbsoluteVariationVariableTest() {
+    void rangeActionAbsoluteVariationVariableTest() {
         assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
         linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction, state);
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
@@ -97,7 +96,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void rangeActionAbsoluteVariationConstraintTest() {
+    void rangeActionAbsoluteVariationConstraintTest() {
         assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.NEGATIVE));
         assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction, state, LinearProblem.AbsExtension.POSITIVE));
         linearProblem.addAbsoluteRangeActionVariationConstraint(LB, UB, rangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
@@ -109,7 +108,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void pstTapVariationIntegerAndBinaryVariablesTest() {
+    void pstTapVariationIntegerAndBinaryVariablesTest() {
         assertNull(linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
         assertNull(linearProblem.getPstTapVariationVariable(rangeAction, state, DOWNWARD));
         assertNull(linearProblem.getPstTapVariationBinary(rangeAction, state, UPWARD));
@@ -129,7 +128,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void pstTapConstraintsTest() {
+    void pstTapConstraintsTest() {
         assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, UPWARD));
         assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, state, PREVIOUS_ITERATION, DOWNWARD));
         assertNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction, state));
@@ -147,7 +146,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void pstGroupVariablesAndConstraintsTest() {
+    void pstGroupVariablesAndConstraintsTest() {
         assertNull(linearProblem.getPstGroupTapVariable(GROUP_ID, state));
         assertNull(linearProblem.getPstGroupTapConstraint(rangeAction, state));
 
@@ -161,7 +160,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void minimumMarginConstraintTest() {
+    void minimumMarginConstraintTest() {
         assertNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
         assertNull(linearProblem.getMinimumMarginConstraint(cnec, Side.LEFT, LinearProblem.MarginExtension.BELOW_THRESHOLD));
         linearProblem.addMinimumMarginConstraint(LB, UB, cnec, Side.LEFT, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
@@ -173,7 +172,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void minimumMarginVariableTest() {
+    void minimumMarginVariableTest() {
         assertNull(linearProblem.getMinimumMarginVariable());
         linearProblem.addMinimumMarginVariable(LB, UB);
         assertNotNull(linearProblem.getMinimumMarginVariable());
@@ -182,28 +181,28 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void minimumRelativeMarginSignBinaryVariableTest() {
+    void minimumRelativeMarginSignBinaryVariableTest() {
         assertNull(linearProblem.getMinimumRelativeMarginSignBinaryVariable());
         linearProblem.addMinimumRelativeMarginSignBinaryVariable();
         assertNotNull(linearProblem.getMinimumRelativeMarginSignBinaryVariable());
     }
 
     @Test
-    public void minimumRelMarginSignDefinitionConstraintTest() {
+    void minimumRelMarginSignDefinitionConstraintTest() {
         assertNull(linearProblem.getMinimumRelMarginSignDefinitionConstraint());
         linearProblem.addMinimumRelMarginSignDefinitionConstraint(LB, UB);
         assertNotNull(linearProblem.getMinimumRelMarginSignDefinitionConstraint());
     }
 
     @Test
-    public void minimumRelMarginSetToZeroConstraintTest() {
+    void minimumRelMarginSetToZeroConstraintTest() {
         assertNull(linearProblem.getMinimumRelMarginSetToZeroConstraint());
         linearProblem.addMinimumRelMarginSetToZeroConstraint(LB, UB);
         assertNotNull(linearProblem.getMinimumRelMarginSetToZeroConstraint());
     }
 
     @Test
-    public void maxLoopFlowConstraintTest() {
+    void maxLoopFlowConstraintTest() {
         assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.UPPER_BOUND));
         assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, Side.LEFT, LinearProblem.BoundExtension.LOWER_BOUND));
 
@@ -215,7 +214,7 @@ public class LinearProblemTest {
     }
 
     @Test
-    public void objectiveTest() {
+    void objectiveTest() {
         assertNotNull(linearProblem.getObjective());
     }
 }

@@ -31,20 +31,20 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AutomatonSimulatorTest {
+class AutomatonSimulatorTest {
     private AutomatonSimulator automatonSimulator;
 
     private Crac crac;
@@ -69,7 +69,7 @@ public class AutomatonSimulatorTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    @Before
+    @BeforeEach
     public void setup() {
         network = Network.read("TestCase16NodesWith2Hvdc.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWith2Hvdc.xiidm"));
         // Add some lines otherwise HVDC2 is connected to nothing and load-flow produces NaN angles
@@ -231,20 +231,20 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testGatherCnecs() {
+    void testGatherCnecs() {
         assertEquals(2, automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra2, autoState, network).size());
         assertEquals(1, automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra3, autoState, network).size());
     }
 
     @Test
-    public void testGatherCnecsError() {
+    void testGatherCnecsError() {
         RangeAction<?> ra = Mockito.mock(RangeAction.class);
         Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, () -> automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network));
     }
 
     @Test
-    public void testCheckAlignedRangeActions1() {
+    void testCheckAlignedRangeActions1() {
         // OK
         assertTrue(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara1, ara2), List.of(ara1, ara2)));
         assertTrue(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara2, ara1), List.of(ara1, ara2)));
@@ -259,14 +259,14 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testBuildRangeActionsGroupsOrderedBySpeed() {
+    void testBuildRangeActionsGroupsOrderedBySpeed() {
         PrePerimeterResult rangeActionSensitivity = Mockito.mock(PrePerimeterResult.class);
         List<List<RangeAction<?>>> result = automatonSimulator.buildRangeActionsGroupsOrderedBySpeed(rangeActionSensitivity, autoState, network);
         assertEquals(List.of(List.of(hvdcRa1, hvdcRa2), List.of(ra2), List.of(ara1, ara2), List.of(ra3)), result);
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControl1() {
+    void testDisableHvdcAngleDroopControl1() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
@@ -297,7 +297,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControl2() {
+    void testDisableHvdcAngleDroopControl2() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
@@ -316,7 +316,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControl3() {
+    void testDisableHvdcAngleDroopControl3() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
@@ -328,7 +328,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControl4() {
+    void testDisableHvdcAngleDroopControl4() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
@@ -339,7 +339,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControl5() {
+    void testDisableHvdcAngleDroopControl5() {
         // Test with phi1 < phi2
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
@@ -364,7 +364,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControl6() {
+    void testDisableHvdcAngleDroopControl6() {
         // Initial setpoint is out of RA's allowed range. Do not disable HvdcAngleDroopControl
         hvdcRa1 = crac.newHvdcRangeAction()
             .withId("hvdc-ra3")
@@ -384,7 +384,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testRoundUpAngleToTapWrtInitialSetpoint() {
+    void testRoundUpAngleToTapWrtInitialSetpoint() {
         assertEquals(2.1, AutomatonSimulator.roundUpAngleToTapWrtInitialSetpoint(ara1, 1.2, 0.1), DOUBLE_TOLERANCE);
         assertEquals(1.1, AutomatonSimulator.roundUpAngleToTapWrtInitialSetpoint(ara1, 1.1, 0.1), DOUBLE_TOLERANCE);
         assertEquals(1.1, AutomatonSimulator.roundUpAngleToTapWrtInitialSetpoint(ara1, 0.2, 0.1), DOUBLE_TOLERANCE);
@@ -396,7 +396,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testComputeOptimalSetpoint() {
+    void testComputeOptimalSetpoint() {
         double optimalSetpoint;
         // limit by min
         optimalSetpoint = automatonSimulator.computeOptimalSetpoint(0.1, 1100., -100., 1, ara1, -3.1, 3.1);
@@ -422,7 +422,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testShiftRangeActionsUntilFlowCnecsSecureCase1() {
+    void testShiftRangeActionsUntilFlowCnecsSecureCase1() {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.RIGHT));
 
@@ -447,7 +447,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testShiftRangeActionsUntilFlowCnecsSecureCase2() {
+    void testShiftRangeActionsUntilFlowCnecsSecureCase2() {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT, Side.RIGHT));
 
@@ -474,7 +474,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testShiftRangeActionsUntilFlowCnecsSecureCase3() {
+    void testShiftRangeActionsUntilFlowCnecsSecureCase3() {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT));
 
@@ -497,7 +497,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testShiftRangeActionsUntilFlowCnecsSecureCase4() {
+    void testShiftRangeActionsUntilFlowCnecsSecureCase4() {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(Side.RIGHT));
 
@@ -530,7 +530,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testSimulateRangeAutomatons() {
+    void testSimulateRangeAutomatons() {
         State curativeState = mock(State.class);
         when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
@@ -558,7 +558,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testSimulateTopologicalAutomatons() {
+    void testSimulateTopologicalAutomatons() {
         // margin < 0 => activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
         AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
@@ -582,7 +582,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testSimulateTopologicalAutomatonsFailure() {
+    void testSimulateTopologicalAutomatonsFailure() {
         when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis);
         assertNotNull(result);
@@ -590,7 +590,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testSimulateAutomatonState() {
+    void testSimulateAutomatonState() {
         State curativeState = mock(State.class);
         when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
@@ -628,7 +628,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testSimulateAutomatonStateFailure() {
+    void testSimulateAutomatonStateFailure() {
         when(mockedPrePerimeterResult.getSensitivityStatus(autoState)).thenReturn(ComputationStatus.FAILURE);
         State curativeState = mock(State.class);
         when(curativeState.getInstant()).thenReturn(Instant.CURATIVE);
@@ -641,7 +641,7 @@ public class AutomatonSimulatorTest {
     }
 
     @Test
-    public void testDisableHvdcAngleDroopControlBeforeShifting() {
+    void testDisableHvdcAngleDroopControlBeforeShifting() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
         when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 

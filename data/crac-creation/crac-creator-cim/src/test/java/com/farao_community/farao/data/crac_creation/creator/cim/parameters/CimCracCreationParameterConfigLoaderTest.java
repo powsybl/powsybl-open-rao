@@ -9,24 +9,24 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CimCracCreationParameterConfigLoaderTest {
+class CimCracCreationParameterConfigLoaderTest {
 
     @Test
-    public void configLoaderTest() {
+    void configLoaderTest() {
         PlatformConfig platformConfig = Mockito.mock(PlatformConfig.class);
         ModuleConfig cimCracCreatorModuleConfig = Mockito.mock(ModuleConfig.class);
 

@@ -6,19 +6,19 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.api.parameters;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AlignedRaCracCreationParametersTest {
+class AlignedRaCracCreationParametersTest {
 
     @Test
-    public void setRangeActionGroupsAsStringTest() {
+    void setRangeActionGroupsAsStringTest() {
         CracCreationParametersMock cracCreationParameters = new CracCreationParametersMock();
         cracCreationParameters.setRangeActionGroupsAsString(List.of("rangeAction3 + rangeAction4", "hvdc1 + hvdc2"));
         assertEquals(2, cracCreationParameters.getRangeActionGroups().size());

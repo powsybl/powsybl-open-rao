@@ -20,8 +20,8 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
@@ -33,17 +33,17 @@ import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AbsolutePtdfSumsComputationTest {
+class AbsolutePtdfSumsComputationTest {
     private static final double DOUBLE_TOLERANCE = 0.001;
 
     private SystematicSensitivityResult systematicSensitivityResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
@@ -87,7 +87,7 @@ public class AbsolutePtdfSumsComputationTest {
     }
 
     @Test
-    public void testComputation() {
+    void testComputation() {
 
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
@@ -110,7 +110,7 @@ public class AbsolutePtdfSumsComputationTest {
     }
 
     @Test
-    public void testIgnoreZtoZWithLessThan2ZtoS() {
+    void testIgnoreZtoZWithLessThan2ZtoS() {
 
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
@@ -135,7 +135,7 @@ public class AbsolutePtdfSumsComputationTest {
     }
 
     @Test
-    public void testIgnoreGlskOnDisconnectedXnodes() {
+    void testIgnoreGlskOnDisconnectedXnodes() {
 
         // prepare data
         Network network = Network.read("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));

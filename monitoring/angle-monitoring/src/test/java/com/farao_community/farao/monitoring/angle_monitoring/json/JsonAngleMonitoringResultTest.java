@@ -14,22 +14,24 @@ import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class JsonAngleMonitoringResultTest {
+class JsonAngleMonitoringResultTest {
     private static final double ANGLE_TOLERANCE = 0.5;
 
     Crac crac;
@@ -39,8 +41,9 @@ public class JsonAngleMonitoringResultTest {
     NetworkAction na2;
     State preventiveState;
     Contingency co1;
+    AngleMonitoringResultImporter angleMonitoringResultImporter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac");
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
@@ -57,6 +60,7 @@ public class JsonAngleMonitoringResultTest {
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(ac2.getId()).add()
                 .add();
+        angleMonitoringResultImporter = new AngleMonitoringResultImporter();
     }
 
     private AngleCnec addAngleCnec(String id, String importingNetworkElement, String exportingNetworkElement, Instant instant, String contingencyId, Double min, Double max) {
@@ -83,10 +87,9 @@ public class JsonAngleMonitoringResultTest {
     }
 
     @Test
-    public void testRoundTrip() throws IOException {
+    void testRoundTrip() throws IOException {
         AngleMonitoringResult angleMonitoringResult =
             new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-roundTrip.json"), crac);
-        System.out.println(angleMonitoringResult.getAngleCnecsWithAngle().iterator().next().getAngleCnec().getId());
         assertEquals("SECURE", angleMonitoringResult.getStatus().toString());
         assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
         assertEquals(2, angleMonitoringResult.getAppliedCras().keySet().size());
@@ -107,98 +110,11 @@ public class JsonAngleMonitoringResultTest {
                 && (Math.abs(ar1.getAngle() - ar2.getAngle()) < ANGLE_TOLERANCE);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testFailsIfCnecIdNull() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok1.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfQuantityNull() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok2.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfInstantNull() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok3.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfContingencyNull() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok4.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfCnecIdUsedTwiceInPreventive() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok5.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfCnecIdUsedTwiceInCurative() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok6.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfCnecNotInCrac() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok7.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfWrongField1() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok8.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfWrongField2() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok9.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfWrongField3() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok10.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfNoType() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok11.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfWrongType() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok12.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfNoStatus() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok13.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfWrongStatus() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok14.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfRaUsedTwiceInPreventive() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok15.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfRaUsedTwiceInCurative() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok16.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfNoContingencyDefinedInCurative() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok17.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfStateNotInCrac() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok18.json"), crac);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testFailsIfInstantUnhandled() {
-        new AngleMonitoringResultImporter().importAngleMonitoringResult(getClass().getResourceAsStream("/result-nok19.json"), crac);
+    @ParameterizedTest
+    @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9",
+        "nok10", "nok11", "nok12", "nok13", "nok14", "nok15", "nok16", "nok17", "nok18", "nok19"})
+    void importNokTest(String source) {
+        InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
+        assertThrows(FaraoException.class, () -> angleMonitoringResultImporter.importAngleMonitoringResult(inputStream, crac));
     }
 }

@@ -10,18 +10,18 @@ package com.farao_community.farao.data.crac_util;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public class CracAliasesCreatorTest {
+class CracAliasesCreatorTest {
 
     @Test
-    public void testCracAliasesUtil7Char() {
+    void testCracAliasesUtil7Char() {
         Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
         Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 
@@ -37,7 +37,7 @@ public class CracAliasesCreatorTest {
     }
 
     @Test
-    public void testCracAliasesUtil8Char() {
+    void testCracAliasesUtil8Char() {
         Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
         Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 

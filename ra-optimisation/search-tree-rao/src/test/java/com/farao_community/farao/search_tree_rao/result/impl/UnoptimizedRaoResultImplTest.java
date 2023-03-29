@@ -17,13 +17,13 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
@@ -32,13 +32,13 @@ import static com.farao_community.farao.commons.Unit.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UnoptimizedRaoResultImplTest {
+class UnoptimizedRaoResultImplTest {
     private PrePerimeterResult initialResult;
     private UnoptimizedRaoResultImpl output;
     private FlowCnec flowCnec;
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         initialResult = Mockito.mock(PrePerimeterResult.class);
         output = new UnoptimizedRaoResultImpl(initialResult);
@@ -46,13 +46,13 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetComputationStatus() {
+    void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 
     @Test
-    public void testGetFlow() {
+    void testGetFlow() {
         when(initialResult.getFlow(flowCnec, LEFT, AMPERE)).thenReturn(100.);
         when(initialResult.getFlow(flowCnec, LEFT, MEGAWATT)).thenReturn(1000.);
 
@@ -68,7 +68,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetMargin() {
+    void testGetMargin() {
         when(initialResult.getMargin(flowCnec, AMPERE)).thenReturn(100.);
         when(initialResult.getMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
 
@@ -84,7 +84,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetRelativeMargin() {
+    void testGetRelativeMargin() {
         when(initialResult.getRelativeMargin(flowCnec, AMPERE)).thenReturn(100.);
         when(initialResult.getRelativeMargin(flowCnec, MEGAWATT)).thenReturn(1000.);
 
@@ -100,7 +100,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetCommercialFlow() {
+    void testGetCommercialFlow() {
         when(initialResult.getCommercialFlow(flowCnec, RIGHT, AMPERE)).thenReturn(100.);
         when(initialResult.getCommercialFlow(flowCnec, RIGHT, MEGAWATT)).thenReturn(1000.);
 
@@ -116,7 +116,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetLoopFlow() {
+    void testGetLoopFlow() {
         when(initialResult.getLoopFlow(flowCnec, LEFT, AMPERE)).thenReturn(100.);
         when(initialResult.getLoopFlow(flowCnec, LEFT, MEGAWATT)).thenReturn(1000.);
 
@@ -132,7 +132,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetPtdfZonalSum() {
+    void testGetPtdfZonalSum() {
         when(initialResult.getPtdfZonalSum(flowCnec, RIGHT)).thenReturn(100.);
 
         assertEquals(100., output.getPtdfZonalSum(OptimizationState.INITIAL, flowCnec, RIGHT), DOUBLE_TOLERANCE);
@@ -142,7 +142,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetCost() {
+    void testGetCost() {
         when(initialResult.getCost()).thenReturn(-50.);
         assertEquals(-50., output.getCost(OptimizationState.INITIAL), DOUBLE_TOLERANCE);
         assertEquals(-50., output.getCost(OptimizationState.AFTER_PRA), DOUBLE_TOLERANCE);
@@ -151,7 +151,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetFunctionalCost() {
+    void testGetFunctionalCost() {
         when(initialResult.getFunctionalCost()).thenReturn(-500.);
         assertEquals(-500., output.getFunctionalCost(OptimizationState.INITIAL), DOUBLE_TOLERANCE);
         assertEquals(-500., output.getFunctionalCost(OptimizationState.AFTER_PRA), DOUBLE_TOLERANCE);
@@ -160,7 +160,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetVirtualCost() {
+    void testGetVirtualCost() {
         when(initialResult.getVirtualCost()).thenReturn(-5000.);
         assertEquals(-5000., output.getVirtualCost(OptimizationState.INITIAL), DOUBLE_TOLERANCE);
         assertEquals(-5000., output.getVirtualCost(OptimizationState.AFTER_PRA), DOUBLE_TOLERANCE);
@@ -169,13 +169,13 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetVirtualCostNames() {
+    void testGetVirtualCostNames() {
         when(initialResult.getVirtualCostNames()).thenReturn(Set.of("one", "two"));
         assertEquals(Set.of("one", "two"), output.getVirtualCostNames());
     }
 
     @Test
-    public void testGetVirtualCostWithName() {
+    void testGetVirtualCostWithName() {
         when(initialResult.getVirtualCost("one")).thenReturn(60.);
         when(initialResult.getVirtualCost("two")).thenReturn(600.);
 
@@ -191,34 +191,34 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testWasActivatedBeforeState() {
+    void testWasActivatedBeforeState() {
         NetworkAction na = Mockito.mock(NetworkAction.class);
         State state = Mockito.mock(State.class);
         assertFalse(output.wasActivatedBeforeState(state, na));
     }
 
     @Test
-    public void testIsActivatedDuringState() {
+    void testIsActivatedDuringState() {
         NetworkAction na = Mockito.mock(NetworkAction.class);
         State state = Mockito.mock(State.class);
         assertFalse(output.isActivatedDuringState(state, na));
     }
 
     @Test
-    public void testGetActivatedNetworkActionsDuringState() {
+    void testGetActivatedNetworkActionsDuringState() {
         State state = Mockito.mock(State.class);
         assertTrue(output.getActivatedNetworkActionsDuringState(state).isEmpty());
     }
 
     @Test
-    public void testIsActivatedDuringStateRa() {
+    void testIsActivatedDuringStateRa() {
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
         State state = Mockito.mock(State.class);
         assertFalse(output.isActivatedDuringState(state, rangeAction));
     }
 
     @Test
-    public void testGetPreOptimizationTapOnState() {
+    void testGetPreOptimizationTapOnState() {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         when(initialResult.getTap(pstRangeAction)).thenReturn(6);
         State state1 = Mockito.mock(State.class);
@@ -228,7 +228,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetOptimizedTapOnState() {
+    void testGetOptimizedTapOnState() {
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         when(initialResult.getTap(pstRangeAction)).thenReturn(6);
         State state1 = Mockito.mock(State.class);
@@ -238,7 +238,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetPreOptimizationSetPointOnState() {
+    void testGetPreOptimizationSetPointOnState() {
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
         when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
@@ -248,7 +248,7 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetOptimizedSetPointOnState() {
+    void testGetOptimizedSetPointOnState() {
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
         when(initialResult.getSetpoint(rangeAction)).thenReturn(60.);
         State state1 = Mockito.mock(State.class);
@@ -258,13 +258,13 @@ public class UnoptimizedRaoResultImplTest {
     }
 
     @Test
-    public void testGetActivatedRangeActionsDuringState() {
+    void testGetActivatedRangeActionsDuringState() {
         State state1 = Mockito.mock(State.class);
         assertTrue(output.getActivatedRangeActionsDuringState(state1).isEmpty());
     }
 
     @Test
-    public void testOptimizedStepsExecuted() {
+    void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION);

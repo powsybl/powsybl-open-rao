@@ -6,18 +6,18 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CostResultTest {
+class CostResultTest {
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         CostResult costResult = new CostResult();
 
         assertEquals(Double.NaN, costResult.getCost(), 1e-3);
@@ -28,7 +28,7 @@ public class CostResultTest {
     }
 
     @Test
-    public void setterAndGettersTest() {
+    void setterAndGettersTest() {
         CostResult costResult = new CostResult();
 
         costResult.setFunctionalCost(100);
@@ -48,7 +48,7 @@ public class CostResultTest {
     }
 
     @Test
-    public void getCostWithOneCostDefinedTest() {
+    void getCostWithOneCostDefinedTest() {
         CostResult costResult = new CostResult();
 
         costResult.setFunctionalCost(99);

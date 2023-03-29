@@ -12,16 +12,16 @@ import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.Ou
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class OutageReaderTest {
+class OutageReaderTest {
 
     private Crac crac;
     private OutageType outageType;
@@ -33,7 +33,7 @@ public class OutageReaderTest {
     private OutageType.HvdcVH validHvdc;
     private OutageType.HvdcVH invalidHvdc;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES));
@@ -69,12 +69,12 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testNeitherBranchNorHvdcVh() {
+    void testNeitherBranchNorHvdcVh() {
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidBranch() {
+    void testOneValidBranch() {
         outageType.getBranch().add(validBranch1);
         OutageReader outageReader = new OutageReader(outageType, ucteNetworkAnalyzer);
         outageReader.addContingency(crac);
@@ -87,7 +87,7 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testTwoValidBranches() {
+    void testTwoValidBranches() {
         outageType.getBranch().add(validBranch1);
         outageType.getBranch().add(validBranch2);
         OutageReader outageReader = new OutageReader(outageType, ucteNetworkAnalyzer);
@@ -101,20 +101,20 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testOneInvalidBranch() {
+    void testOneInvalidBranch() {
         outageType.getBranch().add(invalidBranch);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidAndOneInvalidBranch() {
+    void testOneValidAndOneInvalidBranch() {
         outageType.getBranch().add(invalidBranch);
         outageType.getBranch().add(validBranch1);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidHvdc() {
+    void testOneValidHvdc() {
         outageType.getHvdcVH().add(validHvdc);
         OutageReader outageReader = new OutageReader(outageType, ucteNetworkAnalyzer);
         outageReader.addContingency(crac);
@@ -128,13 +128,13 @@ public class OutageReaderTest {
     }
 
     @Test
-    public void testOneInvalidHvdc() {
+    void testOneInvalidHvdc() {
         outageType.getHvdcVH().add(invalidHvdc);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());
     }
 
     @Test
-    public void testOneValidAndOneInvalidHvdc() {
+    void testOneValidAndOneInvalidHvdc() {
         outageType.getHvdcVH().add(invalidHvdc);
         outageType.getHvdcVH().add(validHvdc);
         assertFalse(new OutageReader(outageType, ucteNetworkAnalyzer).isOutageValid());

@@ -35,8 +35,8 @@ import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -47,25 +47,25 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class CimCracCreatorTest {
+class CimCracCreatorTest {
     private Crac importedCrac;
     private CimCracCreationContext cracCreationContext;
     private static Network baseNetwork;
     private static Network hvdcNetwork;
 
-    @BeforeClass
+    @BeforeAll
     public static void loadNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         baseNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid_missingImax.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void loadHvdcNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
@@ -299,25 +299,25 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void cracCreationSuccessfulFailureTime() {
+    void cracCreationSuccessfulFailureTime() {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, null, new CracCreationParameters());
         assertFalse(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
-    public void cracCreationFailureWrongTime() {
+    void cracCreationFailureWrongTime() {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2020-04-01T22:00Z"), new CracCreationParameters());
         assertFalse(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
-    public void cracCreationSuccessfulRightTime() {
+    void cracCreationSuccessfulRightTime() {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
         assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
     @Test
-    public void testImportContingencies() {
+    void testImportContingencies() {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         assertEquals(3, importedCrac.getContingencies().size());
@@ -332,7 +332,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportContingencyOnTieLine() {
+    void testImportContingencyOnTieLine() {
         setUp("/cracs/CIM_co_halfline.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T22:00Z"), new CracCreationParameters());
 
         assertEquals(1, importedCrac.getContingencies().size());
@@ -340,7 +340,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportFakeCnecs() {
+    void testImportFakeCnecs() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
@@ -374,7 +374,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportPstRangeActions() {
+    void testImportPstRangeActions() {
         setUp("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
@@ -403,7 +403,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportNetworkActions() {
+    void testImportNetworkActions() {
         setUp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
         assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
@@ -443,7 +443,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportHvdcRangeActions() {
+    void testImportHvdcRangeActions() {
         setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
 
         // RA-Series-2
@@ -488,14 +488,14 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportKOHvdcRangeActions() {
+    void testImportKOHvdcRangeActions() {
         setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), null);
         assertRemedialActionNotImported("HVDC-direction11", INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("HVDC-direction12", INCONSISTENCY_IN_DATA);
     }
 
     @Test
-    public void testImportAlignedRangeActions() {
+    void testImportAlignedRangeActions() {
         setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22")));
         assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
@@ -507,7 +507,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportAlignedRangeActionsGroupIdNull() {
+    void testImportAlignedRangeActionsGroupIdNull() {
         List<String> groupIds = new ArrayList<>();
         groupIds.add(null);
         setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(groupIds));
@@ -519,7 +519,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportAlignedRangeActionsGroupIdAlreadyDefined() {
+    void testImportAlignedRangeActionsGroupIdAlreadyDefined() {
         setUpWithGroupId("/cracs/CIM_21_3_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), List.of(List.of("PRA_1", "PRA_22"), List.of("PRA_1")));
         assertRemedialActionNotImported("PRA_1", INCONSISTENCY_IN_DATA);
         assertPstRangeActionImported("PRA_22", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", true);
@@ -529,7 +529,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportOnFlowConstraintUsageRules() {
+    void testImportOnFlowConstraintUsageRules() {
         setUpWithSpeed("/cracs/CIM_21_5_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)));
 
         // PRA_1
@@ -579,7 +579,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportRasAvailableForSpecificCountry() {
+    void testImportRasAvailableForSpecificCountry() {
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         // RA_1
@@ -650,7 +650,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportOnFlowConstraintRepeatedRa() {
+    void testImportOnFlowConstraintRepeatedRa() {
         setUp("/cracs/CIM_21_5_3.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         // PRA_CRA_1
@@ -671,7 +671,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportAngleCnecs() {
+    void testImportAngleCnecs() {
         setUp("/cracs/CIM_21_7_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         // -- Imported
         // Angle cnec and associated RA imported :
@@ -703,7 +703,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testFilterOnTimeseries() {
+    void testFilterOnTimeseries() {
         setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Collections.emptySet());
         assertEquals(2, importedCrac.getContingencies().size());
 
@@ -722,7 +722,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportCnecsWithSameMsMrid() {
+    void testImportCnecsWithSameMsMrid() {
         setUp("/cracs/CIM_21_2_1_mrid.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
 
         assertEquals(10, importedCrac.getFlowCnecs().size());
@@ -747,7 +747,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportVoltageCnecs() {
+    void testImportVoltageCnecs() {
         Set<String> monitoredElements = Set.of("_d77b61ef-61aa-4b22-95f6-b56ca080788d", "_2844585c-0d35-488d-a449-685bcd57afbf", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
 
         Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds = Map.of(
@@ -778,7 +778,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportCnecOnRightSide() {
+    void testImportCnecOnRightSide() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
@@ -810,7 +810,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testImportCnecOnBothSides() {
+    void testImportCnecOnBothSides() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         setUp("/cracs/CIM_21_2_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);
@@ -844,7 +844,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testTransformerCnecThresholds() {
+    void testTransformerCnecThresholds() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
 
         // Preventive threshold is in %Imax, should be created depending on default monitored side
@@ -877,7 +877,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void testCreateTwiceWithSameNativeCrac() {
+    void testCreateTwiceWithSameNativeCrac() {
         // Check that CracCreator does not consume CimCrac and make it unusable again
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_2_timeseries.xml");
         CimCracImporter cracImporter = new CimCracImporter();
@@ -920,7 +920,7 @@ public class CimCracCreatorTest {
     }
 
     @Test
-    public void importAndDuplicateAutoCnecs() {
+    void importAndDuplicateAutoCnecs() {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), cracCreationParameters);

@@ -13,18 +13,18 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class SensitivityFailureOvercostEvaluatorTest {
+class SensitivityFailureOvercostEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private FlowResult flowResult;
@@ -34,7 +34,7 @@ public class SensitivityFailureOvercostEvaluatorTest {
     private FlowCnec cnec1;
     private FlowCnec cnec2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
@@ -50,33 +50,33 @@ public class SensitivityFailureOvercostEvaluatorTest {
     }
 
     @Test
-    public void testGetName() {
+    void testGetName() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1), 10000);
         assertEquals("sensitivity-failure-cost", evaluator.getName());
     }
 
     @Test
-    public void testGetUnit() {
+    void testGetUnit() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1), 10000);
         assertEquals(Unit.MEGAWATT, evaluator.getUnit());
     }
 
     @Test
-    public void testCostWithStateInFailure() {
+    void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.FAILURE).getLeft(), DOUBLE_TOLERANCE);
         assertEquals(10000, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getLeft(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testGetCostlyElements() {
+    void testGetCostlyElements() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT).getRight().size());
         assertEquals(0, evaluator.computeCostAndLimitingElements(flowResult, rangeActionActivationResult, sensitivityResult, ComputationStatus.DEFAULT, Set.of("")).getRight().size());
     }
 
     @Test
-    public void testGetFlowCnecs() {
+    void testGetFlowCnecs() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
         assertEquals(0, evaluator.getFlowCnecs().size());
     }

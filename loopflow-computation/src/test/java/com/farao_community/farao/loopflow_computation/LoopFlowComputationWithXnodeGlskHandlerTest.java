@@ -16,19 +16,19 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LoopFlowComputationWithXnodeGlskHandlerTest {
+class LoopFlowComputationWithXnodeGlskHandlerTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Network mockNetwork() {
@@ -53,7 +53,7 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
     }
 
     @Test
-    public void testCommercialFlowsWithCnecAfterDanglingLineContingency() {
+    void testCommercialFlowsWithCnecAfterDanglingLineContingency() {
         ZonalData<SensitivityVariableSet> glsk = Mockito.mock(ZonalData.class);
         ReferenceProgram referenceProgram = Mockito.mock(ReferenceProgram.class);
         XnodeGlskHandler xnodeGlskHandler = Mockito.mock(XnodeGlskHandler.class);

@@ -22,14 +22,14 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OneStateOnlyRaoResultImplTest {
+class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private State optimizedState;
     private PrePerimeterResult initialResult;
@@ -52,7 +52,7 @@ public class OneStateOnlyRaoResultImplTest {
     private State cnec2state;
     private OneStateOnlyRaoResultImpl output;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         optimizedState = mock(State.class);
 
@@ -147,7 +147,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testGetComputationStatus() {
+    void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
@@ -164,7 +164,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testPreventiveCase() {
+    void testPreventiveCase() {
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
         when(optimizedState.isPreventive()).thenReturn(true);
 
@@ -297,11 +297,11 @@ public class OneStateOnlyRaoResultImplTest {
         assertThrows(FaraoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
         assertThrows(FaraoException.class, () -> output.getOptimizedTapsOnState(otherState));
         assertThrows(FaraoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertThrows("Cnec not optimized in this perimeter.", FaraoException.class, () -> output.getMargin(OptimizationState.AFTER_CRA, mock(FlowCnec.class), Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> output.getMargin(OptimizationState.AFTER_CRA, mock(FlowCnec.class), Unit.MEGAWATT), "Cnec not optimized in this perimeter.");
     }
 
     @Test
-    public void testCurativeCase1() {
+    void testCurativeCase1() {
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
@@ -363,7 +363,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testCurativeCase2() {
+    void testCurativeCase2() {
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
@@ -405,7 +405,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testOptimizedStepsExecuted() {
+    void testOptimizedStepsExecuted() {
         setUp();
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
@@ -416,7 +416,7 @@ public class OneStateOnlyRaoResultImplTest {
     }
 
     @Test
-    public void testAngleAndVoltageCnec() {
+    void testAngleAndVoltageCnec() {
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         OptimizationState optimizationState = mock(OptimizationState.class);

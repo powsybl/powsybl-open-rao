@@ -6,36 +6,36 @@
  */
 package com.farao_community.farao.commons;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FaraoExceptionTest {
+class FaraoExceptionTest {
     @Test
-    public void testEmptyException() {
+    void testEmptyException() {
         FaraoException e = new FaraoException();
         assertNull(e.getMessage());
     }
 
     @Test
-    public void testMessageException() {
+    void testMessageException() {
         FaraoException messageException = new FaraoException("Test message");
         assertEquals("Test message", messageException.getMessage());
     }
 
     @Test
-    public void testThrowableException() {
+    void testThrowableException() {
         Exception exception = new Exception("Test message");
         FaraoException throwableException = new FaraoException(exception);
         assertEquals(exception, throwableException.getCause());
     }
 
     @Test
-    public void testMessageThrowableException() {
+    void testMessageThrowableException() {
         Exception exception = new Exception("Test message");
         FaraoException messageThrowableException = new FaraoException("Overload of message", exception);
         assertEquals("Overload of message", messageThrowableException.getMessage());

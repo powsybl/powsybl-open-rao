@@ -7,17 +7,17 @@
 
 package com.farao_community.farao.data.crac_creation.creator.api;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ImportStatusTest {
+class ImportStatusTest {
     @Test
-    public void testDescription() {
+    void testDescription() {
         assertEquals("Import OK.", IMPORTED.getDescription());
         assertEquals("Not found in network.", ELEMENT_NOT_FOUND_IN_NETWORK.getDescription());
         assertEquals("Data incomplete", INCOMPLETE_DATA.getDescription());

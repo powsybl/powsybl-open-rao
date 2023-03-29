@@ -11,21 +11,20 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Country;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintInCountryImplTest {
+class OnFlowConstraintInCountryImplTest {
     State preventiveState;
     State curativeState;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
@@ -34,7 +33,7 @@ public class OnFlowConstraintInCountryImplTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.EC);
 
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
@@ -45,12 +44,12 @@ public class OnFlowConstraintInCountryImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         OnFlowConstraintInCountry onFlowConstraint1 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
-        assertNotEquals(onFlowConstraint1, null);
+        assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(FreeToUseImpl.class));
 
         OnFlowConstraintInCountry onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES);

@@ -11,21 +11,21 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintImplTest {
+class OnFlowConstraintImplTest {
     FlowCnec flowCnec;
     State preventiveState;
     State curativeState;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         flowCnec = Mockito.mock(FlowCnec.class);
         preventiveState = Mockito.mock(State.class);
@@ -37,7 +37,7 @@ public class OnFlowConstraintImplTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
 
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
@@ -48,12 +48,12 @@ public class OnFlowConstraintImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
-        assertNotEquals(onFlowConstraint1, null);
+        assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(FreeToUseImpl.class));
 
         OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
@@ -70,7 +70,7 @@ public class OnFlowConstraintImplTest {
     }
 
     @Test
-    public void testGetUsageMethod() {
+    void testGetUsageMethod() {
         State curativeState2 = Mockito.mock(State.class);
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);

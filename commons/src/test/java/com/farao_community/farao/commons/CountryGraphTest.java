@@ -8,18 +8,18 @@ package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CountryGraphTest {
+class CountryGraphTest {
 
     @Test
-    public void testGraphOnSmallNetwork() {
+    void testGraphOnSmallNetwork() {
 
         Network network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         CountryGraph graph = new CountryGraph(network);

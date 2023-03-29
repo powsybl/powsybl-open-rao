@@ -8,11 +8,11 @@
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class UcteHvdcElementHelperTest {
+class UcteHvdcElementHelperTest {
 
     private UcteNetworkAnalyzer networkHelper;
 
@@ -22,24 +22,24 @@ public class UcteHvdcElementHelperTest {
     }
 
     @Test
-    public void testValidHvdc() {
+    void testValidHvdc() {
         setUp("TestCase16NodesWithHvdc.xiidm");
 
         // from/to same as network
         UcteHvdcElementHelper hvdcHelper = new UcteHvdcElementHelper("BBE2AA11", "FFR3AA11", "1", null, networkHelper);
         assertTrue(hvdcHelper.isValid());
         assertEquals("BBE2AA11 FFR3AA11 1", hvdcHelper.getIdInNetwork());
-        assertFalse("BBE2AA11 FFR3AA11 1", hvdcHelper.isInvertedInNetwork());
+        assertFalse(hvdcHelper.isInvertedInNetwork());
 
         // inverted from/to
         hvdcHelper = new UcteHvdcElementHelper("FFR3AA11", "BBE2AA11", "1", null, networkHelper);
         assertTrue(hvdcHelper.isValid());
         assertEquals("BBE2AA11 FFR3AA11 1", hvdcHelper.getIdInNetwork());
-        assertTrue("BBE2AA11 FFR3AA11 1", hvdcHelper.isInvertedInNetwork());
+        assertTrue(hvdcHelper.isInvertedInNetwork());
     }
 
     @Test
-    public void testInvalidHvdc() {
+    void testInvalidHvdc() {
         setUp("TestCase16NodesWithHvdc.xiidm");
 
         // invalid order code
@@ -50,7 +50,7 @@ public class UcteHvdcElementHelperTest {
     }
 
     @Test
-    public void testOtherConstructor() {
+    void testOtherConstructor() {
         setUp("TestCase16NodesWithHvdc.xiidm");
         assertTrue(new UcteHvdcElementHelper("FFR3AA11", "BBE2AA11", "1", networkHelper).isValid());
         assertTrue(new UcteHvdcElementHelper("BBE2AA11 FFR3AA11 1", networkHelper).isValid());

@@ -26,29 +26,26 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-public class MnecFillerTest extends AbstractFillerTest {
+class MnecFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private FlowCnec mnec1;
     private FlowCnec mnec2;
     private FlowCnec mnec3;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
         mnec1 = crac.newFlowCnec()
@@ -95,11 +92,11 @@ public class MnecFillerTest extends AbstractFillerTest {
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2, mnec3));
+        when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2, mnec3));
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
         rangeActions.put(cnec1.getState(), Collections.emptySet());
-        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
@@ -136,7 +133,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecViolationVariables() {
+    void testAddMnecViolationVariables() {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable variable = linearProblem.getMnecViolationVariable(cnec, side);
@@ -151,7 +148,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecMinFlowConstraints() {
+    void testAddMnecMinFlowConstraints() {
         fillProblemWithFiller(Unit.MEGAWATT);
 
         crac.getFlowCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
@@ -191,7 +188,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecPenaltyCostMW() {
+    void testAddMnecPenaltyCostMW() {
         fillProblemWithFiller(Unit.MEGAWATT);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);
@@ -200,7 +197,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testAddMnecPenaltyCostA() {
+    void testAddMnecPenaltyCostA() {
         fillProblemWithFiller(Unit.AMPERE);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             FaraoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side);

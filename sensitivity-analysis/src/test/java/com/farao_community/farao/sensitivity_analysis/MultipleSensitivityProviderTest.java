@@ -9,21 +9,21 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MultipleSensitivityProviderTest {
+class MultipleSensitivityProviderTest {
 
     @Test
-    public void testCommonFactors() {
+    void testCommonFactors() {
 
         // mock network
         Network network = Mockito.mock(Network.class);
@@ -52,7 +52,7 @@ public class MultipleSensitivityProviderTest {
     }
 
     @Test
-    public void testAdditionalFactors() {
+    void testAdditionalFactors() {
 
         // mock network
         Network network = Mockito.mock(Network.class);
@@ -81,7 +81,7 @@ public class MultipleSensitivityProviderTest {
     }
 
     @Test
-    public void testAdditionalFactorsContingency() {
+    void testAdditionalFactorsContingency() {
 
         // mock network
         Network network = Mockito.mock(Network.class);

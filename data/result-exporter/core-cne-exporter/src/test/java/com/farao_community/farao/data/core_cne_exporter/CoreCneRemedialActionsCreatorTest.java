@@ -28,19 +28,19 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CoreCneRemedialActionsCreatorTest {
+class CoreCneRemedialActionsCreatorTest {
 
     private Crac crac;
     private Network network;
@@ -49,7 +49,7 @@ public class CoreCneRemedialActionsCreatorTest {
     private List<ConstraintSeries> cnecsConstraintSeries;
     private CneExporterParameters exporterParameters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
@@ -91,7 +91,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstInitialSetpoint() {
+    void testPstInitialSetpoint() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -127,7 +127,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstInitialSetpointUnused() {
+    void testPstInitialSetpointUnused() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -148,7 +148,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testIgnorePstWithNoUsageRule() {
+    void testIgnorePstWithNoUsageRule() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -172,7 +172,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstUsedInPreventive() {
+    void testPstUsedInPreventive() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -223,7 +223,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstUsedInCurative() {
+    void testPstUsedInCurative() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("ra-id")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -278,7 +278,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testIgnoreNetworkActionWithNoUsageRule() {
+    void testIgnoreNetworkActionWithNoUsageRule() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
@@ -297,7 +297,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testNetworkActionUsedInPreventive() {
+    void testNetworkActionUsedInPreventive() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
@@ -339,7 +339,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testNetworkActionUsedInCurative() {
+    void testNetworkActionUsedInCurative() {
         NetworkAction networkAction = crac.newNetworkAction()
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
@@ -386,7 +386,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstInitialSetpointInverted() {
+    void testPstInitialSetpointInverted() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -427,7 +427,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstUsedInPreventiveInverted() {
+    void testPstUsedInPreventiveInverted() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -481,7 +481,7 @@ public class CoreCneRemedialActionsCreatorTest {
     }
 
     @Test
-    public void testPstUsedInCurativeInverted() {
+    void testPstUsedInCurativeInverted() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
             .withId("ra-id")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")

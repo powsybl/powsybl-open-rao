@@ -10,8 +10,8 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
@@ -19,15 +19,15 @@ import java.util.Map;
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowResultFromMapImplTest {
+class FlowResultFromMapImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
@@ -35,7 +35,7 @@ public class FlowResultFromMapImplTest {
     FlowCnec optimizedCnec;
     FlowResultFromMapImpl branchResultFromMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         loopFlowCnec = Mockito.mock(FlowCnec.class);
@@ -48,7 +48,7 @@ public class FlowResultFromMapImplTest {
     }
 
     @Test
-    public void testBasicReturns() {
+    void testBasicReturns() {
         when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, LEFT)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec, RIGHT)).thenReturn(250.);
         when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec, LEFT)).thenReturn(58.);
@@ -82,7 +82,7 @@ public class FlowResultFromMapImplTest {
     }
 
     @Test
-    public void testNanFlow() {
+    void testNanFlow() {
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, LEFT)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec, RIGHT)).thenReturn(Double.NaN);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec, LEFT)).thenReturn(500.);
@@ -94,7 +94,7 @@ public class FlowResultFromMapImplTest {
     }
 
     @Test
-    public void testWrongFlowUnit() {
+    void testWrongFlowUnit() {
         assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT));
         assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
         assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));

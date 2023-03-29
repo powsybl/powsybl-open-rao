@@ -9,29 +9,30 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ContingencyAdderImplTest {
+class ContingencyAdderImplTest {
 
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
     }
 
     @Test
-    public void testAddContingencies() {
+    void testAddContingencies() {
         Contingency con1 = crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
@@ -76,21 +77,21 @@ public class ContingencyAdderImplTest {
         assertNotNull(((CracImpl) crac).getNetworkElement("neId2-2"));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testAddWithNoIdFail() {
-        crac.newContingency()
-                .withName("conName1")
-                .withNetworkElement("neId1", "neName1")
-                .add();
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNullParentFail() {
-        ContingencyAdderImpl tmp = new ContingencyAdderImpl(null);
+    @Test
+    void testAddWithNoIdFail() {
+        ContingencyAdder contingencyAdder = crac.newContingency()
+            .withName("conName1")
+            .withNetworkElement("neId1", "neName1");
+        assertThrows(FaraoException.class, contingencyAdder::add);
     }
 
     @Test
-    public void testAddEmptyContingency() {
+    void testNullParentFail() {
+        assertThrows(NullPointerException.class, () -> new ContingencyAdderImpl(null));
+    }
+
+    @Test
+    void testAddEmptyContingency() {
         crac.newContingency().withId("cont").add();
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("cont"));
@@ -99,7 +100,7 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testAddExistingSameContingency() {
+    void testAddExistingSameContingency() {
         Contingency contingency1 = crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
@@ -113,17 +114,17 @@ public class ContingencyAdderImplTest {
         assertSame(contingency1, contingency2);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testAddExistingDifferentContingency() {
+    @Test
+    void testAddExistingDifferentContingency() {
         crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
                 .withNetworkElement("neId1", "neName1")
                 .add();
-        crac.newContingency()
-                .withId("conId1")
-                .withName("conName1")
-                .withNetworkElement("neId2", "neName1")
-                .add();
+        ContingencyAdder contingencyAdder = crac.newContingency()
+            .withId("conId1")
+            .withName("conName1")
+            .withNetworkElement("neId2", "neName1");
+        assertThrows(FaraoException.class, contingencyAdder::add);
     }
 }

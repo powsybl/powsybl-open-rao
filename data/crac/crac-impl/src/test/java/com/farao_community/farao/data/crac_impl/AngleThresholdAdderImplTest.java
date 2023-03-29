@@ -13,27 +13,29 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import org.junit.Before;
-import org.junit.Test;
+import com.farao_community.farao.data.crac_api.threshold.AngleThresholdAdder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class AngleThresholdAdderImplTest {
+class AngleThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private Crac crac;
     private Contingency contingency;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
         contingency = crac.newContingency().withId("conId").add();
     }
 
     @Test
-    public void testAddThresholdInDegree() {
+    void testAddThresholdInDegree() {
         AngleCnec cnec = crac.newAngleCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withExportingNetworkElement("eneID")
@@ -44,27 +46,27 @@ public class AngleThresholdAdderImplTest {
         assertEquals(-250.0, cnec.getLowerBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testNullParentFail() {
-        new AngleThresholdAdderImpl(null);
+    @Test
+    void testNullParentFail() {
+        assertThrows(NullPointerException.class, () -> new AngleThresholdAdderImpl(null));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testUnsupportedUnitFail() {
-        crac.newAngleCnec().newThreshold().withUnit(Unit.MEGAWATT);
+    @Test
+    void testUnsupportedUnitFail() {
+        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold();
+        assertThrows(FaraoException.class, () -> angleThresholdAdder.withUnit(Unit.MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoUnitFail() {
-        crac.newAngleCnec().newThreshold()
-            .withMax(1000.0)
-            .add();
+    @Test
+    void testNoUnitFail() {
+        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold()
+            .withMax(1000.0);
+        assertThrows(FaraoException.class, angleThresholdAdder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoValueFail() {
-        crac.newAngleCnec().newThreshold()
-            .withUnit(Unit.AMPERE)
-            .add();
+    @Test
+    void testNoValueFail() {
+        AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold();
+        assertThrows(FaraoException.class, () -> angleThresholdAdder.withUnit(Unit.AMPERE));
     }
 }

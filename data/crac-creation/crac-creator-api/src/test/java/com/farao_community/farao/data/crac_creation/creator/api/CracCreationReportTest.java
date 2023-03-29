@@ -11,71 +11,71 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.logs.RaoBusinessLogs;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CracCreationReportTest {
+class CracCreationReportTest {
 
     private CracCreationReport cracCreationReport;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cracCreationReport = new CracCreationReport();
     }
 
     @Test
-    public void testError() {
+    void testError() {
         cracCreationReport.error("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ERROR] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testRemoved() {
+    void testRemoved() {
         cracCreationReport.removed("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[REMOVED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testAdded() {
+    void testAdded() {
         cracCreationReport.added("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ADDED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testAltered() {
+    void testAltered() {
         cracCreationReport.altered("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[ALTERED] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testWarn() {
+    void testWarn() {
         cracCreationReport.warn("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[WARN] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testInfo() {
+    void testInfo() {
         cracCreationReport.info("message");
         assertEquals(1, cracCreationReport.getReport().size());
         assertEquals("[INFO] message", cracCreationReport.getReport().get(0));
     }
 
     @Test
-    public void testTextReport() {
+    void testTextReport() {
         cracCreationReport.error("message1");
         cracCreationReport.info("message2");
         cracCreationReport.altered("message3");
@@ -96,7 +96,7 @@ public class CracCreationReportTest {
     }
 
     @Test
-    public void testCopyConstructor() {
+    void testCopyConstructor() {
         cracCreationReport.error("message1");
         cracCreationReport.info("message2");
 
@@ -114,7 +114,7 @@ public class CracCreationReportTest {
     }
 
     @Test
-    public void testPrintReport() {
+    void testPrintReport() {
         cracCreationReport.warn("message1");
         cracCreationReport.error("message2");
 

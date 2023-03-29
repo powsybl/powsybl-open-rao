@@ -14,24 +14,24 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPSolverMock;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class LinearProblemBuilderTest {
+class LinearProblemBuilderTest {
     private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
@@ -39,13 +39,13 @@ public class LinearProblemBuilderTest {
     private RangeActionParameters rangeActionParameters;
     private OptimizationPerimeter optimizationPerimeter;
 
-    @Before
+    @BeforeEach
     public void setup() {
         linearProblemBuilder = new LinearProblemBuilder();
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
         linearProblemBuilder = Mockito.spy(linearProblemBuilder);
-        doReturn(new MPSolverMock()).when(linearProblemBuilder).buildSolver();
+        doReturn(new FaraoMPSolver()).when(linearProblemBuilder).buildSolver();
 
         solverParameters = Mockito.mock(SolverParameters.class);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
@@ -64,7 +64,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginContinuous() {
+    void testBuildMaxMarginContinuous() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
 
@@ -78,7 +78,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginDiscrete() {
+    void testBuildMaxMarginDiscrete() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
 
@@ -94,7 +94,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxRelativeMarginContinuous() {
+    void testBuildMaxRelativeMarginContinuous() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
 
@@ -108,7 +108,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
+    void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         when(parameters.isRaoWithMnecLimitation()).thenReturn(true);
@@ -128,7 +128,7 @@ public class LinearProblemBuilderTest {
     }
 
     @Test
-    public void testBuildMaxMarginContinuousRaLimitation() {
+    void testBuildMaxMarginContinuousRaLimitation() {
         when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
         RangeActionLimitationParameters raLimitationParameters = Mockito.mock(RangeActionLimitationParameters.class);

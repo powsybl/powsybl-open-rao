@@ -8,21 +8,21 @@ package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeActionGroupTest {
+class RangeActionGroupTest {
 
     @Test
-    public void constructorTest() {
+    void constructorTest() {
         List<String> idList = new ArrayList<>();
         idList.add("rangeAction1");
         idList.add("rangeAction2");
@@ -34,7 +34,7 @@ public class RangeActionGroupTest {
     }
 
     @Test
-    public void parseAndToStringTest() {
+    void parseAndToStringTest() {
         String concatenatedId = "rangeAction1 + rangeAction2 + rangeAction3";
 
         List<String> seperatedIds = RangeActionGroup.parse(concatenatedId);
@@ -47,7 +47,7 @@ public class RangeActionGroupTest {
     }
 
     @Test
-    public void isValidTest() {
+    void isValidTest() {
         assertEquals(List.of("rangeAction1", "rangeAction2"), RangeActionGroup.parse("rangeAction1 + rangeAction2"));
         assertEquals(List.of("range action 1", "range action 2"), RangeActionGroup.parse("range action 1 + range action 2"));
         assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1 and rangeAction2"));

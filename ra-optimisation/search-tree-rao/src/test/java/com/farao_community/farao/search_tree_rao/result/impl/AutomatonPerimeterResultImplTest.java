@@ -17,8 +17,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
@@ -34,7 +34,7 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AutomatonPerimeterResultImplTest {
+class AutomatonPerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private State state1;
@@ -49,7 +49,7 @@ public class AutomatonPerimeterResultImplTest {
     private AutomatonPerimeterResultImpl result;
     private PrePerimeterResult postAutoSensitivity;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         state1 = mock(State.class);
         cnec1 = mock(FlowCnec.class);
@@ -69,12 +69,12 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testGetPostAutomatonSensitivityAnalysisOutput() {
+    void testGetPostAutomatonSensitivityAnalysisOutput() {
         assertEquals(postAutoSensitivity, result.getPostAutomatonSensitivityAnalysisOutput());
     }
 
     @Test
-    public void testGetFlow() {
+    void testGetFlow() {
         when(postAutoSensitivity.getFlow(cnec1, RIGHT, AMPERE)).thenReturn(10.);
         when(postAutoSensitivity.getFlow(cnec1, RIGHT, MEGAWATT)).thenReturn(100.);
         assertEquals(10., result.getFlow(cnec1, RIGHT, AMPERE), DOUBLE_TOLERANCE);
@@ -82,7 +82,7 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testGetCommercialFlow() {
+    void testGetCommercialFlow() {
         when(postAutoSensitivity.getCommercialFlow(cnec1, RIGHT, AMPERE)).thenReturn(10.);
         when(postAutoSensitivity.getCommercialFlow(cnec1, RIGHT, MEGAWATT)).thenReturn(100.);
         assertEquals(10., result.getCommercialFlow(cnec1, RIGHT, AMPERE), DOUBLE_TOLERANCE);
@@ -90,59 +90,59 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testGetPtdfZonalSum() {
+    void testGetPtdfZonalSum() {
         when(postAutoSensitivity.getPtdfZonalSum(cnec1, RIGHT)).thenReturn(10.);
         assertEquals(10., result.getPtdfZonalSum(cnec1, RIGHT), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testGetPtdfZonalSums() {
+    void testGetPtdfZonalSums() {
         when(postAutoSensitivity.getPtdfZonalSums()).thenReturn(Map.of(cnec1, Map.of(RIGHT, 0.1)));
         assertEquals(Map.of(cnec1, Map.of(RIGHT, 0.1)), result.getPtdfZonalSums());
     }
 
     @Test
-    public void testGetActivatedRangeActions() {
+    void testGetActivatedRangeActions() {
         assertEquals(Set.of(pstRangeActionShifted, hvdcRangeActionShifted), result.getActivatedRangeActions(state1));
     }
 
     @Test
-    public void testIsNetworkActionActivated() {
+    void testIsNetworkActionActivated() {
         assertTrue(result.isActivated(networkAction1));
         assertFalse(result.isActivated(networkAction2));
     }
 
     @Test
-    public void testGetActivatedNetworkActions() {
+    void testGetActivatedNetworkActions() {
         assertEquals(Set.of(networkAction1), result.getActivatedNetworkActions());
     }
 
     @Test
-    public void testGetFunctionalCost() {
+    void testGetFunctionalCost() {
         when(postAutoSensitivity.getFunctionalCost()).thenReturn(350.);
         assertEquals(350., result.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testGetMostLimitingElements() {
+    void testGetMostLimitingElements() {
         when(postAutoSensitivity.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2, cnec1));
         assertEquals(List.of(cnec2, cnec1), result.getMostLimitingElements(100));
     }
 
     @Test
-    public void testGetVirtualCost() {
+    void testGetVirtualCost() {
         when(postAutoSensitivity.getVirtualCost()).thenReturn(350.);
         assertEquals(350., result.getVirtualCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testGetVirtualCostNames() {
+    void testGetVirtualCostNames() {
         when(postAutoSensitivity.getVirtualCostNames()).thenReturn(Set.of("lf", "mnec"));
         assertEquals(Set.of("lf", "mnec"), result.getVirtualCostNames());
     }
 
     @Test
-    public void testGetVirtualCostByName() {
+    void testGetVirtualCostByName() {
         when(postAutoSensitivity.getVirtualCost("lf")).thenReturn(350.);
         when(postAutoSensitivity.getVirtualCost("mnec")).thenReturn(3500.);
         assertEquals(350., result.getVirtualCost("lf"), DOUBLE_TOLERANCE);
@@ -150,7 +150,7 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testGetCostlyElements() {
+    void testGetCostlyElements() {
         when(postAutoSensitivity.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(cnec2));
         when(postAutoSensitivity.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(cnec2, cnec1));
         assertEquals(List.of(cnec2), result.getCostlyElements("lf", 100));
@@ -158,14 +158,14 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testGetRangeActions() {
+    void testGetRangeActions() {
         when(postAutoSensitivity.getRangeActions()).thenReturn(rangeActionsWithSetpoint.keySet());
         assertEquals(Set.of(pstRangeActionShifted, hvdcRangeActionShifted, unshiftedRangeAction), result.getRangeActions());
     }
 
     @Test
     //TODO modify
-    public void testGetTapsAndSetpoints() {
+    void testGetTapsAndSetpoints() {
         when(postAutoSensitivity.getSetpoint(pstRangeActionShifted)).thenReturn(rangeActionsWithSetpoint.get(pstRangeActionShifted));
         when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
         when(postAutoSensitivity.getSetpoint(unshiftedRangeAction)).thenReturn(rangeActionsWithSetpoint.get(unshiftedRangeAction));
@@ -180,19 +180,19 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testWrongState() {
+    void testWrongState() {
         State wrongState = mock(State.class);
         assertThrows(FaraoException.class, () -> result.getActivatedRangeActions(wrongState));
     }
 
     @Test
-    public void testGetSensitivityStatus() {
+    void testGetSensitivityStatus() {
         when(postAutoSensitivity.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, result.getSensitivityStatus());
     }
 
     @Test
-    public void testGetSensitivityOnRangeAction() {
+    void testGetSensitivityOnRangeAction() {
         RangeAction<?> rangeAction = mock(RangeAction.class);
         when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, rangeAction, MEGAWATT)).thenReturn(100.);
         when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, rangeAction, AMPERE)).thenReturn(1000.);
@@ -205,7 +205,7 @@ public class AutomatonPerimeterResultImplTest {
     }
 
     @Test
-    public void testGetSensitivityOnLinearGlsk() {
+    void testGetSensitivityOnLinearGlsk() {
         SensitivityVariableSet linearGlsk = mock(SensitivityVariableSet.class);
         when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, linearGlsk, MEGAWATT)).thenReturn(100.);
         when(postAutoSensitivity.getSensitivityValue(cnec1, RIGHT, linearGlsk, AMPERE)).thenReturn(1000.);

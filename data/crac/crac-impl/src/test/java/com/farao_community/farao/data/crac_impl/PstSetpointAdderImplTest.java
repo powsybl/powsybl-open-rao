@@ -11,21 +11,21 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
-import org.junit.Before;
-import org.junit.Test;
+import com.farao_community.farao.data.crac_api.network_action.PstSetpointAdder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstSetpointAdderImplTest {
+class PstSetpointAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
@@ -35,7 +35,7 @@ public class PstSetpointAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
 
         NetworkAction networkAction = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
@@ -52,19 +52,17 @@ public class PstSetpointAdderImplTest {
         assertNotNull(((CracImpl) crac).getNetworkElement("pstNetworkElementId"));
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoNetworkElement() {
-        networkActionAdder.newPstSetPoint()
-            .withSetpoint(0)
-            .add()
-            .add();
+    @Test
+    void testNoNetworkElement() {
+        PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
+            .withSetpoint(0);
+        assertThrows(FaraoException.class, pstSetpointAdder::add);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoSetpoint() {
-        networkActionAdder.newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .add()
-            .add();
+    @Test
+    void testNoSetpoint() {
+        PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
+            .withNetworkElement("pstNetworkElementId");
+        assertThrows(FaraoException.class, pstSetpointAdder::add);
     }
 }

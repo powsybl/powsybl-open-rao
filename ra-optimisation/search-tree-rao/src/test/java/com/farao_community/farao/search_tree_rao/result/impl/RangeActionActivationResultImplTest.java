@@ -16,18 +16,18 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionActivationResultImplTest {
+class RangeActionActivationResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     private PstRangeAction pstRangeAction1;
@@ -39,7 +39,7 @@ public class RangeActionActivationResultImplTest {
     private State cState2;
     private RangeActionSetpointResult rangeActionSetpointResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         Crac crac = CommonCracCreation.create();
@@ -90,7 +90,7 @@ public class RangeActionActivationResultImplTest {
     }
 
     @Test
-    public void test1() {
+    void test1() {
 
         // pstRangeAction1 is activated in preventive, pstRangeAction3 is activated in curative
 
@@ -151,7 +151,7 @@ public class RangeActionActivationResultImplTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
 
         // pstRangeAction1 is activated in preventive,
         // pstRangeAction2, on same PST, is activated in curative

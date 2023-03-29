@@ -16,19 +16,19 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.powsybl.iidm.network.Country;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnFlowConstraintInCountryAdderImplTest {
+class OnFlowConstraintInCountryAdderImplTest {
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
 
@@ -69,7 +69,7 @@ public class OnFlowConstraintInCountryAdderImplTest {
     }
 
     @Test
-    public void testOkPreventive() {
+    void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withCountry(Country.FR)
@@ -89,19 +89,19 @@ public class OnFlowConstraintInCountryAdderImplTest {
     }
 
     @Test
-    public void testOutageException() {
+    void testOutageException() {
         OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.OUTAGE).withCountry(Country.FR);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testAbsentCountryException() {
+    void testAbsentCountryException() {
         OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
-    public void testNoInstantException() {
+    void testNoInstantException() {
         OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR);
         assertThrows(FaraoException.class, adder::add);
     }
