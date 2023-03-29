@@ -21,7 +21,7 @@ import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
@@ -261,12 +261,12 @@ class JsonRetrocompatibilityTest {
         assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpoint);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
-        // check freeToUse usage rule
+        // check onInstant usage rule
         assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof FreeToUse);
-        FreeToUse freeToUse = (FreeToUse) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
-        assertEquals(PREVENTIVE, freeToUse.getInstant());
-        assertEquals(AVAILABLE, freeToUse.getUsageMethod());
+        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof OnInstant);
+        OnInstant onInstant = (OnInstant) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
+        assertEquals(PREVENTIVE, onInstant.getInstant());
+        assertEquals(AVAILABLE, onInstant.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());

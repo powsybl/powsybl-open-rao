@@ -50,9 +50,9 @@ public final class NetworkActionArrayDeserializer {
                     case OPERATOR:
                         networkActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
-                    case FREE_TO_USE_USAGE_RULES:
+                    case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();

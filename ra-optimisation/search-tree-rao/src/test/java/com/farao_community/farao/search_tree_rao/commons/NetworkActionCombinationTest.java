@@ -38,21 +38,21 @@ class NetworkActionCombinationTest {
             .withId("topological-action-1")
             .withOperator("operator-1")
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
 
         networkAction2 = crac.newNetworkAction()
             .withId("topological-action-2")
             .withOperator("operator-2")
             .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
 
         networkAction3 = crac.newNetworkAction()
             .withId("pst-setpoint")
             .withOperator("operator-2")
             .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
     }
 

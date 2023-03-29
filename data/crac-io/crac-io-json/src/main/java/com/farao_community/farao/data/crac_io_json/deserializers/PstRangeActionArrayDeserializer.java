@@ -52,9 +52,9 @@ public final class PstRangeActionArrayDeserializer {
                     case OPERATOR:
                         pstRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
-                    case FREE_TO_USE_USAGE_RULES:
+                    case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();

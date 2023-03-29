@@ -156,7 +156,7 @@ public final class ExhaustiveCracCreation {
                 .withName("pstSetpointRaName")
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
                 .add();
 
@@ -166,7 +166,7 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
@@ -195,7 +195,7 @@ public final class ExhaustiveCracCreation {
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")

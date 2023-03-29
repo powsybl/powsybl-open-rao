@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -157,7 +157,7 @@ class FbConstraintCracCreatorTest {
         assertEquals("BE", rangeAction.getOperator());
         assertEquals(1, rangeAction.getUsageRules().size());
         assertEquals(UsageMethod.AVAILABLE, rangeAction.getUsageRules().get(0).getUsageMethod());
-        assertTrue(rangeAction.getUsageRules().get(0) instanceof FreeToUse);
+        assertTrue(rangeAction.getUsageRules().get(0) instanceof OnInstant);
         assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getUsageRules().get(0).getInstant());
         assertTrue(rangeAction.getGroupId().isPresent());
         assertEquals("1", rangeAction.getGroupId().get());
@@ -177,7 +177,7 @@ class FbConstraintCracCreatorTest {
         assertEquals("FR", topoPra.getOperator());
         assertEquals(1, topoPra.getUsageRules().size());
         assertEquals(UsageMethod.AVAILABLE, topoPra.getUsageRules().get(0).getUsageMethod());
-        assertTrue(topoPra.getUsageRules().get(0) instanceof FreeToUse);
+        assertTrue(topoPra.getUsageRules().get(0) instanceof OnInstant);
         assertEquals(crac.getPreventiveState().getInstant(), topoPra.getUsageRules().get(0).getInstant());
         assertEquals(NetworkActionImpl.class, topoPra.getClass());
         assertEquals(2, topoPra.getElementaryActions().size());

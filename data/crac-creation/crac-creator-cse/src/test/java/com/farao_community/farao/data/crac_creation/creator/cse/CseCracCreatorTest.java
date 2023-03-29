@@ -419,9 +419,9 @@ class CseCracCreatorTest {
         assertTrue(cra1.getUsageRules().get(0) instanceof OnFlowConstraint);
         // cra_2
         RemedialAction<?> cra2 = importedCrac.getNetworkAction("cra_2");
-        assertEquals(2, cra2.getUsageRules().size()); // one FreeToUse, one OnConstraint on CNEC 1
+        assertEquals(2, cra2.getUsageRules().size()); // one OnInstant, one OnConstraint on CNEC 1
         assertTrue(cra2.getUsageRules().get(0) instanceof OnFlowConstraint);
-        assertTrue(cra2.getUsageRules().get(1) instanceof FreeToUse);
+        assertTrue(cra2.getUsageRules().get(1) instanceof OnInstant);
         // cra_3
         RemedialAction<?> cra3 = importedCrac.getNetworkAction("cra_3");
         assertEquals(2, cra3.getUsageRules().size()); // 1 OnConstraint on CNEC 1 and 1 on country FR

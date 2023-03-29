@@ -235,7 +235,7 @@ class CastorFullOptimizationTest {
         ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ra1-ne")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.UNDEFINED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
@@ -243,7 +243,7 @@ class CastorFullOptimizationTest {
         ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ra2-ne")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.UNAVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.UNAVAILABLE).add()
                 .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
@@ -251,7 +251,7 @@ class CastorFullOptimizationTest {
         ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ra3-ne")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
@@ -260,7 +260,7 @@ class CastorFullOptimizationTest {
                 .withId("ra4")
                 .withNetworkElement("ra4-ne1")
                 .withNetworkElement("ra4-ne2")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // ra5 : curative only, but with same NetworkElement as ra4
@@ -275,7 +275,7 @@ class CastorFullOptimizationTest {
         ra6 = crac.newPstRangeAction()
                 .withId("ra6")
                 .withNetworkElement("ra6-ne")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(Instant.CURATIVE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
@@ -291,7 +291,7 @@ class CastorFullOptimizationTest {
         ra8 = crac.newPstRangeAction()
                 .withId("ra8")
                 .withNetworkElement("ra8-ne")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .withSpeed(2)
@@ -300,14 +300,14 @@ class CastorFullOptimizationTest {
         ra9 = crac.newPstRangeAction()
                 .withId("ra9")
                 .withNetworkElement("ra8-ne")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
         // na1 : preventive + curative
         na1 = crac.newNetworkAction()
                 .withId("na1")
                 .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
@@ -436,7 +436,7 @@ class CastorFullOptimizationTest {
                 .withId("ra1")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
         if (curative) {
             adder.newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
         }
@@ -445,7 +445,7 @@ class CastorFullOptimizationTest {
         na1 = crac.newNetworkAction()
                 .withId("na1")
                 .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 

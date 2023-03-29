@@ -51,9 +51,9 @@ public final class InjectionRangeActionArrayDeserializer {
                     case OPERATOR:
                         injectionRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
-                    case FREE_TO_USE_USAGE_RULES:
+                    case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();

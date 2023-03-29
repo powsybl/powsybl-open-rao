@@ -196,7 +196,7 @@ class RaoUtilTest {
 
         NetworkAction na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
 

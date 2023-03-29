@@ -40,7 +40,7 @@ class AppliedRemedialActionsTest {
         networkAction = crac.newNetworkAction()
                 .withId("na-id")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add()
                 .add();
     }
 

@@ -59,7 +59,7 @@ public class OnStateAdderImpl<T extends AbstractRemedialActionAdder<T>> implemen
         State state;
         if (instant.equals(Instant.PREVENTIVE)) {
             if (usageMethod != UsageMethod.FORCED) {
-                throw new FaraoException("OnState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newFreeToUseUsageRule() instead.");
+                throw new FaraoException("OnState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
             state = owner.getCrac().addPreventiveState();
         } else if (instant.equals(Instant.OUTAGE)) {

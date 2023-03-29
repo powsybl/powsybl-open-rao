@@ -102,7 +102,7 @@ abstract class AbstractOptimizationPerimeterTest {
         pRA = crac.newInjectionRangeAction().withId("preventive-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         cRA = crac.newInjectionRangeAction().withId("curative-ra")
@@ -113,7 +113,7 @@ abstract class AbstractOptimizationPerimeterTest {
 
         // one preventive network action and one curative
         pNA = crac.newNetworkAction().withId("preventive-na")
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .add();
 

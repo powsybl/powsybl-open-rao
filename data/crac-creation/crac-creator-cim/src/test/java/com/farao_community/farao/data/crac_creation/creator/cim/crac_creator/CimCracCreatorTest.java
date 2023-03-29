@@ -626,8 +626,8 @@ class CimCracCreatorTest {
         assertEquals(2, ra3.getUsageRules().size());
         assertTrue(
             ra3.getUsageRules().stream()
-                .filter(FreeToUse.class::isInstance)
-                .map(FreeToUse.class::cast)
+                .filter(OnInstant.class::isInstance)
+                .map(OnInstant.class::cast)
                 .anyMatch(ur -> ur.getInstant().equals(Instant.PREVENTIVE))
         );
         assertTrue(

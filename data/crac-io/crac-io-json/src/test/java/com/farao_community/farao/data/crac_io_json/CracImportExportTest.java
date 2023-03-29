@@ -170,15 +170,15 @@ class CracImportExportTest {
         assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpoint);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
-        // check freeToUse usage rule
+        // check onInstant usage rule
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        FreeToUse freeToUse = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
-            .filter(ur -> ur instanceof FreeToUse)
-            .map(ur -> (FreeToUse) ur)
+        OnInstant onInstant = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
+            .filter(ur -> ur instanceof OnInstant)
+            .map(ur -> (OnInstant) ur)
             .findAny().orElse(null);
-        assertNotNull(freeToUse);
-        assertEquals(PREVENTIVE, freeToUse.getInstant());
-        assertEquals(AVAILABLE, freeToUse.getUsageMethod());
+        assertNotNull(onInstant);
+        assertEquals(PREVENTIVE, onInstant.getInstant());
+        assertEquals(AVAILABLE, onInstant.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());

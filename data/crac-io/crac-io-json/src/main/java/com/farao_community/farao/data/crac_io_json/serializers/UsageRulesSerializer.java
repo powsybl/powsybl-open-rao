@@ -25,7 +25,7 @@ public final class UsageRulesSerializer {
     }
 
     public static void serializeUsageRules(RemedialAction<?> remedialAction, JsonGenerator gen) throws IOException {
-        serializeUsageRules(remedialAction, FreeToUse.class, FREE_TO_USE_USAGE_RULES, gen);
+        serializeUsageRules(remedialAction, OnInstant.class, ON_INSTANT_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnState.class, ON_STATE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnFlowConstraint.class, ON_FLOW_CONSTRAINT_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnAngleConstraint.class, ON_ANGLE_CONSTRAINT_USAGE_RULES, gen);

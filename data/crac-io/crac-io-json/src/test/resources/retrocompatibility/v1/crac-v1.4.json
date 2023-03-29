@@ -165,7 +165,7 @@
     "id" : "pstRange1Id",
     "name" : "pstRange1Name",
     "operator" : "RTE",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -252,7 +252,7 @@
     "id" : "hvdcRange1Id",
     "name" : "hvdcRange1Name",
     "operator" : "RTE",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -304,7 +304,7 @@
     "id" : "complexNetworkActionId",
     "name" : "complexNetworkActionName",
     "operator" : "RTE",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -332,7 +332,7 @@
     "id" : "pstSetpointRaId",
     "name" : "pstSetpointRaName",
     "operator" : "RTE",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],

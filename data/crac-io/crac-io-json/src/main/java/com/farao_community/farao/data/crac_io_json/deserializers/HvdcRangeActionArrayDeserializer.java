@@ -50,9 +50,9 @@ public final class HvdcRangeActionArrayDeserializer {
                     case OPERATOR:
                         hvdcRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
-                    case FREE_TO_USE_USAGE_RULES:
+                    case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();

@@ -179,7 +179,7 @@ class CoreCneRemedialActionsCreatorTest {
                 .withInitialTap(5)
                 .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
                 .withOperator("BE")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));
@@ -302,7 +302,7 @@ class CoreCneRemedialActionsCreatorTest {
                 .withId("ra-id")
                 .newTopologicalAction().withNetworkElement("BBE2AA1  BBE3AA1  1").withActionType(ActionType.CLOSE).add()
                 .withOperator("BE")
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(Set.of(networkAction));
@@ -434,7 +434,7 @@ class CoreCneRemedialActionsCreatorTest {
             .withInitialTap(5)
             .withTapToAngleConversionMap(Map.of(5, 5., 6, 6.))
             .withOperator("BE")
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Set.of(pstRangeAction));

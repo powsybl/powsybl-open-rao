@@ -141,7 +141,7 @@
     "id" : "close_de3_de4",
     "name" : "close_de3_de4",
     "operator" : "de",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -153,7 +153,7 @@
     "id" : "close_fr1_fr5",
     "name" : "close_fr1_fr5",
     "operator" : "fr",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -165,7 +165,7 @@
     "id" : "open_be1_be4",
     "name" : "open_be1_be4",
     "operator" : "be",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -177,7 +177,7 @@
     "id" : "open_fr1_fr2",
     "name" : "open_fr1_fr2",
     "operator" : "fr",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
     } ],
@@ -189,7 +189,7 @@
     "id" : "open_fr1_fr3",
     "name" : "open_fr1_fr3",
     "operator" : "fr",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "curative",
       "usageMethod" : "available"
     } ],

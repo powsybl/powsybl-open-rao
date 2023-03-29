@@ -167,7 +167,7 @@ class ComplexVariantReader {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
-            remedialActionAdder.newFreeToUseUsageRule()
+            remedialActionAdder.newOnInstantUsageRule()
                     .withInstant(Instant.PREVENTIVE)
                     .withUsageMethod(AVAILABLE)
                     .add();

@@ -373,7 +373,7 @@ class SearchTreeBloomerTest {
     void testIsNetworkActionCloseToLocations() {
         NetworkAction na1 = crac.newNetworkAction().withId("na")
             .newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
         NetworkAction na2 = mock(NetworkAction.class);
         Mockito.when(na2.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.empty()));
@@ -447,7 +447,7 @@ class SearchTreeBloomerTest {
         conversionMap.put(0, 0.);
         conversionMap.put(1, 1.);
         return crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId)
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(conversionMap)

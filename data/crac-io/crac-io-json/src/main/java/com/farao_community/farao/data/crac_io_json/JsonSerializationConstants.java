@@ -89,7 +89,7 @@ public final class JsonSerializationConstants {
     public static final String SWITCH_PAIRS = "switchPairs";
 
     public static final String USAGE_METHOD = "usageMethod";
-    public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules";
+    public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules";
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules";
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
     public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";

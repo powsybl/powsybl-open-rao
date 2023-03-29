@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -18,9 +18,9 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FreeToUseSerializer extends AbstractJsonSerializer<FreeToUse> {
+public class OnInstantSerializer extends AbstractJsonSerializer<OnInstant> {
     @Override
-    public void serialize(FreeToUse value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(OnInstant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
         gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
