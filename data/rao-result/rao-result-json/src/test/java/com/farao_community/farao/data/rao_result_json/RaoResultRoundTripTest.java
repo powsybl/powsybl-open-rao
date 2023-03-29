@@ -395,7 +395,7 @@ class RaoResultRoundTripTest {
         PstRangeAction pstAuto = crac.newPstRangeAction().withId("pst-auto").withNetworkElement("pst").withInitialTap(-1)
                 .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
                 .withSpeed(1)
-                .newOnInstantUsageRule().withInstant(AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .newOnInstantUsageRule().withInstant(AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
                 .add();
         PstRangeAction pstCur = crac.newPstRangeAction().withId("pst-cur").withNetworkElement("pst").withInitialTap(-1)
                 .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))

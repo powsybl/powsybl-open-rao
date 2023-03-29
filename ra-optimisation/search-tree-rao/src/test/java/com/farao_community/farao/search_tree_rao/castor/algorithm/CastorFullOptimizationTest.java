@@ -283,7 +283,7 @@ class CastorFullOptimizationTest {
         ra7 = crac.newPstRangeAction()
                 .withId("ra7")
                 .withNetworkElement("ra7-ne")
-                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .withSpeed(1)
                 .add();
@@ -292,7 +292,7 @@ class CastorFullOptimizationTest {
                 .withId("ra8")
                 .withNetworkElement("ra8-ne")
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .withSpeed(2)
                 .add();

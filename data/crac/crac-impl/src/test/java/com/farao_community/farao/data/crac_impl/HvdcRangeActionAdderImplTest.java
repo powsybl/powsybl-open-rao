@@ -66,7 +66,7 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(Instant.AUTO)
-                .withUsageMethod(UsageMethod.FORCED)
+                .withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE)
                 .add()
                 .add();
 
@@ -92,7 +92,7 @@ class HvdcRangeActionAdderImplTest {
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
             .withInstant(Instant.AUTO)
-            .withUsageMethod(UsageMethod.FORCED)
+            .withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE)
             .add();
         assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
     }

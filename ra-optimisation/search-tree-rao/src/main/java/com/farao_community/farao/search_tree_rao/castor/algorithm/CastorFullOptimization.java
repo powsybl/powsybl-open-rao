@@ -701,7 +701,7 @@ public class CastorFullOptimization {
     }
 
     static boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state, Crac crac) {
-        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE);
         if (rangeActionsForState.contains(rangeAction)) {
             return true;
         } else {

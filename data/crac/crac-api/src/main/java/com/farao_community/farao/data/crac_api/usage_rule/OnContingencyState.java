@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.State;
 
 /**
  * The OnContingencyState UsageRule is defined on a given State. For instance, if a RemedialAction
- * have a OnContingencyState UsageRule with State "curative-co1" and UsageMethod FORCED, this
+ * have a OnContingencyState UsageRule with State "curative-co1" and UsageMethod FORCED_IF_AVAILABLE, this
  * RemedialAction will be forced in the State "curative-co1".
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

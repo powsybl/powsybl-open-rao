@@ -73,7 +73,7 @@ class OnContingencyStateImplTest {
     @Test
     void testEqualsFalseForUsageMethod() {
         OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED, initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED_IF_AVAILABLE, initialState);
         assertNotEquals(rule1, rule2);
     }
 
@@ -94,7 +94,7 @@ class OnContingencyStateImplTest {
     @Test
     void testHashCodeFalseForUsageMethod() {
         OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED, initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED_IF_AVAILABLE, initialState);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 

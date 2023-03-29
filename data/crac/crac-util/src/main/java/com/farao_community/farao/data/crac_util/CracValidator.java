@@ -82,13 +82,13 @@ public final class CracValidator {
     }
 
     private static boolean hasNoRemedialAction(State state, Crac crac) {
-        return crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty()
-            && crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty();
+        return crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE).isEmpty()
+            && crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE).isEmpty();
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED).isEmpty()
-            || !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED).isEmpty();
+        return !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED_IF_AVAILABLE).isEmpty()
+            || !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED_IF_AVAILABLE).isEmpty();
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
@@ -108,7 +108,7 @@ public final class CracValidator {
     }
 
     private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec, Network network) {
-        if (Set.of(UsageMethod.AVAILABLE, UsageMethod.FORCED).contains(ra.getUsageMethod(cnec.getState()))) {
+        if (Set.of(UsageMethod.AVAILABLE, UsageMethod.FORCED_IF_AVAILABLE).contains(ra.getUsageMethod(cnec.getState()))) {
             return true;
         }
         if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)) {

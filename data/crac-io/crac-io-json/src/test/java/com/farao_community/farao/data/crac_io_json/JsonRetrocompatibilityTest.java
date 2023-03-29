@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
-import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
+import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED_IF_AVAILABLE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -279,7 +279,7 @@ class JsonRetrocompatibilityTest {
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
         assertEquals(CURATIVE, onContingencyState.getInstant());
-        assertEquals(FORCED, onContingencyState.getUsageMethod());
+        assertEquals(FORCED_IF_AVAILABLE, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());

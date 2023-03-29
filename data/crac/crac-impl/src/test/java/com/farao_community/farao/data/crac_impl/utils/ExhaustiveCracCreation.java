@@ -157,7 +157,7 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
                 .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
                 .add();
 
         // complex network action with one pst set point and one topology
@@ -167,7 +167,7 @@ public final class ExhaustiveCracCreation {
                 .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
                 .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
         // network action with one injection set point

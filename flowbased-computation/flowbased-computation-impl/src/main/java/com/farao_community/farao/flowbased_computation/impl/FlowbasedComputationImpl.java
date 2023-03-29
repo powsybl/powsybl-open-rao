@@ -112,7 +112,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getNetworkActions().forEach(na -> {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
-                if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED_IF_AVAILABLE)) {
                     na.apply(network);
                 } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
                     BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
@@ -216,7 +216,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
-            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED_IF_AVAILABLE)) {
                 networkActionsAppl.add(na);
             } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
                 BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());

@@ -307,7 +307,7 @@ public final class JsonSerializationConstants {
         switch (usageMethod) {
             case UNAVAILABLE:
                 return UNAVAILABLE_USAGE_METHOD;
-            case FORCED:
+            case FORCED_IF_AVAILABLE:
                 return FORCED_USAGE_METHOD;
             case AVAILABLE:
                 return AVAILABLE_USAGE_METHOD;
@@ -323,7 +323,7 @@ public final class JsonSerializationConstants {
             case UNAVAILABLE_USAGE_METHOD:
                 return UsageMethod.UNAVAILABLE;
             case FORCED_USAGE_METHOD:
-                return UsageMethod.FORCED;
+                return UsageMethod.FORCED_IF_AVAILABLE;
             case AVAILABLE_USAGE_METHOD:
                 return UsageMethod.AVAILABLE;
             case UNDEFINED_USAGE_METHOD:
