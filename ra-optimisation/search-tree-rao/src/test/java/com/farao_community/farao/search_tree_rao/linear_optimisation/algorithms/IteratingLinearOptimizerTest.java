@@ -64,7 +64,6 @@ class IteratingLinearOptimizerTest {
     private RangeActionSetpointResult rangeActionSetpointResult;
     private RangeActionActivationResult rangeActionActivationResult;
     private SensitivityComputer sensitivityComputer;
-    private IteratingLinearOptimizer optimizer;
     private State optimizedState;
     private IteratingLinearOptimizerInput input;
     private IteratingLinearOptimizerParameters parameters;
