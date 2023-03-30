@@ -195,7 +195,7 @@ public final class AutomatonSimulator {
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis) {
         // -- Apply network actions
         // -- First get forced network actions
-        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED);
+        Set<NetworkAction> appliedNetworkActions = crac.getForcedNetworkActions(automatonState);
 
         // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()

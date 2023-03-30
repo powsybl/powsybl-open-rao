@@ -82,8 +82,8 @@ public final class CracValidator {
     }
 
     private static boolean hasNoRemedialAction(State state, Crac crac) {
-        return crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED).isEmpty()
-            && crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED_IF_AVAILABLE, UsageMethod.FORCED).isEmpty();
+        return crac.getPotentiallyAvailableRangeActions(state).isEmpty()
+            && crac.getPotentiallyAvailableNetworkActions(state).isEmpty();
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
