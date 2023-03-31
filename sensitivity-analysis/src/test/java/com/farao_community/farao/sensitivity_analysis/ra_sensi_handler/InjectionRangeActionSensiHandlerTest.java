@@ -17,18 +17,19 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionRangeActionSensiHandlerTest {
+class InjectionRangeActionSensiHandlerTest {
 
     @Test
-    public void checkConsistencyOKTest() {
+    void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -46,7 +47,7 @@ public class InjectionRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void getSensitivityOnFlowSimpleTest() {
+    void getSensitivityOnFlowSimpleTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -66,7 +67,7 @@ public class InjectionRangeActionSensiHandlerTest {
     }
 
     @Test
-    public void getSensitivityOnFlowComplexTest() {
+    void getSensitivityOnFlowComplexTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -90,8 +91,8 @@ public class InjectionRangeActionSensiHandlerTest {
         assertEquals(10 * 0.8 - 30 * 0.5, sensiHandler.getSensitivityOnFlow(flowCnec, Side.RIGHT, sensiResult), 1e-3);
     }
 
-    @Test (expected = FaraoException.class)
-    public void checkConsistencyNotAnInjection() {
+    @Test
+    void checkConsistencyNotAnInjection() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -102,11 +103,11 @@ public class InjectionRangeActionSensiHandlerTest {
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
-        sensiHandler.checkConsistency(network); // should throw
+        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
     }
 
-    @Test (expected = FaraoException.class)
-    public void checkConsistencyNotANetworkElement() {
+    @Test
+    void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
@@ -117,6 +118,6 @@ public class InjectionRangeActionSensiHandlerTest {
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
-        sensiHandler.checkConsistency(network); // should throw
+        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
     }
 }

@@ -8,25 +8,21 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
-import org.junit.Before;
-import org.junit.Test;
+import com.farao_community.farao.data.crac_api.network_action.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class TopologicalActionAdderImplTest {
+class TopologicalActionAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
@@ -36,7 +32,7 @@ public class TopologicalActionAdderImplTest {
     }
 
     @Test
-    public void testOk() {
+    void testOk() {
         NetworkAction networkAction = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId")
             .withActionType(ActionType.OPEN)
@@ -52,19 +48,17 @@ public class TopologicalActionAdderImplTest {
         assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoNetworkElement() {
-        networkActionAdder.newTopologicalAction()
-            .withActionType(ActionType.OPEN)
-            .add()
-            .add();
+    @Test
+    void testNoNetworkElement() {
+        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+            .withActionType(ActionType.OPEN);
+        assertThrows(FaraoException.class, topologicalActionAdder::add);
     }
 
-    @Test (expected = FaraoException.class)
-    public void testNoActionType() {
-        networkActionAdder.newTopologicalAction()
-            .withNetworkElement("branchNetworkElementId")
-            .add()
-            .add();
+    @Test
+    void testNoActionType() {
+        TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
+            .withNetworkElement("branchNetworkElementId");
+        assertThrows(FaraoException.class, topologicalActionAdder::add);
     }
 }

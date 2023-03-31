@@ -7,17 +7,17 @@
 
 package com.farao_community.farao.data.rao_result_api;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
 
-public class OptimizationStepsExecutedTest {
+class OptimizationStepsExecutedTest {
 
     @Test
-    public void testFirstPrevOnly() {
+    void testFirstPrevOnly() {
         OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
         assertFalse(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
@@ -30,7 +30,7 @@ public class OptimizationStepsExecutedTest {
     }
 
     @Test
-    public void testFirstPrevFellback() {
+    void testFirstPrevFellback() {
         OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
         assertFalse(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
@@ -43,7 +43,7 @@ public class OptimizationStepsExecutedTest {
     }
 
     @Test
-    public void testSecondPrevImprovedFirst() {
+    void testSecondPrevImprovedFirst() {
         OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST;
         assertTrue(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
@@ -56,7 +56,7 @@ public class OptimizationStepsExecutedTest {
     }
 
     @Test
-    public void testSecondPrevFellbackToStart() {
+    void testSecondPrevFellbackToStart() {
         OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
         assertTrue(optimizationStepsExecuted.hasRunSecondPreventive());
         assertFalse(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());
@@ -69,7 +69,7 @@ public class OptimizationStepsExecutedTest {
     }
 
     @Test
-    public void testSecondPreventiveFellbackToFirstPrevResult() {
+    void testSecondPreventiveFellbackToFirstPrevResult() {
         OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION;
         assertTrue(optimizationStepsExecuted.hasRunSecondPreventive());
         assertTrue(optimizationStepsExecuted.hasFallenBackToFirstPreventiveSituation());

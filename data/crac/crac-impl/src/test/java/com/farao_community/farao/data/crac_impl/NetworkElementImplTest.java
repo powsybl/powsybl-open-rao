@@ -10,22 +10,22 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-public class NetworkElementImplTest {
+class NetworkElementImplTest {
 
     @Test
-    public void testConstructorElementTest() {
+    void testConstructorElementTest() {
         NetworkElementImpl networkElement = new NetworkElementImpl("basicElemId", "basicElemName");
         assertEquals("basicElemId", networkElement.getId());
         assertEquals("basicElemName", networkElement.getName());
@@ -33,15 +33,15 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testEqualsLimits() {
+    void testEqualsLimits() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element-1", "name-1");
         assertEquals(networkElement, networkElement);
-        assertNotEquals(networkElement, null);
-        assertNotEquals(networkElement, 1);
+        assertNotNull(networkElement);
+        assertNotEquals(1, networkElement);
     }
 
     @Test
-    public void testDifferent() {
+    void testDifferent() {
         NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
         NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-2", "name-2");
 
@@ -49,7 +49,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testEqualWithDifferentNames() {
+    void testEqualWithDifferentNames() {
         NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
         NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-1", "name-2");
 
@@ -57,7 +57,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testEqualWithSameNames() {
+    void testEqualWithSameNames() {
         NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
         NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-1", "name-1");
 
@@ -65,7 +65,7 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testSimpleConstructor() {
+    void testSimpleConstructor() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element", networkElement.getId());
@@ -73,14 +73,14 @@ public class NetworkElementImplTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         NetworkElementImpl networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element".hashCode(), networkElement.hashCode());
     }
 
     @Test
-    public void testGetLocation() {
+    void testGetLocation() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
 
         Set<Optional<Country>> countries;
@@ -127,20 +127,22 @@ public class NetworkElementImplTest {
         assertTrue(countries.contains(Optional.of(Country.DE)));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testGetLocationAbsent() {
+    @Test
+    void testGetLocationAbsent() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        new NetworkElementImpl("non-existent").getLocation(network);
-    }
-
-    @Test(expected = NotImplementedException.class)
-    public void testGetLocationOnUnsupportedType() {
-        Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network);
+        NetworkElementImpl networkElement = new NetworkElementImpl("non-existent");
+        assertThrows(FaraoException.class, () -> networkElement.getLocation(network));
     }
 
     @Test
-    public void testGetLocationAbsentSubstation() {
+    void testGetLocationOnUnsupportedType() {
+        Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+        NetworkElementImpl networkElement = new NetworkElementImpl("TestCase12NodesWithSwitch");
+        assertThrows(NotImplementedException.class, () -> networkElement.getLocation(network));
+    }
+
+    @Test
+    void testGetLocationAbsentSubstation() {
         Network network = Mockito.mock(Network.class);
         Switch switchMock = Mockito.mock(Switch.class);
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);

@@ -9,14 +9,15 @@ package com.farao_community.farao.data.rao_result_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ElementaryFlowCnecResultTest {
+class ElementaryFlowCnecResultTest {
 
     private void assertMarginsAreNan(ElementaryFlowCnecResult elementaryFlowCnecResult, Unit unit) {
         assertEquals(Double.NaN, elementaryFlowCnecResult.getMargin(unit), 1e-3);
@@ -30,7 +31,7 @@ public class ElementaryFlowCnecResultTest {
     }
 
     @Test
-    public void defaultValuesTest() {
+    void defaultValuesTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
 
         assertMarginsAreNan(elementaryFlowCnecResult, Unit.MEGAWATT);
@@ -46,7 +47,7 @@ public class ElementaryFlowCnecResultTest {
     }
 
     @Test
-    public void getterAndSetters() {
+    void getterAndSetters() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
 
         // Per unit
@@ -93,9 +94,9 @@ public class ElementaryFlowCnecResultTest {
         assertEquals(207, elementaryFlowCnecResult.getLoopFlow(Side.RIGHT, Unit.AMPERE), 1e-3);
     }
 
-    @Test (expected = FaraoException.class)
-    public void notAFlowUnitTest() {
+    @Test
+    void notAFlowUnitTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
-        elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 100, Unit.KILOVOLT);
+        assertThrows(FaraoException.class, () -> elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 100, Unit.KILOVOLT));
     }
 }

@@ -4,46 +4,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks;
+package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPObjective;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
+import com.google.ortools.linearsolver.MPSolver;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * This class is used to mock MPSolver objects in the unit test of this package.
  * It is necessary to bypass the JNI binding of the or-tools MPSolver object.
- *
- * MPSolverMock handles the creation and browsing of the variables and constraints
+ * <p>
+ * FaraoMPSolver handles the creation and browsing of the variables and constraints
  * usually defined within a MPSolver.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MPSolverMock extends FaraoMPSolver {
+public class FaraoMPSolver {
 
-    private MPObjectiveMock objective;
-    private List<MPConstraintMock> constraints;
-    private List<MPVariableMock> variables;
+    private final MPObjectiveMock objective;
+    private final List<MPConstraintMock> constraints;
+    private final List<MPVariableMock> variables;
 
-    public MPSolverMock() {
-        super();
+    public FaraoMPSolver() {
         constraints = new ArrayList<>();
         variables = new ArrayList<>();
         objective = new MPObjectiveMock();
+    }
+
+    public FaraoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
+        this();
     }
 
     public static double infinity() {
         return 1e10;
     }
 
-    @Override
     public FaraoMPVariable makeNumVar(double lb, double ub, String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
@@ -53,7 +55,6 @@ public class MPSolverMock extends FaraoMPSolver {
         return newVariable;
     }
 
-    @Override
     public FaraoMPConstraint makeConstraint(double lb, double ub, String name) {
         // check that constraint does not already exists
         assertFalse(constraints.stream().anyMatch(v -> v.name().equals(name)));
@@ -63,7 +64,6 @@ public class MPSolverMock extends FaraoMPSolver {
         return newConstraint;
     }
 
-    @Override
     public FaraoMPVariable makeBoolVar(String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
@@ -73,7 +73,6 @@ public class MPSolverMock extends FaraoMPSolver {
         return newVariable;
     }
 
-    @Override
     public FaraoMPVariable makeIntVar(double lb, double ub, String name) {
         // check that variable does not already exists
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
@@ -83,14 +82,12 @@ public class MPSolverMock extends FaraoMPSolver {
         return newVariable;
     }
 
-    @Override
     public FaraoMPConstraint makeConstraint(String name) {
         MPConstraintMock newConstraint = new MPConstraintMock(name, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         constraints.add(newConstraint);
         return newConstraint;
     }
 
-    @Override
     public FaraoMPVariable getVariable(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
         if (variablesWithSameName.size() == 0) {
@@ -99,17 +96,14 @@ public class MPSolverMock extends FaraoMPSolver {
         return variablesWithSameName.get(0);
     }
 
-    @Override
     public FaraoMPObjective objective() {
         return objective;
     }
 
-    @Override
     public FaraoMPObjective getObjective() {
         return objective;
     }
 
-    @Override
     public FaraoMPConstraint getConstraint(String constraintName) {
         List<MPConstraintMock> constraintsWithSameName = constraints.stream().filter(v -> v.name().equals(constraintName)).collect(Collectors.toList());
         if (constraintsWithSameName.size() == 0) {
@@ -118,12 +112,10 @@ public class MPSolverMock extends FaraoMPSolver {
         return constraintsWithSameName.get(0);
     }
 
-    @Override
     public int numVariables() {
         return variables.size();
     }
 
-    @Override
     public int numConstraints() {
         return constraints.size();
     }
@@ -133,11 +125,37 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     public enum ResultStatusMock {
-        OPTIMAL,
-        FEASIBLE,
-        INFEASIBLE,
-        UNBOUNDED,
-        ABNORMAL,
-        NOT_SOLVED
+        OPTIMAL, FEASIBLE, INFEASIBLE, UNBOUNDED, ABNORMAL, NOT_SOLVED
+    }
+
+    public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
+        return true;
+    }
+
+    public void setRelativeMipGap(double relativeMipGap) {
+
+    }
+
+    public LinearProblemStatus solve() {
+        return LinearProblemStatus.OPTIMAL;
+    }
+
+    private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
+        switch (status) {
+            case OPTIMAL:
+                return LinearProblemStatus.OPTIMAL;
+            case ABNORMAL:
+                return LinearProblemStatus.ABNORMAL;
+            case FEASIBLE:
+                return LinearProblemStatus.FEASIBLE;
+            case UNBOUNDED:
+                return LinearProblemStatus.UNBOUNDED;
+            case INFEASIBLE:
+                return LinearProblemStatus.INFEASIBLE;
+            case NOT_SOLVED:
+                return LinearProblemStatus.NOT_SOLVED;
+            default:
+                throw new NotImplementedException(String.format("Status %s not handled.", status));
+        }
     }
 }

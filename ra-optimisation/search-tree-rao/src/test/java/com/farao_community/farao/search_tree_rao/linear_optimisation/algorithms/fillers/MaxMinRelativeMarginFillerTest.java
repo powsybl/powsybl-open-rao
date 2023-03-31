@@ -25,11 +25,9 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,16 +35,15 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
+class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     private LinearProblem linearProblem;
@@ -54,7 +51,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private MaxMinRelativeMarginParameters parameters;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
@@ -107,7 +104,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinRelativeMarginInMegawatt() {
+    void fillWithMaxMinRelativeMarginInMegawatt() {
         createMaxMinRelativeMarginFiller(MEGAWATT, 0.9);
         buildLinearProblem();
 
@@ -151,7 +148,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void fillWithMaxMinRelativeMarginInAmpere() {
+    void fillWithMaxMinRelativeMarginInAmpere() {
         createMaxMinRelativeMarginFiller(AMPERE, 0.005);
         buildLinearProblem();
 

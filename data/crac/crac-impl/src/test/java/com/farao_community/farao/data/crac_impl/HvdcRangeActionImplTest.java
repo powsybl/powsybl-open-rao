@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -17,25 +18,25 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class HvdcRangeActionImplTest {
+class HvdcRangeActionImplTest {
     private HvdcRangeActionAdder hvdcRangeActionAdder;
     private Network network;
     private Network networkWithAngleDroop;
     private HvdcLine hvdcLine;
     private HvdcLine hvdcLineWithAngleDroop;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Crac crac = new CracImplFactory().create("cracId");
         network = NetworkImportsUtil.import16NodesNetworkWithHvdc();
@@ -55,14 +56,14 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void getInitialSetpoint() {
+    void getInitialSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         assertEquals(0, hvdcRa.getCurrentSetpoint(network), 1e-6);
     }
 
     @Test
-    public void applyPositiveSetpoint() {
+    void applyPositiveSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 5);
@@ -73,7 +74,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void applyNegativeSetpoint() {
+    void applyNegativeSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, -3);
@@ -84,7 +85,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void getPositiveSetpoint() {
+    void getPositiveSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 5);
@@ -93,7 +94,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void getNegativeSetpoint() {
+    void getNegativeSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 3);
@@ -101,20 +102,20 @@ public class HvdcRangeActionImplTest {
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
     }
 
-    @Test (expected = FaraoException.class)
-    public void applyOnUnknownHvdc() {
+    @Test
+    void applyOnUnknownHvdc() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .withNetworkElement("unknownNetworkElement").add();
-        hvdcRa.apply(network, 50);
-    }
-
-    @Test (expected = FaraoException.class)
-    public void hvdcWithoutSpecificRange() {
-        hvdcRangeActionAdder.add();
+        assertThrows(FaraoException.class, () -> hvdcRa.apply(network, 50));
     }
 
     @Test
-    public void hvdcWithSpecificRange() {
+    void hvdcWithoutSpecificRange() {
+        assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.add());
+    }
+
+    @Test
+    void hvdcWithSpecificRange() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -122,20 +123,20 @@ public class HvdcRangeActionImplTest {
         assertEquals(10, hvdcRa.getMaxAdmissibleSetpoint(0), 1e-3);
     }
 
-    @Test(expected = FaraoException.class)
-    public void hvdcWithNoMin() {
-        hvdcRangeActionAdder.newRange().withMax(10).add()
-                .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void hvdcWithNoMax() {
-        hvdcRangeActionAdder.newRange().withMin(10).add()
-                .add();
+    @Test
+    void hvdcWithNoMin() {
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(10);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
     }
 
     @Test
-    public void testGetLocation() {
+    void hvdcWithNoMax() {
+        StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10);
+        assertThrows(FaraoException.class, standardRangeAdder::add);
+    }
+
+    @Test
+    void testGetLocation() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         Set<Optional<Country>> countries = hvdcRa.getLocation(network);
@@ -145,7 +146,7 @@ public class HvdcRangeActionImplTest {
     }
 
     @Test
-    public void hvdcEquals() {
+    void hvdcEquals() {
         HvdcRangeAction hvdcRa1 = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction hvdcRa2 = hvdcRangeActionAdder.withId("anotherId").newRange().withMin(-5).withMax(10).add()

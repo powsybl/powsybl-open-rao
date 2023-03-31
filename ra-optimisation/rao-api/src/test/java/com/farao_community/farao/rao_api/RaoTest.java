@@ -18,25 +18,26 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot <baptiste.seguinot at rte-france.com>
  */
-public class RaoTest {
+class RaoTest {
 
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
     private RaoInput raoInput;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -48,13 +49,13 @@ public class RaoTest {
         raoInput = RaoInput.build(network, crac).withNetworkVariantId("variant-id").build();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void testDefaultOneProvider() {
+    void testDefaultOneProvider() {
         // case with only one provider, no need for config
         // find rao
         Rao.Runner defaultRao = Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig);
@@ -70,28 +71,30 @@ public class RaoTest {
         // todo: assertEquals(RaoResultImpl.Status.DEFAULT, resultAsync.getStatus());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testDefaultTwoProviders() {
+    @Test
+    void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
-        Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
+        List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock());
+        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
     }
 
     @Test
-    public void testDefinedAmongTwoProviders() {
+    void testDefinedAmongTwoProviders() {
         // case with two providers where one the two RAOs is specifically selected
         Rao.Runner definedRao = Rao.find("GlobalRAOptimizer", ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
         assertEquals("2.3", definedRao.getVersion());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testDefaultNoProvider() {
+    @Test
+    void testDefaultNoProvider() {
         // case with no provider
-        Rao.find(null, ImmutableList.of(), platformConfig);
+        List<RaoProvider> raoProviders = ImmutableList.of();
+        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
     }
 
     @Test
-    public void testDefaultTwoProvidersPlatformConfig() {
+    void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
         Rao.Runner globalRaOptimizer = Rao.find(null, ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
@@ -99,10 +102,11 @@ public class RaoTest {
         assertEquals("2.3", globalRaOptimizer.getVersion());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testOneProviderAndMistakeInPlatformConfig() {
+    @Test
+    void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
-        Rao.find(null, ImmutableList.of(new RaoProviderMock()), platformConfig);
+        List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock());
+        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
     }
 }

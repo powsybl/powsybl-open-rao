@@ -26,24 +26,24 @@ import com.farao_community.farao.data.crac_creation.creator.fb_constraint.import
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FbConstraintCracCreatorTest {
+class FbConstraintCracCreatorTest {
 
     private CracCreationParameters parameters;
     private FbConstraintCreationContext creationContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parameters = new CracCreationParameters();
         parameters.setCracFactoryName(CracFactory.findDefault().getName());
@@ -65,7 +65,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importCracWithTimestampFilter() {
+    void importCracWithTimestampFilter() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
 
@@ -89,7 +89,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importCriticalBranches() {
+    void importCriticalBranches() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/without_RA.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
@@ -139,7 +139,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importComplexVariants() {
+    void importComplexVariants() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/with_RA.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -220,7 +220,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importMnecs() {
+    void importMnecs() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/MNEC_test.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -249,7 +249,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importThresholdsOnLeftSide() {
+    void importThresholdsOnLeftSide() {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_LEFT_SIDE);
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
@@ -286,7 +286,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importThresholdsOnRightSide() {
+    void importThresholdsOnRightSide() {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_RIGHT_SIDE);
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
@@ -320,7 +320,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importThresholdsOnBothSides() {
+    void importThresholdsOnBothSides() {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"));
@@ -355,7 +355,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importLoopFlowExtensions() {
+    void importLoopFlowExtensions() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/with_crosszonal_branches.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -381,7 +381,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testImportHvdcVhOutage() {
+    void testImportHvdcVhOutage() {
         Network network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/network/TestCase12NodesHvdc.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/hvdcvh-outage.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -396,7 +396,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testImportAndCleanCriticalBranches() {
+    void testImportAndCleanCriticalBranches() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/critical_branches.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -423,7 +423,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testImportAndCleanComplexVariants() {
+    void testImportAndCleanComplexVariants() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -452,7 +452,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testInvertPstRangeAction() {
+    void testInvertPstRangeAction() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants_invert.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -496,7 +496,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testWrongTsCreationContext() {
+    void testWrongTsCreationContext() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/wrong_ts.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
@@ -515,7 +515,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testDuplicatePsts() {
+    void testDuplicatePsts() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/complex_variants_duplicate_psts.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
@@ -546,7 +546,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void importHalflineThresholds() {
+    void importHalflineThresholds() {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/halflines.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
@@ -569,7 +569,7 @@ public class FbConstraintCracCreatorTest {
     }
 
     @Test
-    public void testTransformerCnecThresholds() {
+    void testTransformerCnecThresholds() {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         FbConstraint fbConstraint = new FbConstraintImporter().importNativeCrac(getClass().getResourceAsStream("/merged_cb/transformers.xml"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");

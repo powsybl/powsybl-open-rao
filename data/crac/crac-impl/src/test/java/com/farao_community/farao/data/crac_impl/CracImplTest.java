@@ -23,32 +23,32 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.*;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * General test file
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class CracImplTest {
+class CracImplTest {
     private CracImpl crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
     }
 
     @Test
-    public void testAddNetworkElementWithIdAndName() {
+    void testAddNetworkElementWithIdAndName() {
         NetworkElement networkElement = crac.addNetworkElement("neID", "neName");
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("neID"));
@@ -56,7 +56,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testAddNetworkElementWithIdAndNameFail() {
+    void testAddNetworkElementWithIdAndNameFail() {
         crac.addNetworkElement("neID", "neName");
         try {
             crac.addNetworkElement("neID", "neName-fail");
@@ -67,7 +67,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testAddNetworkElementWithIdAndNameTwice() {
+    void testAddNetworkElementWithIdAndNameTwice() {
         NetworkElement networkElement1 = crac.addNetworkElement("neID", "neName");
         NetworkElement networkElement2 = crac.addNetworkElement("neID", "neName");
         assertEquals(1, crac.getNetworkElements().size());
@@ -77,12 +77,12 @@ public class CracImplTest {
     }
 
     @Test
-    public void testGetContingency() {
+    void testGetContingency() {
         assertEquals(0, crac.getContingencies().size());
     }
 
     @Test
-    public void testAddContingency() {
+    void testAddContingency() {
         assertEquals(0, crac.getContingencies().size());
         crac.addContingency(new ContingencyImpl("contingency-1", "co-name", Collections.singleton(new NetworkElementImpl("ne1"))));
         assertEquals(1, crac.getContingencies().size());
@@ -96,18 +96,18 @@ public class CracImplTest {
     }
 
     @Test
-    public void testStatesAndInstantsInitialization() {
+    void testStatesAndInstantsInitialization() {
         assertEquals(0, crac.getContingencies().size());
         assertEquals(0, crac.getStates().size());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testGetStateWithNotExistingContingencyId() {
-        crac.getState("fail-contingency", CURATIVE);
+    @Test
+    void testGetStateWithNotExistingContingencyId() {
+        assertThrows(FaraoException.class, () -> crac.getState("fail-contingency", CURATIVE));
     }
 
     @Test
-    public void testGetStateWithNotExistingContingency() {
+    void testGetStateWithNotExistingContingency() {
         Contingency contingency = crac.newContingency()
                 .withId("co")
                 .withName("co-name")
@@ -118,7 +118,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testGetCnecandGetFlowCnec() {
+    void testGetCnecandGetFlowCnec() {
 
         crac.newContingency().withId("co").withNetworkElement("ne-co").add();
         crac.newFlowCnec()
@@ -137,7 +137,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testAddPstRangeActionWithNoConflict() {
+    void testAddPstRangeActionWithNoConflict() {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
@@ -157,7 +157,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testAddHvdcRangeActionWithNoConflict() {
+    void testAddHvdcRangeActionWithNoConflict() {
         HvdcRangeAction rangeAction = Mockito.mock(HvdcRangeAction.class);
         Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
@@ -177,7 +177,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testSafeRemoveNetworkElements() {
+    void testSafeRemoveNetworkElements() {
 
         crac.newContingency().withId("co").withNetworkElement("ne1").withNetworkElement("ne2").add();
         crac.newFlowCnec()
@@ -214,7 +214,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testSafeRemoveStates() {
+    void testSafeRemoveStates() {
 
         Contingency contingency1 = crac.newContingency()
                 .withId("co1")
@@ -271,14 +271,14 @@ public class CracImplTest {
     }
 
     @Test
-    public void testContingencyAdder() {
+    void testContingencyAdder() {
         ContingencyAdder contingencyAdder = crac.newContingency();
         assertTrue(contingencyAdder instanceof ContingencyAdderImpl);
         assertSame(crac, ((ContingencyAdderImpl) contingencyAdder).owner);
     }
 
     @Test
-    public void testRemoveContingency() {
+    void testRemoveContingency() {
 
         crac.newContingency().withId("co1").withNetworkElement("ne1").add();
         crac.newContingency().withId("co2").withNetworkElement("ne2").add();
@@ -293,7 +293,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemoveUsedContingencyError() {
+    void testRemoveUsedContingencyError() {
 
         crac.newContingency()
                 .withId("co1")
@@ -320,7 +320,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemoveUsedContingencyError2() {
+    void testRemoveUsedContingencyError2() {
 
         crac.newContingency()
                 .withId("co1")
@@ -345,7 +345,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testPreventiveState() {
+    void testPreventiveState() {
         assertNull(crac.getPreventiveState());
         crac.addPreventiveState();
         State state = crac.getPreventiveState();
@@ -357,7 +357,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testGetStatesFromContingency() {
+    void testGetStatesFromContingency() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
@@ -377,7 +377,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testGetStatesFromInstant() {
+    void testGetStatesFromInstant() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
@@ -397,15 +397,15 @@ public class CracImplTest {
         assertTrue(crac.getStates(PREVENTIVE).isEmpty());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testAddStateWithPreventiveError() {
+    @Test
+    void testAddStateWithPreventiveError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
-        crac.addState(contingency1, PREVENTIVE);
+        assertThrows(FaraoException.class, () -> crac.addState(contingency1, PREVENTIVE));
     }
 
     @Test
-    public void testAddSameStateTwice() {
+    void testAddSameStateTwice() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, CURATIVE);
@@ -413,21 +413,21 @@ public class CracImplTest {
         assertSame(state1, state2);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testAddStateBeforecontingencyError() {
+    @Test
+    void testAddStateBeforecontingencyError() {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        crac.addState(contingency1, CURATIVE);
+        assertThrows(FaraoException.class, () -> crac.addState(contingency1, CURATIVE));
     }
 
     @Test
-    public void testFlowCnecAdder() {
+    void testFlowCnecAdder() {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
         assertTrue(flowCnecAdder instanceof FlowCnecAdderImpl);
         assertSame(crac, ((FlowCnecAdderImpl) flowCnecAdder).owner);
     }
 
     @Test
-    public void testGetCnecsFromState() {
+    void testGetCnecsFromState() {
 
         crac.newContingency()
                 .withId("co1")
@@ -473,7 +473,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemoveCnec() {
+    void testRemoveCnec() {
 
         crac.newContingency()
                 .withId("co1")
@@ -542,7 +542,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemovePstRangeAction() {
+    void testRemovePstRangeAction() {
 
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
@@ -617,7 +617,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemoveHvdcRangeAction() {
+    void testRemoveHvdcRangeAction() {
 
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
@@ -688,7 +688,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testFilterPstRangeActionUsageRules() {
+    void testFilterPstRangeActionUsageRules() {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
@@ -734,7 +734,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testFilterHvdcRangeActionUsageRules() {
+    void testFilterHvdcRangeActionUsageRules() {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
@@ -776,7 +776,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemoveNetworkAction() {
+    void testRemoveNetworkAction() {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
         crac.addContingency(contingency1);
@@ -836,7 +836,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testFilterNetworkActionUsageRules() {
+    void testFilterNetworkActionUsageRules() {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
         crac.addContingency(contingency1);
@@ -870,21 +870,21 @@ public class CracImplTest {
     }
 
     @Test
-    public void testPstRangeActionAdder() {
+    void testPstRangeActionAdder() {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
         assertTrue(pstRangeActionAdder instanceof PstRangeActionAdderImpl);
         assertSame(crac, ((PstRangeActionAdderImpl) pstRangeActionAdder).getCrac());
     }
 
     @Test
-    public void testHvdcRangeActionAdder() {
+    void testHvdcRangeActionAdder() {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
         assertTrue(hvdcRangeActionAdder instanceof HvdcRangeActionAdderImpl);
         assertSame(crac, ((HvdcRangeActionAdderImpl) hvdcRangeActionAdder).getCrac());
     }
 
     @Test
-    public void testNetworkActionAdder() {
+    void testNetworkActionAdder() {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction();
         assertTrue(networkActionAdder instanceof NetworkActionAdderImpl);
         assertSame(crac, ((NetworkActionAdderImpl) networkActionAdder).getCrac());

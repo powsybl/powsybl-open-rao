@@ -14,19 +14,19 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoInputTest {
+class RaoInputTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String INITIAL_VARIANT_ID = "initial-variant-id";
     private static final String VARIANT_ID = "variant-id";
@@ -35,7 +35,7 @@ public class RaoInputTest {
     private Crac crac;
     private RaoInput.RaoInputBuilder defaultBuilder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
@@ -46,7 +46,7 @@ public class RaoInputTest {
     }
 
     @Test
-    public void successMinimalBuild() {
+    void successMinimalBuild() {
         RaoInput raoInput = defaultBuilder.build();
         assertSame(network, raoInput.getNetwork());
         assertSame(crac, raoInput.getCrac());
@@ -54,13 +54,13 @@ public class RaoInputTest {
     }
 
     @Test
-    public void testBuildWithoutRefProg() {
+    void testBuildWithoutRefProg() {
         RaoInput raoInput = defaultBuilder.build();
         assertNull(raoInput.getReferenceProgram());
     }
 
     @Test
-    public void testBuildWithRefProg() {
+    void testBuildWithRefProg() {
         EICode areaFrance = new EICode(Country.FR);
         EICode areaBelgium = new EICode(Country.BE);
         EICode areaNetherlands = new EICode(Country.NL);

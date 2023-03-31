@@ -9,55 +9,57 @@ package com.farao_community.farao.data.native_crac_io_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NativeCracImportersTest {
+class NativeCracImportersTest {
 
     @Test
-    public void testFindImporterFromFile() {
+    void testFindImporterFromFile() {
         NativeCracImporter importer = NativeCracImporters.findImporter("empty.txt", getClass().getResourceAsStream("/empty.txt"));
         assertNotNull(importer);
         assertTrue(importer instanceof NativeCracImporterMock);
     }
 
     @Test
-    public void testFindImporterFromFormat() {
+    void testFindImporterFromFormat() {
         NativeCracImporter importer = NativeCracImporters.findImporter("MockedNativeCracFormat");
         assertNotNull(importer);
         assertTrue(importer instanceof NativeCracImporterMock);
     }
 
     @Test
-    public void testFindImporterFromUnknownFormat() {
+    void testFindImporterFromUnknownFormat() {
         NativeCracImporter importer = NativeCracImporters.findImporter("Unknown format");
         assertNull(importer);
     }
 
     @Test
-    public void testImportWithInstant() {
+    void testImportWithInstant() {
         NativeCrac nativeCrac = NativeCracImporters.importData("empty.txt", getClass().getResourceAsStream("/empty.txt"));
         assertNotNull(nativeCrac);
         assertEquals("MockedNativeCracFormat", nativeCrac.getFormat());
     }
 
     @Test
-    public void testImportFromPath() {
+    void testImportFromPath() {
         NativeCrac nativeCrac = NativeCracImporters.importData(Paths.get(new File(getClass().getResource("/empty.txt").getFile()).getAbsolutePath()));
         assertNotNull(nativeCrac);
         assertEquals("MockedNativeCracFormat", nativeCrac.getFormat());
 
     }
 
-    @Test(expected = FaraoException.class)
-    public void testImportFileNotFound() {
-        NativeCracImporters.importData(Paths.get("not_found", "file"));
+    @Test
+    void testImportFileNotFound() {
+        Path path = Paths.get("not_found", "file");
+        assertThrows(FaraoException.class, () -> NativeCracImporters.importData(path));
     }
 }

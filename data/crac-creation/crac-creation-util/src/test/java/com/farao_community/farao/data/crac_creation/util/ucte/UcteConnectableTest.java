@@ -9,20 +9,20 @@ package com.farao_community.farao.data.crac_creation.util.ucte;
 
 import com.farao_community.farao.data.crac_creation.util.ConnectableType;
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UcteConnectableTest {
+class UcteConnectableTest {
 
     @Test
-    public void testInternalLineWithOrderCode() {
+    void testInternalLineWithOrderCode() {
         Branch<?> branch = Mockito.mock(Branch.class);
         UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
 
@@ -41,7 +41,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testTieLineWithElementName() {
+    void testTieLineWithElementName() {
         TieLine tieLine = Mockito.mock(TieLine.class);
         UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), tieLine, false);
 
@@ -59,7 +59,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testPstWithWildcards() {
+    void testPstWithWildcards() {
         TwoWindingsTransformer pst = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(pst.getPhaseTapChanger()).thenReturn(Mockito.mock(PhaseTapChanger.class));
 
@@ -75,7 +75,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testMatchWithSide() {
+    void testMatchWithSide() {
 
         TieLine tieLine = Mockito.mock(TieLine.class);
         UcteConnectable ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, false, UcteConnectable.Side.ONE);
@@ -94,7 +94,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testInversionInConvention() {
+    void testInversionInConvention() {
 
         TwoWindingsTransformer transformer = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer.getPhaseTapChanger()).thenReturn(null);
@@ -107,7 +107,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
 
         Identifiable<?> branch = Mockito.mock(Branch.class);
         Mockito.when(branch.getId()).thenReturn("iidmBranchId");
@@ -116,7 +116,7 @@ public class UcteConnectableTest {
         UcteConnectable ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
         assertEquals(ucteElement1, ucteElement1);
         assertEquals(ucteElement1, ucteElement2);
-        assertNotEquals(ucteElement1, null);
+        assertNotNull(ucteElement1);
 
         // different from
         ucteElement2 = new UcteConnectable("DIF12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
@@ -146,7 +146,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         Branch<?> branch = Mockito.mock(Branch.class);
         Mockito.when(branch.getId()).thenReturn("iidmBranchId");
 
@@ -155,7 +155,7 @@ public class UcteConnectableTest {
     }
 
     @Test
-    public void testConstructorException() {
+    void testConstructorException() {
         Branch<?> branch = Mockito.mock(Branch.class);
         Mockito.when(branch.getId()).thenReturn("iidmBranchId");
 

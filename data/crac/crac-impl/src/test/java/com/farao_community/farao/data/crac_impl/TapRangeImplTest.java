@@ -10,16 +10,15 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class TapRangeImplTest {
+class TapRangeImplTest {
 
     private final int relMin = -4;
     private final int relMax = 4;
@@ -29,32 +28,32 @@ public class TapRangeImplTest {
     private TapRangeImpl relativeFixedRange;
     private TapRangeImpl absoluteFixedRange;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         relativeFixedRange = new TapRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK);
         absoluteFixedRange = new TapRangeImpl(absMin, absMax, RangeType.ABSOLUTE);
     }
 
     @Test
-    public void getMinTest() {
+    void getMinTest() {
         assertEquals(relMin, relativeFixedRange.getMinTap(), 1e-6);
         assertEquals(absMin, absoluteFixedRange.getMinTap(), 1e-6);
     }
 
     @Test
-    public void getMaxTest() {
+    void getMaxTest() {
         assertEquals(relMax, relativeFixedRange.getMaxTap(), 1e-6);
         assertEquals(absMax, absoluteFixedRange.getMaxTap(), 1e-6);
     }
 
     @Test
-    public void getRangeTypeTest() {
+    void getRangeTypeTest() {
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, relativeFixedRange.getRangeType());
         assertEquals(RangeType.ABSOLUTE, absoluteFixedRange.getRangeType());
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE);
@@ -66,7 +65,7 @@ public class TapRangeImplTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
         TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE);

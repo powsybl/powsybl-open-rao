@@ -32,7 +32,6 @@ public interface ElementaryCreationContext {
      */
     ImportStatus getImportStatus();
 
-
     /**
      * Returns additional information on import context.
      */

@@ -13,27 +13,29 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import org.junit.Before;
-import org.junit.Test;
+import com.farao_community.farao.data.crac_api.threshold.VoltageThresholdAdder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class VoltageThresholdAdderImplTest {
+class VoltageThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private Crac crac;
     private Contingency contingency;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
         contingency = crac.newContingency().withId("conId").add();
     }
 
     @Test
-    public void testAddThresholdInDegree() {
+    void testAddThresholdInDegree() {
         VoltageCnec cnec = crac.newVoltageCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("neID")
@@ -43,27 +45,29 @@ public class VoltageThresholdAdderImplTest {
         assertEquals(-250.0, cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testNullParentFail() {
-        new VoltageThresholdAdderImpl(null);
+    @Test
+    void testNullParentFail() {
+        assertThrows(NullPointerException.class, () -> new VoltageThresholdAdderImpl(null));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testUnsupportedUnitFail() {
-        crac.newVoltageCnec().newThreshold().withUnit(Unit.MEGAWATT);
+    @Test
+    void testUnsupportedUnitFail() {
+        VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold();
+        assertThrows(FaraoException.class, () -> voltageThresholdAdder.withUnit(Unit.MEGAWATT));
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoUnitFail() {
-        crac.newVoltageCnec().newThreshold()
-            .withMax(1000.0)
-            .add();
+    @Test
+    void testNoUnitFail() {
+        VoltageThresholdAdder voltageThresholdAdder =
+            crac.newVoltageCnec().newThreshold()
+                .withMax(1000.0);
+        assertThrows(FaraoException.class, voltageThresholdAdder::add);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testNoValueFail() {
-        crac.newVoltageCnec().newThreshold()
-            .withUnit(Unit.AMPERE)
-            .add();
+    @Test
+    void testNoValueFail() {
+        VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold()
+            .withUnit(Unit.KILOVOLT);
+        assertThrows(FaraoException.class, voltageThresholdAdder::add);
     }
 }

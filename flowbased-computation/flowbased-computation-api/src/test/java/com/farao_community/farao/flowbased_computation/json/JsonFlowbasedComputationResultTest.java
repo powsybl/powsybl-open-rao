@@ -10,7 +10,7 @@ import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResultImpl;
 import com.powsybl.commons.test.AbstractConverterTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -18,9 +18,9 @@ import java.util.Collections;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class JsonFlowbasedComputationResultTest extends AbstractConverterTest {
+class JsonFlowbasedComputationResultTest extends AbstractConverterTest {
     @Test
-    public void roundTripDefault() throws IOException {
+    void roundTripDefault() throws IOException {
         FlowbasedComputationResult result = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, new DataDomain("id", "name", "format", "description", null, Collections.emptyList(), Collections.emptyList()));
         roundTripTest(result, JsonFlowbasedComputationResult::write, JsonFlowbasedComputationResult::read, "/FlowbasedComputationResult.json");
     }

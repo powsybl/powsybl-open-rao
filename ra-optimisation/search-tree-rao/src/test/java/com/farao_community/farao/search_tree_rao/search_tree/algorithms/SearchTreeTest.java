@@ -31,6 +31,7 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
@@ -39,21 +40,23 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.MultipleNetworkPool;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.logRangeActions;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SearchTreeTest {
+class SearchTreeTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
@@ -83,7 +86,7 @@ public class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
@@ -138,7 +141,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runOnAFailingRootLeaf() throws Exception {
+    void runOnAFailingRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -149,7 +152,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runWithoutOptimizingRootLeaf() throws Exception {
+    void runWithoutOptimizingRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
 
         setStopCriterionAtTargetObjectiveValue(3.);
@@ -170,7 +173,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndOptimizeOnlyRootLeaf() throws Exception {
+    void runAndOptimizeOnlyRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         when(rootLeaf.getCost()).thenReturn(2.);
@@ -182,7 +185,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void rootLeafMeetsTargetObjectiveValue() throws Exception {
+    void rootLeafMeetsTargetObjectiveValue() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(3.);
         searchTreeWithOneChildLeaf();
@@ -212,7 +215,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithChildLeafInError() throws Exception {
+    void runAndIterateOnTreeWithChildLeafInError() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
@@ -231,7 +234,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithABetterChildLeaf() throws Exception {
+    void runAndIterateOnTreeWithABetterChildLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
@@ -247,7 +250,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithAWorseChildLeaf() throws Exception {
+    void runAndIterateOnTreeWithAWorseChildLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
@@ -263,7 +266,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeStopCriterionReached() throws Exception {
+    void runAndIterateOnTreeStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
 
@@ -302,7 +305,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void runAndIterateOnTreeWithSlightlyBetterChildLeafAndStopCriterionReached() throws Exception {
+    void runAndIterateOnTreeWithSlightlyBetterChildLeafAndStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.getTargetObjectiveValue()).thenReturn(0.0);
@@ -320,7 +323,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void optimizeRootLeafWithRangeActions() throws Exception {
+    void optimizeRootLeafWithRangeActions() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
 
@@ -413,7 +416,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testPurelyVirtualStopCriterion() {
+    void testPurelyVirtualStopCriterion() {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(-30.);
 
@@ -441,13 +444,16 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogsVerbose() {
+    void testLogsVerbose() {
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialResult.getFunctionalCost()).thenReturn(0.);
+        when(initialResult.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
@@ -463,14 +469,17 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogsDontVerbose() {
+    void testLogsDontVerbose() {
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        when(initialResult.getFunctionalCost()).thenReturn(0.);
+        when(initialResult.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getPreOptimObjectiveFunctionResult()).thenReturn(initialResult);
         String expectedLog1 = "[DEBUG] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
@@ -494,7 +503,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testCostSatisfiesStopCriterion() {
+    void testCostSatisfiesStopCriterion() {
         setSearchTreeParameters();
 
         // MIN_OBJECTIVE
@@ -539,7 +548,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testGetCostlyElementsLogs() {
+    void testGetCostlyElementsLogs() {
         setUpForVirtualLogs();
 
         List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
@@ -548,7 +557,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogVirtualCostDetails() {
+    void testLogVirtualCostDetails() {
         setUpForVirtualLogs();
 
         when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
@@ -561,7 +570,6 @@ public class SearchTreeTest {
         when(rootLeaf.getVirtualCost("loop-flow-cost")).thenReturn(200.);
 
         // Functional cost does not satisfy stop criterion
-        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
@@ -570,7 +578,29 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testSortNaCombinations() {
+    public void testLogRangeActions() {
+        setUpForVirtualLogs();
+        List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
+        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
+
+        // apply 2 range actions
+        rangeAction1 = Mockito.mock(PstRangeAction.class);
+        rangeAction2 = Mockito.mock(PstRangeAction.class);
+        when(rangeAction1.getName()).thenReturn("PST1");
+        when(rangeAction2.getName()).thenReturn("PST2");
+        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
+        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
+
+        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
+        // PST can be logged in any order
+        assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
+        assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");
+        assert logsList.get(logsList.size() - 1).toString().contains("PST2: 0");
+    }
+
+    @Test
+    void testSortNaCombinations() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         when(na1.getId()).thenReturn("na1");

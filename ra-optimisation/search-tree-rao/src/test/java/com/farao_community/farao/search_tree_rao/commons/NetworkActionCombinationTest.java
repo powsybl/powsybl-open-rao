@@ -12,24 +12,24 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class NetworkActionCombinationTest {
+class NetworkActionCombinationTest {
 
     private NetworkAction networkAction1;
     private NetworkAction networkAction2;
     private NetworkAction networkAction3;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         Crac crac = CracFactory.findDefault().create("crac");
@@ -57,7 +57,7 @@ public class NetworkActionCombinationTest {
     }
 
     @Test
-    public void individualCombinationTest() {
+    void individualCombinationTest() {
 
         NetworkActionCombination naCombination = new NetworkActionCombination(networkAction1);
 
@@ -69,7 +69,7 @@ public class NetworkActionCombinationTest {
     }
 
     @Test
-    public void multipleCombinationTest() {
+    void multipleCombinationTest() {
 
         NetworkActionCombination naCombination = new NetworkActionCombination(Set.of(networkAction1, networkAction2, networkAction3));
 

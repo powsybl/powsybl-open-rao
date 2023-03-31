@@ -6,18 +6,18 @@
  */
 package com.farao_community.farao.data.crac_creation.util.ucte;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UcteUtilsTest {
+class UcteUtilsTest {
 
     @Test
-    public void testExactMatch() {
+    void testExactMatch() {
         String node = "FFR1AA1 ";
         String candidate = "FFR1AA1 ";
         assertTrue(UcteUtils.matchNodeNames(node, candidate));
@@ -27,14 +27,14 @@ public class UcteUtilsTest {
     }
 
     @Test
-    public void testShortName() {
+    void testShortName() {
         String node = "FFR1AA1";
         String candidate = "FFR1AA11";
         assertFalse(UcteUtils.matchNodeNames(node, candidate));
     }
 
     @Test
-    public void testWildCard() {
+    void testWildCard() {
         String node = "FFR1AA1*";
         String candidate = "FFR1AA11";
         assertTrue(UcteUtils.matchNodeNames(node, candidate));

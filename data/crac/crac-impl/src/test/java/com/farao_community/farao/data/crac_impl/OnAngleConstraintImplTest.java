@@ -11,21 +11,21 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class OnAngleConstraintImplTest {
+class OnAngleConstraintImplTest {
     AngleCnec angleCnec;
     State preventiveState;
     State curativeState;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         angleCnec = Mockito.mock(AngleCnec.class);
         preventiveState = Mockito.mock(State.class);
@@ -37,7 +37,7 @@ public class OnAngleConstraintImplTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
 
         assertEquals(Instant.PREVENTIVE, onAngleConstraint.getInstant());
@@ -48,12 +48,12 @@ public class OnAngleConstraintImplTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         OnAngleConstraint onAngleConstraint1 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
         assertEquals(onAngleConstraint1, onAngleConstraint1);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint1.hashCode());
 
-        assertNotEquals(onAngleConstraint1, null);
+        assertNotNull(onAngleConstraint1);
         assertNotEquals(onAngleConstraint1, Mockito.mock(FreeToUseImpl.class));
 
         OnAngleConstraint onAngleConstraint2 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
@@ -70,7 +70,7 @@ public class OnAngleConstraintImplTest {
     }
 
     @Test
-    public void testGetUsageMethod() {
+    void testGetUsageMethod() {
         State curativeState2 = Mockito.mock(State.class);
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);

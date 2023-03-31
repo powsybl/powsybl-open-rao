@@ -12,16 +12,16 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class BasicMarginEvaluatorTest {
+class BasicMarginEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private final FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
@@ -33,14 +33,14 @@ public class BasicMarginEvaluatorTest {
     private final BasicRelativeMarginEvaluator basicRelativeMarginEvaluator = new BasicRelativeMarginEvaluator();
 
     @Test
-    public void getMargin() {
+    void getMargin() {
         when(currentFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
         double margin = basicMinMarginEvaluator.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void getRelativeMargin() {
+    void getRelativeMargin() {
         when(currentFlowResult.getRelativeMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
         double margin = basicRelativeMarginEvaluator.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);

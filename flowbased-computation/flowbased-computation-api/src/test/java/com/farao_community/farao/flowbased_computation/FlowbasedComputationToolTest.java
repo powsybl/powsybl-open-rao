@@ -9,9 +9,9 @@ package com.farao_community.farao.flowbased_computation;
 import com.farao_community.farao.commons.AbstractToolTest;
 import com.farao_community.farao.flowbased_computation.tools.FlowbasedComputationTool;
 import com.powsybl.tools.Tool;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -21,7 +21,7 @@ import java.util.Collections;
  *
  * @author Luc Di Gallo {@literal <luc.di-gallo at rte-france.com>}
  */
-public class FlowbasedComputationToolTest extends AbstractToolTest {
+class FlowbasedComputationToolTest extends AbstractToolTest {
 
     //how to use itools to test flowbased-computation:
     //command line example, from git farao root directory:
@@ -39,7 +39,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     private final FlowbasedComputationTool tool = new FlowbasedComputationTool();
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         createFile("testCase.xiidm", "");
@@ -63,17 +63,17 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "instant", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
 
-        Assert.assertEquals("Computation", tool.getCommand().getTheme());
-        Assert.assertEquals("Run modular FlowBased computation", tool.getCommand().getDescription());
+        Assertions.assertEquals("Computation", tool.getCommand().getTheme());
+        Assertions.assertEquals("Run modular FlowBased computation", tool.getCommand().getDescription());
     }
 
     @Test
-    public void checkCommandFail() throws IOException {
+    void checkCommandFail() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--case-file", "testCase.xiidm"}, 2, "", "");
     }
 
     @Test
-    public void checkCommandFailBis() throws IOException {
+    void checkCommandFailBis() throws IOException {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",
@@ -83,7 +83,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkCommandOK() throws IOException {
+    void checkCommandOK() throws IOException {
         assertCommand(new String[] {
             COMMAND_NAME,
             "--case-file", "testCase.xiidm",

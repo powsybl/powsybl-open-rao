@@ -41,7 +41,7 @@ public interface BranchCnecCreationContext extends ElementaryCreationContext {
     Map<Instant, String> getCreatedCnecsIds();
 
     /**
-     * Get a boolean indicating whether or not the direction of created CNECs is inverted compared
+     * Get a boolean indicating whether the direction of created CNECs is inverted compared
      * to the one of the native CNEC
      */
     boolean isDirectionInvertedInNetwork();

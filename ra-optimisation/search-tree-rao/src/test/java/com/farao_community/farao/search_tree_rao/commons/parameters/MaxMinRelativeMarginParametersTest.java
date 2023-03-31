@@ -9,17 +9,17 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MaxMinRelativeMarginParametersTest {
+class MaxMinRelativeMarginParametersTest {
 
     @Test
-    public void buildFromRaoParametersTestWithRelativeMargin() {
+    void buildFromRaoParametersTestWithRelativeMargin() {
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
@@ -33,7 +33,7 @@ public class MaxMinRelativeMarginParametersTest {
     }
 
     @Test
-    public void buildFromRaoParametersTestWithoutRelativeMargin() {
+    void buildFromRaoParametersTestWithoutRelativeMargin() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
         MaxMinRelativeMarginParameters mmrmp = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);

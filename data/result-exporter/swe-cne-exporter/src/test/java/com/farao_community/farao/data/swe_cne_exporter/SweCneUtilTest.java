@@ -8,18 +8,18 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.data.swe_cne_exporter.xsd.ESMPDateTimeInterval;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class SweCneUtilTest {
+class SweCneUtilTest {
     @Test
-    public void testInterval() {
+    void testInterval() {
         OffsetDateTime odt = OffsetDateTime.parse("2021-10-30T22:00:00Z");
         ESMPDateTimeInterval interval = SweCneUtil.createEsmpDateTimeInterval(odt);
         assertEquals("2021-10-30T22:00Z", interval.getStart());
@@ -32,7 +32,7 @@ public class SweCneUtilTest {
     }
 
     @Test
-    public void testIntervalWholeDay() {
+    void testIntervalWholeDay() {
         ESMPDateTimeInterval interval = SweCneUtil.createEsmpDateTimeIntervalForWholeDay("2021-10-30T22:00Z/2021-10-31T23:00Z");
         assertEquals("2021-10-30T22:00Z", interval.getStart());
         assertEquals("2021-10-31T23:00Z", interval.getEnd());

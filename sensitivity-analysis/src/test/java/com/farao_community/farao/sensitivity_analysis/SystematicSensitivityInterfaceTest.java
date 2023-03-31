@@ -15,28 +15,22 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SystematicSensitivityAdapter.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
-public class SystematicSensitivityInterfaceTest {
+class SystematicSensitivityInterfaceTest {
 
     private static final double FLOW_TOLERANCE = 0.1;
 
@@ -46,7 +40,9 @@ public class SystematicSensitivityInterfaceTest {
     private SystematicSensitivityResult systematicAnalysisResultFailed;
     private SensitivityAnalysisParameters defaultParameters;
 
-    @Before
+    private MockedStatic<SystematicSensitivityAdapter> systematicSensitivityAdapterMockedStatic;
+
+    @BeforeEach
     public void setUp() {
 
         network = NetworkImportsUtil.import12NodesNetwork();
@@ -54,7 +50,7 @@ public class SystematicSensitivityInterfaceTest {
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 
-        PowerMockito.mockStatic(SystematicSensitivityAdapter.class);
+        systematicSensitivityAdapterMockedStatic = Mockito.mockStatic(SystematicSensitivityAdapter.class);
         try {
             defaultParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
         } catch (IOException e) {
@@ -62,8 +58,13 @@ public class SystematicSensitivityInterfaceTest {
         }
     }
 
+    @AfterEach
+    public void tearDown() {
+        systematicSensitivityAdapterMockedStatic.close();
+    }
+
     @Test
-    public void testRunDefaultConfigOk() {
+    void testRunDefaultConfigOk() {
         // mock sensi service - run OK
         Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
@@ -94,7 +95,7 @@ public class SystematicSensitivityInterfaceTest {
     }
 
     @Test
-    public void testRunDefaultConfigFails() {
+    void testRunDefaultConfigFails() {
         // mock sensi service - run with null sensi
         Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);

@@ -17,26 +17,26 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowComputationImplTest {
+class LoopFlowComputationImplTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
     private Crac crac;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         crac = ExampleGenerator.crac();
 
@@ -59,7 +59,7 @@ public class LoopFlowComputationImplTest {
     }
 
     @Test
-    public void calculateLoopFlowTest() {
+    void calculateLoopFlowTest() {
         ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
@@ -95,7 +95,7 @@ public class LoopFlowComputationImplTest {
     }
 
     @Test
-    public void testIsInMainComponent() {
+    void testIsInMainComponent() {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Network network = Mockito.mock(Network.class);
 
@@ -151,7 +151,7 @@ public class LoopFlowComputationImplTest {
     }
 
     @Test
-    public void testIsInMainComponentNullBus() {
+    void testIsInMainComponentNullBus() {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Network network = Mockito.mock(Network.class);
 
@@ -179,7 +179,7 @@ public class LoopFlowComputationImplTest {
     }
 
     @Test
-    public void testComputeLoopFlowsWithIsolatedGlsk() {
+    void testComputeLoopFlowsWithIsolatedGlsk() {
         ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
@@ -232,7 +232,7 @@ public class LoopFlowComputationImplTest {
     }
 
     @Test
-    public void testCalculateLoopFlows() {
+    void testCalculateLoopFlows() {
         ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         Network network = ExampleGenerator.network();
