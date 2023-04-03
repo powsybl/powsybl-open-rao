@@ -271,10 +271,13 @@
                     <copyToEtc>
                         <files>
                             <file>src/main/resources/config.yml</file>
-                            <file>src/main/resources/crac_example.json</file>
-                            <file>src/main/resources/network_4nodes.uct</file>
                         </files>
                     </copyToEtc>
+                    <copyToRoot>
+                        <files>
+                            <file>src/main/resources/example</file>
+                        </files>
+                    </copyToRoot>
                 </configuration>
             </plugin>
         </plugins>

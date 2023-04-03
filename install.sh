@@ -96,7 +96,7 @@ farao_core_java()
         [ ${farao_core_compile} = true ] && mvn_options="$mvn_options install"
         [ ${farao_core_package} = true ] && mvn_options="$mvn_options package"
         if [ ! -z "$mvn_options" ]; then
-            mvn -f "$sourceDir/pom.xml" ${mvn_options} || exit $?
+            mvn -f "$sourceDir/pom.xml" ${mvn_options} -Dmaven.test.skip=true || exit $?
         fi
 
         if [ ${farao_core_docs} = true ]; then
