@@ -58,7 +58,7 @@
         "2" : 2.5,
         "3" : 3.0
       },
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"
@@ -79,7 +79,7 @@
       "id": "Open line NL1-NL2",
       "name": "Open line NL1-NL2",
       "operator": "Elia",
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"
@@ -95,7 +95,7 @@
       "id": "Open line BE2-FR3",
       "name": "Open line BE2-FR3",
       "operator": "Elia",
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"

@@ -140,7 +140,7 @@
       "id": "Close line FR-BE",
       "name": "Close line FR-BE",
       "operator": "FR",
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"

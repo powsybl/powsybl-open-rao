@@ -200,7 +200,7 @@
       "id": "Open line FR-BE",
       "name": "Open line FR-BE",
       "operator": "FR",
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "forced",
           "instant": "curative"

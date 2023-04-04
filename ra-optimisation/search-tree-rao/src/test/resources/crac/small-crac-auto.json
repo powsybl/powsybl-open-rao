@@ -87,7 +87,7 @@
         "15" : 5.839110508104064,
         "16" : 6.2276423729910535
       },
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"
@@ -147,7 +147,7 @@
         "15" : 5.839110508104064,
         "16" : 6.2276423729910535
       },
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"
@@ -173,7 +173,7 @@
       "id": "Open line NL1-NL2",
       "name": "Open line NL1-NL2",
       "operator": "Elia",
-      "onInstantUsageRules": [
+      "freeToUseUsageRules": [
         {
           "usageMethod": "forced",
           "instant": "auto"
