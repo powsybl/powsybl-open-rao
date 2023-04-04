@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
@@ -49,6 +50,18 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      * usage rules of the remedial action
      */
     UsageMethod getUsageMethod(State state);
+
+    /**
+     * Evaluates if the remedial action is available depending on its UsageMethod.
+     */
+    boolean isRemedialActionAvailable(State state);
+
+    /**
+     * Evaluates if the remedial action is available depending on its UsageMethod.
+     */
+    boolean isRemedialActionAvailable(State state, boolean isAnyMarginNegative);
+
+    Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
 
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network

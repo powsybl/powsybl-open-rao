@@ -30,7 +30,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.5";
+    public static final String CRAC_IO_VERSION = "1.6";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -90,7 +90,9 @@ public final class JsonSerializationConstants {
 
     public static final String USAGE_METHOD = "usageMethod";
     public static final String ON_INSTANT_USAGE_RULES = "onInstantUsageRules";
-    public static final String ON_STATE_USAGE_RULES = "onStateUsageRules";
+    public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules"; // retro-compatibility only
+    public static final String ON_CONTINGENCY_STATE_USAGE_RULES = "onContingencyStateUsageRules";
+    public static final String ON_STATE_USAGE_RULES = "onStateUsageRules"; // retro-compatibility only
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
     public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
     public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
@@ -307,7 +309,7 @@ public final class JsonSerializationConstants {
         switch (usageMethod) {
             case UNAVAILABLE:
                 return UNAVAILABLE_USAGE_METHOD;
-            case FORCED_IF_AVAILABLE:
+            case FORCED:
                 return FORCED_USAGE_METHOD;
             case AVAILABLE:
                 return AVAILABLE_USAGE_METHOD;
@@ -318,12 +320,12 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static UsageMethod deserializeUsageMethod(String stringValue) {
+    public static UsageMethod deserializeUsageMethod(String stringValue, String version) {
         switch (stringValue) {
             case UNAVAILABLE_USAGE_METHOD:
                 return UsageMethod.UNAVAILABLE;
             case FORCED_USAGE_METHOD:
-                return UsageMethod.FORCED_IF_AVAILABLE;
+                return UsageMethod.FORCED;
             case AVAILABLE_USAGE_METHOD:
                 return UsageMethod.AVAILABLE;
             case UNDEFINED_USAGE_METHOD:

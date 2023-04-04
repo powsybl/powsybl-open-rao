@@ -427,11 +427,6 @@ public interface Crac extends Identifiable<Crac> {
     Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state);
 
     /**
-     * Gather all the network actions of a specified state with usage method FORCED or FORCED_IF_AVAILABLE
-     */
-    Set<NetworkAction> getForcedNetworkActions(State state);
-
-    /**
      * Find a NetworkAction by its id, returns null if the network action does not exists
      */
     NetworkAction getNetworkAction(String id);

@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_api.usage_rule;
 
 /**
  * The OnInstant UsageRule is defined at a given Instant. For instance, if a RemedialAction
- * have a OnInstant UsageRule with Instant "curative" and UsageMethod AVAILABLE, this
+ * has an OnInstant UsageRule with Instant "curative" and UsageMethod AVAILABLE, this
  * RemedialAction will be available after all the contingencies at Instant "curative".
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

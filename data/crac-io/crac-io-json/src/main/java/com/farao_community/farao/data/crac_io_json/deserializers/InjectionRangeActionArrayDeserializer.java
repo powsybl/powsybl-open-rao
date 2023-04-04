@@ -53,11 +53,27 @@ public final class InjectionRangeActionArrayDeserializer {
                         break;
                     case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
+                        break;
+                    case ON_CONTINGENCY_STATE_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnStateArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
+                        break;
+                    case FREE_TO_USE_USAGE_RULES:
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
+                        } else {
+                            jsonParser.nextToken();
+                            OnInstantArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
+                        }
                         break;
                     case ON_STATE_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
+                        } else {
+                            jsonParser.nextToken();
+                            OnStateArrayDeserializer.deserialize(jsonParser, version, injectionRangeActionAdder);
+                        }
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();

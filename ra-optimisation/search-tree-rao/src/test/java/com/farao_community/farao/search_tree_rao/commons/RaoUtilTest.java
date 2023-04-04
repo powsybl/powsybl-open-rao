@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -198,7 +197,7 @@ class RaoUtilTest {
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         NetworkAction na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
@@ -207,21 +206,17 @@ class RaoUtilTest {
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().get(0);
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         optimizedState = crac.getPreventiveState();
-        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-        assertFalse(RaoUtil.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        assertFalse(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
     }
 
     @Test
@@ -279,7 +274,6 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, RaoUtil.isOnFlowConstraintInCountryAvailable((OnFlowConstraintInCountry) ra.getUsageRules().get(0), optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-        assertEquals(available, RaoUtil.isRemedialActionAvailable(ra, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        assertEquals(available, ra.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
     }
 }

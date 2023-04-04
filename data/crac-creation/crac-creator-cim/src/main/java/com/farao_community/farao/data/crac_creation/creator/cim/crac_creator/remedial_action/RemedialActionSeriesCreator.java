@@ -412,7 +412,7 @@ public class RemedialActionSeriesCreator {
         if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && contingencies.isEmpty())) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
-            UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED_IF_AVAILABLE;
+            UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
             RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
         }
     }

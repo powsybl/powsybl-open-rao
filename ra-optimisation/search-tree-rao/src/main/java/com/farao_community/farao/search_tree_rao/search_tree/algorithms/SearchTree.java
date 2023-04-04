@@ -181,7 +181,7 @@ public class SearchTree {
         State optimizedState = input.getOptimizationPerimeter().getMainOptimizationState();
         // Fetch available network actions, then apply those that should be forced
         Set<NetworkAction> forcedNetworkActions = input.getOptimizationPerimeter().getNetworkActions().stream()
-            .filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod(optimizedState).equals(UsageMethod.FORCED_IF_AVAILABLE)))
+            .filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod(optimizedState).equals(UsageMethod.FORCED)))
             .collect(Collectors.toSet());
         if (!forcedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("{} network actions were forced on the network. The root leaf will be re-evaluated.", forcedNetworkActions.size());

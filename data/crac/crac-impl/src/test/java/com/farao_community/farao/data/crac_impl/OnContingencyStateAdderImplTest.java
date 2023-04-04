@@ -65,14 +65,14 @@ class OnContingencyStateAdderImplTest {
     void testOkPreventive() {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(Instant.PREVENTIVE)
-            .withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE)
+            .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
         assertEquals(Instant.PREVENTIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
-        assertEquals(UsageMethod.FORCED_IF_AVAILABLE, remedialAction.getUsageRules().get(0).getUsageMethod());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
 
     @Test

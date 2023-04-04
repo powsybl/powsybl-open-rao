@@ -119,7 +119,7 @@ class AutomatonSimulatorTest {
             .withId("ra2")
             .withNetworkElement("ra2-ne")
             .withSpeed(2)
-            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra3 = crac.newPstRangeAction()
@@ -161,7 +161,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group2")
             .withNetworkElement("ra2-ne")
             .withSpeed(5)
-            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ara4 = crac.newHvdcRangeAction()
@@ -178,7 +178,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group3")
             .withNetworkElement("ra2-ne")
             .withSpeed(6)
-            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ara6 = crac.newPstRangeAction()
@@ -204,7 +204,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
             .newRange().withMax(3000).withMin(-3000).add()
-            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .add();
         hvdcRa2 = crac.newHvdcRangeAction()
             .withId("hvdc-ra2")
@@ -212,7 +212,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA12 FFR3AA12 1")
             .withSpeed(1)
             .newRange().withMax(3000).withMin(-3000).add()
-            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         autoState = crac.getState(contingency1, Instant.AUTO);
@@ -372,7 +372,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
             .newRange().withMax(1000).withMin(-1000).add()
-            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .add();
 
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);

@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.HashSet;
 import java.util.Objects;

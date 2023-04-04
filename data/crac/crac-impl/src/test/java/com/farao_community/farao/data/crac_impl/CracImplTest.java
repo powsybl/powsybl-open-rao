@@ -253,7 +253,7 @@ class CracImplTest {
                 .newOnContingencyStateUsageRule()
                 .withContingency("co2")
                 .withInstant(CURATIVE)
-                .withUsageMethod(FORCED_IF_AVAILABLE)
+                .withUsageMethod(FORCED)
                 .add()
                 .add();
 
@@ -557,7 +557,7 @@ class CracImplTest {
         PstRangeAction ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -571,7 +571,7 @@ class CracImplTest {
         PstRangeAction ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -579,11 +579,11 @@ class CracImplTest {
         State state1 = crac.getState("co1", CURATIVE);
         State state2 = crac.getState("co2", CURATIVE);
 
-        assertEquals(0, crac.getRangeActions(state1, FORCED_IF_AVAILABLE).size());
+        assertEquals(0, crac.getRangeActions(state1, FORCED).size());
         assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
         assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getRangeActions(state2, FORCED_IF_AVAILABLE).size());
-        assertTrue(crac.getRangeActions(state2, FORCED_IF_AVAILABLE).containsAll(Set.of(ra2, ra4)));
+        assertEquals(2, crac.getRangeActions(state2, FORCED).size());
+        assertTrue(crac.getRangeActions(state2, FORCED).containsAll(Set.of(ra2, ra4)));
 
         assertEquals(4, crac.getPstRangeActions().size());
         assertEquals(4, crac.getRangeActions().size());
@@ -631,7 +631,7 @@ class CracImplTest {
         HvdcRangeAction ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra3 = crac.newHvdcRangeAction()
@@ -643,18 +643,18 @@ class CracImplTest {
         HvdcRangeAction ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         State state1 = crac.getState("co1", CURATIVE);
         State state2 = crac.getState("co2", CURATIVE);
 
-        assertEquals(0, crac.getRangeActions(state1, FORCED_IF_AVAILABLE).size());
+        assertEquals(0, crac.getRangeActions(state1, FORCED).size());
         assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
         assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getRangeActions(state2, FORCED_IF_AVAILABLE).size());
-        assertTrue(crac.getRangeActions(state2, FORCED_IF_AVAILABLE).containsAll(Set.of(ra2, ra4)));
+        assertEquals(2, crac.getRangeActions(state2, FORCED).size());
+        assertTrue(crac.getRangeActions(state2, FORCED).containsAll(Set.of(ra2, ra4)));
 
         assertEquals(4, crac.getHvdcRangeActions().size());
         assertEquals(4, crac.getRangeActions().size());
@@ -702,7 +702,7 @@ class CracImplTest {
         PstRangeAction ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -716,7 +716,7 @@ class CracImplTest {
         PstRangeAction ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -727,10 +727,10 @@ class CracImplTest {
         assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
         assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
         assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
-        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED_IF_AVAILABLE));
+        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
+        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED));
     }
 
     @Test
@@ -747,7 +747,7 @@ class CracImplTest {
         HvdcRangeAction ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra3 = crac.newHvdcRangeAction()
@@ -759,7 +759,7 @@ class CracImplTest {
         HvdcRangeAction ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(FORCED_IF_AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -769,10 +769,10 @@ class CracImplTest {
         assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
         assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
         assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
-        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED_IF_AVAILABLE));
+        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
+        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED));
     }
 
     @Test
@@ -783,7 +783,7 @@ class CracImplTest {
         State state1 = crac.addState(contingency1, CURATIVE);
         UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
         State state2 = crac.addState(contingency1, OUTAGE);
-        UsageRule ur2 = new OnContingencyStateImpl(FORCED_IF_AVAILABLE, state2);
+        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
         NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
@@ -800,10 +800,10 @@ class CracImplTest {
         NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", List.of(ur2), Collections.singleton(ea2));
         crac.addNetworkAction(ra4);
 
-        assertTrue(crac.getNetworkActions(state1, FORCED_IF_AVAILABLE).isEmpty());
+        assertTrue(crac.getNetworkActions(state1, FORCED).isEmpty());
         assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED_IF_AVAILABLE, AVAILABLE));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED, AVAILABLE));
 
         assertEquals(4, crac.getNetworkActions().size());
         assertEquals(4, crac.getRemedialActions().size());
@@ -843,8 +843,8 @@ class CracImplTest {
         State state1 = crac.addState(contingency1, CURATIVE);
         UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
         State state2 = crac.addState(contingency1, OUTAGE);
-        UsageRule ur2 = new OnContingencyStateImpl(FORCED_IF_AVAILABLE, state2);
-        UsageRule ur3 = new OnContingencyStateImpl(FORCED_IF_AVAILABLE, state1);
+        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
+        UsageRule ur3 = new OnContingencyStateImpl(FORCED, state1);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
         NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
@@ -863,10 +863,10 @@ class CracImplTest {
 
         assertEquals(Set.of(ra1), crac.getNetworkActions(state1, AVAILABLE));
         assertEquals(Set.of(), crac.getNetworkActions(state2, AVAILABLE));
-        assertEquals(Set.of(ra3), crac.getNetworkActions(state1, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE, FORCED_IF_AVAILABLE));
-        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, AVAILABLE, FORCED_IF_AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getNetworkActions(state1, FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
+        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, AVAILABLE, FORCED));
     }
 
     @Test

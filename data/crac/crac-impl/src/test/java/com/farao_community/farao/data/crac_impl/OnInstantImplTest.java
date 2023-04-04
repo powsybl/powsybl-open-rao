@@ -43,7 +43,7 @@ class OnInstantImplTest {
     @Test
     void testEqualsFalseForUsageMethod() {
         OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.FORCED_IF_AVAILABLE, Instant.PREVENTIVE);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.FORCED, Instant.PREVENTIVE);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());

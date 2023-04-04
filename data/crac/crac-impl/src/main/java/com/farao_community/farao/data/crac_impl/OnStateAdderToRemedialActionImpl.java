@@ -48,8 +48,8 @@ public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T
     public T add() {
         assertAttributeNotNull(state, CLASS_NAME, "state", "withState()");
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
-        if (state.isPreventive() && usageMethod != UsageMethod.FORCED_IF_AVAILABLE && usageMethod != UsageMethod.FORCED) {
-            throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED_IF_AVAILABLE or FORCED. Please use newOnInstantUsageRule() instead.");
+        if (state.isPreventive() && usageMethod != UsageMethod.FORCED) {
+            throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newOnInstantUsageRule() instead.");
         } else if (state.getInstant().equals(Instant.OUTAGE)) {
             throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         }

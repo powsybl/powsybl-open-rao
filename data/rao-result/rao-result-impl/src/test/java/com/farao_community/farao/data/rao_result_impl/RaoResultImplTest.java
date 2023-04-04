@@ -48,7 +48,7 @@ class RaoResultImplTest {
         na = crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
             .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.UNAVAILABLE).add()
             .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();

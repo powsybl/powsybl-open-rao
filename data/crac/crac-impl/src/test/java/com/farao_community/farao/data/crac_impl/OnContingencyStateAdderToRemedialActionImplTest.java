@@ -49,29 +49,29 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
     @Test
     void testOk() {
-        remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, Instant.CURATIVE)).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add();
+        remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, Instant.CURATIVE)).withUsageMethod(UsageMethod.FORCED).add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
         assertEquals(Instant.CURATIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
         assertEquals(contingency, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getContingency().orElse(null));
-        assertEquals(UsageMethod.FORCED_IF_AVAILABLE, remedialAction.getUsageRules().get(0).getUsageMethod());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
 
     @Test
     void testOkPreventive() {
-        remedialAction.newOnStateUsageRule().withState(crac.getPreventiveState()).withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE).add();
+        remedialAction.newOnStateUsageRule().withState(crac.getPreventiveState()).withUsageMethod(UsageMethod.FORCED).add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
         assertEquals(Instant.PREVENTIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
-        assertEquals(UsageMethod.FORCED_IF_AVAILABLE, remedialAction.getUsageRules().get(0).getUsageMethod());
+        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
 
     @Test
     void testNoState() {
         OnContingencyStateAdderToRemedialAction<NetworkAction> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
-            .withUsageMethod(UsageMethod.FORCED_IF_AVAILABLE);
+            .withUsageMethod(UsageMethod.FORCED);
         assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
     }
 

@@ -29,7 +29,7 @@ import java.util.Map;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
-import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED_IF_AVAILABLE;
+import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -191,7 +191,7 @@ class CracImportExportTest {
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
         assertEquals(CURATIVE, onContingencyState.getInstant());
-        assertEquals(FORCED_IF_AVAILABLE, onContingencyState.getUsageMethod());
+        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check onContingencyState usage Rule (preventive)
         onContingencyState = crac.getNetworkAction("complexNetworkActionId").getUsageRules().stream()
@@ -202,7 +202,7 @@ class CracImportExportTest {
         assertNull(onContingencyState.getContingency());
         assertEquals(crac.getPreventiveState(), onContingencyState.getState());
         assertEquals(PREVENTIVE, onContingencyState.getInstant());
-        assertEquals(FORCED_IF_AVAILABLE, onContingencyState.getUsageMethod());
+        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
