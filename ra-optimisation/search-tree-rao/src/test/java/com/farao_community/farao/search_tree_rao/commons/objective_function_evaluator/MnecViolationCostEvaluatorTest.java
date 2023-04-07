@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -68,13 +68,13 @@ class MnecViolationCostEvaluatorTest {
                 Set.of(mnec1, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                new MnecParameters(50, 10, 1)
+                new MnecParametersExtension(50, 10, 1)
         );
         evaluator2 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                new MnecParameters(20, 2, 1)
+                new MnecParametersExtension(20, 2, 1)
         );
     }
 
@@ -88,7 +88,7 @@ class MnecViolationCostEvaluatorTest {
                 Set.of(mnec1, mnec2, pureCnec),
                 unit,
                 initialFlowResult,
-                new MnecParameters(50, violationCost, 1)
+                new MnecParametersExtension(50, violationCost, 1)
         );
     }
 
@@ -102,7 +102,7 @@ class MnecViolationCostEvaluatorTest {
                 Set.of(mnec1, mnec2, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                new MnecParameters(50, 10, 1)
+                new MnecParametersExtension(50, 10, 1)
         );
     }
 

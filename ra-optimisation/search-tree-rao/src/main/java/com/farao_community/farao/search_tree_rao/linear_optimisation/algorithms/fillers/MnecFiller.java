@@ -10,8 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -34,17 +34,17 @@ public class MnecFiller implements ProblemFiller {
     private final Set<FlowCnec> monitoredCnecs;
     private final Unit unit;
     private final double mnecViolationCost;
-    private final double mnecAcceptableMarginDiminution;
+    private final double mnecAcceptableMarginDecrease;
     private final double mnecConstraintAdjustmentCoefficient;
 
-    public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParameters mnecParameters) {
+    public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParametersExtension mnecParameters) {
         this.initialFlowResult = initialFlowResult;
         this.monitoredCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.monitoredCnecs.addAll(monitoredCnecs);
         this.unit = unit;
-        this.mnecViolationCost = mnecParameters.getMnecViolationCost();
-        this.mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
-        this.mnecConstraintAdjustmentCoefficient = mnecParameters.getMnecConstraintAdjustmentCoefficient();
+        this.mnecViolationCost = mnecParameters.getViolationCost();
+        this.mnecAcceptableMarginDecrease = mnecParameters.getAcceptableMarginDecrease();
+        this.mnecConstraintAdjustmentCoefficient = mnecParameters.getConstraintAdjustmentCoefficient();
     }
 
     private Set<FlowCnec> getMonitoredCnecs() {
@@ -92,7 +92,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
+                    double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
                     FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
@@ -100,7 +100,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> minFlow = mnec.getLowerBound(side, MEGAWATT);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
+                    double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDecrease) + mnecConstraintAdjustmentCoefficient;
                     FaraoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);

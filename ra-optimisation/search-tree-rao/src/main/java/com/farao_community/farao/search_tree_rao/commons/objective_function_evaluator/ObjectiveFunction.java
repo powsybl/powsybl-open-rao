@@ -15,7 +15,6 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -136,7 +135,7 @@ public final class ObjectiveFunction {
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
                     raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
                     initialFlowResult,
-                    MnecParameters.buildFromRaoParameters(raoParameters)
+                    MnecParametersExtension.buildFromRaoParameters(raoParameters)
                 ));
             }
 

@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
@@ -20,7 +21,7 @@ public final class IteratingLinearOptimizerParameters {
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
 
     private final RangeActionParameters rangeActionParameters;
-    private final MnecParameters mnecParameters;
+    private final MnecParametersExtension mnecParameters;
     private final MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
     private final LoopFlowParameters loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
@@ -31,7 +32,7 @@ public final class IteratingLinearOptimizerParameters {
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                RangeActionParameters rangeActionParameters,
-                                               MnecParameters mnecParameters,
+                                               MnecParametersExtension mnecParameters,
                                                MaxMinRelativeMarginParameters maxMinRelativeMarginParameters,
                                                LoopFlowParameters loopFlowParameters,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
@@ -78,7 +79,7 @@ public final class IteratingLinearOptimizerParameters {
         return rangeActionParameters;
     }
 
-    public MnecParameters getMnecParameters() {
+    public MnecParametersExtension getMnecParameters() {
         return mnecParameters;
     }
 
@@ -114,7 +115,7 @@ public final class IteratingLinearOptimizerParameters {
 
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private RangeActionParameters rangeActionParameters;
-        private MnecParameters mnecParameters;
+        private MnecParametersExtension mnecParameters;
         private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
@@ -132,7 +133,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
+        public LinearOptimizerParametersBuilder withMnecParameters(MnecParametersExtension mnecParameters) {
             this.mnecParameters = mnecParameters;
             return this;
         }

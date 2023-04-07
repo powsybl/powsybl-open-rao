@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
@@ -53,7 +54,7 @@ class LinearProblemBuilderTest {
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         MaxMinRelativeMarginParameters relativeMarginParameters = Mockito.mock(MaxMinRelativeMarginParameters.class);
         when(parameters.getMaxMinRelativeMarginParameters()).thenReturn(relativeMarginParameters);
-        MnecParameters mnecParameters = Mockito.mock(MnecParameters.class);
+        MnecParametersExtension mnecParameters = Mockito.mock(MnecParametersExtension.class);
         when(parameters.getMnecParameters()).thenReturn(mnecParameters);
         LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
         when(parameters.getLoopFlowParameters()).thenReturn(loopFlowParameters);

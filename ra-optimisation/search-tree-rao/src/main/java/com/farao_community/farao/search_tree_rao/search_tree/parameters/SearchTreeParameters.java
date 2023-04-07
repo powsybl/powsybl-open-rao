@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
@@ -25,7 +26,7 @@ public class SearchTreeParameters {
 
     // required for sub-module iterating linear optimizer
     private final RangeActionParameters rangeActionParameters;
-    private final MnecParameters mnecParameters;
+    private final MnecParametersExtension mnecParameters;
     private final MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
     private final LoopFlowParameters loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
@@ -37,7 +38,7 @@ public class SearchTreeParameters {
                                 NetworkActionParameters networkActionParameters,
                                 GlobalRemedialActionLimitationParameters raLimitationParameters,
                                 RangeActionParameters rangeActionParameters,
-                                MnecParameters mnecParameters,
+                                MnecParametersExtension mnecParameters,
                                 MaxMinRelativeMarginParameters maxMinRelativeMarginParameters,
                                 LoopFlowParameters loopFlowParameters,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
@@ -76,7 +77,7 @@ public class SearchTreeParameters {
         return rangeActionParameters;
     }
 
-    public MnecParameters getMnecParameters() {
+    public MnecParametersExtension getMnecParameters() {
         return mnecParameters;
     }
 
@@ -110,7 +111,7 @@ public class SearchTreeParameters {
         private NetworkActionParameters networkActionParameters;
         private GlobalRemedialActionLimitationParameters raLimitationParameters;
         private RangeActionParameters rangeActionParameters;
-        private MnecParameters mnecParameters;
+        private MnecParametersExtension mnecParameters;
         private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
@@ -122,7 +123,7 @@ public class SearchTreeParameters {
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
             this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
             this.rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
-            this.mnecParameters = MnecParameters.buildFromRaoParameters(raoParameters);
+            this.mnecParameters = MnecParametersExtension.buildFromRaoParameters(raoParameters);
             this.maxMinRelativeMarginParameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
             this.loopFlowParameters = LoopFlowParameters.buildFromRaoParameters(raoParameters);
             this.solverParameters = SolverParameters.buildFromRaoParameters(raoParameters);
@@ -155,7 +156,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
+        public SearchTreeParametersBuilder withMnecParameters(MnecParametersExtension mnecParameters) {
             this.mnecParameters = mnecParameters;
             return this;
         }
