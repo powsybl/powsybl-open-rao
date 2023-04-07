@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
@@ -22,7 +23,7 @@ public final class IteratingLinearOptimizerParameters {
 
     private final RangeActionParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
-    private final MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+    private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParameters loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final RangeActionLimitationParameters raLimitationParameters;
@@ -33,7 +34,7 @@ public final class IteratingLinearOptimizerParameters {
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                RangeActionParameters rangeActionParameters,
                                                MnecParametersExtension mnecParameters,
-                                               MaxMinRelativeMarginParameters maxMinRelativeMarginParameters,
+                                               RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                                LoopFlowParameters loopFlowParameters,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
                                                RangeActionLimitationParameters raLimitationParameters,
@@ -83,7 +84,7 @@ public final class IteratingLinearOptimizerParameters {
         return mnecParameters;
     }
 
-    public MaxMinRelativeMarginParameters getMaxMinRelativeMarginParameters() {
+    public RelativeMarginsParametersExtension getMaxMinRelativeMarginParameters() {
         return maxMinRelativeMarginParameters;
     }
 
@@ -116,7 +117,7 @@ public final class IteratingLinearOptimizerParameters {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private RangeActionParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
-        private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+        private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private RangeActionLimitationParameters raLimitationParameters;
@@ -138,7 +139,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
+        public LinearOptimizerParametersBuilder withMaxMinRelativeMarginParameters(RelativeMarginsParametersExtension maxMinRelativeMarginParameters) {
             this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             return this;
         }

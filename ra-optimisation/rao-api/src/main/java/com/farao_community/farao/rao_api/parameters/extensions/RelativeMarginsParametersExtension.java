@@ -7,12 +7,14 @@
 
 package com.farao_community.farao.rao_api.parameters.extensions;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 /**
@@ -26,7 +28,15 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     static final List<ZoneToZonePtdfDefinition> DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES = new ArrayList<>();
     private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
     // prevents relative margins from diverging to +infinity
-    private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
+    private double ptdfSumLowerBound;
+
+    public RelativeMarginsParametersExtension() {
+        this.ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
+    }
+
+    public RelativeMarginsParametersExtension(double ptdfSumLowerBound) {
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
+    }
 
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
         return ptdfBoundaries;
@@ -55,6 +65,18 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     @Override
     public String getName() {
         return RELATIVE_MARGINS;
+    }
+
+    public static RelativeMarginsParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
+        RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (Objects.isNull(relativeMarginParameters)) {
+                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
+            }
+            return new RelativeMarginsParametersExtension(relativeMarginParameters.getPtdfSumLowerBound());
+        } else {
+            return null;
+        }
     }
 }
 

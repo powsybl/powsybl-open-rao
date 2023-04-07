@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
@@ -27,7 +28,7 @@ public class SearchTreeParameters {
     // required for sub-module iterating linear optimizer
     private final RangeActionParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
-    private final MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+    private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParameters loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final SolverParameters solverParameters;
@@ -39,7 +40,7 @@ public class SearchTreeParameters {
                                 GlobalRemedialActionLimitationParameters raLimitationParameters,
                                 RangeActionParameters rangeActionParameters,
                                 MnecParametersExtension mnecParameters,
-                                MaxMinRelativeMarginParameters maxMinRelativeMarginParameters,
+                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                 LoopFlowParameters loopFlowParameters,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 SolverParameters solverParameters,
@@ -81,7 +82,7 @@ public class SearchTreeParameters {
         return mnecParameters;
     }
 
-    public MaxMinRelativeMarginParameters getMaxMinRelativeMarginParameters() {
+    public RelativeMarginsParametersExtension getMaxMinRelativeMarginParameters() {
         return maxMinRelativeMarginParameters;
     }
 
@@ -112,7 +113,7 @@ public class SearchTreeParameters {
         private GlobalRemedialActionLimitationParameters raLimitationParameters;
         private RangeActionParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
-        private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+        private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private SolverParameters solverParameters;
@@ -124,7 +125,7 @@ public class SearchTreeParameters {
             this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
             this.rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
             this.mnecParameters = MnecParametersExtension.buildFromRaoParameters(raoParameters);
-            this.maxMinRelativeMarginParameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
+            this.maxMinRelativeMarginParameters = RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters);
             this.loopFlowParameters = LoopFlowParameters.buildFromRaoParameters(raoParameters);
             this.solverParameters = SolverParameters.buildFromRaoParameters(raoParameters);
             this.maxNumberOfIterations = raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations();
@@ -161,7 +162,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
+        public SearchTreeParametersBuilder withMaxMinRelativeMarginParameters(RelativeMarginsParametersExtension maxMinRelativeMarginParameters) {
             this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             return this;
         }

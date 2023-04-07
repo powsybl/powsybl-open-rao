@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ class SearchTreeParametersTest {
         assertEquals(GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters()), searchTreeParameters.getRaLimitationParameters());
         assertEquals(RangeActionParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());
         assertEquals(MnecParametersExtension.buildFromRaoParameters(raoParameters), searchTreeParameters.getMnecParameters());
-        assertEquals(MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getMaxMinRelativeMarginParameters());
+        assertEquals(RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters), searchTreeParameters.getMaxMinRelativeMarginParameters());
         assertEquals(LoopFlowParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getLoopFlowParameters());
         assertEquals(SolverParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getSolverParameters());
         assertEquals(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
@@ -55,7 +56,7 @@ class SearchTreeParametersTest {
         GlobalRemedialActionLimitationParameters raLimitationParameters = Mockito.mock(GlobalRemedialActionLimitationParameters.class);
         RangeActionParameters rangeActionParameters = Mockito.mock(RangeActionParameters.class);
         MnecParametersExtension mnecParameters = Mockito.mock(MnecParametersExtension.class);
-        MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = Mockito.mock(MaxMinRelativeMarginParameters.class);
+        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = Mockito.mock(RelativeMarginsParametersExtension.class);
         LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
         UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
         SolverParameters solverParameters = Mockito.mock(SolverParameters.class);
