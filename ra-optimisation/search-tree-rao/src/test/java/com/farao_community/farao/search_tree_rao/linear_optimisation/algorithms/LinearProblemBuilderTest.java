@@ -38,7 +38,7 @@ class LinearProblemBuilderTest {
     private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
-    private SolverParameters solverParameters;
+    private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
     private RangeActionsOptimizationParameters rangeActionParameters;
     private OptimizationPerimeter optimizationPerimeter;
 
@@ -50,7 +50,7 @@ class LinearProblemBuilderTest {
         linearProblemBuilder = Mockito.spy(linearProblemBuilder);
         doReturn(new FaraoMPSolver()).when(linearProblemBuilder).buildSolver();
 
-        solverParameters = Mockito.mock(SolverParameters.class);
+        solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);

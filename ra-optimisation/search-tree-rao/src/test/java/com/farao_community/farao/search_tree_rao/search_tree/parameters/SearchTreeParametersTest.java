@@ -46,7 +46,7 @@ class SearchTreeParametersTest {
         assertEquals(MnecParametersExtension.buildFromRaoParameters(raoParameters), searchTreeParameters.getMnecParameters());
         assertEquals(RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters), searchTreeParameters.getMaxMinRelativeMarginParameters());
         assertEquals(LoopFlowParametersExtension.buildFromRaoParameters(raoParameters), searchTreeParameters.getLoopFlowParameters());
-        assertEquals(SolverParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getSolverParameters());
+        assertEquals(RangeActionsOptimizationParameters.LinearOptimizationSolver.buildFromRaoParameters(raoParameters), searchTreeParameters.getSolverParameters());
         assertEquals(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
     }
 
@@ -61,7 +61,7 @@ class SearchTreeParametersTest {
         RelativeMarginsParametersExtension maxMinRelativeMarginParameters = Mockito.mock(RelativeMarginsParametersExtension.class);
         LoopFlowParametersExtension loopFlowParameters = Mockito.mock(LoopFlowParametersExtension.class);
         UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
-        SolverParameters solverParameters = Mockito.mock(SolverParameters.class);
+        RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         int maxNumberOfIterations = 3;
 
         SearchTreeParameters searchTreeParameters = builder

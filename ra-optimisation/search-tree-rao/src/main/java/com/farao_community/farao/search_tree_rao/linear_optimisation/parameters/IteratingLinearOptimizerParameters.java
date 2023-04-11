@@ -29,7 +29,7 @@ public final class IteratingLinearOptimizerParameters {
     private final LoopFlowParametersExtension loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final RangeActionLimitationParameters raLimitationParameters;
-    private final SolverParameters solverParameters;
+    private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
 
     private final int maxNumberOfIterations;
 
@@ -40,7 +40,7 @@ public final class IteratingLinearOptimizerParameters {
                                                LoopFlowParametersExtension loopFlowParameters,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
                                                RangeActionLimitationParameters raLimitationParameters,
-                                               SolverParameters solverParameters,
+                                               RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
                                                int maxNumberOfIterations) {
         this.objectiveFunction = objectiveFunction;
         this.rangeActionParameters = rangeActionParameters;
@@ -102,7 +102,7 @@ public final class IteratingLinearOptimizerParameters {
         return raLimitationParameters;
     }
 
-    public SolverParameters getSolverParameters() {
+    public RangeActionsOptimizationParameters.LinearOptimizationSolver getSolverParameters() {
         return solverParameters;
     }
 
@@ -123,7 +123,7 @@ public final class IteratingLinearOptimizerParameters {
         private LoopFlowParametersExtension loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private RangeActionLimitationParameters raLimitationParameters;
-        private SolverParameters solverParameters;
+        private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
@@ -161,7 +161,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withSolverParameters(SolverParameters solverParameters) {
+        public LinearOptimizerParametersBuilder withSolverParameters(RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters) {
             this.solverParameters = solverParameters;
             return this;
         }

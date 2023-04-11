@@ -73,6 +73,14 @@ public class RangeActionsOptimizationParameters {
         private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
         private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
+        public LinearOptimizationSolver() { }
+
+        public LinearOptimizationSolver(Solver solver, double relativeMipGap, String solverSpecificParameters) {
+            this.solver = solver;
+            this.relativeMipGap = relativeMipGap;
+            this.solverSpecificParameters = solverSpecificParameters;
+        }
+
         public Solver getSolver() {
             return solver;
         }
@@ -107,6 +115,29 @@ public class RangeActionsOptimizationParameters {
                         parameters.setSolverSpecificParameters(config.getStringProperty(SOLVER_SPECIFIC_PARAMETERS, DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
                     });
             return parameters;
+        }
+
+        public static LinearOptimizationSolver buildFromRaoParameters(RaoParameters raoParameters) {
+            return new LinearOptimizationSolver(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver(),
+                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap(),
+                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolverSpecificParameters());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            LinearOptimizationSolver that = (LinearOptimizationSolver) o;
+            return Double.compare(that.relativeMipGap, relativeMipGap) == 0 && solver == that.solver && Objects.equals(solverSpecificParameters, that.solverSpecificParameters);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(solver, relativeMipGap, solverSpecificParameters);
         }
     }
 
