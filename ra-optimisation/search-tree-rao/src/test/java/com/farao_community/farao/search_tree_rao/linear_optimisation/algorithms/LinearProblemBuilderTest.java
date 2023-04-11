@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
@@ -57,7 +58,7 @@ class LinearProblemBuilderTest {
         when(parameters.getMaxMinRelativeMarginParameters()).thenReturn(relativeMarginParameters);
         MnecParametersExtension mnecParameters = Mockito.mock(MnecParametersExtension.class);
         when(parameters.getMnecParameters()).thenReturn(mnecParameters);
-        LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
+        LoopFlowParametersExtension loopFlowParameters = Mockito.mock(LoopFlowParametersExtension.class);
         when(parameters.getLoopFlowParameters()).thenReturn(loopFlowParameters);
 
         optimizationPerimeter = Mockito.mock(CurativeOptimizationPerimeter.class);

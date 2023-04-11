@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
@@ -29,7 +30,7 @@ public class SearchTreeParameters {
     private final RangeActionParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-    private final LoopFlowParameters loopFlowParameters;
+    private final LoopFlowParametersExtension loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final SolverParameters solverParameters;
     private final int maxNumberOfIterations;
@@ -41,7 +42,7 @@ public class SearchTreeParameters {
                                 RangeActionParameters rangeActionParameters,
                                 MnecParametersExtension mnecParameters,
                                 RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
-                                LoopFlowParameters loopFlowParameters,
+                                LoopFlowParametersExtension loopFlowParameters,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 SolverParameters solverParameters,
                                 int maxNumberOfIterations) {
@@ -86,7 +87,7 @@ public class SearchTreeParameters {
         return maxMinRelativeMarginParameters;
     }
 
-    public LoopFlowParameters getLoopFlowParameters() {
+    public LoopFlowParametersExtension getLoopFlowParameters() {
         return loopFlowParameters;
     }
 
@@ -114,7 +115,7 @@ public class SearchTreeParameters {
         private RangeActionParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-        private LoopFlowParameters loopFlowParameters;
+        private LoopFlowParametersExtension loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private SolverParameters solverParameters;
         private int maxNumberOfIterations;
@@ -126,7 +127,7 @@ public class SearchTreeParameters {
             this.rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
             this.mnecParameters = MnecParametersExtension.buildFromRaoParameters(raoParameters);
             this.maxMinRelativeMarginParameters = RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters);
-            this.loopFlowParameters = LoopFlowParameters.buildFromRaoParameters(raoParameters);
+            this.loopFlowParameters = LoopFlowParametersExtension.buildFromRaoParameters(raoParameters);
             this.solverParameters = SolverParameters.buildFromRaoParameters(raoParameters);
             this.maxNumberOfIterations = raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations();
             return this;
@@ -167,7 +168,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+        public SearchTreeParametersBuilder withLoopFlowParameters(LoopFlowParametersExtension loopFlowParameters) {
             this.loopFlowParameters = loopFlowParameters;
             return this;
         }

@@ -14,7 +14,6 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
-import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -144,7 +143,7 @@ public final class ObjectiveFunction {
                 this.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
                     loopFlowCnecs,
                     initialFlowResult,
-                    LoopFlowParameters.buildFromRaoParameters(raoParameters)
+                    LoopFlowParametersExtension.buildFromRaoParameters(raoParameters)
                 ));
             }
 

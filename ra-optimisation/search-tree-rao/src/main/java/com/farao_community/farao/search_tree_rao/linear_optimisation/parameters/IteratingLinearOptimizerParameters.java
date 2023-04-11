@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
@@ -24,7 +25,7 @@ public final class IteratingLinearOptimizerParameters {
     private final RangeActionParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-    private final LoopFlowParameters loopFlowParameters;
+    private final LoopFlowParametersExtension loopFlowParameters;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final RangeActionLimitationParameters raLimitationParameters;
     private final SolverParameters solverParameters;
@@ -35,7 +36,7 @@ public final class IteratingLinearOptimizerParameters {
                                                RangeActionParameters rangeActionParameters,
                                                MnecParametersExtension mnecParameters,
                                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
-                                               LoopFlowParameters loopFlowParameters,
+                                               LoopFlowParametersExtension loopFlowParameters,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
                                                RangeActionLimitationParameters raLimitationParameters,
                                                SolverParameters solverParameters,
@@ -88,7 +89,7 @@ public final class IteratingLinearOptimizerParameters {
         return maxMinRelativeMarginParameters;
     }
 
-    public LoopFlowParameters getLoopFlowParameters() {
+    public LoopFlowParametersExtension getLoopFlowParameters() {
         return loopFlowParameters;
     }
 
@@ -118,7 +119,7 @@ public final class IteratingLinearOptimizerParameters {
         private RangeActionParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
-        private LoopFlowParameters loopFlowParameters;
+        private LoopFlowParametersExtension loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private RangeActionLimitationParameters raLimitationParameters;
         private SolverParameters solverParameters;
@@ -144,7 +145,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParametersExtension loopFlowParameters) {
             this.loopFlowParameters = loopFlowParameters;
             return this;
         }

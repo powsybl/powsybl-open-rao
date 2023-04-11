@@ -182,7 +182,7 @@ public final class IteratingLinearOptimizer {
                 .withAppliedRemedialActions(appliedRemedialActions)
                 .withToolProvider(input.getToolProvider());
 
-        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
+        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
             builder.withCommercialFlowsResults(input.getPreOptimizationFlowResult());

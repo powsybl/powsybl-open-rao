@@ -17,7 +17,6 @@ import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdA
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
@@ -47,7 +46,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxLoopFlowFiller maxLoopFlowFiller;
-    private LoopFlowParameters loopFlowParameters;
+    private LoopFlowParametersExtension loopFlowParameters;
     private FlowCnec cnecOn2sides;
 
     @BeforeEach
@@ -113,7 +112,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFill1() {
-        loopFlowParameters = new LoopFlowParameters(
+        loopFlowParameters = new LoopFlowParametersExtension(
                 LoopFlowParametersExtension.Approximation.FIXED_PTDF,
                 13,
                 10,
@@ -142,7 +141,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFill2() {
-        loopFlowParameters = new LoopFlowParameters(
+        loopFlowParameters = new LoopFlowParametersExtension(
                 LoopFlowParametersExtension.Approximation.FIXED_PTDF,
                 30,
                 10,
@@ -168,7 +167,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testShouldUpdate() {
-        loopFlowParameters = new LoopFlowParameters(
+        loopFlowParameters = new LoopFlowParametersExtension(
                 LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST,
                 0,
                 10,
@@ -195,7 +194,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testShouldNotUpdate() {
-        loopFlowParameters = new LoopFlowParameters(
+        loopFlowParameters = new LoopFlowParametersExtension(
                 LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO,
                 0,
                 10,
@@ -218,7 +217,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     void testFill2Sides() {
-        loopFlowParameters = new LoopFlowParameters(
+        loopFlowParameters = new LoopFlowParametersExtension(
                 LoopFlowParametersExtension.Approximation.FIXED_PTDF,
             13,
             10,

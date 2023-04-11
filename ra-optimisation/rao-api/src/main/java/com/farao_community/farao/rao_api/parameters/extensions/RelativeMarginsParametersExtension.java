@@ -28,11 +28,9 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     static final List<ZoneToZonePtdfDefinition> DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES = new ArrayList<>();
     private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
     // prevents relative margins from diverging to +infinity
-    private double ptdfSumLowerBound;
+    private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
 
-    public RelativeMarginsParametersExtension() {
-        this.ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
-    }
+    public RelativeMarginsParametersExtension() { }
 
     public RelativeMarginsParametersExtension(double ptdfSumLowerBound) {
         this.ptdfSumLowerBound = ptdfSumLowerBound;
