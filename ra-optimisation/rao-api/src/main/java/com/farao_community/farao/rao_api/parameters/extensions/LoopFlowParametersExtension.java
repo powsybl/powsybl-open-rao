@@ -118,15 +118,7 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
     }
 
     public static LoopFlowParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
-        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-            return new LoopFlowParametersExtension(loopFlowParameters.getApproximation(),
-                    loopFlowParameters.getAcceptableIncrease(),
-                    loopFlowParameters.getViolationCost(),
-                    loopFlowParameters.getConstraintAdjustmentCoefficient());
-        } else {
-            return null;
-        }
+        return raoParameters.getExtension(LoopFlowParametersExtension.class);
     }
 }
 

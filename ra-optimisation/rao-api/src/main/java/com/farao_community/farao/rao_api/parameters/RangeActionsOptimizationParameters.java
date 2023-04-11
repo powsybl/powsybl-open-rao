@@ -118,9 +118,7 @@ public class RangeActionsOptimizationParameters {
         }
 
         public static LinearOptimizationSolver buildFromRaoParameters(RaoParameters raoParameters) {
-            return new LinearOptimizationSolver(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver(),
-                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap(),
-                    raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolverSpecificParameters());
+            return raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver();
         }
 
         @Override
@@ -239,13 +237,7 @@ public class RangeActionsOptimizationParameters {
     }
 
     public static RangeActionsOptimizationParameters buildFromRaoParameters(RaoParameters raoParameters) {
-        return new RangeActionsOptimizationParameters(raoParameters.getRangeActionsOptimizationParameters().getPstModel(),
-                raoParameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold(),
-                raoParameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold(),
-                raoParameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold(),
-                raoParameters.getRangeActionsOptimizationParameters().getPstPenaltyCost(),
-                raoParameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost(),
-                raoParameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
+        return raoParameters.getRangeActionsOptimizationParameters();
     }
 
     @Override

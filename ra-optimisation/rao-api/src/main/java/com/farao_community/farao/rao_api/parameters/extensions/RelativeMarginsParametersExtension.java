@@ -66,6 +66,7 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     }
 
     public static RelativeMarginsParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
+        // TODO : check what this does + is it necessary?
         RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             if (Objects.isNull(relativeMarginParameters)) {
