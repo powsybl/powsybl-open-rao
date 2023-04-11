@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api.parameters.extensions;
 
-import com.farao_community.farao.commons.FaraoException;
+//import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -66,16 +66,7 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     }
 
     public static RelativeMarginsParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
-        // TODO : check what this does + is it necessary?
-        RelativeMarginsParametersExtension relativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (Objects.isNull(relativeMarginParameters)) {
-                throw new FaraoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
-            }
-            return new RelativeMarginsParametersExtension(relativeMarginParameters.getPtdfSumLowerBound());
-        } else {
-            return null;
-        }
+        return raoParameters.getExtension(RelativeMarginsParametersExtension.class);
     }
 }
 
