@@ -7,14 +7,12 @@
 
 package com.farao_community.farao.rao_api.parameters.extensions;
 
-//import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 /**
