@@ -65,7 +65,9 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
     public static MnecParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
         MnecParametersExtension mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
         if (raoParameters.hasExtension(MnecParametersExtension.class)) {
-            return mnecParameters;
+            return new MnecParametersExtension(mnecParameters.getAcceptableMarginDecrease(),
+                    mnecParameters.getViolationCost(),
+                    mnecParameters.getConstraintAdjustmentCoefficient());
         } else {
             return null;
         }
