@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
@@ -27,7 +28,7 @@ public class SearchTreeParameters {
     private final GlobalRemedialActionLimitationParameters raLimitationParameters;
 
     // required for sub-module iterating linear optimizer
-    private final RangeActionParameters rangeActionParameters;
+    private final RangeActionsOptimizationParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParametersExtension loopFlowParameters;
@@ -39,7 +40,7 @@ public class SearchTreeParameters {
                                 TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
                                 GlobalRemedialActionLimitationParameters raLimitationParameters,
-                                RangeActionParameters rangeActionParameters,
+                                RangeActionsOptimizationParameters rangeActionParameters,
                                 MnecParametersExtension mnecParameters,
                                 RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                 LoopFlowParametersExtension loopFlowParameters,
@@ -75,7 +76,7 @@ public class SearchTreeParameters {
         return raLimitationParameters;
     }
 
-    public RangeActionParameters getRangeActionParameters() {
+    public RangeActionsOptimizationParameters getRangeActionParameters() {
         return rangeActionParameters;
     }
 
@@ -112,7 +113,7 @@ public class SearchTreeParameters {
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
         private GlobalRemedialActionLimitationParameters raLimitationParameters;
-        private RangeActionParameters rangeActionParameters;
+        private RangeActionsOptimizationParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
         private LoopFlowParametersExtension loopFlowParameters;
@@ -124,7 +125,7 @@ public class SearchTreeParameters {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
             this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
-            this.rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
+            this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
             this.mnecParameters = MnecParametersExtension.buildFromRaoParameters(raoParameters);
             this.maxMinRelativeMarginParameters = RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters);
             this.loopFlowParameters = LoopFlowParametersExtension.buildFromRaoParameters(raoParameters);
@@ -153,7 +154,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withRangeActionParameters(RangeActionParameters rangeActionParameters) {
+        public SearchTreeParametersBuilder withRangeActionParameters(RangeActionsOptimizationParameters rangeActionParameters) {
             this.rangeActionParameters = rangeActionParameters;
             return this;
         }

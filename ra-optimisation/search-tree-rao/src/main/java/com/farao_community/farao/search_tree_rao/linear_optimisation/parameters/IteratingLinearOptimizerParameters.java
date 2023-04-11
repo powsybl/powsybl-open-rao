@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
@@ -22,7 +23,7 @@ public final class IteratingLinearOptimizerParameters {
 
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
 
-    private final RangeActionParameters rangeActionParameters;
+    private final RangeActionsOptimizationParameters rangeActionParameters;
     private final MnecParametersExtension mnecParameters;
     private final RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
     private final LoopFlowParametersExtension loopFlowParameters;
@@ -33,7 +34,7 @@ public final class IteratingLinearOptimizerParameters {
     private final int maxNumberOfIterations;
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                               RangeActionParameters rangeActionParameters,
+                                               RangeActionsOptimizationParameters rangeActionParameters,
                                                MnecParametersExtension mnecParameters,
                                                RelativeMarginsParametersExtension maxMinRelativeMarginParameters,
                                                LoopFlowParametersExtension loopFlowParameters,
@@ -77,7 +78,7 @@ public final class IteratingLinearOptimizerParameters {
         return mnecParameters != null;
     }
 
-    public RangeActionParameters getRangeActionParameters() {
+    public RangeActionsOptimizationParameters getRangeActionParameters() {
         return rangeActionParameters;
     }
 
@@ -116,7 +117,7 @@ public final class IteratingLinearOptimizerParameters {
     public static class LinearOptimizerParametersBuilder {
 
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
-        private RangeActionParameters rangeActionParameters;
+        private RangeActionsOptimizationParameters rangeActionParameters;
         private MnecParametersExtension mnecParameters;
         private RelativeMarginsParametersExtension maxMinRelativeMarginParameters;
         private LoopFlowParametersExtension loopFlowParameters;
@@ -130,7 +131,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withRangeActionParameters(RangeActionParameters rangeActionParameters) {
+        public LinearOptimizerParametersBuilder withRangeActionParameters(RangeActionsOptimizationParameters rangeActionParameters) {
             this.rangeActionParameters = rangeActionParameters;
             return this;
         }
