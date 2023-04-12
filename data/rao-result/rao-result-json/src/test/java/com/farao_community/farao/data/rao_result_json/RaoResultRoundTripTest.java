@@ -81,31 +81,35 @@ class RaoResultRoundTripTest {
         // --------------------------
         // --- test Costs results ---
         // --------------------------
-        assertEquals(Set.of("loopFlow", "MNEC"), importedRaoResult.getVirtualCostNames());
+        assertEquals(Set.of("loopFlow", "MNEC", "sensitivity-failure-cost"), importedRaoResult.getVirtualCostNames());
 
         assertEquals(100., importedRaoResult.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(INITIAL, "loopFlow"), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(INITIAL, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., importedRaoResult.getVirtualCost(INITIAL, "sensitivity-failure-cost"), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
         assertEquals(100., importedRaoResult.getCost(INITIAL), DOUBLE_TOLERANCE);
 
         assertEquals(80., importedRaoResult.getFunctionalCost(AFTER_PRA), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(AFTER_PRA, "loopFlow"), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(AFTER_PRA, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., importedRaoResult.getVirtualCost(AFTER_PRA, "sensitivity-failure-cost"), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
         assertEquals(80., importedRaoResult.getCost(AFTER_PRA), DOUBLE_TOLERANCE);
 
         assertEquals(-20., importedRaoResult.getFunctionalCost(AFTER_ARA), DOUBLE_TOLERANCE);
         assertEquals(15., importedRaoResult.getVirtualCost(AFTER_ARA, "loopFlow"), DOUBLE_TOLERANCE);
         assertEquals(20., importedRaoResult.getVirtualCost(AFTER_ARA, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., importedRaoResult.getVirtualCost(AFTER_ARA, "sensitivity-failure-cost"), DOUBLE_TOLERANCE);
         assertEquals(35., importedRaoResult.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
         assertEquals(15., importedRaoResult.getCost(AFTER_ARA), DOUBLE_TOLERANCE);
 
         assertEquals(-50., importedRaoResult.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
         assertEquals(10., importedRaoResult.getVirtualCost(AFTER_CRA, "loopFlow"), DOUBLE_TOLERANCE);
         assertEquals(2., importedRaoResult.getVirtualCost(AFTER_CRA, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., importedRaoResult.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
-        assertEquals(-38, importedRaoResult.getCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(100., importedRaoResult.getVirtualCost(AFTER_CRA, "sensitivity-failure-cost"), DOUBLE_TOLERANCE);
+        assertEquals(112., importedRaoResult.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(62, importedRaoResult.getCost(AFTER_CRA), DOUBLE_TOLERANCE);
 
         // -----------------------------
         // --- test FlowCnec results ---

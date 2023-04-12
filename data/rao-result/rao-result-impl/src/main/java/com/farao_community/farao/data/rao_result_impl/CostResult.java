@@ -42,7 +42,8 @@ public class CostResult {
     }
 
     public double getVirtualCost(String virtualCostName) {
-        return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
+        Double defaultValue = "sensitivity-failure-cost".equals(virtualCostName) ? 0.0 : Double.NaN;
+        return virtualCosts.getOrDefault(virtualCostName, defaultValue);
     }
 
     public Set<String> getVirtualCostNames() {

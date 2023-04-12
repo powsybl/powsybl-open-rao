@@ -52,24 +52,28 @@ public final class ExhaustiveRaoResultCreation {
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
+        costResult.setVirtualCost("sensitivity-failure-cost", 0.);
 
         // CostResult after PRA
         costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_PRA);
         costResult.setFunctionalCost(80.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
+        costResult.setVirtualCost("sensitivity-failure-cost", 0.);
 
         // CostResult after ARA
         costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_ARA);
         costResult.setFunctionalCost(-20.);
         costResult.setVirtualCost("loopFlow", 15.);
         costResult.setVirtualCost("MNEC", 20.);
+        costResult.setVirtualCost("sensitivity-failure-cost", 0.);
 
         // CostResult after CRA
         costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_CRA);
         costResult.setFunctionalCost(-50.);
         costResult.setVirtualCost("loopFlow", 10.);
         costResult.setVirtualCost("MNEC", 2.);
+        costResult.setVirtualCost("sensitivity-failure-cost", 100.);
 
         // ------------------------
         // --- FlowCnec results ---

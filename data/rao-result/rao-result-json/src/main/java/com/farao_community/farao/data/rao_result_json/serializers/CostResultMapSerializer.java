@@ -51,7 +51,7 @@ final class CostResultMapSerializer {
             jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
             for (String virtualCostName : raoResult.getVirtualCostNames()) {
                 double virtualCostForAGivenName = raoResult.getVirtualCost(optState, virtualCostName);
-                if (!Double.isNaN(virtualCostForAGivenName)) {
+                if (!Double.isNaN(virtualCostForAGivenName) && !("sensitivity-failure-cost".equals(virtualCostName) && Math.abs(virtualCostForAGivenName) <= 10e-10)) {
                     jsonGenerator.writeNumberField(virtualCostName, Math.round(100.0 * virtualCostForAGivenName) / 100.0);
                 }
             }
@@ -62,6 +62,6 @@ final class CostResultMapSerializer {
 
     private static boolean containAnyVirtualCostForOptimizationState(RaoResult raoResult, OptimizationState optState) {
         return !Objects.isNull(raoResult.getVirtualCostNames()) &&
-            raoResult.getVirtualCostNames().stream().anyMatch(costName -> !Double.isNaN(raoResult.getVirtualCost(optState, costName)));
+                raoResult.getVirtualCostNames().stream().anyMatch(costName -> !Double.isNaN(raoResult.getVirtualCost(optState, costName)));
     }
 }
