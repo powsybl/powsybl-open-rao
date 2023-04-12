@@ -28,12 +28,6 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     // prevents relative margins from diverging to +infinity
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
 
-    public RelativeMarginsParametersExtension() { }
-
-    public RelativeMarginsParametersExtension(double ptdfSumLowerBound) {
-        this.ptdfSumLowerBound = ptdfSumLowerBound;
-    }
-
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
         return ptdfBoundaries;
     }
@@ -61,10 +55,6 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
     @Override
     public String getName() {
         return RELATIVE_MARGINS;
-    }
-
-    public static RelativeMarginsParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
-        return raoParameters.getExtension(RelativeMarginsParametersExtension.class);
     }
 }
 

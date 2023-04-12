@@ -33,26 +33,6 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
     private double violationCost = DEFAULT_VIOLATION_COST;
     private Set<Country> countries = DEFAULT_COUNTRIES;
 
-    // Default constructor
-    public LoopFlowParametersExtension() { }
-
-    // Constructor from LoopFlowParameters merge (no `countries` argument)
-    public LoopFlowParametersExtension(Approximation approximation, double acceptableIncrease, double violationCost, double constraintAdjustmentCoefficient) {
-        this.approximation = approximation;
-        this.acceptableIncrease = acceptableIncrease;
-        this.violationCost = violationCost;
-        this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
-    }
-
-    // Comprehensive constructor
-    public LoopFlowParametersExtension(Approximation approximation, double acceptableIncrease, double violationCost, double constraintAdjustmentCoefficient, Set<Country> countries) {
-        this.approximation = approximation;
-        this.acceptableIncrease = acceptableIncrease;
-        this.violationCost = violationCost;
-        this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
-        this.countries = countries;
-    }
-
     public enum Approximation {
         FIXED_PTDF, // compute PTDFs only once at beginning of RAO (best performance, worst accuracy)
         UPDATE_PTDF_WITH_TOPO, // recompute PTDFs after every topological change in the network (worst performance, better accuracy for AC, best accuracy for DC)
@@ -115,10 +95,6 @@ public class LoopFlowParametersExtension extends AbstractExtension<RaoParameters
     @Override
     public String getName() {
         return LOOP_FLOW_PARAMETERS;
-    }
-
-    public static LoopFlowParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
-        return raoParameters.getExtension(LoopFlowParametersExtension.class);
     }
 }
 

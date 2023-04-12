@@ -151,7 +151,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi() {
-        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension(0.01);
+        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension();
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecPstRangeActionMap);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(classicCnec, Unit.MEGAWATT)).thenReturn(400.);
@@ -185,7 +185,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinRelativeMarginAndNegativeSensi() {
-        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension(0.01);
+        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension();
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecPstRangeActionMap);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(classicCnec, Unit.MEGAWATT)).thenReturn(400.);

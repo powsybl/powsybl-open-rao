@@ -113,7 +113,10 @@ class MnecFillerTest extends AbstractFillerTest {
     }
 
     private void fillProblemWithFiller(Unit unit) {
-        MnecParametersExtension parameters = new MnecParametersExtension(50, 10, 3.5);
+        MnecParametersExtension parameters = new MnecParametersExtension();
+        parameters.setAcceptableMarginDecrease(50);
+        parameters.setViolationCost(10);
+        parameters.setConstraintAdjustmentCoefficient(3.5);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         when(flowResult.getFlow(mnec1, Side.RIGHT, Unit.MEGAWATT)).thenReturn(900.);
         when(flowResult.getFlow(mnec2, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);

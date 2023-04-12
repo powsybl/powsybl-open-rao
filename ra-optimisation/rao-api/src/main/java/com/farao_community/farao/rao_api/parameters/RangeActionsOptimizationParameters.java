@@ -47,24 +47,6 @@ public class RangeActionsOptimizationParameters {
         APPROXIMATED_INTEGERS
     }
 
-    public RangeActionsOptimizationParameters() { }
-
-    public RangeActionsOptimizationParameters(PstModel pstOptimizationApproximation,
-                                 double pstSensitivityThreshold,
-                                 double hvdcSensitivityThreshold,
-                                 double injectionSensitivityThreshold,
-                                 double pstPenaltyCost,
-                                 double hvdcPenaltyCost,
-                                 double injectionPenaltyCost) {
-        this.pstModel = pstOptimizationApproximation;
-        this.pstSensitivityThreshold = pstSensitivityThreshold;
-        this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
-        this.injectionRaSensitivityThreshold = injectionSensitivityThreshold;
-        this.pstPenaltyCost = pstPenaltyCost;
-        this.hvdcPenaltyCost = hvdcPenaltyCost;
-        this.injectionRaPenaltyCost = injectionPenaltyCost;
-    }
-
     public static class LinearOptimizationSolver {
         private static final Solver DEFAULT_SOLVER = Solver.CBC;
         public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
@@ -72,14 +54,6 @@ public class RangeActionsOptimizationParameters {
         private Solver solver = DEFAULT_SOLVER;
         private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
         private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
-
-        public LinearOptimizationSolver() { }
-
-        public LinearOptimizationSolver(Solver solver, double relativeMipGap, String solverSpecificParameters) {
-            this.solver = solver;
-            this.relativeMipGap = relativeMipGap;
-            this.solverSpecificParameters = solverSpecificParameters;
-        }
 
         public Solver getSolver() {
             return solver;
@@ -115,27 +89,6 @@ public class RangeActionsOptimizationParameters {
                         parameters.setSolverSpecificParameters(config.getStringProperty(SOLVER_SPECIFIC_PARAMETERS, DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
                     });
             return parameters;
-        }
-
-        public static LinearOptimizationSolver buildFromRaoParameters(RaoParameters raoParameters) {
-            return raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            LinearOptimizationSolver that = (LinearOptimizationSolver) o;
-            return Double.compare(that.relativeMipGap, relativeMipGap) == 0 && solver == that.solver && Objects.equals(solverSpecificParameters, that.solverSpecificParameters);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(solver, relativeMipGap, solverSpecificParameters);
         }
     }
 
@@ -238,22 +191,5 @@ public class RangeActionsOptimizationParameters {
 
     public static RangeActionsOptimizationParameters buildFromRaoParameters(RaoParameters raoParameters) {
         return raoParameters.getRangeActionsOptimizationParameters();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RangeActionsOptimizationParameters that = (RangeActionsOptimizationParameters) o;
-        return Double.compare(that.pstSensitivityThreshold, pstSensitivityThreshold) == 0 && Double.compare(that.hvdcSensitivityThreshold, hvdcSensitivityThreshold) == 0 && Double.compare(that.injectionRaSensitivityThreshold, injectionRaSensitivityThreshold) == 0 && Double.compare(that.pstPenaltyCost, pstPenaltyCost) == 0 && Double.compare(that.hvdcPenaltyCost, hvdcPenaltyCost) == 0 && Double.compare(that.injectionRaPenaltyCost, injectionRaPenaltyCost) == 0 && pstModel == that.pstModel;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(pstModel, pstSensitivityThreshold, hvdcSensitivityThreshold, injectionRaSensitivityThreshold, pstPenaltyCost, hvdcPenaltyCost, injectionRaPenaltyCost);
     }
 }

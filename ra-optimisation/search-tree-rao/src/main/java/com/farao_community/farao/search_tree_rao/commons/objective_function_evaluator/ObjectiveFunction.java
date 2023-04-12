@@ -134,7 +134,7 @@ public final class ObjectiveFunction {
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
                     raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
                     initialFlowResult,
-                    MnecParametersExtension.buildFromRaoParameters(raoParameters)
+                    raoParameters.getExtension(MnecParametersExtension.class)
                 ));
             }
 
@@ -143,7 +143,7 @@ public final class ObjectiveFunction {
                 this.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
                     loopFlowCnecs,
                     initialFlowResult,
-                    LoopFlowParametersExtension.buildFromRaoParameters(raoParameters)
+                    raoParameters.getExtension(LoopFlowParametersExtension.class)
                 ));
             }
 

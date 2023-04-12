@@ -25,14 +25,6 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
     private double violationCost = DEFAULT_VIOLATION_COST;
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
-    public MnecParametersExtension() { }
-
-    public MnecParametersExtension(double acceptableMarginDecrease, double violationCost, double constraintAdjustmentCoefficient) {
-        this.acceptableMarginDecrease = acceptableMarginDecrease;
-        this.violationCost = violationCost;
-        this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
-    }
-
     @Override
     public String getName() {
         return MNEC_PARAMETERS;
@@ -60,9 +52,5 @@ public class MnecParametersExtension extends AbstractExtension<RaoParameters> {
 
     public void setConstraintAdjustmentCoefficient(double constraintAdjustmentCoefficient) {
         this.constraintAdjustmentCoefficient = constraintAdjustmentCoefficient;
-    }
-
-    public static MnecParametersExtension buildFromRaoParameters(RaoParameters raoParameters) {
-        return raoParameters.getExtension(MnecParametersExtension.class);
     }
 }

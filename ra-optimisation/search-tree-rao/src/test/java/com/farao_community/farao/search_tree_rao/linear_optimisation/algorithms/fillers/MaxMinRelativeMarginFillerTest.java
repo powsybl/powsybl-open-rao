@@ -72,7 +72,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.01);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
-        parameters = RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters);
+        parameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,

@@ -126,10 +126,10 @@ public class SearchTreeParameters {
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac);
             this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters.getRaUsageLimitsPerContingencyParameters());
             this.rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
-            this.mnecParameters = MnecParametersExtension.buildFromRaoParameters(raoParameters);
-            this.maxMinRelativeMarginParameters = RelativeMarginsParametersExtension.buildFromRaoParameters(raoParameters);
-            this.loopFlowParameters = LoopFlowParametersExtension.buildFromRaoParameters(raoParameters);
-            this.solverParameters = RangeActionsOptimizationParameters.LinearOptimizationSolver.buildFromRaoParameters(raoParameters);
+            this.mnecParameters = raoParameters.getExtension(MnecParametersExtension.class);
+            this.maxMinRelativeMarginParameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
+            this.loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
+            this.solverParameters = raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver();
             this.maxNumberOfIterations = raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations();
             return this;
         }
