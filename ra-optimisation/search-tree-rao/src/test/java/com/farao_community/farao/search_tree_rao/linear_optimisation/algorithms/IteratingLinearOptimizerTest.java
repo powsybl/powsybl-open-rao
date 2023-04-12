@@ -18,8 +18,6 @@ import com.farao_community.farao.search_tree_rao.commons.adapter.BranchResultAda
 import com.farao_community.farao.search_tree_rao.commons.adapter.SensitivityResultAdapter;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.SolverParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.MPVariableMock;
@@ -96,12 +94,12 @@ class IteratingLinearOptimizerTest {
         when(input.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
 
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-        SolverParameters solverParameters = Mockito.mock(SolverParameters.class);
+        RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.CBC);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         when(parameters.getMaxNumberOfIterations()).thenReturn(5);
-        RangeActionParameters rangeActionParameters = Mockito.mock(RangeActionParameters.class);
-        when(rangeActionParameters.getPstOptimizationApproximation()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
+        when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
 

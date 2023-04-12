@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -64,17 +64,27 @@ class MnecViolationCostEvaluatorTest {
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         sensitivityResult = Mockito.mock(SensitivityResult.class);
 
+        MnecParametersExtension mnecExtension1 = new MnecParametersExtension();
+        mnecExtension1.setAcceptableMarginDecrease(50);
+        mnecExtension1.setViolationCost(10);
+        mnecExtension1.setConstraintAdjustmentCoefficient(1);
+
+        MnecParametersExtension mnecExtension2 = new MnecParametersExtension();
+        mnecExtension2.setAcceptableMarginDecrease(20);
+        mnecExtension2.setViolationCost(2);
+        mnecExtension2.setConstraintAdjustmentCoefficient(1);
+
         evaluator1 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                new MnecParameters(50, 10, 1)
+                mnecExtension1
         );
         evaluator2 = new MnecViolationCostEvaluator(
                 Set.of(mnec1, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                new MnecParameters(20, 2, 1)
+                mnecExtension2
         );
     }
 
@@ -84,11 +94,16 @@ class MnecViolationCostEvaluatorTest {
         when(initialFlowResult.getMargin(mnec2, unit)).thenReturn(-200.);
         when(currentFlowResult.getMargin(mnec2, unit)).thenReturn(-400.);
 
+        MnecParametersExtension mnec = new MnecParametersExtension();
+        mnec.setAcceptableMarginDecrease(50);
+        mnec.setViolationCost(violationCost);
+        mnec.setConstraintAdjustmentCoefficient(1);
+
         return new MnecViolationCostEvaluator(
                 Set.of(mnec1, mnec2, pureCnec),
                 unit,
                 initialFlowResult,
-                new MnecParameters(50, violationCost, 1)
+                mnec
         );
     }
 
@@ -98,11 +113,16 @@ class MnecViolationCostEvaluatorTest {
         when(initialFlowResult.getMargin(mnec2, Unit.MEGAWATT)).thenReturn(200.);
         when(currentFlowResult.getMargin(mnec2, Unit.MEGAWATT)).thenReturn(150.);
 
+        MnecParametersExtension mnec = new MnecParametersExtension();
+        mnec.setAcceptableMarginDecrease(50);
+        mnec.setViolationCost(10);
+        mnec.setConstraintAdjustmentCoefficient(1);
+
         return new MnecViolationCostEvaluator(
                 Set.of(mnec1, mnec2, pureCnec),
                 Unit.MEGAWATT,
                 initialFlowResult,
-                new MnecParameters(50, 10, 1)
+                mnec
         );
     }
 
