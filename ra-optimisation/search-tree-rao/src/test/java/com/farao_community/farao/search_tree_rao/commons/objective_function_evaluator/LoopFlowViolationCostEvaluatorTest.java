@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -39,7 +39,7 @@ class LoopFlowViolationCostEvaluatorTest {
     private FlowResult initialLoopFlows;
     private FlowResult currentLoopFlows;
     private ComputationStatus sensitivityStatus;
-    private LoopFlowParameters parameters;
+    private LoopFlowParametersExtension parameters;
     private LoopFlowViolationCostEvaluator evaluator;
     private RangeActionActivationResult rangeActionActivationResult;
     private SensitivityResult sensitivityResult;
@@ -63,7 +63,7 @@ class LoopFlowViolationCostEvaluatorTest {
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);
         sensitivityStatus = Mockito.mock(ComputationStatus.class);
-        parameters = Mockito.mock(LoopFlowParameters.class);
+        parameters = Mockito.mock(LoopFlowParametersExtension.class);
         rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         sensitivityResult = Mockito.mock(SensitivityResult.class);
     }
@@ -82,11 +82,11 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void setAcceptableAugmentationInMW(double acceptableAugmentationInMW) {
-        when(parameters.getLoopFlowAcceptableAugmentation()).thenReturn(acceptableAugmentationInMW);
+        when(parameters.getAcceptableIncrease()).thenReturn(acceptableAugmentationInMW);
     }
 
     private void setViolationCost(double violationCost) {
-        when(parameters.getLoopFlowViolationCost()).thenReturn(violationCost);
+        when(parameters.getViolationCost()).thenReturn(violationCost);
     }
 
     private void buildLoopFlowViolationCostEvaluator() {

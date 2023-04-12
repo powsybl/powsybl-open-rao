@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -33,11 +33,11 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
                                           FlowResult initialLoopFlowResult,
-                                          LoopFlowParameters loopFlowParameters) {
+                                          LoopFlowParametersExtension loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFLowResult = initialLoopFlowResult;
-        this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
-        this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
+        this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
+        this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
     }
 
     @Override

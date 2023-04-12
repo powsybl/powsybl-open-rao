@@ -188,4 +188,8 @@ public class RangeActionsOptimizationParameters {
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;
     }
+
+    public static RangeActionsOptimizationParameters buildFromRaoParameters(RaoParameters raoParameters) {
+        return raoParameters.getRangeActionsOptimizationParameters();
+    }
 }

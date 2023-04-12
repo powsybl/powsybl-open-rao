@@ -17,12 +17,12 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -47,13 +47,13 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Set<FlowCnec> flowCnecs;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionActivationResult raActivationFromParentLeaf;
-    private final RangeActionParameters rangeActionParameters;
+    private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionActivationResult raActivationFromParentLeaf,
-                             RangeActionParameters rangeActionParameters,
+                             RangeActionsOptimizationParameters rangeActionParameters,
                              Unit unit) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -225,7 +225,7 @@ public class CoreProblemFiller implements ProblemFiller {
         } else if (rangeAction instanceof HvdcRangeAction) {
             return sensitivity >= rangeActionParameters.getHvdcSensitivityThreshold();
         } else if (rangeAction instanceof InjectionRangeAction) {
-            return sensitivity >= rangeActionParameters.getInjectionSensitivityThreshold();
+            return sensitivity >= rangeActionParameters.getInjectionRaSensitivityThreshold();
         } else {
             throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
         }
@@ -419,7 +419,7 @@ public class CoreProblemFiller implements ProblemFiller {
                 } else if (absoluteVariationVariable != null && ra instanceof HvdcRangeAction) {
                     linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getHvdcPenaltyCost());
                 } else if (absoluteVariationVariable != null && ra instanceof InjectionRangeAction) {
-                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getInjectionPenaltyCost());
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getInjectionRaPenaltyCost());
                 }
             }
         ));

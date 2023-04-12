@@ -422,7 +422,7 @@ public class SearchTree {
             sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
         }
 
-        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.getLoopFlowParameters() != null) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());

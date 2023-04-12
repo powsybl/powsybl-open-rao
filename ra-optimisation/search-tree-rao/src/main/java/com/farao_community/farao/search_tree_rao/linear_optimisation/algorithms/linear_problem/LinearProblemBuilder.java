@@ -77,7 +77,7 @@ public class LinearProblemBuilder {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             this.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
@@ -203,7 +203,7 @@ public class LinearProblemBuilder {
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRaLimitationParameters(),
-            parameters.getRangeActionParameters().getPstOptimizationApproximation() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            parameters.getRangeActionParameters().getPstModel() == RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
     }
 
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
