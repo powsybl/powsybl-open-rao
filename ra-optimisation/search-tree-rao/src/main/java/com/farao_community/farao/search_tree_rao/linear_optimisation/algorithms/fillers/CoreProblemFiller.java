@@ -49,6 +49,8 @@ public class CoreProblemFiller implements ProblemFiller {
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final Unit unit;
+    private int iteration;
+    private static final double RANGE_DIMINUTION_RATE = 0.667;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -83,6 +85,7 @@ public class CoreProblemFiller implements ProblemFiller {
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+        updateRangeActionConstraints(linearProblem);
     }
 
     @Override
@@ -238,6 +241,22 @@ public class CoreProblemFiller implements ProblemFiller {
                 entry.getValue().forEach(rangeAction -> buildConstraintsForRangeActionAndState(linearProblem, rangeAction, entry.getKey())
             )
         );
+    }
+
+    private void updateRangeActionConstraints(LinearProblem linearProblem) {
+        optimizationContext.getRangeActionsPerState().entrySet().stream()
+            .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
+            .forEach(entry ->
+                entry.getValue().forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, entry.getKey())
+            )
+        );
+    }
+
+    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+        setPointVariable.setLb(setPointVariable.lb() + Math.pow(RANGE_DIMINUTION_RATE, iteration) / 3);
+        setPointVariable.setUb(setPointVariable.ub() - Math.pow(RANGE_DIMINUTION_RATE, iteration) / 3);
+        iteration += 1;
     }
 
     /**
