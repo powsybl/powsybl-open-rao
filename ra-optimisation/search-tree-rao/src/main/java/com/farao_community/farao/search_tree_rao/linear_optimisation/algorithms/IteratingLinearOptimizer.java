@@ -91,15 +91,14 @@ public final class IteratingLinearOptimizer {
                     input.getObjectiveFunction()
             );
 
-            if (currentResult.getCost() >= bestResult.getCost()) {
+            if (currentResult.getCost() <= bestResult.getCost()) {
+                logBetterResult(iteration, currentResult);
+                bestResult = currentResult;
+                linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
+            } else {
                 logWorseResult(iteration, bestResult, currentResult);
-                applyRangeActions(bestResult, input);
-                return bestResult;
+                linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
             }
-
-            logBetterResult(iteration, currentResult);
-            bestResult = currentResult;
-            linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;

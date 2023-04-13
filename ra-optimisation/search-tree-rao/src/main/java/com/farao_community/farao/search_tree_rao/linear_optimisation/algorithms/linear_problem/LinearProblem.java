@@ -128,8 +128,12 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public FaraoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
-        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state));
+    public FaraoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, String string) {
+        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, string));
+    }
+
+    public FaraoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, String string) {
+        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, string));
     }
 
     public FaraoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {

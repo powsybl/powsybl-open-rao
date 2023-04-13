@@ -244,19 +244,34 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem) {
+        iteration += 1;
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, entry.getKey())
+                entry.getValue().forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, entry.getKey(), iteration)
             )
         );
     }
 
-    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, int iteration) {
         FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        setPointVariable.setLb(setPointVariable.lb() + Math.pow(RANGE_DIMINUTION_RATE, iteration) / 3);
-        setPointVariable.setUb(setPointVariable.ub() - Math.pow(RANGE_DIMINUTION_RATE, iteration) / 3);
-        iteration += 1;
+        if (setPointVariable == null) {
+            throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
+        }
+        double previousSetPointValue = setPointVariable.solutionValue();
+        List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
+        double minAbsoluteSetpoint = Math.max(minAndMaxAbsoluteAndRelativeSetpoints.get(0), -LinearProblem.infinity());
+        double maxAbsoluteSetpoint = Math.min(minAndMaxAbsoluteAndRelativeSetpoints.get(1), LinearProblem.infinity());
+        double setPointRange = Math.abs(minAbsoluteSetpoint) + Math.abs(maxAbsoluteSetpoint);
+        FaraoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, "iterative_shrink");
+        if (iterativeShrink != null) {
+            iterativeShrink.setLb(previousSetPointValue - setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration));
+            iterativeShrink.setUb(previousSetPointValue + setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration));
+        } else {
+            FaraoMPConstraint newIterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(-setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration) + previousSetPointValue,
+                setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration) + previousSetPointValue, rangeAction, state, "iterative_shrink");
+            newIterativeShrink.setCoefficient(setPointVariable, 1);
+        }
     }
 
     /**
@@ -321,7 +336,7 @@ public class CoreProblemFiller implements ProblemFiller {
             maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, LinearProblem.infinity());
             minRelativeSetpoint = Math.max(minRelativeSetpoint, -LinearProblem.infinity());
             maxRelativeSetpoint = Math.min(maxRelativeSetpoint, LinearProblem.infinity());
-            FaraoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state);
+            FaraoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, "");
             relSetpointConstraint.setCoefficient(setPointVariable, 1);
             relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
 
