@@ -44,6 +44,8 @@ public final class IteratingLinearOptimizer {
                 0,
                 input.getObjectiveFunction());
 
+        IteratingLinearOptimizationResultImpl lastResult = bestResult;
+
         SensitivityComputer sensitivityComputer = null;
 
         LinearProblem linearProblem = LinearProblem.create()
@@ -71,7 +73,7 @@ public final class IteratingLinearOptimizer {
 
             currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
 
-            if (!hasRemedialActionsChanged(currentRangeActionActivationResult, bestResult, input.getOptimizationPerimeter())) {
+            if (!hasRemedialActionsChanged(currentRangeActionActivationResult, lastResult, input.getOptimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
                 return bestResult;
@@ -90,7 +92,7 @@ public final class IteratingLinearOptimizer {
                     iteration,
                     input.getObjectiveFunction()
             );
-
+            lastResult = currentResult;
             if (currentResult.getCost() <= bestResult.getCost()) {
                 logBetterResult(iteration, currentResult);
                 bestResult = currentResult;
