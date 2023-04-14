@@ -85,7 +85,7 @@ public class CoreProblemFiller implements ProblemFiller {
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
-        updateRangeActionConstraints(linearProblem);
+        updateRangeActionConstraints(linearProblem, rangeActionActivationResult);
     }
 
     @Override
@@ -243,22 +243,18 @@ public class CoreProblemFiller implements ProblemFiller {
         );
     }
 
-    private void updateRangeActionConstraints(LinearProblem linearProblem) {
+    private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
         iteration += 1;
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
-                entry.getValue().forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, entry.getKey(), iteration)
+                entry.getValue().forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult, iteration)
             )
         );
     }
 
-    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, int iteration) {
-        FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
-        if (setPointVariable == null) {
-            throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
-        }
-        double previousSetPointValue = setPointVariable.solutionValue();
+    private void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
+        double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction);
         double minAbsoluteSetpoint = Math.max(minAndMaxAbsoluteAndRelativeSetpoints.get(0), -LinearProblem.infinity());
         double maxAbsoluteSetpoint = Math.min(minAndMaxAbsoluteAndRelativeSetpoints.get(1), LinearProblem.infinity());
@@ -268,6 +264,10 @@ public class CoreProblemFiller implements ProblemFiller {
             iterativeShrink.setLb(previousSetPointValue - setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration));
             iterativeShrink.setUb(previousSetPointValue + setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration));
         } else {
+            FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
+            if (setPointVariable == null) {
+                throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
+            }
             FaraoMPConstraint newIterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(-setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration) + previousSetPointValue,
                 setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration) + previousSetPointValue, rangeAction, state, "iterative_shrink");
             newIterativeShrink.setCoefficient(setPointVariable, 1);
