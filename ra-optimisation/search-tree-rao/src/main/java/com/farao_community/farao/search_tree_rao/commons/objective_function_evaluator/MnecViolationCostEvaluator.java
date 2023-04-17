@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -31,15 +31,15 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final FlowResult initialFlowResult;
-    private final double mnecAcceptableMarginDiminution;
+    private final double mnecAcceptableMarginDecrease;
     private final double mnecViolationCost;
 
-    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, FlowResult initialFlowResult, MnecParameters mnecParameters) {
+    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, Unit unit, FlowResult initialFlowResult, MnecParametersExtension mnecParametersExtension) {
         this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.initialFlowResult = initialFlowResult;
-        mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
-        mnecViolationCost = mnecParameters.getMnecViolationCost();
+        mnecAcceptableMarginDecrease = mnecParametersExtension.getAcceptableMarginDecrease();
+        mnecViolationCost = mnecParametersExtension.getViolationCost();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     private double computeCost(FlowResult flowResult, FlowCnec mnec) {
         double initialMargin = initialFlowResult.getMargin(mnec, unit);
         double currentMargin = flowResult.getMargin(mnec, unit);
-        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminution) - currentMargin);
+        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease) - currentMargin);
     }
 
     @Override

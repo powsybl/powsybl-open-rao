@@ -123,7 +123,7 @@ public final class IteratingLinearOptimizer {
     private static RangeActionActivationResult resolveIfApproximatedPstTaps(IteratingLinearOptimizationResultImpl bestResult, LinearProblem linearProblem, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
-        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (parameters.getRangeActionParameters().getPstModel().equals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
 
             // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
@@ -182,7 +182,7 @@ public final class IteratingLinearOptimizer {
                 .withAppliedRemedialActions(appliedRemedialActions)
                 .withToolProvider(input.getToolProvider());
 
-        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
+        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.isRaoWithLoopFlowLimitation()) {
             builder.withCommercialFlowsResults(input.getPreOptimizationFlowResult());
