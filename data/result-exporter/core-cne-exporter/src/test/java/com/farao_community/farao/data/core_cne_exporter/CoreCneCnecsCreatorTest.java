@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.core_cne_exporter;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
@@ -19,6 +20,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_impl.FlowCnecImpl;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
@@ -124,11 +126,11 @@ class CoreCneCnecsCreatorTest {
 
     private void mockCnecResult(FlowCnec cnec, double flowA, double flowMw, double marginA, double marginMw, double relMarginA, double relMarginMw, double ptdf) {
         Side monitoredSide = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : Side.RIGHT;
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenReturn(flowA);
+        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new FaraoException("No ampere allowed"));
         Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
-        Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenReturn(marginA);
+        Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new FaraoException("No ampere allowed"));
         Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(marginMw);
-        Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenReturn(relMarginA);
+        Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new FaraoException("No ampere allowed"));
         Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(relMarginMw);
         Mockito.when(raoResult.getPtdfZonalSum(any(), eq(cnec), eq(monitoredSide))).thenReturn(ptdf);
     }
