@@ -54,10 +54,6 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnInstantArrayDeserializer.deserialize(jsonParser, version, networkActionAdder);
                         break;
-                    case ON_CONTINGENCY_STATE_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, version, networkActionAdder);
-                        break;
                     case FREE_TO_USE_USAGE_RULES:
                         if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
                             throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
@@ -65,6 +61,10 @@ public final class NetworkActionArrayDeserializer {
                             jsonParser.nextToken();
                             OnInstantArrayDeserializer.deserialize(jsonParser, version, networkActionAdder);
                         }
+                        break;
+                    case ON_CONTINGENCY_STATE_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnStateArrayDeserializer.deserialize(jsonParser, version, networkActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
                         if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
