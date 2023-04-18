@@ -138,8 +138,8 @@
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.inline.version>3.5.10</mockito.inline.version>
         <powermock.version>2.0.7</powermock.version>
-        <powsybl.core.version>5.2.0-RC1</powsybl.core.version>
-        <powsybl.glsk.version>2.2.0</powsybl.glsk.version>
+        <powsybl.core.version>5.2.0</powsybl.core.version>
+        <powsybl.glsk.version>2.4.0-SNAPSHOT</powsybl.glsk.version>
         <powsybl.openloadflow.version>1.0.1</powsybl.openloadflow.version>
         <slf4j.version>1.7.30</slf4j.version>
         <threeten.version>1.5.0</threeten.version>
@@ -427,6 +427,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>farao-virtual-hubs-network-extension</artifactId>
+                <version>${farao.virtualhubs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>farao-virtual-hubs-api</artifactId>
                 <version>${farao.virtualhubs.version}</version>
             </dependency>
             <dependency>

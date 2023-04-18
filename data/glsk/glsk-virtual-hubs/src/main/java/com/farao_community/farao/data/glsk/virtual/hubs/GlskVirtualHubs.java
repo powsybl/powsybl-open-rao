@@ -7,14 +7,15 @@
 
 package com.farao_community.farao.data.glsk.virtual.hubs;
 
-import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
+import com.farao_community.farao.virtual_hubs.VirtualHub;
+import com.farao_community.farao.virtual_hubs.VirtualHubsConfiguration;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 
@@ -38,12 +39,12 @@ public final class GlskVirtualHubs {
      * @return one LinearGlsk for each virtual hub given in the referenceProgram and found
      * in the network
      */
-    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(Network network, ReferenceProgram referenceProgram) {
+    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(VirtualHubsConfiguration virtualHubsConfiguration, Network network, ReferenceProgram referenceProgram) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
             .filter(eiCode -> !eiCode.isCountryCode())
             .map(EICode::getAreaCode)
             .collect(Collectors.toList());
-        return getVirtualHubGlsks(network, countryCodes);
+        return getVirtualHubGlsks(virtualHubsConfiguration, network, countryCodes);
     }
 
     /**
@@ -55,41 +56,77 @@ public final class GlskVirtualHubs {
      *
      * @return one LinearGlsk for each virtual hub given in eiCodes and found in the network
      */
-    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(Network network, List<String> eiCodes) {
+    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(VirtualHubsConfiguration virtualHubsConfiguration, Network network, List<String> eiCodes) {
         Map<String, SensitivityVariableSet> glsks = new HashMap<>();
-        Map<String, Load> virtualLoads = buildVirtualLoadMap(network);
+        Map<String, Injection<?>> injections = buildInjectionsMap(virtualHubsConfiguration, network);
 
         eiCodes.forEach(eiCode -> {
 
-            if (!virtualLoads.containsKey(eiCode)) {
+            if (!injections.containsKey(eiCode)) {
                 FaraoLoggerProvider.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
             } else {
-                FaraoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", virtualLoads.get(eiCode).getId(), eiCode);
-                Optional<SensitivityVariableSet> virtualHubGlsk = createGlskFromVirtualHub(virtualLoads.get(eiCode));
+                FaraoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", injections.get(eiCode).getId(), eiCode);
+                Optional<SensitivityVariableSet> virtualHubGlsk = createGlskFromVirtualHub(eiCode, injections.get(eiCode));
                 virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }
         });
         return new ZonalDataImpl<>(glsks);
     }
 
-    private static Map<String, Load> buildVirtualLoadMap(Network network) {
-        Map<String, Load> virtualLoads = new HashMap<>();
-
-        network.getLoadStream()
-            .filter(load -> load.getExtension(AssignedVirtualHub.class) != null)
-            .forEach(load -> virtualLoads.put(load.getExtension(AssignedVirtualHub.class).getEic(), load));
-
-        return virtualLoads;
+    private static Map<String, Injection<?>> buildInjectionsMap(VirtualHubsConfiguration virtualHubsConfiguration, Network network) {
+        Map<String, Injection<?>> injections = new HashMap<>();
+        virtualHubsConfiguration.getVirtualHubs()
+                .forEach(virtualHub -> {
+                    Injection<?> injection = getInjection(network, virtualHub);
+                    if (injection != null) {
+                        injections.put(virtualHub.getEic(), injection);
+                    }
+                });
+        return injections;
     }
 
-    private static Optional<SensitivityVariableSet> createGlskFromVirtualHub(Load virtualLoad) {
+    private static Optional<SensitivityVariableSet> createGlskFromVirtualHub(String eiCode, Injection<?> injection) {
         List<WeightedSensitivityVariable> glskList = new ArrayList<>();
         try {
-            glskList.add(new WeightedSensitivityVariable(virtualLoad.getId(), 1.0F));
-            String eiCode = virtualLoad.getExtension(AssignedVirtualHub.class).getEic();
+            glskList.add(new WeightedSensitivityVariable(injection.getId(), 1.0F));
             return Optional.of(new SensitivityVariableSet(eiCode, glskList));
         } catch (FaraoException e) {
             return Optional.empty();
         }
+    }
+
+    private static Injection<?> getInjection(Network network, VirtualHub virtualHub) {
+
+        Optional<Bus> bus = findBusById(network, virtualHub.getNodeName());
+        if (bus.isPresent()) {
+            // virtual hub is on a real network node
+            Optional<Load> busLoad = bus.get().getLoadStream().findFirst();
+            if (busLoad.isEmpty()) {
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it has no load in the network", virtualHub.getEic(), virtualHub.getNodeName());
+                return null;
+            }
+            return busLoad.get();
+        }
+
+        Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.getNodeName());
+        if (danglingLine.isPresent()) {
+            return danglingLine.get();
+        }
+
+        FaraoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} cannot be assigned on node {} as it was not found in the network", virtualHub.getEic(), virtualHub.getNodeName());
+        return null;
+    }
+
+    private static Optional<Bus> findBusById(Network network, String id) {
+        return network.getVoltageLevelStream()
+            .flatMap(vl -> vl.getBusBreakerView().getBusStream())
+            .filter(bus -> bus.getId().equals(id))
+            .findFirst();
+    }
+
+    private static Optional<DanglingLine> findDanglingLineWithXNode(Network network, String xNodeId) {
+        return network.getDanglingLineStream()
+            .filter(danglingLine -> danglingLine.getUcteXnodeCode().equals(xNodeId))
+            .findFirst();
     }
 }

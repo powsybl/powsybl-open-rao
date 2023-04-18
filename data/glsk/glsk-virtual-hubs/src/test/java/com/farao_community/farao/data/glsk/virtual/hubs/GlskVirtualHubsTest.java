@@ -30,7 +30,7 @@ class GlskVirtualHubsTest {
         Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
 
-        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(null, network, virtualHubEiCodes);
 
         assertEquals(2, glsks.getDataPerZone().size());
 
@@ -53,7 +53,7 @@ class GlskVirtualHubsTest {
         Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");
 
-        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(null, network, virtualHubEiCodes);
 
         assertEquals(0, glsks.getDataPerZone().size());
     }

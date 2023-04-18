@@ -31,6 +31,10 @@
             <artifactId>farao-virtual-hubs-network-extension</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-virtual-hubs-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
             <version>${powsybl.glsk.version}</version>
