@@ -26,18 +26,19 @@ import java.util.*;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
- * Test case is a 4 nodes network, with 4 countries.
+ * Test case is a network with 5 nodes and 1 xnode (in 4 countries).
  *
  *       FR   (+100 MW)       BE 1  (+125 MW)
- *          + ------------ +
+ *          + ------------ +---------------------------+ XBE (-25 MW)
  *          |              |
- *          |              +  BE 2 (-125 MW)
+ *          |              +  BE 2 (-100 MW)
  *          |              |
  *          + ------------ +
  *       DE   (0 MW)          NL  (-100 MW)
  *
  * All lines have same impedance and are monitored.
- * Each Country GLSK is a simple one node GLSK, except for Belgium where GLSKs on both nodes are equally distributed
+ * Each Country GLSK is a simple one node GLSK, except for Belgium where GLSKs are equally distributed
+ * on the 2 nodes + the xnode
  * Compensation is considered as equally shared on each country, and there are no losses.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -150,7 +151,7 @@ final class ExampleGenerator {
             .setName("Load BE 2")
             .setBus("Bus BE 2")
             .setLoadType(LoadType.UNDEFINED)
-            .setP0(1625)
+            .setP0(1600)
             .setQ0(0)
             .add();
 
@@ -302,6 +303,17 @@ final class ExampleGenerator {
             .setG1(0)
             .setG2(0)
             .add();
+        voltageLevelBe.newDanglingLine()
+            .setId("BE1-XBE")
+            .setBus("Bus BE 1")
+            .setUcteXnodeCode("XBE")
+            .setP0(25)
+            .setQ0(0)
+            .setR(0)
+            .setX(5)
+            .setB(0)
+            .setG(0)
+            .add();
 
         return network;
     }
@@ -374,12 +386,12 @@ final class ExampleGenerator {
 
     static ZonalData<SensitivityVariableSet> glskProvider() {
         List<WeightedSensitivityVariable> glskBe = new ArrayList<>();
-        glskBe.add(new WeightedSensitivityVariable("Generator BE 1", 0.5f));
-        glskBe.add(new WeightedSensitivityVariable("Generator BE 2", 0.5f));
+        glskBe.add(new WeightedSensitivityVariable("Generator BE 1", 1.0f / 3.0f));
+        glskBe.add(new WeightedSensitivityVariable("Generator BE 2", 1.0f / 3.0f));
+        glskBe.add(new WeightedSensitivityVariable("BE1-XBE", 1.0f / 3.0f));
 
         Map<String, SensitivityVariableSet> glsks = new HashMap<>();
-        glsks.put("10YFR-RTE------C",
-            new SensitivityVariableSet("10YFR-RTE------C", List.of(new WeightedSensitivityVariable("Generator FR", 1.))));
+        glsks.put("10YFR-RTE------C", new SensitivityVariableSet("10YFR-RTE------C", List.of(new WeightedSensitivityVariable("Generator FR", 1.))));
         glsks.put("10YBE----------2", new SensitivityVariableSet("10YBE----------2", glskBe));
         glsks.put("10YCB-GERMANY--8", new SensitivityVariableSet("10YCB-GERMANY--8", List.of(new WeightedSensitivityVariable("Generator DE", 1.))));
         glsks.put("10YNL----------L", new SensitivityVariableSet("10YNL----------L", List.of(new WeightedSensitivityVariable("Generator NL", 1.))));
