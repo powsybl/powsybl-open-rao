@@ -6,9 +6,13 @@
  */
 package com.farao_community.farao.data.glsk.virtual.hubs;
 
+import com.farao_community.farao.virtual_hubs.MarketArea;
+import com.farao_community.farao.virtual_hubs.VirtualHub;
+import com.farao_community.farao.virtual_hubs.VirtualHubsConfiguration;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -23,14 +27,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class GlskVirtualHubsTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
+    private Network network;
+    private VirtualHubsConfiguration virtualHubsConfiguration;
+
+    @BeforeEach
+    private void setUp() {
+        String networkFileName = "network_with_virtual_hubs.xiidm";
+        network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
+
+        virtualHubsConfiguration = new VirtualHubsConfiguration();
+        MarketArea frMarketArea = new MarketArea("FR", "10YFR-RTE------C", true);
+        virtualHubsConfiguration.addMarketArea(frMarketArea);
+        virtualHubsConfiguration.addVirtualHub(new VirtualHub("code1", "17YXTYUDHGKAAAAS", true, "X_GBFR1 ", frMarketArea));
+        virtualHubsConfiguration.addVirtualHub(new VirtualHub("code2", "15XGDYRHKLKAAAAS", false, "NNL3AA1 ", frMarketArea));
+    }
 
     @Test
     void testGetVirtualHubsOk() {
-        String networkFileName = "network_with_virtual_hubs.xiidm";
-        Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
-
-        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(null, network, virtualHubEiCodes);
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, virtualHubEiCodes);
 
         assertEquals(2, glsks.getDataPerZone().size());
 
@@ -43,18 +58,14 @@ class GlskVirtualHubsTest {
         // check data for virtual hub on dangling line
         assertNotNull(glsks.getData("17YXTYUDHGKAAAAS"));
         assertEquals(1, glsks.getData("17YXTYUDHGKAAAAS").getVariables().size());
-        assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().containsKey("FFR1AA1 _load"));
-        assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().get("FFR1AA1 _load").getWeight(), DOUBLE_TOLERANCE);
+        assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().containsKey("FFR1AA1  X_GBFR1  1"));
+        assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().get("FFR1AA1  X_GBFR1  1").getWeight(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testGetVirtualHubsNotFound() {
-        String networkFileName = "network_with_virtual_hubs.xiidm";
-        Network network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");
-
-        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(null, network, virtualHubEiCodes);
-
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(virtualHubsConfiguration, network, virtualHubEiCodes);
         assertEquals(0, glsks.getDataPerZone().size());
     }
 }
