@@ -90,7 +90,7 @@ public final class ObjectiveFunction {
             // Unoptimized cnecs in series with psts
             if (!raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
-                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac), prePerimeterRangeActionSetpointResult)));
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac), prePerimeterRangeActionSetpointResult)));
             } else  {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }
@@ -123,7 +123,7 @@ public final class ObjectiveFunction {
                 // Unoptimized cnecs in series with psts
             } else if (!raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
-                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac), prePerimeterRangeActionSetpointResult)));
+                        new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(marginEvaluator, UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac), prePerimeterRangeActionSetpointResult)));
             } else  {
                 this.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), marginEvaluator));
             }

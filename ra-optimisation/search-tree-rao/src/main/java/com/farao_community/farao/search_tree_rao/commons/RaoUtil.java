@@ -227,7 +227,7 @@ public final class RaoUtil {
             .orElse(0.);
     }
 
-    public static boolean cnecShouldBeOptimized(Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
+    public static boolean cnecShouldBeOptimized(Map<FlowCnec, RangeAction<?>> flowCnecPstRangeActionMap,
                                                 FlowResult flowResult,
                                                 FlowCnec flowCnec,
                                                 Side side,
@@ -238,7 +238,7 @@ public final class RaoUtil {
         return cnecShouldBeOptimized(flowCnecPstRangeActionMap, flowResult, flowCnec, side, rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnec.getState()), prePerimeterRangeActionSetpointResult, sensitivityResult, unit);
     }
 
-    public static boolean cnecShouldBeOptimized(Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
+    public static boolean cnecShouldBeOptimized(Map<FlowCnec, RangeAction<?>> flowCnecPstRangeActionMap,
                                                 FlowResult flowResult,
                                                 FlowCnec flowCnec,
                                                 Side side,
@@ -249,25 +249,21 @@ public final class RaoUtil {
         if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
             return true;
         }
-        PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
-        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, unit);
-        double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
-        double currentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(pstRangeAction, prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        double aboveThresholdMargin = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
-        double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
 
-        double aboveThresholdConstraint;
-        double belowThresholdConstraint;
-        if (sensitivity >= 0) {
-            aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
-            belowThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
-        } else {
-            aboveThresholdConstraint = Math.abs(sensitivity) * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
-            belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
+        RangeAction<?> ra = flowCnecPstRangeActionMap.get(flowCnec);
+        double cnecMarginToUpperBound = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
+        double cnecMarginToLowerBound = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+        if (cnecMarginToUpperBound >= 0 && cnecMarginToLowerBound >= 0) {
+            return false;
         }
 
-        return aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0;
+        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, ra, unit);
+        double raCurrentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(ra, prePerimeterRangeActionSetpointResult.getSetpoint(ra));
+        double raMaxDecrease = raCurrentSetpoint- ra.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra));
+        double raMaxIncrease = ra.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra)) - raCurrentSetpoint;
+        double maxFlowDecrease = sensitivity >= 0 ? sensitivity * raMaxDecrease : -sensitivity * raMaxIncrease;
+        double maxFlowIncrease = sensitivity >= 0 ? sensitivity * raMaxIncrease : -sensitivity * raMaxDecrease;
+
+        return cnecMarginToUpperBound + maxFlowDecrease < 0 || cnecMarginToLowerBound + maxFlowIncrease < 0;
     }
 }

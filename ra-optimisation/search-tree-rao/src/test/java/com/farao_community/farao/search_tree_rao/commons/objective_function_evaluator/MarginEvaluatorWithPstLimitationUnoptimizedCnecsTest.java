@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -39,7 +40,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
 
     private final FlowCnec flowCnecInSeries = Mockito.mock(FlowCnec.class);
     private final PstRangeAction pstRangeActionInSeries = Mockito.mock(PstRangeAction.class);
-    private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap = Map.of(flowCnecInSeries, pstRangeActionInSeries);
+    private final Map<FlowCnec, RangeAction<?>> flowCnecPstRangeActionMap = Map.of(flowCnecInSeries, pstRangeActionInSeries);
     private final RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
     private final MarginEvaluatorWithPstLimitationUnoptimizedCnecs marginEvaluatorWithPstLimitationUnoptimizedCnecs =
             new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(

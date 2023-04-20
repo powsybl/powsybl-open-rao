@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -287,6 +288,7 @@ class RaoUtilTest {
     @Test
     void testCnecShouldBeOptimizedBasic() {
         FlowCnec cnec = crac.getFlowCnec("cnec1basecase");
+        PstRangeAction pst = crac.getPstRangeAction("pst");
         FlowResult flowResult = mock(FlowResult.class);
         RangeActionSetpointResult prePerimeterRangeActionSetpointResult = mock(PrePerimeterResult.class);
         SensitivityResult sensitivityResult = mock(SensitivityResult.class);
@@ -296,7 +298,7 @@ class RaoUtilTest {
 
         // Margins > 0
         when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(0.);
-        assertTrue(RaoUtil.cnecShouldBeOptimized(Map.of(), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
+        assertFalse(RaoUtil.cnecShouldBeOptimized(Map.of(cnec, pst), flowResult, cnec, Side.LEFT, Map.of(), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.MEGAWATT));
     }
 
     @Test
@@ -306,7 +308,7 @@ class RaoUtilTest {
         FlowResult flowResult = mock(FlowResult.class);
         RangeActionSetpointResult prePerimeterRangeActionSetpointResult = mock(PrePerimeterResult.class);
         SensitivityResult sensitivityResult = mock(SensitivityResult.class);
-        Map<FlowCnec, PstRangeAction> map = Map.of(cnec, pst);
+        Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
 
         // Upper margin < 0 (max threshold is 2279 A)
         when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)).thenReturn(2379.);
@@ -332,7 +334,7 @@ class RaoUtilTest {
         FlowResult flowResult = mock(FlowResult.class);
         RangeActionSetpointResult prePerimeterRangeActionSetpointResult = mock(PrePerimeterResult.class);
         SensitivityResult sensitivityResult = mock(SensitivityResult.class);
-        Map<FlowCnec, PstRangeAction> map = Map.of(cnec, pst);
+        Map<FlowCnec, RangeAction<?>> map = Map.of(cnec, pst);
 
         // Lower margin < 0 (min threshold is -1500 MW)
         when(flowResult.getFlow(cnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1700.);

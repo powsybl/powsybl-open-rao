@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -28,14 +29,14 @@ import java.util.Map;
  */
 public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginEvaluator {
     private final MarginEvaluator marginEvaluator;
-    private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap;
+    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpointResult;
 
     public MarginEvaluatorWithPstLimitationUnoptimizedCnecs(MarginEvaluator marginEvaluator,
-                                                            Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
+                                                            Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap,
                                                             RangeActionSetpointResult rangeActionActivationResult) {
         this.marginEvaluator = marginEvaluator;
-        this.flowCnecPstRangeActionMap = flowCnecPstRangeActionMap;
+        this.flowCnecRangeActionMap = flowCnecRangeActionMap;
         this.prePerimeterRangeActionSetpointResult = rangeActionActivationResult;
     }
 
@@ -48,7 +49,7 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        if (RaoUtil.cnecShouldBeOptimized(flowCnecPstRangeActionMap, flowResult, flowCnec, side, rangeActionActivationResult, prePerimeterRangeActionSetpointResult, sensitivityResult, unit)) {
+        if (RaoUtil.cnecShouldBeOptimized(flowCnecRangeActionMap, flowResult, flowCnec, side, rangeActionActivationResult, prePerimeterRangeActionSetpointResult, sensitivityResult, unit)) {
             return marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
         } else {
             return Double.MAX_VALUE;

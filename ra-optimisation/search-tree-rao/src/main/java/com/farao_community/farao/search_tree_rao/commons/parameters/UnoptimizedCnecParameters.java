@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.NotOptimizedCnecsParameters;
 
@@ -28,15 +29,14 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
  */
 public class UnoptimizedCnecParameters {
     private final Set<String> operatorNotToOptimize;
-    private final Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts;
-    private final static Map<Integer, Map<FlowCnec, PstRangeAction>> UNOPTIMIZED_CNECS_PSTS_CACHE = new HashMap<>();
+    private final Map<FlowCnec, RangeAction<?>> unoptimizedCnecsInSeriesWithPsts;
 
-    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts) {
+    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, Map<FlowCnec, RangeAction<?>> unoptimizedCnecsInSeriesWithPsts) {
         this.operatorNotToOptimize = operatorNotToOptimize;
         this.unoptimizedCnecsInSeriesWithPsts = unoptimizedCnecsInSeriesWithPsts;
     }
 
-    public Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPsts() {
+    public Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPst() {
         return unoptimizedCnecsInSeriesWithPsts;
     }
 
@@ -56,22 +56,22 @@ public class UnoptimizedCnecParameters {
         } else if (!parameters.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
             return new UnoptimizedCnecParameters(
                     null,
-                    getUnoptimizedCnecsInSeriesWithPstsFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac));
+                    getDoNotOptimizeCnecsSecuredByTheirPstFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac));
         } else {
             return null;
         }
     }
 
-    public static Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPsts(NotOptimizedCnecsParameters parameters, Crac crac) {
+    public static Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPst(NotOptimizedCnecsParameters parameters, Crac crac) {
         if (!parameters.getDoNotOptimizeCnecsSecuredByTheirPst().isEmpty()) {
-            return getUnoptimizedCnecsInSeriesWithPstsFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac);
+            return getDoNotOptimizeCnecsSecuredByTheirPstFromIds(parameters.getDoNotOptimizeCnecsSecuredByTheirPst(), crac);
         } else {
             return Collections.emptyMap();
         }
     }
 
-    private static Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPstsFromIds(Map<String, String> ids, Crac crac) {
-        Map<FlowCnec, PstRangeAction> mapOfUnoptimizedCnecsAndPsts = new HashMap<>();
+    private static Map<FlowCnec, RangeAction<?>> getDoNotOptimizeCnecsSecuredByTheirPstFromIds(Map<String, String> ids, Crac crac) {
+        Map<FlowCnec, RangeAction<?>> mapOfUnoptimizedCnecsAndPsts = new HashMap<>();
         // Create map elements for all cnecs with network element id in ids.keySet()
         for (Map.Entry<String, String> entrySet : ids.entrySet()) {
             String cnecId = entrySet.getKey();
