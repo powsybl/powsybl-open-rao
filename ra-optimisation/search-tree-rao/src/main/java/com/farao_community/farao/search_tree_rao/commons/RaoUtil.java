@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
@@ -259,7 +258,7 @@ public final class RaoUtil {
 
         double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, ra, unit);
         double raCurrentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(ra, prePerimeterRangeActionSetpointResult.getSetpoint(ra));
-        double raMaxDecrease = raCurrentSetpoint- ra.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra));
+        double raMaxDecrease = raCurrentSetpoint - ra.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra));
         double raMaxIncrease = ra.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra)) - raCurrentSetpoint;
         double maxFlowDecrease = sensitivity >= 0 ? sensitivity * raMaxDecrease : -sensitivity * raMaxIncrease;
         double maxFlowIncrease = sensitivity >= 0 ? sensitivity * raMaxIncrease : -sensitivity * raMaxDecrease;
