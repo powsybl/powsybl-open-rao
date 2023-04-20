@@ -13,10 +13,10 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
@@ -48,7 +48,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
     private FlowCnec cnecNl;
     private FlowCnec cnecFr;
-    private double  constraintCoeff;
+    private double constraintCoeff;
     private OptimizationPerimeter optimizationPerimeter;
 
     @BeforeEach
@@ -81,7 +81,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
+        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
@@ -113,7 +113,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
-        MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(0.01);
+        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension();
 
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), null);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);

@@ -12,11 +12,10 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -49,7 +48,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
-    private MaxMinRelativeMarginParameters parameters;
+    private RelativeMarginsParametersExtension parameters;
 
     @BeforeEach
     public void setUp() {
@@ -72,8 +71,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.01);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
-        parameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
+        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        parameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
