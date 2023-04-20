@@ -231,8 +231,7 @@ class AutomatonSimulatorTest {
 
         toolProvider = Mockito.mock(ToolProvider.class);
         when(toolProvider.getLoopFlowCnecs(any())).thenReturn(Collections.emptySet());
-        RangeActionSetpointResultImpl prePerimeterRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(ara1, 0.1, ara2, 0.1));
-        automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, null, prePerimeterRangeActionSetpointResult, mockedPrePerimeterResult, null, 0);
+        automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, null, null, mockedPrePerimeterResult, null, 0);
     }
 
     @Test
@@ -676,6 +675,9 @@ class AutomatonSimulatorTest {
         NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
         notOptimizedCnecsParameters.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec-ne", "BBE2AA11 BBE3AA11 1")); // cnec is coupled with ara1
         raoParameters.setNotOptimizedCnecsParameters(notOptimizedCnecsParameters);
+
+        RangeActionSetpointResultImpl prePerimeterRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(ara1, 0.1, ara2, 0.1));
+        automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, null, prePerimeterRangeActionSetpointResult, mockedPrePerimeterResult, null, 0);
 
         // only one CNEC monitored, with a flow of 481 MW, 100 MW over its upper threshold (381 MW)
         // associated ara1 is initially at tap position 0.1 with a sensitivity of +50MW/° and a min position of -3.1

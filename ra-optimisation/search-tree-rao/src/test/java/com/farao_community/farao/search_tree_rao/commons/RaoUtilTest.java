@@ -282,4 +282,9 @@ class RaoUtilTest {
         assertEquals(available, RaoUtil.isOnFlowConstraintInCountryAvailable((OnFlowConstraintInCountry) ra.getUsageRules().get(0), optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
         assertEquals(available, RaoUtil.isRemedialActionAvailable(ra, optimizedState, flowResult, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
     }
+
+    @Test
+    void testCnecShouldBeOptimized() {
+
+    }
 }

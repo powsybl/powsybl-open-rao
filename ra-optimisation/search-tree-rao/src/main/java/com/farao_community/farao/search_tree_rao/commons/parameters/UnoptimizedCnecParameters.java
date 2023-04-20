@@ -29,13 +29,14 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
 public class UnoptimizedCnecParameters {
     private final Set<String> operatorNotToOptimize;
     private final Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts;
+    private final static Map<Integer, Map<FlowCnec, PstRangeAction>> UNOPTIMIZED_CNECS_PSTS_CACHE = new HashMap<>();
 
     public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, Map<FlowCnec, PstRangeAction> unoptimizedCnecsInSeriesWithPsts) {
         this.operatorNotToOptimize = operatorNotToOptimize;
         this.unoptimizedCnecsInSeriesWithPsts = unoptimizedCnecsInSeriesWithPsts;
     }
 
-    public Map<FlowCnec, PstRangeAction>  getUnoptimizedCnecsInSeriesWithPsts() {
+    public Map<FlowCnec, PstRangeAction> getUnoptimizedCnecsInSeriesWithPsts() {
         return unoptimizedCnecsInSeriesWithPsts;
     }
 

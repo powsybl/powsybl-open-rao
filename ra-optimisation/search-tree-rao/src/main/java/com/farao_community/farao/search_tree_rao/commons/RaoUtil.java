@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
@@ -27,6 +28,9 @@ import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParameter
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
@@ -221,5 +225,49 @@ public final class RaoUtil {
                     Math.max(Math.abs(flowCnec.getUpperBound(side, unit).orElse(0.)), Math.abs(flowCnec.getLowerBound(side, unit).orElse(0.)))).max(Double::compare).orElse(0.))
             .max(Double::compare)
             .orElse(0.);
+    }
+
+    public static boolean cnecShouldBeOptimized(Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
+                                                FlowResult flowResult,
+                                                FlowCnec flowCnec,
+                                                Side side,
+                                                RangeActionActivationResult rangeActionActivationResult,
+                                                RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
+                                                SensitivityResult sensitivityResult,
+                                                Unit unit) {
+        return cnecShouldBeOptimized(flowCnecPstRangeActionMap, flowResult, flowCnec, side, rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnec.getState()), prePerimeterRangeActionSetpointResult, sensitivityResult, unit);
+    }
+
+    public static boolean cnecShouldBeOptimized(Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
+                                                FlowResult flowResult,
+                                                FlowCnec flowCnec,
+                                                Side side,
+                                                Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint,
+                                                RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
+                                                SensitivityResult sensitivityResult,
+                                                Unit unit) {
+        if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
+            return true;
+        }
+        PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
+        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
+        double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
+        double currentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(pstRangeAction, prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        double aboveThresholdMargin = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
+        double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+
+        double aboveThresholdConstraint;
+        double belowThresholdConstraint;
+        if (sensitivity >= 0) {
+            aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
+            belowThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
+        } else {
+            aboveThresholdConstraint = Math.abs(sensitivity) * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
+            belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
+        }
+
+        return aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0;
     }
 }

@@ -62,22 +62,26 @@ public final class AutomatonSimulator {
 
     private final Crac crac;
     private final RaoParameters raoParameters;
+    private final Unit flowUnit;
     private final ToolProvider toolProvider;
     private final FlowResult initialFlowResult;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpointResult;
     private final PrePerimeterResult prePerimeterSensitivityOutput;
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
+    private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap;
 
     public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao) {
         this.crac = crac;
         this.raoParameters = raoParameters;
+        this.flowUnit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
         this.toolProvider = toolProvider;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterRangeActionSetpointResult = prePerimeterRangeActionSetpointResult;
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
+        this.flowCnecPstRangeActionMap = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac);
     }
 
     /**
@@ -201,7 +205,7 @@ public final class AutomatonSimulator {
 
         // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, flowUnit))
             .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
@@ -348,7 +352,7 @@ public final class AutomatonSimulator {
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
         // -- Then add those with an OnFlowConstraint or OnFlowConstraintInCountry usage rule if their constraint is verified
         crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, flowUnit))
             .forEach(availableRangeActions::add);
 
         // 2) Sort range actions
@@ -613,9 +617,9 @@ public final class AutomatonSimulator {
             // Aligned range actions have the same set-point :
             double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
             double optimalSetpoint = currentSetpoint;
-            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), MEGAWATT);
-            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, flowUnit, MEGAWATT);
+            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
+            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
             double sensitivityValue = 0;
             // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
             // through this loop have been needed to secure the same CNEC)
@@ -698,9 +702,9 @@ public final class AutomatonSimulator {
                                                                               Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint) {
         Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
         flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
-            double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-            if (cnecShouldBeConsidered(prePerimeterSensitivityOutput, flowCnec, side, activatedRangeActionsWithSetpoint, prePerimeterSensitivityOutput, raoParameters.getObjectiveFunctionParameters().getType().getUnit()) &&
-                !cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+            double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, flowUnit);
+            boolean cnecShouldBeOptimized = RaoUtil.cnecShouldBeOptimized(flowCnecPstRangeActionMap, prePerimeterSensitivityOutput, flowCnec, side, activatedRangeActionsWithSetpoint, prePerimeterRangeActionSetpointResult, prePerimeterSensitivityOutput, flowUnit);
+            if (cnecShouldBeOptimized && !cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
                 cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
             }
         }));
@@ -766,32 +770,5 @@ public final class AutomatonSimulator {
         ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, status);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
-    }
-
-    private boolean cnecShouldBeConsidered(FlowResult flowResult, FlowCnec flowCnec, Side side, Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint, SensitivityResult sensitivityResult, Unit unit) {
-        Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac);
-        if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
-            return true;
-        }
-        PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
-        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
-        double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
-        double currentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(pstRangeAction, prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        double aboveThresholdMargin = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
-        double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
-
-        double aboveThresholdConstraint;
-        double belowThresholdConstraint;
-        if (sensitivity >= 0) {
-            aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
-            belowThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
-        } else {
-            aboveThresholdConstraint = Math.abs(sensitivity) * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
-            belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
-        }
-
-        return aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0;
     }
 }
