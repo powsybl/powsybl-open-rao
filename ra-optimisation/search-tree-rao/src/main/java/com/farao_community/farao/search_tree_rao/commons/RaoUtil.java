@@ -256,7 +256,7 @@ public final class RaoUtil {
             return false;
         }
 
-        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, ra, unit);
+        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, ra, Unit.MEGAWATT) * getFlowUnitMultiplier(flowCnec, side, Unit.MEGAWATT, unit);
         double raCurrentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(ra, prePerimeterRangeActionSetpointResult.getSetpoint(ra));
         double raMaxDecrease = raCurrentSetpoint - ra.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra));
         double raMaxIncrease = ra.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(ra)) - raCurrentSetpoint;

@@ -314,13 +314,13 @@ class RaoUtilTest {
         when(flowResult.getFlow(cnec, Side.LEFT, Unit.AMPERE)).thenReturn(2379.);
 
         // Sensi > 0
-        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.AMPERE)).thenReturn(50.);
+        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(33.); // = 50 A
         // Some taps left (PST at set-point -4.22, can go down to -6.2)
         assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, -4.22), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.AMPERE));
         // Not enough taps left
         assertTrue(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, -5.22), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.AMPERE));
         // Sensi < 0
-        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.AMPERE)).thenReturn(-50.);
+        when(sensitivityResult.getSensitivityValue(cnec, Side.LEFT, pst, Unit.MEGAWATT)).thenReturn(-33.); // = -50 A
         // Some taps left (PST at set-point 4.22, can go up to 6.2)
         assertFalse(RaoUtil.cnecShouldBeOptimized(map, flowResult, cnec, Side.LEFT, Map.of(pst, 4.22), prePerimeterRangeActionSetpointResult, sensitivityResult, Unit.AMPERE));
         // Not enough taps left
