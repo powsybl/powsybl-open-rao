@@ -250,7 +250,7 @@ public final class RaoUtil {
             return true;
         }
         PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
-        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
+        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, unit);
         double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
         double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
         // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
