@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
@@ -27,6 +28,7 @@ import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunctionResultImpl;
+import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
@@ -576,7 +578,7 @@ public final class AutomatonSimulator {
         Set<Pair<FlowCnec, Side>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
-        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
 
         if (alignedRangeActions.stream().allMatch(HvdcRangeAction.class::isInstance) && !flowCnecsWithNegativeMargin.isEmpty()) {
             // Disable HvdcAngleDroopActivePowerControl for HVDC lines, fetch their set-point, re-run sensitivity analysis and fetch new negative margins
@@ -587,7 +589,7 @@ public final class AutomatonSimulator {
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, Collections.emptySet(), Collections.emptyMap());
             }
-            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
         }
 
         // -- Define setpoint bounds
@@ -623,7 +625,7 @@ public final class AutomatonSimulator {
             // if sensitivity value is zero, CNEC cannot be secured. move on to the next CNEC with a negative margin
             if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
                 flowCnecsToBeExcluded.add(Pair.of(toBeShiftedCnec, side));
-                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
                 continue;
             }
 
@@ -658,7 +660,7 @@ public final class AutomatonSimulator {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithSetpoint);
             }
             RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
-            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
             iteration++;
             previouslyShiftedCnec = toBeShiftedCnec;
         }
@@ -692,11 +694,13 @@ public final class AutomatonSimulator {
      */
     List<Pair<FlowCnec, Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
                                                                               Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
-                                                                              PrePerimeterResult prePerimeterSensitivityOutput) {
+                                                                              PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                              Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint) {
         Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
         flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
             double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-            if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+            if (cnecShouldBeConsidered(prePerimeterSensitivityOutput, flowCnec, side, activatedRangeActionsWithSetpoint, prePerimeterSensitivityOutput, raoParameters.getObjectiveFunctionParameters().getType().getUnit()) &&
+                !cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
                 cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
             }
         }));
@@ -762,5 +766,32 @@ public final class AutomatonSimulator {
         ObjectiveFunctionResult objectiveFunctionResult = new ObjectiveFunctionResultImpl(objectiveFunction, flowResult, rangeActionActivationResult, sensitivityResult, status);
         return new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionSetpointResult, objectiveFunctionResult);
 
+    }
+
+    private boolean cnecShouldBeConsidered(FlowResult flowResult, FlowCnec flowCnec, Side side, Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint, SensitivityResult sensitivityResult, Unit unit) {
+        Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac);
+        if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
+            return true;
+        }
+        PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
+        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
+        double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
+        double currentSetpoint = activatedRangeActionsWithSetpoint.getOrDefault(pstRangeAction, prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
+        double aboveThresholdMargin = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
+        double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+
+        double aboveThresholdConstraint;
+        double belowThresholdConstraint;
+        if (sensitivity >= 0) {
+            aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
+            belowThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
+        } else {
+            aboveThresholdConstraint = Math.abs(sensitivity) * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
+            belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
+        }
+
+        return aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0;
     }
 }
