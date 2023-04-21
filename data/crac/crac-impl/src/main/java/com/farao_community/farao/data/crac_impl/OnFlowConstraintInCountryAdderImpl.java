@@ -41,7 +41,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "FreeToUse", "instant", "withInstant()");
+        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
 
         if (instant.equals(Instant.OUTAGE)) {

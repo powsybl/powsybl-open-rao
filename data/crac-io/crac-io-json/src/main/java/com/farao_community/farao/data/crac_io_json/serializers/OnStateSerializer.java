@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -19,9 +19,9 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnStateSerializer extends AbstractJsonSerializer<OnState> {
+public class OnStateSerializer extends AbstractJsonSerializer<OnContingencyState> {
     @Override
-    public void serialize(OnState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(OnContingencyState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
         if (!value.getInstant().equals(Instant.PREVENTIVE)) {

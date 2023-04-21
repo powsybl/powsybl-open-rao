@@ -50,7 +50,7 @@ class OnFlowConstraintInCountryImplTest {
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
         assertNotNull(onFlowConstraint1);
-        assertNotEquals(onFlowConstraint1, Mockito.mock(FreeToUseImpl.class));
+        assertNotEquals(onFlowConstraint1, Mockito.mock(OnInstantImpl.class));
 
         OnFlowConstraintInCountry onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint2);

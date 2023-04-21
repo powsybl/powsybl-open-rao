@@ -7,7 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
@@ -51,6 +52,18 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     UsageMethod getUsageMethod(State state);
 
     /**
+     * Evaluates if the remedial action is available depending on its UsageMethod.
+     */
+    boolean isRemedialActionAvailable(State state);
+
+    /**
+     * Evaluates if the remedial action is available depending on its UsageMethod.
+     */
+    boolean isRemedialActionAvailable(State state, boolean evaluatedCondition);
+
+    Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
+
+    /**
      * Gather all the network elements present in the remedial action. It returns a set because network
      * elements must not be duplicated inside a remedial action and there is no defined order for network elements.
      */
@@ -66,5 +79,5 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
                 .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
 
-    OnStateAdderToRemedialAction<I> newOnStateUsageRule();
+    OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
 }

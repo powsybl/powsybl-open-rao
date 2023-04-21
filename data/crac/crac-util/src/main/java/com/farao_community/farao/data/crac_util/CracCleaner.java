@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -157,10 +157,10 @@ public class CracCleaner {
     private static void cleanUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
         Set<UsageRule> removedUr = new HashSet<>();
         remedialAction.getUsageRules().forEach(usageRule -> {
-            if (usageRule instanceof OnState && removedStates.contains(((OnState) usageRule).getState())) {
-                report.add(String.format("[REMOVED] OnState usage rule of RA %s is removed because its associated Contingency [%s] has been removed",
+            if (usageRule instanceof OnContingencyState && removedStates.contains(((OnContingencyState) usageRule).getState())) {
+                report.add(String.format("[REMOVED] OnContingencyState usage rule of RA %s is removed because its associated Contingency [%s] has been removed",
                     remedialAction.getId(),
-                    ((OnState) usageRule).getState().getContingency().get().getId()));
+                    ((OnContingencyState) usageRule).getState().getContingency().get().getId()));
                 removedUr.add(usageRule);
             }
         });
