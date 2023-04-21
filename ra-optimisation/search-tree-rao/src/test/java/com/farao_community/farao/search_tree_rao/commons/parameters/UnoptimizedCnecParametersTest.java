@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -114,7 +114,7 @@ class UnoptimizedCnecParametersTest {
                 "fakeId", "pst2"));
         UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"), crac);
 
-        Map<FlowCnec, PstRangeAction> map = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(raoParameters.getNotOptimizedCnecsParameters(), crac);
+        Map<FlowCnec, RangeAction<?>> map = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
         assertEquals(3,  raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCnecsSecuredByTheirPst().size());
         assertEquals(1, map.size());
         assertTrue(map.containsKey(crac.getFlowCnec("flowCnec-1")));
@@ -134,7 +134,7 @@ class UnoptimizedCnecParametersTest {
                 .add();
         RaoParameters newRaoParameters = new RaoParameters();
         newRaoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("ne1Id", "pst2"));
-        Map<FlowCnec, PstRangeAction> newMap = UnoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts(newRaoParameters.getNotOptimizedCnecsParameters(), crac);
+        Map<FlowCnec, RangeAction<?>> newMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(newRaoParameters.getNotOptimizedCnecsParameters(), crac);
         assertEquals(0, newMap.size());
     }
 

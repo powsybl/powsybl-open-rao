@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
@@ -47,7 +47,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
-    private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap;
+    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
     private UnoptimizedCnecFillerRule selectedRule;
 
     public UnoptimizedCnecFiller(OptimizationPerimeter optimizationContext,
@@ -60,7 +60,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
-        this.flowCnecPstRangeActionMap = unoptimizedCnecParameters.getUnoptimizedCnecsInSeriesWithPsts();
+        this.flowCnecRangeActionMap = unoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst();
     }
 
     public enum UnoptimizedCnecFillerRule {
@@ -69,7 +69,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     }
 
     private void selectUnoptimizedCnecFillerRule() {
-        if (Objects.nonNull(flowCnecPstRangeActionMap)) {
+        if (Objects.nonNull(flowCnecRangeActionMap)) {
             selectedRule = UnoptimizedCnecFillerRule.PST_LIMITATION;
         } else {
             selectedRule = UnoptimizedCnecFillerRule.MARGIN_DECREASE;
@@ -121,7 +121,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     .collect(Collectors.toSet());
         } else {
             return optimizationContext.getFlowCnecs().stream()
-                    .filter(flowCnecPstRangeActionMap::containsKey)
+                    .filter(flowCnecRangeActionMap::containsKey)
                     .collect(Collectors.toSet());
         }
     }
@@ -207,12 +207,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             if (Objects.isNull(state)) {
                 return;
             }
-            FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecPstRangeActionMap.get(cnec), state);
-            checkVariableCreation(setPointVariable, String.format("Range action variable for PST %s has not been defined yet.", flowCnecPstRangeActionMap.get(cnec).getId()));
+            FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(flowCnecRangeActionMap.get(cnec), state);
+            checkVariableCreation(setPointVariable, String.format("Range action variable for PST %s has not been defined yet.", flowCnecRangeActionMap.get(cnec).getId()));
 
             double maxSetpoint = setPointVariable.ub();
             double minSetpoint = setPointVariable.lb();
-            double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, flowCnecPstRangeActionMap.get(cnec), MEGAWATT);
+            double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT);
             Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
             Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
             double bigM = maxSetpoint - minSetpoint;
@@ -307,7 +307,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 .collect(Collectors.toList());
 
         Optional<State> lastState = statesBeforeCnec.stream().filter(state ->
-                optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecPstRangeActionMap.get(cnec)))
+                optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecRangeActionMap.get(cnec)))
                 .findFirst();
         if (lastState.isEmpty()) {
             // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) is unavailable for cnec
