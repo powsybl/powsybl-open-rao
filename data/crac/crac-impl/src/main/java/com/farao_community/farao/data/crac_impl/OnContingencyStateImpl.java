@@ -10,19 +10,19 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 /**
- * The UsageMethod of the OnStateImpl UsageRule is only effective in a given State.
+ * The UsageMethod of the OnContingencyStateImpl UsageRule is only effective in a given State.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class OnStateImpl extends AbstractUsageRule implements OnState {
+public final class OnContingencyStateImpl extends AbstractUsageRule implements OnContingencyState {
 
     private State state;
 
-    OnStateImpl(UsageMethod usageMethod, State state) {
+    OnContingencyStateImpl(UsageMethod usageMethod, State state) {
         super(usageMethod);
         this.state = state;
     }
@@ -40,7 +40,7 @@ public final class OnStateImpl extends AbstractUsageRule implements OnState {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OnStateImpl rule = (OnStateImpl) o;
+        OnContingencyStateImpl rule = (OnContingencyStateImpl) o;
         return super.equals(o) && rule.getState().equals(state);
     }
 

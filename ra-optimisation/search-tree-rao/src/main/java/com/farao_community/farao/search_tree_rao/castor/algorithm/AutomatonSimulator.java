@@ -18,8 +18,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -33,7 +31,6 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -203,10 +200,11 @@ public final class AutomatonSimulator {
         // -- First get forced network actions
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
 
-        // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
+        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
+        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, flowUnit))
-            .forEach(appliedNetworkActions::add);
+                .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(prePerimeterSensitivityOutput, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
+                .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
@@ -316,28 +314,9 @@ public final class AutomatonSimulator {
                                                     Network network) {
         // UsageMethod is either FORCED or TO_BE_EVALUATED
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
-            return crac.getFlowCnecs().stream()
-                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .collect(Collectors.toSet());
+            return crac.getFlowCnecs(automatonState);
         } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
-            // Get flowcnecs constrained by OnFlowConstraint
-            Set<FlowCnec> flowCnecs = availableRa.getUsageRules().stream()
-                    .filter(OnFlowConstraint.class::isInstance)
-                    .map(OnFlowConstraint.class::cast)
-                    .map(OnFlowConstraint::getFlowCnec)
-                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .collect(Collectors.toSet());
-            // Get all cnecs in country if availableRa is available on a OnFlowConstraintInCountry usage rule
-            Set<Country> countries = availableRa.getUsageRules().stream()
-                    .filter(OnFlowConstraintInCountry.class::isInstance)
-                    .map(OnFlowConstraintInCountry.class::cast)
-                    .map(OnFlowConstraintInCountry::getCountry)
-                    .collect(Collectors.toSet());
-            flowCnecs.addAll(crac.getFlowCnecs().stream()
-                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .filter(flowCnec -> countries.stream().anyMatch(country -> RaoUtil.isCnecInCountry(flowCnec, country, network)))
-                    .collect(Collectors.toSet()));
-            return flowCnecs;
+            return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
         } else {
             throw new FaraoException(String.format("Range action %s has usage method %s although FORCED or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
@@ -350,9 +329,10 @@ public final class AutomatonSimulator {
         // 1) Get available range actions
         // -- First get forced range actions
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
-        // -- Then add those with an OnFlowConstraint or OnFlowConstraintInCountry usage rule if their constraint is verified
+        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
+        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, flowUnit))
+            .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(rangeActionSensitivity, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
             .forEach(availableRangeActions::add);
 
         // 2) Sort range actions

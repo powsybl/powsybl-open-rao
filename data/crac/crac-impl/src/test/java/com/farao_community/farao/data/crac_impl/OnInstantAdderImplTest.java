@@ -12,8 +12,8 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUseAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstantAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class FreeToUseAdderImplTest {
+class OnInstantAdderImplTest {
 
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
@@ -44,53 +44,53 @@ class FreeToUseAdderImplTest {
 
     @Test
     void testOkPreventive() {
-        RemedialAction remedialAction = remedialActionAdder.newFreeToUseUsageRule()
+        RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof FreeToUse);
-        assertEquals(Instant.PREVENTIVE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getUsageMethod());
+        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnInstant);
+        assertEquals(Instant.PREVENTIVE, ((OnInstant) remedialAction.getUsageRules().get(0)).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ((OnInstant) remedialAction.getUsageRules().get(0)).getUsageMethod());
         assertEquals(1, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
 
     @Test
     void testOkCurative() {
-        RemedialAction remedialAction = remedialActionAdder.newFreeToUseUsageRule()
+        RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
                 .withInstant(Instant.CURATIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof FreeToUse);
-        assertEquals(Instant.CURATIVE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getUsageMethod());
+        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnInstant);
+        assertEquals(Instant.CURATIVE, ((OnInstant) remedialAction.getUsageRules().get(0)).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ((OnInstant) remedialAction.getUsageRules().get(0)).getUsageMethod());
     }
 
     @Test
     void testNoInstant() {
-        FreeToUseAdder<NetworkActionAdder> freeToUseAdder = remedialActionAdder.newFreeToUseUsageRule()
+        OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withUsageMethod(UsageMethod.AVAILABLE);
-        assertThrows(FaraoException.class, freeToUseAdder::add);
+        assertThrows(FaraoException.class, onInstantAdder::add);
     }
 
     @Test
     void testNoUsageMethod() {
-        FreeToUseAdder<NetworkActionAdder> freeToUseAdder = remedialActionAdder.newFreeToUseUsageRule()
+        OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(Instant.PREVENTIVE);
-        assertThrows(FaraoException.class, freeToUseAdder::add);
+        assertThrows(FaraoException.class, onInstantAdder::add);
     }
 
     @Test
     void testOutageInstant() {
-        FreeToUseAdder<NetworkActionAdder> freeToUseAdder = remedialActionAdder.newFreeToUseUsageRule()
+        OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(Instant.OUTAGE)
             .withUsageMethod(UsageMethod.AVAILABLE);
-        assertThrows(FaraoException.class, freeToUseAdder::add);
+        assertThrows(FaraoException.class, onInstantAdder::add);
     }
 }
