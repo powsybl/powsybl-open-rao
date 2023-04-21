@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -24,22 +24,22 @@ public final class OnStateArrayDeserializer {
     private OnStateArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            OnStateAdder<?> adder = ownerAdder.newOnStateUsageRule();
+            OnContingencyStateAdder<?> adder = ownerAdder.newOnContingencyStateUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
                         adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
                         break;
                     case USAGE_METHOD:
-                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
+                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue(), version));
                         break;
                     case CONTINGENCY_ID:
                         adder.withContingency(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new FaraoException("Unexpected field in OnState: " + jsonParser.getCurrentName());
+                        throw new FaraoException("Unexpected field in OnContingencyState: " + jsonParser.getCurrentName());
                 }
             }
             adder.add();

@@ -10,30 +10,30 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
- * Adds an OnState usage rule to a RemedialActionAdder
+ * Adds an OnContingencyState usage rule to a RemedialActionAdder
  * Needs the Contingency object and does not need the CRAC
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T>> implements OnStateAdderToRemedialAction<T> {
+public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T>> implements OnContingencyStateAdderToRemedialAction<T> {
 
     private T owner;
     private UsageMethod usageMethod;
     private State state;
-    private static final String CLASS_NAME = "OnState";
+    private static final String CLASS_NAME = "OnContingencyState";
 
     OnStateAdderToRemedialActionImpl(RemedialAction<T> owner) {
         this.owner = (T) owner;
     }
 
     @Override
-    public OnStateAdderToRemedialAction<T> withState(State state) {
+    public OnContingencyStateAdderToRemedialAction<T> withState(State state) {
         this.state = state;
         return this;
     }
@@ -49,11 +49,11 @@ public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T
         assertAttributeNotNull(state, CLASS_NAME, "state", "withState()");
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
         if (state.isPreventive() && usageMethod != UsageMethod.FORCED) {
-            throw new FaraoException("OnState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newFreeToUseUsageRule() instead.");
+            throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newOnInstantUsageRule() instead.");
         } else if (state.getInstant().equals(Instant.OUTAGE)) {
-            throw new FaraoException("OnState usage rules are not allowed for OUTAGE instant.");
+            throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         }
-        owner.addUsageRule(new OnStateImpl(usageMethod, state));
+        owner.addUsageRule(new OnContingencyStateImpl(usageMethod, state));
         return owner;
     }
 }

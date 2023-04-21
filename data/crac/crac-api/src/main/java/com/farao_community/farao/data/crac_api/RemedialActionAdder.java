@@ -16,9 +16,9 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     T withOperator(String operator);
 
-    FreeToUseAdder<T> newFreeToUseUsageRule();
+    OnInstantAdder<T> newOnInstantUsageRule();
 
-    OnStateAdder<T> newOnStateUsageRule();
+    OnContingencyStateAdder<T> newOnContingencyStateUsageRule();
 
     OnFlowConstraintAdder<T> newOnFlowConstraintUsageRule();
 

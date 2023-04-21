@@ -8,8 +8,8 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUseAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstantAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
@@ -18,35 +18,35 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FreeToUseAdderImpl<T extends AbstractRemedialActionAdder<T>> implements FreeToUseAdder<T> {
+public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnInstantAdder<T> {
 
     private T owner;
     private Instant instant;
     private UsageMethod usageMethod;
 
-    FreeToUseAdderImpl(AbstractRemedialActionAdder<T> owner) {
+    OnInstantAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
     }
 
     @Override
-    public FreeToUseAdder<T> withInstant(Instant instant) {
+    public OnInstantAdder<T> withInstant(Instant instant) {
         this.instant = instant;
         return this;
     }
 
     @Override
-    public FreeToUseAdder<T> withUsageMethod(UsageMethod usageMethod) {
+    public OnInstantAdder<T> withUsageMethod(UsageMethod usageMethod) {
         this.usageMethod = usageMethod;
         return this;
     }
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "FreeToUse", "instant", "withInstant()");
-        assertAttributeNotNull(usageMethod, "FreeToUse", "usage method", "withUsageMethod()");
+        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
-            throw new FaraoException("FreeToUse usage rules are not allowed for OUTAGE instant.");
+            throw new FaraoException("OnInstant usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.equals(Instant.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
@@ -54,8 +54,8 @@ public class FreeToUseAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
         // TODO: when Instant.AUTO will be handled by FARAO, consider adding some states in the CRAC here.
         // not required as as soon as there is no RA on AUTO instant
 
-        FreeToUse freeToUse = new FreeToUseImpl(usageMethod, instant);
-        owner.addUsageRule(freeToUse);
+        OnInstant onInstant = new OnInstantImpl(usageMethod, instant);
+        owner.addUsageRule(onInstant);
         return owner;
     }
 }

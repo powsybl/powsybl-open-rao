@@ -245,12 +245,12 @@ class CracImplTest {
                 .withId("ra")
                 .withOperator("operator")
                 .newPstSetPoint().withNetworkElement("anyPst").withSetpoint(8).add()
-                .newOnStateUsageRule()
+                .newOnContingencyStateUsageRule()
                 .withContingency("co1")
                 .withInstant(AUTO)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
-                .newOnStateUsageRule()
+                .newOnContingencyStateUsageRule()
                 .withContingency("co2")
                 .withInstant(CURATIVE)
                 .withUsageMethod(FORCED)
@@ -330,7 +330,7 @@ class CracImplTest {
                 .withId("na")
                 .withOperator("operator")
                 .newTopologicalAction().withNetworkElement("anyNetworkElement").withActionType(ActionType.CLOSE).add()
-                .newOnStateUsageRule().withInstant(CURATIVE).withContingency("co1").withUsageMethod(AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withInstant(CURATIVE).withContingency("co1").withUsageMethod(AVAILABLE).add()
                 .add();
 
         assertEquals(1, crac.getContingencies().size());
@@ -550,28 +550,28 @@ class CracImplTest {
         PstRangeAction ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         PstRangeAction ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         PstRangeAction ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         PstRangeAction ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -625,25 +625,25 @@ class CracImplTest {
         HvdcRangeAction ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -695,28 +695,28 @@ class CracImplTest {
         PstRangeAction ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         PstRangeAction ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         PstRangeAction ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         PstRangeAction ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -741,25 +741,25 @@ class CracImplTest {
         HvdcRangeAction ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
@@ -781,9 +781,9 @@ class CracImplTest {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, CURATIVE);
-        UsageRule ur1 = new OnStateImpl(UsageMethod.AVAILABLE, state1);
+        UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
         State state2 = crac.addState(contingency1, OUTAGE);
-        UsageRule ur2 = new OnStateImpl(FORCED, state2);
+        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
         NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
@@ -841,10 +841,10 @@ class CracImplTest {
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
         crac.addContingency(contingency1);
         State state1 = crac.addState(contingency1, CURATIVE);
-        UsageRule ur1 = new OnStateImpl(UsageMethod.AVAILABLE, state1);
+        UsageRule ur1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, state1);
         State state2 = crac.addState(contingency1, OUTAGE);
-        UsageRule ur2 = new OnStateImpl(FORCED, state2);
-        UsageRule ur3 = new OnStateImpl(FORCED, state1);
+        UsageRule ur2 = new OnContingencyStateImpl(FORCED, state2);
+        UsageRule ur3 = new OnContingencyStateImpl(FORCED, state1);
 
         NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
         NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");

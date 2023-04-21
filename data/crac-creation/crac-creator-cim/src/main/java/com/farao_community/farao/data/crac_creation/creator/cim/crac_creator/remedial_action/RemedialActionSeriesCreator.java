@@ -410,7 +410,7 @@ public class RemedialActionSeriesCreator {
         checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
 
         if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && contingencies.isEmpty())) {
-            addFreeToUseUsageRules(remedialActionAdder, instant);
+            addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
             UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
             RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
@@ -442,8 +442,8 @@ public class RemedialActionSeriesCreator {
         }
     }
 
-    private static void addFreeToUseUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
-        adder.newFreeToUseUsageRule()
+    private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
+        adder.newOnInstantUsageRule()
             .withInstant(raApplicationInstant)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
@@ -451,7 +451,7 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
-            adder.newOnStateUsageRule()
+            adder.newOnContingencyStateUsageRule()
                 .withInstant(raApplicationInstant)
                 .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())

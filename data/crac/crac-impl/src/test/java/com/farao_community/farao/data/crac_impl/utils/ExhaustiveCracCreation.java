@@ -156,8 +156,8 @@ public final class ExhaustiveCracCreation {
                 .withName("pstSetpointRaName")
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
                 .add();
 
         // complex network action with one pst set point and one topology
@@ -166,8 +166,8 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
         // network action with one injection set point
@@ -183,7 +183,7 @@ public final class ExhaustiveCracCreation {
                 .withName("switchPairRaName")
                 .withOperator("RTE")
                 .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
-                .newOnStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency(contingency2Id).withInstant(Instant.CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency(contingency2Id).withInstant(Instant.CURATIVE).add()
                 .add();
 
         // range actions
@@ -195,7 +195,7 @@ public final class ExhaustiveCracCreation {
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")
@@ -236,8 +236,8 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElement("hvdc2")
                 .withGroupId("group-1-hvdc")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnStateUsageRule().withContingency("contingency2Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3curId").add()
                 .add();
 
@@ -248,7 +248,7 @@ public final class ExhaustiveCracCreation {
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()
-                .newOnStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         return crac;

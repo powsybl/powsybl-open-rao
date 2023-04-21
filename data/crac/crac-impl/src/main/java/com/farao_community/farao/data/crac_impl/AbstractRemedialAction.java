@@ -7,15 +7,16 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.OnStateAdderToRemedialAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +39,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     @Override
-    public OnStateAdderToRemedialAction<I> newOnStateUsageRule() {
+    public OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule() {
         return new OnStateAdderToRemedialActionImpl(this);
     }
 
@@ -69,6 +70,65 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         } else {
             return UsageMethod.UNAVAILABLE;
         }
+    }
+
+    @Override
+    /**
+     * Evaluates if the remedial action is available depending on its UsageMethod.
+     * If TO_BE_EVALUATED condition has not been evaluated, default behavior is false
+     */
+    public boolean isRemedialActionAvailable(State state) {
+        return isRemedialActionAvailable(state, false);
+    }
+
+    @Override
+    /**
+     * Evaluates if the remedial action is available depending on its UsageMethod.
+     * When UsageMethod is TO_BE_EVALUATED, condition has to have been evaluated previously
+     */
+    public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
+        switch (getUsageMethod(state)) {
+            case AVAILABLE:
+                return true;
+            case TO_BE_EVALUATED:
+                return evaluatedCondition;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
+     */
+    public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
+        Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
+        // OnFlowConstraint
+        List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
+        onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
+
+        // OnFlowConstraintInCountry
+        List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
+        onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
+            Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
+                    Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
+                    Instant.AUTO, Set.of(Instant.AUTO),
+                    Instant.CURATIVE, Set.of(Instant.CURATIVE)
+            );
+            toBeConsideredCnecs.addAll(perimeterCnecs.stream()
+                    .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant()).contains(cnec.getState().getInstant()))
+                    .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
+                    .collect(Collectors.toSet()));
+        });
+        return toBeConsideredCnecs;
+    }
+
+    private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
+        return cnec.getLocation(network).stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     @Override

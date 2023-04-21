@@ -10,14 +10,14 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 
 /**
- * Adds a OnState usage rule to a RemedialAction
+ * Adds a OnContingencyState usage rule to a RemedialAction
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface OnStateAdderToRemedialAction<T extends RemedialAction<T>> {
+public interface OnContingencyStateAdderToRemedialAction<T extends RemedialAction<T>> {
 
-    OnStateAdderToRemedialAction<T> withState(State state);
+    OnContingencyStateAdderToRemedialAction<T> withState(State state);
 
-    OnStateAdderToRemedialAction<T> withUsageMethod(UsageMethod usageMethod);
+    OnContingencyStateAdderToRemedialAction<T> withUsageMethod(UsageMethod usageMethod);
 
     T add();
 }

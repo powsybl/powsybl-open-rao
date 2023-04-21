@@ -12,11 +12,11 @@ import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface FreeToUseAdder<T extends RemedialActionAdder<T>> {
+public interface OnInstantAdder<T extends RemedialActionAdder<T>> {
 
-    FreeToUseAdder<T> withInstant(Instant instant);
+    OnInstantAdder<T> withInstant(Instant instant);
 
-    FreeToUseAdder<T> withUsageMethod(UsageMethod usageMethod);
+    OnInstantAdder<T> withUsageMethod(UsageMethod usageMethod);
 
     T add();
 }

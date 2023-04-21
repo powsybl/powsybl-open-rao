@@ -43,7 +43,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "FreeToUse", "instant", "withInstant()");
+        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
 
         if (instant.equals(Instant.OUTAGE)) {

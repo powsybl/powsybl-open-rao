@@ -34,7 +34,7 @@ public final class PstRangeActionArrayDeserializer {
     private PstRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", PST_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -52,13 +52,29 @@ public final class PstRangeActionArrayDeserializer {
                     case OPERATOR:
                         pstRangeActionAdder.withOperator(jsonParser.nextTextValue());
                         break;
-                    case FREE_TO_USE_USAGE_RULES:
+                    case ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        FreeToUseArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                        break;
+                    case FREE_TO_USE_USAGE_RULES:
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new FaraoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
+                        } else {
+                            jsonParser.nextToken();
+                            OnInstantArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                        }
+                        break;
+                    case ON_CONTINGENCY_STATE_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnStateArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
                         break;
                     case ON_STATE_USAGE_RULES:
-                        jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 5) {
+                            throw new FaraoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
+                        } else {
+                            jsonParser.nextToken();
+                            OnStateArrayDeserializer.deserialize(jsonParser, version, pstRangeActionAdder);
+                        }
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();

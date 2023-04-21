@@ -103,7 +103,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case PST_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    PstRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
+                    PstRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
                 case HVDC_RANGE_ACTIONS:
@@ -118,9 +118,8 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    NetworkActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
+                    NetworkActionArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
                     break;
-
                 case EXTENSIONS:
                     jsonParser.nextToken();
                     List<Extension<Crac>> extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());

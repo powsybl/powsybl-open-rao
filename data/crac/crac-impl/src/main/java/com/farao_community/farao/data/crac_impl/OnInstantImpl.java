@@ -9,21 +9,21 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 /**
- * The UsageMethod of the FreeToUseImpl UsageRule is effective in all the States which
+ * The UsageMethod of the OnInstantImpl UsageRule is effective in all the States which
  * are at a given Instant.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse {
+public final class OnInstantImpl extends AbstractUsageRule implements OnInstant {
 
     private Instant instant;
 
-    FreeToUseImpl(UsageMethod usageMethod, Instant instant) {
+    OnInstantImpl(UsageMethod usageMethod, Instant instant) {
         super(usageMethod);
         this.instant = instant;
     }
@@ -36,7 +36,7 @@ public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse 
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FreeToUseImpl rule = (FreeToUseImpl) o;
+        OnInstantImpl rule = (OnInstantImpl) o;
         return super.equals(o) && rule.getInstant().equals(instant);
     }
 

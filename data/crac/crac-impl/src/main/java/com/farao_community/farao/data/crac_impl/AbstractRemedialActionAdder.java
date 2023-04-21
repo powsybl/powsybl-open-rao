@@ -36,13 +36,13 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     }
 
     @Override
-    public FreeToUseAdder<T> newFreeToUseUsageRule() {
-        return new FreeToUseAdderImpl(this);
+    public OnInstantAdder<T> newOnInstantUsageRule() {
+        return new OnInstantAdderImpl(this);
     }
 
     @Override
-    public OnStateAdder<T> newOnStateUsageRule() {
-        return new OnStateAdderImpl(this);
+    public OnContingencyStateAdder<T> newOnContingencyStateUsageRule() {
+        return new OnContingencyStateAdderImpl(this);
     }
 
     @Override
