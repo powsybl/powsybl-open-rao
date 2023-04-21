@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,8 +44,11 @@ class NetworkPoolTest {
             Network networkCopy = pool.getAvailableNetwork();
 
             assertNotNull(networkCopy);
-            assertNotEquals(network, networkCopy);
+            assertEquals(network, networkCopy);
             assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("FaraoNetworkPool working variant"));
+
+            pool.addNetworkClones(1);
+            assertNotEquals(network, pool.getAvailableNetwork());
 
             pool.releaseUsedNetwork(networkCopy);
         } catch (InterruptedException e) {
@@ -88,5 +94,29 @@ class NetworkPoolTest {
             assertTrue(logsList.get(i).getMDCPropertyMap().containsKey("extrafield"));
             assertEquals("value from caller", logsList.get(i).getMDCPropertyMap().get("extrafield"));
         }
+    }
+
+    @Test
+    void addClonesUnderMaxLimitTest() throws InterruptedException {
+        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 8);
+        pool.addNetworkClones(5);
+        assertEquals(6, pool.getNetworkNumberOfClones());
+    }
+
+    @Test
+    void addClonesOverMaxLimitTest() throws InterruptedException {
+        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 8);
+        pool.addNetworkClones(14);
+        assertEquals(8, pool.getNetworkNumberOfClones());
+    }
+
+    // Does not pass so far
+    @Test
+    void checkSameInitialVariantTest() throws InterruptedException {
+        Set<String> variantsIds = new HashSet<>(network.getVariantManager().getVariantIds());
+        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 12);
+        Network newNetwork = pool.getAvailableNetwork();
+        pool.releaseUsedNetwork(newNetwork);
+        assertEquals(variantsIds, new HashSet<>(network.getVariantManager().getVariantIds()));
     }
 }

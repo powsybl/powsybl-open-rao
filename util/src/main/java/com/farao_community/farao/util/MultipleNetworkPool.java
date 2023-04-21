@@ -25,33 +25,33 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
         super(network, targetVariant, parallelism);
     }
 
-    @Override
-    protected void initAvailableNetworks(Network network) {
-        TECHNICAL_LOGS.debug("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
-        String initialVariant = network.getVariantManager().getWorkingVariantId();
-        network.getVariantManager().setWorkingVariant(targetVariant);
-        for (int i = 0; i < getParallelism(); i++) {
-            TECHNICAL_LOGS.debug("Copy n°{}", i + 1);
-            Network copy = NetworkXml.copy(network);
-            // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
-            // in cloned network, so we need to copy it again.
-            copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
-            boolean isSuccess = networksQueue.offer(copy);
-            if (!isSuccess) {
-                throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", i + 1));
-            }
-        }
-        network.getVariantManager().setWorkingVariant(initialVariant);
-    }
+//    @Override
+//    protected void initAvailableNetworks(Network network) {
+//        TECHNICAL_LOGS.debug("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
+//        String initialVariant = network.getVariantManager().getWorkingVariantId();
+//        network.getVariantManager().setWorkingVariant(targetVariant);
+//        for (int i = 0; i < getParallelism(); i++) {
+//            TECHNICAL_LOGS.debug("Copy n°{}", i + 1);
+//            Network copy = NetworkXml.copy(network);
+//            // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
+//            // in cloned network, so we need to copy it again.
+//            copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
+//            boolean isSuccess = networksQueue.offer(copy);
+//            if (!isSuccess) {
+//                throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", i + 1));
+//            }
+//        }
+//        network.getVariantManager().setWorkingVariant(initialVariant);
+//    }
 
-    @Override
-    protected void cleanVariants(Network networkClone) {
-        List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
-                .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
-                .filter(variantId -> !variantId.equals(stateSaveVariant))
-                .collect(Collectors.toList());
-        variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
-    }
+//    @Override
+//    protected void cleanVariants(Network networkClone) {
+//        List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
+//                .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
+//                .filter(variantId -> !variantId.equals(stateSaveVariant))
+//                .collect(Collectors.toList());
+//        variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
+//    }
 
     @Override
     public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException {

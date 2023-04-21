@@ -218,7 +218,7 @@ public class SearchTree {
             while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool, input.getNetwork());
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
@@ -244,9 +244,16 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, Network network) throws InterruptedException {
 
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
+
+        int requiredLeaves = Math.min(networkPool.getParallelism(), naCombinations.size());
+        if (requiredLeaves > networkPool.getNetworkNumberOfClones()) {
+            // Increase the number of copy and the current parallelism
+            networkPool.addNetworkClones(requiredLeaves - networkPool.getNetworkNumberOfClones());
+        }
+
         naCombinations.sort(this::deterministicNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
