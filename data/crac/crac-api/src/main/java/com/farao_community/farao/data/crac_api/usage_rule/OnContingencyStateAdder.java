@@ -10,16 +10,16 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 
 /**
- * Adds a OnState usage rule to a RemedialActionAdder
+ * Adds a OnContingencyState usage rule to a RemedialActionAdder
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface OnStateAdder<T extends RemedialActionAdder<T>> {
+public interface OnContingencyStateAdder<T extends RemedialActionAdder<T>> {
 
-    OnStateAdder<T> withContingency(String contingencyId);
+    OnContingencyStateAdder<T> withContingency(String contingencyId);
 
-    OnStateAdder<T> withInstant(Instant instant);
+    OnContingencyStateAdder<T> withInstant(Instant instant);
 
-    OnStateAdder<T> withUsageMethod(UsageMethod usageMethod);
+    OnContingencyStateAdder<T> withUsageMethod(UsageMethod usageMethod);
 
     T add();
 }

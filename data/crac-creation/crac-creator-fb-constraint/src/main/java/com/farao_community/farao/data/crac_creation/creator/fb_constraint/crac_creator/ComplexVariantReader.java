@@ -167,7 +167,7 @@ class ComplexVariantReader {
         ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
 
         if (actionsSetType.isPreventive()) {
-            remedialActionAdder.newFreeToUseUsageRule()
+            remedialActionAdder.newOnInstantUsageRule()
                     .withInstant(Instant.PREVENTIVE)
                     .withUsageMethod(AVAILABLE)
                     .add();
@@ -175,7 +175,7 @@ class ComplexVariantReader {
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
             for (String co : afterCoList) {
-                remedialActionAdder.newOnStateUsageRule()
+                remedialActionAdder.newOnContingencyStateUsageRule()
                         .withContingency(co)
                         .withInstant(Instant.CURATIVE)
                         .withUsageMethod(AVAILABLE)

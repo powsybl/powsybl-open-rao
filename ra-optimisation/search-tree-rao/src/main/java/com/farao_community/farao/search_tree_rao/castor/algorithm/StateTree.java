@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -101,8 +100,8 @@ public class StateTree {
     }
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
-        return !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty() ||
-                !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty();
+        return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
+                !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
     }
 
     static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
@@ -114,8 +113,8 @@ public class StateTree {
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
         return optimizedCurativeStates.stream().anyMatch(state ->
-           crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
-                crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
+           crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
+                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
         );
     }
 }
