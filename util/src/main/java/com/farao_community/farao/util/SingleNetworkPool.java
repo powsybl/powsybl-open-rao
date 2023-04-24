@@ -35,29 +35,6 @@ public class SingleNetworkPool extends AbstractNetworkPool {
         }
     }
 
-//    @Override
-//    protected void initAvailableNetworks(Network network) {
-//        this.networkInitialVariantId = network.getVariantManager().getWorkingVariantId();
-//        this.network = network;
-//        this.baseNetworkVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
-//        FaraoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
-//        network.getVariantManager().setWorkingVariant(targetVariant);
-//        network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
-//        boolean isSuccess = networksQueue.offer(network);
-//        if (!isSuccess) {
-//            throw new AssertionError("Cannot offer base network in pool. Should not happen");
-//        }
-//    }
-
-//    @Override
-//    protected void cleanVariants(Network networkClone) {
-//        List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
-//                .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
-//                .filter(variantId -> !variantId.equals(stateSaveVariant))
-//                .collect(Collectors.toList());
-//        variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
-//    }
-
     @Override
     public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         super.shutdown();

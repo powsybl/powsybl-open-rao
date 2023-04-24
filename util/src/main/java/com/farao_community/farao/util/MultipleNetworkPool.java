@@ -37,12 +37,6 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 
-//    @Override
-//    public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-//        super.shutdown();
-//        super.awaitTermination(timeout, unit);
-//    }
-
     @Override
     public int getNetworkNumberOfClones() {
         // The number of clones includes the original network itself
