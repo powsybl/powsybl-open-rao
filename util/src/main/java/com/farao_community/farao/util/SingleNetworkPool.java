@@ -10,11 +10,7 @@ import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * A {@code AbstractNetworkPool} implementation that is used when parallelism = 1
@@ -22,13 +18,21 @@ import java.util.stream.Collectors;
  * while correctly handling setup and cleanup of variants
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class SingleNetworkPool extends AbstractNetworkPool {
-//    private String networkInitialVariantId;
-//    private Network network;
-//    private Collection<String> baseNetworkVariantIds;
+public class SingleNetworkPool extends AbstractNetworkPool {
 
     SingleNetworkPool(Network network, String targetVariant) {
         super(network, targetVariant, 1);
+        initAvailableNetworks(network);
+    }
+
+    private void initAvailableNetworks(Network network) {
+        FaraoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
+        network.getVariantManager().setWorkingVariant(targetVariant);
+        network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
+        boolean isSuccess = networksQueue.offer(network);
+        if (!isSuccess) {
+            throw new AssertionError("Cannot offer base network in pool. Should not happen");
+        }
     }
 
 //    @Override
@@ -48,9 +52,9 @@ class SingleNetworkPool extends AbstractNetworkPool {
 //    @Override
 //    protected void cleanVariants(Network networkClone) {
 //        List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
-//            .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
-//            .filter(variantId -> !variantId.equals(stateSaveVariant))
-//            .collect(Collectors.toList());
+//                .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
+//                .filter(variantId -> !variantId.equals(stateSaveVariant))
+//                .collect(Collectors.toList());
 //        variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
 //    }
 
@@ -59,11 +63,5 @@ class SingleNetworkPool extends AbstractNetworkPool {
         super.shutdown();
         super.awaitTermination(timeout, unit);
         cleanBaseNetwork();
-    }
-
-    private void cleanBaseNetwork() {
-        cleanVariants(network);
-        network.getVariantManager().removeVariant(stateSaveVariant);
-        network.getVariantManager().setWorkingVariant(networkInitialVariantId);
     }
 }

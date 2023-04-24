@@ -26,6 +26,7 @@ import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeIn
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.AbstractNetworkPool;
+import com.farao_community.farao.util.MultipleNetworkPool;
 import com.google.common.hash.Hashing;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -247,11 +248,14 @@ public class SearchTree {
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool, Network network) throws InterruptedException {
 
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
+        int requiredLeaves;
 
-        int requiredLeaves = Math.min(networkPool.getParallelism(), naCombinations.size());
-        if (requiredLeaves > networkPool.getNetworkNumberOfClones()) {
-            // Increase the number of copy and the current parallelism
-            networkPool.addNetworkClones(requiredLeaves - networkPool.getNetworkNumberOfClones());
+        if (networkPool instanceof MultipleNetworkPool) {
+            requiredLeaves = Math.min(networkPool.getParallelism(), naCombinations.size());
+            if (requiredLeaves > networkPool.getNetworkNumberOfClones()) {
+                // Increase the number of copies and the current parallelism
+                networkPool.addNetworkClones(requiredLeaves - networkPool.getNetworkNumberOfClones());
+            }
         }
 
         naCombinations.sort(this::deterministicNetworkActionCombinationComparison);

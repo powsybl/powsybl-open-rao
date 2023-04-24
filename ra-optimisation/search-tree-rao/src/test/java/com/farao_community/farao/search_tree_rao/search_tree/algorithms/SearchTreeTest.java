@@ -37,7 +37,7 @@ import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
-import com.farao_community.farao.util.MultipleNetworkPool;
+import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -195,23 +195,6 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
-    }
-
-    public class MockedNetworkPool extends MultipleNetworkPool {
-
-        public MockedNetworkPool(Network network, String targetVariant, int parallelism) {
-            super(network, targetVariant, parallelism);
-        }
-
-        @Override
-        protected void initAvailableNetworks(Network network) {
-            this.networksQueue.offer(network);
-        }
-
-        @Override
-        protected void cleanVariants(Network network) {
-            // do nothing
-        }
     }
 
     @Test
@@ -391,7 +374,7 @@ class SearchTreeTest {
         String workingVariantId = "ID";
         when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
         when(network.getVariantManager()).thenReturn(variantManager);
-        MockedNetworkPool faraoNetworkPool = new MockedNetworkPool(network, workingVariantId, leavesInParallel);
+        AbstractNetworkPool faraoNetworkPool = AbstractNetworkPool.create(network, workingVariantId, leavesInParallel);
         Mockito.doReturn(faraoNetworkPool).when(searchTree).makeFaraoNetworkPool(network, leavesInParallel);
     }
 
