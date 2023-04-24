@@ -61,29 +61,29 @@ class VoltageMonitoringTest {
         naOpenL1 = crac.newNetworkAction()
             .withId("Open L1")
             .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         naCloseL1 = crac.newNetworkAction()
             .withId("Close L1")
             .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         naOpenL2 = crac.newNetworkAction()
             .withId("Open L2")
             .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         naCloseL2 = crac.newNetworkAction()
             .withId("Close L2")
             .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.CLOSE).add()
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         pst = crac.newPstRangeAction()
             .withId("pst")
             .withNetworkElement("PS1")
             .withInitialTap(2).withTapToAngleConversionMap(Map.of(1, -20., 2, 0., 3, 20.))
             .newTapRange().withMinTap(1).withMaxTap(3).withRangeType(RangeType.ABSOLUTE).add()
-            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         crac.newContingency().withId("coL1").withNetworkElement("L1").add();

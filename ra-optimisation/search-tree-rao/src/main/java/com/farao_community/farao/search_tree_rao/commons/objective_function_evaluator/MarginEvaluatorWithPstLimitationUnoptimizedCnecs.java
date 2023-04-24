@@ -10,7 +10,8 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -27,14 +28,14 @@ import java.util.Map;
  */
 public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginEvaluator {
     private final MarginEvaluator marginEvaluator;
-    private final Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap;
+    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpointResult;
 
     public MarginEvaluatorWithPstLimitationUnoptimizedCnecs(MarginEvaluator marginEvaluator,
-                                                            Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap,
+                                                            Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap,
                                                             RangeActionSetpointResult rangeActionActivationResult) {
         this.marginEvaluator = marginEvaluator;
-        this.flowCnecPstRangeActionMap = flowCnecPstRangeActionMap;
+        this.flowCnecRangeActionMap = flowCnecRangeActionMap;
         this.prePerimeterRangeActionSetpointResult = rangeActionActivationResult;
     }
 
@@ -47,36 +48,10 @@ public class MarginEvaluatorWithPstLimitationUnoptimizedCnecs implements MarginE
 
     @Override
     public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        if (cnecShouldBeConsidered(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit)) {
+        if (RaoUtil.cnecShouldBeOptimized(flowCnecRangeActionMap, flowResult, flowCnec, side, rangeActionActivationResult, prePerimeterRangeActionSetpointResult, sensitivityResult, unit)) {
             return marginEvaluator.getMargin(flowResult, flowCnec, side, rangeActionActivationResult, sensitivityResult, unit);
         } else {
             return Double.MAX_VALUE;
         }
-    }
-
-    private boolean cnecShouldBeConsidered(FlowResult flowResult, FlowCnec flowCnec, Side side, RangeActionActivationResult rangeActionActivationResult, SensitivityResult sensitivityResult, Unit unit) {
-        if (!flowCnecPstRangeActionMap.containsKey(flowCnec)) {
-            return true;
-        }
-        PstRangeAction pstRangeAction = flowCnecPstRangeActionMap.get(flowCnec);
-        double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, side, pstRangeAction, Unit.MEGAWATT);
-        double minSetpoint = pstRangeAction.getMinAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        double maxSetpoint = pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterRangeActionSetpointResult.getSetpoint(pstRangeAction));
-        // GetOptimizedSetpoint retrieves the latest activated range action's setpoint
-        double currentSetpoint = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, flowCnec.getState());
-        double aboveThresholdMargin = flowCnec.getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - flowResult.getFlow(flowCnec, side, unit);
-        double belowThresholdMargin = flowResult.getFlow(flowCnec, side, unit) - flowCnec.getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
-
-        double aboveThresholdConstraint;
-        double belowThresholdConstraint;
-        if (sensitivity >= 0) {
-            aboveThresholdConstraint = sensitivity * (currentSetpoint - minSetpoint) + aboveThresholdMargin;
-            belowThresholdConstraint = sensitivity * (maxSetpoint - currentSetpoint) + belowThresholdMargin;
-        } else {
-            aboveThresholdConstraint = Math.abs(sensitivity) * (maxSetpoint - currentSetpoint) + aboveThresholdMargin;
-            belowThresholdConstraint = Math.abs(sensitivity) * (currentSetpoint - minSetpoint) + belowThresholdMargin;
-        }
-
-        return aboveThresholdConstraint <= 0 || belowThresholdConstraint <= 0;
     }
 }

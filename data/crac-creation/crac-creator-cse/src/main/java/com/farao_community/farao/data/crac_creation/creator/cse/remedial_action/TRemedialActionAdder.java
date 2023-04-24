@@ -342,7 +342,7 @@ public class TRemedialActionAdder {
             if (raApplicationInstant.equals(Instant.AUTO)) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
-                addFreeToUseUsageRules(remedialActionAdder, raApplicationInstant);
+                addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);
             }
         } else {
             addOnFlowConstraintUsageRulesAfterSpecificCountry(remedialActionAdder, tRemedialAction, raApplicationInstant, sharedWithId);
@@ -370,9 +370,9 @@ public class TRemedialActionAdder {
             .add();
     }
 
-    private void addFreeToUseUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
+    private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
         // RA is available for all countries
-        remedialActionAdder.newFreeToUseUsageRule()
+        remedialActionAdder.newOnInstantUsageRule()
             .withInstant(raApplicationInstant)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();

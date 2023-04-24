@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
@@ -17,8 +18,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -27,11 +26,11 @@ import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunctionResultImpl;
+import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.AutomatonPerimeterResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -60,22 +59,26 @@ public final class AutomatonSimulator {
 
     private final Crac crac;
     private final RaoParameters raoParameters;
+    private final Unit flowUnit;
     private final ToolProvider toolProvider;
     private final FlowResult initialFlowResult;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpointResult;
     private final PrePerimeterResult prePerimeterSensitivityOutput;
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
+    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
 
     public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, RangeActionSetpointResult prePerimeterRangeActionSetpointResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao) {
         this.crac = crac;
         this.raoParameters = raoParameters;
+        this.flowUnit = raoParameters.getObjectiveFunctionParameters().getType().getUnit();
         this.toolProvider = toolProvider;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterRangeActionSetpointResult = prePerimeterRangeActionSetpointResult;
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
+        this.flowCnecRangeActionMap = UnoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst(raoParameters.getNotOptimizedCnecsParameters(), crac);
     }
 
     /**
@@ -197,10 +200,11 @@ public final class AutomatonSimulator {
         // -- First get forced network actions
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
 
-        // -- Then add those with an OnFlowConstraint usage rule if their constraint is verified
+        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
+        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
-            .forEach(appliedNetworkActions::add);
+                .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(prePerimeterSensitivityOutput, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
+                .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Topological automaton state {} has been skipped as no topological automatons were activated.", automatonState.getId());
@@ -310,28 +314,9 @@ public final class AutomatonSimulator {
                                                     Network network) {
         // UsageMethod is either FORCED or TO_BE_EVALUATED
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
-            return crac.getFlowCnecs().stream()
-                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .collect(Collectors.toSet());
+            return crac.getFlowCnecs(automatonState);
         } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
-            // Get flowcnecs constrained by OnFlowConstraint
-            Set<FlowCnec> flowCnecs = availableRa.getUsageRules().stream()
-                    .filter(OnFlowConstraint.class::isInstance)
-                    .map(OnFlowConstraint.class::cast)
-                    .map(OnFlowConstraint::getFlowCnec)
-                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .collect(Collectors.toSet());
-            // Get all cnecs in country if availableRa is available on a OnFlowConstraintInCountry usage rule
-            Set<Country> countries = availableRa.getUsageRules().stream()
-                    .filter(OnFlowConstraintInCountry.class::isInstance)
-                    .map(OnFlowConstraintInCountry.class::cast)
-                    .map(OnFlowConstraintInCountry::getCountry)
-                    .collect(Collectors.toSet());
-            flowCnecs.addAll(crac.getFlowCnecs().stream()
-                    .filter(flowCnec -> flowCnec.getState().equals(automatonState))
-                    .filter(flowCnec -> countries.stream().anyMatch(country -> RaoUtil.isCnecInCountry(flowCnec, country, network)))
-                    .collect(Collectors.toSet()));
-            return flowCnecs;
+            return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
         } else {
             throw new FaraoException(String.format("Range action %s has usage method %s although FORCED or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
@@ -344,9 +329,10 @@ public final class AutomatonSimulator {
         // 1) Get available range actions
         // -- First get forced range actions
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
-        // -- Then add those with an OnFlowConstraint or OnFlowConstraintInCountry usage rule if their constraint is verified
+        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
+        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters.getObjectiveFunctionParameters().getType().getUnit()))
+            .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(rangeActionSensitivity, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
             .forEach(availableRangeActions::add);
 
         // 2) Sort range actions
@@ -576,7 +562,7 @@ public final class AutomatonSimulator {
         Set<Pair<FlowCnec, Side>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint = new HashMap<>();
-        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+        List<Pair<FlowCnec, Side>> flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
 
         if (alignedRangeActions.stream().allMatch(HvdcRangeAction.class::isInstance) && !flowCnecsWithNegativeMargin.isEmpty()) {
             // Disable HvdcAngleDroopActivePowerControl for HVDC lines, fetch their set-point, re-run sensitivity analysis and fetch new negative margins
@@ -587,7 +573,7 @@ public final class AutomatonSimulator {
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, Collections.emptySet(), Collections.emptyMap());
             }
-            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
         }
 
         // -- Define setpoint bounds
@@ -611,9 +597,9 @@ public final class AutomatonSimulator {
             // Aligned range actions have the same set-point :
             double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
             double optimalSetpoint = currentSetpoint;
-            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit(), MEGAWATT);
-            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, flowUnit, MEGAWATT);
+            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
+            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
             double sensitivityValue = 0;
             // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
             // through this loop have been needed to secure the same CNEC)
@@ -623,7 +609,7 @@ public final class AutomatonSimulator {
             // if sensitivity value is zero, CNEC cannot be secured. move on to the next CNEC with a negative margin
             if (Math.abs(sensitivityValue) < DOUBLE_NON_NULL) {
                 flowCnecsToBeExcluded.add(Pair.of(toBeShiftedCnec, side));
-                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+                flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
                 continue;
             }
 
@@ -658,7 +644,7 @@ public final class AutomatonSimulator {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithSetpoint);
             }
             RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
-            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
+            flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint);
             iteration++;
             previouslyShiftedCnec = toBeShiftedCnec;
         }
@@ -692,11 +678,13 @@ public final class AutomatonSimulator {
      */
     List<Pair<FlowCnec, Side>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,
                                                                               Set<Pair<FlowCnec, Side>> cnecsToBeExcluded,
-                                                                              PrePerimeterResult prePerimeterSensitivityOutput) {
+                                                                              PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                              Map<RangeAction<?>, Double> activatedRangeActionsWithSetpoint) {
         Map<Pair<FlowCnec, Side>, Double> cnecsAndMargins = new HashMap<>();
         flowCnecs.forEach(flowCnec -> flowCnec.getMonitoredSides().forEach(side -> {
-            double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-            if (!cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
+            double margin = prePerimeterSensitivityOutput.getMargin(flowCnec, side, flowUnit);
+            boolean cnecShouldBeOptimized = RaoUtil.cnecShouldBeOptimized(flowCnecRangeActionMap, prePerimeterSensitivityOutput, flowCnec, side, activatedRangeActionsWithSetpoint, prePerimeterRangeActionSetpointResult, prePerimeterSensitivityOutput, flowUnit);
+            if (cnecShouldBeOptimized && !cnecsToBeExcluded.contains(Pair.of(flowCnec, side)) && margin < 0) {
                 cnecsAndMargins.put(Pair.of(flowCnec, side), margin);
             }
         }));

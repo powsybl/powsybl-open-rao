@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -53,7 +54,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private FlowCnec classicCnec;
     private PstRangeAction pstRangeActionInSeries;
     private OptimizationPerimeter optimizationPerimeter;
-    private Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap = new HashMap<>();
+    private Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap = new HashMap<>();
     private double constraintCoeff;
 
     @BeforeEach
@@ -76,7 +77,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
                 .withInitialTap(1)
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
         // Set initial margins on both preventive CNECs
@@ -84,7 +85,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         classicCnec = crac.getFlowCnec("Tieline BE FR - N - preventive");
         pstRangeActionInSeries = crac.getPstRangeAction("pstRangeActionInSeries");
 
-        flowCnecPstRangeActionMap.put(cnecInSeries, pstRangeActionInSeries);
+        flowCnecRangeActionMap.put(cnecInSeries, pstRangeActionInSeries);
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeActionInSeries, 0.5));
 
@@ -107,7 +108,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue() {
-        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecPstRangeActionMap);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecRangeActionMap);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(classicCnec, cnecInSeries), Unit.MEGAWATT);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(classicCnec, Unit.MEGAWATT)).thenReturn(600.);
@@ -129,7 +130,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinMarginAndNegativeSensitivityValue() {
-        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecPstRangeActionMap);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecRangeActionMap);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(classicCnec, cnecInSeries), Unit.MEGAWATT);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(classicCnec, Unit.MEGAWATT)).thenReturn(400.);
@@ -152,7 +153,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMarginAndPositiveSensi() {
         RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension();
-        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecPstRangeActionMap);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecRangeActionMap);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(classicCnec, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecInSeries, Unit.MEGAWATT)).thenReturn(600.);
@@ -186,7 +187,7 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMarginAndNegativeSensi() {
         RelativeMarginsParametersExtension maxMinRelativeMarginParameters = new RelativeMarginsParametersExtension();
-        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecPstRangeActionMap);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(null, flowCnecRangeActionMap);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(classicCnec, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecInSeries, Unit.MEGAWATT)).thenReturn(600.);

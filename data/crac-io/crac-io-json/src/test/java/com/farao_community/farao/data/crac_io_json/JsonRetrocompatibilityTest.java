@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
@@ -21,14 +22,13 @@ import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
@@ -70,7 +70,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(3, crac.getNetworkActions().size());
         assertEquals(2, crac.getPstRangeActions().size());
         assertEquals(2, crac.getHvdcRangeActions().size());
-        testContentOfV1Crac(crac);
+        testContentOfV1Point0Crac(crac);
     }
 
     @Test
@@ -165,7 +165,28 @@ class JsonRetrocompatibilityTest {
         testContentOfV1Point5Crac(crac);
     }
 
-    private void testContentOfV1Crac(Crac crac) {
+    @Test
+    void importV1Point6Test() {
+
+        // renaming usage rules
+        // Branch threshold rule no longer handled
+
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.6.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(3, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point6Crac(crac);
+    }
+
+    private void testContentOfV1Point0Crac(Crac crac) {
 
         // --------------------------
         // --- test Contingencies ---
@@ -261,25 +282,25 @@ class JsonRetrocompatibilityTest {
         assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpoint);
         assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
 
-        // check freeToUse usage rule
+        // check onInstant usage rule
         assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
-        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof FreeToUse);
-        FreeToUse freeToUse = (FreeToUse) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
-        assertEquals(PREVENTIVE, freeToUse.getInstant());
-        assertEquals(AVAILABLE, freeToUse.getUsageMethod());
+        assertTrue(crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0) instanceof OnInstant);
+        OnInstant onInstant = (OnInstant) crac.getNetworkAction("complexNetworkActionId").getUsageRules().get(0);
+        assertEquals(PREVENTIVE, onInstant.getInstant());
+        assertEquals(AVAILABLE, onInstant.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
 
-        // check onState usage Rule
-        OnState onState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
-                .filter(ur -> ur instanceof OnState)
-                .map(ur -> (OnState) ur)
+        // check onContingencyState usage Rule
+        OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
+                .filter(ur -> ur instanceof OnContingencyState)
+                .map(ur -> (OnContingencyState) ur)
                 .findAny().orElse(null);
-        assertNotNull(onState);
-        assertEquals("contingency1Id", onState.getContingency().getId());
-        assertEquals(CURATIVE, onState.getInstant());
-        assertEquals(FORCED, onState.getUsageMethod());
+        assertNotNull(onContingencyState);
+        assertEquals("contingency1Id", onContingencyState.getContingency().getId());
+        assertEquals(CURATIVE, onContingencyState.getInstant());
+        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
@@ -355,11 +376,14 @@ class JsonRetrocompatibilityTest {
         assertEquals(-1000, hvdcRange.getMin(), 1e-3);
         assertEquals(1000, hvdcRange.getMax(), 1e-3);
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
+
+        // check usage rules
+        assertEquals(4, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnInstant.class::isInstance).collect(Collectors.toList()).size());
     }
 
     void testContentOfV1Point1Crac(Crac crac) {
 
-        testContentOfV1Crac(crac);
+        testContentOfV1Point0Crac(crac);
 
         // test SwitchPair
         assertNotNull(crac.getNetworkAction("switchPairRaId"));
@@ -390,11 +414,14 @@ class JsonRetrocompatibilityTest {
         assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
+
+        // check usage rules
+        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).collect(Collectors.toList()).size());
     }
 
     void testContentOfV1Point3Crac(Crac crac) {
 
-        testContentOfV1Point1Crac(crac);
         testContentOfV1Point2Crac(crac);
 
         assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
@@ -404,8 +431,6 @@ class JsonRetrocompatibilityTest {
 
     void testContentOfV1Point4Crac(Crac crac) {
 
-        testContentOfV1Point1Crac(crac);
-        testContentOfV1Point2Crac(crac);
         testContentOfV1Point3Crac(crac);
 
         // test angle cnec
@@ -432,13 +457,13 @@ class JsonRetrocompatibilityTest {
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) rangeAction.getUsageRules().get(0);
         assertEquals("angleCnecId", onAngleConstraint.getAngleCnec().getId());
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
+
+        // check usage rules
+        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).collect(Collectors.toList()).size());
     }
 
     void testContentOfV1Point5Crac(Crac crac) {
 
-        testContentOfV1Point1Crac(crac);
-        testContentOfV1Point2Crac(crac);
-        testContentOfV1Point3Crac(crac);
         testContentOfV1Point4Crac(crac);
 
         // test voltage cnec
@@ -456,5 +481,15 @@ class JsonRetrocompatibilityTest {
         assertEquals(Unit.KILOVOLT, threshold.getUnit());
         assertTrue(threshold.max().isEmpty());
         assertEquals(380., threshold.min().orElse(0.0), 1e-3);
+    }
+
+    void testContentOfV1Point6Crac(Crac crac) {
+
+        testContentOfV1Point5Crac(crac);
+        // test usage rules
+        assertEquals(4, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnInstant.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).collect(Collectors.toList()).size());
     }
 }

@@ -17,24 +17,24 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-class FreeToUseImplTest {
+class OnInstantImplTest {
 
     @Test
     void testGetterSetter() {
-        FreeToUseImpl freeToUse = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
-        assertEquals(Instant.PREVENTIVE, freeToUse.getInstant());
+        OnInstantImpl onInstant = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        assertEquals(Instant.PREVENTIVE, onInstant.getInstant());
     }
 
     @Test
     void testEqualsSameObject() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         assertEquals(rule1, rule1);
     }
 
     @Test
     void testEqualsTrue() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
-        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
 
         assertEquals(rule1, rule2);
         assertEquals(rule1.hashCode(), rule2.hashCode());
@@ -42,8 +42,8 @@ class FreeToUseImplTest {
 
     @Test
     void testEqualsFalseForUsageMethod() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
-        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.FORCED, Instant.PREVENTIVE);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.FORCED, Instant.PREVENTIVE);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
@@ -51,8 +51,8 @@ class FreeToUseImplTest {
 
     @Test
     void testEqualsFalseForInstant() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
-        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.CURATIVE);
+        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, Instant.CURATIVE);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());

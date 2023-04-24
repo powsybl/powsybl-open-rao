@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -39,9 +40,9 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
 
     private final FlowCnec flowCnecInSeries = Mockito.mock(FlowCnec.class);
     private final PstRangeAction pstRangeActionInSeries = Mockito.mock(PstRangeAction.class);
-    private Map<FlowCnec, PstRangeAction> flowCnecPstRangeActionMap = Map.of(flowCnecInSeries, pstRangeActionInSeries);
+    private final Map<FlowCnec, RangeAction<?>> flowCnecPstRangeActionMap = Map.of(flowCnecInSeries, pstRangeActionInSeries);
     private final RangeActionSetpointResult rangeActionSetpointResult = Mockito.mock(RangeActionSetpointResult.class);
-    private MarginEvaluatorWithPstLimitationUnoptimizedCnecs marginEvaluatorWithPstLimitationUnoptimizedCnecs =
+    private final MarginEvaluatorWithPstLimitationUnoptimizedCnecs marginEvaluatorWithPstLimitationUnoptimizedCnecs =
             new MarginEvaluatorWithPstLimitationUnoptimizedCnecs(
                     new BasicMarginEvaluator(),
                     flowCnecPstRangeActionMap,
@@ -68,7 +69,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(50.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
-        when(rangeActionActivationResult.getOptimizedSetpoint(pstRangeActionInSeries, flowCnecInSeries.getState())).thenReturn(5.);
+        when(rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnecInSeries.getState())).thenReturn(Map.of(pstRangeActionInSeries, 5.));
         when(flowCnecInSeries.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(40.));
         when(flowCnecInSeries.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(100.));
         when(currentFlowResult.getFlow(flowCnecInSeries, Side.LEFT, Unit.MEGAWATT)).thenReturn(50.);
@@ -83,7 +84,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
-        when(rangeActionActivationResult.getOptimizedSetpoint(pstRangeActionInSeries, flowCnecInSeries.getState())).thenReturn(5.);
+        when(rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnecInSeries.getState())).thenReturn(Map.of(pstRangeActionInSeries, 5.));
         when(flowCnecInSeries.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(40.));
         when(flowCnecInSeries.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(100.));
         when(currentFlowResult.getFlow(flowCnecInSeries, Side.LEFT, Unit.MEGAWATT)).thenReturn(20.);
@@ -98,7 +99,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
-        when(rangeActionActivationResult.getOptimizedSetpoint(pstRangeActionInSeries, flowCnecInSeries.getState())).thenReturn(5.);
+        when(rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnecInSeries.getState())).thenReturn(Map.of(pstRangeActionInSeries, 5.));
         when(flowCnecInSeries.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(40.));
         when(flowCnecInSeries.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(100.));
         when(currentFlowResult.getFlow(flowCnecInSeries, Side.LEFT, Unit.MEGAWATT)).thenReturn(120.);
@@ -113,7 +114,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-1.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
-        when(rangeActionActivationResult.getOptimizedSetpoint(pstRangeActionInSeries, flowCnecInSeries.getState())).thenReturn(5.);
+        when(rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnecInSeries.getState())).thenReturn(Map.of(pstRangeActionInSeries, 5.));
         when(flowCnecInSeries.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(40.));
         when(flowCnecInSeries.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(100.));
         when(currentFlowResult.getFlow(flowCnecInSeries, Side.LEFT, Unit.MEGAWATT)).thenReturn(50.);
@@ -128,7 +129,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
-        when(rangeActionActivationResult.getOptimizedSetpoint(pstRangeActionInSeries, flowCnecInSeries.getState())).thenReturn(5.);
+        when(rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnecInSeries.getState())).thenReturn(Map.of(pstRangeActionInSeries, 5.));
         when(flowCnecInSeries.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(40.));
         when(flowCnecInSeries.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(100.));
         when(currentFlowResult.getFlow(flowCnecInSeries, Side.LEFT, Unit.MEGAWATT)).thenReturn(120.);
@@ -142,7 +143,7 @@ class MarginEvaluatorWithPstLimitationUnoptimizedCnecsTest {
         when(sensitivityResult.getSensitivityValue(flowCnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-3.);
         when(pstRangeActionInSeries.getMinAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(2.);
         when(pstRangeActionInSeries.getMaxAdmissibleSetpoint(rangeActionSetpointResult.getSetpoint(pstRangeActionInSeries))).thenReturn(10.);
-        when(rangeActionActivationResult.getOptimizedSetpoint(pstRangeActionInSeries, flowCnecInSeries.getState())).thenReturn(5.);
+        when(rangeActionActivationResult.getOptimizedSetpointsOnState(flowCnecInSeries.getState())).thenReturn(Map.of(pstRangeActionInSeries, 5.));
         when(flowCnecInSeries.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(40.));
         when(flowCnecInSeries.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(100.));
         when(currentFlowResult.getFlow(flowCnecInSeries, Side.LEFT, Unit.MEGAWATT)).thenReturn(10.);
