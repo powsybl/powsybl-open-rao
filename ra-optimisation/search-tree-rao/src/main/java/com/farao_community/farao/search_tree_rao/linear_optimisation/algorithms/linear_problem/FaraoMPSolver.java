@@ -11,15 +11,13 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
-import com.google.ortools.linearsolver.*;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
-
-import org.apache.commons.lang3.NotImplementedException;
 
 import static com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters.Solver.*;
 
@@ -37,14 +35,13 @@ public class FaraoMPSolver {
     Map<String, FaraoMPConstraint> constraints = new HashMap<>();
     Map<String, FaraoMPVariable> variables = new HashMap<>();
     FaraoMPObjective objective;
-    private final static Map<RangeActionsOptimizationParameters.Solver, Map<MPSolver, Boolean>> AVAILABLE_MP_SOLVERS = new ConcurrentHashMap<>(
+    private final static Map<RangeActionsOptimizationParameters.Solver, Map<MPSolver, Boolean>> AVAILABLE_MP_SOLVERS = new HashMap<>(
         Map.of(
-            CBC, new ConcurrentHashMap<>(),
-            SCIP, new ConcurrentHashMap<>(),
-            XPRESS, new ConcurrentHashMap<>()
+            CBC, new HashMap<>(),
+            SCIP, new HashMap<>(),
+            XPRESS, new HashMap<>()
         )
     );
-    private final static Semaphore AVAILABLE_MP_SOLVERS_SEMAPHORE = new Semaphore(1);
 
     // Only for tests
     protected FaraoMPSolver() {
@@ -58,35 +55,23 @@ public class FaraoMPSolver {
         solveConfiguration = new MPSolverParameters();
     }
 
-    private static MPSolver getMPSolver(RangeActionsOptimizationParameters.Solver solver) {
-        try {
-            AVAILABLE_MP_SOLVERS_SEMAPHORE.acquire();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    synchronized private static MPSolver getMPSolver(RangeActionsOptimizationParameters.Solver solver) {
         Optional<MPSolver> availableMpSolver = AVAILABLE_MP_SOLVERS.get(solver).entrySet()
             .stream().filter(Map.Entry::getValue)
             .map(Map.Entry::getKey)
             .findAny();
         MPSolver mpSolver = availableMpSolver.orElseGet(() -> initNewMPSolver(solver));
         AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, false);
-        AVAILABLE_MP_SOLVERS_SEMAPHORE.release();
         return mpSolver;
     }
 
-    public void release() {
+    synchronized public void release() {
         mpSolver.reset();
-        try {
-            AVAILABLE_MP_SOLVERS_SEMAPHORE.acquire();
-            if (solver.equals(CBC)) {
-                // The reset method seems to be badly implemented for CBC. Just destroy MPSolver, do not re-use it
-                AVAILABLE_MP_SOLVERS.get(solver).remove(mpSolver);
-            } else {
-                AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, true);
-            }
-            AVAILABLE_MP_SOLVERS_SEMAPHORE.release();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (solver.equals(CBC)) {
+            // The reset method seems to be badly implemented for CBC. Just destroy MPSolver, do not re-use it
+            AVAILABLE_MP_SOLVERS.get(solver).remove(mpSolver);
+        } else {
+            AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, true);
         }
     }
 
