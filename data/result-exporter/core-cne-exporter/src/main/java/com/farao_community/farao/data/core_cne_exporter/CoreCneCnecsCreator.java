@@ -216,12 +216,12 @@ public final class CoreCneCnecsCreator {
         return measurements;
     }
 
-    private double getCnecFlow(FlowCnec cnec, Side side, OptimizationState optimizationState, Unit unit) {
+    private double getCnecFlow(FlowCnec cnec, Side side, OptimizationState optimizationState) {
         OptimizationState resultState = optimizationState;
         if (resultState.equals(OptimizationState.AFTER_CRA) && cnec.getState().getInstant().equals(Instant.PREVENTIVE)) {
             resultState = OptimizationState.AFTER_PRA;
         }
-        return cneHelper.getRaoResult().getFlow(resultState, cnec, side, unit);
+        return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
 
     private double getCnecMargin(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
@@ -243,7 +243,7 @@ public final class CoreCneCnecsCreator {
 
     private Analog createFlowMeasurement(FlowCnec cnec, OptimizationState optimizationState, Unit unit, boolean shouldInvertBranchDirection) {
         double invert = shouldInvertBranchDirection ? -1 : 1;
-        return newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, invert * getCnecFlow(cnec, getMonitoredSide(cnec), optimizationState, unit));
+        return newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, invert * getCnecFlow(cnec, getMonitoredSide(cnec), optimizationState));
     }
 
     private Analog createThresholdMeasurement(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, String measurementType, boolean shouldInvertBranchDirection) {
@@ -288,7 +288,7 @@ public final class CoreCneCnecsCreator {
     private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Map<Double, Double> thresholdToMarginMap = new HashMap<>();
         Side side = getMonitoredSide(cnec);
-        double flow = getCnecFlow(cnec, side, optimizationState, unit);
+        double flow = getCnecFlow(cnec, side, optimizationState);
         if (!Double.isNaN(flow)) {
             if (false) {
                 // TODO : reactivate this for MNECs (if (asMnec)) when we should go back to the full version
@@ -302,29 +302,31 @@ public final class CoreCneCnecsCreator {
 
     private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, Side side) {
         // TODO : remove this when we go back to considering FRM in the exported threshold
-        double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
+        double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
+        double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
         double maxThreshold = cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE) + frm;
         maxThreshold = Double.isNaN(maxThreshold) ? Double.POSITIVE_INFINITY : maxThreshold;
-        thresholdToMarginMap.putIfAbsent(maxThreshold, maxThreshold - flow);
+        thresholdToMarginMap.putIfAbsent(maxThreshold, maxThreshold - flow * flowUnitMultiplier);
 
         double minThreshold = cnec.getLowerBound(side, unit).orElse(-Double.MAX_VALUE) - frm;
         minThreshold = Double.isNaN(minThreshold) ? Double.POSITIVE_INFINITY : minThreshold;
-        thresholdToMarginMap.putIfAbsent(minThreshold, flow - minThreshold);
+        thresholdToMarginMap.putIfAbsent(minThreshold, flow * flowUnitMultiplier - minThreshold);
     }
 
     private void getThresholdToMarginMapAsMnec(FlowCnec cnec, Unit unit, Map<Double, Double> thresholdToMarginMap, double flow, Side side) {
         // Look at thresholds computed using initial flow
-        double initialFlow = getCnecFlow(cnec, getMonitoredSide(cnec), OptimizationState.INITIAL, unit);
-        double tolerance = cneHelper.getMnecAcceptableMarginDiminution() * getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
+        double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
+        double initialFlow = getCnecFlow(cnec, getMonitoredSide(cnec), OptimizationState.INITIAL) * flowUnitMultiplier;
+        double tolerance = cneHelper.getMnecAcceptableMarginDiminution() * flowUnitMultiplier;
 
         double mnecUpperThreshold = Math.max(cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE), initialFlow + tolerance);
         mnecUpperThreshold = Double.isNaN(mnecUpperThreshold) ? Double.POSITIVE_INFINITY : mnecUpperThreshold;
-        thresholdToMarginMap.putIfAbsent(mnecUpperThreshold, mnecUpperThreshold - flow);
+        thresholdToMarginMap.putIfAbsent(mnecUpperThreshold, mnecUpperThreshold - flow * flowUnitMultiplier);
 
         double mnecLowerThreshold = Math.min(cnec.getLowerBound(side, unit).orElse(-Double.MAX_VALUE), initialFlow - tolerance);
         mnecLowerThreshold = Double.isNaN(mnecLowerThreshold) ? Double.POSITIVE_INFINITY : mnecLowerThreshold;
-        thresholdToMarginMap.putIfAbsent(mnecLowerThreshold, flow - mnecLowerThreshold);
+        thresholdToMarginMap.putIfAbsent(mnecLowerThreshold, flow * flowUnitMultiplier - mnecLowerThreshold);
     }
 
     private Analog createFrmMeasurement(FlowCnec cnec) {
