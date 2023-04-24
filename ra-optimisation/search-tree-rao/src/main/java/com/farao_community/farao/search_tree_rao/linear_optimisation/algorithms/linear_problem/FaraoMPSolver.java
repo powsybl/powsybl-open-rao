@@ -15,9 +15,7 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters.Solver.*;
 
@@ -35,11 +33,11 @@ public class FaraoMPSolver {
     Map<String, FaraoMPConstraint> constraints = new HashMap<>();
     Map<String, FaraoMPVariable> variables = new HashMap<>();
     FaraoMPObjective objective;
-    private final static Map<RangeActionsOptimizationParameters.Solver, Map<MPSolver, Boolean>> AVAILABLE_MP_SOLVERS = new HashMap<>(
+    private final static Map<RangeActionsOptimizationParameters.Solver, Set<MPSolver>> AVAILABLE_MP_SOLVERS = new HashMap<>(
         Map.of(
-            CBC, new HashMap<>(),
-            SCIP, new HashMap<>(),
-            XPRESS, new HashMap<>()
+            CBC, new HashSet<>(),
+            SCIP, new HashSet<>(),
+            XPRESS, new HashSet<>()
         )
     );
 
@@ -56,22 +54,16 @@ public class FaraoMPSolver {
     }
 
     synchronized private static MPSolver getMPSolver(RangeActionsOptimizationParameters.Solver solver) {
-        Optional<MPSolver> availableMpSolver = AVAILABLE_MP_SOLVERS.get(solver).entrySet()
-            .stream().filter(Map.Entry::getValue)
-            .map(Map.Entry::getKey)
-            .findAny();
-        MPSolver mpSolver = availableMpSolver.orElseGet(() -> initNewMPSolver(solver));
-        AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, false);
-        return mpSolver;
+        Optional<MPSolver> availableMpSolver = AVAILABLE_MP_SOLVERS.get(solver).stream().findAny();
+        availableMpSolver.ifPresent(mpSolver -> AVAILABLE_MP_SOLVERS.get(solver).remove(mpSolver));
+        return availableMpSolver.orElseGet(() -> initNewMPSolver(solver));
     }
 
     synchronized public void release() {
-        mpSolver.reset();
-        if (solver.equals(CBC)) {
-            // The reset method seems to be badly implemented for CBC. Just destroy MPSolver, do not re-use it
-            AVAILABLE_MP_SOLVERS.get(solver).remove(mpSolver);
-        } else {
-            AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, true);
+        // The reset method seems to be badly implemented for CBC. Just destroy MPSolver, do not re-use it
+        if (!solver.equals(CBC)) {
+            mpSolver.reset();
+            AVAILABLE_MP_SOLVERS.get(solver).add(mpSolver);
         }
     }
 
