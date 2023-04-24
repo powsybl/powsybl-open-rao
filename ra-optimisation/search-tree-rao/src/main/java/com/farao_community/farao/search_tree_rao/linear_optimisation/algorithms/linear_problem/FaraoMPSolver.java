@@ -15,8 +15,13 @@ import com.google.ortools.linearsolver.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.lang3.NotImplementedException;
+
+import static com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters.Solver.*;
 
 /**
  * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
@@ -24,34 +29,78 @@ import org.apache.commons.lang3.NotImplementedException;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPSolver {
-
+    private static final String OPT_PROBLEM_NAME = "OptProblem";
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
+    private final RangeActionsOptimizationParameters.Solver solver;
     private final MPSolver mpSolver;
     private MPSolverParameters solveConfiguration;
     Map<String, FaraoMPConstraint> constraints = new HashMap<>();
     Map<String, FaraoMPVariable> variables = new HashMap<>();
     FaraoMPObjective objective;
+    private final static Map<RangeActionsOptimizationParameters.Solver, Map<MPSolver, Boolean>> AVAILABLE_MP_SOLVERS = new ConcurrentHashMap<>(
+        Map.of(
+            CBC, new ConcurrentHashMap<>(),
+            SCIP, new ConcurrentHashMap<>(),
+            XPRESS, new ConcurrentHashMap<>()
+        )
+    );
+    private final static Semaphore AVAILABLE_MP_SOLVERS_SEMAPHORE = new Semaphore(1);
 
     // Only for tests
     protected FaraoMPSolver() {
+        solver = null;
         mpSolver = null;
     }
 
-    public FaraoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
+    public FaraoMPSolver(RangeActionsOptimizationParameters.Solver solver) {
+        this.solver = solver;
+        this.mpSolver = getMPSolver(solver);
+        solveConfiguration = new MPSolverParameters();
+    }
+
+    private static MPSolver getMPSolver(RangeActionsOptimizationParameters.Solver solver) {
+        try {
+            AVAILABLE_MP_SOLVERS_SEMAPHORE.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Optional<MPSolver> availableMpSolver = AVAILABLE_MP_SOLVERS.get(solver).entrySet()
+            .stream().filter(Map.Entry::getValue)
+            .map(Map.Entry::getKey)
+            .findAny();
+        MPSolver mpSolver = availableMpSolver.orElseGet(() -> initNewMPSolver(solver));
+        AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, false);
+        AVAILABLE_MP_SOLVERS_SEMAPHORE.release();
+        return mpSolver;
+    }
+
+    public void release() {
+        mpSolver.reset();
+        try {
+            AVAILABLE_MP_SOLVERS_SEMAPHORE.acquire();
+            if (solver.equals(CBC)) {
+                // The reset method seems to be badly implemented for CBC. Just destroy MPSolver, do not re-use it
+                AVAILABLE_MP_SOLVERS.get(solver).remove(mpSolver);
+            } else {
+                AVAILABLE_MP_SOLVERS.get(solver).put(mpSolver, true);
+            }
+            AVAILABLE_MP_SOLVERS_SEMAPHORE.release();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static MPSolver initNewMPSolver(RangeActionsOptimizationParameters.Solver solver) {
         switch (solver) {
             case CBC:
-                this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
-                break;
+                return new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
             case SCIP:
-                this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
-                break;
+                return new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
             case XPRESS:
-                this.mpSolver = new MPSolver(optProblemName, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
-                break;
+                return new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
             default:
                 throw new FaraoException(String.format("unknown solver %s in RAO parameters", solver));
         }
-        solveConfiguration = new MPSolverParameters();
     }
 
     public FaraoMPConstraint getConstraint(String name) {

@@ -60,9 +60,11 @@ public final class IteratingLinearOptimizer {
                 if (iteration == 1) {
                     bestResult.setStatus(solveStatus);
                     BUSINESS_LOGS.info("Linear problem failed with the following status : {}, initial situation is kept.", solveStatus);
+                    linearProblem.release();
                     return bestResult;
                 }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
+                linearProblem.release();
                 return bestResult;
             }
 
@@ -74,12 +76,14 @@ public final class IteratingLinearOptimizer {
             if (!hasRemedialActionsChanged(currentRangeActionActivationResult, bestResult, input.getOptimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
+                linearProblem.release();
                 return bestResult;
             }
 
             sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters);
             if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
+                linearProblem.release();
                 return bestResult;
             }
 
@@ -94,6 +98,7 @@ public final class IteratingLinearOptimizer {
             if (currentResult.getCost() >= bestResult.getCost()) {
                 logWorseResult(iteration, bestResult, currentResult);
                 applyRangeActions(bestResult, input);
+                linearProblem.release();
                 return bestResult;
             }
 
@@ -102,6 +107,7 @@ public final class IteratingLinearOptimizer {
             linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
+        linearProblem.release();
         return bestResult;
     }
 

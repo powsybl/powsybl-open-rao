@@ -92,6 +92,10 @@ public final class LinearProblem {
         return solver.solve();
     }
 
+    public void release() {
+        solver.release();
+    }
+
     public FaraoMPObjective getObjective() {
         return solver.getObjective();
     }

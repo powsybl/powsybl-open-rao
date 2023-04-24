@@ -33,8 +33,6 @@ public class LinearProblemBuilder {
         }
     }
 
-    private static final String OPT_PROBLEM_NAME = "RangeActionOptProblem";
-
     private final List<ProblemFiller> problemFillers = new ArrayList<>();
     private FaraoMPSolver solver;
     private double relativeMipGap = RangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
@@ -91,7 +89,7 @@ public class LinearProblemBuilder {
         if (parameters.getRaLimitationParameters() != null
             && inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream()
             .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
-            this.withProblemFiller(buildRaUageLimitsFiller());
+            this.withProblemFiller(buildRaUsageLimitsFiller());
         }
 
         return new LinearProblem(problemFillers, solver, relativeMipGap, solverSpecificParameters);
@@ -122,7 +120,7 @@ public class LinearProblemBuilder {
     }
 
     public FaraoMPSolver buildSolver() {
-        return new FaraoMPSolver(OPT_PROBLEM_NAME, parameters.getSolverParameters().getSolver());
+        return new FaraoMPSolver(parameters.getSolverParameters().getSolver());
     }
 
     private ProblemFiller buildCoreProblemFiller() {
@@ -198,7 +196,7 @@ public class LinearProblemBuilder {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
     }
 
-    private ProblemFiller buildRaUageLimitsFiller() {
+    private ProblemFiller buildRaUsageLimitsFiller() {
         return new RaUsageLimitsFiller(
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
