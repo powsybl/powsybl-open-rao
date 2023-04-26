@@ -47,7 +47,6 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
 
     @Override
     public void initClones(int desiredNumberOfClones) {
-
         int requiredClones = Math.min(getParallelism(), desiredNumberOfClones);
         int clonesToAdd = requiredClones - networkNumberOfClones;
 

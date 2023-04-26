@@ -248,7 +248,6 @@ public class SearchTree {
 
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
         networkPool.initClones(naCombinations.size());
-
         naCombinations.sort(this::deterministicNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");

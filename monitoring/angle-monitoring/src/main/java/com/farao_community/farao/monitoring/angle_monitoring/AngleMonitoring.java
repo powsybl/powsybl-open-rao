@@ -89,12 +89,9 @@ public class AngleMonitoring {
         }
 
         try {
-            int numberOfClones = Math.min(numberOfLoadFlowsInParallel, contingencyStates.size());
-
             try (AbstractNetworkPool networkPool =
-                         AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), numberOfClones, true)
+                         AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)
             ) {
-
                 CountDownLatch stateCountDownLatch = new CountDownLatch(contingencyStates.size());
                 contingencyStates.forEach(state ->
                         networkPool.submit(() -> {
