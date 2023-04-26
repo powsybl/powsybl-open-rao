@@ -21,11 +21,13 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
  */
 public class MultipleNetworkPool extends AbstractNetworkPool {
 
-    private int networkNumberOfClones;
+    private int networkNumberOfClones = 0;
 
-    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism) {
+    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism, boolean initClones) {
         super(network, targetVariant, parallelism);
-        this.networkNumberOfClones = 0;
+        if (initClones) {
+            initClones(parallelism);
+        }
     }
 
     @Override
@@ -44,34 +46,31 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
     }
 
     @Override
-    public void addNetworkClones(int numberOfClones) {
+    public void initClones(int desiredNumberOfClones) {
 
-        int addedClones;
-        int previousClones = this.networkNumberOfClones;
+        int requiredClones = Math.min(getParallelism(), desiredNumberOfClones);
+        int clonesToAdd = requiredClones - networkNumberOfClones;
 
-        if (this.networkNumberOfClones + numberOfClones > getParallelism()) {
-            addedClones = getParallelism() - this.networkNumberOfClones;
-            this.networkNumberOfClones = getParallelism();
-        } else {
-            addedClones = numberOfClones;
-            this.networkNumberOfClones += numberOfClones;
+        if (clonesToAdd == 0) {
+            return;
         }
 
-        TECHNICAL_LOGS.debug("Filling network pool with '{}' cop'{}' of network '{}' on variant '{}'", addedClones, addedClones == 1 ? "y" : "ies", network.getId(), targetVariant);
+        TECHNICAL_LOGS.debug("Filling network pool with '{}' new cop'{}' of network '{}' on variant '{}'", clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);
 
-        for (int i = previousClones; i < previousClones + addedClones; i++) {
-            TECHNICAL_LOGS.debug("Copy n°{}", i + 1);
+        while (networkNumberOfClones < requiredClones) {
+            TECHNICAL_LOGS.debug("Copy n°{}", networkNumberOfClones + 1);
             Network copy = NetworkXml.copy(network);
             // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
             // in cloned network, so we need to copy it again.
             copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
             boolean isSuccess = networksQueue.offer(copy);
             if (!isSuccess) {
-                throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", i + 1));
+                throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
             }
+            networkNumberOfClones++;
         }
         network.getVariantManager().setWorkingVariant(initialVariant);
     }

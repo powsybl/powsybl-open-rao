@@ -295,11 +295,7 @@ public class CastorFullOptimization {
 
         int numberOfClones = raoParameters.getMultithreadingParameters().getContingencyScenariosInParallel();
 
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, numberOfClones)) {
-
-            if (numberOfClones != 1) {
-                networkPool.addNetworkClones(numberOfClones);
-            }
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, numberOfClones, true)) {
 
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             CountDownLatch contingencyCountDownLatch = new CountDownLatch(stateTree.getContingencyScenarios().size());

@@ -29,11 +29,11 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
     protected String networkInitialVariantId;
     protected Set<String> baseNetworkVariantIds;
 
-    public static AbstractNetworkPool create(Network network, String targetVariant, int parallelism) {
+    public static AbstractNetworkPool create(Network network, String targetVariant, int parallelism, boolean initClones) {
         if (parallelism == 1) {
             return new SingleNetworkPool(network, targetVariant);
         } else {
-            return new MultipleNetworkPool(network, targetVariant, parallelism);
+            return new MultipleNetworkPool(network, targetVariant, parallelism, initClones);
         }
     }
 
@@ -96,6 +96,6 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         return 1;
     }
 
-    public void addNetworkClones(int numberOfClones) { }
+    public abstract void initClones(int desiredNumberOfClones);
 
 }

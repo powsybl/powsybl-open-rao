@@ -374,7 +374,7 @@ class SearchTreeTest {
         String workingVariantId = "ID";
         when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
         when(network.getVariantManager()).thenReturn(variantManager);
-        AbstractNetworkPool faraoNetworkPool = AbstractNetworkPool.create(network, workingVariantId, leavesInParallel);
+        AbstractNetworkPool faraoNetworkPool = AbstractNetworkPool.create(network, workingVariantId, leavesInParallel, true);
         Mockito.doReturn(faraoNetworkPool).when(searchTree).makeFaraoNetworkPool(network, leavesInParallel);
     }
 

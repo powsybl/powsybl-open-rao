@@ -20,12 +20,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class SingleNetworkPool extends AbstractNetworkPool {
 
+    boolean cloneInitialised = false;
+
     SingleNetworkPool(Network network, String targetVariant) {
         super(network, targetVariant, 1);
-        initAvailableNetworks(network);
+        initClones(1);
     }
 
-    private void initAvailableNetworks(Network network) {
+    @Override
+    public void initClones(int desiredNumberOfClones) {
+        if (cloneInitialised) {
+            return;
+        }
         FaraoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
         network.getVariantManager().setWorkingVariant(targetVariant);
         network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
@@ -33,6 +39,7 @@ public class SingleNetworkPool extends AbstractNetworkPool {
         if (!isSuccess) {
             throw new AssertionError("Cannot offer base network in pool. Should not happen");
         }
+        cloneInitialised = true;
     }
 
     @Override

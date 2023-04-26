@@ -64,12 +64,8 @@ public class VoltageMonitoring {
             int numberOfClones = Math.min(numberOfLoadFlowsInParallel, contingencyStates.size());
 
             try (AbstractNetworkPool networkPool =
-                     AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), numberOfClones)
+                     AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), numberOfClones, true)
             ) {
-
-                if (numberOfClones != 1) {
-                    networkPool.addNetworkClones(numberOfClones);
-                }
 
                 CountDownLatch stateCountDownLatch = new CountDownLatch(contingencyStates.size());
                 contingencyStates.forEach(state ->
