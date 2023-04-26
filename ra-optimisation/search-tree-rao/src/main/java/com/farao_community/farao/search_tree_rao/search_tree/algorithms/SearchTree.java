@@ -247,6 +247,7 @@ public class SearchTree {
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
+        networkPool.initClones(naCombinations.size());
         naCombinations.sort(this::deterministicNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
@@ -348,7 +349,7 @@ public class SearchTree {
     }
 
     AbstractNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
-        return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
+        return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
     void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network) {
