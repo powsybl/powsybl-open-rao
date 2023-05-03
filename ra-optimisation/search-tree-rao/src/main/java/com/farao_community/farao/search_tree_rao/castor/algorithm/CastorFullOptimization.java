@@ -230,6 +230,9 @@ public class CastorFullOptimization {
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
+            finalCost = initialCost;
+            finalFunctionalCost = initialFunctionalCost;
+            finalVirtualCost = initialVirtualCost;
             if (raoResult.getOptimizationStepsExecuted().equals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY)) {
                 finalRaoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
             } else {
