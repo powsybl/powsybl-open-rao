@@ -431,8 +431,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         //      - 2 per range action (set-point and variation)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: 1 more each time the problem is updated)
+        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: created before 2nd iteration)
         assertEquals(3, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
+
+        // assert that no other constraint is created after 2nd iteration
+        updateLinearProblem();
         assertEquals(4, linearProblem.numConstraints());
     }
 
@@ -476,8 +480,12 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         //      - 2 per range action (set-point and variation)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: 1 more each time the problem is updated)
+        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: created before 2nd iteration)
         assertEquals(3, linearProblem.numVariables());
+        assertEquals(4, linearProblem.numConstraints());
+
+        // assert that no other constraint is created after 2nd iteration
+        updateLinearProblem();
         assertEquals(4, linearProblem.numConstraints());
     }
 
