@@ -292,7 +292,7 @@ class IteratingLinearOptimizerTest {
     void testUnapplyRangeAction() {
         network = NetworkImportsUtil.import12NodesNetwork();
         when(input.getNetwork()).thenReturn(network);
-        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 4.4));
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
         rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
@@ -309,8 +309,6 @@ class IteratingLinearOptimizerTest {
         prepareLinearProblemBuilder();
 
         IteratingLinearOptimizer.optimize(input, parameters);
-        // assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
-        // TODO Should be 3 but isn't ... It's always the last value line 295
-        // TODO Ask someone in the team, I don't get it (probably Peter because he wrote this part of the code)
+        assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 }

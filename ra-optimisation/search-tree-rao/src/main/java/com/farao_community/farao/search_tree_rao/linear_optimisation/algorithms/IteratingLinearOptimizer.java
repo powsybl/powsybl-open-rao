@@ -100,6 +100,7 @@ public final class IteratingLinearOptimizer {
                 linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
             } else {
                 logWorseResult(iteration, bestResult, currentResult);
+                applyRangeActions(bestResult, input);
                 linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
             }
         }
