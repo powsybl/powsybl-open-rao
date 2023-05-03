@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -400,7 +399,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // some additional data
-        final double currentAlpha = ((PstRangeAction) pstRangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
+        final double currentAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
@@ -427,14 +426,14 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertNull(flowConstraint2);
 
         // check the number of variables and constraints
-        // total number of variables 4 :
+        // total number of variables 3 :
         //      - 1 per CNEC (flow)
         //      - 2 per range action (set-point and variation)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (absolute variation constraints)
+        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: 1 more each time the problem is updated)
         assertEquals(3, linearProblem.numVariables());
-        assertEquals(3, linearProblem.numConstraints());
+        assertEquals(4, linearProblem.numConstraints());
     }
 
     @Test
@@ -445,7 +444,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // some additional data
-        final double currentAlpha = ((PstRangeAction) pstRangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
+        final double currentAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
@@ -472,14 +471,14 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-SENSI_CNEC2_IT2, flowConstraint2.getCoefficient(setPointVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
-        // total number of variables 4 :
+        // total number of variables 3 :
         //      - 1 per CNEC (flow)
         //      - 2 per range action (set-point and variation)
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
-        //      - 2 per range action (absolute variation constraints)
+        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: 1 more each time the problem is updated)
         assertEquals(3, linearProblem.numVariables());
-        assertEquals(3, linearProblem.numConstraints());
+        assertEquals(4, linearProblem.numConstraints());
     }
 
     @Test

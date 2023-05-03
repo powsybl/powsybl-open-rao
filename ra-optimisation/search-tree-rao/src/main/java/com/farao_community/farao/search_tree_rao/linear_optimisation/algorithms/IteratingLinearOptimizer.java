@@ -99,6 +99,7 @@ public final class IteratingLinearOptimizer {
                 linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
             } else {
                 logWorseResult(iteration, bestResult, currentResult);
+                bestResult.setNbOfIteration(iteration);
                 linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
             }
         }
@@ -232,7 +233,7 @@ public final class IteratingLinearOptimizer {
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         TECHNICAL_LOGS.info(
-                "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
+                "Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})",
                 iteration,
                 formatDouble(bestResult.getCost()),
                 formatDouble(currentResult.getCost()),
