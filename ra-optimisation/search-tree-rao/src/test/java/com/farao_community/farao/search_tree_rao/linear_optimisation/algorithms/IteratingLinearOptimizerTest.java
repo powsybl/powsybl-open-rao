@@ -38,10 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -198,7 +195,7 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
@@ -212,23 +209,37 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void firstLinearProblemChangesSetPointButWorsenFunctionalCost() {
-        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
-        mockFunctionalCost(100., 140.);
+    void linearProblemDegradesTheSolutionButKeepsBestIteration() {
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
+        mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
-        assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
+        assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void linearProblemFluctuatesButKeepsBestIteration() {
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
+        mockFunctionalCost(100., 120., 105., 90., 100., 95.);
+        prepareLinearProblemBuilder();
+
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+
+        assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
+        assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(90, result.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(3, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -254,7 +265,7 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
-        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
@@ -272,7 +283,7 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }

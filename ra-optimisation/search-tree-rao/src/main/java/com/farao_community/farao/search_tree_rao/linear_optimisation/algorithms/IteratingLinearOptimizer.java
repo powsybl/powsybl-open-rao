@@ -55,6 +55,7 @@ public final class IteratingLinearOptimizer {
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
+            bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
             } else if (solveStatus != LinearProblemStatus.OPTIMAL) {
@@ -99,7 +100,6 @@ public final class IteratingLinearOptimizer {
                 linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
             } else {
                 logWorseResult(iteration, bestResult, currentResult);
-                bestResult.setNbOfIteration(iteration);
                 linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
             }
         }
