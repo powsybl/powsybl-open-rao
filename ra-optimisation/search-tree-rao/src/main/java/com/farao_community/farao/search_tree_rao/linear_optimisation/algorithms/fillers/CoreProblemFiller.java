@@ -259,17 +259,18 @@ public class CoreProblemFiller implements ProblemFiller {
         double minAbsoluteSetpoint = Math.max(minAndMaxAbsoluteAndRelativeSetpoints.get(0), -LinearProblem.infinity());
         double maxAbsoluteSetpoint = Math.min(minAndMaxAbsoluteAndRelativeSetpoints.get(1), LinearProblem.infinity());
         double setPointRange = Math.abs(minAbsoluteSetpoint) + Math.abs(maxAbsoluteSetpoint);
+        double constrainedSetPointRange = setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration);
         FaraoMPConstraint iterativeShrink = linearProblem.getRangeActionRelativeSetpointConstraint(rangeAction, state, "iterative_shrink");
         if (iterativeShrink != null) {
-            iterativeShrink.setLb(previousSetPointValue - setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration));
-            iterativeShrink.setUb(previousSetPointValue + setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration));
+            iterativeShrink.setLb(previousSetPointValue - constrainedSetPointRange);
+            iterativeShrink.setUb(previousSetPointValue + constrainedSetPointRange);
         } else {
             FaraoMPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
             if (setPointVariable == null) {
                 throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
             }
-            FaraoMPConstraint newIterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(-setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration) + previousSetPointValue,
-                setPointRange * Math.pow(RANGE_DIMINUTION_RATE, iteration) + previousSetPointValue, rangeAction, state, "iterative_shrink");
+            FaraoMPConstraint newIterativeShrink = linearProblem.addRangeActionRelativeSetpointConstraint(-constrainedSetPointRange + previousSetPointValue,
+                constrainedSetPointRange + previousSetPointValue, rangeAction, state, "iterative_shrink");
             newIterativeShrink.setCoefficient(setPointVariable, 1);
         }
     }
