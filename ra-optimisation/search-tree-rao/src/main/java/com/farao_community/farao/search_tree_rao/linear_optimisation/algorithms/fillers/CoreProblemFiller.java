@@ -244,7 +244,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private void updateRangeActionConstraints(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        iteration += 1;
+        iteration++;
         optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
