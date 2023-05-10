@@ -52,8 +52,8 @@ public class RangeActionsOptimizationParameters {
     // Refactor these names
     public enum PstVariationGradualDecrease {
         DISABLED,
-        FIRST_PREV_AND_CURATIVE_ONLY,
-        ALL
+        ENABLED_FOR_ALL_STATE,
+        ENABLED_FOR_FIRST_PREVENTIVE_AND_CURATIVE
     }
 
     public static class LinearOptimizationSolver {

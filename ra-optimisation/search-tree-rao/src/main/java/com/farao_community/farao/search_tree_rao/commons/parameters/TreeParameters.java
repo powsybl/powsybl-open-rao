@@ -118,7 +118,7 @@ public final class TreeParameters {
         } else {
             stopCriterion = StopCriterion.MIN_OBJECTIVE;
         }
-        boolean capPstVariation = parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.ALL);
+        boolean capPstVariation = parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.ENABLED_FOR_ALL_STATE);
         return new TreeParameters(stopCriterion,
             0.0,
             parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
