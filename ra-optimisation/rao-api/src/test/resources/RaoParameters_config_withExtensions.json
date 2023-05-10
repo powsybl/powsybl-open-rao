@@ -12,6 +12,7 @@
     "pst-penalty-cost" : 0.02,
     "pst-sensitivity-threshold" : 0.2,
     "pst-model" : "APPROXIMATED_INTEGERS",
+    "mip-model" : "DISABLED",
     "hvdc-penalty-cost" : 0.002,
     "hvdc-sensitivity-threshold" : 0.2,
     "injection-ra-penalty-cost" : 0.003,

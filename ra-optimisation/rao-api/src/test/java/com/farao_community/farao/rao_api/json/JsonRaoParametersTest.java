@@ -68,6 +68,7 @@ class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.SCIP);
         parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(1e-5);
         parameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+        parameters.getRangeActionsOptimizationParameters().setMipModel(RangeActionsOptimizationParameters.MipModel.ALL);
         // TopologicalActions optimization parameters
         parameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(10);
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);

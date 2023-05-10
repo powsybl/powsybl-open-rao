@@ -30,6 +30,7 @@ final class JsonRangeActionsOptimizationParameters {
         jsonGenerator.writeNumberField(PST_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getPstPenaltyCost());
         jsonGenerator.writeNumberField(PST_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold());
         jsonGenerator.writeObjectField(PST_MODEL, parameters.getRangeActionsOptimizationParameters().getPstModel());
+        jsonGenerator.writeObjectField(MIP_MODEL, parameters.getRangeActionsOptimizationParameters().getMipModel());
         jsonGenerator.writeNumberField(HVDC_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost());
         jsonGenerator.writeNumberField(HVDC_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold());
         jsonGenerator.writeNumberField(INJECTION_RA_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
@@ -80,6 +81,9 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     deserializeLinearOptimizationSolver(jsonParser, raoParameters);
                     break;
+                case MIP_MODEL:
+                    raoParameters.getRangeActionsOptimizationParameters().setMipModel(stringToMipModel(jsonParser.nextTextValue()));
+                    break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
             }
@@ -111,6 +115,14 @@ final class JsonRangeActionsOptimizationParameters {
             return RangeActionsOptimizationParameters.PstModel.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new FaraoException(String.format("Unknown Pst model: %s", string));
+        }
+    }
+
+    private static RangeActionsOptimizationParameters.MipModel stringToMipModel(String string) {
+        try {
+            return RangeActionsOptimizationParameters.MipModel.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown Mip model: %s", string));
         }
     }
 

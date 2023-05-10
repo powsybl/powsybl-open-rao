@@ -30,6 +30,7 @@ public class RangeActionsOptimizationParameters {
     private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
     private static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
+    private static final MipModel DEFAULT_MIP_MODEL = MipModel.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
@@ -40,11 +41,19 @@ public class RangeActionsOptimizationParameters {
     private double injectionRaPenaltyCost = DEFAULT_INJECTION_RA_PENALTY_COST;
     private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
+    private MipModel mipModel = DEFAULT_MIP_MODEL;
 
     // Enum
     public enum PstModel {
         CONTINUOUS,
         APPROXIMATED_INTEGERS
+    }
+
+    // Refactore these names
+    public enum MipModel {
+        DISABLED,
+        FIRST_PREV_AND_CURATIVE_ONLY,
+        ALL
     }
 
     public static class LinearOptimizationSolver {
@@ -171,6 +180,10 @@ public class RangeActionsOptimizationParameters {
         this.linearOptimizationSolver = linearOptimizationSolver;
     }
 
+    public void setMipModel(MipModel mipModel) {this.mipModel = mipModel;}
+
+    public MipModel getMipModel() {return mipModel;}
+
     public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         RangeActionsOptimizationParameters parameters = new RangeActionsOptimizationParameters();
@@ -184,6 +197,7 @@ public class RangeActionsOptimizationParameters {
                     parameters.setHvdcSensitivityThreshold(config.getDoubleProperty(HVDC_SENSITIVITY_THRESHOLD, DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
                     parameters.setInjectionRaPenaltyCost(config.getDoubleProperty(INJECTION_RA_PENALTY_COST, DEFAULT_INJECTION_RA_PENALTY_COST));
                     parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty(INJECTION_RA_SENSITIVITY_THRESHOLD, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
+                    parameters.setMipModel(config.getEnumProperty(MIP_MODEL, MipModel.class, DEFAULT_MIP_MODEL));
                 });
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;
