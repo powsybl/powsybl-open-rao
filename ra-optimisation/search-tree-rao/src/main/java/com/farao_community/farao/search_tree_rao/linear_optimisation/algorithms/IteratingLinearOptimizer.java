@@ -23,6 +23,7 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Locale;
+import java.util.Map;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
@@ -93,23 +94,13 @@ public final class IteratingLinearOptimizer {
                     iteration,
                     input.getObjectiveFunction()
             );
+            lastResult = currentResult;
 
-            boolean capPstVariation = parameters.getCapPstVariation();
-            if (capPstVariation) {
-                lastResult = currentResult;
-            }
-            if (currentResult.getCost() < bestResult.getCost()) {
-                logBetterResult(iteration, currentResult);
-                bestResult = currentResult;
-                linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
+            Map<Boolean, IteratingLinearOptimizationResultImpl> mipShouldStop = updateMipAndLogResult(parameters.getCapPstVariation(), linearProblem, input, iteration, currentResult, bestResult);
+            if (mipShouldStop.containsKey(Boolean.TRUE)) {
+                return bestResult;
             } else {
-                logWorseResult(iteration, bestResult, currentResult);
-                applyRangeActions(bestResult, input);
-                if (capPstVariation) {
-                    linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
-                } else {
-                    return bestResult;
-                }
+                bestResult = mipShouldStop.get(Boolean.FALSE);
             }
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
@@ -230,6 +221,26 @@ public final class IteratingLinearOptimizer {
                 previousResult,
                 parameters.getObjectiveFunctionUnit()
         );
+    }
+
+    private static Map<Boolean, IteratingLinearOptimizationResultImpl> updateMipAndLogResult(boolean capPstVariation, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
+        IteratingLinearOptimizationResultImpl newBestResult;
+        boolean mipShouldStop = false;
+        if (currentResult.getCost() < bestResult.getCost()) {
+            logBetterResult(iteration, currentResult);
+            newBestResult = currentResult;
+            linearProblem.updateBetweenSensiIteration(newBestResult.getBranchResult(), newBestResult.getSensitivityResult(), newBestResult.getRangeActionActivationResult());
+        } else {
+            newBestResult = bestResult;
+            logWorseResult(iteration, bestResult, currentResult);
+            applyRangeActions(bestResult, input);
+            if (capPstVariation) {
+                linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
+            } else {
+                mipShouldStop = true;
+            }
+        }
+        return Map.of(mipShouldStop, newBestResult);
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
