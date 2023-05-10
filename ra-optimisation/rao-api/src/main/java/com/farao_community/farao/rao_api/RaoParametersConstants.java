@@ -43,7 +43,7 @@ public final class RaoParametersConstants {
     public static final String SOLVER = "solver";
     public static final String RELATIVE_MIP_GAP = "relative-mip-gap";
     public static final String SOLVER_SPECIFIC_PARAMETERS = "solver-specific-parameters";
-    public static final String MIP_MODEL = "mip-model";
+    public static final String PST_VARIATION_GRADUAL_DECREASE = "pst-variation-gradual-decrease";
 
     // topological actions optimization parameters
     public static final String TOPOLOGICAL_ACTIONS_OPTIMIZATION = "topological-actions-optimization";

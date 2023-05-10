@@ -93,15 +93,28 @@ public final class IteratingLinearOptimizer {
                     iteration,
                     input.getObjectiveFunction()
             );
-            lastResult = currentResult;
-            if (currentResult.getCost() <= bestResult.getCost()) {
+
+            boolean capPstVariation = parameters.getCapPstVariation();
+            if (capPstVariation) {
+                lastResult = currentResult;
+                if (currentResult.getCost() <= bestResult.getCost()) {
+                    logBetterResult(iteration, currentResult);
+                    bestResult = currentResult;
+                    linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
+                } else {
+                    logWorseResult(iteration, bestResult, currentResult);
+                    applyRangeActions(bestResult, input);
+                    linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
+                }
+            } else {
+                if (currentResult.getCost() >= bestResult.getCost()) {
+                    logWorseResult(iteration, bestResult, currentResult);
+                    applyRangeActions(bestResult, input);
+                    return bestResult;
+                }
                 logBetterResult(iteration, currentResult);
                 bestResult = currentResult;
                 linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
-            } else {
-                logWorseResult(iteration, bestResult, currentResult);
-                applyRangeActions(bestResult, input);
-                linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
             }
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);

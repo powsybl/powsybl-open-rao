@@ -30,7 +30,7 @@ public class RangeActionsOptimizationParameters {
     private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
     private static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
-    private static final MipModel DEFAULT_MIP_MODEL = MipModel.DISABLED;
+    private static final PstVariationGradualDecrease DEFAULT_PST_DECREASE = PstVariationGradualDecrease.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
@@ -41,7 +41,7 @@ public class RangeActionsOptimizationParameters {
     private double injectionRaPenaltyCost = DEFAULT_INJECTION_RA_PENALTY_COST;
     private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
-    private MipModel mipModel = DEFAULT_MIP_MODEL;
+    private PstVariationGradualDecrease pstVariationGradualDecrease = DEFAULT_PST_DECREASE;
 
     // Enum
     public enum PstModel {
@@ -49,8 +49,8 @@ public class RangeActionsOptimizationParameters {
         APPROXIMATED_INTEGERS
     }
 
-    // Refactore these names
-    public enum MipModel {
+    // Refactor these names
+    public enum PstVariationGradualDecrease {
         DISABLED,
         FIRST_PREV_AND_CURATIVE_ONLY,
         ALL
@@ -180,9 +180,13 @@ public class RangeActionsOptimizationParameters {
         this.linearOptimizationSolver = linearOptimizationSolver;
     }
 
-    public void setMipModel(MipModel mipModel) {this.mipModel = mipModel;}
+    public void setPstVariationGradualDecrease(PstVariationGradualDecrease pstVariationGradualDecrease) {
+        this.pstVariationGradualDecrease = pstVariationGradualDecrease;
+    }
 
-    public MipModel getMipModel() {return mipModel;}
+    public PstVariationGradualDecrease getPstVariationGradualDecrease() {
+        return pstVariationGradualDecrease;
+    }
 
     public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
@@ -197,7 +201,7 @@ public class RangeActionsOptimizationParameters {
                     parameters.setHvdcSensitivityThreshold(config.getDoubleProperty(HVDC_SENSITIVITY_THRESHOLD, DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
                     parameters.setInjectionRaPenaltyCost(config.getDoubleProperty(INJECTION_RA_PENALTY_COST, DEFAULT_INJECTION_RA_PENALTY_COST));
                     parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty(INJECTION_RA_SENSITIVITY_THRESHOLD, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
-                    parameters.setMipModel(config.getEnumProperty(MIP_MODEL, MipModel.class, DEFAULT_MIP_MODEL));
+                    parameters.setPstVariationGradualDecrease(config.getEnumProperty(PST_VARIATION_GRADUAL_DECREASE, PstVariationGradualDecrease.class, DEFAULT_PST_DECREASE));
                 });
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;

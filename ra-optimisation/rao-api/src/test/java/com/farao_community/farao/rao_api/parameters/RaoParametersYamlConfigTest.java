@@ -52,7 +52,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         assertEquals(0.02, rangeActionsOptimizationParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.2, rangeActionsOptimizationParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParameters.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.MipModel.DISABLED, rangeActionsOptimizationParameters.getMipModel());
+        assertEquals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.DISABLED, rangeActionsOptimizationParameters.getPstVariationGradualDecrease());
         assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
@@ -143,7 +143,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         assertEquals(0.02, rangeActionsOptimizationParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.2, rangeActionsOptimizationParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParameters.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.MipModel.DISABLED, rangeActionsOptimizationParameters.getMipModel());
+        assertEquals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.DISABLED, rangeActionsOptimizationParameters.getPstVariationGradualDecrease());
         assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);
@@ -222,7 +222,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         assertEquals(0.02, rangeActionsOptimizationParameters.getPstPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.2, rangeActionsOptimizationParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, rangeActionsOptimizationParameters.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.MipModel.ALL, rangeActionsOptimizationParameters.getMipModel());
+        assertEquals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.ALL, rangeActionsOptimizationParameters.getPstVariationGradualDecrease());
         assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(0.2, rangeActionsOptimizationParameters.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);

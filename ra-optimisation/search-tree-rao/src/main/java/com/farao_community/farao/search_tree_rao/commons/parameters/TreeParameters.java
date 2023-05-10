@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 /**
@@ -29,15 +30,18 @@ public final class TreeParameters {
     private final double targetObjectiveValue;
     private final int maximumSearchDepth;
     private final int leavesInParallel;
+    private final boolean capPstVariation;
 
     public TreeParameters(StopCriterion stopCriterion,
                            double targetObjectiveValue,
                            int maximumSearchDepth,
-                           int leavesInParallel) {
+                           int leavesInParallel,
+                          boolean capPstVariation) {
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
         this.maximumSearchDepth = maximumSearchDepth;
         this.leavesInParallel = leavesInParallel;
+        this.capPstVariation = capPstVariation;
     }
 
     public StopCriterion getStopCriterion() {
@@ -56,21 +60,23 @@ public final class TreeParameters {
         return leavesInParallel;
     }
 
+    public boolean getCapPstVariation() {
+        return capPstVariation;
+    }
+
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
-        switch (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion()) {
-            case MIN_OBJECTIVE:
-                return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                        0.0, // value does not matter
-                        parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-                        parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
-            case SECURE:
-                return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        0.0, // secure
-                        parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-                        parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
-            default:
-                throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
+        StopCriterion stopCriterion = StopCriterion.MIN_OBJECTIVE;
+        if (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)) {
+            stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+        } else if (!parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE)) {
+            throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         }
+        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.DISABLED);
+        return new TreeParameters(stopCriterion,
+            0.0,
+            parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+            parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+            capPstVariation);
     }
 
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
@@ -96,24 +102,27 @@ public final class TreeParameters {
             default:
                 throw new FaraoException("Unknown curative stop criterion: " + parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         }
+        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.DISABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
                 parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-                parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
+                parameters.getMultithreadingParameters().getCurativeLeavesInParallel(),
+            capPstVariation);
     }
 
     public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {
+        StopCriterion stopCriterion;
         if (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
                 && !parameters.getObjectiveFunctionParameters().getCurativeStopCriterion().equals(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE)) {
-            return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                    0.0, // secure
-                    parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
+            stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
         } else {
-            return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
-                    0.0, // value does not matter
-                    parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
+            stopCriterion = StopCriterion.MIN_OBJECTIVE;
         }
+        boolean capPstVariation = parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.ALL);
+        return new TreeParameters(stopCriterion,
+            0.0,
+            parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+            parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+            capPstVariation);
     }
 }

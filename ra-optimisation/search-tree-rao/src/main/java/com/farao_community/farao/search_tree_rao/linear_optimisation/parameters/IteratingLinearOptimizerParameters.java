@@ -32,6 +32,7 @@ public final class IteratingLinearOptimizerParameters {
     private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
 
     private final int maxNumberOfIterations;
+    private final boolean capPstVariation;
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                RangeActionsOptimizationParameters rangeActionParameters,
@@ -41,7 +42,8 @@ public final class IteratingLinearOptimizerParameters {
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
                                                RangeActionLimitationParameters raLimitationParameters,
                                                RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
-                                               int maxNumberOfIterations) {
+                                               int maxNumberOfIterations,
+                                               boolean capPstVariation) {
         this.objectiveFunction = objectiveFunction;
         this.rangeActionParameters = rangeActionParameters;
         this.mnecParameters = mnecParameters;
@@ -51,6 +53,7 @@ public final class IteratingLinearOptimizerParameters {
         this.raLimitationParameters = raLimitationParameters;
         this.solverParameters = solverParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
+        this.capPstVariation = capPstVariation;
     }
 
     public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
@@ -110,6 +113,10 @@ public final class IteratingLinearOptimizerParameters {
         return maxNumberOfIterations;
     }
 
+    public boolean getCapPstVariation() {
+        return capPstVariation;
+    }
+
     public static LinearOptimizerParametersBuilder create() {
         return new LinearOptimizerParametersBuilder();
     }
@@ -125,6 +132,7 @@ public final class IteratingLinearOptimizerParameters {
         private RangeActionLimitationParameters raLimitationParameters;
         private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
+        private boolean capPstVariation;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
@@ -171,6 +179,11 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
+        public LinearOptimizerParametersBuilder withCapPstVariation(boolean capPstVariation) {
+            this.capPstVariation = capPstVariation;
+            return this;
+        }
+
         public IteratingLinearOptimizerParameters build() {
             if (objectiveFunction.relativePositiveMargins() && maxMinRelativeMarginParameters == null) {
                 throw new FaraoException("An objective function with relative margins requires parameters on relative margins.");
@@ -185,7 +198,8 @@ public final class IteratingLinearOptimizerParameters {
                 unoptimizedCnecParameters,
                 raLimitationParameters,
                 solverParameters,
-                maxNumberOfIterations);
+                maxNumberOfIterations,
+                capPstVariation);
         }
     }
 }
