@@ -12,7 +12,7 @@
     "pst-penalty-cost" : 10.0,
     "pst-sensitivity-threshold" : 0.2,
     "pst-model" : "APPROXIMATED_INTEGERS",
-    "pst-variation-gradual-decrease" : "ENABLED_FOR_ALL_STATE",
+    "pst-variation-gradual-decrease" : "ENABLED",
     "hvdc-penalty-cost" : 1.0,
     "hvdc-sensitivity-threshold" : 0.3,
     "injection-ra-penalty-cost" : 1.2,

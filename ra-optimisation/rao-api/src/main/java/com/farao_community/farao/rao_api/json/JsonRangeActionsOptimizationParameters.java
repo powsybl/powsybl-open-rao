@@ -118,9 +118,9 @@ final class JsonRangeActionsOptimizationParameters {
         }
     }
 
-    private static RangeActionsOptimizationParameters.PstVariationGradualDecrease stringToPstVariationGradualDecrease(String string) {
+    private static RangeActionsOptimizationParameters.PstRangeDecrease stringToPstVariationGradualDecrease(String string) {
         try {
-            return RangeActionsOptimizationParameters.PstVariationGradualDecrease.valueOf(string);
+            return RangeActionsOptimizationParameters.PstRangeDecrease.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new FaraoException(String.format("Unknown Pst variation gradual decrease: %s", string));
         }

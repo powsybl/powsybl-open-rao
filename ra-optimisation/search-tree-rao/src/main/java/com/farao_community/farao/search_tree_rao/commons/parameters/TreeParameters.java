@@ -71,7 +71,7 @@ public final class TreeParameters {
         } else if (!parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE)) {
             throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         }
-        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.DISABLED);
+        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
         return new TreeParameters(stopCriterion,
             0.0,
             parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
@@ -102,7 +102,7 @@ public final class TreeParameters {
             default:
                 throw new FaraoException("Unknown curative stop criterion: " + parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         }
-        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.DISABLED);
+        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
                 parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
@@ -118,7 +118,7 @@ public final class TreeParameters {
         } else {
             stopCriterion = StopCriterion.MIN_OBJECTIVE;
         }
-        boolean capPstVariation = parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstVariationGradualDecrease.ENABLED_FOR_ALL_STATE);
+        boolean capPstVariation = parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
         return new TreeParameters(stopCriterion,
             0.0,
             parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
