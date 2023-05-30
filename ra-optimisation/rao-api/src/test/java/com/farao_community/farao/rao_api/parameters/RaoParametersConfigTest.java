@@ -82,7 +82,7 @@ class RaoParametersConfigTest {
         assertEquals(44, params.getPstPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(7, params.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, params.getPstModel());
-        assertEquals(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED, params.getPstVariationGradualDecrease());
+        assertEquals(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED, params.getPstRangeDecrease());
         assertEquals(33, params.getHvdcPenaltyCost(), DOUBLE_TOLERANCE);
         assertEquals(8, params.getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(22, params.getInjectionRaPenaltyCost(), DOUBLE_TOLERANCE);

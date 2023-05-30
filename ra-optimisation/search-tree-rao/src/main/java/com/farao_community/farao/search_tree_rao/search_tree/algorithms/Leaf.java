@@ -215,7 +215,7 @@ public class Leaf implements OptimizationResult {
                     .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
                     .withSolverParameters(parameters.getSolverParameters())
                     .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
-                    .withCapPstVariation(parameters.getTreeParameters().getCapPstVariation())
+                    .withPstRangeDecrease(parameters.getTreeParameters().getDecreasePstRange())
                     .build();
 
             postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);

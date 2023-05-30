@@ -28,7 +28,7 @@ class TreeParametersTest {
         raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(6);
         raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(4);
         raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(2);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
     }
 
     @Test
@@ -40,51 +40,51 @@ class TreeParametersTest {
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
-        assertFalse(treeParameters.getCapPstVariation());
+        assertFalse(treeParameters.getDecreasePstRange());
 
         // test with secure, and different values of the parameters
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getMultithreadingParameters().setPreventiveLeavesInParallel(8);
         raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(15);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_FOR_FIRST_PREVENTIVE_AND_CURATIVE_ONLY);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(8, treeParameters.getLeavesInParallel());
         assertEquals(15, treeParameters.getMaximumSearchDepth());
-        assertTrue(treeParameters.getCapPstVariation());
+        assertTrue(treeParameters.getDecreasePstRange());
 
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
         treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
-        assertTrue(treeParameters.getCapPstVariation());
+        assertTrue(treeParameters.getDecreasePstRange());
     }
 
     @Test
     void testCurativeMinObjective() {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(2, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
-        assertFalse(treeParameters.getCapPstVariation());
+        assertFalse(treeParameters.getDecreasePstRange());
     }
 
     @Test
     void testCurativeSecureStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
         raoParameters.getMultithreadingParameters().setCurativeLeavesInParallel(16);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_FOR_FIRST_PREVENTIVE_AND_CURATIVE_ONLY);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0., treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(16, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
-        assertTrue(treeParameters.getCapPstVariation());
+        assertTrue(treeParameters.getDecreasePstRange());
     }
 
     @Test
@@ -92,14 +92,14 @@ class TreeParametersTest {
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE);
         raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
         raoParameters.getTopoOptimizationParameters().setMaxSearchTreeDepth(0);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(65, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(2, treeParameters.getLeavesInParallel());
         assertEquals(0, treeParameters.getMaximumSearchDepth());
-        assertTrue(treeParameters.getCapPstVariation());
+        assertTrue(treeParameters.getDecreasePstRange());
     }
 
     @Test
@@ -134,36 +134,36 @@ class TreeParametersTest {
         // test with min objective
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
         TreeParameters treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
-        assertFalse(treeParameters.getCapPstVariation());
+        assertFalse(treeParameters.getDecreasePstRange());
 
         // test with secure
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.SECURE);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_FOR_FIRST_PREVENTIVE_AND_CURATIVE_ONLY);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO);
         treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
-        assertFalse(treeParameters.getCapPstVariation());
+        assertFalse(treeParameters.getDecreasePstRange());
 
         // other combinations
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);
         raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE);
-        raoParameters.getRangeActionsOptimizationParameters().setPstVariationGradualDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
         treeParameters = TreeParameters.buildForSecondPreventivePerimeter(raoParameters);
 
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         assertEquals(4, treeParameters.getLeavesInParallel());
         assertEquals(6, treeParameters.getMaximumSearchDepth());
-        assertTrue(treeParameters.getCapPstVariation());
+        assertTrue(treeParameters.getDecreasePstRange());
 
         // still another combination
         raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE);

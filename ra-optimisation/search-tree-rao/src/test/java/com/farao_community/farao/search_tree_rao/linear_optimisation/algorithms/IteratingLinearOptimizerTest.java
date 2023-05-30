@@ -99,7 +99,7 @@ class IteratingLinearOptimizerTest {
         when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
-        when(parameters.getCapPstVariation()).thenReturn(false);
+        when(parameters.getDecreasePstRange()).thenReturn(false);
 
         linearProblem = Mockito.mock(LinearProblem.class);
         network = Mockito.mock(Network.class);
@@ -217,7 +217,7 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void linearProblemDegradesTheSolutionButKeepsBestIteration() {
-        when(parameters.getCapPstVariation()).thenReturn(true);
+        when(parameters.getDecreasePstRange()).thenReturn(true);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
@@ -246,7 +246,7 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void linearProblemFluctuatesButKeepsBestIteration() {
-        when(parameters.getCapPstVariation()).thenReturn(true);
+        when(parameters.getDecreasePstRange()).thenReturn(true);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         prepareLinearProblemBuilder();
@@ -307,7 +307,7 @@ class IteratingLinearOptimizerTest {
 
     @Test
     void testUnapplyRangeAction() {
-        when(parameters.getCapPstVariation()).thenReturn(true);
+        when(parameters.getDecreasePstRange()).thenReturn(true);
         network = NetworkImportsUtil.import12NodesNetwork();
         when(input.getNetwork()).thenReturn(network);
         mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));

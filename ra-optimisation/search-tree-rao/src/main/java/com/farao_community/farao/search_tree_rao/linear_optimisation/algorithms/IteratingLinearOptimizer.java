@@ -21,9 +21,9 @@ import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOpti
 import com.farao_community.farao.search_tree_rao.result.impl.LinearProblemResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Locale;
-import java.util.Map;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
@@ -45,7 +45,7 @@ public final class IteratingLinearOptimizer {
                 0,
                 input.getObjectiveFunction());
 
-        IteratingLinearOptimizationResultImpl lastResult = bestResult;
+        IteratingLinearOptimizationResultImpl previousResult = bestResult;
 
         SensitivityComputer sensitivityComputer = null;
 
@@ -75,7 +75,7 @@ public final class IteratingLinearOptimizer {
 
             currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
 
-            if (!hasRemedialActionsChanged(currentRangeActionActivationResult, lastResult, input.getOptimizationPerimeter())) {
+            if (!hasRemedialActionsChanged(currentRangeActionActivationResult, previousResult, input.getOptimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
                 return bestResult;
@@ -94,13 +94,13 @@ public final class IteratingLinearOptimizer {
                     iteration,
                     input.getObjectiveFunction()
             );
-            lastResult = currentResult;
+            previousResult = currentResult;
 
-            Map<Boolean, IteratingLinearOptimizationResultImpl> mipShouldStop = updateMipAndLogResult(parameters.getCapPstVariation(), linearProblem, input, iteration, currentResult, bestResult);
-            if (mipShouldStop.containsKey(Boolean.TRUE)) {
+            Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getDecreasePstRange(), linearProblem, input, iteration, currentResult, bestResult);
+            if (mipShouldStop.getValue().equals(Boolean.TRUE)) {
                 return bestResult;
             } else {
-                bestResult = mipShouldStop.get(Boolean.FALSE);
+                bestResult = mipShouldStop.getKey();
             }
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
@@ -223,24 +223,18 @@ public final class IteratingLinearOptimizer {
         );
     }
 
-    private static Map<Boolean, IteratingLinearOptimizationResultImpl> updateMipAndLogResult(boolean capPstVariation, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
-        IteratingLinearOptimizationResultImpl newBestResult;
-        boolean mipShouldStop = false;
+    private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean decreasePstRange, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
         if (currentResult.getCost() < bestResult.getCost()) {
             logBetterResult(iteration, currentResult);
-            newBestResult = currentResult;
-            linearProblem.updateBetweenSensiIteration(newBestResult.getBranchResult(), newBestResult.getSensitivityResult(), newBestResult.getRangeActionActivationResult());
-        } else {
-            newBestResult = bestResult;
-            logWorseResult(iteration, bestResult, currentResult);
-            applyRangeActions(bestResult, input);
-            if (capPstVariation) {
-                linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
-            } else {
-                mipShouldStop = true;
-            }
+            linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
+            return Pair.of(currentResult, false);
         }
-        return Map.of(mipShouldStop, newBestResult);
+        logWorseResult(iteration, bestResult, currentResult);
+        applyRangeActions(bestResult, input);
+        if (decreasePstRange) {
+            linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
+        }
+        return Pair.of(bestResult, !decreasePstRange);
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {

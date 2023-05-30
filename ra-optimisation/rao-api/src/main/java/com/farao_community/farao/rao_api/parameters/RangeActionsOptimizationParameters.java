@@ -53,7 +53,7 @@ public class RangeActionsOptimizationParameters {
     public enum PstRangeDecrease {
         DISABLED,
         ENABLED,
-        ENABLED_FOR_FIRST_PREVENTIVE_AND_CURATIVE_ONLY
+        ENABLED_IN_FIRST_PRAO_AND_CRAO
     }
 
     public static class LinearOptimizationSolver {
@@ -180,11 +180,11 @@ public class RangeActionsOptimizationParameters {
         this.linearOptimizationSolver = linearOptimizationSolver;
     }
 
-    public void setPstVariationGradualDecrease(PstRangeDecrease pstVariationGradualDecrease) {
+    public void setPstRangeDecrease(PstRangeDecrease pstVariationGradualDecrease) {
         this.pstVariationGradualDecrease = pstVariationGradualDecrease;
     }
 
-    public PstRangeDecrease getPstVariationGradualDecrease() {
+    public PstRangeDecrease getPstRangeDecrease() {
         return pstVariationGradualDecrease;
     }
 
@@ -201,7 +201,7 @@ public class RangeActionsOptimizationParameters {
                     parameters.setHvdcSensitivityThreshold(config.getDoubleProperty(HVDC_SENSITIVITY_THRESHOLD, DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
                     parameters.setInjectionRaPenaltyCost(config.getDoubleProperty(INJECTION_RA_PENALTY_COST, DEFAULT_INJECTION_RA_PENALTY_COST));
                     parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty(INJECTION_RA_SENSITIVITY_THRESHOLD, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
-                    parameters.setPstVariationGradualDecrease(config.getEnumProperty(PST_VARIATION_GRADUAL_DECREASE, PstRangeDecrease.class, DEFAULT_PST_DECREASE));
+                    parameters.setPstRangeDecrease(config.getEnumProperty(PST_RANGE_DECREASE, PstRangeDecrease.class, DEFAULT_PST_DECREASE));
                 });
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;

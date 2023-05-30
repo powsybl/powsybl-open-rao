@@ -30,18 +30,18 @@ public final class TreeParameters {
     private final double targetObjectiveValue;
     private final int maximumSearchDepth;
     private final int leavesInParallel;
-    private final boolean capPstVariation;
+    private final boolean decreasePstRange;
 
     public TreeParameters(StopCriterion stopCriterion,
                            double targetObjectiveValue,
                            int maximumSearchDepth,
                            int leavesInParallel,
-                          boolean capPstVariation) {
+                          boolean decreasePstRange) {
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
         this.maximumSearchDepth = maximumSearchDepth;
         this.leavesInParallel = leavesInParallel;
-        this.capPstVariation = capPstVariation;
+        this.decreasePstRange = decreasePstRange;
     }
 
     public StopCriterion getStopCriterion() {
@@ -60,23 +60,30 @@ public final class TreeParameters {
         return leavesInParallel;
     }
 
-    public boolean getCapPstVariation() {
-        return capPstVariation;
+    public boolean getDecreasePstRange() {
+        return decreasePstRange;
     }
 
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
-        StopCriterion stopCriterion = StopCriterion.MIN_OBJECTIVE;
-        if (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)) {
-            stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
-        } else if (!parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE)) {
-            throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
+        RangeActionsOptimizationParameters.PstRangeDecrease pstRangeDecrease = parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease();
+        boolean decreasePstRange = pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
+            pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        switch (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion()) {
+            case MIN_OBJECTIVE:
+                return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
+                    0.0, // value does not matter
+                    parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+                    decreasePstRange);
+            case SECURE:
+                return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
+                    0.0, // secure
+                    parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                    parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+                    decreasePstRange);
+            default:
+                throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         }
-        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
-        return new TreeParameters(stopCriterion,
-            0.0,
-            parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-            parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-            capPstVariation);
     }
 
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
@@ -102,27 +109,31 @@ public final class TreeParameters {
             default:
                 throw new FaraoException("Unknown curative stop criterion: " + parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         }
-        boolean capPstVariation = !parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.DISABLED);
+        RangeActionsOptimizationParameters.PstRangeDecrease pstRangeDecrease = parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease();
+        boolean decreasePstRange = pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
+            pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
                 parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
                 parameters.getMultithreadingParameters().getCurativeLeavesInParallel(),
-            capPstVariation);
+            decreasePstRange);
     }
 
     public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {
-        StopCriterion stopCriterion;
+        boolean decreasePstRange = parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
         if (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
-                && !parameters.getObjectiveFunctionParameters().getCurativeStopCriterion().equals(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE)) {
-            stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+            && !parameters.getObjectiveFunctionParameters().getCurativeStopCriterion().equals(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE)) {
+            return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
+                0.0, // secure
+                parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+                decreasePstRange);
         } else {
-            stopCriterion = StopCriterion.MIN_OBJECTIVE;
+            return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
+                0.0, // value does not matter
+                parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
+                parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
+                decreasePstRange);
         }
-        boolean capPstVariation = parameters.getRangeActionsOptimizationParameters().getPstVariationGradualDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
-        return new TreeParameters(stopCriterion,
-            0.0,
-            parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
-            parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-            capPstVariation);
     }
 }
