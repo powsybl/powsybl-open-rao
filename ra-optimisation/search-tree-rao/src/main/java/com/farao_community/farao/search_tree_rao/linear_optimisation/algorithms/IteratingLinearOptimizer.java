@@ -96,11 +96,11 @@ public final class IteratingLinearOptimizer {
             );
             previousResult = currentResult;
 
-            Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getDecreasePstRange(), linearProblem, input, iteration, currentResult, bestResult);
-            if (mipShouldStop.getValue().equals(Boolean.TRUE)) {
+            Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getPstRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
+            if (mipShouldStop.getRight()) {
                 return bestResult;
             } else {
-                bestResult = mipShouldStop.getKey();
+                bestResult = mipShouldStop.getLeft();
             }
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
@@ -223,7 +223,7 @@ public final class IteratingLinearOptimizer {
         );
     }
 
-    private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean decreasePstRange, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
+    private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean pstRangeShrinking, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
         if (currentResult.getCost() < bestResult.getCost()) {
             logBetterResult(iteration, currentResult);
             linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
@@ -231,10 +231,10 @@ public final class IteratingLinearOptimizer {
         }
         logWorseResult(iteration, bestResult, currentResult);
         applyRangeActions(bestResult, input);
-        if (decreasePstRange) {
+        if (pstRangeShrinking) {
             linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
         }
-        return Pair.of(bestResult, !decreasePstRange);
+        return Pair.of(bestResult, !pstRangeShrinking);
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {

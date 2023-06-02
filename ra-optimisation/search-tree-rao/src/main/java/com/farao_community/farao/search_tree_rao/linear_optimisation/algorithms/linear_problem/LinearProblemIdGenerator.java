@@ -60,8 +60,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.PstRangeDecrease pstRangeDecrease) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + pstRangeDecrease.toString() + CONSTRAINT_SUFFIX;
+    public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.PstRangeShrinking pstRangeShrinking) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + pstRangeShrinking.toString() + CONSTRAINT_SUFFIX;
     }
 
     public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {

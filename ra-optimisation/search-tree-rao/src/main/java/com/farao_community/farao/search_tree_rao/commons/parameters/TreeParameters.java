@@ -30,18 +30,18 @@ public final class TreeParameters {
     private final double targetObjectiveValue;
     private final int maximumSearchDepth;
     private final int leavesInParallel;
-    private final boolean decreasePstRange;
+    private final boolean pstRangeShrinking;
 
     public TreeParameters(StopCriterion stopCriterion,
                            double targetObjectiveValue,
                            int maximumSearchDepth,
                            int leavesInParallel,
-                          boolean decreasePstRange) {
+                          boolean pstRangeShrinking) {
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
         this.maximumSearchDepth = maximumSearchDepth;
         this.leavesInParallel = leavesInParallel;
-        this.decreasePstRange = decreasePstRange;
+        this.pstRangeShrinking = pstRangeShrinking;
     }
 
     public StopCriterion getStopCriterion() {
@@ -60,27 +60,27 @@ public final class TreeParameters {
         return leavesInParallel;
     }
 
-    public boolean getDecreasePstRange() {
-        return decreasePstRange;
+    public boolean getPstRangeShrinking() {
+        return pstRangeShrinking;
     }
 
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
-        RangeActionsOptimizationParameters.PstRangeDecrease pstRangeDecrease = parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease();
-        boolean decreasePstRange = pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
-            pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        RangeActionsOptimizationParameters.PstRangeShrinking pstRangeShrinking = parameters.getRangeActionsOptimizationParameters().getPstRangeShrinking();
+        boolean shouldShrinkPstRange = pstRangeShrinking.equals(RangeActionsOptimizationParameters.PstRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
+            pstRangeShrinking.equals(RangeActionsOptimizationParameters.PstRangeShrinking.ENABLED);
         switch (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion()) {
             case MIN_OBJECTIVE:
                 return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
                     0.0, // value does not matter
                     parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
                     parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-                    decreasePstRange);
+                    shouldShrinkPstRange);
             case SECURE:
                 return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                     0.0, // secure
                     parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
                     parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-                    decreasePstRange);
+                    shouldShrinkPstRange);
             default:
                 throw new FaraoException("Unknown preventive stop criterion: " + parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
         }
@@ -109,31 +109,31 @@ public final class TreeParameters {
             default:
                 throw new FaraoException("Unknown curative stop criterion: " + parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
         }
-        RangeActionsOptimizationParameters.PstRangeDecrease pstRangeDecrease = parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease();
-        boolean decreasePstRange = pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
-            pstRangeDecrease.equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        RangeActionsOptimizationParameters.PstRangeShrinking pstRangeShrinking = parameters.getRangeActionsOptimizationParameters().getPstRangeShrinking();
+        boolean shouldShrinkPstRange = pstRangeShrinking.equals(RangeActionsOptimizationParameters.PstRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
+            pstRangeShrinking.equals(RangeActionsOptimizationParameters.PstRangeShrinking.ENABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
                 parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
                 parameters.getMultithreadingParameters().getCurativeLeavesInParallel(),
-            decreasePstRange);
+            shouldShrinkPstRange);
     }
 
     public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {
-        boolean decreasePstRange = parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease().equals(RangeActionsOptimizationParameters.PstRangeDecrease.ENABLED);
+        boolean pstRangeShrinking = parameters.getRangeActionsOptimizationParameters().getPstRangeShrinking().equals(RangeActionsOptimizationParameters.PstRangeShrinking.ENABLED);
         if (parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion().equals(ObjectiveFunctionParameters.PreventiveStopCriterion.SECURE)
             && !parameters.getObjectiveFunctionParameters().getCurativeStopCriterion().equals(ObjectiveFunctionParameters.CurativeStopCriterion.MIN_OBJECTIVE)) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure
                 parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
                 parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-                decreasePstRange);
+                pstRangeShrinking);
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
                 0.0, // value does not matter
                 parameters.getTopoOptimizationParameters().getMaxSearchTreeDepth(),
                 parameters.getMultithreadingParameters().getPreventiveLeavesInParallel(),
-                decreasePstRange);
+                pstRangeShrinking);
         }
     }
 }

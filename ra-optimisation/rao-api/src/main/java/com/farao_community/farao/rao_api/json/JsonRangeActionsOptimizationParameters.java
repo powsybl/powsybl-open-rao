@@ -30,7 +30,7 @@ final class JsonRangeActionsOptimizationParameters {
         jsonGenerator.writeNumberField(PST_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getPstPenaltyCost());
         jsonGenerator.writeNumberField(PST_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold());
         jsonGenerator.writeObjectField(PST_MODEL, parameters.getRangeActionsOptimizationParameters().getPstModel());
-        jsonGenerator.writeObjectField(PST_RANGE_DECREASE, parameters.getRangeActionsOptimizationParameters().getPstRangeDecrease());
+        jsonGenerator.writeObjectField(PST_RANGE_SHRINKING, parameters.getRangeActionsOptimizationParameters().getPstRangeShrinking());
         jsonGenerator.writeNumberField(HVDC_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost());
         jsonGenerator.writeNumberField(HVDC_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold());
         jsonGenerator.writeNumberField(INJECTION_RA_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
@@ -81,8 +81,8 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     deserializeLinearOptimizationSolver(jsonParser, raoParameters);
                     break;
-                case PST_RANGE_DECREASE:
-                    raoParameters.getRangeActionsOptimizationParameters().setPstRangeDecrease(stringToPstVariationGradualDecrease(jsonParser.nextTextValue()));
+                case PST_RANGE_SHRINKING:
+                    raoParameters.getRangeActionsOptimizationParameters().setPstRangeShrinking(stringToPstRangeShrinking(jsonParser.nextTextValue()));
                     break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
@@ -118,11 +118,11 @@ final class JsonRangeActionsOptimizationParameters {
         }
     }
 
-    private static RangeActionsOptimizationParameters.PstRangeDecrease stringToPstVariationGradualDecrease(String string) {
+    private static RangeActionsOptimizationParameters.PstRangeShrinking stringToPstRangeShrinking(String string) {
         try {
-            return RangeActionsOptimizationParameters.PstRangeDecrease.valueOf(string);
+            return RangeActionsOptimizationParameters.PstRangeShrinking.valueOf(string);
         } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown Pst variation gradual decrease: %s", string));
+            throw new FaraoException(String.format("Unknown Pst variation range shrinking: %s", string));
         }
     }
 
