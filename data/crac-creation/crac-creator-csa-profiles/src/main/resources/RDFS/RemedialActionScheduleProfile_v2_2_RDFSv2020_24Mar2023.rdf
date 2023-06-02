@@ -1,0 +1,2597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+xmlns:cim="http://iec.ch/TC57/CIM100#"
+xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#"
+xmlns:dc="http://purl.org/dc/elements/1.1/#"
+xmlns:dcat="http://www.w3.org/ns/dcat#"
+xmlns:dcterms="http://purl.org/dc/terms/#"
+xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+xmlns:owl="http://www.w3.org/2002/07/owl#"
+xmlns:prof="http://www.w3.org/ns/dx/prof/#"
+xmlns:profcim="http://iec.ch/TC57/ns/CIM/prof-cim#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:sh="http://www.w3.org/ns/shacl#"
+xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
+xmlns:prov="http://www.w3.org/ns/prov#"
+xmlns:nc="http://entsoe.eu/ns/nc#"
+xmlns:euvoc="http://publications.europa.eu/ontology/euvoc#"
+xmlns:adms="http://www.w3.org/ns/adms#"
+xmlns:ras="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#"
+xml:base ="http://iec.ch/TC57/CIM100"
+>
+<!--  ********** Header **************** -->
+<!-- RDFS header -->
+<rdf:Description rdf:about = "http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Ontology">
+	<dcat:keyword>RAS</dcat:keyword>
+	<owl:priorVersion rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU/2.1"/>
+	<dcat:theme xml:lang ="en">vocabulary</dcat:theme>
+	<owl:versionIRI rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU/2.2"/>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-600-2:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-301:ed-7:amd1</dcterms:conformsTo>
+	<dcterms:conformsTo>file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-401:draft:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-501:draft:ed-2</dcterms:conformsTo>
+	<dcterms:conformsTo>file://CGMES-30v25_501-20v01.eap</dcterms:conformsTo>
+	<owl:versionInfo xml:lang ="en">2.2.0</owl:versionInfo>
+	<dcterms:creator xml:lang ="en">ENTSO-E CIM EG CSA project </dcterms:creator>
+	<dcterms:description xml:lang ="en">This vocabulary is describing the remedial action schedule profile.</dcterms:description>
+	<dcterms:identifier>urn:uuid:6e90c546-3c6c-471b-8040-e05037081c59</dcterms:identifier>
+	<dcterms:language>en-GB</dcterms:language>
+	<dcterms:license xml:lang ="en">https://www.apache.org/licenses/LICENSE-2.0</dcterms:license>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-03-24</dcterms:modified>
+	<dcterms:publisher xml:lang ="en">ENTSO-E</dcterms:publisher>
+	<dcterms:rightsHolder xml:lang ="en">ENTSO-E</dcterms:rightsHolder>
+	<dcterms:title xml:lang ="en">Remedial Action Schedule Vocabulary</dcterms:title>
+<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+</rdf:Description >
+<!-- ******************************** -->
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile">
+	<rdfs:label xml:lang="en">RemedialActionScheduleProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains remedial action schedule profile.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilityRemedialAction">
+	<rdfs:label xml:lang="en">AvailabilityRemedialAction</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Availability remedial action is a remedial action that cancels or reschedules an availability schedule.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilitySchedule.RemedialAction">
+	<rdfs:label xml:lang="en">RemedialAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action that is cancelling this availability schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#AvailabilityRemedialAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#AvailabilityRemedialAction.AvailabilitySchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilityRemedialAction.AvailabilitySchedule">
+	<rdfs:label xml:lang="en">AvailabilitySchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Availability schedule that is part of the remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AvailabilityRemedialAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule.RemedialAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilitySchedule">
+	<rdfs:label xml:lang="en">AvailabilitySchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A given (un)availability schedule with a given status and cause that include multiple equipment that need to follow the same scheduling periods.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+<cims:stereotype>Description</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilitySchedule.isCancelled">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">isCancelled</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule"/>
+	<cims:dataType rdf:resource="#Boolean"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Defines the cancelling of the availability schedule. True means that is cancelling, False means that it is not cancelling.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Boolean">
+	<rdfs:label xml:lang="en">Boolean</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A type with the value space &quot;true&quot; and &quot;false&quot;.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilitySchedule.priority">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">priority</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule"/>
+	<cims:dataType rdf:resource="#Integer"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value 0 means ignore priority. 1 means the highest priority, 2 is the second highest priority.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Integer">
+	<rdfs:label xml:lang="en">Integer</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An integer number. The range is unspecified and not limited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#BaseIrregularTimeSeries">
+	<rdfs:label xml:lang="en">BaseIrregularTimeSeries</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#BaseTimeSeries"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series that has irregular points in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#BaseTimeSeries">
+	<rdfs:label xml:lang="en">BaseTimeSeries</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series of values at points in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#BaseTimeSeries.interpolationKind">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">interpolationKind</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#BaseTimeSeries"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kind of interpolation done between time point.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind">
+	<rdfs:label xml:lang="en">TimeSeriesInterpolationKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kinds of interpolation of values between two time point. </rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none">
+	<rdfs:label xml:lang="en">none</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">No interpolation is applied.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next">
+	<rdfs:label xml:lang="en">next</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The value between two time points is set to next value.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Contingency">
+	<rdfs:label xml:lang="en">Contingency</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An event threatening system reliability, consisting of one or more contingency elements.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.Contingency">
+	<rdfs:label xml:lang="en">Contingency</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The contingency for a curative remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="#Contingency"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#Contingency.CurativeRemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#Contingency.CurativeRemedialActionSchedule">
+	<rdfs:label xml:lang="en">CurativeRemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Curative remedial action schedule linked to this contingency.</rdfs:comment>
+	<rdfs:domain rdf:resource="#Contingency"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.Contingency"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#CountertradeScheduleAction">
+	<rdfs:label xml:lang="en">CountertradeScheduleAction</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Countertrade schedule action is an action to rearrange power schedules based on a Generation and Load Shift Key (GLSK) strategy.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventSchedule">
+	<rdfs:label xml:lang="en">EventSchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#BaseIrregularTimeSeries"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series represent irregular event described by event points in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventTimePoint.EventSchedule">
+	<rdfs:label xml:lang="en">EventSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series the time point values belongs to.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#EventTimePoint"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#EventSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#EventSchedule.EventTimePoint"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventSchedule.EventTimePoint">
+	<rdfs:label xml:lang="en">EventTimePoint</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value for the point in time.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#EventSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#EventTimePoint"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#EventTimePoint.EventSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventSchedule.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule is the event that is validity for the given time series.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#EventSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.EventSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.EventSchedule">
+	<rdfs:label xml:lang="en">EventSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Event schedule that describes the validity of the remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#EventSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#EventSchedule.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventTimePoint">
+	<rdfs:label xml:lang="en">EventTimePoint</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Event valid for a given point in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventTimePoint.atTime">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">atTime</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#EventTimePoint"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The time the data is valid for.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#DateTime">
+	<rdfs:label xml:lang="en">DateTime</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date and time as &quot;yyyy-mm-ddThh:mm:ss.sss&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddThh:mm:ss.sssZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-ddThh:mm:ss.sss-hh:mm&quot;. The second component (shown here as &quot;ss.sss&quot;) could have any number of digits in its fractional part to allow any kind of precision beyond seconds.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#EventTimePoint.isActive">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">isActive</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#EventTimePoint"/>
+	<cims:dataType rdf:resource="#Boolean"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">True, if the event is occurring (Active) at this time point. Otherwise false.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueSchedule">
+	<rdfs:label xml:lang="en">GenericValueSchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#BaseIrregularTimeSeries"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series represent irregular generic value at given points in time. The type of value is given by the reference association.  </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueTimePoint.GenericValueSchedule">
+	<rdfs:label xml:lang="en">GenericValueSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series the time point values belongs to.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GenericValueTimePoint"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule.GenericValueTimePoint"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueSchedule.GenericValueTimePoint">
+	<rdfs:label xml:lang="en">GenericValueTimePoint</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value for the point in time.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#GenericValueTimePoint"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#GenericValueTimePoint.GenericValueSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueSchedule.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule which has generic value schedules.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.GenericValueSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.GenericValueSchedule">
+	<rdfs:label xml:lang="en">GenericValueSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Generic value schedule which belongs to a remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueTimePoint">
+	<rdfs:label xml:lang="en">GenericValueTimePoint</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Generic value for a given point in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueTimePoint.atTime">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">atTime</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GenericValueTimePoint"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The time the data is valid for.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GenericValueTimePoint.value">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">value</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GenericValueTimePoint"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The value at the time. The meaning of the value is defined by the derived type of the associated schedule. The value can be integer, float or boolean. In case of boolean 1 equals true and 0 equals false.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Float">
+	<rdfs:label xml:lang="en">Float</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A floating point number. The range is unspecified and not limited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GridStateAlteration">
+	<rdfs:label xml:lang="en">GridStateAlteration</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Grid state alteration is a change of values describing state (operating point) of one element in the grid model compared to the base case.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GridStateIntensitySchedule.GridStateAlteration">
+	<rdfs:label xml:lang="en">GridStateAlteration</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The grid state alteration which has intensity.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GridStateIntensitySchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#GridStateAlteration"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#GridStateAlteration.GridStateIntensitySchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GridStateAlteration.GridStateIntensitySchedule">
+	<rdfs:label xml:lang="en">GridStateIntensitySchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The intensity associated with a given GridStateAlterationSchedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GridStateAlteration"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#GridStateIntensitySchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#GridStateIntensitySchedule.GridStateAlteration"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GridStateIntensitySchedule">
+	<rdfs:label xml:lang="en">GridStateIntensitySchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#GenericValueSchedule"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Defines the intensity applied for a given grid state alteration. It is primarily used in exchanges related to the remedial action schedule. The value provided by the schedule replaces the value of the attribute to which the schedule refers to.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#GridStateIntensitySchedule.valueKind">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">valueKind</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#GridStateIntensitySchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The kind of value1 and value2 of the associated IrregularIntervalSchedule.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ValueOffsetKind">
+	<rdfs:label xml:lang="en">ValueOffsetKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The kind of the value offset.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute">
+	<rdfs:label xml:lang="en">absolute</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value of the range constraint is replacing the attribute value referenced by the PropertyReference in a determined operational scenario.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ValueOffsetKind.incremental">
+	<rdfs:label xml:lang="en">incremental</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value of the range constraint is incrementing the attribute value referenced by the PropertyReference in a determined operational scenario.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ValueOffsetKind.incrementalPercentage">
+	<rdfs:label xml:lang="en">incrementalPercentage</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value of the range constraint is incrementing in percentage the attribute value referenced by the PropertyReference in a determined operational scenario. </rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject">
+	<rdfs:label xml:lang="en">IdentifiedObject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.description">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">description</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The description is a free human readable text describing or naming the object. It may be non unique and may not correlate to a naming hierarchy.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#String">
+	<rdfs:label xml:lang="en">String</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.name">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">name</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The name is any free human readable and possibly non unique text naming the object.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerBidSchedule">
+	<rdfs:label xml:lang="en">PowerBidSchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#BaseIrregularTimeSeries"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power bid or offer related to a redispatch or countertrading measures. In the case of market place for economic efficiency of the bids and offers, this is equivalent to BidTimeSeries class in 62325 package.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerScheduleAction.PowerBidSchedule">
+	<rdfs:label xml:lang="en">PowerBidSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The power bid schedule which contains the power schedule action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerBidSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerBidSchedule.PowerSchedulelAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerBidSchedule.PowerSchedulelAction">
+	<rdfs:label xml:lang="en">PowerSchedulelAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The power schedule action pointed by the power bid schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerBidSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction.PowerBidSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSchedule">
+	<rdfs:label xml:lang="en">PowerSchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#BaseIrregularTimeSeries"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series represent irregular power, active and reactive, values at given points in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.PowerSchedule">
+	<rdfs:label xml:lang="en">PowerSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time series the time point values belongs to.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSchedule.PowerTimePoint"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSchedule.PowerTimePoint">
+	<rdfs:label xml:lang="en">PowerTimePoint</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Value for the point in time.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint.PowerSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSchedule.PowerScheduleAction">
+	<rdfs:label xml:lang="en">PowerScheduleAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power schedule action which belongs to the power schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction.PowerSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerScheduleAction.PowerSchedule">
+	<rdfs:label xml:lang="en">PowerSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power schedule which contains the power schedule action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSchedule.PowerScheduleAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerScheduleAction">
+	<rdfs:label xml:lang="en">PowerScheduleAction</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power schedule action is an action to rearrange power schedules.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerScheduleAction.currency">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">currency</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<rdfs:range rdf:resource="#Currency"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Currency the energy price is given in.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Currency">
+	<rdfs:label xml:lang="en">Currency</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Monetary currencies.  ISO 4217 standard including 3-character currency code.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AED">
+	<rdfs:label xml:lang="en">AED</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">United Arab Emirates dirham.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AFN">
+	<rdfs:label xml:lang="en">AFN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Afghan afghani.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ALL">
+	<rdfs:label xml:lang="en">ALL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Albanian lek.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AMD">
+	<rdfs:label xml:lang="en">AMD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Armenian dram.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ANG">
+	<rdfs:label xml:lang="en">ANG</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Netherlands Antillean guilder.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AOA">
+	<rdfs:label xml:lang="en">AOA</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Angolan kwanza.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ARS">
+	<rdfs:label xml:lang="en">ARS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Argentine peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AUD">
+	<rdfs:label xml:lang="en">AUD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Australian dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AWG">
+	<rdfs:label xml:lang="en">AWG</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aruban florin.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.AZN">
+	<rdfs:label xml:lang="en">AZN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Azerbaijani manat.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BAM">
+	<rdfs:label xml:lang="en">BAM</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bosnia and Herzegovina convertible mark.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BBD">
+	<rdfs:label xml:lang="en">BBD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Barbados dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BDT">
+	<rdfs:label xml:lang="en">BDT</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bangladeshi taka.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BGN">
+	<rdfs:label xml:lang="en">BGN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bulgarian lev.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BHD">
+	<rdfs:label xml:lang="en">BHD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bahraini dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BIF">
+	<rdfs:label xml:lang="en">BIF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Burundian franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BMD">
+	<rdfs:label xml:lang="en">BMD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bermudian dollar (customarily known as Bermuda dollar).</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BND">
+	<rdfs:label xml:lang="en">BND</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Brunei dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BOB">
+	<rdfs:label xml:lang="en">BOB</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boliviano.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BOV">
+	<rdfs:label xml:lang="en">BOV</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bolivian Mvdol (funds code).</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BRL">
+	<rdfs:label xml:lang="en">BRL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Brazilian real.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BSD">
+	<rdfs:label xml:lang="en">BSD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bahamian dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BTN">
+	<rdfs:label xml:lang="en">BTN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Bhutanese ngultrum.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BWP">
+	<rdfs:label xml:lang="en">BWP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Botswana pula.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BYR">
+	<rdfs:label xml:lang="en">BYR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Belarusian ruble.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.BZD">
+	<rdfs:label xml:lang="en">BZD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Belize dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CAD">
+	<rdfs:label xml:lang="en">CAD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Canadian dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CDF">
+	<rdfs:label xml:lang="en">CDF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Congolese franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CHF">
+	<rdfs:label xml:lang="en">CHF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Swiss franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CLF">
+	<rdfs:label xml:lang="en">CLF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Unidad de Fomento (funds code), Chile.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CLP">
+	<rdfs:label xml:lang="en">CLP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Chilean peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CNY">
+	<rdfs:label xml:lang="en">CNY</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Chinese yuan.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.COP">
+	<rdfs:label xml:lang="en">COP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Colombian peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.COU">
+	<rdfs:label xml:lang="en">COU</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Unidad de Valor Real.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CRC">
+	<rdfs:label xml:lang="en">CRC</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Costa Rican colon.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CUC">
+	<rdfs:label xml:lang="en">CUC</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cuban convertible peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CUP">
+	<rdfs:label xml:lang="en">CUP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cuban peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CVE">
+	<rdfs:label xml:lang="en">CVE</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cape Verde escudo.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.CZK">
+	<rdfs:label xml:lang="en">CZK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Czech koruna.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.DJF">
+	<rdfs:label xml:lang="en">DJF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Djiboutian franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.DKK">
+	<rdfs:label xml:lang="en">DKK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Danish krone.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.DOP">
+	<rdfs:label xml:lang="en">DOP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dominican peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.DZD">
+	<rdfs:label xml:lang="en">DZD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Algerian dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.EEK">
+	<rdfs:label xml:lang="en">EEK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Estonian kroon.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.EGP">
+	<rdfs:label xml:lang="en">EGP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Egyptian pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ERN">
+	<rdfs:label xml:lang="en">ERN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Eritrean nakfa.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ETB">
+	<rdfs:label xml:lang="en">ETB</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ethiopian birr.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.EUR">
+	<rdfs:label xml:lang="en">EUR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Euro.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.FJD">
+	<rdfs:label xml:lang="en">FJD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fiji dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.FKP">
+	<rdfs:label xml:lang="en">FKP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Falkland Islands pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GBP">
+	<rdfs:label xml:lang="en">GBP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Pound sterling.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GEL">
+	<rdfs:label xml:lang="en">GEL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Georgian lari.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GHS">
+	<rdfs:label xml:lang="en">GHS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ghanaian cedi.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GIP">
+	<rdfs:label xml:lang="en">GIP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gibraltar pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GMD">
+	<rdfs:label xml:lang="en">GMD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gambian dalasi.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GNF">
+	<rdfs:label xml:lang="en">GNF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Guinean franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GTQ">
+	<rdfs:label xml:lang="en">GTQ</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Guatemalan quetzal.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.GYD">
+	<rdfs:label xml:lang="en">GYD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Guyanese dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.HKD">
+	<rdfs:label xml:lang="en">HKD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hong Kong dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.HNL">
+	<rdfs:label xml:lang="en">HNL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Honduran lempira.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.HRK">
+	<rdfs:label xml:lang="en">HRK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Croatian kuna.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.HTG">
+	<rdfs:label xml:lang="en">HTG</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Haitian gourde.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.HUF">
+	<rdfs:label xml:lang="en">HUF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hungarian forint.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.IDR">
+	<rdfs:label xml:lang="en">IDR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Indonesian rupiah.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ILS">
+	<rdfs:label xml:lang="en">ILS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Israeli new sheqel.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.INR">
+	<rdfs:label xml:lang="en">INR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Indian rupee.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.IQD">
+	<rdfs:label xml:lang="en">IQD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Iraqi dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.IRR">
+	<rdfs:label xml:lang="en">IRR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Iranian rial.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ISK">
+	<rdfs:label xml:lang="en">ISK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Icelandic króna.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.JMD">
+	<rdfs:label xml:lang="en">JMD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jamaican dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.JOD">
+	<rdfs:label xml:lang="en">JOD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jordanian dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.JPY">
+	<rdfs:label xml:lang="en">JPY</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Japanese yen.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KES">
+	<rdfs:label xml:lang="en">KES</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kenyan shilling.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KGS">
+	<rdfs:label xml:lang="en">KGS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kyrgyzstani som.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KHR">
+	<rdfs:label xml:lang="en">KHR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cambodian riel.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KMF">
+	<rdfs:label xml:lang="en">KMF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Comoro franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KPW">
+	<rdfs:label xml:lang="en">KPW</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">North Korean won.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KRW">
+	<rdfs:label xml:lang="en">KRW</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">South Korean won.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KWD">
+	<rdfs:label xml:lang="en">KWD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kuwaiti dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KYD">
+	<rdfs:label xml:lang="en">KYD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cayman Islands dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.KZT">
+	<rdfs:label xml:lang="en">KZT</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kazakhstani tenge.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LAK">
+	<rdfs:label xml:lang="en">LAK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lao kip.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LBP">
+	<rdfs:label xml:lang="en">LBP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lebanese pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LKR">
+	<rdfs:label xml:lang="en">LKR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sri Lanka rupee.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LRD">
+	<rdfs:label xml:lang="en">LRD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Liberian dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LSL">
+	<rdfs:label xml:lang="en">LSL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lesotho loti.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LTL">
+	<rdfs:label xml:lang="en">LTL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lithuanian litas.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LVL">
+	<rdfs:label xml:lang="en">LVL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Latvian lats.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.LYD">
+	<rdfs:label xml:lang="en">LYD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Libyan dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MAD">
+	<rdfs:label xml:lang="en">MAD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Moroccan dirham.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MDL">
+	<rdfs:label xml:lang="en">MDL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Moldovan leu.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MGA">
+	<rdfs:label xml:lang="en">MGA</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Malagasy ariary.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MKD">
+	<rdfs:label xml:lang="en">MKD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Macedonian denar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MMK">
+	<rdfs:label xml:lang="en">MMK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Myanma kyat.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MNT">
+	<rdfs:label xml:lang="en">MNT</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mongolian tugrik.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MOP">
+	<rdfs:label xml:lang="en">MOP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Macanese pataca.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MRO">
+	<rdfs:label xml:lang="en">MRO</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mauritanian ouguiya.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MUR">
+	<rdfs:label xml:lang="en">MUR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mauritian rupee.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MVR">
+	<rdfs:label xml:lang="en">MVR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Maldivian rufiyaa.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MWK">
+	<rdfs:label xml:lang="en">MWK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Malawian kwacha.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MXN">
+	<rdfs:label xml:lang="en">MXN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mexican peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MYR">
+	<rdfs:label xml:lang="en">MYR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Malaysian ringgit.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.MZN">
+	<rdfs:label xml:lang="en">MZN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mozambican metical.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.NAD">
+	<rdfs:label xml:lang="en">NAD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Namibian dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.NGN">
+	<rdfs:label xml:lang="en">NGN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Nigerian naira.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.NIO">
+	<rdfs:label xml:lang="en">NIO</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cordoba oro.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.NOK">
+	<rdfs:label xml:lang="en">NOK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Norwegian krone.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.NPR">
+	<rdfs:label xml:lang="en">NPR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Nepalese rupee.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.NZD">
+	<rdfs:label xml:lang="en">NZD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">New Zealand dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.OMR">
+	<rdfs:label xml:lang="en">OMR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Omani rial.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PAB">
+	<rdfs:label xml:lang="en">PAB</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Panamanian balboa.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PEN">
+	<rdfs:label xml:lang="en">PEN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Peruvian nuevo sol.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PGK">
+	<rdfs:label xml:lang="en">PGK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Papua New Guinean kina.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PHP">
+	<rdfs:label xml:lang="en">PHP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Philippine peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PKR">
+	<rdfs:label xml:lang="en">PKR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Pakistani rupee.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PLN">
+	<rdfs:label xml:lang="en">PLN</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Polish zloty.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.PYG">
+	<rdfs:label xml:lang="en">PYG</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Paraguayan guaraní.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.QAR">
+	<rdfs:label xml:lang="en">QAR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Qatari rial.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.RON">
+	<rdfs:label xml:lang="en">RON</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Romanian new leu.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.RSD">
+	<rdfs:label xml:lang="en">RSD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Serbian dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.RUB">
+	<rdfs:label xml:lang="en">RUB</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Russian rouble.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.RWF">
+	<rdfs:label xml:lang="en">RWF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rwandan franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SAR">
+	<rdfs:label xml:lang="en">SAR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Saudi riyal.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SBD">
+	<rdfs:label xml:lang="en">SBD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Solomon Islands dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SCR">
+	<rdfs:label xml:lang="en">SCR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seychelles rupee.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SDG">
+	<rdfs:label xml:lang="en">SDG</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sudanese pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SEK">
+	<rdfs:label xml:lang="en">SEK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Swedish krona/kronor.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SGD">
+	<rdfs:label xml:lang="en">SGD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Singapore dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SHP">
+	<rdfs:label xml:lang="en">SHP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Saint Helena pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SLL">
+	<rdfs:label xml:lang="en">SLL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sierra Leonean leone.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SOS">
+	<rdfs:label xml:lang="en">SOS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Somali shilling.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SRD">
+	<rdfs:label xml:lang="en">SRD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Surinamese dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.STD">
+	<rdfs:label xml:lang="en">STD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">São Tomé and Príncipe dobra.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SYP">
+	<rdfs:label xml:lang="en">SYP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Syrian pound.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.SZL">
+	<rdfs:label xml:lang="en">SZL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lilangeni.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.THB">
+	<rdfs:label xml:lang="en">THB</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Thai baht.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TJS">
+	<rdfs:label xml:lang="en">TJS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tajikistani somoni.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TMT">
+	<rdfs:label xml:lang="en">TMT</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Turkmenistani manat.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TND">
+	<rdfs:label xml:lang="en">TND</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tunisian dinar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TOP">
+	<rdfs:label xml:lang="en">TOP</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tongan pa&apos;anga.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TRY">
+	<rdfs:label xml:lang="en">TRY</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Turkish lira.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TTD">
+	<rdfs:label xml:lang="en">TTD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Trinidad and Tobago dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TWD">
+	<rdfs:label xml:lang="en">TWD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">New Taiwan dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.TZS">
+	<rdfs:label xml:lang="en">TZS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tanzanian shilling.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.UAH">
+	<rdfs:label xml:lang="en">UAH</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ukrainian hryvnia.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.UGX">
+	<rdfs:label xml:lang="en">UGX</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ugandan shilling.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.USD">
+	<rdfs:label xml:lang="en">USD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">United States dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.UYU">
+	<rdfs:label xml:lang="en">UYU</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Uruguayan peso.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.UZS">
+	<rdfs:label xml:lang="en">UZS</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Uzbekistan som.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.VEF">
+	<rdfs:label xml:lang="en">VEF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Venezuelan bolívar fuerte.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.VND">
+	<rdfs:label xml:lang="en">VND</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Vietnamese Dong.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.VUV">
+	<rdfs:label xml:lang="en">VUV</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Vanuatu vatu.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.WST">
+	<rdfs:label xml:lang="en">WST</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Samoan tala.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.XAF">
+	<rdfs:label xml:lang="en">XAF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CFA franc BEAC.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.XCD">
+	<rdfs:label xml:lang="en">XCD</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">East Caribbean dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.XOF">
+	<rdfs:label xml:lang="en">XOF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CFA Franc BCEAO.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.XPF">
+	<rdfs:label xml:lang="en">XPF</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CFP franc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.YER">
+	<rdfs:label xml:lang="en">YER</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Yemeni rial.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ZAR">
+	<rdfs:label xml:lang="en">ZAR</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">South African rand.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ZMK">
+	<rdfs:label xml:lang="en">ZMK</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Zambian kwacha.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Currency.ZWL">
+	<rdfs:label xml:lang="en">ZWL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Zimbabwe dollar.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#Currency"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerScheduleAction.energyPrice">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">energyPrice</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Energy price for the power schedule action.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Decimal">
+	<rdfs:label xml:lang="en">Decimal</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Decimal is the base-10 notational system for representing real numbers.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerScheduleAction.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule which power schedule actions.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.PowerScheduleAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.PowerScheduleAction">
+	<rdfs:label xml:lang="en">PowerScheduleAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power schedule action which belongs to a remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint">
+	<rdfs:label xml:lang="en">PowerTimePoint</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power, active and reactive, value at a given point in time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.atTime">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">atTime</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The time the data is valid for.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.p">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">p</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:dataType rdf:resource="#ActivePower"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Active power injection. Load sign convention is used, i.e. positive sign means flow out from a node.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#ActivePower">
+	<rdfs:label xml:lang="en">ActivePower</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Product of RMS value of the voltage and the RMS value of the in-phase component of the current.</rdfs:comment>
+<cims:stereotype>CIMDatatype</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#ActivePower.multiplier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">multiplier</rdfs:label>
+	<rdfs:domain rdf:resource="#ActivePower"/>
+	<rdfs:range rdf:resource="#UnitMultiplier"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">M</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitMultiplier">
+	<rdfs:label xml:lang="en">UnitMultiplier</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The unit multipliers defined for the CIM.  When applied to unit symbols, the unit symbol is treated as a derived unit. Regardless of the contents of the unit symbol text, the unit symbol shall be treated as if it were a single-character unit symbol. Unit symbols should not contain multipliers, and it should be left to the multiplier to define the multiple for an entire data type. 
+
+For example, if a unit symbol is &quot;m2Pers&quot; and the multiplier is &quot;k&quot;, then the value is k(m**2/s), and the multiplier applies to the entire final value, not to any individual part of the value. This can be conceptualized by substituting a derived unit symbol for the unit type. If one imagines that the symbol &quot;Þ&quot; represents the derived unit &quot;m2Pers&quot;, then applying the multiplier &quot;k&quot; can be conceptualized simply as &quot;kÞ&quot;.
+
+For example, the SI unit for mass is &quot;kg&quot; and not &quot;g&quot;.  If the unit symbol is defined as &quot;kg&quot;, then the multiplier is applied to &quot;kg&quot; as a whole and does not replace the &quot;k&quot; in front of the &quot;g&quot;. In this case, the multiplier of &quot;m&quot; would be used with the unit symbol of &quot;kg&quot; to represent one gram.  As a text string, this violates the instructions in IEC 80000-1. However, because the unit symbol in CIM is treated as a derived unit instead of as an SI unit, it makes more sense to conceptualize the &quot;kg&quot; as if it were replaced by one of the proposed replacements for the SI mass symbol. If one imagines that the &quot;kg&quot; were replaced by a symbol &quot;Þ&quot;, then it is easier to conceptualize the multiplier &quot;m&quot; as creating the proper unit &quot;mÞ&quot;, and not the forbidden unit &quot;mkg&quot;.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitMultiplier.none">
+	<rdfs:label xml:lang="en">none</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">No multiplier or equivalently multiply by 1.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitMultiplier"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#UnitMultiplier.M">
+	<rdfs:label xml:lang="en">M</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mega 10**6.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitMultiplier"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#ActivePower.unit">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">unit</rdfs:label>
+	<rdfs:domain rdf:resource="#ActivePower"/>
+	<rdfs:range rdf:resource="#UnitSymbol"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">W</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol">
+	<rdfs:label xml:lang="en">UnitSymbol</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The derived units defined for usage in the CIM. In some cases, the derived unit is equal to an SI unit. Whenever possible, the standard derived symbol is used instead of the formula for the derived unit. For example, the unit symbol Farad is defined as &quot;F&quot; instead of &quot;CPerV&quot;. In cases where a standard symbol does not exist for a derived unit, the formula for the unit is used as the unit symbol. For example, density does not have a standard symbol and so it is represented as &quot;kgPerm3&quot;. With the exception of the &quot;kg&quot;, which is an SI unit, the unit symbols do not contain multipliers and therefore represent the base derived unit to which a multiplier can be applied as a whole. 
+Every unit symbol is treated as an unparseable text as if it were a single-letter symbol. The meaning of each unit symbol is defined by the accompanying descriptive text and not by the text contents of the unit symbol.
+To allow the widest possible range of serializations without requiring special character handling, several substitutions are made which deviate from the format described in IEC 80000-1. The division symbol &quot;/&quot; is replaced by the letters &quot;Per&quot;. Exponents are written in plain text after the unit as &quot;m3&quot; instead of being formatted as &quot;m&quot; with a superscript of 3  or introducing a symbol as in &quot;m^3&quot;. The degree symbol &quot;°&quot; is replaced with the letters &quot;deg&quot;. Any clarification of the meaning for a substitution is included in the description for the unit symbol.
+Non-SI units are included in list of unit symbols to allow sources of data to be correctly labelled with their non-SI units (for example, a GPS sensor that is reporting numbers that represent feet instead of meters). This allows software to use the unit symbol information correctly convert and scale the raw data of those sources into SI-based units. 
+The integer values are used for harmonization with IEC 61850.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol.s">
+	<rdfs:label xml:lang="en">s</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time in seconds.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitSymbol"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol.W">
+	<rdfs:label xml:lang="en">W</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Real power in watts (J/s). Electrical power may have real and reactive components. The real portion of electrical power (I&amp;#178;R or VIcos(phi)), is expressed in Watts. See also apparent power and reactive power.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitSymbol"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol.VAr">
+	<rdfs:label xml:lang="en">VAr</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Reactive power in volt amperes reactive. The “reactive” or “imaginary” component of electrical power (VIsin(phi)). (See also real power and apparent power).
+Note: Different meter designs use different methods to arrive at their results. Some meters may compute reactive power as an arithmetic value, while others compute the value vectorially. The data consumer should determine the method in use and the suitability of the measurement for the intended purpose.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitSymbol"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol.Wh">
+	<rdfs:label xml:lang="en">Wh</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Real energy in watt hours.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitSymbol"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#ActivePower.value">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">value</rdfs:label>
+	<rdfs:domain rdf:resource="#ActivePower"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.price">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">price</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Price for the scheduled active power per unit of active power. e.g. per MW.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.q">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">q</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:dataType rdf:resource="#ReactivePower"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Reactive power injection. Load sign convention is used, i.e. positive sign means flow out from a node.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#ReactivePower">
+	<rdfs:label xml:lang="en">ReactivePower</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Product of RMS value of the voltage and the RMS value of the quadrature component of the current.</rdfs:comment>
+<cims:stereotype>CIMDatatype</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#ReactivePower.value">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">value</rdfs:label>
+	<rdfs:domain rdf:resource="#ReactivePower"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#ReactivePower.unit">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">unit</rdfs:label>
+	<rdfs:domain rdf:resource="#ReactivePower"/>
+	<rdfs:range rdf:resource="#UnitSymbol"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">VAr</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#ReactivePower.multiplier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">multiplier</rdfs:label>
+	<rdfs:domain rdf:resource="#ReactivePower"/>
+	<rdfs:range rdf:resource="#UnitMultiplier"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">M</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.activatedP">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">activatedP</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:dataType rdf:resource="#ActivePower"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Active power activated as part of redispatch. Negative number means that the value is scheduling down. Positive number means that the value is scheduling up.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerTimePoint.activatedPrice">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">activatedPrice</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerTimePoint"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Price for the activated active power per unit e.g. per MW.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare">
+	<rdfs:label xml:lang="en">ProposingRemedialActionScheduleShare</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Proposing entity (System Operator) with a proper cost share for a given remedial action schedule.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare.costSharingFactor">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">costSharingFactor</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sharing factor of the cost of the remedial action as a  fraction of the total cost, i.e. system operator&apos;s cost = cost x (costSharingFactor / sum of all costSharingFactor).</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule proposed by the proposing entity.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.ProposingRemedialActionScheduleShare"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.ProposingRemedialActionScheduleShare">
+	<rdfs:label xml:lang="en">ProposingRemedialActionScheduleShare</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The entity with its associated share that are making the proposal of the remedial action schedule</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare.ProposingEntity">
+	<rdfs:label xml:lang="en">ProposingEntity</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Proposing entity making the proposing remedial action schedule share.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SystemOperator.ProposingRemedialActionScheduleShare"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator.ProposingRemedialActionScheduleShare">
+	<rdfs:label xml:lang="en">ProposingRemedialActionScheduleShare</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Proposing remedial action schedule share which is made by the proposing entity.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#ProposingRemedialActionScheduleShare.ProposingEntity"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RedispatchScheduleAction">
+	<rdfs:label xml:lang="en">RedispatchScheduleAction</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#PowerScheduleAction"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Redispatch schedule action is an action to rearrange power schedules for a scheduled resource to obtain a feasible and secure operational state of the power electricity system.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RedispatchScheduleAction.ScheduleResource">
+	<rdfs:label xml:lang="en">ScheduleResource</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The schedule resource that has this redispatch action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RedispatchScheduleAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#ScheduleResource"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#ScheduleResource.RedispatchAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ScheduleResource.RedispatchAction">
+	<rdfs:label xml:lang="en">RedispatchAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The redispatch action that relates to this schedule resource.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#ScheduleResource"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RedispatchScheduleAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RedispatchScheduleAction.ScheduleResource"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialAction">
+	<rdfs:label xml:lang="en">RemedialAction</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action describes one or more actions that can be performed on a given power system model situation to eliminate one or more identified breaches of constraints. The remedial action can be costly, and have a cost characteristic, or non costly. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialAction">
+	<rdfs:label xml:lang="en">RemedialAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action that has a remedial action schedule associated.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialAction.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialAction.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action schedule associated with a remedial action, i.e. the assigning a schedule to a remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost">
+	<rdfs:label xml:lang="en">RemedialActionCost</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action cost is the total cost itemised cost by category and type for the remedial action.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.kind">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">kind</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#CostSettledKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action cost category related to the confirmation of the cost in regards to changes.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#CostSettledKind">
+	<rdfs:label xml:lang="en">CostSettledKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kind describing how settled the cost is in regards to changes.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#CostSettledKind.indicative">
+	<rdfs:label xml:lang="en">indicative</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Indicative cost.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#CostSettledKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#CostSettledKind.provisional">
+	<rdfs:label xml:lang="en">provisional</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Provisional cost.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#CostSettledKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#CostSettledKind.final">
+	<rdfs:label xml:lang="en">final</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Final cost. For instance, the cost is not expected to be changed on a later stage.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#CostSettledKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.startupCost">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">startupCost</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Start-up cost is the total cost for activating the remedial action, e.g. if a generator needs to be started before it can perform the remedial action.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.shutdownCost">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">shutdownCost</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Shutdown cost is the total cost for shutting down a unit as part of the remedial action.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.opportunityCost">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">opportunityCost</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Opportunity cost is the total cost of potential earning that is missed due to performing the remedial action.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.operationalCost">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">operationalCost</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Operational cost is the total cost directly related to operate the unit according to the remedial action, e.g. fuel cost.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.processingFee">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">processingFee</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Processing fee is the total cost for processing the remedial action.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.otherCost">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">otherCost</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Other cost is the total cost that cannot be directly allocated to any of the other items.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.savedFuelCost">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">savedFuelCost</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#Decimal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Saved fuel cost is the total saving due to not consuming the expected fuel as part of the remedial action.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.costAllocationTime">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">costAllocationTime</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cost allocation time is the time the cost shall be allocated.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionCost.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule for which this remedial action cost relates to.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionCost"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionCost">
+	<rdfs:label xml:lang="en">RemedialActionCost</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action cost related to this remedial schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionCost.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A schedule for a determined remedial action.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.statusKind">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">statusKind</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Indicates the status kind for the remedial action schedule.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind">
+	<rdfs:label xml:lang="en">RemedialActionScheduleStatusKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule status kinds.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.proposed">
+	<rdfs:label xml:lang="en">proposed</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Proposed remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.agreed">
+	<rdfs:label xml:lang="en">agreed</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Agreed remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.rejected">
+	<rdfs:label xml:lang="en">rejected</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rejected remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.ordered">
+	<rdfs:label xml:lang="en">ordered</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ordered remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.previouslyAgreed">
+	<rdfs:label xml:lang="en">previouslyAgreed</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Previously agreed remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.notUsed">
+	<rdfs:label xml:lang="en">notUsed</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Not used remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.agreementValidated">
+	<rdfs:label xml:lang="en">agreementValidated</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The agreement is validated for the remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.rejectionValidated">
+	<rdfs:label xml:lang="en">rejectionValidated</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The rejection is validated for the remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.implemented">
+	<rdfs:label xml:lang="en">implemented</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An ordered remedial action is implemented.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.activated">
+	<rdfs:label xml:lang="en">activated</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Activated remedial action schedule.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.statusReason">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">statusReason</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Description of reasoning for the status. For instance, in case of rejected remedial action, the reason for this rejection is described here.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.totalCostCurrency">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">totalCostCurrency</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="#Currency"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The currency of the total cost.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#Region.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action schedule relevant for this region.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#Region"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.AssignedRegion"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.AssignedRegion">
+	<rdfs:label xml:lang="en">AssignedRegion</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The assigned region for this remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#Region"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#Region.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A remedial action schedule for which a remedial action schedule acceptance is reported.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionScheduleAcceptance"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionScheduleAcceptance">
+	<rdfs:label xml:lang="en">RemedialActionScheduleAcceptance</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action schedule acceptance related to a remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.ProposingEntity">
+	<rdfs:label xml:lang="en">ProposingEntity</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The security coordinator that is proposing this remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SecurityCoordinator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SecurityCoordinator.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SecurityCoordinator.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule for this security coordinator.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SecurityCoordinator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.ProposingEntity"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleGroup.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule included in the remedial action schedule group.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleGroup"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionScheduleGroup"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionScheduleGroup">
+	<rdfs:label xml:lang="en">RemedialActionScheduleGroup</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule group in which the remedial action schedule is allocated.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleGroup"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleGroup.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance">
+	<rdfs:label xml:lang="en">RemedialActionScheduleAcceptance</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">It identifies if the remedial action schedule is accepted for a given system operator.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance.kind">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">kind</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The kind of the remedial action acceptance.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind">
+	<rdfs:label xml:lang="en">RemedialActionScheduleAcceptanceKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The kind of acceptance for a remedial action schedule.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind.accepted">
+	<rdfs:label xml:lang="en">accepted</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The acceptance of remedial action schedule is concluded and accepted.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind.refused">
+	<rdfs:label xml:lang="en">refused</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The acceptance of the remedial action schedule is concluded and refused.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind.waiting">
+	<rdfs:label xml:lang="en">waiting</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The acceptance of the remedial action schedule is waiting (in progress).</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind.timeout">
+	<rdfs:label xml:lang="en">timeout</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The acceptance of the remedial action schedule was not completed due to timeout.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptanceKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance.SystemOperator">
+	<rdfs:label xml:lang="en">SystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A system operator for which a remedial action schedule acceptances are reported.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SystemOperator.RemedialActionScheduleAcceptance"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator.RemedialActionScheduleAcceptance">
+	<rdfs:label xml:lang="en">RemedialActionScheduleAcceptance</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule acceptance related to a system operator.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleAcceptance.SystemOperator"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleGroup">
+	<rdfs:label xml:lang="en">RemedialActionScheduleGroup</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action schedule group collects two or more remedial action schedules together. The remedial action schedule group needs to be set up for the same remedial action or proposing alternative remedial action by including a reference to another remedial action. All remedial actions in a group must have the same activation time.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheme">
+	<rdfs:label xml:lang="en">RemedialActionScheme</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial Action Scheme (RAS), Special Protection Schemes (SPS), System Protection Schemes (SPS) or System Integrity Protection Schemes (SIPS).
+A Remedial Action Scheme consists of one or more stages that can trigger and execute a protection action.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+<cims:stereotype>Description</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheme.armed">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">armed</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheme"/>
+	<cims:dataType rdf:resource="#Boolean"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Defines the arming status of the remedial action scheme. It is set by operation or by signal.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheme.ArmedRemedialAction">
+	<rdfs:label xml:lang="en">ArmedRemedialAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Armed remedial action for a remedial action scheme.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheme"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SchemeRemedialAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SchemeRemedialAction.RemedialActionScheme"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SchemeRemedialAction.RemedialActionScheme">
+	<rdfs:label xml:lang="en">RemedialActionScheme</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action scheme that has this armed remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SchemeRemedialAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheme"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheme.ArmedRemedialAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#Region">
+	<rdfs:label xml:lang="en">Region</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A region where the system operator belongs to.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ScheduleResource">
+	<rdfs:label xml:lang="en">ScheduleResource</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A schedule resource is a market-based method for handling participation of small units, particularly located on the lower voltage level that is controlled by a Distributed System Operator (DSO). It is a collection of units that can operate in the market by providing bids, offers and a resulting committed operational schedule for the collection.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SchemeRemedialAction">
+	<rdfs:label xml:lang="en">SchemeRemedialAction</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Scheme remedial action is remedial action that involves a scheme that can include conditional logic and stages of grid alteration. The primary remedial action is the arming of these schemes, that will then perform curative remedial action when the condition is met. System Integrity Protection Scheme (SIPS) and Special Protection Scheme (SPS) are example of this. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+<cims:stereotype>Description</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SecurityCoordinator">
+	<rdfs:label xml:lang="en">SecurityCoordinator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A role that coordinates the relevant remedial actions and their optimisation to ensure efficient use to achieve required operational security of the power system.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator">
+	<rdfs:label xml:lang="en">SystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">System operator.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#RealEnergy">
+	<rdfs:label xml:lang="en">RealEnergy</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Real electrical energy.</rdfs:comment>
+<cims:stereotype>CIMDatatype</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#RealEnergy.multiplier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">multiplier</rdfs:label>
+	<rdfs:domain rdf:resource="#RealEnergy"/>
+	<rdfs:range rdf:resource="#UnitMultiplier"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">M</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#RealEnergy.unit">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">unit</rdfs:label>
+	<rdfs:domain rdf:resource="#RealEnergy"/>
+	<rdfs:range rdf:resource="#UnitSymbol"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wh</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#RealEnergy.value">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">value</rdfs:label>
+	<rdfs:domain rdf:resource="#RealEnergy"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Seconds">
+	<rdfs:label xml:lang="en">Seconds</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time, in seconds.</rdfs:comment>
+<cims:stereotype>CIMDatatype</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Seconds.value">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">value</rdfs:label>
+	<rdfs:domain rdf:resource="#Seconds"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Time, in seconds</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Seconds.unit">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">unit</rdfs:label>
+	<rdfs:domain rdf:resource="#Seconds"/>
+	<rdfs:range rdf:resource="#UnitSymbol"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">s</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Seconds.multiplier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">multiplier</rdfs:label>
+	<rdfs:domain rdf:resource="#Seconds"/>
+	<rdfs:range rdf:resource="#UnitMultiplier"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">none</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Duration">
+	<rdfs:label xml:lang="en">Duration</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Duration as &quot;PnYnMnDTnHnMnS&quot; which conforms to ISO 8601, where nY expresses a number of years, nM a number of months, nD a number of days. The letter T separates the date expression from the time expression and, after it, nH identifies a number of hours, nM a number of minutes and nS a number of seconds. The number of seconds could be expressed as a decimal number, but all other numbers are integers.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_RemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_DocRemedialActionScheduleProfile">
+	<rdfs:label xml:lang="en">DocRemedialActionScheduleProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains datatypes used only in the RDFS header.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Date">
+	<rdfs:label xml:lang="en">Date</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date as &quot;yyyy-mm-dd&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-dd(+/-)hh:mm&quot;.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_DocRemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#IRI">
+	<rdfs:label xml:lang="en">IRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as rdf:resource in RDFXML.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_DocRemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringFixedLanguage">
+	<rdfs:label xml:lang="en">StringFixedLanguage</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.
+The primitive is serialized as literal without language support.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_DocRemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI">
+	<rdfs:label xml:lang="en">StringIRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as literal without language support.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_DocRemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#URL">
+	<rdfs:label xml:lang="en">URL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Uniform Resource Locator (URL), colloquially termed a web address, is a reference to a web resource that specifies its location on a computer network and a mechanism for retrieving it. A URL is a specific type of Uniform Resource Identifier (URI), although many people use the two terms interchangeably.URLs occur most commonly to reference web pages (http), but are also used for file transfer (ftp), email (mailto), database access (JDBC), and many other applications.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU#Package_DocRemedialActionScheduleProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+</rdf:RDF>

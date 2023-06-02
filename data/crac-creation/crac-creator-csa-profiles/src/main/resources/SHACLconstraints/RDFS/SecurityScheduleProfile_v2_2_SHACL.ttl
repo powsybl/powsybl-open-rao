@@ -1,0 +1,1565 @@
+@base          <http://entsoe.eu/ns/CIM/SecuritySchedule-EU/Constraints> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix cim:     <http://iec.ch/TC57/CIM100#> .
+@prefix cims:    <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix dash:    <http://datashapes.org/dash#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/#> .
+@prefix dm:      <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix eu:      <http://iec.ch/TC57/CIM100-European#> .
+@prefix eumd:    <http://entsoe.eu/ns/Metadata-European#> .
+@prefix euvoc:   <http://publications.europa.eu/ontology/euvoc#> .
+@prefix ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix prof:    <http://www.w3.org/ns/dx/prof/#> .
+@prefix profcim: <http://iec.ch/TC57/ns/CIM/prof-cim#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix ss:      <http://entsoe.eu/ns/CIM/SecuritySchedule-EU/Constraints#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+ss:EnablingTimePoint.enabled-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "EnablingTimePoint.enabled-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:EnablingTimePoint.enabled ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.virtualPositiveMargin-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AssessedElementTimePoint.virtualPositiveMargin-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        6 ;
+        sh:path         nc:AssessedElementTimePoint.virtualPositiveMargin ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.currency-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:in           ( cim:Currency.DJF cim:Currency.ZMK cim:Currency.RUB cim:Currency.BRL cim:Currency.ANG cim:Currency.RWF cim:Currency.BND cim:Currency.MNT cim:Currency.AUD cim:Currency.BOV cim:Currency.XPF cim:Currency.UZS cim:Currency.THB cim:Currency.DOP cim:Currency.GTQ cim:Currency.AED cim:Currency.SOS cim:Currency.VUV cim:Currency.VEF cim:Currency.TOP cim:Currency.IQD cim:Currency.AMD cim:Currency.AZN cim:Currency.AWG cim:Currency.DZD cim:Currency.USD cim:Currency.KMF cim:Currency.ZAR cim:Currency.MVR cim:Currency.BTN cim:Currency.SLL cim:Currency.PGK cim:Currency.LAK cim:Currency.FKP cim:Currency.NAD cim:Currency.NPR cim:Currency.ZWL cim:Currency.PKR cim:Currency.XAF cim:Currency.CAD cim:Currency.COP cim:Currency.TZS cim:Currency.BIF cim:Currency.BHD cim:Currency.MDL cim:Currency.TJS cim:Currency.BOB cim:Currency.NZD cim:Currency.LSL cim:Currency.VND cim:Currency.MGA cim:Currency.SEK cim:Currency.ERN cim:Currency.NGN cim:Currency.KES cim:Currency.ETB cim:Currency.SRD cim:Currency.MAD cim:Currency.MOP cim:Currency.IRR cim:Currency.SBD cim:Currency.JMD cim:Currency.BWP cim:Currency.CRC cim:Currency.SHP cim:Currency.UGX cim:Currency.MMK cim:Currency.SAR cim:Currency.TTD cim:Currency.HNL cim:Currency.LTL cim:Currency.ALL cim:Currency.SDG cim:Currency.CLF cim:Currency.HTG cim:Currency.KPW cim:Currency.GYD cim:Currency.GHS cim:Currency.KWD cim:Currency.NOK cim:Currency.GEL cim:Currency.BZD cim:Currency.CDF cim:Currency.EUR cim:Currency.MYR cim:Currency.SYP cim:Currency.HKD cim:Currency.BYR cim:Currency.NIO cim:Currency.JPY cim:Currency.AOA cim:Currency.LYD cim:Currency.CNY cim:Currency.ILS cim:Currency.RON cim:Currency.BGN cim:Currency.BBD cim:Currency.XCD cim:Currency.PYG cim:Currency.PLN cim:Currency.TMT cim:Currency.KGS cim:Currency.STD cim:Currency.AFN cim:Currency.MXN cim:Currency.MKD cim:Currency.MWK cim:Currency.LRD cim:Currency.JOD cim:Currency.IDR cim:Currency.HUF cim:Currency.OMR cim:Currency.UAH cim:Currency.BSD cim:Currency.KRW cim:Currency.SCR cim:Currency.RSD cim:Currency.LVL cim:Currency.TND cim:Currency.PEN cim:Currency.KYD cim:Currency.GIP cim:Currency.CUC cim:Currency.FJD cim:Currency.WST cim:Currency.KHR cim:Currency.TWD cim:Currency.CVE cim:Currency.YER cim:Currency.MRO cim:Currency.QAR cim:Currency.UYU cim:Currency.ARS cim:Currency.MZN cim:Currency.BDT cim:Currency.EGP cim:Currency.BAM cim:Currency.SZL cim:Currency.INR cim:Currency.KZT cim:Currency.CLP cim:Currency.DKK cim:Currency.ISK cim:Currency.BMD cim:Currency.CZK cim:Currency.TRY cim:Currency.GBP cim:Currency.PAB cim:Currency.EEK cim:Currency.XOF cim:Currency.COU cim:Currency.CHF cim:Currency.GNF cim:Currency.GMD cim:Currency.CUP cim:Currency.LBP cim:Currency.HRK cim:Currency.LKR cim:Currency.PHP cim:Currency.MUR cim:Currency.SGD ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "PowerBidSchedule.currency-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         nc:PowerBidSchedule.currency ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "GenericValueTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:GenericValueTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.startupCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.startupCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        13 ;
+        sh:path         nc:PowerBidSchedule.startupCost ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.ContingencySchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "ContingencyTimePoint.ContingencySchedule-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:ContingencyTimePoint.ContingencySchedule ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.startupCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.startupCost-cardinality" ;
+        sh:order        13 ;
+        sh:path         nc:PowerBidSchedule.startupCost ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AssessedElementTimePoint.atTime-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:AssessedElementTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule.GeneratingUnit-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.GeneratingUnit-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GLSKSchedule.GeneratingUnit ;
+        sh:severity     sh:Violation .
+
+ss:AvailabilityTimePoint.GenericAvailabilitySchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:GenericAvailableSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GenericAvailableSchedule" ;
+        sh:name         "AvailabilityTimePoint.GenericAvailabilitySchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:AvailabilityTimePoint.GenericAvailabilitySchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:GenericEnablingSchedule.GridStateAlteration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericEnablingSchedule.GridStateAlteration-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:GenericEnablingSchedule.GridStateAlteration ;
+        sh:severity     sh:Violation .
+
+ss:GLSKBidActionDistribution.GLSKSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:GLSKSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GLSKSchedule" ;
+        sh:name         "GLSKBidActionDistribution.GLSKSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:GLSKBidActionDistribution.GLSKSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule  rdf:type  sh:NodeShape ;
+        sh:property     ss:BaseTimeSeries.interpolationKind-cardinality , ss:PowerBidSchedule.PowerRemedialAction-cardinality , ss:BaseTimeSeries.kind-datatype , ss:PowerBidSchedule.minimumUptime-cardinality , ss:PowerBidSchedule.totalMaximumEnergy-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.description-datatype , ss:PowerBidSchedule.startupCost-cardinality , ss:PowerBidSchedule.shutdownCost-cardinality , ss:PowerBidSchedule.totalMinimumEnergy-cardinality , ido:IdentifiedObject.name-cardinality , ss:PowerBidSchedule.totalMinimumEnergy-datatype , ss:PowerBidSchedule.leadTime-datatype , ido:IdentifiedObject.name-datatype , ss:PowerBidSchedule.startupCost-datatype , ido:IdentifiedObject.mRID-datatype , ss:BaseTimeSeries.kind-cardinality , ss:PowerBidSchedule.currency-cardinality , ss:PowerBidSchedule.isOffer-cardinality , ss:PowerBidSchedule.priority-cardinality , ss:PowerBidSchedule.leadTime-cardinality , ss:PowerBidSchedule.maximumUptime-datatype , ss:PowerBidSchedule.priority-datatype , ss:PowerBidSchedule.minimumOffTime-datatype , ss:PowerBidSchedule.direction-cardinality , ss:PowerBidSchedule.isOffer-datatype , ss:BaseTimeSeries.interpolationKind-datatype , ido:IdentifiedObject.mRID-cardinality , ss:PowerBidSchedule.shutdownCost-datatype , ss:PowerBidSchedule.totalMaximumEnergy-datatype , ss:PowerBidSchedule.currency-datatype , ss:PowerBidSchedule.maximumUptime-cardinality , ss:PowerBidSchedule.minimumOffTime-cardinality , ss:PowerBidSchedule.direction-datatype , ss:PowerBidSchedule.minimumUptime-datatype ;
+        sh:targetClass  nc:PowerBidSchedule .
+
+ss:PowerBidSchedule.totalMaximumEnergy-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.totalMaximumEnergy-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        12 ;
+        sh:path         nc:PowerBidSchedule.totalMaximumEnergy ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:GenericValueTimePoint.GenericValueSchedule-valueType , ss:GenericValueTimePoint.GenericValueSchedule-cardinality , ss:GenericValueTimePoint.value-datatype , ss:GenericValueTimePoint.value-cardinality , ss:GenericValueTimePoint.atTime-datatype , ss:GenericValueTimePoint.atTime-cardinality ;
+        sh:targetClass  nc:GenericValueTimePoint .
+
+ss:AvailabilityTimePoint.GenericAvailabilitySchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityTimePoint.GenericAvailabilitySchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilityTimePoint.GenericAvailabilitySchedule ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.scannedThresholdMargin-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AssessedElementTimePoint.scannedThresholdMargin-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:AssessedElementTimePoint.scannedThresholdMargin ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint.GenericValueSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "GenericValueTimePoint.GenericValueSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:GenericValueTimePoint.GenericValueSchedule ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.maxFlow-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AssessedElementTimePoint.maxFlow-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:AssessedElementTimePoint.maxFlow ;
+        sh:severity     sh:Violation .
+
+ss:EnablingTimePoint.GenericEnablingSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:GenericEnablingSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GenericEnablingSchedule" ;
+        sh:name         "EnablingTimePoint.GenericEnablingSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:EnablingTimePoint.GenericEnablingSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:GLSKBidActionDistribution.PowerBidSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "GLSKBidActionDistribution.PowerBidSchedule-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GLSKBidActionDistribution.PowerBidSchedule ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.maxFlow-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AssessedElementTimePoint.maxFlow-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:AssessedElementTimePoint.maxFlow ;
+        sh:severity     sh:Violation .
+
+ss:ParticipationFactorTimePoint.GLSKSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "ParticipationFactorTimePoint.GLSKSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:ParticipationFactorTimePoint.GLSKSchedule ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:in           ( nc:PowerBidDependencyKind.inclusive nc:PowerBidDependencyKind.exclusive nc:PowerBidDependencyKind.restrictive ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "PowerBidDependency.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         nc:PowerBidDependency.kind ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.priority-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:integer ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.priority-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:PowerBidSchedule.priority ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.stepIncrementP-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidScheduleTimePoint.stepIncrementP-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:PowerBidScheduleTimePoint.stepIncrementP ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.virtualPositiveMargin-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AssessedElementTimePoint.virtualPositiveMargin-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:AssessedElementTimePoint.virtualPositiveMargin ;
+        sh:severity     sh:Violation .
+
+ss:AvailabilityTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityTimePoint.atTime-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilityTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:AssessedElementTimePoint.atTime-datatype , ss:AssessedElementTimePoint.appointedMargin-cardinality , ss:AssessedElementTimePoint.enabled-datatype , ss:AssessedElementTimePoint.appointedMargin-datatype , ss:AssessedElementTimePoint.scannedThresholdMargin-cardinality , ss:AssessedElementTimePoint.virtualPositiveMargin-cardinality , ss:AssessedElementTimePoint.maxFlow-datatype , ss:AssessedElementTimePoint.virtualPositiveMargin-datatype , ss:AssessedElementTimePoint.AssessedElementSchedule-valueType , ss:AssessedElementTimePoint.atTime-cardinality , ss:AssessedElementTimePoint.AssessedElementSchedule-cardinality , ss:AssessedElementTimePoint.scannedThresholdMargin-datatype , ss:AssessedElementTimePoint.maxFlow-cardinality , ss:AssessedElementTimePoint.enabled-cardinality ;
+        sh:targetClass  nc:AssessedElementTimePoint .
+
+ss:GenericEnablingSchedule.AssessedElementWithRemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericEnablingSchedule.AssessedElementWithRemedialAction-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:GenericEnablingSchedule.AssessedElementWithRemedialAction ;
+        sh:severity     sh:Violation .
+
+ss:ParticipationFactorTimePoint.participationFactor-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ParticipationFactorTimePoint.participationFactor-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:ParticipationFactorTimePoint.participationFactor ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.minimumUptime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.minimumUptime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        15 ;
+        sh:path         nc:PowerBidSchedule.minimumUptime ;
+        sh:severity     sh:Violation .
+
+ss:GLSKBidActionDistribution.GLSKSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "GLSKBidActionDistribution.GLSKSchedule-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GLSKBidActionDistribution.GLSKSchedule ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint.value-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "GenericValueTimePoint.value-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:GenericValueTimePoint.value ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.scannedThresholdMargin-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AssessedElementTimePoint.scannedThresholdMargin-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AssessedElementTimePoint.scannedThresholdMargin ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueSchedule.PowerRemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericValueSchedule.PowerRemedialAction-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GenericValueSchedule.PowerRemedialAction ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.delay-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidDependency.delay-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:PowerBidDependency.delay ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AssessedElementTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:AssessedElementTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.mustStudy-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ContingencyTimePoint.mustStudy-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:ContingencyTimePoint.mustStudy ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.totalMaximumEnergy-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.totalMaximumEnergy-cardinality" ;
+        sh:order        12 ;
+        sh:path         nc:PowerBidSchedule.totalMaximumEnergy ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueSchedule.RangeConstraint-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericValueSchedule.RangeConstraint-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GenericValueSchedule.RangeConstraint ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.description-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.AssessedElementSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:AssessedElementSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:AssessedElementSchedule" ;
+        sh:name         "AssessedElementTimePoint.AssessedElementSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:AssessedElementTimePoint.AssessedElementSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule.PowerElectronicsUnit-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.PowerElectronicsUnit-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:GLSKSchedule.PowerElectronicsUnit ;
+        sh:severity     sh:Violation .
+
+ss:ParticipationFactorTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ParticipationFactorTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:ParticipationFactorTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.maximumUptime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.maximumUptime-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:PowerBidSchedule.maximumUptime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.minimumOffTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.minimumOffTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        14 ;
+        sh:path         nc:PowerBidSchedule.minimumOffTime ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueSchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:GenericValueSchedule.RangeConstraint-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-cardinality , ss:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.mRID-cardinality , ss:GenericValueSchedule.PowerRemedialAction-cardinality , ido:IdentifiedObject.mRID-datatype , ss:BaseTimeSeries.interpolationKind-datatype , ss:BaseTimeSeries.kind-cardinality , ss:BaseTimeSeries.kind-datatype ;
+        sh:targetClass  nc:GenericValueSchedule .
+
+ss:PowerBidSchedule.shutdownCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.shutdownCost-cardinality" ;
+        sh:order        7 ;
+        sh:path         nc:PowerBidSchedule.shutdownCost ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.minimumActivationP-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidScheduleTimePoint.minimumActivationP-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:PowerBidScheduleTimePoint.minimumActivationP ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.description-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.shutdownCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.shutdownCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        7 ;
+        sh:path         nc:PowerBidSchedule.shutdownCost ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint.value-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "GenericValueTimePoint.value-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GenericValueTimePoint.value ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.minimumActivationP-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidScheduleTimePoint.minimumActivationP-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:PowerBidScheduleTimePoint.minimumActivationP ;
+        sh:severity     sh:Violation .
+
+ss:GenericEnablingSchedule.ContingencyWithRemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericEnablingSchedule.ContingencyWithRemedialAction-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GenericEnablingSchedule.ContingencyWithRemedialAction ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementSchedule.AssessedElement-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AssessedElementSchedule.AssessedElement-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AssessedElementSchedule.AssessedElement ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.mustStudy-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "ContingencyTimePoint.mustStudy-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:ContingencyTimePoint.mustStudy ;
+        sh:severity     sh:Violation .
+
+ss:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Cardinality" ;
+        sh:order    0 .
+
+ss:PowerBidScheduleTimePoint.price-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidScheduleTimePoint.price-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:PowerBidScheduleTimePoint.price ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.name-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+ss:GenericEnablingSchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:BaseTimeSeries.kind-cardinality , ido:IdentifiedObject.description-datatype , ss:GenericEnablingSchedule.AssessedElementWithRemedialAction-cardinality , ss:BaseTimeSeries.kind-datatype , ido:IdentifiedObject.mRID-datatype , ss:GenericEnablingSchedule.AssessedElementWithContingency-cardinality , ido:IdentifiedObject.name-datatype , ss:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.mRID-cardinality , ss:GenericEnablingSchedule.GridStateAlteration-cardinality , ss:GenericEnablingSchedule.ContingencyWithRemedialAction-cardinality , ido:IdentifiedObject.name-cardinality , ss:GenericEnablingSchedule.RemedialActionDependency-cardinality , ss:BaseTimeSeries.interpolationKind-datatype , ido:IdentifiedObject.description-cardinality ;
+        sh:targetClass  nc:GenericEnablingSchedule .
+
+ss:EnablingTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "EnablingTimePoint.atTime-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:EnablingTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.isOffer-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.isOffer-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:PowerBidSchedule.isOffer ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.DependentPowerBidSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerBidDependency.DependentPowerBidSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:PowerBidDependency.DependentPowerBidSchedule ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.MainPowerBidSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerBidDependency.MainPowerBidSchedule-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:PowerBidDependency.MainPowerBidSchedule ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ContingencyTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:ContingencyTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint.GenericValueSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:GenericValueSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GenericValueSchedule" ;
+        sh:name         "GenericValueTimePoint.GenericValueSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:GenericValueTimePoint.GenericValueSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:BaseTimeSeries.interpolationKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:in           ( nc:TimeSeriesInterpolationKind.next nc:TimeSeriesInterpolationKind.none nc:TimeSeriesInterpolationKind.linear ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "BaseTimeSeries.interpolationKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:BaseTimeSeries.interpolationKind ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.totalMinimumEnergy-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.totalMinimumEnergy-cardinality" ;
+        sh:order        11 ;
+        sh:path         nc:PowerBidSchedule.totalMinimumEnergy ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.price-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidScheduleTimePoint.price-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:PowerBidScheduleTimePoint.price ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.probability-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ContingencyTimePoint.probability-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:ContingencyTimePoint.probability ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "IdentifiedObject.mRID-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+ss:DatatypesGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Datatypes" ;
+        sh:order    1 .
+
+ss:PowerBidSchedule.minimumUptime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.minimumUptime-cardinality" ;
+        sh:order        15 ;
+        sh:path         nc:PowerBidSchedule.minimumUptime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.PowerRemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerBidSchedule.PowerRemedialAction-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:PowerBidSchedule.PowerRemedialAction ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidScheduleTimePoint.atTime-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:PowerBidScheduleTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.PowerBidSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerBidScheduleTimePoint.PowerBidSchedule-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:PowerBidScheduleTimePoint.PowerBidSchedule ;
+        sh:severity     sh:Violation .
+
+ss:GenericValueTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "GenericValueTimePoint.atTime-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GenericValueTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:ContingencySchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:BaseTimeSeries.interpolationKind-datatype , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-datatype , ss:BaseTimeSeries.kind-cardinality , ss:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ss:ContingencySchedule.Contingency-cardinality , ss:BaseTimeSeries.kind-datatype ;
+        sh:targetClass  nc:ContingencySchedule .
+
+ss:PowerBidDependency.DependentPowerBidSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:PowerBidSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:PowerBidSchedule" ;
+        sh:name         "PowerBidDependency.DependentPowerBidSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:PowerBidDependency.DependentPowerBidSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:BaseTimeSeries.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:in           ( nc:BaseTimeSeriesKind.schedule ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "BaseTimeSeries.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         nc:BaseTimeSeries.kind ;
+        sh:severity     sh:Violation .
+
+ss:AvailabilityTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilityTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilityTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "DatatypesIO" ;
+        sh:order    1 .
+
+ss:PowerBidSchedule.minimumOffTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.minimumOffTime-cardinality" ;
+        sh:order        14 ;
+        sh:path         nc:PowerBidSchedule.minimumOffTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.maximumUptime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.maximumUptime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        6 ;
+        sh:path         nc:PowerBidSchedule.maximumUptime ;
+        sh:severity     sh:Violation .
+
+ss:AssociationsGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Associations" ;
+        sh:order    2 .
+
+ss:PowerBidSchedule.leadTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.leadTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        10 ;
+        sh:path         nc:PowerBidSchedule.leadTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.direction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.direction-cardinality" ;
+        sh:order        16 ;
+        sh:path         nc:PowerBidSchedule.direction ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.p-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidScheduleTimePoint.p-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:PowerBidScheduleTimePoint.p ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.totalMinimumEnergy-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.totalMinimumEnergy-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        11 ;
+        sh:path         nc:PowerBidSchedule.totalMinimumEnergy ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.priority-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.priority-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:PowerBidSchedule.priority ;
+        sh:severity     sh:Violation .
+
+ss:EnablingTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "EnablingTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:EnablingTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule.EnergyBlockOrder-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.EnergyBlockOrder-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:GLSKSchedule.EnergyBlockOrder ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementSchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.mRID-datatype , ss:BaseTimeSeries.kind-cardinality , ido:IdentifiedObject.name-datatype , ss:BaseTimeSeries.interpolationKind-datatype , ss:BaseTimeSeries.interpolationKind-cardinality , ss:BaseTimeSeries.kind-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.mRID-cardinality , ss:AssessedElementSchedule.AssessedElement-cardinality , ido:IdentifiedObject.description-cardinality ;
+        sh:targetClass  nc:AssessedElementSchedule .
+
+ido:IdentifiedObject.name-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.name-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.enabled-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AssessedElementTimePoint.enabled-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:AssessedElementTimePoint.enabled ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.currency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.currency-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:PowerBidSchedule.currency ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PowerBidDependency.kind-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:PowerBidDependency.kind ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.description-cardinality , ss:BaseTimeSeries.kind-datatype , ido:IdentifiedObject.description-datatype , ss:GLSKSchedule.GeneratingUnit-cardinality , ss:BaseTimeSeries.interpolationKind-datatype , ss:GLSKSchedule.PowerElectronicsUnit-cardinality , ido:IdentifiedObject.name-cardinality , ss:GLSKSchedule.ScheduleResource-cardinality , ido:IdentifiedObject.name-datatype , ss:GLSKSchedule.EnergyBlockOrder-cardinality , ss:BaseTimeSeries.kind-cardinality , ido:IdentifiedObject.mRID-datatype , ss:GLSKSchedule.HydroPump-cardinality , ido:IdentifiedObject.mRID-cardinality , ss:BaseTimeSeries.interpolationKind-cardinality , ss:GLSKSchedule.EnergyConsumer-cardinality , ss:GLSKSchedule.EnergyGroup-cardinality ;
+        sh:targetClass  nc:GLSKSchedule .
+
+ss:AssessedElementTimePoint.appointedMargin-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AssessedElementTimePoint.appointedMargin-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:AssessedElementTimePoint.appointedMargin ;
+        sh:severity     sh:Violation .
+
+ss:GenericAvailableSchedule.RemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericAvailableSchedule.RemedialAction-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GenericAvailableSchedule.RemedialAction ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.ContingencySchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:ContingencySchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:ContingencySchedule" ;
+        sh:name         "ContingencyTimePoint.ContingencySchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         ( nc:ContingencyTimePoint.ContingencySchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule.HydroPump-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.HydroPump-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:GLSKSchedule.HydroPump ;
+        sh:severity     sh:Violation .
+
+ss:ContingencySchedule.Contingency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "ContingencySchedule.Contingency-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:ContingencySchedule.Contingency ;
+        sh:severity     sh:Violation .
+
+ss:EnablingTimePoint.GenericEnablingSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "EnablingTimePoint.GenericEnablingSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:EnablingTimePoint.GenericEnablingSchedule ;
+        sh:severity     sh:Violation .
+
+ss:EnablingTimePoint  rdf:type  sh:NodeShape ;
+        sh:property     ss:EnablingTimePoint.GenericEnablingSchedule-valueType , ss:EnablingTimePoint.GenericEnablingSchedule-cardinality , ss:EnablingTimePoint.enabled-datatype , ss:EnablingTimePoint.enabled-cardinality , ss:EnablingTimePoint.atTime-datatype , ss:EnablingTimePoint.atTime-cardinality ;
+        sh:targetClass  nc:EnablingTimePoint .
+
+ss:ContingencyTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "ContingencyTimePoint.atTime-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:ContingencyTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule.EnergyConsumer-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.EnergyConsumer-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GLSKSchedule.EnergyConsumer ;
+        sh:severity     sh:Violation .
+
+ss:GLSKBidActionDistribution
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:GLSKBidActionDistribution.PowerBidSchedule-valueType , ido:IdentifiedObject.description-cardinality , ss:GLSKBidActionDistribution.GLSKSchedule-valueType , ido:IdentifiedObject.name-cardinality , ss:GLSKBidActionDistribution.PowerBidSchedule-cardinality , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.mRID-datatype , ss:GLSKBidActionDistribution.GLSKSchedule-cardinality ;
+        sh:targetClass  nc:GLSKBidActionDistribution .
+
+ss:ParticipationFactorTimePoint.GLSKSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:GLSKSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GLSKSchedule" ;
+        sh:name         "ParticipationFactorTimePoint.GLSKSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:ParticipationFactorTimePoint.GLSKSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidScheduleTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:PowerBidScheduleTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.AssessedElementSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AssessedElementTimePoint.AssessedElementSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:AssessedElementTimePoint.AssessedElementSchedule ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.stepIncrementP-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidScheduleTimePoint.stepIncrementP-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:PowerBidScheduleTimePoint.stepIncrementP ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:PowerBidDependency.delay-datatype , ss:PowerBidDependency.kind-datatype , ss:PowerBidDependency.DependentPowerBidSchedule-cardinality , ss:PowerBidDependency.delay-cardinality , ss:PowerBidDependency.mRID-cardinality , ss:PowerBidDependency.MainPowerBidSchedule-cardinality , ss:PowerBidDependency.DependentPowerBidSchedule-valueType , ss:PowerBidDependency.kind-cardinality , ss:PowerBidDependency.mRID-datatype , ss:PowerBidDependency.MainPowerBidSchedule-valueType ;
+        sh:targetClass  nc:PowerBidDependency .
+
+ss:GenericEnablingSchedule.AssessedElementWithContingency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericEnablingSchedule.AssessedElementWithContingency-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:GenericEnablingSchedule.AssessedElementWithContingency ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.p-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidScheduleTimePoint.p-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:PowerBidScheduleTimePoint.p ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.isOffer-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidSchedule.isOffer-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        8 ;
+        sh:path         nc:PowerBidSchedule.isOffer ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint.probability-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "ContingencyTimePoint.probability-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:ContingencyTimePoint.probability ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PowerBidDependency.mRID-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:PowerBidDependency.mRID ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.MainPowerBidSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:PowerBidSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:PowerBidSchedule" ;
+        sh:name         "PowerBidDependency.MainPowerBidSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         ( nc:PowerBidDependency.MainPowerBidSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:GLSKSchedule.ScheduleResource-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.ScheduleResource-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:GLSKSchedule.ScheduleResource ;
+        sh:severity     sh:Violation .
+
+ss:EnablingTimePoint.enabled-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "EnablingTimePoint.enabled-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:EnablingTimePoint.enabled ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.enabled-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AssessedElementTimePoint.enabled-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AssessedElementTimePoint.enabled ;
+        sh:severity     sh:Violation .
+
+ss:ParticipationFactorTimePoint.participationFactor-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "ParticipationFactorTimePoint.participationFactor-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:ParticipationFactorTimePoint.participationFactor ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.leadTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidSchedule.leadTime-cardinality" ;
+        sh:order        10 ;
+        sh:path         nc:PowerBidSchedule.leadTime ;
+        sh:severity     sh:Violation .
+
+ss:ParticipationFactorTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:ParticipationFactorTimePoint.GLSKSchedule-valueType , ss:ParticipationFactorTimePoint.GLSKSchedule-cardinality , ss:ParticipationFactorTimePoint.atTime-datatype , ss:ParticipationFactorTimePoint.atTime-cardinality , ss:ParticipationFactorTimePoint.participationFactor-datatype , ss:ParticipationFactorTimePoint.participationFactor-cardinality ;
+        sh:targetClass  nc:ParticipationFactorTimePoint .
+
+ss:AvailabilityTimePoint.available-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilityTimePoint.available-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityTimePoint.available ;
+        sh:severity     sh:Violation .
+
+ss:AvailabilityTimePoint.available-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityTimePoint.available-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityTimePoint.available ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint.PowerBidSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:PowerBidSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:PowerBidSchedule" ;
+        sh:name         "PowerBidScheduleTimePoint.PowerBidSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        4 ;
+        sh:path         ( nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:GLSKBidActionDistribution.PowerBidSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ss:AssociationsGroup ;
+        sh:in           ( nc:PowerBidSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:PowerBidSchedule" ;
+        sh:name         "GLSKBidActionDistribution.PowerBidSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         ( nc:GLSKBidActionDistribution.PowerBidSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ss:ContingencyTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:ContingencyTimePoint.ContingencySchedule-valueType , ss:ContingencyTimePoint.ContingencySchedule-cardinality , ss:ContingencyTimePoint.probability-cardinality , ss:ContingencyTimePoint.atTime-cardinality , ss:ContingencyTimePoint.mustStudy-cardinality , ss:ContingencyTimePoint.atTime-datatype , ss:ContingencyTimePoint.probability-datatype , ss:ContingencyTimePoint.mustStudy-datatype ;
+        sh:targetClass  nc:ContingencyTimePoint .
+
+ss:BaseTimeSeries.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "BaseTimeSeries.kind-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:BaseTimeSeries.kind ;
+        sh:severity     sh:Violation .
+
+ss:AssessedElementTimePoint.appointedMargin-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AssessedElementTimePoint.appointedMargin-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:AssessedElementTimePoint.appointedMargin ;
+        sh:severity     sh:Violation .
+
+ss:ParticipationFactorTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "ParticipationFactorTimePoint.atTime-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:ParticipationFactorTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidScheduleTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:PowerBidScheduleTimePoint.atTime-cardinality , ss:PowerBidScheduleTimePoint.p-cardinality , ss:PowerBidScheduleTimePoint.price-datatype , ss:PowerBidScheduleTimePoint.p-datatype , ss:PowerBidScheduleTimePoint.PowerBidSchedule-valueType , ss:PowerBidScheduleTimePoint.stepIncrementP-cardinality , ss:PowerBidScheduleTimePoint.stepIncrementP-datatype , ss:PowerBidScheduleTimePoint.atTime-datatype , ss:PowerBidScheduleTimePoint.minimumActivationP-datatype , ss:PowerBidScheduleTimePoint.PowerBidSchedule-cardinality , ss:PowerBidScheduleTimePoint.minimumActivationP-cardinality , ss:PowerBidScheduleTimePoint.price-cardinality ;
+        sh:targetClass  nc:PowerBidScheduleTimePoint .
+
+ss:GenericEnablingSchedule.RemedialActionDependency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericEnablingSchedule.RemedialActionDependency-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:GenericEnablingSchedule.RemedialActionDependency ;
+        sh:severity     sh:Violation .
+
+ss:AvailabilityTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ss:AvailabilityTimePoint.GenericAvailabilitySchedule-valueType , ss:AvailabilityTimePoint.GenericAvailabilitySchedule-cardinality , ss:AvailabilityTimePoint.atTime-datatype , ss:AvailabilityTimePoint.atTime-cardinality , ss:AvailabilityTimePoint.available-datatype , ss:AvailabilityTimePoint.available-cardinality ;
+        sh:targetClass  nc:AvailabilityTimePoint .
+
+ss:PowerBidDependency.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerBidDependency.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:PowerBidDependency.mRID ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidDependency.delay-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerBidDependency.delay-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:PowerBidDependency.delay ;
+        sh:severity     sh:Violation .
+
+ss:GenericAvailableSchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ss:GenericAvailableSchedule.RemedialAction-cardinality , ss:BaseTimeSeries.kind-datatype , ss:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ss:BaseTimeSeries.interpolationKind-datatype , ss:BaseTimeSeries.kind-cardinality , ido:IdentifiedObject.mRID-cardinality ;
+        sh:targetClass  nc:GenericAvailableSchedule .
+
+ss:GLSKSchedule.EnergyGroup-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GLSKSchedule.EnergyGroup-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:GLSKSchedule.EnergyGroup ;
+        sh:severity     sh:Violation .
+
+ss:BaseTimeSeries.interpolationKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ss:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "BaseTimeSeries.interpolationKind-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:BaseTimeSeries.interpolationKind ;
+        sh:severity     sh:Violation .
+
+ss:PowerBidSchedule.direction-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ss:DatatypesGroup ;
+        sh:in           ( nc:BidDirectionKind.stable nc:BidDirectionKind.down nc:BidDirectionKind.upAndDown nc:BidDirectionKind.up ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "PowerBidSchedule.direction-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        16 ;
+        sh:path         nc:PowerBidSchedule.direction ;
+        sh:severity     sh:Violation .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityIO" ;
+        sh:order    0 .

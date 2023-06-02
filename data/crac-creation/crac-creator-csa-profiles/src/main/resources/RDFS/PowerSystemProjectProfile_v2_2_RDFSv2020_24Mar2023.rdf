@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+xmlns:cim="http://iec.ch/TC57/CIM100#"
+xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#"
+xmlns:dc="http://purl.org/dc/elements/1.1/#"
+xmlns:dcat="http://www.w3.org/ns/dcat#"
+xmlns:dcterms="http://purl.org/dc/terms/#"
+xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+xmlns:owl="http://www.w3.org/2002/07/owl#"
+xmlns:prof="http://www.w3.org/ns/dx/prof/#"
+xmlns:profcim="http://iec.ch/TC57/ns/CIM/prof-cim#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:sh="http://www.w3.org/ns/shacl#"
+xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
+xmlns:prov="http://www.w3.org/ns/prov#"
+xmlns:nc="http://entsoe.eu/ns/nc#"
+xmlns:euvoc="http://publications.europa.eu/ontology/euvoc#"
+xmlns:adms="http://www.w3.org/ns/adms#"
+xmlns:psp="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#"
+xml:base ="http://iec.ch/TC57/CIM100"
+>
+<!--  ********** Header **************** -->
+<!-- RDFS header -->
+<rdf:Description rdf:about = "http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Ontology">
+	<dcat:keyword>PSP</dcat:keyword>
+	<dcat:theme xml:lang ="en">vocabulary</dcat:theme>
+	<owl:versionIRI rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU/2.2"/>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-600-2:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-301:ed-7:amd1</dcterms:conformsTo>
+	<dcterms:conformsTo>file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-401:draft:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-501:draft:ed-2</dcterms:conformsTo>
+	<dcterms:conformsTo>file://CGMES-30v25_501-20v01.eap</dcterms:conformsTo>
+	<owl:versionInfo xml:lang ="en">2.2.0</owl:versionInfo>
+	<dcterms:creator xml:lang ="en">ENTSO-E CIM EG</dcterms:creator>
+	<dcterms:description xml:lang ="en">This vocabulary is describing the power system profile.</dcterms:description>
+	<dcterms:identifier>urn:uuid:29bfa45c-7d04-42f1-97c1-2e0f70f476a0</dcterms:identifier>
+	<dcterms:language>en-GB</dcterms:language>
+	<dcterms:license xml:lang ="en">https://www.apache.org/licenses/LICENSE-2.0</dcterms:license>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-03-24</dcterms:modified>
+	<dcterms:publisher xml:lang ="en">ENTSO-E</dcterms:publisher>
+	<dcterms:rightsHolder xml:lang ="en">ENTSO-E</dcterms:rightsHolder>
+	<dcterms:title xml:lang ="en">Power System Project Vocabulary</dcterms:title>
+<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+</rdf:Description >
+<!-- ******************************** -->
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile">
+	<rdfs:label xml:lang="en">PowerSystemProjectProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains power system project profile.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilitySchedule">
+	<rdfs:label xml:lang="en">AvailabilitySchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A given (un)availability schedule with a given status and cause that include multiple equipment that need to follow the same scheduling periods.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.AvailabilitySchedule">
+	<rdfs:label xml:lang="en">AvailabilitySchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The availability schedule associated with this power system project.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule.PowerSystemProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AvailabilitySchedule.PowerSystemProject">
+	<rdfs:label xml:lang="en">PowerSystemProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The power system project that has this availability schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AvailabilitySchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.AvailabilitySchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#DifferenceModel">
+	<rdfs:label xml:lang="en">DifferenceModel</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A set of statements describing the changes in the network model. The statement is defined in the difference model. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.DifferenceModel">
+	<rdfs:label xml:lang="en">DifferenceModel</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The difference model describing this power system project.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#DifferenceModel"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#DifferenceModel.PowerSystemProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#DifferenceModel.PowerSystemProject">
+	<rdfs:label xml:lang="en">PowerSystemProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The power system project that is described by this difference model.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#DifferenceModel"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.DifferenceModel"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject">
+	<rdfs:label xml:lang="en">PowerSystemProject</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Knowledge data for the power system project that describe the status and the planned implementation of the changes into the as-built model.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.cancelled">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">cancelled</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">From this date the project is in cancelled state. No further development will be done to the project or associated change set in this state.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#DateTime">
+	<rdfs:label xml:lang="en">DateTime</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date and time as &quot;yyyy-mm-ddThh:mm:ss.sss&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddThh:mm:ss.sssZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-ddThh:mm:ss.sss-hh:mm&quot;. The second component (shown here as &quot;ss.sss&quot;) could have any number of digits in its fractional part to allow any kind of precision beyond seconds.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.commissioned">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">commissioned</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">From this date the project is in commissioned state. Any conducting equipment in the change set can be energized from this day. No further changes will be done to the change set.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.committed">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">committed</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">From this date the project is in committed state. The change set will from this day be part of the as-build model.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.inBuild">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">inBuild</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">From this day the project is in build state. Alternative project have been evaluated. Any procurement has started and the change set is being updated to an as-build model.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.inPlan">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">inPlan</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">From this date the project is in planning state. Study or procurement strategy has triggered the start of a project involving changes to one or more models. Alternative projects and change sets are evaluated.  </rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.priority">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">priority</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#Integer"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Priority between competing project. Use 0 for do not care. Use 1 for highest priority. Use 2 as priority is less than 1 and so on.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Integer">
+	<rdfs:label xml:lang="en">Integer</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An integer number. The range is unspecified and not limited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.officialExpectedCommissioning">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">officialExpectedCommissioning</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Published official commissioning date.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.AlternativeProject">
+	<rdfs:label xml:lang="en">AlternativeProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Alternative project. Only one of the projects will be commissioned.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.PriorityProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.PriorityProject">
+	<rdfs:label xml:lang="en">PriorityProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The project that has an alternative project.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.AlternativeProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.DependentOnProject">
+	<rdfs:label xml:lang="en">DependentOnProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Grouping of projects that are depending on each other. A project can only be linked to one dependent project.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.Project"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.Project">
+	<rdfs:label xml:lang="en">Project</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The project that has a dependent on project.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.DependentOnProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.ShadowProject">
+	<rdfs:label xml:lang="en">ShadowProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A shadowing project that includes the same change set, but different timeline.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.SilhouetteProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.SilhouetteProject">
+	<rdfs:label xml:lang="en">SilhouetteProject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The project that has a shadow project.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.ShadowProject"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProject.ProjectGroup">
+	<rdfs:label xml:lang="en">ProjectGroup</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power system project group to which this project belongs.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProjectGroup"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProjectGroup.Project"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProjectGroup.Project">
+	<rdfs:label xml:lang="en">Project</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The project included in the power system project group.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProjectGroup"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProject.ProjectGroup"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#PowerSystemProjectGroup">
+	<rdfs:label xml:lang="en">PowerSystemProjectGroup</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A container with project that are grouped together. Primarily used for navigation and to highlight the phases that an overall project can go though.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#PowerSystemProjectGroup.description">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">description</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProjectGroup"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A free-text account of the resource.
+Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#String">
+	<rdfs:label xml:lang="en">String</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#PowerSystemProjectGroup.identifier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">identifier</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProjectGroup"/>
+	<cims:dataType rdf:resource="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A unique identifier of the resource being described or cataloged.
+The identifier might be used as part of the IRI of the resource, but still having it represented explicitly is useful.
+The identifier is a text string which is assigned to the resource to provide an unambiguous reference within a particular context.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI">
+	<rdfs:label xml:lang="en">StringIRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as literal without language support.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#PowerSystemProjectGroup.title">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">title</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#PowerSystemProjectGroup"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A name given to the resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://www.w3.org/ns/dcat#Resource">
+	<rdfs:label xml:lang="en">Resource</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Resource published or curated by a single agent.</rdfs:comment>
+<cims:stereotype>dcat</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://www.w3.org/ns/dcat#Resource.keyword">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">keyword</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="http://iec.ch/TC57/ns/CIM/prof-cim#StringFixedLanguage"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcat</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A keyword or tag describing a resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringFixedLanguage">
+	<rdfs:label xml:lang="en">StringFixedLanguage</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.
+The primitive is serialized as literal without language support.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.accessRights">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">accessRights</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Information about who access the resource or an indication of its security status.
+Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.conformsTo">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">conformsTo</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An established standard to which the described resource conforms.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.creator">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">creator</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An entity responsible for making the resource.
+Recommended practice is to identify the creator with a URI. If this is not possible or feasible, a literal value that identifies the creator may be provided.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.description">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">description</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A free-text account of the resource.
+Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.identifier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">identifier</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A unique identifier of the resource being described or cataloged.
+The identifier might be used as part of the IRI of the resource, but still having it represented explicitly is useful.
+The identifier is a text string which is assigned to the resource to provide an unambiguous reference within a particular context.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.issued">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">issued</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#DateTime"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date of formal issuance of the resource.
+Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.license">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">license</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A legal document under which the resource is made available.
+Recommended practice is to identify the license document with a URI. If this is not possible or feasible, a literal value that identifies the license may be provided.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.modified">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">modified</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#Date"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Most recent date on which the item was changed, updated or modified.
+Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Date">
+	<rdfs:label xml:lang="en">Date</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date as &quot;yyyy-mm-dd&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-dd(+/-)hh:mm&quot;.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.publisher">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">publisher</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An entity responsible for making the resource available.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.rights">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">rights</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.rightsHolder">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">rightsHolder</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Information about rights held in and over the resource.
+Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights. Recommended practice is to refer to a rights statement with a URI. If this is not possible or feasible, a literal value (name, label, or short text) may be provided.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://purl.org/dc/terms/#Resource.title">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">title</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcterms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A name given to the resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://www.w3.org/ns/dcat#Resource.hasVersion">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">hasVersion</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="http://iec.ch/TC57/ns/CIM/prof-cim#IRI"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcat</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This resource has a more specific, versioned resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#IRI">
+	<rdfs:label xml:lang="en">IRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as rdf:resource in RDFXML.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://www.w3.org/ns/dcat#Resource.version">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">version</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>dcat</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The version indicator (name or identifier) of a resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://www.w3.org/ns/dcat#Resource.versionNotes">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">versionNotes</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>adms</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A description of changes between this version and the previous version of the resource.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://www.w3.org/ns/dcat#Resource.isVersionOf">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">isVersionOf</rdfs:label>
+	<rdfs:domain rdf:resource="http://www.w3.org/ns/dcat#Resource"/>
+	<cims:dataType rdf:resource="http://iec.ch/TC57/ns/CIM/prof-cim#IRI"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>dcat</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A related resource of which the described resource is a version, edition, or adaptation.
+Changes in version imply substantive changes in content rather than differences in format. This property is intended to be used with non-literal values. This property is an inverse property of hasVersion.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#URL">
+	<rdfs:label xml:lang="en">URL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Uniform Resource Locator (URL), colloquially termed a web address, is a reference to a web resource that specifies its location on a computer network and a mechanism for retrieving it. A URL is a specific type of Uniform Resource Identifier (URI), although many people use the two terms interchangeably.URLs occur most commonly to reference web pages (http), but are also used for file transfer (ftp), email (mailto), database access (JDBC), and many other applications.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/PowerSystemProject-EU#Package_PowerSystemProjectProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+</rdf:RDF>

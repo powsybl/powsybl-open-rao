@@ -1,0 +1,1201 @@
+@base          <http://entsoe.eu/ns/CIM/GridDisturbance-EU/Constraints> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix cim:     <http://iec.ch/TC57/CIM100#> .
+@prefix cims:    <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix dash:    <http://datashapes.org/dash#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/#> .
+@prefix dm:      <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix eu:      <http://iec.ch/TC57/CIM100-European#> .
+@prefix eumd:    <http://entsoe.eu/ns/Metadata-European#> .
+@prefix euvoc:   <http://publications.europa.eu/ontology/euvoc#> .
+@prefix gd:      <http://entsoe.eu/ns/CIM/GridDisturbance-EU/Constraints#> .
+@prefix ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix prof:    <http://www.w3.org/ns/dx/prof/#> .
+@prefix profcim: <http://iec.ch/TC57/ns/CIM/prof-cim#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+gd:Fault.sequenceNumber-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:integer ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.sequenceNumber-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        7 ;
+        sh:path         nc:Fault.sequenceNumber ;
+        sh:severity     sh:Violation .
+
+gd:Fault.duration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.duration-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:Fault.duration ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.autoReclosingKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "UnplannedOutage.autoReclosingKind-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:UnplannedOutage.autoReclosingKind ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.InterruptedDeliveryEquipment-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Equipment ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Equipment" ;
+        sh:name         "Interruption.InterruptedDeliveryEquipment-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:Interruption.InterruptedDeliveryEquipment rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.yPosition-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PositionPoint.yPosition-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         cim:PositionPoint.yPosition ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.Outage-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:UnplannedOutage ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:UnplannedOutage" ;
+        sh:name         "FaultOutage.Outage-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         ( nc:FaultOutage.Outage rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:CoordinateSystem.crsUrn-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "CoordinateSystem.crsUrn-cardinality" ;
+        sh:order        1 ;
+        sh:path         cim:CoordinateSystem.crsUrn ;
+        sh:severity     sh:Violation .
+
+gd:Fault.FaultyEquipment-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.FaultyEquipment-cardinality" ;
+        sh:order        14 ;
+        sh:path         cim:Fault.FaultyEquipment ;
+        sh:severity     sh:Violation .
+
+gd:FaultCauseType  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality ;
+        sh:targetClass  cim:FaultCauseType .
+
+gd:Fault.isPermanent-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.isPermanent-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        8 ;
+        sh:path         nc:Fault.isPermanent ;
+        sh:severity     sh:Violation .
+
+gd:Equipment.UnplannedOutage-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Equipment.UnplannedOutage-cardinality" ;
+        sh:order        3 ;
+        sh:path         cim:Equipment.UnplannedOutage ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.Outage-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Interruption.Outage-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:Interruption.Outage ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "FaultOutage.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:FaultOutage.mRID ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.isMainFault-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "FaultOutage.isMainFault-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:FaultOutage.isMainFault ;
+        sh:severity     sh:Violation .
+
+gd:DatatypesGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Datatypes" ;
+        sh:order    1 .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityIO" ;
+        sh:order    0 .
+
+gd:UnplannedOutage.tripKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "UnplannedOutage.tripKind-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:UnplannedOutage.tripKind ;
+        sh:severity     sh:Violation .
+
+gd:Fault.faultKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.faultKind-cardinality" ;
+        sh:order        16 ;
+        sh:path         nc:Fault.faultKind ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.name-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.xPosition-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PositionPoint.xPosition-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         cim:PositionPoint.xPosition ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.energyNotSupplied-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Interruption.energyNotSupplied-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:Interruption.energyNotSupplied ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.startDateTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Interruption.startDateTime-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:Interruption.startDateTime ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.reportedStartTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "UnplannedOutage.reportedStartTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         cim:UnplannedOutage.reportedStartTime ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.Fault-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "FaultOutage.Fault-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:FaultOutage.Fault ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.startDateTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "UnplannedOutage.startDateTime-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:UnplannedOutage.startDateTime ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage  rdf:type  sh:NodeShape ;
+        sh:property     gd:FaultOutage.Outage-valueType , gd:FaultOutage.Fault-valueType , gd:FaultOutage.mRID-cardinality , gd:FaultOutage.Outage-cardinality , gd:FaultOutage.mRID-datatype , gd:FaultOutage.isMainFault-cardinality , gd:FaultOutage.isMainFault-datatype , gd:FaultOutage.Fault-cardinality ;
+        sh:targetClass  nc:FaultOutage .
+
+gd:Interruption  rdf:type  sh:NodeShape ;
+        sh:property     gd:Interruption.startDateTime-datatype , gd:Interruption.duration-datatype , ido:IdentifiedObject.name-cardinality , gd:Interruption.interruptedPower-datatype , gd:Interruption.energyNotSupplied-datatype , gd:Interruption.duration-cardinality , gd:Interruption.InterruptedDeliveryEquipment-cardinality , ido:IdentifiedObject.mRID-datatype , gd:Interruption.startDateTime-cardinality , gd:Interruption.interruptedPower-cardinality , ido:IdentifiedObject.mRID-cardinality , gd:Interruption.Outage-valueType , gd:Interruption.energyNotSupplied-cardinality , ido:IdentifiedObject.description-cardinality , gd:Interruption.Outage-cardinality , ido:IdentifiedObject.description-datatype , gd:Interruption.energyNotDelivered-cardinality , gd:Interruption.InterruptedDeliveryEquipment-valueType , ido:IdentifiedObject.name-datatype , gd:Interruption.energyNotDelivered-datatype ;
+        sh:targetClass  nc:Interruption .
+
+gd:Fault.BaseVoltage-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Fault.BaseVoltage-cardinality" ;
+        sh:order        6 ;
+        sh:path         cim:Fault.BaseVoltage ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.yPosition-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PositionPoint.yPosition-cardinality" ;
+        sh:order        0 ;
+        sh:path         cim:PositionPoint.yPosition ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.xPosition-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PositionPoint.xPosition-cardinality" ;
+        sh:order        3 ;
+        sh:path         cim:PositionPoint.xPosition ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.duration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "UnplannedOutage.duration-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:UnplannedOutage.duration ;
+        sh:severity     sh:Violation .
+
+gd:Fault.repairTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Fault.repairTime-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:Fault.repairTime ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "IdentifiedObject.mRID-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.systemUnitKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "UnplannedOutage.systemUnitKind-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:UnplannedOutage.systemUnitKind ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.InterruptedDeliveryEquipment-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "Interruption.InterruptedDeliveryEquipment-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:Interruption.InterruptedDeliveryEquipment ;
+        sh:severity     sh:Violation .
+
+gd:Fault.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( cim:PhaseConnectedFaultKind.lineToLineToGround cim:PhaseConnectedFaultKind.lineToGround cim:PhaseConnectedFaultKind.lineToLine cim:PhaseConnectedFaultKind.lineOpen ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "Fault.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        9 ;
+        sh:path         cim:Fault.kind ;
+        sh:severity     sh:Violation .
+
+gd:Fault.SystemOperator-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Fault.SystemOperator-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:Fault.SystemOperator ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.Location-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Location ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Location" ;
+        sh:name         "PositionPoint.Location-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( cim:PositionPoint.Location rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.duration-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Interruption.duration-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:Interruption.duration ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.Outage-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "FaultOutage.Outage-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:FaultOutage.Outage ;
+        sh:severity     sh:Violation .
+
+gd:Fault.isDirectlyEarthed-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.isDirectlyEarthed-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        15 ;
+        sh:path         nc:Fault.isDirectlyEarthed ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.description-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+gd:Location.CoordinateSystem-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "Location.CoordinateSystem-cardinality" ;
+        sh:order        1 ;
+        sh:path         cim:Location.CoordinateSystem ;
+        sh:severity     sh:Violation .
+
+gd:CoordinateSystem  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , gd:CoordinateSystem.crsUrn-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-cardinality , gd:CoordinateSystem.crsUrn-datatype , ido:IdentifiedObject.mRID-datatype ;
+        sh:targetClass  cim:CoordinateSystem .
+
+gd:FaultCause.FaultCauseType-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "FaultCause.FaultCauseType-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:FaultCause.FaultCauseType ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause.Fault-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "FaultCause.Fault-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:FaultCause.Fault ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "FaultOutage.mRID-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:FaultOutage.mRID ;
+        sh:severity     sh:Violation .
+
+gd:Fault.occurredDateTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.occurredDateTime-cardinality" ;
+        sh:order        17 ;
+        sh:path         cim:Fault.occurredDateTime ;
+        sh:severity     sh:Violation .
+
+gd:AssociationsGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Associations" ;
+        sh:order    2 .
+
+gd:Interruption.energyNotDelivered-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Interruption.energyNotDelivered-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:Interruption.energyNotDelivered ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.energyNotDelivered-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Interruption.energyNotDelivered-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:Interruption.energyNotDelivered ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "FaultCause.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:FaultCause.mRID ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint  rdf:type  sh:NodeShape ;
+        sh:property     gd:PositionPoint.Location-valueType , gd:PositionPoint.Location-cardinality , gd:PositionPoint.zPosition-datatype , gd:PositionPoint.xPosition-datatype , gd:PositionPoint.xPosition-cardinality , gd:PositionPoint.yPosition-cardinality , gd:PositionPoint.zPosition-cardinality , gd:PositionPoint.yPosition-datatype ;
+        sh:targetClass  cim:PositionPoint .
+
+gd:Fault  rdf:type      sh:NodeShape ;
+        sh:property     gd:Fault.isPermanent-cardinality , gd:Fault.BaseVoltage-cardinality , gd:Fault.FaultyEquipment-valueType , gd:Fault.Location-cardinality , gd:Fault.category-datatype , gd:Fault.GridDisturbance-cardinality , ido:IdentifiedObject.description-datatype , gd:Fault.GridDisturbance-valueType , gd:Fault.repairTime-cardinality , gd:Fault.duration-cardinality , gd:Fault.kind-datatype , gd:Fault.sequenceNumber-cardinality , gd:Fault.occurredDateTime-datatype , gd:Fault.sequenceNumber-datatype , gd:Fault.Location-valueType , ido:IdentifiedObject.description-cardinality , gd:Fault.phases-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , gd:Fault.category-cardinality , ido:IdentifiedObject.mRID-datatype , gd:Fault.faultKind-datatype , gd:Fault.faultKind-cardinality , gd:Fault.occurredDateTime-cardinality , gd:Fault.SystemOperator-cardinality , gd:Fault.isIntermittent-datatype , gd:Fault.duration-datatype , gd:Fault.FaultyEquipment-cardinality , gd:Fault.kind-cardinality , ido:IdentifiedObject.name-cardinality , gd:Fault.repairTime-datatype , gd:Fault.isDirectlyEarthed-cardinality , gd:Fault.isPermanent-datatype , gd:Fault.isIntermittent-cardinality , gd:Fault.phases-cardinality , gd:Fault.isDirectlyEarthed-datatype ;
+        sh:targetClass  cim:Fault .
+
+gd:Interruption.interruptedPower-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Interruption.interruptedPower-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        6 ;
+        sh:path         nc:Interruption.interruptedPower ;
+        sh:severity     sh:Violation .
+
+gd:Fault.GridDisturbance-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( nc:GridDisturbance ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GridDisturbance" ;
+        sh:name         "Fault.GridDisturbance-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        10 ;
+        sh:path         ( nc:Fault.GridDisturbance rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause  rdf:type  sh:NodeShape ;
+        sh:property     gd:FaultCause.Fault-cardinality , gd:FaultCause.certaintyLevel-cardinality , gd:FaultCause.FaultCauseType-valueType , gd:FaultCause.mRID-cardinality , gd:FaultCause.certaintyLevel-datatype , gd:FaultCause.Fault-valueType , gd:FaultCause.FaultCauseType-cardinality , gd:FaultCause.mRID-datatype ;
+        sh:targetClass  nc:FaultCause .
+
+ido:IdentifiedObject.name-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.name-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+gd:Equipment  rdf:type  sh:NodeShape ;
+        sh:property     gd:Equipment.UnplannedOutage-valueType , gd:Equipment.UnplannedOutage-cardinality ;
+        sh:targetClass  cim:Equipment .
+
+gd:UnplannedOutage  rdf:type  sh:NodeShape ;
+        sh:property     gd:Outage.Equipments-cardinality , gd:UnplannedOutage.autoReclosingKind-datatype , gd:UnplannedOutage.reportedStartTime-cardinality , gd:UnplannedOutage.duration-cardinality , ido:IdentifiedObject.mRID-cardinality , gd:UnplannedOutage.tripKind-datatype , gd:UnplannedOutage.reportedStartTime-datatype , gd:UnplannedOutage.startDateTime-datatype , ido:IdentifiedObject.name-cardinality , gd:UnplannedOutage.systemUnitKind-datatype , ido:IdentifiedObject.description-cardinality , gd:Outage.Equipments-valueType , ido:IdentifiedObject.description-datatype , gd:UnplannedOutage.systemUnitKind-cardinality , ido:IdentifiedObject.name-datatype , gd:UnplannedOutage.tripKind-cardinality , gd:UnplannedOutage.autoReclosingKind-cardinality , gd:UnplannedOutage.duration-datatype , ido:IdentifiedObject.mRID-datatype , gd:UnplannedOutage.startDateTime-cardinality ;
+        sh:targetClass  cim:UnplannedOutage .
+
+gd:Fault.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Fault.kind-cardinality" ;
+        sh:order        9 ;
+        sh:path         cim:Fault.kind ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.tripKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( nc:TripKind.automaticWithUnsuccessfulAutomaticReclosing nc:TripKind.automatic nc:TripKind.manual ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "UnplannedOutage.tripKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        6 ;
+        sh:path         nc:UnplannedOutage.tripKind ;
+        sh:severity     sh:Violation .
+
+gd:Fault.Location-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.Location-cardinality" ;
+        sh:order        2 ;
+        sh:path         cim:Fault.Location ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause.Fault-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Fault ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Fault" ;
+        sh:name         "FaultCause.Fault-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         ( nc:FaultCause.Fault rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:Fault.FaultyEquipment-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Equipment ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Equipment" ;
+        sh:name         "Fault.FaultyEquipment-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        14 ;
+        sh:path         ( cim:Fault.FaultyEquipment rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:CoordinateSystem.crsUrn-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "CoordinateSystem.crsUrn-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         cim:CoordinateSystem.crsUrn ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.systemUnitKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( nc:SystemUnitKind.busbar nc:SystemUnitKind.powerTransformer nc:SystemUnitKind.dcCable nc:SystemUnitKind.svc nc:SystemUnitKind.dcConverter nc:SystemUnitKind.facts nc:SystemUnitKind.reactor nc:SystemUnitKind.overheadLine nc:SystemUnitKind.other nc:SystemUnitKind.cable nc:SystemUnitKind.shuntCapacitor nc:SystemUnitKind.seriesCapacitor ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "UnplannedOutage.systemUnitKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         nc:UnplannedOutage.systemUnitKind ;
+        sh:severity     sh:Violation .
+
+gd:Fault.repairTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.repairTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:Fault.repairTime ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause.FaultCauseType-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:FaultCauseType ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:FaultCauseType" ;
+        sh:name         "FaultCause.FaultCauseType-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:FaultCause.FaultCauseType rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Cardinality" ;
+        sh:order    0 .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "DatatypesIO" ;
+        sh:order    1 .
+
+gd:FaultCause.certaintyLevel-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "FaultCause.certaintyLevel-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:FaultCause.certaintyLevel ;
+        sh:severity     sh:Violation .
+
+gd:Fault.sequenceNumber-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.sequenceNumber-cardinality" ;
+        sh:order        7 ;
+        sh:path         nc:Fault.sequenceNumber ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.startDateTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Interruption.startDateTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:Interruption.startDateTime ;
+        sh:severity     sh:Violation .
+
+gd:Fault.duration-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.duration-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:Fault.duration ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.description-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+gd:Outage.Equipments-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "Outage.Equipments-cardinality" ;
+        sh:order        9 ;
+        sh:path         cim:Outage.Equipments ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.interruptedPower-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Interruption.interruptedPower-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:Interruption.interruptedPower ;
+        sh:severity     sh:Violation .
+
+gd:Outage.Equipments-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Equipment ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Equipment" ;
+        sh:name         "Outage.Equipments-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        9 ;
+        sh:path         ( cim:Outage.Equipments rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:Fault.phases-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( cim:PhaseCode.AB cim:PhaseCode.X cim:PhaseCode.CN cim:PhaseCode.s2N cim:PhaseCode.AC cim:PhaseCode.XY cim:PhaseCode.s2 cim:PhaseCode.A cim:PhaseCode.s12 cim:PhaseCode.ABC cim:PhaseCode.XN cim:PhaseCode.s12N cim:PhaseCode.BC cim:PhaseCode.B cim:PhaseCode.AN cim:PhaseCode.ABCN cim:PhaseCode.C cim:PhaseCode.none cim:PhaseCode.ACN cim:PhaseCode.s1 cim:PhaseCode.BN cim:PhaseCode.s1N cim:PhaseCode.BCN cim:PhaseCode.XYN cim:PhaseCode.N cim:PhaseCode.ABN ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "Fault.phases-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        12 ;
+        sh:path         cim:Fault.phases ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.Location-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PositionPoint.Location-cardinality" ;
+        sh:order        1 ;
+        sh:path         cim:PositionPoint.Location ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.autoReclosingKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( nc:AutoReclosingKind.unknown nc:AutoReclosingKind.manuallyAfterInspection nc:AutoReclosingKind.other nc:AutoReclosingKind.manuallyWithoutEitherInspectionRepairOrRestructuringOfOperations nc:AutoReclosingKind.automaticallyAfter2SecondsOrMore nc:AutoReclosingKind.manuallyAfterRestructuringOfOperations nc:AutoReclosingKind.automaticallyAfterLessThan2Seconds ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "UnplannedOutage.autoReclosingKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:UnplannedOutage.autoReclosingKind ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.startDateTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "UnplannedOutage.startDateTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:UnplannedOutage.startDateTime ;
+        sh:severity     sh:Violation .
+
+gd:Equipment.UnplannedOutage-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:UnplannedOutage ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:UnplannedOutage" ;
+        sh:name         "Equipment.UnplannedOutage-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         ( cim:Equipment.UnplannedOutage rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:Location.CoordinateSystem-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:CoordinateSystem ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:CoordinateSystem" ;
+        sh:name         "Location.CoordinateSystem-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( cim:Location.CoordinateSystem rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.Fault-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Fault ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Fault" ;
+        sh:name         "FaultOutage.Fault-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         ( nc:FaultOutage.Fault rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.zPosition-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PositionPoint.zPosition-cardinality" ;
+        sh:order        2 ;
+        sh:path         cim:PositionPoint.zPosition ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.reportedStartTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "UnplannedOutage.reportedStartTime-cardinality" ;
+        sh:order        5 ;
+        sh:path         cim:UnplannedOutage.reportedStartTime ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.energyNotSupplied-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Interruption.energyNotSupplied-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:Interruption.energyNotSupplied ;
+        sh:severity     sh:Violation .
+
+gd:Fault.phases-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Fault.phases-cardinality" ;
+        sh:order        12 ;
+        sh:path         cim:Fault.phases ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause.certaintyLevel-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( nc:CertaintyLevelKind.medium nc:CertaintyLevelKind.none nc:CertaintyLevelKind.high nc:CertaintyLevelKind.low ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "FaultCause.certaintyLevel-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:FaultCause.certaintyLevel ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.duration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Interruption.duration-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:Interruption.duration ;
+        sh:severity     sh:Violation .
+
+gd:Fault.isPermanent-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.isPermanent-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:Fault.isPermanent ;
+        sh:severity     sh:Violation .
+
+gd:FaultOutage.isMainFault-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "FaultOutage.isMainFault-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:FaultOutage.isMainFault ;
+        sh:severity     sh:Violation .
+
+gd:Fault.faultKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( nc:FaultKind.lineToLine nc:FaultKind.undesiredFunction nc:FaultKind.functional nc:FaultKind.lineToLineToGround nc:FaultKind.other nc:FaultKind.lineToGround nc:FaultKind.lineOpen ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "Fault.faultKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        16 ;
+        sh:path         nc:Fault.faultKind ;
+        sh:severity     sh:Violation .
+
+gd:Fault.occurredDateTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.occurredDateTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        17 ;
+        sh:path         cim:Fault.occurredDateTime ;
+        sh:severity     sh:Violation .
+
+gd:Fault.Location-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:Location ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:Location" ;
+        sh:name         "Fault.Location-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( cim:Fault.Location rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:FaultCause.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "FaultCause.mRID-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:FaultCause.mRID ;
+        sh:severity     sh:Violation .
+
+gd:Location  rdf:type   sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.description-datatype , gd:Location.CoordinateSystem-cardinality , gd:Location.CoordinateSystem-valueType , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-cardinality ;
+        sh:targetClass  cim:Location .
+
+gd:Fault.GridDisturbance-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "Fault.GridDisturbance-cardinality" ;
+        sh:order        10 ;
+        sh:path         nc:Fault.GridDisturbance ;
+        sh:severity     sh:Violation .
+
+gd:Interruption.Outage-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        gd:AssociationsGroup ;
+        sh:in           ( cim:UnplannedOutage ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: cim:UnplannedOutage" ;
+        sh:name         "Interruption.Outage-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        5 ;
+        sh:path         ( nc:Interruption.Outage rdf:type ) ;
+        sh:severity     sh:Violation .
+
+gd:PositionPoint.zPosition-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PositionPoint.zPosition-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         cim:PositionPoint.zPosition ;
+        sh:severity     sh:Violation .
+
+gd:Fault.isDirectlyEarthed-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.isDirectlyEarthed-cardinality" ;
+        sh:order        15 ;
+        sh:path         nc:Fault.isDirectlyEarthed ;
+        sh:severity     sh:Violation .
+
+gd:UnplannedOutage.duration-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "UnplannedOutage.duration-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:UnplannedOutage.duration ;
+        sh:severity     sh:Violation .
+
+gd:Fault.isIntermittent-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "Fault.isIntermittent-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        11 ;
+        sh:path         nc:Fault.isIntermittent ;
+        sh:severity     sh:Violation .
+
+gd:Fault.category-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.category-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:Fault.category ;
+        sh:severity     sh:Violation .
+
+gd:Fault.category-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        gd:DatatypesGroup ;
+        sh:in           ( nc:FaultCategoryKind.technical nc:FaultCategoryKind.operational nc:FaultCategoryKind.system ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "Fault.category-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         nc:Fault.category ;
+        sh:severity     sh:Violation .
+
+gd:GridDisturbance  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality ;
+        sh:targetClass  nc:GridDisturbance .
+
+gd:Fault.isIntermittent-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        gd:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "Fault.isIntermittent-cardinality" ;
+        sh:order        11 ;
+        sh:path         nc:Fault.isIntermittent ;
+        sh:severity     sh:Violation .

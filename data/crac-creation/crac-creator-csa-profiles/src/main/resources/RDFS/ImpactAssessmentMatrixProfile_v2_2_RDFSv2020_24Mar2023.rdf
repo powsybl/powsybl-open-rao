@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+xmlns:cim="http://iec.ch/TC57/CIM100#"
+xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#"
+xmlns:dc="http://purl.org/dc/elements/1.1/#"
+xmlns:dcat="http://www.w3.org/ns/dcat#"
+xmlns:dcterms="http://purl.org/dc/terms/#"
+xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+xmlns:owl="http://www.w3.org/2002/07/owl#"
+xmlns:prof="http://www.w3.org/ns/dx/prof/#"
+xmlns:profcim="http://iec.ch/TC57/ns/CIM/prof-cim#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:sh="http://www.w3.org/ns/shacl#"
+xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
+xmlns:prov="http://www.w3.org/ns/prov#"
+xmlns:nc="http://entsoe.eu/ns/nc#"
+xmlns:euvoc="http://publications.europa.eu/ontology/euvoc#"
+xmlns:adms="http://www.w3.org/ns/adms#"
+xmlns:iam="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#"
+xml:base ="http://iec.ch/TC57/CIM100"
+>
+<!--  ********** Header **************** -->
+<!-- RDFS header -->
+<rdf:Description rdf:about = "http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Ontology">
+	<dcat:keyword>IAM</dcat:keyword>
+	<owl:priorVersion rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU/1.0"/>
+	<dcat:theme xml:lang ="en">vocabulary</dcat:theme>
+	<owl:versionIRI rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU/2.2"/>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-600-2:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-301:ed-7:amd1</dcterms:conformsTo>
+	<dcterms:conformsTo>file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-401:draft:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-501:draft:ed-2</dcterms:conformsTo>
+	<dcterms:conformsTo>file://CGMES-30v25_501-20v01.eap</dcterms:conformsTo>
+	<owl:versionInfo xml:lang ="en">2.2.0</owl:versionInfo>
+	<dcterms:creator xml:lang ="en">ENTSO-E CIM EG CSA project </dcterms:creator>
+	<dcterms:description xml:lang ="en">This vocabulary is describing the impact assessment matrix profile.</dcterms:description>
+	<dcterms:identifier>urn:uuid:1eb41c0b-3c58-4762-a79b-33220d051d32</dcterms:identifier>
+	<dcterms:language>en-GB</dcterms:language>
+	<dcterms:license xml:lang ="en">https://www.apache.org/licenses/LICENSE-2.0</dcterms:license>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-03-24</dcterms:modified>
+	<dcterms:publisher xml:lang ="en">ENTSO-E</dcterms:publisher>
+	<dcterms:rightsHolder xml:lang ="en">ENTSO-E</dcterms:rightsHolder>
+	<dcterms:title xml:lang ="en">Impact Assessment Matrix Vocabulary</dcterms:title>
+<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+</rdf:Description >
+<!-- ******************************** -->
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile">
+	<rdfs:label xml:lang="en">ImpactAssessmentMatrixProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains impact assessment matrix profile.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Float">
+	<rdfs:label xml:lang="en">Float</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A floating point number. The range is unspecified and not limited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment">
+	<rdfs:label xml:lang="en">OwnerRemedialActionAssessment</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Owner remedial action assessment of the impact of their remedial action on neighboring system operators.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#String">
+	<rdfs:label xml:lang="en">String</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment.RemedialActionImpact">
+	<rdfs:label xml:lang="en">RemedialActionImpact</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action impact which is evaluated by the owner of the remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact.OwnerRemedialActionAssessment"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact.OwnerRemedialActionAssessment">
+	<rdfs:label xml:lang="en">OwnerRemedialActionAssessment</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The owner&apos;s assessment to the impacted system operator.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment.RemedialActionImpact"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment.ImpactedSystemOperator">
+	<rdfs:label xml:lang="en">ImpactedSystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">System operator that is evaluated to be impacted by the remedial action done by the remedial action owner.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SystemOperator.OwnerRemedialActionAssessment"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator.OwnerRemedialActionAssessment">
+	<rdfs:label xml:lang="en">OwnerRemedialActionAssessment</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Owner&apos;s assessment of the remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#OwnerRemedialActionAssessment.ImpactedSystemOperator"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#QualitativeRemedialActionImpact">
+	<rdfs:label xml:lang="en">QualitativeRemedialActionImpact</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Defines the qualitative impact for a remedial action. Relevant remedial action is assumed to have impact when the impact quantity is applied.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#QuantitativeRemedialActionImpact">
+	<rdfs:label xml:lang="en">QuantitativeRemedialActionImpact</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Defines the quantitative impact for a remedial action. The value if the impact quantity is derived through offline calculation that has coursed an impact of an element that is monitored by the assessed system operator higher than the relevant threshold for the conducting equipment. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SensitivityArea.QuantitativeRemedialActionImpact">
+	<rdfs:label xml:lang="en">QuantitativeRemedialActionImpact</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Quantitative remedial action impact when the remedial action is influencing equipment included in the sensitivity area.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SensitivityArea"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#QuantitativeRemedialActionImpact"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#QuantitativeRemedialActionImpact.SensitivityArea"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#QuantitativeRemedialActionImpact.SensitivityArea">
+	<rdfs:label xml:lang="en">SensitivityArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sensitivity area which should be monitored to evaluate the threshold given by the remedial action impact on relevant equipment.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#QuantitativeRemedialActionImpact"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SensitivityArea"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SensitivityArea.QuantitativeRemedialActionImpact"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact">
+	<rdfs:label xml:lang="en">RemedialActionImpact</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action impact assessment based on a given agreement with a specific system operator. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact.impactQuantity">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">impactQuantity</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Delta, positive or negative, quantity that when it is applied to the remedial action,  it will cause impact on a conducting equipment monitored by the assessed system operator.
+Example of relevant remedial action changes are redispatching, countertrading, change of set point on HVDC systems or change of taps on phase-shifting transformers.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact.kind">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">kind</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#ImpactAgreementKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The impact agreement kind.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ImpactAgreementKind">
+	<rdfs:label xml:lang="en">ImpactAgreementKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The impact agreement for the remedial action.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ImpactAgreementKind.noAgreement">
+	<rdfs:label xml:lang="en">noAgreement</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">No agreement is reached on the qualitative impact of a remedial action.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#ImpactAgreementKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ImpactAgreementKind.never">
+	<rdfs:label xml:lang="en">never</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An agreement is reached that a remedial action is never impacting.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#ImpactAgreementKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ImpactAgreementKind.always">
+	<rdfs:label xml:lang="en">always</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An agreement is reached that the remedial action is always impacting whichever the intensity.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#ImpactAgreementKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact.RemedialAction">
+	<rdfs:label xml:lang="en">RemedialAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action that has an impact.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialAction.RemedialActionImpact"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialAction.RemedialActionImpact">
+	<rdfs:label xml:lang="en">RemedialActionImpact</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This is the impact for a given remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact.RemedialAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator.RemedialActionImpact">
+	<rdfs:label xml:lang="en">RemedialActionImpact</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action impact for a given assessing System Operator.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact.AssessingSystemOperator"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionImpact.AssessingSystemOperator">
+	<rdfs:label xml:lang="en">AssessingSystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The impacted System Operator that assigns a remedial action impact.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionImpact"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SystemOperator.RemedialActionImpact"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue">
+	<rdfs:label xml:lang="en">RemedialActionOutcomeValue</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outcome of an impact assessment matrix for a remedial action.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue.impactQuantity">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">impactQuantity</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Delta, positive or negative, quantity that when it is applied to the remedial action,  it will cause impact on a conducting equipment monitored by the assessed system operator.
+Example of relevant remedial action changes are redispatching, countertrading, change of set point on HVDC systems or change of taps on phase-shifting transformers.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialAction.RemedialActionOutcomeValue">
+	<rdfs:label xml:lang="en">RemedialActionOutcomeValue</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action outcome value associated with a remedial action.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue.RemedialAction"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue.RemedialAction">
+	<rdfs:label xml:lang="en">RemedialAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action that has a remedial action outcome value.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionOutcomeValue"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialAction"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialAction.RemedialActionOutcomeValue"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleOutcomeValue">
+	<rdfs:label xml:lang="en">RemedialActionScheduleOutcomeValue</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outcome of an impact assessment matrix for a remedial action schedule.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionScheduleOutcomeValue">
+	<rdfs:label xml:lang="en">RemedialActionScheduleOutcomeValue</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action schedule outcome value associated with a remedial action schedule.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleOutcomeValue"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleOutcomeValue.RemedialActionSchedule"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionScheduleOutcomeValue.RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The remedial action schedule that has a remedial action schedule outcome value.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleOutcomeValue"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#RemedialActionSchedule.RemedialActionScheduleOutcomeValue"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SensitivityArea">
+	<rdfs:label xml:lang="en">SensitivityArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A monitoring area that defines the required observability area given by the sensitivity factors.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#CalculationBasedImpactAssessmentMatrix">
+	<rdfs:label xml:lang="en">CalculationBasedImpactAssessmentMatrix</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Calculation based impact assessment matrix. It relates to the remedial action schedule. Calculation-Based is the impact matrix determined by calculating the impact factors (eventually scaled by the intensity of the remedial action) and matching them against a threshold in a determined way described by the methodologies.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ConnectingImpactAssessmentMatrix">
+	<rdfs:label xml:lang="en">ConnectingImpactAssessmentMatrix</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Connecting system operator matrix is the impact matrix indicating which system operators are connecting for that specific remedial action. The concept of connecting system operator for a remedial action is defined by CSAm Article 2.1(14).</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject">
+	<rdfs:label xml:lang="en">IdentifiedObject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.description">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">description</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The description is a free human readable text describing or naming the object. It may be non unique and may not correlate to a naming hierarchy.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.name">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">name</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The name is any free human readable and possibly non unique text naming the object.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix">
+	<rdfs:label xml:lang="en">ImpactAssessmentMatrix</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The result of an impact assessment analysis for each remedial action or remedial action schedule onto the grid and operation of each system operator.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeValue.ImpactAssessmentMatrix">
+	<rdfs:label xml:lang="en">ImpactAssessmentMatrix</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the impact assessment matrix which has this value.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix.OutcomeValue"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix.OutcomeValue">
+	<rdfs:label xml:lang="en">OutcomeValue</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">One of the values of the impact assessment matrix.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue.ImpactAssessmentMatrix"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ListBasedImpactAssessmentMatrix">
+	<rdfs:label xml:lang="en">ListBasedImpactAssessmentMatrix</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#ImpactAssessmentMatrix"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">List-Based is the impact matrix determined by agreement of the system operators involved. System operators jointly decide which Remedial Action (eventually scaled by the intensity of the remedial action) is impacting.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeValue">
+	<rdfs:label xml:lang="en">OutcomeValue</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outcome of an impact assessment matrix.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeValue.outcome">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">outcome</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outcome value.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind">
+	<rdfs:label xml:lang="en">OutcomeImpactAssessmentKind</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Outcome impact assessments kinds.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+<cims:stereotype>NC</cims:stereotype>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind.true">
+	<rdfs:label xml:lang="en">true</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">True.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind.false">
+	<rdfs:label xml:lang="en">false</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">False.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind.undecided">
+	<rdfs:label xml:lang="en">undecided</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Undecided. Used only for list-based impact assessment matrix.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="http://entsoe.eu/ns/nc#OutcomeImpactAssessmentKind"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeValue.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#OutcomeValue.ImpactedSystemOperator">
+	<rdfs:label xml:lang="en">ImpactedSystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The impacted system operator that has an outcome value.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SystemOperator.OutcomeValue"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator.OutcomeValue">
+	<rdfs:label xml:lang="en">OutcomeValue</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Impact assessment outcome value for this impacted system operator.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#OutcomeValue.ImpactedSystemOperator"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialAction">
+	<rdfs:label xml:lang="en">RemedialAction</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Remedial action describes one or more actions that can be performed on a given power system model situation to eliminate one or more identified breaches of constraints. The remedial action can be costly, and have a cost characteristic, or non costly. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#RemedialActionSchedule">
+	<rdfs:label xml:lang="en">RemedialActionSchedule</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A schedule for a determined remedial action.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator">
+	<rdfs:label xml:lang="en">SystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">System operator.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_ImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile">
+	<rdfs:label xml:lang="en">DocImpactAssessmentMatrixProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains datatypes used only in the RDFS header.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="#Date">
+	<rdfs:label xml:lang="en">Date</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date as &quot;yyyy-mm-dd&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-dd(+/-)hh:mm&quot;.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#DateTime">
+	<rdfs:label xml:lang="en">DateTime</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date and time as &quot;yyyy-mm-ddThh:mm:ss.sss&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddThh:mm:ss.sssZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-ddThh:mm:ss.sss-hh:mm&quot;. The second component (shown here as &quot;ss.sss&quot;) could have any number of digits in its fractional part to allow any kind of precision beyond seconds.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#IRI">
+	<rdfs:label xml:lang="en">IRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as rdf:resource in RDFXML.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringFixedLanguage">
+	<rdfs:label xml:lang="en">StringFixedLanguage</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.
+The primitive is serialized as literal without language support.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI">
+	<rdfs:label xml:lang="en">StringIRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as literal without language support.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#URL">
+	<rdfs:label xml:lang="en">URL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Uniform Resource Locator (URL), colloquially termed a web address, is a reference to a web resource that specifies its location on a computer network and a mechanism for retrieving it. A URL is a specific type of Uniform Resource Identifier (URI), although many people use the two terms interchangeably.URLs occur most commonly to reference web pages (http), but are also used for file transfer (ftp), email (mailto), database access (JDBC), and many other applications.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU#Package_DocImpactAssessmentMatrixProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+</rdf:RDF>

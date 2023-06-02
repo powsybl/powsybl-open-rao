@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+xmlns:cim="http://iec.ch/TC57/CIM100#"
+xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#"
+xmlns:dc="http://purl.org/dc/elements/1.1/#"
+xmlns:dcat="http://www.w3.org/ns/dcat#"
+xmlns:dcterms="http://purl.org/dc/terms/#"
+xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+xmlns:owl="http://www.w3.org/2002/07/owl#"
+xmlns:prof="http://www.w3.org/ns/dx/prof/#"
+xmlns:profcim="http://iec.ch/TC57/ns/CIM/prof-cim#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:sh="http://www.w3.org/ns/shacl#"
+xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
+xmlns:prov="http://www.w3.org/ns/prov#"
+xmlns:nc="http://entsoe.eu/ns/nc#"
+xmlns:euvoc="http://publications.europa.eu/ontology/euvoc#"
+xmlns:adms="http://www.w3.org/ns/adms#"
+xmlns:ma="http://entsoe.eu/ns/CIM/MonitoringArea-EU#"
+xml:base ="http://iec.ch/TC57/CIM100"
+>
+<!--  ********** Header **************** -->
+<!-- RDFS header -->
+<rdf:Description rdf:about = "http://entsoe.eu/ns/CIM/MonitoringArea-EU#Ontology">
+	<dcat:keyword>MA</dcat:keyword>
+	<dcat:theme xml:lang ="en">vocabulary</dcat:theme>
+	<owl:versionIRI rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU/2.2"/>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-600-2:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-301:ed-7:amd1</dcterms:conformsTo>
+	<dcterms:conformsTo>file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-401:draft:ed-1</dcterms:conformsTo>
+	<dcterms:conformsTo>urn:iso:std:iec:61970-501:draft:ed-2</dcterms:conformsTo>
+	<dcterms:conformsTo>file://CGMES-30v25_501-20v01.eap</dcterms:conformsTo>
+	<owl:versionInfo xml:lang ="en">2.2.0</owl:versionInfo>
+	<dcterms:creator xml:lang ="en">ENTSO-E CIM EG CSA project </dcterms:creator>
+	<dcterms:description xml:lang ="en">This vocabulary is describing the monitoring area profile.</dcterms:description>
+	<dcterms:identifier>urn:uuid:41075091-91f0-4b14-a5b8-93945aa528ed</dcterms:identifier>
+	<dcterms:language>en-GB</dcterms:language>
+	<dcterms:license xml:lang ="en">https://www.apache.org/licenses/LICENSE-2.0</dcterms:license>
+	<dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-03-24</dcterms:modified>
+	<dcterms:publisher xml:lang ="en">ENTSO-E</dcterms:publisher>
+	<dcterms:rightsHolder xml:lang ="en">ENTSO-E</dcterms:rightsHolder>
+	<dcterms:title xml:lang ="en">Monitoring area Vocabulary</dcterms:title>
+<rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+</rdf:Description >
+<!-- ******************************** -->
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile">
+	<rdfs:label xml:lang="en">MonitoringAreaProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains monitoring area profile.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject">
+	<rdfs:label xml:lang="en">IdentifiedObject</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.description">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">description</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The description is a free human readable text describing or naming the object. It may be non unique and may not correlate to a naming hierarchy.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#String">
+	<rdfs:label xml:lang="en">String</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#IdentifiedObject.name">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">name</rdfs:label>
+	<rdfs:domain rdf:resource="#IdentifiedObject"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The name is any free human readable and possibly non unique text naming the object.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#PowerSystemResource">
+	<rdfs:label xml:lang="en">PowerSystemResource</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A power system resource (PSR) can be an item of equipment such as a switch, an equipment container containing many individual items of equipment such as a substation, or an organisational entity such as sub-control area. Power system resources can have measurements associated.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AreaBorderTerminal">
+	<rdfs:label xml:lang="en">AreaBorderTerminal</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Area border terminal defines the terminals that are defining a monitoring area.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AreaBorderTerminal.mRID">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">mRID</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal"/>
+	<cims:dataType rdf:resource="#String"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Master resource identifier issued by a model authority. The mRID is unique within an exchange context. Global uniqueness is easily achieved by using a UUID, as specified in RFC 4122, for the mRID. The use of UUID is strongly recommended.
+For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is mapped to rdf:ID or rdf:about attributes that identify CIM object elements.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AreaBorderTerminal.MonitoringArea">
+	<rdfs:label xml:lang="en">MonitoringArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The MonitoringArea defined by this AreaBorderTerminal.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea.AreaBorderTerminal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#MonitoringArea.AreaBorderTerminal">
+	<rdfs:label xml:lang="en">AreaBorderTerminal</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The AreaBorderTerminal which defines the MonitoringArea.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal.MonitoringArea"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#AreaBorderTerminal.Terminal">
+	<rdfs:label xml:lang="en">Terminal</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The Terminal that is part of an AreaBorderTerminal.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal"/>
+	<rdfs:range rdf:resource="#Terminal"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#Terminal.AreaBorderTerminal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#Terminal.AreaBorderTerminal">
+	<rdfs:label xml:lang="en">AreaBorderTerminal</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The AreaBorderTerminal that has this Terminal.</rdfs:comment>
+	<rdfs:domain rdf:resource="#Terminal"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#AreaBorderTerminal.Terminal"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ContingencyArea">
+	<rdfs:label xml:lang="en">ContingencyArea</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#InfluenceArea"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A monitoring area that defines the required contingency elements. This includes elements that are part of the external contingency list.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#InfluenceArea">
+	<rdfs:label xml:lang="en">InfluenceArea</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Influence area is a monitoring area that is defined by calculating the equipment that is affected by the influence factors.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#InfluenceArea.identificationInfluenceFactor">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">identificationInfluenceFactor</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#InfluenceArea"/>
+	<cims:dataType rdf:resource="#PerCent"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power flow identification influence factor of a network element that is normalised in order to take into account potential impacts induced by differences in Permanently Admissible Transmission Loading (PATL) values. This is referred as identification influence threshold in CSA methodology.
+The allowed value range is [0,100].</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#PerCent">
+	<rdfs:label xml:lang="en">PerCent</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Percentage on a defined base.   For example, specify as 100 to indicate at the defined base.</rdfs:comment>
+<cims:stereotype>CIMDatatype</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#PerCent.value">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">value</rdfs:label>
+	<rdfs:domain rdf:resource="#PerCent"/>
+	<cims:dataType rdf:resource="#Float"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Normally 0 to 100 on a defined base.</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Float">
+	<rdfs:label xml:lang="en">Float</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A floating point number. The range is unspecified and not limited.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#PerCent.unit">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">unit</rdfs:label>
+	<rdfs:domain rdf:resource="#PerCent"/>
+	<rdfs:range rdf:resource="#UnitSymbol"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">none</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol">
+	<rdfs:label xml:lang="en">UnitSymbol</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The derived units defined for usage in the CIM. In some cases, the derived unit is equal to an SI unit. Whenever possible, the standard derived symbol is used instead of the formula for the derived unit. For example, the unit symbol Farad is defined as &quot;F&quot; instead of &quot;CPerV&quot;. In cases where a standard symbol does not exist for a derived unit, the formula for the unit is used as the unit symbol. For example, density does not have a standard symbol and so it is represented as &quot;kgPerm3&quot;. With the exception of the &quot;kg&quot;, which is an SI unit, the unit symbols do not contain multipliers and therefore represent the base derived unit to which a multiplier can be applied as a whole. 
+Every unit symbol is treated as an unparseable text as if it were a single-letter symbol. The meaning of each unit symbol is defined by the accompanying descriptive text and not by the text contents of the unit symbol.
+To allow the widest possible range of serializations without requiring special character handling, several substitutions are made which deviate from the format described in IEC 80000-1. The division symbol &quot;/&quot; is replaced by the letters &quot;Per&quot;. Exponents are written in plain text after the unit as &quot;m3&quot; instead of being formatted as &quot;m&quot; with a superscript of 3  or introducing a symbol as in &quot;m^3&quot;. The degree symbol &quot;°&quot; is replaced with the letters &quot;deg&quot;. Any clarification of the meaning for a substitution is included in the description for the unit symbol.
+Non-SI units are included in list of unit symbols to allow sources of data to be correctly labelled with their non-SI units (for example, a GPS sensor that is reporting numbers that represent feet instead of meters). This allows software to use the unit symbol information correctly convert and scale the raw data of those sources into SI-based units. 
+The integer values are used for harmonization with IEC 61850.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitSymbol.none">
+	<rdfs:label xml:lang="en">none</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dimension less quantity, e.g. count, per unit, etc.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitSymbol"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="#PerCent.multiplier">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">multiplier</rdfs:label>
+	<rdfs:domain rdf:resource="#PerCent"/>
+	<rdfs:range rdf:resource="#UnitMultiplier"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:isFixed rdf:datatype="http://www.w3.org/2001/XMLSchema#string">none</cims:isFixed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitMultiplier">
+	<rdfs:label xml:lang="en">UnitMultiplier</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The unit multipliers defined for the CIM.  When applied to unit symbols, the unit symbol is treated as a derived unit. Regardless of the contents of the unit symbol text, the unit symbol shall be treated as if it were a single-character unit symbol. Unit symbols should not contain multipliers, and it should be left to the multiplier to define the multiple for an entire data type. 
+
+For example, if a unit symbol is &quot;m2Pers&quot; and the multiplier is &quot;k&quot;, then the value is k(m**2/s), and the multiplier applies to the entire final value, not to any individual part of the value. This can be conceptualized by substituting a derived unit symbol for the unit type. If one imagines that the symbol &quot;Þ&quot; represents the derived unit &quot;m2Pers&quot;, then applying the multiplier &quot;k&quot; can be conceptualized simply as &quot;kÞ&quot;.
+
+For example, the SI unit for mass is &quot;kg&quot; and not &quot;g&quot;.  If the unit symbol is defined as &quot;kg&quot;, then the multiplier is applied to &quot;kg&quot; as a whole and does not replace the &quot;k&quot; in front of the &quot;g&quot;. In this case, the multiplier of &quot;m&quot; would be used with the unit symbol of &quot;kg&quot; to represent one gram.  As a text string, this violates the instructions in IEC 80000-1. However, because the unit symbol in CIM is treated as a derived unit instead of as an SI unit, it makes more sense to conceptualize the &quot;kg&quot; as if it were replaced by one of the proposed replacements for the SI mass symbol. If one imagines that the &quot;kg&quot; were replaced by a symbol &quot;Þ&quot;, then it is easier to conceptualize the multiplier &quot;m&quot; as creating the proper unit &quot;mÞ&quot;, and not the forbidden unit &quot;mkg&quot;.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#UnitMultiplier.none">
+	<rdfs:label xml:lang="en">none</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">No multiplier or equivalently multiply by 1.</rdfs:comment>
+	<cims:stereotype>enum</cims:stereotype>
+	<rdf:type rdf:resource="#UnitMultiplier"/>
+</rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#InfluenceArea.filteringInfluenceFactor">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">filteringInfluenceFactor</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#InfluenceArea"/>
+	<cims:dataType rdf:resource="#PerCent"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power flow filtering influence factor of a network element not normalised.  This is referred as power flow influence threshold in CSA methodology.
+
+The allowed value range is [0,100].</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#InfluenceArea.voltageInfluenceFactor">
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
+	<rdfs:label xml:lang="en">voltageInfluenceFactor</rdfs:label>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#InfluenceArea"/>
+	<cims:dataType rdf:resource="#PerCent"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+	<cims:stereotype>NC</cims:stereotype>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Voltage influence factor of a network element as defined in the CSA methodology.
+The allowed value range is [0,100].</rdfs:comment>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#ObservabilityArea">
+	<rdfs:label xml:lang="en">ObservabilityArea</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A monitoring area that is given by a real time measurement.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SensitivityArea">
+	<rdfs:label xml:lang="en">SensitivityArea</rdfs:label>
+	<rdfs:subClassOf rdf:resource="http://entsoe.eu/ns/nc#InfluenceArea"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A monitoring area that defines the required observability area given by the sensitivity factors.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SynchronousArea">
+	<rdfs:label xml:lang="en">SynchronousArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A synchronous area is an electrical area covered by interconnect with a common system frequency in a steady-state. </rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#MonitoringArea.SynchronousArea">
+	<rdfs:label xml:lang="en">SynchronousArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The synchronous area that has this monitoring area.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SynchronousArea"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SynchronousArea.MonitoringArea"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SynchronousArea.MonitoringArea">
+	<rdfs:label xml:lang="en">MonitoringArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The monitoring area that is part of this synchronous area.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SynchronousArea"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea.SynchronousArea"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator">
+	<rdfs:label xml:lang="en">SystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">System operator.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#MonitoringArea.SystemOperator">
+	<rdfs:label xml:lang="en">SystemOperator</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The system operator that operates this monitoring area.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#SystemOperator.MonitoringArea"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+	<cims:AssociationUsed>Yes</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#SystemOperator.MonitoringArea">
+	<rdfs:label xml:lang="en">MonitoringArea</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The monitoring area that is operated by this system operator.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://entsoe.eu/ns/nc#SystemOperator"/>
+	<rdfs:range rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea"/>
+	<cims:inverseRoleName rdf:resource="http://entsoe.eu/ns/nc#MonitoringArea.SystemOperator"/>
+	<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	<cims:AssociationUsed>No</cims:AssociationUsed>
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+<cims:stereotype>NC</cims:stereotype>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/nc#MonitoringArea">
+	<rdfs:label xml:lang="en">MonitoringArea</rdfs:label>
+	<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A coherent part of the interconnected electrical power system, that includes the system operators&apos; responsibility area and the surrounding parts of other system operators&apos; responsibility area, that need to be monitored for security assessment.</rdfs:comment>
+<cims:stereotype>NC</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#concrete"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Terminal">
+	<rdfs:label xml:lang="en">Terminal</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An AC electrical connection point to a piece of conducting equipment. Terminals are connected at physical connection points called connectivity nodes.</rdfs:comment>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_MonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile">
+	<rdfs:label xml:lang="en">DocMonitoringAreaProfile</rdfs:label>
+	<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">This package contains datatypes used only in the RDFS header.</rdfs:comment>
+</rdf:Description>
+	 <rdf:Description rdf:about="#DateTime">
+	<rdfs:label xml:lang="en">DateTime</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date and time as &quot;yyyy-mm-ddThh:mm:ss.sss&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddThh:mm:ss.sssZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-ddThh:mm:ss.sss-hh:mm&quot;. The second component (shown here as &quot;ss.sss&quot;) could have any number of digits in its fractional part to allow any kind of precision beyond seconds.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#IRI">
+	<rdfs:label xml:lang="en">IRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as rdf:resource in RDFXML.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="#Date">
+	<rdfs:label xml:lang="en">Date</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Date as &quot;yyyy-mm-dd&quot;, which conforms with ISO 8601. UTC time zone is specified as &quot;yyyy-mm-ddZ&quot;. A local timezone relative UTC is specified as &quot;yyyy-mm-dd(+/-)hh:mm&quot;.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringFixedLanguage">
+	<rdfs:label xml:lang="en">StringFixedLanguage</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A string consisting of a sequence of characters. The character encoding is UTF-8. The string length is unspecified and unlimited.
+The primitive is serialized as literal without language support.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#StringIRI">
+	<rdfs:label xml:lang="en">StringIRI</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An IRI (Internationalized Resource Identifier) within an RDF graph is a Unicode string that conforms to the syntax defined in RFC 3987.
+The primitive is serialized as literal without language support.
+IRIs in the RDF abstract syntax must be absolute, and may contain a fragment identifier.
+IRI equality: Two IRIs are equal if and only if they are equivalent under Simple String Comparison according to section 5.1 of [RFC3987]. Further normalization must not be performed when comparing IRIs for equality.
+IRIs are a generalization of URIs [RFC3986] that permits a wider range of Unicode characters. Every absolute URI and URL is an IRI, but not every IRI is an URI. When IRIs are used in operations that are only defined for URIs, they must first be converted according to the mapping defined in section 3.1 of [RFC3987]. A notable example is retrieval over the HTTP protocol. The mapping involves UTF-8 encoding of non-ASCII characters, %-encoding of octets not allowed in URIs, and Punycode-encoding of domain names.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+	 <rdf:Description rdf:about="http://iec.ch/TC57/ns/CIM/prof-cim#URL">
+	<rdfs:label xml:lang="en">URL</rdfs:label>
+	<rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A Uniform Resource Locator (URL), colloquially termed a web address, is a reference to a web resource that specifies its location on a computer network and a mechanism for retrieving it. A URL is a specific type of Uniform Resource Identifier (URI), although many people use the two terms interchangeably.URLs occur most commonly to reference web pages (http), but are also used for file transfer (ftp), email (mailto), database access (JDBC), and many other applications.</rdfs:comment>
+<cims:stereotype>Primitive</cims:stereotype>
+<cims:stereotype>profcim</cims:stereotype>
+	<cims:belongsToCategory rdf:resource="http://entsoe.eu/ns/CIM/MonitoringArea-EU#Package_DocMonitoringAreaProfile"/>
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	 </rdf:Description>
+</rdf:RDF>

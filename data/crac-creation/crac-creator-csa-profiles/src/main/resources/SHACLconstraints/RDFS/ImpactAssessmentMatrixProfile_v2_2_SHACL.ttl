@@ -1,0 +1,464 @@
+@base          <http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU/Constraints> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix cim:     <http://iec.ch/TC57/CIM100#> .
+@prefix cims:    <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix dash:    <http://datashapes.org/dash#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/#> .
+@prefix dm:      <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix eu:      <http://iec.ch/TC57/CIM100-European#> .
+@prefix eumd:    <http://entsoe.eu/ns/Metadata-European#> .
+@prefix euvoc:   <http://publications.europa.eu/ontology/euvoc#> .
+@prefix iam:     <http://entsoe.eu/ns/CIM/ImpactAssessmentMatrix-EU/Constraints#> .
+@prefix ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix prof:    <http://www.w3.org/ns/dx/prof/#> .
+@prefix profcim: <http://iec.ch/TC57/ns/CIM/prof-cim#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+iam:ListBasedImpactAssessmentMatrix
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality ;
+        sh:targetClass  nc:ListBasedImpactAssessmentMatrix .
+
+iam:RemedialActionImpact.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:in           ( nc:ImpactAgreementKind.noAgreement nc:ImpactAgreementKind.always nc:ImpactAgreementKind.never ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "RemedialActionImpact.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:RemedialActionImpact.kind ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionOutcomeValue
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:RemedialActionOutcomeValue.RemedialAction-cardinality , iam:OutcomeValue.ImpactedSystemOperator-cardinality , iam:OutcomeValue.outcome-cardinality , iam:OutcomeValue.mRID-cardinality , iam:RemedialActionOutcomeValue.impactQuantity-cardinality , iam:OutcomeValue.outcome-datatype , iam:OutcomeValue.ImpactAssessmentMatrix-cardinality , iam:OutcomeValue.mRID-datatype , iam:RemedialActionOutcomeValue.impactQuantity-datatype ;
+        sh:targetClass  nc:RemedialActionOutcomeValue .
+
+iam:OwnerRemedialActionAssessment.RemedialActionImpact-valueTypeNodeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:OwnerRemedialActionAssessment.RemedialActionImpact-valueType ;
+        sh:targetClass  nc:OwnerRemedialActionAssessment .
+
+iam:RemedialActionOutcomeValue.impactQuantity-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionOutcomeValue.impactQuantity-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionOutcomeValue.impactQuantity ;
+        sh:severity     sh:Violation .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "DatatypesIO" ;
+        sh:order    1 .
+
+ido:IdentifiedObject.description-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.description-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.ImpactedSystemOperator-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "OutcomeValue.ImpactedSystemOperator-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:OutcomeValue.ImpactedSystemOperator ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.name-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.description-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionOutcomeValue.impactQuantity-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionOutcomeValue.impactQuantity-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionOutcomeValue.impactQuantity ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionImpact.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionImpact.mRID-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:RemedialActionImpact.mRID ;
+        sh:severity     sh:Violation .
+
+iam:OwnerRemedialActionAssessment.ImpactedSystemOperator-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "OwnerRemedialActionAssessment.ImpactedSystemOperator-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:OwnerRemedialActionAssessment.ImpactedSystemOperator ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.ImpactAssessmentMatrix-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        iam:AssociationsGroup ;
+        sh:in           ( nc:ConnectingImpactAssessmentMatrix nc:ListBasedImpactAssessmentMatrix nc:CalculationBasedImpactAssessmentMatrix ) ;
+        sh:message      "One of the following occurs: 1) The value type is not IRI; 2) The value type is not the right class." ;
+        sh:name         "OutcomeValue.ImpactAssessmentMatrix-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:OutcomeValue.ImpactAssessmentMatrix rdf:type ) ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionImpact.AssessingSystemOperator-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionImpact.AssessingSystemOperator-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:RemedialActionImpact.AssessingSystemOperator ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionScheduleOutcomeValue
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:OutcomeValue.outcome-datatype , iam:OutcomeValue.outcome-cardinality , iam:OutcomeValue.mRID-datatype , iam:OutcomeValue.mRID-cardinality , iam:OutcomeValue.ImpactedSystemOperator-cardinality , iam:OutcomeValue.ImpactAssessmentMatrix-cardinality , iam:RemedialActionScheduleOutcomeValue.RemedialActionSchedule-cardinality ;
+        sh:targetClass  nc:RemedialActionScheduleOutcomeValue .
+
+iam:RemedialActionImpact.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionImpact.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:RemedialActionImpact.mRID ;
+        sh:severity     sh:Violation .
+
+iam:OwnerRemedialActionAssessment
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:OwnerRemedialActionAssessment.mRID-datatype , iam:OwnerRemedialActionAssessment.mRID-cardinality , iam:OwnerRemedialActionAssessment.RemedialActionImpact-cardinality , iam:OwnerRemedialActionAssessment.ImpactedSystemOperator-cardinality ;
+        sh:targetClass  nc:OwnerRemedialActionAssessment .
+
+iam:QuantitativeRemedialActionImpact
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:RemedialActionImpact.kind-datatype , iam:RemedialActionImpact.impactQuantity-datatype , iam:QuantitativeRemedialActionImpact.SensitivityArea-cardinality , iam:RemedialActionImpact.impactQuantity-cardinality , iam:RemedialActionImpact.mRID-datatype , iam:RemedialActionImpact.RemedialAction-cardinality , iam:RemedialActionImpact.mRID-cardinality , iam:RemedialActionImpact.kind-cardinality , iam:RemedialActionImpact.AssessingSystemOperator-cardinality ;
+        sh:targetClass  nc:QuantitativeRemedialActionImpact .
+
+iam:OwnerRemedialActionAssessment.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "OwnerRemedialActionAssessment.mRID-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:OwnerRemedialActionAssessment.mRID ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionImpact.RemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionImpact.RemedialAction-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:RemedialActionImpact.RemedialAction ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "OutcomeValue.mRID-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:OutcomeValue.mRID ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.outcome-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:in           ( nc:OutcomeImpactAssessmentKind.false nc:OutcomeImpactAssessmentKind.undecided nc:OutcomeImpactAssessmentKind.true ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "OutcomeValue.outcome-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        4 ;
+        sh:path         nc:OutcomeValue.outcome ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.name-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.ImpactAssessmentMatrix-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "OutcomeValue.ImpactAssessmentMatrix-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:OutcomeValue.ImpactAssessmentMatrix ;
+        sh:severity     sh:Violation .
+
+iam:QualitativeRemedialActionImpact
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:RemedialActionImpact.kind-datatype , iam:RemedialActionImpact.kind-cardinality , iam:RemedialActionImpact.mRID-datatype , iam:RemedialActionImpact.RemedialAction-cardinality , iam:RemedialActionImpact.impactQuantity-cardinality , iam:RemedialActionImpact.mRID-cardinality , iam:RemedialActionImpact.AssessingSystemOperator-cardinality , iam:RemedialActionImpact.impactQuantity-datatype ;
+        sh:targetClass  nc:QualitativeRemedialActionImpact .
+
+iam:RemedialActionScheduleOutcomeValue.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionScheduleOutcomeValue.RemedialActionSchedule-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionScheduleOutcomeValue.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityIO" ;
+        sh:order    0 .
+
+iam:OwnerRemedialActionAssessment.RemedialActionImpact-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        iam:AssociationsGroup ;
+        sh:in           ( nc:QualitativeRemedialActionImpact nc:QuantitativeRemedialActionImpact ) ;
+        sh:message      "One of the following occurs: 1) The value type is not IRI; 2) The value type is not the right class." ;
+        sh:name         "OwnerRemedialActionAssessment.RemedialActionImpact-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:OwnerRemedialActionAssessment.RemedialActionImpact rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "IdentifiedObject.mRID-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+iam:ConnectingImpactAssessmentMatrix
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality ;
+        sh:targetClass  nc:ConnectingImpactAssessmentMatrix .
+
+iam:RemedialActionImpact.impactQuantity-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionImpact.impactQuantity-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionImpact.impactQuantity ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.ImpactAssessmentMatrix-valueTypeNodeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     iam:OutcomeValue.ImpactAssessmentMatrix-valueType ;
+        sh:targetClass  nc:RemedialActionOutcomeValue , nc:RemedialActionScheduleOutcomeValue .
+
+iam:OwnerRemedialActionAssessment.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "OwnerRemedialActionAssessment.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:OwnerRemedialActionAssessment.mRID ;
+        sh:severity     sh:Violation .
+
+iam:AssociationsGroup
+        rdf:type    sh:PropertyGroup ;
+        rdfs:label  "Associations" ;
+        sh:order    2 .
+
+iam:OwnerRemedialActionAssessment.RemedialActionImpact-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "OwnerRemedialActionAssessment.RemedialActionImpact-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:OwnerRemedialActionAssessment.RemedialActionImpact ;
+        sh:severity     sh:Violation .
+
+iam:DatatypesGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Datatypes" ;
+        sh:order    1 .
+
+ido:IdentifiedObject.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionImpact.impactQuantity-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionImpact.impactQuantity-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionImpact.impactQuantity ;
+        sh:severity     sh:Violation .
+
+iam:CalculationBasedImpactAssessmentMatrix
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality ;
+        sh:targetClass  nc:CalculationBasedImpactAssessmentMatrix .
+
+iam:RemedialActionOutcomeValue.RemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionOutcomeValue.RemedialAction-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:RemedialActionOutcomeValue.RemedialAction ;
+        sh:severity     sh:Violation .
+
+iam:OutcomeValue.outcome-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "OutcomeValue.outcome-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:OutcomeValue.outcome ;
+        sh:severity     sh:Violation .
+
+iam:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Cardinality" ;
+        sh:order    0 .
+
+iam:OutcomeValue.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        iam:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "OutcomeValue.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:OutcomeValue.mRID ;
+        sh:severity     sh:Violation .
+
+iam:QuantitativeRemedialActionImpact.SensitivityArea-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "QuantitativeRemedialActionImpact.SensitivityArea-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:QuantitativeRemedialActionImpact.SensitivityArea ;
+        sh:severity     sh:Violation .
+
+iam:RemedialActionImpact.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        iam:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionImpact.kind-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:RemedialActionImpact.kind ;
+        sh:severity     sh:Violation .

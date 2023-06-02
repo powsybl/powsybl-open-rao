@@ -1,0 +1,334 @@
+@base          <http://entsoe.eu/ns/CIM/SecurityAnalysisResult-EU/Constraints> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix cim:     <http://iec.ch/TC57/CIM100#> .
+@prefix cims:    <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix dash:    <http://datashapes.org/dash#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/#> .
+@prefix dm:      <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix eu:      <http://iec.ch/TC57/CIM100-European#> .
+@prefix eumd:    <http://entsoe.eu/ns/Metadata-European#> .
+@prefix euvoc:   <http://publications.europa.eu/ontology/euvoc#> .
+@prefix ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix prof:    <http://www.w3.org/ns/dx/prof/#> .
+@prefix profcim: <http://iec.ch/TC57/ns/CIM/prof-cim#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sar:     <http://entsoe.eu/ns/CIM/SecurityAnalysisResult-EU/Constraints#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+sar:PowerFlowResult.valueW-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.valueW-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        10 ;
+        sh:path         nc:PowerFlowResult.valueW ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.absoluteValue-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.absoluteValue-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:PowerFlowResult.absoluteValue ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.isViolation-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.isViolation-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:PowerFlowResult.isViolation ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueA-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.valueA-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:PowerFlowResult.valueA ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.ReportedByRegion-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.ReportedByRegion-cardinality" ;
+        sh:order        11 ;
+        sh:path         nc:PowerFlowResult.ReportedByRegion ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.isViolation-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PowerFlowResult.isViolation-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:PowerFlowResult.isViolation ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.value-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.value-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:PowerFlowResult.value ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueAngle-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.valueAngle-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:PowerFlowResult.valueAngle ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.absoluteValue-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.absoluteValue-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:PowerFlowResult.absoluteValue ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PowerFlowResult.atTime-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:PowerFlowResult.atTime ;
+        sh:severity     sh:Violation .
+
+sar:AssociationsGroup
+        rdf:type    sh:PropertyGroup ;
+        rdfs:label  "Associations" ;
+        sh:order    2 .
+
+sar:ContingencyPowerFlowResult.Contingency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "ContingencyPowerFlowResult.Contingency-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:ContingencyPowerFlowResult.Contingency ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueW-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.valueW-cardinality" ;
+        sh:order        10 ;
+        sh:path         nc:PowerFlowResult.valueW ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueVA-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.valueVA-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        9 ;
+        sh:path         nc:PowerFlowResult.valueVA ;
+        sh:severity     sh:Violation .
+
+sar:BaseCasePowerFlowResult
+        rdf:type        sh:NodeShape ;
+        sh:property     sar:PowerFlowResult.valueV-datatype , sar:PowerFlowResult.valueA-cardinality , sar:PowerFlowResult.isViolation-cardinality , sar:PowerFlowResult.atTime-cardinality , sar:PowerFlowResult.valueV-cardinality , sar:PowerFlowResult.absoluteValue-cardinality , sar:PowerFlowResult.absoluteValue-datatype , sar:PowerFlowResult.value-datatype , sar:PowerFlowResult.valueVAR-datatype , sar:PowerFlowResult.valueW-datatype , sar:PowerFlowResult.ReportedByRegion-cardinality , sar:PowerFlowResult.valueAngle-cardinality , sar:PowerFlowResult.atTime-datatype , sar:PowerFlowResult.ACDCTerminal-cardinality , sar:PowerFlowResult.value-cardinality , sar:PowerFlowResult.OperationalLimit-cardinality , sar:PowerFlowResult.valueW-cardinality , sar:PowerFlowResult.valueAngle-datatype , sar:PowerFlowResult.valueVA-cardinality , sar:PowerFlowResult.valueA-datatype , sar:PowerFlowResult.valueVAR-cardinality , sar:PowerFlowResult.valueVA-datatype , sar:PowerFlowResult.isViolation-datatype ;
+        sh:targetClass  nc:BaseCasePowerFlowResult .
+
+sar:PowerFlowResult.valueA-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.valueA-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:PowerFlowResult.valueA ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueAngle-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.valueAngle-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:PowerFlowResult.valueAngle ;
+        sh:severity     sh:Violation .
+
+sar:ContingencyPowerFlowResult
+        rdf:type        sh:NodeShape ;
+        sh:property     sar:PowerFlowResult.valueVAR-cardinality , sar:PowerFlowResult.value-datatype , sar:PowerFlowResult.valueW-cardinality , sar:PowerFlowResult.valueV-datatype , sar:PowerFlowResult.valueV-cardinality , sar:PowerFlowResult.OperationalLimit-cardinality , sar:PowerFlowResult.atTime-datatype , sar:PowerFlowResult.valueVAR-datatype , sar:PowerFlowResult.atTime-cardinality , sar:PowerFlowResult.valueAngle-cardinality , sar:PowerFlowResult.ACDCTerminal-cardinality , sar:PowerFlowResult.absoluteValue-datatype , sar:PowerFlowResult.valueA-cardinality , sar:PowerFlowResult.isViolation-datatype , sar:PowerFlowResult.value-cardinality , sar:PowerFlowResult.valueAngle-datatype , sar:PowerFlowResult.valueA-datatype , sar:PowerFlowResult.absoluteValue-cardinality , sar:ContingencyPowerFlowResult.Contingency-cardinality , sar:PowerFlowResult.isViolation-cardinality , sar:PowerFlowResult.valueW-datatype , sar:PowerFlowResult.ReportedByRegion-cardinality , sar:PowerFlowResult.valueVA-datatype , sar:PowerFlowResult.valueVA-cardinality ;
+        sh:targetClass  nc:ContingencyPowerFlowResult .
+
+sar:PowerFlowResult.ACDCTerminal-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerFlowResult.ACDCTerminal-cardinality" ;
+        sh:order        7 ;
+        sh:path         nc:PowerFlowResult.ACDCTerminal ;
+        sh:severity     sh:Violation .
+
+sar:DatatypesGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Datatypes" ;
+        sh:order    1 .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityIO" ;
+        sh:order    0 .
+
+sar:PowerFlowResult.valueVA-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.valueVA-cardinality" ;
+        sh:order        9 ;
+        sh:path         nc:PowerFlowResult.valueVA ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.value-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.value-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:PowerFlowResult.value ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueV-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.valueV-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        6 ;
+        sh:path         nc:PowerFlowResult.valueV ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueVAR-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.valueVAR-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        13 ;
+        sh:path         nc:PowerFlowResult.valueVAR ;
+        sh:severity     sh:Violation .
+
+sar:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Cardinality" ;
+        sh:order    0 .
+
+sar:PowerFlowResult.valueVAR-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.valueVAR-cardinality" ;
+        sh:order        13 ;
+        sh:path         nc:PowerFlowResult.valueVAR ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.OperationalLimit-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.OperationalLimit-cardinality" ;
+        sh:order        12 ;
+        sh:path         nc:PowerFlowResult.OperationalLimit ;
+        sh:severity     sh:Violation .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "DatatypesIO" ;
+        sh:order    1 .
+
+sar:PowerFlowResult.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        sar:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerFlowResult.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        8 ;
+        sh:path         nc:PowerFlowResult.atTime ;
+        sh:severity     sh:Violation .
+
+sar:PowerFlowResult.valueV-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        sar:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerFlowResult.valueV-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:PowerFlowResult.valueV ;
+        sh:severity     sh:Violation .

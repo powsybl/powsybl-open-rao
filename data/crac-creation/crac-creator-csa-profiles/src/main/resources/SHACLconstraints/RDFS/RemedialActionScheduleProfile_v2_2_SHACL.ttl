@@ -1,0 +1,1398 @@
+@base          <http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU/Constraints> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix cim:     <http://iec.ch/TC57/CIM100#> .
+@prefix cims:    <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix dash:    <http://datashapes.org/dash#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/#> .
+@prefix dm:      <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix eu:      <http://iec.ch/TC57/CIM100-European#> .
+@prefix eumd:    <http://entsoe.eu/ns/Metadata-European#> .
+@prefix euvoc:   <http://publications.europa.eu/ontology/euvoc#> .
+@prefix ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix prof:    <http://www.w3.org/ns/dx/prof/#> .
+@prefix profcim: <http://iec.ch/TC57/ns/CIM/prof-cim#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix ras:     <http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU/Constraints#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+ras:PowerTimePoint.price-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerTimePoint.price-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:PowerTimePoint.price ;
+        sh:severity     sh:Violation .
+
+ras:EventTimePoint.EventSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:EventSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:EventSchedule" ;
+        sh:name         "EventTimePoint.EventSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:EventTimePoint.EventSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.SystemOperator-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionScheduleAcceptance.SystemOperator-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionScheduleAcceptance.SystemOperator ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.RemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionSchedule.RemedialAction-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:RemedialActionSchedule.RemedialAction ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:RemedialActionCost.mRID ;
+        sh:severity     sh:Violation .
+
+ras:ProposingRemedialActionScheduleShare.ProposingEntity-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "ProposingRemedialActionScheduleShare.ProposingEntity-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:ProposingRemedialActionScheduleShare.ProposingEntity ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheme.armed-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionScheme.armed-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionScheme.armed ;
+        sh:severity     sh:Violation .
+
+ras:ProposingRemedialActionScheduleShare.RemedialActionSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionSchedule" ;
+        sh:name         "ProposingRemedialActionScheduleShare.RemedialActionSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:ProposingRemedialActionScheduleShare.RemedialActionSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint.GenericValueSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:GridStateIntensitySchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:GridStateIntensitySchedule" ;
+        sh:name         "GenericValueTimePoint.GenericValueSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:GenericValueTimePoint.GenericValueSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.processingFee-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.processingFee-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:RemedialActionCost.processingFee ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.activatedP-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerTimePoint.activatedP-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        6 ;
+        sh:path         nc:PowerTimePoint.activatedP ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( nc:CostSettledKind.final nc:CostSettledKind.provisional nc:CostSettledKind.indicative ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "RemedialActionCost.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:RemedialActionCost.kind ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.PowerSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerScheduleAction.PowerSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:PowerScheduleAction.PowerSchedule ;
+        sh:severity     sh:Violation .
+
+ras:AvailabilitySchedule.priority-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilitySchedule.priority-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilitySchedule.priority ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.costAllocationTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.costAllocationTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:RemedialActionCost.costAllocationTime ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.opportunityCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.opportunityCost-cardinality" ;
+        sh:order        10 ;
+        sh:path         nc:RemedialActionCost.opportunityCost ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.shutdownCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.shutdownCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        8 ;
+        sh:path         nc:RemedialActionCost.shutdownCost ;
+        sh:severity     sh:Violation .
+
+ras:BaseTimeSeries.interpolationKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "BaseTimeSeries.interpolationKind-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:BaseTimeSeries.interpolationKind ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "GenericValueTimePoint.atTime-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GenericValueTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.totalCostCurrency-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( cim:Currency.DJF cim:Currency.ZMK cim:Currency.RUB cim:Currency.BRL cim:Currency.ANG cim:Currency.RWF cim:Currency.BND cim:Currency.MNT cim:Currency.AUD cim:Currency.BOV cim:Currency.XPF cim:Currency.UZS cim:Currency.THB cim:Currency.DOP cim:Currency.GTQ cim:Currency.AED cim:Currency.SOS cim:Currency.VUV cim:Currency.VEF cim:Currency.TOP cim:Currency.IQD cim:Currency.AMD cim:Currency.AZN cim:Currency.AWG cim:Currency.DZD cim:Currency.USD cim:Currency.KMF cim:Currency.ZAR cim:Currency.MVR cim:Currency.BTN cim:Currency.SLL cim:Currency.PGK cim:Currency.LAK cim:Currency.FKP cim:Currency.NAD cim:Currency.NPR cim:Currency.ZWL cim:Currency.PKR cim:Currency.XAF cim:Currency.CAD cim:Currency.COP cim:Currency.TZS cim:Currency.BIF cim:Currency.BHD cim:Currency.MDL cim:Currency.TJS cim:Currency.BOB cim:Currency.NZD cim:Currency.LSL cim:Currency.VND cim:Currency.MGA cim:Currency.SEK cim:Currency.ERN cim:Currency.NGN cim:Currency.KES cim:Currency.ETB cim:Currency.SRD cim:Currency.MAD cim:Currency.MOP cim:Currency.IRR cim:Currency.SBD cim:Currency.JMD cim:Currency.BWP cim:Currency.CRC cim:Currency.SHP cim:Currency.UGX cim:Currency.MMK cim:Currency.SAR cim:Currency.TTD cim:Currency.HNL cim:Currency.LTL cim:Currency.ALL cim:Currency.SDG cim:Currency.CLF cim:Currency.HTG cim:Currency.KPW cim:Currency.GYD cim:Currency.GHS cim:Currency.KWD cim:Currency.NOK cim:Currency.GEL cim:Currency.BZD cim:Currency.CDF cim:Currency.EUR cim:Currency.MYR cim:Currency.SYP cim:Currency.HKD cim:Currency.BYR cim:Currency.NIO cim:Currency.JPY cim:Currency.AOA cim:Currency.LYD cim:Currency.CNY cim:Currency.ILS cim:Currency.RON cim:Currency.BGN cim:Currency.BBD cim:Currency.XCD cim:Currency.PYG cim:Currency.PLN cim:Currency.TMT cim:Currency.KGS cim:Currency.STD cim:Currency.AFN cim:Currency.MXN cim:Currency.MKD cim:Currency.MWK cim:Currency.LRD cim:Currency.JOD cim:Currency.IDR cim:Currency.HUF cim:Currency.OMR cim:Currency.UAH cim:Currency.BSD cim:Currency.KRW cim:Currency.SCR cim:Currency.RSD cim:Currency.LVL cim:Currency.TND cim:Currency.PEN cim:Currency.KYD cim:Currency.GIP cim:Currency.CUC cim:Currency.FJD cim:Currency.WST cim:Currency.KHR cim:Currency.TWD cim:Currency.CVE cim:Currency.YER cim:Currency.MRO cim:Currency.QAR cim:Currency.UYU cim:Currency.ARS cim:Currency.MZN cim:Currency.BDT cim:Currency.EGP cim:Currency.BAM cim:Currency.SZL cim:Currency.INR cim:Currency.KZT cim:Currency.CLP cim:Currency.DKK cim:Currency.ISK cim:Currency.BMD cim:Currency.CZK cim:Currency.TRY cim:Currency.GBP cim:Currency.PAB cim:Currency.EEK cim:Currency.XOF cim:Currency.COU cim:Currency.CHF cim:Currency.GNF cim:Currency.GMD cim:Currency.CUP cim:Currency.LBP cim:Currency.HRK cim:Currency.LKR cim:Currency.PHP cim:Currency.MUR cim:Currency.SGD ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "RemedialActionSchedule.totalCostCurrency-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        6 ;
+        sh:path         nc:RemedialActionSchedule.totalCostCurrency ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.price-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerTimePoint.price-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:PowerTimePoint.price ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheme
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:RemedialActionScheme.armed-datatype , ras:RemedialActionScheme.armed-cardinality ;
+        sh:targetClass  nc:RemedialActionScheme .
+
+ras:EventTimePoint  rdf:type  sh:NodeShape ;
+        sh:property     ras:EventTimePoint.atTime-datatype , ras:EventTimePoint.atTime-cardinality , ras:EventTimePoint.EventSchedule-valueType , ras:EventTimePoint.EventSchedule-cardinality , ras:EventTimePoint.isActive-datatype , ras:EventTimePoint.isActive-cardinality ;
+        sh:targetClass  nc:EventTimePoint .
+
+ras:ProposingRemedialActionScheduleShare
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:ProposingRemedialActionScheduleShare.costSharingFactor-datatype , ras:ProposingRemedialActionScheduleShare.costSharingFactor-cardinality , ras:ProposingRemedialActionScheduleShare.RemedialActionSchedule-valueType , ras:ProposingRemedialActionScheduleShare.RemedialActionSchedule-cardinality , ras:ProposingRemedialActionScheduleShare.ProposingEntity-cardinality , ras:ProposingRemedialActionScheduleShare.mRID-datatype , ras:ProposingRemedialActionScheduleShare.mRID-cardinality ;
+        sh:targetClass  nc:ProposingRemedialActionScheduleShare .
+
+ras:PowerTimePoint.activatedPrice-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerTimePoint.activatedPrice-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:PowerTimePoint.activatedPrice ;
+        sh:severity     sh:Violation .
+
+ras:GridStateIntensitySchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:GridStateIntensitySchedule.GridStateAlteration-cardinality , ras:GenericValueSchedule.RemedialActionSchedule-valueType , ido:IdentifiedObject.description-cardinality , ras:BaseTimeSeries.interpolationKind-datatype , ras:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.name-cardinality , ras:GridStateIntensitySchedule.valueKind-cardinality , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.description-datatype , ras:GridStateIntensitySchedule.valueKind-datatype , ras:GenericValueSchedule.RemedialActionSchedule-cardinality , ido:IdentifiedObject.mRID-datatype ;
+        sh:targetClass  nc:GridStateIntensitySchedule .
+
+ras:ProposingRemedialActionScheduleShare.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "ProposingRemedialActionScheduleShare.mRID-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:ProposingRemedialActionScheduleShare.mRID ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.startupCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.startupCost-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionCost.startupCost ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.RemedialAction-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:SchemeRemedialAction nc:AvailabilityRemedialAction nc:GridStateAlterationRemedialAction nc:RedispatchRemedialAction nc:CountertradeRemedialAction) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:SchemeRemedialAction" ;
+        sh:name         "RemedialActionSchedule.RemedialAction-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        8 ;
+        sh:path         ( nc:RemedialActionSchedule.RemedialAction rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:AvailabilitySchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.description-datatype , ras:AvailabilitySchedule.priority-datatype , ido:IdentifiedObject.description-cardinality , ras:AvailabilitySchedule.isCancelled-cardinality , ras:AvailabilitySchedule.RemedialAction-cardinality , ras:AvailabilitySchedule.priority-cardinality , ras:AvailabilitySchedule.isCancelled-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.name-datatype ;
+        sh:targetClass  nc:AvailabilitySchedule .
+
+ras:EventSchedule  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.mRID-datatype , ras:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.name-cardinality , ras:BaseTimeSeries.interpolationKind-datatype , ras:EventSchedule.RemedialActionSchedule-cardinality , ras:EventSchedule.RemedialActionSchedule-valueType , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.description-datatype ;
+        sh:targetClass  nc:EventSchedule .
+
+ras:RemedialActionCost.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionCost.kind-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:RemedialActionCost.kind ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.Contingency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionSchedule.Contingency-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:RemedialActionSchedule.Contingency ;
+        sh:severity     sh:Violation .
+
+ras:BaseTimeSeries.interpolationKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( nc:TimeSeriesInterpolationKind.next nc:TimeSeriesInterpolationKind.none ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "BaseTimeSeries.interpolationKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:BaseTimeSeries.interpolationKind ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.PowerSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerTimePoint.PowerSchedule-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:PowerTimePoint.PowerSchedule ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionCost.RemedialActionSchedule-cardinality" ;
+        sh:order        9 ;
+        sh:path         nc:RemedialActionCost.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ras:PowerSchedule  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.name-datatype , ras:BaseTimeSeries.interpolationKind-datatype , ido:IdentifiedObject.mRID-datatype , ras:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-cardinality ;
+        sh:targetClass  nc:PowerSchedule .
+
+ras:PowerTimePoint  rdf:type  sh:NodeShape ;
+        sh:property     ras:PowerTimePoint.price-datatype , ras:PowerTimePoint.PowerSchedule-cardinality , ras:PowerTimePoint.activatedPrice-cardinality , ras:PowerTimePoint.PowerSchedule-valueType , ras:PowerTimePoint.atTime-cardinality , ras:PowerTimePoint.activatedP-cardinality , ras:PowerTimePoint.activatedP-datatype , ras:PowerTimePoint.atTime-datatype , ras:PowerTimePoint.p-cardinality , ras:PowerTimePoint.activatedPrice-datatype , ras:PowerTimePoint.q-datatype , ras:PowerTimePoint.price-cardinality , ras:PowerTimePoint.p-datatype , ras:PowerTimePoint.q-cardinality ;
+        sh:targetClass  nc:PowerTimePoint .
+
+ras:PowerTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        4 ;
+        sh:path         nc:PowerTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.description-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionCost.mRID-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:RemedialActionCost.mRID ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "PowerTimePoint.atTime-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:PowerTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint.GenericValueSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "GenericValueTimePoint.GenericValueSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:GenericValueTimePoint.GenericValueSchedule ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.shutdownCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.shutdownCost-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:RemedialActionCost.shutdownCost ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionScheduleAcceptance.kind-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionScheduleAcceptance.kind ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.description-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.description-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheme.armed-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionScheme.armed-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionScheme.armed ;
+        sh:severity     sh:Violation .
+
+ras:AvailabilitySchedule.priority-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:integer ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilitySchedule.priority-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilitySchedule.priority ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionScheduleAcceptance.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:RemedialActionScheduleAcceptance.mRID ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.energyPrice-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerScheduleAction.energyPrice-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:PowerScheduleAction.energyPrice ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.energyPrice-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerScheduleAction.energyPrice-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:PowerScheduleAction.energyPrice ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.startupCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.startupCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionCost.startupCost ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.name-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.AssignedRegion-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionSchedule.AssignedRegion-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionSchedule.AssignedRegion ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.RemedialActionSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionSchedule" ;
+        sh:name         "PowerScheduleAction.RemedialActionSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         ( nc:PowerScheduleAction.RemedialActionSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.savedFuelCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.savedFuelCost-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:RemedialActionCost.savedFuelCost ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.q-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerTimePoint.q-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:PowerTimePoint.q ;
+        sh:severity     sh:Violation .
+
+ras:GridStateIntensitySchedule.GridStateAlteration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "GridStateIntensitySchedule.GridStateAlteration-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:GridStateIntensitySchedule.GridStateAlteration ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionScheduleAcceptance.mRID-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:RemedialActionScheduleAcceptance.mRID ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.otherCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.otherCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionCost.otherCost ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.RemedialActionSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionSchedule" ;
+        sh:name         "RemedialActionCost.RemedialActionSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        9 ;
+        sh:path         ( nc:RemedialActionCost.RemedialActionSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "GenericValueTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:GenericValueTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ras:AvailabilitySchedule.isCancelled-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilitySchedule.isCancelled-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilitySchedule.isCancelled ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.statusReason-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionSchedule.statusReason-cardinality" ;
+        sh:order        13 ;
+        sh:path         nc:RemedialActionSchedule.statusReason ;
+        sh:severity     sh:Violation .
+
+ras:EventSchedule.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "EventSchedule.RemedialActionSchedule-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:EventSchedule.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "IdentifiedObject.mRID-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:RemedialActionScheduleAcceptance.kind-datatype , ras:RemedialActionScheduleAcceptance.kind-cardinality , ras:RemedialActionScheduleAcceptance.mRID-datatype , ras:RemedialActionScheduleAcceptance.mRID-cardinality , ras:RemedialActionScheduleAcceptance.RemedialActionSchedule-valueType , ras:RemedialActionScheduleAcceptance.RemedialActionSchedule-cardinality , ras:RemedialActionScheduleAcceptance.SystemOperator-cardinality ;
+        sh:targetClass  nc:RemedialActionScheduleAcceptance .
+
+ras:GenericValueSchedule.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GenericValueSchedule.RemedialActionSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:GenericValueSchedule.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ras:EventTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "EventTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:EventTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.activatedPrice-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerTimePoint.activatedPrice-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:PowerTimePoint.activatedPrice ;
+        sh:severity     sh:Violation .
+
+ras:EventTimePoint.isActive-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "EventTimePoint.isActive-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:EventTimePoint.isActive ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:GenericValueTimePoint.GenericValueSchedule-valueType , ras:GenericValueTimePoint.GenericValueSchedule-cardinality , ras:GenericValueTimePoint.value-datatype , ras:GenericValueTimePoint.value-cardinality , ras:GenericValueTimePoint.atTime-datatype , ras:GenericValueTimePoint.atTime-cardinality ;
+        sh:targetClass  nc:GenericValueTimePoint .
+
+ras:SchemeRemedialAction.RemedialActionScheme-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionScheme ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionScheme" ;
+        sh:name         "SchemeRemedialAction.RemedialActionScheme-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         ( nc:SchemeRemedialAction.RemedialActionScheme rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint.value-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "GenericValueTimePoint.value-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:GenericValueTimePoint.value ;
+        sh:severity     sh:Violation .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "DatatypesIO" ;
+        sh:order    1 .
+
+ras:PowerScheduleAction.currency-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( cim:Currency.DJF cim:Currency.ZMK cim:Currency.RUB cim:Currency.BRL cim:Currency.ANG cim:Currency.RWF cim:Currency.BND cim:Currency.MNT cim:Currency.AUD cim:Currency.BOV cim:Currency.XPF cim:Currency.UZS cim:Currency.THB cim:Currency.DOP cim:Currency.GTQ cim:Currency.AED cim:Currency.SOS cim:Currency.VUV cim:Currency.VEF cim:Currency.TOP cim:Currency.IQD cim:Currency.AMD cim:Currency.AZN cim:Currency.AWG cim:Currency.DZD cim:Currency.USD cim:Currency.KMF cim:Currency.ZAR cim:Currency.MVR cim:Currency.BTN cim:Currency.SLL cim:Currency.PGK cim:Currency.LAK cim:Currency.FKP cim:Currency.NAD cim:Currency.NPR cim:Currency.ZWL cim:Currency.PKR cim:Currency.XAF cim:Currency.CAD cim:Currency.COP cim:Currency.TZS cim:Currency.BIF cim:Currency.BHD cim:Currency.MDL cim:Currency.TJS cim:Currency.BOB cim:Currency.NZD cim:Currency.LSL cim:Currency.VND cim:Currency.MGA cim:Currency.SEK cim:Currency.ERN cim:Currency.NGN cim:Currency.KES cim:Currency.ETB cim:Currency.SRD cim:Currency.MAD cim:Currency.MOP cim:Currency.IRR cim:Currency.SBD cim:Currency.JMD cim:Currency.BWP cim:Currency.CRC cim:Currency.SHP cim:Currency.UGX cim:Currency.MMK cim:Currency.SAR cim:Currency.TTD cim:Currency.HNL cim:Currency.LTL cim:Currency.ALL cim:Currency.SDG cim:Currency.CLF cim:Currency.HTG cim:Currency.KPW cim:Currency.GYD cim:Currency.GHS cim:Currency.KWD cim:Currency.NOK cim:Currency.GEL cim:Currency.BZD cim:Currency.CDF cim:Currency.EUR cim:Currency.MYR cim:Currency.SYP cim:Currency.HKD cim:Currency.BYR cim:Currency.NIO cim:Currency.JPY cim:Currency.AOA cim:Currency.LYD cim:Currency.CNY cim:Currency.ILS cim:Currency.RON cim:Currency.BGN cim:Currency.BBD cim:Currency.XCD cim:Currency.PYG cim:Currency.PLN cim:Currency.TMT cim:Currency.KGS cim:Currency.STD cim:Currency.AFN cim:Currency.MXN cim:Currency.MKD cim:Currency.MWK cim:Currency.LRD cim:Currency.JOD cim:Currency.IDR cim:Currency.HUF cim:Currency.OMR cim:Currency.UAH cim:Currency.BSD cim:Currency.KRW cim:Currency.SCR cim:Currency.RSD cim:Currency.LVL cim:Currency.TND cim:Currency.PEN cim:Currency.KYD cim:Currency.GIP cim:Currency.CUC cim:Currency.FJD cim:Currency.WST cim:Currency.KHR cim:Currency.TWD cim:Currency.CVE cim:Currency.YER cim:Currency.MRO cim:Currency.QAR cim:Currency.UYU cim:Currency.ARS cim:Currency.MZN cim:Currency.BDT cim:Currency.EGP cim:Currency.BAM cim:Currency.SZL cim:Currency.INR cim:Currency.KZT cim:Currency.CLP cim:Currency.DKK cim:Currency.ISK cim:Currency.BMD cim:Currency.CZK cim:Currency.TRY cim:Currency.GBP cim:Currency.PAB cim:Currency.EEK cim:Currency.XOF cim:Currency.COU cim:Currency.CHF cim:Currency.GNF cim:Currency.GMD cim:Currency.CUP cim:Currency.LBP cim:Currency.HRK cim:Currency.LKR cim:Currency.PHP cim:Currency.MUR cim:Currency.SGD ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "PowerScheduleAction.currency-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        4 ;
+        sh:path         nc:PowerScheduleAction.currency ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.currency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerScheduleAction.currency-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:PowerScheduleAction.currency ;
+        sh:severity     sh:Violation .
+
+ras:ProposingRemedialActionScheduleShare.costSharingFactor-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ProposingRemedialActionScheduleShare.costSharingFactor-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:ProposingRemedialActionScheduleShare.costSharingFactor ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueTimePoint.value-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "GenericValueTimePoint.value-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GenericValueTimePoint.value ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionScheduleAcceptance.RemedialActionSchedule-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:RemedialActionScheduleAcceptance.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.operationalCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.operationalCost-cardinality" ;
+        sh:order        7 ;
+        sh:path         nc:RemedialActionCost.operationalCost ;
+        sh:severity     sh:Violation .
+
+ras:EventTimePoint.isActive-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "EventTimePoint.isActive-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:EventTimePoint.isActive ;
+        sh:severity     sh:Violation .
+
+ras:RedispatchScheduleAction
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ras:PowerScheduleAction.energyPrice-datatype , ras:PowerScheduleAction.PowerBidSchedule-cardinality , ras:PowerScheduleAction.RemedialActionSchedule-valueType , ido:IdentifiedObject.mRID-datatype , ras:PowerScheduleAction.currency-cardinality , ras:PowerScheduleAction.PowerSchedule-valueType , ras:RedispatchScheduleAction.ScheduleResource-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ras:PowerScheduleAction.currency-datatype , ras:PowerScheduleAction.energyPrice-cardinality , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-cardinality , ras:PowerScheduleAction.PowerSchedule-cardinality , ras:PowerScheduleAction.RemedialActionSchedule-cardinality ;
+        sh:targetClass  nc:RedispatchScheduleAction .
+
+ras:EventTimePoint.EventSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "EventTimePoint.EventSchedule-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:EventTimePoint.EventSchedule ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( nc:RemedialActionScheduleAcceptanceKind.timeout nc:RemedialActionScheduleAcceptanceKind.waiting nc:RemedialActionScheduleAcceptanceKind.accepted nc:RemedialActionScheduleAcceptanceKind.refused ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "RemedialActionScheduleAcceptance.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         nc:RemedialActionScheduleAcceptance.kind ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.PowerSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:PowerSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:PowerSchedule" ;
+        sh:name         "PowerTimePoint.PowerSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:PowerTimePoint.PowerSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:RemedialActionCost.RemedialActionSchedule-cardinality , ras:RemedialActionCost.shutdownCost-cardinality , ras:RemedialActionCost.shutdownCost-datatype , ras:RemedialActionCost.startupCost-cardinality , ras:RemedialActionCost.costAllocationTime-cardinality , ras:RemedialActionCost.operationalCost-cardinality , ras:RemedialActionCost.mRID-cardinality , ras:RemedialActionCost.processingFee-cardinality , ras:RemedialActionCost.startupCost-datatype , ras:RemedialActionCost.processingFee-datatype , ras:RemedialActionCost.opportunityCost-datatype , ras:RemedialActionCost.operationalCost-datatype , ras:RemedialActionCost.otherCost-cardinality , ras:RemedialActionCost.kind-cardinality , ras:RemedialActionCost.opportunityCost-cardinality , ras:RemedialActionCost.kind-datatype , ras:RemedialActionCost.mRID-datatype , ras:RemedialActionCost.otherCost-datatype , ras:RemedialActionCost.savedFuelCost-cardinality , ras:RemedialActionCost.costAllocationTime-datatype , ras:RemedialActionCost.savedFuelCost-datatype , ras:RemedialActionCost.RemedialActionSchedule-valueType ;
+        sh:targetClass  nc:RemedialActionCost .
+
+ido:IdentifiedObject.name-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.name-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+ras:AvailabilitySchedule.RemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilitySchedule.RemedialAction-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilitySchedule.RemedialAction ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.statusReason-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionSchedule.statusReason-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        13 ;
+        sh:path         nc:RemedialActionSchedule.statusReason ;
+        sh:severity     sh:Violation .
+
+ras:ProposingRemedialActionScheduleShare.costSharingFactor-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "ProposingRemedialActionScheduleShare.costSharingFactor-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:ProposingRemedialActionScheduleShare.costSharingFactor ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.q-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerTimePoint.q-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:PowerTimePoint.q ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.p-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "PowerTimePoint.p-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:PowerTimePoint.p ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:RemedialActionSchedule.RemedialActionScheduleGroup-cardinality , ras:RemedialActionSchedule.statusReason-datatype , ras:RemedialActionSchedule.statusReason-cardinality , ras:RemedialActionSchedule.RemedialAction-cardinality , ido:IdentifiedObject.description-datatype , ras:RemedialActionSchedule.Contingency-cardinality , ras:RemedialActionSchedule.RemedialActionScheduleGroup-valueType , ido:IdentifiedObject.mRID-datatype , ras:RemedialActionSchedule.totalCostCurrency-cardinality , ido:IdentifiedObject.description-cardinality , ras:RemedialActionSchedule.ProposingEntity-cardinality , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , ras:RemedialActionSchedule.RemedialAction-valueType , ido:IdentifiedObject.name-cardinality , ras:RemedialActionSchedule.statusKind-datatype , ras:RemedialActionSchedule.statusKind-cardinality , ras:RemedialActionSchedule.AssignedRegion-cardinality , ras:RemedialActionSchedule.totalCostCurrency-datatype ;
+        sh:targetClass  nc:RemedialActionSchedule .
+
+ras:RemedialActionSchedule.RemedialActionScheduleGroup-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionScheduleGroup ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionScheduleGroup" ;
+        sh:name         "RemedialActionSchedule.RemedialActionScheduleGroup-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        12 ;
+        sh:path         ( nc:RemedialActionSchedule.RemedialActionScheduleGroup rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleAcceptance.RemedialActionSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionSchedule" ;
+        sh:name         "RemedialActionScheduleAcceptance.RemedialActionSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:RemedialActionScheduleAcceptance.RemedialActionSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:GenericValueSchedule.RemedialActionSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionSchedule" ;
+        sh:name         "GenericValueSchedule.RemedialActionSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:GenericValueSchedule.RemedialActionSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:SchemeRemedialAction
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ras:SchemeRemedialAction.RemedialActionScheme-valueType , ras:SchemeRemedialAction.RemedialActionScheme-cardinality ;
+        sh:targetClass  nc:SchemeRemedialAction .
+
+ras:PowerScheduleAction.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "PowerScheduleAction.RemedialActionSchedule-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:PowerScheduleAction.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ras:CountertradeScheduleAction
+        rdf:type        sh:NodeShape ;
+        sh:property     ras:PowerScheduleAction.currency-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.name-datatype , ras:PowerScheduleAction.RemedialActionSchedule-cardinality , ras:PowerScheduleAction.currency-cardinality , ras:PowerScheduleAction.PowerSchedule-valueType , ras:PowerScheduleAction.energyPrice-cardinality , ido:IdentifiedObject.mRID-cardinality , ras:PowerScheduleAction.PowerBidSchedule-cardinality , ido:IdentifiedObject.mRID-datatype , ras:PowerScheduleAction.energyPrice-datatype , ras:PowerScheduleAction.RemedialActionSchedule-valueType , ido:IdentifiedObject.description-cardinality , ras:PowerScheduleAction.PowerSchedule-cardinality ;
+        sh:targetClass  nc:CountertradeScheduleAction .
+
+ras:RemedialActionSchedule.ProposingEntity-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionSchedule.ProposingEntity-cardinality" ;
+        sh:order        10 ;
+        sh:path         nc:RemedialActionSchedule.ProposingEntity ;
+        sh:severity     sh:Violation .
+
+ras:AssociationsGroup
+        rdf:type    sh:PropertyGroup ;
+        rdfs:label  "Associations" ;
+        sh:order    2 .
+
+ras:RemedialActionSchedule.totalCostCurrency-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionSchedule.totalCostCurrency-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:RemedialActionSchedule.totalCostCurrency ;
+        sh:severity     sh:Violation .
+
+ras:ProposingRemedialActionScheduleShare.RemedialActionSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "ProposingRemedialActionScheduleShare.RemedialActionSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:ProposingRemedialActionScheduleShare.RemedialActionSchedule ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.RemedialActionScheduleGroup-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionSchedule.RemedialActionScheduleGroup-cardinality" ;
+        sh:order        12 ;
+        sh:path         nc:RemedialActionSchedule.RemedialActionScheduleGroup ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.statusKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "RemedialActionSchedule.statusKind-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:RemedialActionSchedule.statusKind ;
+        sh:severity     sh:Violation .
+
+ras:EventSchedule.RemedialActionSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:RemedialActionSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:RemedialActionSchedule" ;
+        sh:name         "EventSchedule.RemedialActionSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        0 ;
+        sh:path         ( nc:EventSchedule.RemedialActionSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RedispatchScheduleAction.ScheduleResource-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RedispatchScheduleAction.ScheduleResource-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:RedispatchScheduleAction.ScheduleResource ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.PowerBidSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerScheduleAction.PowerBidSchedule-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:PowerScheduleAction.PowerBidSchedule ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.opportunityCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.opportunityCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        10 ;
+        sh:path         nc:RemedialActionCost.opportunityCost ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionSchedule.statusKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( nc:RemedialActionScheduleStatusKind.rejected nc:RemedialActionScheduleStatusKind.rejectionValidated nc:RemedialActionScheduleStatusKind.proposed nc:RemedialActionScheduleStatusKind.notUsed nc:RemedialActionScheduleStatusKind.ordered nc:RemedialActionScheduleStatusKind.implemented nc:RemedialActionScheduleStatusKind.previouslyAgreed nc:RemedialActionScheduleStatusKind.agreementValidated nc:RemedialActionScheduleStatusKind.agreed nc:RemedialActionScheduleStatusKind.activated ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "RemedialActionSchedule.statusKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        4 ;
+        sh:path         nc:RemedialActionSchedule.statusKind ;
+        sh:severity     sh:Violation .
+
+ras:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Cardinality" ;
+        sh:order    0 .
+
+ras:RemedialActionCost.otherCost-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.otherCost-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:RemedialActionCost.otherCost ;
+        sh:severity     sh:Violation .
+
+ras:GridStateIntensitySchedule.valueKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "GridStateIntensitySchedule.valueKind-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:GridStateIntensitySchedule.valueKind ;
+        sh:severity     sh:Violation .
+
+ras:ProposingRemedialActionScheduleShare.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "ProposingRemedialActionScheduleShare.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:ProposingRemedialActionScheduleShare.mRID ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.processingFee-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.processingFee-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:RemedialActionCost.processingFee ;
+        sh:severity     sh:Violation .
+
+ras:PowerScheduleAction.PowerSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        ras:AssociationsGroup ;
+        sh:in           ( nc:PowerSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:PowerSchedule" ;
+        sh:name         "PowerScheduleAction.PowerSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:PowerScheduleAction.PowerSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.savedFuelCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.savedFuelCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        6 ;
+        sh:path         nc:RemedialActionCost.savedFuelCost ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionScheduleGroup
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality ;
+        sh:targetClass  nc:RemedialActionScheduleGroup .
+
+ras:RemedialActionCost.costAllocationTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "RemedialActionCost.costAllocationTime-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:RemedialActionCost.costAllocationTime ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.activatedP-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerTimePoint.activatedP-cardinality" ;
+        sh:order        6 ;
+        sh:path         nc:PowerTimePoint.activatedP ;
+        sh:severity     sh:Violation .
+
+ras:EventTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "EventTimePoint.atTime-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:EventTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+ras:RemedialActionCost.operationalCost-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:decimal ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "RemedialActionCost.operationalCost-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        7 ;
+        sh:path         nc:RemedialActionCost.operationalCost ;
+        sh:severity     sh:Violation .
+
+ras:GridStateIntensitySchedule.valueKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:in           ( nc:ValueOffsetKind.absolute nc:ValueOffsetKind.incrementalPercentage nc:ValueOffsetKind.incremental ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "GridStateIntensitySchedule.valueKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         nc:GridStateIntensitySchedule.valueKind ;
+        sh:severity     sh:Violation .
+
+ras:AvailabilitySchedule.isCancelled-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ras:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilitySchedule.isCancelled-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilitySchedule.isCancelled ;
+        sh:severity     sh:Violation .
+
+ras:PowerTimePoint.p-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "PowerTimePoint.p-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:PowerTimePoint.p ;
+        sh:severity     sh:Violation .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityIO" ;
+        sh:order    0 .
+
+ras:DatatypesGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Datatypes" ;
+        sh:order    1 .
+
+ras:SchemeRemedialAction.RemedialActionScheme-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        ras:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "SchemeRemedialAction.RemedialActionScheme-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:SchemeRemedialAction.RemedialActionScheme ;
+        sh:severity     sh:Violation .

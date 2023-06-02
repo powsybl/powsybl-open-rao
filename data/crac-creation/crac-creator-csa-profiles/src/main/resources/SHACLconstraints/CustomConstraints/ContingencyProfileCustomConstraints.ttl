@@ -1,0 +1,93 @@
+@base          <http://entsoe.eu/ns/CIM/Contingency-EU/CustomConstraints> .
+@prefix eu:    <http://iec.ch/TC57/CIM100-European#> .
+@prefix cims:  <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix cim:   <http://iec.ch/TC57/CIM100#> .
+@prefix coc:  <http://entsoe.eu/ns/CIM/Contingency-EU/CustomConstraints#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dash:  <http://datashapes.org/dash#> .
+@prefix dcterms:    <http://purl.org/dc/terms#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+
+
+coc:Ontology  rdf:type         owl:Ontology ;
+        dcterms:conformsTo        "urn:iso:std:iec:61970-501:draft:ed-2" , "urn:iso:std:iec:61970-600-2:ed-1" , "urn:iso:std:iec:61970-301:ed-7:amd1" , "file://iec61970cim17v40_iec61968cim13v13a_iec62325cim03v17a.eap" ;
+        dcterms:creator           "ENTSO-E CIM EG"@en ;
+        dcterms:description       "The custom constraints for the Contingency profile."@en ;
+        dcterms:identifier        "urn:uuid:1b226f44-a07c-44e7-9976-9c781ed21748" ;
+        dcterms:issued            "2022-09-28T12:09:21Z"^^xsd:dateTime ;
+        dcterms:language          "en-GB" ;
+        dcterms:modified          "2022-09-28"^^xsd:date ;
+        dcterms:publisher         "ENTSO-E"@en ;
+        dcterms:rights            "Copyright"@en ;
+        dcterms:rightsHolder      "ENTSO-E"@en ;
+        dcterms:title             "Contingency profile custom constraints"@en ;
+        owl:versionIRI        <http://entsoe.eu/ns/CIM/Contingency-EU/CustomConstraints/2.1> ;
+		dcterms:license        "https://www.apache.org/licenses/LICENSE-2.0" ;
+        owl:versionInfo       "2.1.0"@en ;
+        dcat:landingPage      "https://www.entsoe.eu/digital/cim/cim-for-grid-models-exchange/" ;
+        dcat:theme            "constraints"@en .
+
+cim:    
+    a           owl:Ontology ;
+    owl:imports sh: ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://iec.ch/TC57/CIM100#"^^xsd:anyURI ;
+        sh:prefix "cim" ;
+    ] ;
+	sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://entsoe.eu/ns/nc#"^^xsd:anyURI ;
+        sh:prefix "nc" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ;
+        sh:prefix "rdf" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://iec.ch/TC57/CIM100-European#"^^xsd:anyURI ;
+        sh:prefix "eu" ;
+    ] .
+
+
+coc:COgroup
+        a           sh:PropertyGroup ;
+        rdfs:label  "ContingencyGroup" ;
+        sh:order    0 .
+
+
+coc:Contingency.ContingencyElement-otherContingencies
+        a               sh:PropertyShape ;
+        sh:description  "The multiplicity of the association end Contingency.ContingencyElement is restricted to 2..* for both OutOfRangeContingency and ExceptionalContingency" ;
+        sh:message      "Less than 2 contingency elements provided for either OutOfRangeContingency or ExceptionalContingency." ;
+        sh:path         [sh:inversePath  cim:ContingencyElement.Contingency] ;
+        sh:group        coc:COgroup ;
+		sh:minCount     2 ;
+        sh:name         "C:NC:CO:Contingency.ContingencyElement:outOfRangeAndExceptional" ;
+        sh:order        1 ;
+        sh:severity     sh:Violation .	   
+
+
+coc:ContingencyEquipment  a          sh:NodeShape ;
+        sh:property      coc:ContingencyEquipment.contingentStatus-allowedValues;
+        sh:targetClass  cim:ContingencyEquipment .
+
+
+
+coc:ContingencyEquipment.contingentStatus-allowedValues
+        a               sh:PropertyShape ;
+        sh:description  "The allowed value for the ContingencyEquipment.contingentStatus is ContingencyEquipmentStatusKind.outOfService." ;
+        sh:message      "ContingencyEquipment.contingentStatus is not ContingencyEquipmentStatusKind.outOfService." ;
+        sh:path         cim:ContingencyEquipment.contingentStatus ;
+        sh:group        coc:COgroup ;
+		sh:in     		(cim:ContingencyEquipmentStatusKind.outOfService) ;
+        sh:name         "C:NC:CO:ContingencyEquipment.contingentStatus:allowedValues" ;
+        sh:order        2 ;
+        sh:severity     sh:Violation .

@@ -1,0 +1,94 @@
+@base          <http://entsoe.eu/ns/CIM/RemedialActionScheule-EU/CustomConstraints> .
+@prefix eu:    <http://iec.ch/TC57/CIM100-European#> .
+@prefix cims:  <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix cim:   <http://iec.ch/TC57/CIM100#> .
+@prefix rasc:  <http://entsoe.eu/ns/CIM/RemedialActionScheule-EU/CustomConstraints#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dash:  <http://datashapes.org/dash#> .
+@prefix dcterms:    <http://purl.org/dc/terms#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+
+
+rasc:Ontology  rdf:type         owl:Ontology ;
+        dcterms:conformsTo        "urn:iso:std:iec:61970-501:draft:ed-2" , "urn:iso:std:iec:61970-600-2:ed-1" , "urn:iso:std:iec:61970-301:ed-7:amd1"  ;
+        dcterms:creator           "ENTSO-E CIM WG"@en ;
+        dcterms:description       "The custom constraints for remedial action scheule profile."@en ;
+        dcterms:identifier        "urn:uuid:657b4a7f-0868-4764-8327-ff7cbb377dd4" ;
+        dcterms:issued            "2023-03-26T12:09:21Z"^^xsd:dateTime ;
+        dcterms:language          "en-GB" ;
+        dcterms:modified          "2023-03-26"^^xsd:date ;
+        dcterms:publisher         "ENTSO-E"@en ;
+        dcterms:rights            "Copyright"@en ;
+        dcterms:rightsHolder      "ENTSO-E"@en ;
+        dcterms:title             "Remedial Action Schedule profile custom constraints"@en ;
+        owl:versionIRI        <http://entsoe.eu/ns/CIM/RemedialActionScheule-EU/CustomConstraints/2.2> ;
+		dcterms:license        "https://www.apache.org/licenses/LICENSE-2.0" ;
+        owl:versionInfo       "2.2.0"@en ;
+        dcat:landingPage      "https://www.entsoe.eu/digital/cim/cim-for-grid-models-exchange/" ;
+        dcat:theme            "constraints"@en .
+
+cim:    
+    a           owl:Ontology ;
+    owl:imports sh: ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://iec.ch/TC57/CIM100#"^^xsd:anyURI ;
+        sh:prefix "cim" ;
+    ] ;
+	sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://entsoe.eu/ns/nc#"^^xsd:anyURI ;
+        sh:prefix "nc" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ;
+        sh:prefix "rdf" ;
+    ] ;
+    sh:declare [
+        a sh:PrefixDeclaration ;
+        sh:namespace "http://iec.ch/TC57/CIM100-European#"^^xsd:anyURI ;
+        sh:prefix "eu" ;
+    ] .
+
+
+rasc:RASgroup
+        a           sh:PropertyGroup ;
+        rdfs:label  "RemedialActionScheduleGroup" ;
+        sh:order    0 .
+
+
+
+rasc:RemedialActionSchedule  a          sh:NodeShape ;
+        sh:property      rasc:RemedialActionSchedule-proposingEntity;
+        sh:targetClass  nc:RemedialActionSchedule.
+
+
+
+rasc:RemedialActionSchedule-proposingEntity
+        a               sh:PropertyShape ;
+        sh:description  "The RemedialActionSchedule shall have a proposing entity either the Security Coordinator (RemedialActionSchedule.ProposingEntity) or at least one ProposingRemedialActionScheduleShare." ;
+        sh:sparql       rasc:RemedialActionSchedule-proposingEntitySparql ;
+        sh:path         rdf:type ;
+        sh:group        rasc:RASgroup ;
+        sh:name         "C:NC:RAS:RemedialActionSchedule:proposingEntity" ;
+        sh:order        1 ;
+        sh:severity     sh:Violation .
+        
+rasc:RemedialActionSchedule-proposingEntitySparql
+		a         sh:SPARQLConstraint ;  
+		sh:message      "The RemedialActionSchedule does not have a proposing entity either the Security Coordinator (RemedialActionSchedule.ProposingEntity) or at least one ProposingRemedialActionScheduleShare." ;
+		sh:prefixes cim: ;
+		sh:select """
+			SELECT  $this  
+			WHERE {  
+		BIND(EXISTS{$this nc:RemedialActionSchedule.ProposingEntity ?o1} AS ?pesc).
+		BIND(EXISTS{$this ^nc:ProposingRemedialActionScheduleShare.RemedialActionSchedule ?o2} AS ?peso).
+        FILTER (?pesc=false && ?peso=false ).
+			}""" .        
+

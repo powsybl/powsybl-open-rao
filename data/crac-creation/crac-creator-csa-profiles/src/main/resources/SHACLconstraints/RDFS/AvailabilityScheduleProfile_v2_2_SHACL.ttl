@@ -1,0 +1,697 @@
+@base          <http://entsoe.eu/ns/CIM/AvailabilitySchedule-EU/Constraints> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix as:      <http://entsoe.eu/ns/CIM/AvailabilitySchedule-EU/Constraints#> .
+@prefix cim:     <http://iec.ch/TC57/CIM100#> .
+@prefix cims:    <http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#> .
+@prefix dash:    <http://datashapes.org/dash#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/#> .
+@prefix dm:      <http://iec.ch/TC57/61970-552/DifferenceModel/1#> .
+@prefix eu:      <http://iec.ch/TC57/CIM100-European#> .
+@prefix eumd:    <http://entsoe.eu/ns/Metadata-European#> .
+@prefix euvoc:   <http://publications.europa.eu/ontology/euvoc#> .
+@prefix ido:     <http://iec.ch/TC57/ns/CIM/IdentifiedObject/constraints/3.0#> .
+@prefix md:      <http://iec.ch/TC57/61970-552/ModelDescription/1#> .
+@prefix nc:      <http://entsoe.eu/ns/nc#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix prof:    <http://www.w3.org/ns/dx/prof/#> .
+@prefix profcim: <http://iec.ch/TC57/ns/CIM/prof-cim#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+as:AvailabilityContainer
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.description-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-valueType , ido:IdentifiedObject.description-datatype , as:AvailabilityPowerSystemFunction.kind-cardinality , ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.mRID-cardinality , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType , as:AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality , ido:IdentifiedObject.mRID-datatype , as:AvailabilityContainer.EquipmentContainer-cardinality , as:AvailabilityPowerSystemFunction.kind-datatype , ido:IdentifiedObject.name-cardinality , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality ;
+        sh:targetClass  nc:AvailabilityContainer .
+
+as:EventTimePoint.EventSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:EventSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:EventSchedule" ;
+        sh:name         "EventTimePoint.EventSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         ( nc:EventTimePoint.EventSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityExceptionalLimit.value-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:float ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilityExceptionalLimit.value-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityExceptionalLimit.value ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.maxRestitutionDuration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.maxRestitutionDuration-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilitySchedule.maxRestitutionDuration ;
+        sh:severity     sh:Violation .
+
+as:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Cardinality" ;
+        sh:order    0 .
+
+as:AvailabilityEnabled.AssessedElement-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilityEnabled.AssessedElement-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilityEnabled.AssessedElement ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityEquipment
+        rdf:type        sh:NodeShape ;
+        sh:property     as:AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality , as:AvailabilityEquipment.Equipment-cardinality , ido:IdentifiedObject.name-datatype , as:AvailabilityPowerSystemFunction.kind-datatype , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality , as:AvailabilityPowerSystemFunction.kind-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-valueType , ido:IdentifiedObject.description-datatype , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType ;
+        sh:targetClass  nc:AvailabilityEquipment .
+
+as:EventTimePoint.isActive-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "EventTimePoint.isActive-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        1 ;
+        sh:path         nc:EventTimePoint.isActive ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.causeKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilitySchedule.causeKind-cardinality" ;
+        sh:order        12 ;
+        sh:path         nc:AvailabilitySchedule.causeKind ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityRemedialActionScheme
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.name-datatype , as:AvailabilityPowerSystemFunction.kind-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-cardinality , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality , as:AvailabilityPowerSystemFunction.kind-datatype , as:AvailabilityRemedialActionScheme.RemedialActionScheme-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-valueType , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.description-datatype , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType ;
+        sh:targetClass  nc:AvailabilityRemedialActionScheme .
+
+as:AvailabilitySchedule.PrioritySchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:AvailabilitySchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:AvailabilitySchedule" ;
+        sh:name         "AvailabilitySchedule.PrioritySchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        10 ;
+        sh:path         ( nc:AvailabilitySchedule.PrioritySchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.maxRestitutionDuration-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:duration ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilitySchedule.maxRestitutionDuration-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilitySchedule.maxRestitutionDuration ;
+        sh:severity     sh:Violation .
+
+as:BaseTimeSeries.interpolationKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:in           ( nc:TimeSeriesInterpolationKind.previous ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "BaseTimeSeries.interpolationKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         nc:BaseTimeSeries.interpolationKind ;
+        sh:severity     sh:Violation .
+
+ido:DatatypesGroupIO  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "DatatypesIO" ;
+        sh:order    1 .
+
+ido:IdentifiedObject.description-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.description-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityEnabled.enabled-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityEnabled.enabled-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilityEnabled.enabled ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:AvailabilityPowerSystemFunction.AvailabilityGroup ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityRemedialActionScheme.RemedialActionScheme-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityRemedialActionScheme.RemedialActionScheme-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityRemedialActionScheme.RemedialActionScheme ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "IdentifiedObject.name-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+as:EventTimePoint  rdf:type  sh:NodeShape ;
+        sh:property     as:EventTimePoint.EventSchedule-valueType , as:EventTimePoint.EventSchedule-cardinality , as:EventTimePoint.isActive-datatype , as:EventTimePoint.isActive-cardinality , as:EventTimePoint.atTime-datatype , as:EventTimePoint.atTime-cardinality ;
+        sh:targetClass  nc:EventTimePoint .
+
+ido:IdentifiedObject.description-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.description-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.description ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.priority-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:integer ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilitySchedule.priority-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        3 ;
+        sh:path         nc:AvailabilitySchedule.priority ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.RemedialAction-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.RemedialAction-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilitySchedule.RemedialAction ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.cancelledDateTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.cancelledDateTime-cardinality" ;
+        sh:order        7 ;
+        sh:path         nc:AvailabilitySchedule.cancelledDateTime ;
+        sh:severity     sh:Violation .
+
+as:DatatypesGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Datatypes" ;
+        sh:order    1 .
+
+as:AvailabilityPowerSystemFunction.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:in           ( nc:AvailabilityFunctionKind.underTesting nc:AvailabilityFunctionKind.outOfService nc:AvailabilityFunctionKind.inService ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "AvailabilityPowerSystemFunction.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilityPowerSystemFunction.kind ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.ActualSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.ActualSchedule-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:AvailabilitySchedule.ActualSchedule ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.causeDescription-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.causeDescription-cardinality" ;
+        sh:order        5 ;
+        sh:path         nc:AvailabilitySchedule.causeDescription ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilityPowerSystemFunction.AvailabilitySchedule ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityEquipment.Equipment-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityEquipment.Equipment-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityEquipment.Equipment ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.name-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.name-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.name ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityExceptionalLimit
+        rdf:type        sh:NodeShape ;
+        sh:property     as:AvailabilityPowerSystemFunction.kind-datatype , ido:IdentifiedObject.description-cardinality , as:AvailabilityExceptionalLimit.value-cardinality , as:AvailabilityPowerSystemFunction.kind-cardinality , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-valueType , ido:IdentifiedObject.description-datatype , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType , ido:IdentifiedObject.name-datatype , as:AvailabilityExceptionalLimit.value-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.mRID-datatype , as:AvailabilityExceptionalLimit.OperationalLimit-cardinality , ido:IdentifiedObject.name-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality ;
+        sh:targetClass  nc:AvailabilityExceptionalLimit .
+
+as:BaseTimeSeries.kind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:in           ( nc:BaseTimeSeriesKind.actual nc:BaseTimeSeriesKind.schedule ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "BaseTimeSeries.kind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        4 ;
+        sh:path         nc:BaseTimeSeries.kind ;
+        sh:severity     sh:Violation .
+
+as:EventTimePoint.atTime-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "EventTimePoint.atTime-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:EventTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+as:BaseTimeSeries.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "BaseTimeSeries.kind-cardinality" ;
+        sh:order        4 ;
+        sh:path         nc:BaseTimeSeries.kind ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.causeKind-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:in           ( nc:AvailabilityScheduleCauseKind.other nc:AvailabilityScheduleCauseKind.commissioning nc:AvailabilityScheduleCauseKind.worksInProximity nc:AvailabilityScheduleCauseKind.maintenance nc:AvailabilityScheduleCauseKind.environmentalCondition nc:AvailabilityScheduleCauseKind.refurbishment nc:AvailabilityScheduleCauseKind.functionalControl nc:AvailabilityScheduleCauseKind.decommissioning ) ;
+        sh:message      "The datatype is not IRI (Internationalized Resource Identifier) or it is enumerated value not part of the profile." ;
+        sh:name         "AvailabilitySchedule.causeKind-datatype" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        12 ;
+        sh:path         nc:AvailabilitySchedule.causeKind ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityEnabled.enabled-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:boolean ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilityEnabled.enabled-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilityEnabled.enabled ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityExceptionalLimit.OperationalLimit-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityExceptionalLimit.OperationalLimit-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:AvailabilityExceptionalLimit.OperationalLimit ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityGroup  rdf:type  sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality ;
+        sh:targetClass  nc:AvailabilityGroup .
+
+as:EventTimePoint.isActive-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "EventTimePoint.isActive-cardinality" ;
+        sh:order        1 ;
+        sh:path         nc:EventTimePoint.isActive ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityPowerSystemFunction.kind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityPowerSystemFunction.kind-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:AvailabilityPowerSystemFunction.kind ;
+        sh:severity     sh:Violation .
+
+ido:CardinalityGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "CardinalityIO" ;
+        sh:order    0 .
+
+as:AvailabilitySchedule.GridStateAlterationCollection-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.GridStateAlterationCollection-cardinality" ;
+        sh:order        9 ;
+        sh:path         nc:AvailabilitySchedule.GridStateAlterationCollection ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.priority-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilitySchedule.priority-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:AvailabilitySchedule.priority ;
+        sh:severity     sh:Violation .
+
+as:BaseTimeSeries.interpolationKind-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "BaseTimeSeries.interpolationKind-cardinality" ;
+        sh:order        3 ;
+        sh:path         nc:BaseTimeSeries.interpolationKind ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityPowerSystemFunction.AvailabilityGroup-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:AvailabilityGroup ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:AvailabilityGroup" ;
+        sh:name         "AvailabilityPowerSystemFunction.AvailabilityGroup-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        3 ;
+        sh:path         ( nc:AvailabilityPowerSystemFunction.AvailabilityGroup rdf:type ) ;
+        sh:severity     sh:Violation .
+
+as:EventTimePoint.atTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "EventTimePoint.atTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0 ;
+        sh:path         nc:EventTimePoint.atTime ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityExceptionalLimit.value-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityExceptionalLimit.value-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityExceptionalLimit.value ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the property (attribute)." ;
+        sh:group        ido:CardinalityIO ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required property (attribute)." ;
+        sh:minCount     1 ;
+        sh:name         "IdentifiedObject.mRID-cardinality" ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-datatype , ido:IdentifiedObject.mRID-datatype , as:AvailabilitySchedule.causeKind-cardinality , as:AvailabilitySchedule.RemedialAction-cardinality , as:AvailabilitySchedule.DependentOnSchedule-cardinality , ido:IdentifiedObject.name-cardinality , as:AvailabilitySchedule.causeDescription-cardinality , as:AvailabilitySchedule.ActualSchedule-valueType , as:AvailabilitySchedule.priority-datatype , ido:IdentifiedObject.mRID-cardinality , ido:IdentifiedObject.description-datatype , as:AvailabilitySchedule.cancelledDateTime-cardinality , as:AvailabilitySchedule.priority-cardinality , as:AvailabilitySchedule.GridStateAlterationCollection-cardinality , as:AvailabilitySchedule.PrioritySchedule-cardinality , as:AvailabilitySchedule.DependentOnSchedule-valueType , as:AvailabilitySchedule.ActualSchedule-cardinality , as:AvailabilitySchedule.causeDescription-datatype , ido:IdentifiedObject.description-cardinality , as:AvailabilitySchedule.PlannedSchedule-valueType , as:AvailabilitySchedule.causeKind-datatype , as:AvailabilitySchedule.cancelledDateTime-datatype , as:AvailabilitySchedule.PrioritySchedule-valueType , as:AvailabilitySchedule.maxRestitutionDuration-datatype , as:AvailabilitySchedule.maxRestitutionDuration-cardinality , as:AvailabilitySchedule.PlannedSchedule-cardinality ;
+        sh:targetClass  nc:AvailabilitySchedule .
+
+as:EventTimePoint.EventSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "EventTimePoint.EventSchedule-cardinality" ;
+        sh:order        2 ;
+        sh:path         nc:EventTimePoint.EventSchedule ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:AvailabilitySchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:AvailabilitySchedule" ;
+        sh:name         "AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        1 ;
+        sh:path         ( nc:AvailabilityPowerSystemFunction.AvailabilitySchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.ActualSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:EventSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:EventSchedule" ;
+        sh:name         "AvailabilitySchedule.ActualSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        4 ;
+        sh:path         ( nc:AvailabilitySchedule.ActualSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+as:AssociationsGroup  rdf:type  sh:PropertyGroup ;
+        rdfs:label  "Associations" ;
+        sh:order    2 .
+
+as:AvailabilitySchedule.causeDescription-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilitySchedule.causeDescription-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        5 ;
+        sh:path         nc:AvailabilitySchedule.causeDescription ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.PlannedSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:EventSchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:EventSchedule" ;
+        sh:name         "AvailabilitySchedule.PlannedSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        13 ;
+        sh:path         ( nc:AvailabilitySchedule.PlannedSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityContainer.EquipmentContainer-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Missing required association." ;
+        sh:minCount     1 ;
+        sh:name         "AvailabilityContainer.EquipmentContainer-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityContainer.EquipmentContainer ;
+        sh:severity     sh:Violation .
+
+as:AvailabilityEnabled
+        rdf:type        sh:NodeShape ;
+        sh:property     ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-datatype , ido:IdentifiedObject.mRID-cardinality , as:AvailabilityEnabled.enabled-cardinality , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-datatype , as:AvailabilityPowerSystemFunction.kind-datatype , as:AvailabilityPowerSystemFunction.kind-cardinality , as:AvailabilityPowerSystemFunction.AvailabilityGroup-valueType , ido:IdentifiedObject.description-datatype , as:AvailabilityPowerSystemFunction.AvailabilitySchedule-valueType , as:AvailabilityEnabled.enabled-datatype , as:AvailabilityEnabled.AssessedElement-cardinality , as:AvailabilityEnabled.GridStateAlteration-cardinality ;
+        sh:targetClass  nc:AvailabilityEnabled .
+
+as:AvailabilitySchedule.PrioritySchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.PrioritySchedule-cardinality" ;
+        sh:order        10 ;
+        sh:path         nc:AvailabilitySchedule.PrioritySchedule ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.PlannedSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.PlannedSchedule-cardinality" ;
+        sh:order        13 ;
+        sh:path         nc:AvailabilitySchedule.PlannedSchedule ;
+        sh:severity     sh:Violation .
+
+ido:IdentifiedObject.mRID-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:string ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        ido:DatatypesGroupIO ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "IdentifiedObject.mRID-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        0.1 ;
+        sh:path         cim:IdentifiedObject.mRID ;
+        sh:severity     sh:Violation .
+
+as:EventSchedule  rdf:type  sh:NodeShape ;
+        sh:property     as:BaseTimeSeries.kind-datatype , ido:IdentifiedObject.name-datatype , as:BaseTimeSeries.kind-cardinality , ido:IdentifiedObject.description-datatype , ido:IdentifiedObject.mRID-datatype , as:BaseTimeSeries.interpolationKind-datatype , as:BaseTimeSeries.interpolationKind-cardinality , ido:IdentifiedObject.description-cardinality , ido:IdentifiedObject.name-cardinality , ido:IdentifiedObject.mRID-cardinality ;
+        sh:targetClass  nc:EventSchedule .
+
+as:AvailabilityEnabled.GridStateAlteration-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilityEnabled.GridStateAlteration-cardinality" ;
+        sh:order        0 ;
+        sh:path         nc:AvailabilityEnabled.GridStateAlteration ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.DependentOnSchedule-cardinality
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the cardinality of the association at the used direction." ;
+        sh:group        as:CardinalityGroup ;
+        sh:maxCount     1 ;
+        sh:message      "Cardinality violation. Upper bound shall be 1" ;
+        sh:name         "AvailabilitySchedule.DependentOnSchedule-cardinality" ;
+        sh:order        8 ;
+        sh:path         nc:AvailabilitySchedule.DependentOnSchedule ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.cancelledDateTime-datatype
+        rdf:type        sh:PropertyShape ;
+        sh:datatype     xsd:dateTime ;
+        sh:description  "This constraint validates the datatype of the property (attribute)." ;
+        sh:group        as:DatatypesGroup ;
+        sh:message      "The datatype is not literal or it violates the xsd datatype." ;
+        sh:name         "AvailabilitySchedule.cancelledDateTime-datatype" ;
+        sh:nodeKind     sh:Literal ;
+        sh:order        7 ;
+        sh:path         nc:AvailabilitySchedule.cancelledDateTime ;
+        sh:severity     sh:Violation .
+
+as:AvailabilitySchedule.DependentOnSchedule-valueType
+        rdf:type        sh:PropertyShape ;
+        sh:description  "This constraint validates the value type of the association at the used direction." ;
+        sh:group        as:AssociationsGroup ;
+        sh:in           ( nc:AvailabilitySchedule ) ;
+        sh:message      "One of the following does not conform: 1) The value type shall be IRI; 2) The value type shall be an instance of the class: nc:AvailabilitySchedule" ;
+        sh:name         "AvailabilitySchedule.DependentOnSchedule-valueType" ;
+        sh:nodeKind     sh:IRI ;
+        sh:order        8 ;
+        sh:path         ( nc:AvailabilitySchedule.DependentOnSchedule rdf:type ) ;
+        sh:severity     sh:Violation .
