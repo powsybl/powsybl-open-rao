@@ -309,7 +309,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
@@ -356,7 +355,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
@@ -426,7 +424,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
         double expectedFunctionalCost = 3.;
@@ -462,7 +459,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
         double expectedVirtualCost = 3.;
@@ -507,7 +503,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
@@ -585,7 +580,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
@@ -670,7 +664,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
         assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
@@ -707,7 +700,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
@@ -755,7 +747,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
 
@@ -775,7 +766,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(Mockito.mock(IteratingLinearOptimizationResultImpl.class));
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         rootLeaf.finalizeOptimization();
@@ -804,7 +794,6 @@ class LeafTest {
         SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class));
         when(searchTreeParameters.getTreeParameters()).thenReturn(Mockito.mock(TreeParameters.class));
-        when(searchTreeParameters.getTreeParameters().getPstRangeShrinking()).thenReturn(false);
         prepareLinearProblemBuilder(linearOptimizationResult);
         leaf.optimize(searchTreeInput, searchTreeParameters);
         when(linearOptimizationResult.getCost()).thenReturn(-100.5);
