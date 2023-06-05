@@ -54,7 +54,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
             return;
         }
 
-        TECHNICAL_LOGS.debug("Filling network pool with '{}' new cop'{}' of network '{}' on variant '{}'", clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
+        TECHNICAL_LOGS.debug("Filling network pool with {} new cop{} of network {} on variant {}", clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);

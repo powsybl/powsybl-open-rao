@@ -21,6 +21,7 @@ import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOpti
 import com.farao_community.farao.search_tree_rao.result.impl.LinearProblemResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Locale;
 
@@ -44,6 +45,8 @@ public final class IteratingLinearOptimizer {
                 0,
                 input.getObjectiveFunction());
 
+        IteratingLinearOptimizationResultImpl previousResult = bestResult;
+
         SensitivityComputer sensitivityComputer = null;
 
         LinearProblem linearProblem = LinearProblem.create()
@@ -53,6 +56,7 @@ public final class IteratingLinearOptimizer {
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
+            bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
             } else if (solveStatus != LinearProblemStatus.OPTIMAL) {
@@ -71,7 +75,7 @@ public final class IteratingLinearOptimizer {
 
             currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
 
-            if (!hasRemedialActionsChanged(currentRangeActionActivationResult, bestResult, input.getOptimizationPerimeter())) {
+            if (!hasRemedialActionsChanged(currentRangeActionActivationResult, previousResult, input.getOptimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
                 return bestResult;
@@ -90,16 +94,14 @@ public final class IteratingLinearOptimizer {
                     iteration,
                     input.getObjectiveFunction()
             );
+            previousResult = currentResult;
 
-            if (currentResult.getCost() >= bestResult.getCost()) {
-                logWorseResult(iteration, bestResult, currentResult);
-                applyRangeActions(bestResult, input);
+            Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
+            if (mipShouldStop.getRight()) {
                 return bestResult;
+            } else {
+                bestResult = mipShouldStop.getLeft();
             }
-
-            logBetterResult(iteration, currentResult);
-            bestResult = currentResult;
-            linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;
@@ -221,6 +223,20 @@ public final class IteratingLinearOptimizer {
         );
     }
 
+    private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
+        if (currentResult.getCost() < bestResult.getCost()) {
+            logBetterResult(iteration, currentResult);
+            linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
+            return Pair.of(currentResult, false);
+        }
+        logWorseResult(iteration, bestResult, currentResult);
+        applyRangeActions(bestResult, input);
+        if (raRangeShrinking) {
+            linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
+        }
+        return Pair.of(bestResult, !raRangeShrinking);
+    }
+
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
         TECHNICAL_LOGS.info(
                 "Iteration {}: better solution found with a cost of {} (functional: {})",
@@ -231,7 +247,7 @@ public final class IteratingLinearOptimizer {
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         TECHNICAL_LOGS.info(
-                "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
+                "Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})",
                 iteration,
                 formatDouble(bestResult.getCost()),
                 formatDouble(currentResult.getCost()),

@@ -16,6 +16,7 @@
     "hvdc-sensitivity-threshold" : 0.2,
     "injection-ra-penalty-cost" : 0.003,
     "injection-ra-sensitivity-threshold" : 0.3,
+    "ra-range-shrinking" : "ENABLED",
     "linear-optimization-solver" : {
       "solver" : "CBC",
       "relative-mip-gap" : 0.004,
