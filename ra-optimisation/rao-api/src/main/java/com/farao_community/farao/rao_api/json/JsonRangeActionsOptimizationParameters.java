@@ -30,11 +30,11 @@ final class JsonRangeActionsOptimizationParameters {
         jsonGenerator.writeNumberField(PST_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getPstPenaltyCost());
         jsonGenerator.writeNumberField(PST_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold());
         jsonGenerator.writeObjectField(PST_MODEL, parameters.getRangeActionsOptimizationParameters().getPstModel());
-        jsonGenerator.writeObjectField(RA_RANGE_SHRINKING, parameters.getRangeActionsOptimizationParameters().getRaRangeShrinking());
         jsonGenerator.writeNumberField(HVDC_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getHvdcPenaltyCost());
         jsonGenerator.writeNumberField(HVDC_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold());
         jsonGenerator.writeNumberField(INJECTION_RA_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
         jsonGenerator.writeNumberField(INJECTION_RA_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold());
+        jsonGenerator.writeObjectField(RA_RANGE_SHRINKING, parameters.getRangeActionsOptimizationParameters().getRaRangeShrinking());
         jsonGenerator.writeObjectFieldStart(LINEAR_OPTIMIZATION_SOLVER);
         jsonGenerator.writeObjectField(SOLVER, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
         jsonGenerator.writeNumberField(RELATIVE_MIP_GAP, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap());
