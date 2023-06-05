@@ -38,10 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,6 +99,7 @@ class IteratingLinearOptimizerTest {
         when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
+        when(parameters.getRaRangeShrinking()).thenReturn(false);
 
         linearProblem = Mockito.mock(LinearProblem.class);
         network = Mockito.mock(Network.class);
@@ -198,7 +196,7 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
@@ -212,23 +210,53 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void firstLinearProblemChangesSetPointButWorsenFunctionalCost() {
-        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
-        mockFunctionalCost(100., 140.);
+    void linearProblemDegradesTheSolutionButKeepsBestIteration() {
+        when(parameters.getRaRangeShrinking()).thenReturn(true);
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
+        mockFunctionalCost(100., 150., 140., 130., 120., 110.);
+        prepareLinearProblemBuilder();
+
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+
+        assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
+        assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void linearProblemDegradesTheSolution() {
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
+        mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void linearProblemFluctuatesButKeepsBestIteration() {
+        when(parameters.getRaRangeShrinking()).thenReturn(true);
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
+        mockFunctionalCost(100., 120., 105., 90., 100., 95.);
+        prepareLinearProblemBuilder();
+
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
+
+        assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
+        assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(90, result.getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(3, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -254,7 +282,7 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
-        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
@@ -272,17 +300,18 @@ class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testUnapplyRangeAction() {
+        when(parameters.getRaRangeShrinking()).thenReturn(true);
         network = NetworkImportsUtil.import12NodesNetwork();
         when(input.getNetwork()).thenReturn(network);
-        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.OPTIMAL), List.of(1., 2.));
-        mockFunctionalCost(100., 90., 100.);
+        mockLinearProblem(Collections.nCopies(5, LinearProblemStatus.OPTIMAL), List.of(1., 2., 3., 4., 5.));
+        mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
         rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(0)
@@ -295,16 +324,9 @@ class IteratingLinearOptimizerTest {
         when(input.getPrePerimeterSetpoints()).thenReturn(rangeActionSetpointResult);
         rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         when(input.getRaActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
-        MPVariableMock absVariationMpVarMock = Mockito.mock(MPVariableMock.class);
-        when(absVariationMpVarMock.solutionValue()).thenReturn(1.);
-        when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
-        MPVariableMock setpointMpVarMock = Mockito.mock(MPVariableMock.class);
-        when(setpointMpVarMock.solutionValue()).thenReturn(1.);
-        when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
-        network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(5);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters);
-        assertEquals(1, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        IteratingLinearOptimizer.optimize(input, parameters);
+        assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 }
