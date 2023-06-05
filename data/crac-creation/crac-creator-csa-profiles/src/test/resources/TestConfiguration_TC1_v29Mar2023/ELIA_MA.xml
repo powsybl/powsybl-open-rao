@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" > 
+  <md:FullModel rdf:about="urn:uuid:56a22586-f4a0-4641-addd-ea8a477cdeb3">
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.creator>http://elia.be/CGMES</dcterms:Model.creator>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <dcat:Model.startDate>2022-06-25T22:30:00Z</dcat:Model.startDate>
+    <dcterms:Model.identifier>urn:uuid:56a22586-f4a0-4641-addd-ea8a477cdeb3</dcterms:Model.identifier>
+    <dcat:Model.endDate>2023-06-25T22:30:00Z</dcat:Model.endDate>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/MonitoringArea-EU/2.2</dcterms:Model.conformsTo>
+    <dcterms:Model.description>This is an example of monitoring area profile.</dcterms:Model.description>
+    <dcat:Model.version>1.0</dcat:Model.version>
+    <dcat:Model.keyword>MA</dcat:Model.keyword>
+    <prov:Model.wasInfluencedBy>urn:uuid:095c6b30-255d-40d5-85fe-2c9fe6c9846d</prov:Model.wasInfluencedBy>
+    <prov:Model.generatedAtTime>2022-05-21T07:05:25Z</prov:Model.generatedAtTime>
+  </md:FullModel>
+  <nc:AreaBorderTerminal rdf:ID="_b107d576-9ae6-469c-a48e-4a85e2223ece">
+    <nc:AreaBorderTerminal.mRID>b107d576-9ae6-469c-a48e-4a85e2223ece</nc:AreaBorderTerminal.mRID>
+    <nc:AreaBorderTerminal.MonitoringArea rdf:resource="#_d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5"/>
+    <nc:AreaBorderTerminal.Terminal rdf:resource="#_1ef0715a-d5a9-477b-b6e7-b635529ac140"/>
+  </nc:AreaBorderTerminal>
+  <nc:AreaBorderTerminal rdf:ID="_e6e20617-3676-4af4-9691-e8935ada4222">
+    <nc:AreaBorderTerminal.mRID>e6e20617-3676-4af4-9691-e8935ada4222</nc:AreaBorderTerminal.mRID>
+    <nc:AreaBorderTerminal.MonitoringArea rdf:resource="#_d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5"/>
+    <nc:AreaBorderTerminal.Terminal rdf:resource="#_02a244ca-8bcb-4e25-8613-e948b8ba1f22"/>
+  </nc:AreaBorderTerminal>
+  <nc:AreaBorderTerminal rdf:ID="_8a487cde-b486-41bc-9bc1-0ae67e25e4d5">
+    <nc:AreaBorderTerminal.mRID>8a487cde-b486-41bc-9bc1-0ae67e25e4d5</nc:AreaBorderTerminal.mRID>
+    <nc:AreaBorderTerminal.MonitoringArea rdf:resource="#_d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5"/>
+    <nc:AreaBorderTerminal.Terminal rdf:resource="#_f9f29835-8a31-4310-9780-b1ad26f3cbb0"/>
+  </nc:AreaBorderTerminal>
+  <nc:MonitoringArea rdf:ID="_d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5">
+    <cim:IdentifiedObject.name>MA1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Example of monitoring area</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.mRID>d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5</cim:IdentifiedObject.mRID>
+  </nc:MonitoringArea>
+  <nc:AreaBorderTerminal rdf:ID="_9dc23419-db61-4281-8690-40b4ba4d3e08">
+    <nc:AreaBorderTerminal.mRID>9dc23419-db61-4281-8690-40b4ba4d3e08</nc:AreaBorderTerminal.mRID>
+    <nc:AreaBorderTerminal.MonitoringArea rdf:resource="#_d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5"/>
+    <nc:AreaBorderTerminal.Terminal rdf:resource="#_57ae9251-c022-4c67-a8eb-611ad54c963c"/>
+  </nc:AreaBorderTerminal>
+  <nc:AreaBorderTerminal rdf:ID="_f3165c3a-87a0-45b7-a209-949bda47778f">
+    <nc:AreaBorderTerminal.mRID>f3165c3a-87a0-45b7-a209-949bda47778f</nc:AreaBorderTerminal.mRID>
+    <nc:AreaBorderTerminal.MonitoringArea rdf:resource="#_d5972cd4-cd21-4b08-a037-f5e6b4cfd3d5"/>
+    <nc:AreaBorderTerminal.Terminal rdf:resource="#_f3b56334-4638-49d3-a6a0-3f417422b8f5"/>
+  </nc:AreaBorderTerminal>
+</rdf:RDF>

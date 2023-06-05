@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CimCracImporterTest {
 
     @Test
-    void getFormat() {
+    void testGetFormat() {
         CimCracImporter cimCracImporter = new CimCracImporter();
         assertEquals("CimCrac", cimCracImporter.getFormat());
     }
 
     @Test
-    void importNativeCrac() {
+    void testExists() {
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter importer = new CimCracImporter();
         CimCrac cimCrac = importer.importNativeCrac(is);

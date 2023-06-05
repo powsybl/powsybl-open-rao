@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" > 
+  <md:FullModel rdf:about="urn:uuid:65175269-440b-44ae-9d3e-f743276d4bdc">
+    <prov:Model.generatedAtTime>2022-05-21T07:05:25Z</prov:Model.generatedAtTime>
+    <dcterms:Model.identifier>urn:uuid:65175269-440b-44ae-9d3e-f743276d4bdc</dcterms:Model.identifier>
+    <dcterms:Model.creator>http://elia.be/CGMES</dcterms:Model.creator>
+    <dcat:Model.startDate>2022-06-25T22:30:00Z</dcat:Model.startDate>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <prov:Model.wasInfluencedBy>urn:uuid:095c6b30-255d-40d5-85fe-2c9fe6c9846d</prov:Model.wasInfluencedBy>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/SecurityAnalysisResult-EU/2.2</dcterms:Model.conformsTo>
+    <dcat:Model.endDate>2022-06-26T22:30:00Z</dcat:Model.endDate>
+    <dcterms:Model.description>This is an example of security analysis result profile.</dcterms:Model.description>
+    <dcat:Model.keyword>SAR</dcat:Model.keyword>
+    <dcat:Model.version>1.0</dcat:Model.version>
+  </md:FullModel>
+  <nc:ContingencyPowerFlowResult rdf:ID="_7dc56068-a714-4435-ae19-dd34429eb722">
+    <nc:PowerFlowResult.OperationalLimit rdf:resource="#_a2c3d48f-d768-4e1e-8841-6e9c4913f11f"/>
+    <nc:PowerFlowResult.atTime>2022-06-26T05:30:00Z</nc:PowerFlowResult.atTime>
+    <nc:PowerFlowResult.ACDCTerminal rdf:resource="#_757d4f50-707b-47a0-891c-cbaefd649631"/>
+    <nc:PowerFlowResult.absoluteValue>33.00131</nc:PowerFlowResult.absoluteValue>
+    <nc:PowerFlowResult.value>1.8</nc:PowerFlowResult.value>
+    <nc:PowerFlowResult.isViolation>false</nc:PowerFlowResult.isViolation>
+    <nc:ContingencyPowerFlowResult.Contingency rdf:resource="#_c0a25fd7-eee0-4191-98a5-71a74469d36e"/>
+  </nc:ContingencyPowerFlowResult>
+</rdf:RDF>

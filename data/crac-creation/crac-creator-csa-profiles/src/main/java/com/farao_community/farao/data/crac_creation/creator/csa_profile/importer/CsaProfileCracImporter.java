@@ -7,7 +7,7 @@
 
 package main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.importer;
 
-import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.xsd.CRACDocumentType;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
@@ -16,6 +16,7 @@ import org.eclipse.rdf4j.rio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -26,29 +27,24 @@ import java.io.UncheckedIOException;
 @AutoService(NativeCracImporter.class)
 public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CimCracImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsaProfileCracImporter.class);
     @Override
     public String getFormat() {
-        return "csaProfileCrac";
+        return "CsaProfileCrac";
     }
 
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream){
+        CRACDocumentType cracDocumentType;
         try {
-            RDFFormat rdfFormatContingencies = Rio.getParserFormatForFileName(String.valueOf(this.getClass().getResource(CsaProfileConstants.RDF_FORMAT_CONTINGENCY_PROFILE))).orElse(RDFFormat.RDFXML);
-            RDFParser rdfParser = Rio.createParser(rdfFormatContingencies);
-            rdfParser.parse(inputStream);
+            cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)
+                    .createUnmarshaller()
+                    .unmarshal(new StreamSource(inputStream), CRACDocumentType.class)
+                    .getValue();
+        } catch (JAXBException e) {
+            throw new FaraoException(e);
         }
-        catch (IOException e) {
-            // handle IO problems (e.g. the file could not be read)
-        }
-        catch (RDFParseException e) {
-            // handle unrecoverable parse error
-        }
-        catch (RDFHandlerException e) {
-            // handle a problem encountered by the RDFHandler
-        }
-        return new CsaProfileCrac();
+        return new CsaProfileCrac(cracDocumentType);
     }
 
     @Override

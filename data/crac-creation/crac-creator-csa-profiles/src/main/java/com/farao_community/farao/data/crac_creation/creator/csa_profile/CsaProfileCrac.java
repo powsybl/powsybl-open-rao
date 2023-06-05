@@ -13,8 +13,20 @@ import com.farao_community.farao.data.native_crac_api.NativeCrac;
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
 public class CsaProfileCrac implements NativeCrac {
+
+
+    private final CRACDocumentType cracDocumentType;
+
+    public CsaProfileCrac(CRACDocumentType cracDocumentType) {
+        this.cracDocumentType = cracDocumentType;
+    }
+
     @Override
     public String getFormat() {
-        return null;
+        return "CsaProfileCrac";
+    }
+
+    public CRACDocumentType getCracDocument() {
+        return cracDocumentType;
     }
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" > 
+  <md:FullModel rdf:about="urn:uuid:08b2c358-7163-4d18-878a-70e74bdb7194">
+    <md:Model.scenarioTime>2022-05-21T07:05:25Z</md:Model.scenarioTime>
+    <dcat:Model.keyword>AE</dcat:Model.keyword>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.creator>http://tennet.nl/CGMES</dcterms:Model.creator>
+    <dcat:Model.endDate>2023-06-25T22:30:00Z</dcat:Model.endDate>
+    <dcterms:Model.description>This is an example of assessed element profile.</dcterms:Model.description>
+    <dcterms:Model.identifier>urn:uuid:08b2c358-7163-4d18-878a-70e74bdb7194</dcterms:Model.identifier>
+    <prov:Model.wasInfluencedBy>urn:uuid:87da6373-3b6c-47a2-9493-1918a8d9df61</prov:Model.wasInfluencedBy>
+    <prov:Model.generatedAtTime>2022-05-21T07:05:25Z</prov:Model.generatedAtTime>
+    <dcat:Model.startDate>2022-06-25T22:30:00Z</dcat:Model.startDate>
+    <dcat:Model.version>1.0</dcat:Model.version>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/AssessedElement-EU/2.2</dcterms:Model.conformsTo>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+  </md:FullModel>
+  <nc:AssessedElementWithContingency rdf:ID="_dbc6ebbf-7fcd-4b7a-9dd0-0ca6b4a32470">
+    <nc:AssessedElementWithContingency.mRID>dbc6ebbf-7fcd-4b7a-9dd0-0ca6b4a32470</nc:AssessedElementWithContingency.mRID>
+    <nc:AssessedElementWithContingency.Contingency rdf:resource="#_c0a25fd7-eee0-4191-98a5-71a74469d36e"/>
+    <nc:AssessedElementWithContingency.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:AssessedElementWithContingency.normalEnabled>true</nc:AssessedElementWithContingency.normalEnabled>
+    <nc:AssessedElementWithContingency.AssessedElement rdf:resource="#_adad76ed-79e7-4985-84e1-eb493f168c85"/>
+  </nc:AssessedElementWithContingency>
+  <nc:AssessedElement rdf:ID="_adad76ed-79e7-4985-84e1-eb493f168c85">
+    <nc:AssessedElement.AssessedSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10X1001A1001A361"/>
+    <nc:AssessedElement.isCombinableWithRemedialAction>false</nc:AssessedElement.isCombinableWithRemedialAction>
+    <cim:IdentifiedObject.mRID>adad76ed-79e7-4985-84e1-eb493f168c85</cim:IdentifiedObject.mRID>
+    <nc:AssessedElement.isCombinableWithContingency>false</nc:AssessedElement.isCombinableWithContingency>
+    <cim:IdentifiedObject.description>This is an example of assessed element.</cim:IdentifiedObject.description>
+    <nc:AssessedElement.ScannedForRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00137V"/>
+    <nc:AssessedElement.normalEnabled>true</nc:AssessedElement.normalEnabled>
+    <nc:AssessedElement.OperationalLimit rdf:resource="#_47545df1-566d-4a8d-86e8-882655c6e79e"/>
+    <nc:AssessedElement.inBaseCase>true</nc:AssessedElement.inBaseCase>
+    <cim:IdentifiedObject.name>AE1NL</cim:IdentifiedObject.name>
+  </nc:AssessedElement>
+  <nc:AssessedElementWithRemedialAction rdf:ID="_cc49dafb-9c28-4722-afd7-1532cb650f2d">
+    <nc:AssessedElementWithRemedialAction.normalEnabled>true</nc:AssessedElementWithRemedialAction.normalEnabled>
+    <nc:AssessedElementWithRemedialAction.mRID>cc49dafb-9c28-4722-afd7-1532cb650f2d</nc:AssessedElementWithRemedialAction.mRID>
+    <nc:AssessedElementWithRemedialAction.RemedialAction rdf:resource="#_5c1e945b-4598-437f-b8ae-7c6d4b475a6c"/>
+    <nc:AssessedElementWithRemedialAction.AssessedElement rdf:resource="#_adad76ed-79e7-4985-84e1-eb493f168c85"/>
+    <nc:AssessedElementWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+  </nc:AssessedElementWithRemedialAction>
+</rdf:RDF>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" > 
+  <md:FullModel rdf:about="urn:uuid:6dccd3c3-822b-4967-a0c5-23822e1f2a1b">
+    <dcat:Model.endDate>2022-06-25T23:30:00Z</dcat:Model.endDate>
+    <dcterms:Model.description>This is an example of  remedial action schedule profile.</dcterms:Model.description>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/RemedialActionSchedule-EU/2.2</dcterms:Model.conformsTo>
+    <dcat:Model.startDate>2022-06-25T22:30:00Z</dcat:Model.startDate>
+    <prov:Model.generatedAtTime>2022-05-21T07:05:25Z</prov:Model.generatedAtTime>
+    <dcterms:Model.creator>http://tscnet.eu/RAO</dcterms:Model.creator>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <dcterms:Model.identifier>urn:uuid:6dccd3c3-822b-4967-a0c5-23822e1f2a1b</dcterms:Model.identifier>
+    <dcat:Model.keyword>RAS</dcat:Model.keyword>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcat:Model.version>1.0</dcat:Model.version>
+    <prov:Model.wasInfluencedBy>urn:uuid:87da6373-3b6c-47a2-9493-1918a8d9df61</prov:Model.wasInfluencedBy>
+  </md:FullModel>
+  <nc:RemedialActionSchedule rdf:ID="_d503547c-c447-4e82-9128-a71f0f1cac6d">
+    <cim:IdentifiedObject.name>RAS </cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.mRID>d503547c-c447-4e82-9128-a71f0f1cac6d</cim:IdentifiedObject.mRID>
+    <nc:RemedialActionSchedule.ProposingEntity rdf:resource="http://energy.referencedata.eu/EIC/10X1001C--00003T"/>
+    <nc:RemedialActionSchedule.RemedialAction rdf:resource="#_7fc2fc14-eea6-4e69-b8d9-a3edc218e687"/>
+    <nc:RemedialActionSchedule.statusKind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionScheduleStatusKind.proposed"/>
+    <nc:RemedialActionSchedule.AssignedRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00137V"/>
+  </nc:RemedialActionSchedule>
+  <nc:GridStateIntensitySchedule rdf:ID="_896d710a-7da7-4be9-a55d-14c3c49d997c">
+    <cim:IdentifiedObject.name>schedule</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.mRID>896d710a-7da7-4be9-a55d-14c3c49d997c</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:GenericValueSchedule.RemedialActionSchedule rdf:resource="#_d503547c-c447-4e82-9128-a71f0f1cac6d"/>
+    <nc:GridStateIntensitySchedule.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:GridStateIntensitySchedule.GridStateAlteration rdf:resource="#_5c1e945b-4598-437f-b8ae-7c6d4b475a6c"/>
+  </nc:GridStateIntensitySchedule>
+  <nc:GenericValueTimePoint rdf:ID="_9ef1d6e8-32e5-42e3-911c-818b0a0bc511">
+    <nc:GenericValueTimePoint.GenericValueSchedule rdf:resource="#_896d710a-7da7-4be9-a55d-14c3c49d997c"/>
+    <nc:GenericValueTimePoint.value>0.0</nc:GenericValueTimePoint.value>
+    <nc:GenericValueTimePoint.atTime>2022-06-25T22:30:00Z</nc:GenericValueTimePoint.atTime>
+  </nc:GenericValueTimePoint>
+  <nc:GenericValueTimePoint rdf:ID="_7cb39132-56b2-4258-9f4a-0641adddea8a">
+    <nc:GenericValueTimePoint.GenericValueSchedule rdf:resource="#_896d710a-7da7-4be9-a55d-14c3c49d997c"/>
+    <nc:GenericValueTimePoint.value>1.0</nc:GenericValueTimePoint.value>
+    <nc:GenericValueTimePoint.atTime>2022-06-26T21:30:00Z</nc:GenericValueTimePoint.atTime>
+  </nc:GenericValueTimePoint>
+</rdf:RDF>

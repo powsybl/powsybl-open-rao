@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:time="http://www.w3.org/2006/time#"
+    xmlns:eumd="http://entsoe.eu/ns/Metadata-European#"
+    xmlns:eu="http://iec.ch/TC57/CIM100-European#"
+    xmlns:nc="http://entsoe.eu/ns/nc#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcat="http://www.w3.org/ns/dcat#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:dcterms="http://purl.org/dc/terms/#" > 
+  <md:FullModel rdf:about="urn:uuid:ecc0ea5e-c9d8-43d6-8fcc-196980a1b62b">
+    <dcat:Model.startDate>2022-06-25T22:30:00Z</dcat:Model.startDate>
+    <dcat:Model.endDate>2023-06-25T22:30:00Z</dcat:Model.endDate>
+    <dcterms:Model.creator>http://elia.be/CGMES</dcterms:Model.creator>
+    <dcterms:Model.description>This is an example of remedial action profile.</dcterms:Model.description>
+    <prov:Model.generatedAtTime>2022-05-21T07:05:25Z</prov:Model.generatedAtTime>
+    <dcterms:Model.conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:Model.conformsTo>
+    <prov:Model.wasInfluencedBy>urn:uuid:095c6b30-255d-40d5-85fe-2c9fe6c9846d</prov:Model.wasInfluencedBy>
+    <dcat:Model.version>1.0</dcat:Model.version>
+    <dcterms:Model.license>https://creativecommons.org/licenses/by/4.0/</dcterms:Model.license>
+    <dcat:Model.keyword>RA</dcat:Model.keyword>
+    <eumd:Model.applicationSoftware>PowerFactory-2022.SP2</eumd:Model.applicationSoftware>
+    <dcterms:Model.identifier>urn:uuid:ecc0ea5e-c9d8-43d6-8fcc-196980a1b62b</dcterms:Model.identifier>
+  </md:FullModel>
+  <nc:TapPositionAction rdf:ID="_a4a042cf-129f-4703-b7bd-e293c3a95dfc">
+    <cim:IdentifiedObject.mRID>a4a042cf-129f-4703-b7bd-e293c3a95dfc</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>TapRA</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>This is an example of tap position action</cim:IdentifiedObject.description>
+    <nc:GridStateAlteration.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/TapChanger.step"/>
+    <nc:GridStateAlteration.GridStateAlterationRemedialAction rdf:resource="#_7fc2fc14-eea6-4e69-b8d9-a3edc218e687"/>
+    <nc:GridStateAlteration.normalEnabled>true</nc:GridStateAlteration.normalEnabled>
+    <nc:TapPositionAction.TapChanger rdf:resource="#_36b83adb-3d45-4693-8967-96627b5f9ec9"/>
+  </nc:TapPositionAction>
+  <nc:StaticPropertyRange rdf:ID="_67b23587-05a1-4752-aeed-fa8b488cdec4">
+    <cim:IdentifiedObject.mRID>67b23587-05a1-4752-aeed-fa8b488cdec4</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Range Tap action down</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Constraints the tap changer lowStep to 5</cim:IdentifiedObject.description>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_a4a042cf-129f-4703-b7bd-e293c3a95dfc"/>
+    <nc:RangeConstraint.normalValue>5.0</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.down"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/TapChanger.step"/>
+  </nc:StaticPropertyRange>
+  <nc:IntertemporalPropertyRange rdf:ID="_2149d413-a923-4c35-94d1-1028ac6aae01">
+    <cim:IdentifiedObject.mRID>2149d413-a923-4c35-94d1-1028ac6aae01</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Intertemporal for tap changer</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Defines how much steps RAO can change in MTU</cim:IdentifiedObject.description>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_a4a042cf-129f-4703-b7bd-e293c3a95dfc"/>
+    <nc:RangeConstraint.normalValue>3.0</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.upAndDown"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.incremental"/>
+  </nc:IntertemporalPropertyRange>
+  <nc:ContingencyWithRemedialAction rdf:ID="_69bad37a-ad53-4cc7-ae1d-76667357c449">
+    <nc:ContingencyWithRemedialAction.mRID>69bad37a-ad53-4cc7-ae1d-76667357c449</nc:ContingencyWithRemedialAction.mRID>
+    <nc:ContingencyWithRemedialAction.combinationConstraintKind rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
+    <nc:ContingencyWithRemedialAction.normalEnabled>true</nc:ContingencyWithRemedialAction.normalEnabled>
+    <nc:ContingencyWithRemedialAction.RemedialAction rdf:resource="#_7fc2fc14-eea6-4e69-b8d9-a3edc218e687"/>
+    <nc:ContingencyWithRemedialAction.Contingency rdf:resource="#_493480ba-93c3-426e-bee5-347d8dda3749"/>
+  </nc:ContingencyWithRemedialAction>
+  <nc:GridStateAlterationRemedialAction rdf:ID="_7fc2fc14-eea6-4e69-b8d9-a3edc218e687">
+    <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+    <cim:IdentifiedObject.mRID>7fc2fc14-eea6-4e69-b8d9-a3edc218e687</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>RA1</cim:IdentifiedObject.name>
+    <nc:RemedialAction.isManual>false</nc:RemedialAction.isManual>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.curative"/>
+    <cim:IdentifiedObject.description>This is an example of RA</cim:IdentifiedObject.description>
+    <nc:RemedialAction.AppointedToRegion rdf:resource="http://energy.referencedata.eu/EIC/10Y1001C--00137V"/>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10X1001A1001A094"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+  </nc:GridStateAlterationRemedialAction>
+  <nc:StaticPropertyRange rdf:ID="_53d89e89-d17b-473b-92a5-a67f7a9ed5b3">
+    <cim:IdentifiedObject.mRID>53d89e89-d17b-473b-92a5-a67f7a9ed5b3</cim:IdentifiedObject.mRID>
+    <cim:IdentifiedObject.name>Range Tap action up</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>Constraints the tap changer highStep to 20</cim:IdentifiedObject.description>
+    <nc:RangeConstraint.GridStateAlteration rdf:resource="#_a4a042cf-129f-4703-b7bd-e293c3a95dfc"/>
+    <nc:RangeConstraint.normalValue>20.0</nc:RangeConstraint.normalValue>
+    <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.up"/>
+    <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
+    <nc:StaticPropertyRange.PropertyReference rdf:resource="http://energy.referencedata.eu/PropertyReference/TapChanger.step"/>
+  </nc:StaticPropertyRange>
+</rdf:RDF>

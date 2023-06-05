@@ -42,9 +42,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
+                <!--<configuration>
                     <excludePackageNames>com.farao_community.farao.data.crac_creation.creator.cim.xsd.*:com.farao_community.farao.data.crac_creation.creator.cim.xsd:eu.entsoe.*</excludePackageNames>
-                </configuration>
+                </configuration>-->
             </plugin>
         </plugins>
     </build>
