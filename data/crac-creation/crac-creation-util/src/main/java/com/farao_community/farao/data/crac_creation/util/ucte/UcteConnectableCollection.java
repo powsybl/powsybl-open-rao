@@ -52,7 +52,7 @@ class UcteConnectableCollection {
 
           In such cases, both connectables fit the same from/to/suffix. But instead of returning a
           UcteMatchingRule.severalPossibleMatch(), which is reserved for ambiguous situations with wildcards, this
-          method returns the connectable with the id in the same order than the the ones given in argument of the method.
+          method returns the connectable with the id in the same order as the ones given in argument of the method.
          */
 
         UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix, connectableTypes);
@@ -122,7 +122,22 @@ class UcteConnectableCollection {
 
             if (matchedConnetables.size() == 1) {
                 return matchedConnetables.get(0);
-            } else if (matchedConnetables.size() > 1) {
+            } else if (matchedConnetables.size() == 2) {
+                Identifiable<?> identifiable1 = matchedConnetables.get(0).getIidmIdentifiable();
+                Identifiable<?> identifiable2 = matchedConnetables.get(1).getIidmIdentifiable();
+
+                if (identifiable1 instanceof DanglingLine && identifiable2 instanceof TieLine) {
+                    if (tieLineContainsDanglingLine((TieLine) identifiable2, (DanglingLine) identifiable1)) {
+                        return matchedConnetables.get(1);
+                    }
+                } else if (identifiable2 instanceof DanglingLine && identifiable1 instanceof TieLine) {
+                    if (tieLineContainsDanglingLine((TieLine) identifiable1, (DanglingLine) identifiable2)) {
+                        return matchedConnetables.get(0);
+                    }
+                }
+                return UcteMatchingResult.severalPossibleMatch();
+
+            } else if (matchedConnetables.size() > 2) {
                 return UcteMatchingResult.severalPossibleMatch();
             } else {
                 return UcteMatchingResult.notFound();
@@ -135,6 +150,10 @@ class UcteConnectableCollection {
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .findAny().orElse(UcteMatchingResult.notFound());
         }
+    }
+
+    private boolean tieLineContainsDanglingLine(TieLine tieLine, DanglingLine danglingLine) {
+        return tieLine.getDanglingLine1().equals(danglingLine) || tieLine.getDanglingLine2().equals(danglingLine);
     }
 
     private void addBranches(Network network) {
@@ -172,7 +191,7 @@ class UcteConnectableCollection {
     }
 
     private void addDanglingLines(Network network) {
-        network.getDanglingLineStream().forEach(danglingLine -> {
+        network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
             // A dangling line is an Injection with a generator convention.
             // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
             String xNode = danglingLine.getUcteXnodeCode();

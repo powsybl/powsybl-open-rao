@@ -140,17 +140,31 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         this.connectableIdInNetwork = networkElement.getId();
 
         if (networkElement instanceof TieLine) {
-            this.isHalfLine = true;
-            this.halfLineSide = ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE;
-            checkBranchNominalVoltage((TieLine) networkElement);
-            checkTieLineCurrentLimits((TieLine) networkElement);
+            interpretTieLine((TieLine) networkElement, ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE);
         } else if (networkElement instanceof Branch) {
             checkBranchNominalVoltage((Branch<?>) networkElement);
             checkBranchCurrentLimits((Branch<?>) networkElement);
         } else if (networkElement instanceof DanglingLine) {
-            checkDanglingLineNominalVoltage((DanglingLine) networkElement);
-            checkDanglingLineCurrentLimits((DanglingLine) networkElement);
+            DanglingLine danglingLine = (DanglingLine) networkElement;
+            if (danglingLine.getTieLine().isPresent()) {
+                TieLine tieLine = danglingLine.getTieLine().get();
+                this.connectableIdInNetwork = tieLine.getId();
+                Branch.Side side = tieLine.getDanglingLine1() == danglingLine ? Branch.Side.ONE : Branch.Side.TWO;
+                // dangling line convention is x node to terminal, so dl 1 is towards terminal 1 (opposite) and dl 2 is towards terminal 2 (direct)
+                this.isInvertedInNetwork = tieLine.getDanglingLine1() == danglingLine ? !isInvertedInNetwork : isInvertedInNetwork;
+                interpretTieLine(tieLine, side);
+            } else {
+                checkDanglingLineNominalVoltage(danglingLine);
+                checkDanglingLineCurrentLimits(danglingLine);
+            }
         }
+    }
+
+    private void interpretTieLine(TieLine tieLine, Branch.Side side) {
+        this.isHalfLine = true;
+        this.halfLineSide = side;
+        checkBranchNominalVoltage(tieLine);
+        checkTieLineCurrentLimits(tieLine);
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {

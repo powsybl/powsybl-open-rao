@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
@@ -105,10 +106,19 @@ public class CimContingencyCreator {
             CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
             if (cgmesBranchHelper.isValid()) {
                 networkElementId = cgmesBranchHelper.getIdInNetwork();
+                networkElement = cgmesBranchHelper.getBranch();
             }
         } else {
             networkElementId = networkElement.getId();
         }
+
+        if (networkElement instanceof DanglingLine) {
+            DanglingLine danglingLine = (DanglingLine) networkElement;
+            if (danglingLine.getTieLine().isPresent()) {
+                networkElementId = danglingLine.getTieLine().get().getId();
+            }
+        }
+
         return networkElementId;
     }
 

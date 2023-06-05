@@ -85,6 +85,7 @@ public class UcteContingencyElementHelper extends AbstractUcteConnectableHelper 
         }
 
         Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
+
         this.connectableIdInNetwork = networkElement.getId();
 
     }
