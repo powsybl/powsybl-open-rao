@@ -32,7 +32,7 @@ public final class IteratingLinearOptimizerParameters {
     private final RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
 
     private final int maxNumberOfIterations;
-    private final boolean pstRangeShrinking;
+    private final boolean raRangeShrinking;
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                RangeActionsOptimizationParameters rangeActionParameters,
@@ -43,7 +43,7 @@ public final class IteratingLinearOptimizerParameters {
                                                RangeActionLimitationParameters raLimitationParameters,
                                                RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters,
                                                int maxNumberOfIterations,
-                                               boolean pstRangeShrinking) {
+                                               boolean raRangeShrinking) {
         this.objectiveFunction = objectiveFunction;
         this.rangeActionParameters = rangeActionParameters;
         this.mnecParameters = mnecParameters;
@@ -53,7 +53,7 @@ public final class IteratingLinearOptimizerParameters {
         this.raLimitationParameters = raLimitationParameters;
         this.solverParameters = solverParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
-        this.pstRangeShrinking = pstRangeShrinking;
+        this.raRangeShrinking = raRangeShrinking;
     }
 
     public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
@@ -113,8 +113,8 @@ public final class IteratingLinearOptimizerParameters {
         return maxNumberOfIterations;
     }
 
-    public boolean getPstRangeShrinking() {
-        return pstRangeShrinking;
+    public boolean getRaRangeShrinking() {
+        return raRangeShrinking;
     }
 
     public static LinearOptimizerParametersBuilder create() {
@@ -132,7 +132,7 @@ public final class IteratingLinearOptimizerParameters {
         private RangeActionLimitationParameters raLimitationParameters;
         private RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
         private int maxNumberOfIterations;
-        private boolean pstRangeShrinking;
+        private boolean raRangeShrinking;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
@@ -179,8 +179,8 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withPstRangeShrinking(boolean pstRangeShrinking) {
-            this.pstRangeShrinking = pstRangeShrinking;
+        public LinearOptimizerParametersBuilder withRaRangeShrinking(boolean raRangeShrinking) {
+            this.raRangeShrinking = raRangeShrinking;
             return this;
         }
 
@@ -199,7 +199,7 @@ public final class IteratingLinearOptimizerParameters {
                 raLimitationParameters,
                 solverParameters,
                 maxNumberOfIterations,
-                pstRangeShrinking);
+                raRangeShrinking);
         }
     }
 }

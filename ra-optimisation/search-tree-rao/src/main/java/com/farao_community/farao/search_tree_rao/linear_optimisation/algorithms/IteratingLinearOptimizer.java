@@ -96,7 +96,7 @@ public final class IteratingLinearOptimizer {
             );
             previousResult = currentResult;
 
-            Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getPstRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
+            Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult);
             if (mipShouldStop.getRight()) {
                 return bestResult;
             } else {
@@ -223,7 +223,7 @@ public final class IteratingLinearOptimizer {
         );
     }
 
-    private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean pstRangeShrinking, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
+    private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, IteratingLinearOptimizerInput input, int iteration, IteratingLinearOptimizationResultImpl currentResult, IteratingLinearOptimizationResultImpl bestResult) {
         if (currentResult.getCost() < bestResult.getCost()) {
             logBetterResult(iteration, currentResult);
             linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
@@ -231,10 +231,10 @@ public final class IteratingLinearOptimizer {
         }
         logWorseResult(iteration, bestResult, currentResult);
         applyRangeActions(bestResult, input);
-        if (pstRangeShrinking) {
+        if (raRangeShrinking) {
             linearProblem.updateBetweenSensiIteration(currentResult.getBranchResult(), currentResult.getSensitivityResult(), currentResult.getRangeActionActivationResult());
         }
-        return Pair.of(bestResult, !pstRangeShrinking);
+        return Pair.of(bestResult, !raRangeShrinking);
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {

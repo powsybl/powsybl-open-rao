@@ -58,13 +58,13 @@ public final class LinearProblem {
         UPPER_BOUND
     }
 
-    public enum PstRangeShrinking {
+    public enum RaRangeShrinking {
         TRUE("iterative-shrink"),
         FALSE("");
 
         private final String name;
 
-        PstRangeShrinking(String name) {
+        RaRangeShrinking(String name) {
             this.name = name;
         }
 
@@ -144,12 +144,12 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public FaraoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, PstRangeShrinking pstRangeShrinking) {
-        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, pstRangeShrinking));
+    public FaraoMPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
+        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
-    public FaraoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, PstRangeShrinking pstRangeShrinking) {
-        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, pstRangeShrinking));
+    public FaraoMPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state, RaRangeShrinking raRangeShrinking) {
+        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state, raRangeShrinking));
     }
 
     public FaraoMPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {

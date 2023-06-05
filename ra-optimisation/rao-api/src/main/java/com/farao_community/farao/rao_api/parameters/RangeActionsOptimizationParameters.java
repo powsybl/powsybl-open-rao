@@ -30,7 +30,7 @@ public class RangeActionsOptimizationParameters {
     private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
     private static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
-    private static final PstRangeShrinking DEFAULT_PST_RANGE_SHRINKING = PstRangeShrinking.DISABLED;
+    private static final RaRangeShrinking DEFAULT_RA_RANGE_SHRINKING = RaRangeShrinking.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
@@ -41,16 +41,14 @@ public class RangeActionsOptimizationParameters {
     private double injectionRaPenaltyCost = DEFAULT_INJECTION_RA_PENALTY_COST;
     private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
-    private PstRangeShrinking pstRangeShrinking = DEFAULT_PST_RANGE_SHRINKING;
+    private RaRangeShrinking raRangeShrinking = DEFAULT_RA_RANGE_SHRINKING;
 
-    // Enum
     public enum PstModel {
         CONTINUOUS,
         APPROXIMATED_INTEGERS
     }
 
-    // Refactor these names
-    public enum PstRangeShrinking {
+    public enum RaRangeShrinking {
         DISABLED,
         ENABLED,
         ENABLED_IN_FIRST_PRAO_AND_CRAO
@@ -180,12 +178,12 @@ public class RangeActionsOptimizationParameters {
         this.linearOptimizationSolver = linearOptimizationSolver;
     }
 
-    public void setPstRangeShrinking(PstRangeShrinking pstRangeShrinking) {
-        this.pstRangeShrinking = pstRangeShrinking;
+    public void setRaRangeShrinking(RaRangeShrinking raRangeShrinking) {
+        this.raRangeShrinking = raRangeShrinking;
     }
 
-    public PstRangeShrinking getPstRangeShrinking() {
-        return pstRangeShrinking;
+    public RaRangeShrinking getRaRangeShrinking() {
+        return raRangeShrinking;
     }
 
     public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
@@ -201,7 +199,7 @@ public class RangeActionsOptimizationParameters {
                     parameters.setHvdcSensitivityThreshold(config.getDoubleProperty(HVDC_SENSITIVITY_THRESHOLD, DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
                     parameters.setInjectionRaPenaltyCost(config.getDoubleProperty(INJECTION_RA_PENALTY_COST, DEFAULT_INJECTION_RA_PENALTY_COST));
                     parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty(INJECTION_RA_SENSITIVITY_THRESHOLD, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
-                    parameters.setPstRangeShrinking(config.getEnumProperty(PST_RANGE_SHRINKING, PstRangeShrinking.class, DEFAULT_PST_RANGE_SHRINKING));
+                    parameters.setRaRangeShrinking(config.getEnumProperty(RA_RANGE_SHRINKING, RaRangeShrinking.class, DEFAULT_RA_RANGE_SHRINKING));
                 });
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;
