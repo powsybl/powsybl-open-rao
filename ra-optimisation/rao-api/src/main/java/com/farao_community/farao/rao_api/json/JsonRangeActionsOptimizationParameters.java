@@ -34,6 +34,7 @@ final class JsonRangeActionsOptimizationParameters {
         jsonGenerator.writeNumberField(HVDC_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold());
         jsonGenerator.writeNumberField(INJECTION_RA_PENALTY_COST, parameters.getRangeActionsOptimizationParameters().getInjectionRaPenaltyCost());
         jsonGenerator.writeNumberField(INJECTION_RA_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold());
+        jsonGenerator.writeObjectField(RA_RANGE_SHRINKING, parameters.getRangeActionsOptimizationParameters().getRaRangeShrinking());
         jsonGenerator.writeObjectFieldStart(LINEAR_OPTIMIZATION_SOLVER);
         jsonGenerator.writeObjectField(SOLVER, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
         jsonGenerator.writeNumberField(RELATIVE_MIP_GAP, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap());
@@ -80,6 +81,9 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     deserializeLinearOptimizationSolver(jsonParser, raoParameters);
                     break;
+                case RA_RANGE_SHRINKING:
+                    raoParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(stringToRaRangeShrinking(jsonParser.nextTextValue()));
+                    break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
             }
@@ -111,6 +115,14 @@ final class JsonRangeActionsOptimizationParameters {
             return RangeActionsOptimizationParameters.PstModel.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new FaraoException(String.format("Unknown Pst model: %s", string));
+        }
+    }
+
+    private static RangeActionsOptimizationParameters.RaRangeShrinking stringToRaRangeShrinking(String string) {
+        try {
+            return RangeActionsOptimizationParameters.RaRangeShrinking.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown Pst variation range shrinking: %s", string));
         }
     }
 

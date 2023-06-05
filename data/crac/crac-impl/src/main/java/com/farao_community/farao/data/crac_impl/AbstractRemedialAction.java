@@ -72,20 +72,20 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
     }
 
-    @Override
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
      * If TO_BE_EVALUATED condition has not been evaluated, default behavior is false
      */
+    @Override
     public boolean isRemedialActionAvailable(State state) {
         return isRemedialActionAvailable(state, false);
     }
 
-    @Override
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
      * When UsageMethod is TO_BE_EVALUATED, condition has to have been evaluated previously
      */
+    @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
         switch (getUsageMethod(state)) {
             case AVAILABLE:
