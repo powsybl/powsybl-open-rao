@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency;
+package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency;
 
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-public class CsaProfileContingencyCreationContext implements ElementaryCreationContext {
+public final class CsaProfileContingencyCreationContext implements ElementaryCreationContext {
     private String contingencyID;
     private String contingencyName;
     private ImportStatus importStatus;

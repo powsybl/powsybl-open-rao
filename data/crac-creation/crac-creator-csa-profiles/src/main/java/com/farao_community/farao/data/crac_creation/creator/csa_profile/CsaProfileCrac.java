@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile;
+package com.farao_community.farao.data.crac_creation.creator.csa_profile;
 
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
@@ -13,20 +13,19 @@ import com.farao_community.farao.data.native_crac_api.NativeCrac;
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
 public class CsaProfileCrac implements NativeCrac {
-
-
+/*
     private final CRACDocumentType cracDocumentType;
 
     public CsaProfileCrac(CRACDocumentType cracDocumentType) {
         this.cracDocumentType = cracDocumentType;
-    }
+    }*/
 
     @Override
     public String getFormat() {
         return "CsaProfileCrac";
     }
 
-    public CRACDocumentType getCracDocument() {
+    /*public CRACDocumentType getCracDocument() {
         return cracDocumentType;
-    }
+    }*/
 }

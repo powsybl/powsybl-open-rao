@@ -27,7 +27,7 @@ class CimCracImporterTest {
     }
 
     @Test
-    void testExists() {
+    void importNativeCrac() {
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CimCracImporter importer = new CimCracImporter();
         CimCrac cimCrac = importer.importNativeCrac(is);

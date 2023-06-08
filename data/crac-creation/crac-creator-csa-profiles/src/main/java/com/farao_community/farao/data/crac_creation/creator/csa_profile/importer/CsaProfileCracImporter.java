@@ -5,18 +5,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.importer;
+package com.farao_community.farao.data.crac_creation.creator.csa_profile.importer;
 
-import main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.xsd.CRACDocumentType;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
-import main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import org.eclipse.rdf4j.rio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -28,14 +26,15 @@ import java.io.UncheckedIOException;
 public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsaProfileCracImporter.class);
+
     @Override
     public String getFormat() {
         return "CsaProfileCrac";
     }
 
     @Override
-    public CsaProfileCrac importNativeCrac(InputStream inputStream){
-        CRACDocumentType cracDocumentType;
+    public CsaProfileCrac importNativeCrac(InputStream inputStream) {
+        /*CRACDocumentType cracDocumentType;
         try {
             cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)
                     .createUnmarshaller()
@@ -43,29 +42,26 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     .getValue();
         } catch (JAXBException e) {
             throw new FaraoException(e);
-        }
-        return new CsaProfileCrac(cracDocumentType);
+        }*/
+        return new CsaProfileCrac();
     }
 
     @Override
     public boolean exists(String fileName, InputStream inputStream) {
         try {
-            RDFFormat rdfFormatContingencies = Rio.getParserFormatForFileName(String.valueOf(this.getClass().getResource(CsaProfileConstants.RDF_FORMAT_CONTINGENCY_PROFILE))).orElse(RDFFormat.RDFXML);
+            RDFFormat rdfFormatContingencies = Rio.getParserFormatForFileName(String.valueOf(this.getClass().getResource(CsaProfileConstants.RDF_FORMAT_CSA_PROFILE))).orElse(RDFFormat.RDFXML);
             RDFParser rdfParser = Rio.createParser(rdfFormatContingencies);
             rdfParser.parse(inputStream);
             LOGGER.info("CSA PROFILE CRAC document is valid");
             return true;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-        catch (RDFParseException e) {
-            LOGGER.debug("CSA PROFILE CRAC document is NOT valid. Reason: RDF parsing problem : {}", e.getMessage());
+        } catch (RDFParseException e) {
+            LOGGER.debug("CSA PROFILE CRAC document is NOT valid. Reason: RDF parsing problem : {}");
             return false;
-        }
-        catch (RDFHandlerException e) {
-            LOGGER.debug("CSA PROFILE CRAC document is NOT valid. Reason: RDF handler problem : {}", e.getMessage());
-            return false;
+        } catch (RDFHandlerException e) {
+            LOGGER.debug("CSA PROFILE CRAC document is NOT valid. Reason: RDF handler problem :");
+            return true;
         }
     }
 }

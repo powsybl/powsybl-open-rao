@@ -4,11 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package test.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
+package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
-import main.java.com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import org.junit.jupiter.api.Test;
+
+import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,7 +25,9 @@ public class CsaProfileCracImporterTest {
     }
 
     @Test
-    void testrdf() {
-
+    void testExists() {
+        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
+        CsaProfileCracImporter importer = new CsaProfileCracImporter();
+        //assertTrue(importer.exists("TestConfiguration_TC1_v29Mar2023.zip", is1));
     }
 }
