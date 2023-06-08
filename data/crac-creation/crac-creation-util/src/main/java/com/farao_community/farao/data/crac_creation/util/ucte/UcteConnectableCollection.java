@@ -52,7 +52,7 @@ class UcteConnectableCollection {
 
           In such cases, both connectables fit the same from/to/suffix. But instead of returning a
           UcteMatchingRule.severalPossibleMatch(), which is reserved for ambiguous situations with wildcards, this
-          method returns the connectable with the id in the same order than the the ones given in argument of the method.
+          method returns the connectable with the id in the same order as the ones given in argument of the method.
          */
 
         UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix, connectableTypes);
@@ -115,14 +115,16 @@ class UcteConnectableCollection {
         if (fromNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER) || toNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
             // if the nodes contains wildCards, we have to look for all possible match
 
-            List<UcteMatchingResult> matchedConnetables = ucteConnectables.stream()
+            List<UcteMatchingResult> matchedConnectables = ucteConnectables.stream()
                 .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .collect(Collectors.toList());
 
-            if (matchedConnetables.size() == 1) {
-                return matchedConnetables.get(0);
-            } else if (matchedConnetables.size() > 1) {
+            if (matchedConnectables.size() == 1) {
+                return matchedConnectables.get(0);
+            } else if (matchedConnectables.size() == 2) {
+                return UcteMatchingResult.severalPossibleMatch();
+            } else if (matchedConnectables.size() > 2) {
                 return UcteMatchingResult.severalPossibleMatch();
             } else {
                 return UcteMatchingResult.notFound();
@@ -172,7 +174,7 @@ class UcteConnectableCollection {
     }
 
     private void addDanglingLines(Network network) {
-        network.getDanglingLineStream().forEach(danglingLine -> {
+        network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
             // A dangling line is an Injection with a generator convention.
             // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
             String xNode = danglingLine.getUcteXnodeCode();

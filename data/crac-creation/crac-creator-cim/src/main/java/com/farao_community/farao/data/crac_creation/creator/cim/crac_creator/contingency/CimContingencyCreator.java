@@ -13,13 +13,16 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -105,10 +108,19 @@ public class CimContingencyCreator {
             CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
             if (cgmesBranchHelper.isValid()) {
                 networkElementId = cgmesBranchHelper.getIdInNetwork();
+                networkElement = cgmesBranchHelper.getBranch();
             }
         } else {
             networkElementId = networkElement.getId();
         }
+
+        if (networkElement instanceof DanglingLine) {
+            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+            if (optionalTieLine.isPresent()) {
+                networkElementId = optionalTieLine.get().getId();
+            }
+        }
+
         return networkElementId;
     }
 

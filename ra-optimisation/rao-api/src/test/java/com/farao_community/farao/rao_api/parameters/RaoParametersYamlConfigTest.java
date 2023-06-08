@@ -305,7 +305,7 @@ class RaoParametersYamlConfigTest extends AbstractConverterTest {
         assertNotNull(olfParams);
         assertEquals(0.444, olfParams.getMinPlausibleTargetVoltage(), DOUBLE_TOLERANCE);
         assertEquals(1.444, olfParams.getMaxPlausibleTargetVoltage(), DOUBLE_TOLERANCE);
-        assertEquals(111, olfParams.getMaxIteration(), DOUBLE_TOLERANCE);
+        assertEquals(111, olfParams.getMaxNewtonRaphsonIterations(), DOUBLE_TOLERANCE);
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withOLFParams.json");
