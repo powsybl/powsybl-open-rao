@@ -16,11 +16,13 @@ import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -113,9 +115,9 @@ public class CimContingencyCreator {
         }
 
         if (networkElement instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) networkElement;
-            if (danglingLine.getTieLine().isPresent()) {
-                networkElementId = danglingLine.getTieLine().get().getId();
+            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+            if (optionalTieLine.isPresent()) {
+                networkElementId = optionalTieLine.get().getId();
             }
         }
 

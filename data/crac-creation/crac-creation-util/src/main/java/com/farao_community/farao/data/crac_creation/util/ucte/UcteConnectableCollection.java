@@ -115,29 +115,16 @@ class UcteConnectableCollection {
         if (fromNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER) || toNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
             // if the nodes contains wildCards, we have to look for all possible match
 
-            List<UcteMatchingResult> matchedConnetables = ucteConnectables.stream()
+            List<UcteMatchingResult> matchedConnectables = ucteConnectables.stream()
                 .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .collect(Collectors.toList());
 
-            if (matchedConnetables.size() == 1) {
-                return matchedConnetables.get(0);
-            } else if (matchedConnetables.size() == 2) {
-                Identifiable<?> identifiable1 = matchedConnetables.get(0).getIidmIdentifiable();
-                Identifiable<?> identifiable2 = matchedConnetables.get(1).getIidmIdentifiable();
-
-                if (identifiable1 instanceof DanglingLine && identifiable2 instanceof TieLine) {
-                    if (tieLineContainsDanglingLine((TieLine) identifiable2, (DanglingLine) identifiable1)) {
-                        return matchedConnetables.get(1);
-                    }
-                } else if (identifiable2 instanceof DanglingLine && identifiable1 instanceof TieLine) {
-                    if (tieLineContainsDanglingLine((TieLine) identifiable1, (DanglingLine) identifiable2)) {
-                        return matchedConnetables.get(0);
-                    }
-                }
-                return UcteMatchingResult.severalPossibleMatch();
-
-            } else if (matchedConnetables.size() > 2) {
+            if (matchedConnectables.size() == 1) {
+                return matchedConnectables.get(0);
+            } else if (matchedConnectables.size() == 2) {
+                return checkIfTieLineOrSeveralMatch(matchedConnectables);
+            } else if (matchedConnectables.size() > 2) {
                 return UcteMatchingResult.severalPossibleMatch();
             } else {
                 return UcteMatchingResult.notFound();
@@ -150,6 +137,20 @@ class UcteConnectableCollection {
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .findAny().orElse(UcteMatchingResult.notFound());
         }
+    }
+
+    private UcteMatchingResult checkIfTieLineOrSeveralMatch(List<UcteMatchingResult> matchedConnectables) {
+        Identifiable<?> identifiable1 = matchedConnectables.get(0).getIidmIdentifiable();
+        Identifiable<?> identifiable2 = matchedConnectables.get(1).getIidmIdentifiable();
+
+        if (identifiable1 instanceof DanglingLine && identifiable2 instanceof TieLine &&
+            tieLineContainsDanglingLine((TieLine) identifiable2, (DanglingLine) identifiable1)) {
+            return matchedConnectables.get(1);
+        } else if (identifiable2 instanceof DanglingLine && identifiable1 instanceof TieLine &&
+            tieLineContainsDanglingLine((TieLine) identifiable1, (DanglingLine) identifiable2)) {
+            return matchedConnectables.get(0);
+        }
+        return UcteMatchingResult.severalPossibleMatch();
     }
 
     private boolean tieLineContainsDanglingLine(TieLine tieLine, DanglingLine danglingLine) {
