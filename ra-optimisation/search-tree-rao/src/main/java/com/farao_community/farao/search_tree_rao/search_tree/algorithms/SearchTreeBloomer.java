@@ -11,7 +11,9 @@ import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -26,6 +28,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
 public final class SearchTreeBloomer {
     private final Network network;
     private final CountryGraph countryGraph;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final int maxRa;
     private final int maxTso;
     private final Map<String, Integer> maxTopoPerTso;
@@ -36,6 +39,7 @@ public final class SearchTreeBloomer {
     private final State optimizedStateForNetworkActions;
 
     public SearchTreeBloomer(Network network,
+                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              int maxRa,
                              int maxTso,
                              Map<String, Integer> maxTopoPerTso,
@@ -46,6 +50,7 @@ public final class SearchTreeBloomer {
                              State optimizedStateForNetworkActions) {
         this.network = network;
         countryGraph = new CountryGraph(network);
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.maxRa = maxRa;
         this.maxTso = maxTso;
         this.maxTopoPerTso = maxTopoPerTso;
@@ -63,31 +68,27 @@ public final class SearchTreeBloomer {
      * activated together.
      * <p>
      * Moreover, the bloom method ensure that the returned NetworkActionCombinations respect the following rules:
-     * <ul>
-     * <li>they do not exceed the maximum number of usable remedial actions</li>
-     * <li>they do not exceed the maximum number of usable remedial actions (PST & topo) per operator</li>
-     * <li>they do not exceed the maximum number of operators</li>
-     * <li>they are not too far away from the most limiting CNEC</li>
-     * </ul>
+     * - they do not exceed the maximum number of usable remedial actions
+     * - they do not exceed the maximum number of usable remedial actions (PST & topo) per operator
+     * - they do not exceed the maximum number of operators
+     * - they are not too far away from the most limiting CNEC
      */
-    Map<NetworkActionCombination, Boolean> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
+    List<NetworkActionCombination> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
 
         // preDefined combinations
-        Map<NetworkActionCombination, Boolean> networkActionCombinations = preDefinedNaCombinations.stream()
+        List<NetworkActionCombination> networkActionCombinations = preDefinedNaCombinations.stream()
             .distinct()
             .filter(naCombination -> networkActions.containsAll(naCombination.getNetworkActionSet()))
-            .collect(Collectors.toMap(naCombination -> naCombination, naCombination -> false));
+            .collect(Collectors.toList());
 
         // + individual available Network Actions
-        final List<NetworkActionCombination> finalNetworkActionCombinations = new ArrayList<>(networkActionCombinations.keySet());
-        Map<NetworkActionCombination, Boolean> auxNaCombinationsToRefactor = networkActionCombinations;
+        final List<NetworkActionCombination> finalNetworkActionCombinations = new ArrayList<>(networkActionCombinations);
         networkActions.stream()
             .filter(na ->
                 finalNetworkActionCombinations.stream().noneMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na))
             )
-            //.map(NetworkActionCombination::new)
-            .forEach(ra -> auxNaCombinationsToRefactor.put(new NetworkActionCombination(Set.of(ra)), false));
-        networkActionCombinations.putAll(auxNaCombinationsToRefactor);
+            .map(NetworkActionCombination::new)
+            .forEach(networkActionCombinations::add);
 
         // filters
         // (idea: create one class per filter which implement a common interface)
@@ -102,10 +103,10 @@ public final class SearchTreeBloomer {
         return networkActionCombinations;
     }
 
-    Map<NetworkActionCombination, Boolean> removeAlreadyActivatedNetworkActions(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
-        return naCombinations.keySet().stream()
+    List<NetworkActionCombination> removeAlreadyActivatedNetworkActions(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
+        return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))
-            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
+            .collect(Collectors.toList());
     }
 
     /**
@@ -115,7 +116,7 @@ public final class SearchTreeBloomer {
      * no need to bloom on ra2. If the remedial action ra2 was relevant, the combination ra1+ra2 would have been
      * already selected in the previous depths.
      */
-    Map<NetworkActionCombination, Boolean> removeAlreadyTestedCombinations(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    List<NetworkActionCombination> removeAlreadyTestedCombinations(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
 
         List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
 
@@ -136,24 +137,18 @@ public final class SearchTreeBloomer {
             }
         }
 
-        return naCombinations.keySet().stream()
+        return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().size() != 1
                 || !alreadyTestedNetworkActions.contains(naCombination.getNetworkActionSet().iterator().next()))
-                .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
+            .collect(Collectors.toList());
     }
 
-    Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxNumberOfRa(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    List<NetworkActionCombination> removeCombinationsWhichExceedMaxNumberOfRa(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
+        int numberOfRangeActionsUsed = getNumberOfRangeActionsUsed(fromLeaf);
 
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
-        for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
-            NetworkActionCombination naCombination = entry.getKey();
-            int naCombinationSize = naCombination.getNetworkActionSet().size();
-            int alreadyActivatedNetworkActionsSize = fromLeaf.getActivatedNetworkActions().size();
-            if (naCombinationSize + alreadyActivatedNetworkActionsSize <= maxRa) {
-                boolean removeRangeActions = alreadyActivatedNetworkActionsSize + fromLeaf.getNumberOfActivatedRangeActions() + naCombinationSize > maxRa;
-                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
-            }
-        }
+        List<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
+            .filter(naCombination -> naCombination.getNetworkActionSet().size() + fromLeaf.getActivatedNetworkActions().size() + numberOfRangeActionsUsed <= maxRa)
+            .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
@@ -162,32 +157,13 @@ public final class SearchTreeBloomer {
         return filteredNaCombinations;
     }
 
-    Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxNumberOfRaPerTso(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    List<NetworkActionCombination> removeCombinationsWhichExceedMaxNumberOfRaPerTso(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
 
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
         Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(fromLeaf);
-        for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
-            NetworkActionCombination naCombination = entry.getKey();
-            Set<String> operators = naCombination.getOperators();
-            boolean naShouldBeKept = true;
-            boolean removeRangeActions = false;
-            for (String tso : operators) {
-                int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
-                int alreadyActivatedRangeActionsSize = (int) fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> ra.getOperator().equals(tso)).count();
-                int alreadyActivatedNetworkActionsSize = (int) fromLeaf.getActivatedNetworkActions().stream().filter(na -> na.getOperator().equals(tso)).count();
-                // The number of already applied network actions is taken in account in getMaxNetworkActionPerTso
-                if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
-                    naShouldBeKept = false;
-                    break;
-                } else if (alreadyActivatedNetworkActionsSize + alreadyActivatedRangeActionsSize + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
-                    removeRangeActions = true;
-                    break;
-                }
-            }
-            if (naShouldBeKept) {
-                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
-            }
-        }
+
+        List<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
+            .filter(naCombination -> !exceedMaxNumberOfRaPerTso(naCombination, maxNaPerTso))
+            .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
@@ -196,19 +172,13 @@ public final class SearchTreeBloomer {
         return filteredNaCombinations;
     }
 
-    Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxNumberOfTsos(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    List<NetworkActionCombination> removeCombinationsWhichExceedMaxNumberOfTsos(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
 
         Set<String> alreadyActivatedTsos = getTsosWithActivatedNetworkActions(fromLeaf);
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
-        for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
-            NetworkActionCombination naCombination = entry.getKey();
-            if (!exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos)) {
-                Set<String> alreadyActivatedTsosWithRangeActions = new HashSet<>(alreadyActivatedTsos);
-                fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).forEach(pst -> alreadyActivatedTsosWithRangeActions.add(pst.getOperator()));
-                boolean removeRangeActions = exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsosWithRangeActions);
-                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
-            }
-        }
+
+        List<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
+            .filter(naCombination -> !exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos))
+            .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", naCombinations.size() - filteredNaCombinations.size());
@@ -222,7 +192,7 @@ public final class SearchTreeBloomer {
      * feature, and setting the number of boundaries allowed between the network action and the limiting element.
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
-    Map<NetworkActionCombination, Boolean> removeCombinationsFarFromMostLimitingElement(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
+    List<NetworkActionCombination> removeCombinationsFarFromMostLimitingElement(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
 
         if (!filterFarElements) {
             return naCombinations;
@@ -230,14 +200,27 @@ public final class SearchTreeBloomer {
 
         Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(fromLeaf);
 
-        Map<NetworkActionCombination, Boolean> filteredNaCombinations = naCombinations.keySet().stream()
+        List<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
-                .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
+            .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
             TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
         }
         return filteredNaCombinations;
+    }
+
+    private int getNumberOfRangeActionsUsed(Leaf fromLeaf) {
+        return (int) fromLeaf.getRangeActions().stream()
+                .filter(rangeAction -> hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction))
+                .count();
+    }
+
+    private boolean exceedMaxNumberOfRaPerTso(NetworkActionCombination naCombination, Map<String, Integer> maxNaPerTso) {
+        return naCombination.getOperators().stream().anyMatch(operator -> {
+            int numberOfActionForTso = (int) naCombination.getNetworkActionSet().stream().filter(na -> Objects.nonNull(na.getOperator()) && na.getOperator().equals(operator)).count();
+            return numberOfActionForTso > maxNaPerTso.getOrDefault(operator, Integer.MAX_VALUE);
+        });
     }
 
     /**
@@ -261,6 +244,18 @@ public final class SearchTreeBloomer {
             updatedMaxTopoPerTso.put(tso, Math.min(limitationDueToMaxRa, limitationDueToMaxTopo));
         });
         return updatedMaxTopoPerTso;
+    }
+
+    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction<?> rangeAction) {
+        double optimizedSetPoint = fromLeaf.getOptimizedSetpoint(rangeAction, optimizedStateForNetworkActions);
+        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+        if (Double.isNaN(optimizedSetPoint)) {
+            return false;
+        } else if (Double.isNaN(prePerimeterSetPoint)) {
+            return true;
+        } else {
+            return Math.abs(optimizedSetPoint - prePerimeterSetPoint) > 1e-6;
+        }
     }
 
     private boolean exceedMaxNumberOfTsos(NetworkActionCombination naCombination, Set<String> alreadyActivatedTsos) {

@@ -98,6 +98,7 @@ public class SearchTree {
         if (input.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
+                input.getPrePerimeterResult(),
                 parameters.getRaLimitationParameters().getMaxCurativeRa(),
                 parameters.getRaLimitationParameters().getMaxCurativeTso(),
                 parameters.getRaLimitationParameters().getMaxCurativeTopoPerTso(),
@@ -110,6 +111,7 @@ public class SearchTree {
         } else {
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
+                    input.getPrePerimeterResult(),
                 Integer.MAX_VALUE, //no limitation of RA in preventive
                 Integer.MAX_VALUE, //no limitation of RA in preventive
                 new HashMap<>(),   //no limitation of RA in preventive
@@ -252,10 +254,9 @@ public class SearchTree {
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
-        final Map<NetworkActionCombination, Boolean> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
+        final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
         networkPool.initClones(naCombinations.size());
-        List<NetworkActionCombination> naCombinationsKeys = new ArrayList<>(naCombinations.keySet());
-        naCombinationsKeys.sort(this::deterministicNetworkActionCombinationComparison);
+        naCombinations.sort(this::deterministicNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
@@ -264,7 +265,7 @@ public class SearchTree {
         }
         AtomicInteger remainingLeaves = new AtomicInteger(naCombinations.size());
         CountDownLatch latch = new CountDownLatch(naCombinations.size());
-        naCombinationsKeys.forEach(naCombination ->
+        naCombinations.forEach(naCombination ->
             networkPool.submit(() -> {
                 Network networkClone;
                 try {
@@ -276,23 +277,15 @@ public class SearchTree {
                 }
                 try {
                     if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
-                        // todo: Probably change the doc here
                         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
+                        previousDepthOptimalLeaf.getRangeActions()
+                                .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
+                        // todo
+                        // set alreadyAppliedRa
 
-                        if (naCombinations.get(naCombination)) {
-                            previousDepthOptimalLeaf.getRangeActions().forEach(ra ->
-                                ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
-                            );
-                        } else {
-                            input.getOptimizationPerimeter().getRangeActions()
-                                .forEach(ra ->
-                                        ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
-                            );
-                        }
-                        optimizeNextLeafAndUpdate(naCombination, naCombinations.get(naCombination), networkClone);
-
+                        optimizeNextLeafAndUpdate(naCombination, networkClone);
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                     }
@@ -367,11 +360,11 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network) {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = createChildLeaf(network, naCombination, shouldRangeActionBeRemoved);
+            leaf = createChildLeaf(network, naCombination);
         } catch (FaraoException e) {
             Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
             networkActions.addAll(naCombination.getNetworkActionSet());
@@ -381,7 +374,7 @@ public class SearchTree {
             throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(false));
 
         topLevelLogger.info("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -403,15 +396,15 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
+    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination) {
         return new Leaf(
             input.getOptimizationPerimeter(),
             network,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
-            shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
+            previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
-            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getAppliedRemedialActions(previousDepthOptimalLeaf));
+            getAppliedRemedialActions(previousDepthOptimalLeaf));
     }
 
     private void optimizeLeaf(Leaf leaf) {
