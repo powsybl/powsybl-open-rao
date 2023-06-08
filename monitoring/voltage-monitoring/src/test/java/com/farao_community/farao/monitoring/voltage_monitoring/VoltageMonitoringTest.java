@@ -272,11 +272,11 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertTrue(Double.isNaN(voltageMonitoringResult.getMinVoltage(vc1b)));
         assertTrue(Double.isNaN(voltageMonitoringResult.getMaxVoltage(vc1b)));
-        assertEquals(399., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
-        assertEquals(399., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
+        assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
+        assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(List.of("Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
             "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
-            "Network element VL3 at state coL1L2 - curative has a voltage of 399 - 399 kV."),
+            "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."),
             voltageMonitoringResult.printConstraints());
     }
 

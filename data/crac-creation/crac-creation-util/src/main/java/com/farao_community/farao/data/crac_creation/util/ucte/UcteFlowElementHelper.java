@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_creation.util.ucte.UcteConnectable.Side.TWO;
 import static java.lang.String.format;
@@ -140,17 +141,20 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
         this.connectableIdInNetwork = networkElement.getId();
 
         if (networkElement instanceof TieLine) {
-            this.isHalfLine = true;
-            this.halfLineSide = ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE;
-            checkBranchNominalVoltage((TieLine) networkElement);
-            checkTieLineCurrentLimits((TieLine) networkElement);
+            interpretTieLine((TieLine) networkElement, ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE);
         } else if (networkElement instanceof Branch) {
             checkBranchNominalVoltage((Branch<?>) networkElement);
             checkBranchCurrentLimits((Branch<?>) networkElement);
         } else if (networkElement instanceof DanglingLine) {
-            checkDanglingLineNominalVoltage((DanglingLine) networkElement);
-            checkDanglingLineCurrentLimits((DanglingLine) networkElement);
+            interpretDanglingLine((DanglingLine) networkElement);
         }
+    }
+
+    private void interpretTieLine(TieLine tieLine, Branch.Side side) {
+        this.isHalfLine = true;
+        this.halfLineSide = side;
+        checkBranchNominalVoltage(tieLine);
+        checkTieLineCurrentLimits(tieLine);
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
@@ -168,6 +172,21 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     protected void checkBranchNominalVoltage(Branch<?> branch) {
         this.nominalVoltageLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
+    }
+
+    private void interpretDanglingLine(DanglingLine danglingLine) {
+        Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
+        if (optionalTieLine.isPresent()) {
+            TieLine tieLine = optionalTieLine.get();
+            this.connectableIdInNetwork = tieLine.getId();
+            Branch.Side side = tieLine.getDanglingLine1() == danglingLine ? Branch.Side.ONE : Branch.Side.TWO;
+            // dangling line convention is x node to terminal, so dl 1 is towards terminal 1 (opposite) and dl 2 is towards terminal 2 (direct)
+            this.isInvertedInNetwork = tieLine.getDanglingLine1() == danglingLine ? !isInvertedInNetwork : isInvertedInNetwork;
+            interpretTieLine(tieLine, side);
+        } else {
+            checkDanglingLineNominalVoltage(danglingLine);
+            checkDanglingLineCurrentLimits(danglingLine);
+        }
     }
 
     protected void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {

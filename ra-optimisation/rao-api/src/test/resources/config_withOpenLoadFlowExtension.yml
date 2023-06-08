@@ -12,4 +12,4 @@ load-flow-default-parameters:
 open-loadflow-default-parameters:
     minPlausibleTargetVoltage: 0.444
     maxPlausibleTargetVoltage: 1.444
-    maxIteration: 111
+    maxNewtonRaphsonIterations: 111
