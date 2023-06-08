@@ -123,7 +123,7 @@ class UcteConnectableCollection {
             if (matchedConnectables.size() == 1) {
                 return matchedConnectables.get(0);
             } else if (matchedConnectables.size() == 2) {
-                return checkIfTieLineOrSeveralMatch(matchedConnectables);
+                return UcteMatchingResult.severalPossibleMatch();
             } else if (matchedConnectables.size() > 2) {
                 return UcteMatchingResult.severalPossibleMatch();
             } else {
@@ -137,24 +137,6 @@ class UcteConnectableCollection {
                 .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .findAny().orElse(UcteMatchingResult.notFound());
         }
-    }
-
-    private UcteMatchingResult checkIfTieLineOrSeveralMatch(List<UcteMatchingResult> matchedConnectables) {
-        Identifiable<?> identifiable1 = matchedConnectables.get(0).getIidmIdentifiable();
-        Identifiable<?> identifiable2 = matchedConnectables.get(1).getIidmIdentifiable();
-
-        if (identifiable1 instanceof DanglingLine && identifiable2 instanceof TieLine &&
-            tieLineContainsDanglingLine((TieLine) identifiable2, (DanglingLine) identifiable1)) {
-            return matchedConnectables.get(1);
-        } else if (identifiable2 instanceof DanglingLine && identifiable1 instanceof TieLine &&
-            tieLineContainsDanglingLine((TieLine) identifiable1, (DanglingLine) identifiable2)) {
-            return matchedConnectables.get(0);
-        }
-        return UcteMatchingResult.severalPossibleMatch();
-    }
-
-    private boolean tieLineContainsDanglingLine(TieLine tieLine, DanglingLine danglingLine) {
-        return tieLine.getDanglingLine1().equals(danglingLine) || tieLine.getDanglingLine2().equals(danglingLine);
     }
 
     private void addBranches(Network network) {
