@@ -9,8 +9,11 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -25,6 +28,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
 public final class SearchTreeBloomer {
     private final Network network;
     private final CountryGraph countryGraph;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final int maxRa;
     private final int maxTso;
     private final Map<String, Integer> maxTopoPerTso;
@@ -32,17 +36,21 @@ public final class SearchTreeBloomer {
     private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
     private final List<NetworkActionCombination> preDefinedNaCombinations;
+    private final State optimizedStateForNetworkActions;
 
     public SearchTreeBloomer(Network network,
+                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              int maxRa,
                              int maxTso,
                              Map<String, Integer> maxTopoPerTso,
                              Map<String, Integer> maxRaPerTso,
                              boolean filterFarElements,
                              int maxNumberOfBoundariesForSkippingNetworkActions,
-                             List<NetworkActionCombination> preDefinedNaCombinations) {
+                             List<NetworkActionCombination> preDefinedNaCombinations,
+                             State optimizedStateForNetworkActions) {
         this.network = network;
         countryGraph = new CountryGraph(network);
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.maxRa = maxRa;
         this.maxTso = maxTso;
         this.maxTopoPerTso = maxTopoPerTso;
@@ -50,6 +58,7 @@ public final class SearchTreeBloomer {
         this.filterFarElements = filterFarElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
         this.preDefinedNaCombinations = preDefinedNaCombinations;
+        this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
     }
 
     /**
@@ -135,8 +144,10 @@ public final class SearchTreeBloomer {
     }
 
     List<NetworkActionCombination> removeCombinationsWhichExceedMaxNumberOfRa(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
+        int numberOfRangeActionsUsed = getNumberOfRangeActionsUsed(fromLeaf);
+
         List<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
-            .filter(naCombination -> naCombination.getNetworkActionSet().size() + fromLeaf.getActivatedNetworkActions().size() <= maxRa)
+            .filter(naCombination -> naCombination.getNetworkActionSet().size() + fromLeaf.getActivatedNetworkActions().size() + numberOfRangeActionsUsed <= maxRa)
             .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
@@ -199,6 +210,12 @@ public final class SearchTreeBloomer {
         return filteredNaCombinations;
     }
 
+    private int getNumberOfRangeActionsUsed(Leaf fromLeaf) {
+        return (int) fromLeaf.getRangeActions().stream()
+                .filter(rangeAction -> hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction))
+                .count();
+    }
+
     private boolean exceedMaxNumberOfRaPerTso(NetworkActionCombination naCombination, Map<String, Integer> maxNaPerTso) {
         return naCombination.getOperators().stream().anyMatch(operator -> {
             int numberOfActionForTso = (int) naCombination.getNetworkActionSet().stream().filter(na -> Objects.nonNull(na.getOperator()) && na.getOperator().equals(operator)).count();
@@ -227,6 +244,18 @@ public final class SearchTreeBloomer {
             updatedMaxTopoPerTso.put(tso, Math.min(limitationDueToMaxRa, limitationDueToMaxTopo));
         });
         return updatedMaxTopoPerTso;
+    }
+
+    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction<?> rangeAction) {
+        double optimizedSetPoint = fromLeaf.getOptimizedSetpoint(rangeAction, optimizedStateForNetworkActions);
+        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+        if (Double.isNaN(optimizedSetPoint)) {
+            return false;
+        } else if (Double.isNaN(prePerimeterSetPoint)) {
+            return true;
+        } else {
+            return Math.abs(optimizedSetPoint - prePerimeterSetPoint) > 1e-6;
+        }
     }
 
     private boolean exceedMaxNumberOfTsos(NetworkActionCombination naCombination, Set<String> alreadyActivatedTsos) {

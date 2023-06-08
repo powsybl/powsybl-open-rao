@@ -92,11 +92,12 @@ public class Leaf implements OptimizationResult {
          Network network,
          Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
          NetworkActionCombination newCombinationToApply,
+         RangeActionActivationResult prePerimeterActivationResult,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
-        this.prePerimeterActivationResult = new RangeActionActivationResultImpl(prePerimeterSetpoints);
+        this.prePerimeterActivationResult = prePerimeterActivationResult;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
             this.appliedNetworkActionsInPrimaryState = Stream.concat(
@@ -122,7 +123,7 @@ public class Leaf implements OptimizationResult {
          Network network,
          PrePerimeterResult prePerimeterOutput,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(optimizationPerimeter, network, Collections.emptySet(), null, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
