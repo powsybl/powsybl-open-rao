@@ -178,9 +178,10 @@ public final class SearchTreeBloomer {
                 if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
                     naShouldBeKept = false;
                     break;
-                } else {
-                    removeRangeActions = removeRangeActions || alreadyActivatedNetworkActionsSize + alreadyActivatedRangeActionsSize + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE);
-                }
+                } else if (alreadyActivatedNetworkActionsSize + alreadyActivatedRangeActionsSize + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)){
+                    removeRangeActions = true;
+                    break;
+                    }
             }
             if (naShouldBeKept) {
                 filteredNaCombinations.put(naCombination, removeRangeActions);
