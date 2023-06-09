@@ -22,7 +22,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
@@ -88,9 +87,6 @@ class LeafTest {
         na2 = Mockito.mock(NetworkAction.class);
         when(na1.apply(any())).thenReturn(true);
         when(na2.apply(any())).thenReturn(true);
-
-        // rao parameters
-        RaoParameters raoParameters = new RaoParameters();
 
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
