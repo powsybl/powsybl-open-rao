@@ -128,7 +128,9 @@ class SearchTreeBloomerTest {
     void testRemoveAlreadyActivatedNetworkActions() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr1, indFr2, indBe1, indFrDe, comb3Fr, comb2Fr, comb2FrDeBe);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr1, indFr2, indBe1, indFrDe, comb3Fr, comb2Fr, comb2FrDeBe);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = mock(Leaf.class);
@@ -136,18 +138,20 @@ class SearchTreeBloomerTest {
 
         // filter already activated NetworkAction
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>(), pState);
-        List<NetworkActionCombination> filteredNaCombinations = bloomer.removeAlreadyActivatedNetworkActions(naCombinations, previousLeaf);
+        Map<NetworkActionCombination, Boolean> filteredNaCombinations = bloomer.removeAlreadyActivatedNetworkActions(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombinations.size());
-        assertFalse(filteredNaCombinations.contains(indFr1));
-        assertFalse(filteredNaCombinations.contains(comb3Fr));
+        assertFalse(filteredNaCombinations.containsKey(indFr1));
+        assertFalse(filteredNaCombinations.containsKey(comb3Fr));
     }
 
     @Test
     void testRemoveAlreadyTestedCombinations() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe2, indNl1, indDe1, indFrDe, comb2Fr, comb2FrNl);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe2, indNl1, indDe1, indFrDe, comb2Fr, comb2FrNl);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
         List<NetworkActionCombination> preDefinedNaCombinations = List.of(comb2Fr, comb3Fr, comb3Be, comb2BeNl, comb2FrNl, comb2FrDeBe);
 
         // arrange previous Leaf -> naFr1 has already been activated
@@ -156,18 +160,20 @@ class SearchTreeBloomerTest {
 
         // filter already tested combinations
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, null, null, false, 0, preDefinedNaCombinations, pState);
-        List<NetworkActionCombination> filteredNaCombinations = bloomer.removeAlreadyTestedCombinations(naCombinations, previousLeaf);
+        Map<NetworkActionCombination, Boolean> filteredNaCombinations = bloomer.removeAlreadyTestedCombinations(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombinations.size());
-        assertFalse(filteredNaCombinations.contains(indNl1)); // already tested within preDefined comb2BeNl
-        assertFalse(filteredNaCombinations.contains(indFrDe)); // already tested within preDefined comb2FrDeBe
+        assertFalse(filteredNaCombinations.containsKey(indNl1)); // already tested within preDefined comb2BeNl
+        assertFalse(filteredNaCombinations.containsKey(indFrDe)); // already tested within preDefined comb2FrDeBe
     }
 
     @Test
     void testRemoveCombinationsWhichExceedMaxNumberOfRa() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe1, indNlBe, indNl1, comb2Fr, comb3Be, comb2BeNl, comb2FrDeBe);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe1, indNlBe, indNl1, comb2Fr, comb3Be, comb2BeNl, comb2FrDeBe);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
@@ -175,7 +181,7 @@ class SearchTreeBloomerTest {
 
         // filter - max 4 RAs
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), 4, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>(), pState);
-        List<NetworkActionCombination> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRa(naCombinations, previousLeaf);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRa(naCombinations, previousLeaf);
 
         assertEquals(8, filteredNaCombination.size()); // no combination filtered
 
@@ -184,17 +190,17 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRa(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size()); // one combination filtered
-        assertFalse(filteredNaCombination.contains(comb3Be));
+        assertFalse(filteredNaCombination.containsKey(comb3Be));
 
         // max 2 RAs
         bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), 2, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>(), pState);
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRa(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.contains(indFr2));
-        assertTrue(filteredNaCombination.contains(indBe1));
-        assertTrue(filteredNaCombination.contains(indNlBe));
-        assertTrue(filteredNaCombination.contains(indNl1));
+        assertTrue(filteredNaCombination.containsKey(indFr2));
+        assertTrue(filteredNaCombination.containsKey(indBe1));
+        assertTrue(filteredNaCombination.containsKey(indNlBe));
+        assertTrue(filteredNaCombination.containsKey(indNl1));
 
         // max 1 RAs
         bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), 1, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>(), pState);
@@ -207,7 +213,9 @@ class SearchTreeBloomerTest {
     void testRemoveCombinationsWhichExceedMaxNumberOfRaPerTso() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange Leaf -> naFr1 and raBe1 have already been activated in previous leaf
         // but only naFr1 should count
@@ -219,11 +227,11 @@ class SearchTreeBloomerTest {
         // filter - max 2 topo in FR and DE
         Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "be", 2);
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, maxTopoPerTso, new HashMap<>(), false, 0, new ArrayList<>(), pState);
-        List<NetworkActionCombination> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
 
         assertEquals(6, filteredNaCombination.size()); // 2 combinations filtered
-        assertFalse(filteredNaCombination.contains(comb2Fr));
-        assertFalse(filteredNaCombination.contains(comb3Be));
+        assertFalse(filteredNaCombination.containsKey(comb2Fr));
+        assertFalse(filteredNaCombination.containsKey(comb3Be));
 
         // filter - max 1 topo in FR
         maxTopoPerTso = Map.of("fr", 1);
@@ -231,10 +239,10 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
 
         assertEquals(4, filteredNaCombination.size()); // 4 combinations filtered
-        assertTrue(filteredNaCombination.contains(indBe1));
-        assertTrue(filteredNaCombination.contains(indNl1));
-        assertTrue(filteredNaCombination.contains(comb3Be));
-        assertTrue(filteredNaCombination.contains(comb2BeNl));
+        assertTrue(filteredNaCombination.containsKey(indBe1));
+        assertTrue(filteredNaCombination.containsKey(indNl1));
+        assertTrue(filteredNaCombination.containsKey(comb3Be));
+        assertTrue(filteredNaCombination.containsKey(comb2BeNl));
 
         // filter - max 1 RA in FR and max 2 RA in BE
         Map<String, Integer> maxRaPerTso = Map.of("fr", 1, "be", 2);
@@ -242,9 +250,9 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.contains(indBe1));
-        assertTrue(filteredNaCombination.contains(indNl1));
-        assertTrue(filteredNaCombination.contains(comb2BeNl));
+        assertTrue(filteredNaCombination.containsKey(indBe1));
+        assertTrue(filteredNaCombination.containsKey(indNl1));
+        assertTrue(filteredNaCombination.containsKey(comb2BeNl));
 
         // filter - max 2 topo in FR, max 0 topo in Nl and max 1 RA in BE
         maxTopoPerTso = Map.of("fr", 2, "nl", 0);
@@ -253,9 +261,9 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.contains(indFr2));
-        assertTrue(filteredNaCombination.contains(indFrDe));
-        assertTrue(filteredNaCombination.contains(indBe1));
+        assertTrue(filteredNaCombination.containsKey(indFr2));
+        assertTrue(filteredNaCombination.containsKey(indFrDe));
+        assertTrue(filteredNaCombination.containsKey(indBe1));
 
         // filter - no RA in NL
         maxTopoPerTso = Map.of("fr", 10, "nl", 10, "be", 10);
@@ -264,16 +272,18 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
 
         assertEquals(5, filteredNaCombination.size());
-        assertFalse(filteredNaCombination.contains(indNl1));
-        assertFalse(filteredNaCombination.contains(comb2BeNl));
-        assertFalse(filteredNaCombination.contains(comb2FrNl));
+        assertFalse(filteredNaCombination.containsKey(indNl1));
+        assertFalse(filteredNaCombination.containsKey(comb2BeNl));
+        assertFalse(filteredNaCombination.containsKey(comb2FrNl));
     }
 
     @Test
     void testRemoveCombinationsWhichExceedMaxNumberOfTsos() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indBe1, indNl1, indFrDe, comb2Fr, comb3Be, comb2BeNl, comb2FrNl);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange previous Leaf -> naFr1 has already been activated
         Leaf previousLeaf = Mockito.mock(Leaf.class);
@@ -281,7 +291,7 @@ class SearchTreeBloomerTest {
 
         // max 3 TSOs
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, 3, null, null, false, 0, new ArrayList<>(), pState);
-        List<NetworkActionCombination> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
 
         assertEquals(8, filteredNaCombination.size()); // no combination filtered
 
@@ -290,23 +300,25 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size());
-        assertFalse(filteredNaCombination.contains(comb2BeNl)); // one combination filtered
+        assertFalse(filteredNaCombination.containsKey(comb2BeNl)); // one combination filtered
 
         // max 1 TSO
         bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, 1, null, null, false, 0, new ArrayList<>(), pState);
         filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
 
         assertEquals(3, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.contains(indFr2));
-        assertTrue(filteredNaCombination.contains(indFrDe));
-        assertTrue(filteredNaCombination.contains(comb2Fr));
+        assertTrue(filteredNaCombination.containsKey(indFr2));
+        assertTrue(filteredNaCombination.containsKey(indFrDe));
+        assertTrue(filteredNaCombination.containsKey(comb2Fr));
     }
 
     @Test
     void testRemoveNetworkActionsFarFromMostLimitingElement() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr2, indDe1, indBe1, indNl1, indNlBe, indFrDe, indDeNl, comb3Be, comb2De, comb2FrDeBe, comb2BeNl);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(indFr2, indDe1, indBe1, indNl1, indNlBe, indFrDe, indDeNl, comb3Be, comb2De, comb2FrDeBe, comb2BeNl);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
 
         // arrange previous Leaf -> most limiting element is in DE/FR
         Leaf previousLeaf = mock(Leaf.class);
@@ -315,17 +327,20 @@ class SearchTreeBloomerTest {
         // test - no border cross, most limiting element is in BE/FR
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec1basecase"))); // be fr
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionSetpointResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, null, null, true, 0, new ArrayList<>(), pState);
-        List<NetworkActionCombination> filteredNaCombination = bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, previousLeaf);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsAll(List.of(indFr2, indBe1, indNlBe, indFrDe, comb3Be, comb2FrDeBe, comb2BeNl)));
+        List<NetworkActionCombination> list1 = List.of(indFr2, indBe1, indNlBe, indFrDe, comb3Be, comb2FrDeBe, comb2BeNl);
+        Map<NetworkActionCombination, Boolean> finalFilteredNaCombination = filteredNaCombination;
+        list1.forEach(na -> assertTrue(finalFilteredNaCombination.containsKey(na)));
 
         // test - no border cross, most limiting element is in DE/FR
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec2basecase"))); // de fr
         filteredNaCombination = bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, previousLeaf);
 
         assertEquals(6, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsAll(List.of(indFr2, indDe1, indFrDe, indDeNl, comb2De, comb2FrDeBe)));
+        List<NetworkActionCombination> list2 = List.of(indFr2, indDe1, indFrDe, indDeNl, comb2De, comb2FrDeBe);
+        list2.forEach(na -> assertTrue(finalFilteredNaCombination.containsKey(na)));
 
         // test - max 1 border cross, most limiting element is in BE
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnecBe"))); // be
@@ -333,7 +348,8 @@ class SearchTreeBloomerTest {
         filteredNaCombination = bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, previousLeaf);
 
         assertEquals(9, filteredNaCombination.size());
-        assertTrue(filteredNaCombination.containsAll(List.of(indFr2, indBe1, indNl1, indNlBe, indFrDe, indDeNl, comb3Be, comb2FrDeBe, comb2BeNl)));
+        List<NetworkActionCombination> list3 = List.of(indFr2, indBe1, indNl1, indNlBe, indFrDe, indDeNl, comb3Be, comb2FrDeBe, comb2BeNl);
+        list3.forEach(na -> assertTrue(finalFilteredNaCombination.containsKey(na)));
     }
 
     @Test
@@ -431,10 +447,10 @@ class SearchTreeBloomerTest {
             List.of(new NetworkActionCombination(Set.of(na2), true)), pState);
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        List<NetworkActionCombination> result = bloomer.bloom(leaf, Set.of(na1, na2));
+        Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
         assertEquals(2, result.size());
-        assertTrue(result.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
-        assertTrue(result.stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
+        assertTrue(result.keySet().stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na1)));
+        assertTrue(result.keySet().stream().anyMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na2)));
     }
 
     private NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
@@ -468,7 +484,7 @@ class SearchTreeBloomerTest {
         );
         Leaf leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
-        List<NetworkActionCombination> result = bloomer.bloom(leaf, Set.of(na1, na2));
+        Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
         assertEquals(4, result.size());
     }
 }
