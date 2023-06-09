@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
@@ -255,12 +254,10 @@ public class SearchTree {
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
-        final Map<NetworkActionCombination, List<RangeAction<?>>> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
+        final Map<NetworkActionCombination, Boolean> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
         networkPool.initClones(naCombinations.size());
-        Map<NetworkActionCombination, List<RangeAction<?>>> sortedNaCombinations = new HashMap<>();
         List<NetworkActionCombination> naCombinationsKeys = new ArrayList<>(naCombinations.keySet());
         naCombinationsKeys.sort(this::deterministicNetworkActionCombinationComparison);
-        naCombinationsKeys.forEach(na -> sortedNaCombinations.put(na, naCombinations.get(na)));
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
@@ -284,10 +281,15 @@ public class SearchTree {
                         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
-                        previousDepthOptimalLeaf.getRangeActions()
+
+                        if (naCombinations.get(naCombination)) {
+                            previousDepthOptimalLeaf.getRangeActions().forEach(ra ->
+                                ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                            );
+                        } else {
+                            previousDepthOptimalLeaf.getRangeActions()
                                 .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
-                        List<RangeAction<?>> rangeActionsToRemove = naCombinations.get(naCombination);
-                        rangeActionsToRemove.forEach(ra -> ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra)));
+                        }
                         // todo
                         // set alreadyAppliedRa
 
