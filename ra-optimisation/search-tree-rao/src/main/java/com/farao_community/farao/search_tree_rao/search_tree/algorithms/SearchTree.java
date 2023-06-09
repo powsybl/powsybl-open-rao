@@ -98,7 +98,6 @@ public class SearchTree {
         if (input.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
-                input.getPrePerimeterResult(),
                 parameters.getRaLimitationParameters().getMaxCurativeRa(),
                 parameters.getRaLimitationParameters().getMaxCurativeTso(),
                 parameters.getRaLimitationParameters().getMaxCurativeTopoPerTso(),
@@ -111,7 +110,6 @@ public class SearchTree {
         } else {
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
-                    input.getPrePerimeterResult(),
                 Integer.MAX_VALUE, //no limitation of RA in preventive
                 Integer.MAX_VALUE, //no limitation of RA in preventive
                 new HashMap<>(),   //no limitation of RA in preventive
