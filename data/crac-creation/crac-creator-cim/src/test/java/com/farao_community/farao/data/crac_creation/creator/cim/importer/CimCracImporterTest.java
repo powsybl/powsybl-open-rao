@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CimCracImporterTest {
 
     @Test
-    void testGetFormat() {
+    void getFormat() {
         CimCracImporter cimCracImporter = new CimCracImporter();
         assertEquals("CimCrac", cimCracImporter.getFormat());
     }
