@@ -11,7 +11,9 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
 
@@ -30,6 +32,11 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+        //TODO
         return creationContext.creationSuccess(crac);
+    }
+
+    private void createContingencies(PropertyBags contingenciesPropertyBags) {
+        new CsaProfileContingencyCreator(crac, network, contingenciesPropertyBags, creationContext).createAndAddContingencies();
     }
 }

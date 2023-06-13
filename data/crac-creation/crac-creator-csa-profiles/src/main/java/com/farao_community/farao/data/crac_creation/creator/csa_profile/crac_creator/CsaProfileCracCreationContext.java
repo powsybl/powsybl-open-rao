@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 
 import java.time.OffsetDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -57,6 +58,10 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     @Override
     public String getNetworkName() {
         return this.networkName;
+    }
+
+    public void setContingencyCreationContexts(Set<CsaProfileContingencyCreationContext> contingencyCreationContexts) {
+        this.contingencyCreationContexts = contingencyCreationContexts.stream().collect(Collectors.toSet());
     }
 
     @Override

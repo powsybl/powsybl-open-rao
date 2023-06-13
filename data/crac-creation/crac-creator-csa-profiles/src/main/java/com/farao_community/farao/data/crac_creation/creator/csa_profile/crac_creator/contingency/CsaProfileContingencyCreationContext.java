@@ -17,17 +17,23 @@ public final class CsaProfileContingencyCreationContext implements ElementaryCre
     private String contingencyID;
     private String contingencyName;
     private ImportStatus importStatus;
-    private String createdContingencyId;
     private String importStatusDetail;
     private boolean isAltered;
 
-    private CsaProfileContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String createdContingencyId, String importStatusDetail, boolean isAltered) {
+    private CsaProfileContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
         this.contingencyID = contingencyID;
         this.contingencyName = contingencyName;
         this.importStatus = importStatus;
-        this.createdContingencyId = createdContingencyId;
         this.importStatusDetail = importStatusDetail;
         this.isAltered = isAltered;
+    }
+
+    public static CsaProfileContingencyCreationContext imported(String contingencyID, String contingencyName, String importStatusDetail, boolean isAltered) {
+        return new CsaProfileContingencyCreationContext(contingencyID, contingencyName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
+    }
+
+    public static CsaProfileContingencyCreationContext notImported(String contingencyID, String contingencyName, ImportStatus importStatus, String importStatusDetail) {
+        return new CsaProfileContingencyCreationContext(contingencyID, contingencyName, importStatus, importStatusDetail, false);
     }
 
     @Override

@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfi
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.eclipse.rdf4j.rio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +36,10 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
 
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream) {
-        /*CRACDocumentType cracDocumentType;
-        try {
-            cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)
-                    .createUnmarshaller()
-                    .unmarshal(new StreamSource(inputStream), CRACDocumentType.class)
-                    .getValue();
-        } catch (JAXBException e) {
-            throw new FaraoException(e);
-        }*/
-        return new CsaProfileCrac();
+        TripleStore tripleStoreCsaProfile;
+        tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
+        tripleStoreCsaProfile.read(inputStream, "", "");
+        return new CsaProfileCrac(tripleStoreCsaProfile);
     }
 
     @Override
@@ -51,7 +47,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         try {
             RDFFormat rdfFormatContingencies = Rio.getParserFormatForFileName(String.valueOf(this.getClass().getResource(CsaProfileConstants.RDF_FORMAT_CSA_PROFILE))).orElse(RDFFormat.RDFXML);
             RDFParser rdfParser = Rio.createParser(rdfFormatContingencies);
-            rdfParser.parse(inputStream);
+            rdfParser.parse(inputStream, CsaProfileConstants.RDF_BASE_URL);
             LOGGER.info("CSA PROFILE CRAC document is valid");
             return true;
         } catch (IOException e) {

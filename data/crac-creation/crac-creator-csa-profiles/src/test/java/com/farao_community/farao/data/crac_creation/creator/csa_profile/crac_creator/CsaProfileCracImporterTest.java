@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -26,8 +27,8 @@ public class CsaProfileCracImporterTest {
 
     @Test
     void testExists() {
-        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
+        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023/ELIA_CO.xml");
         CsaProfileCracImporter importer = new CsaProfileCracImporter();
-        //assertTrue(importer.exists("TestConfiguration_TC1_v29Mar2023.zip", is1));
+        assertTrue(importer.exists("ELIA_CO.xml", is1));
     }
 }
