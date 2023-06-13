@@ -13,6 +13,8 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
@@ -287,7 +289,11 @@ public class SearchTree {
                             );
                         } else {
                             previousDepthOptimalLeaf.getRangeActions()
-                                .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
+                                .forEach(ra -> {
+                                    if (shouldRangeActionBeApplied(ra, networkClone)) {
+                                        ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()));
+                                    }
+                                });
                         }
                         optimizeNextLeafAndUpdate(naCombination, networkClone);
 
@@ -313,6 +319,15 @@ public class SearchTree {
         if (!success) {
             throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
         }
+    }
+
+    private boolean shouldRangeActionBeApplied(RangeAction<?> rangeAction, Network network) {
+        boolean thisRangeActionIsAnHvdc = Arrays.asList(rangeAction.getClass().getInterfaces()).contains(HvdcRangeAction.class);
+        if (thisRangeActionIsAnHvdc) {
+            HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) rangeAction;
+            return !(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network));
+        }
+        return true;
     }
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
