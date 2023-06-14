@@ -111,7 +111,7 @@
         <ejml.version>0.39</ejml.version>
         <farao.virtualhubs.version>0.0.8</farao.virtualhubs.version>
         <google.autoservice.version>1.0-rc7</google.autoservice.version>
-        <google.guava.version>29.0-jre</google.guava.version>
+        <google.guava.version>32.0.0-jre</google.guava.version>
         <google.ortools.version>9.5.2237</google.ortools.version>
         <jackson.version>2.13.4</jackson.version>
         <java.version>11</java.version>
