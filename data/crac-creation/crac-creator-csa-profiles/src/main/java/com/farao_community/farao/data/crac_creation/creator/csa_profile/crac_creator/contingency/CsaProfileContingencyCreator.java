@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency;
 
-import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
@@ -42,29 +41,33 @@ public class CsaProfileContingencyCreator {
 
     public void createAndAddContingencies() {
         this.csaProfileContingencyCreationContexts = new HashSet<>();
+        Set<String> alreadyProcessedContingenciesId = new HashSet<>();
 
         for (PropertyBag contingencyPropertyBag : contingenciesPropertybags) {
             String contingencyId = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_RDFID);
-            String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
-            String equipmentId = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT);
-            Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
-            String contingentStatus = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
+            if (!alreadyProcessedContingenciesId.contains(contingencyId)) {
+                String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
+                String equipmentId = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT);
+                Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
+                String contingentStatus = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
 
-            if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
-                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status"));
-                return;
+                if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
+                    csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status"));
+                    return;
+                }
+
+                if (!mustStudy) {
+                    csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
+                    return;
+                }
+
+                alreadyProcessedContingenciesId.add(contingencyId);
+                crac.newContingency()
+                        .withId(contingencyId)
+                        .withName(contingencyName)
+                        .add();
+                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "contingency imported correctly", false));
             }
-
-            if (!mustStudy) {
-                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
-                return;
-            }
-
-            ContingencyAdder contingencyAdder = crac.newContingency()
-                    .withId(contingencyId)
-                    .withName(contingencyName);
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "contingency imported correctly", false));
-
         }
         this.cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
     }

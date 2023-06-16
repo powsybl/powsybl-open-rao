@@ -38,7 +38,7 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     public CsaProfileCrac importNativeCrac(InputStream inputStream) {
         TripleStore tripleStoreCsaProfile;
         tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
-        tripleStoreCsaProfile.read(inputStream, "", "");
+        tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "");
         return new CsaProfileCrac(tripleStoreCsaProfile);
     }
 

@@ -15,6 +15,9 @@ import com.powsybl.triplestore.api.TripleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -45,7 +48,15 @@ public class CsaProfileCrac implements NativeCrac {
         return tripleStoreCsaProfileCrac.query(query);
     }
 
+    private PropertyBags queryTripleStore(List<String> queryKeys) {
+        PropertyBags mergedPropertyBags = new PropertyBags();
+        for (String queryKey : queryKeys) {
+            mergedPropertyBags.addAll(queryTripleStore(queryKey));
+        }
+        return mergedPropertyBags;
+    }
+
     public PropertyBags getContingencies() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCIES);
+        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
     }
 }

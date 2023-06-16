@@ -6,13 +6,14 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -23,6 +24,16 @@ public class CsaProfileCracImporterTest {
     void getFormat() {
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
         assertEquals("CsaProfileCrac", csaProfileCracImporter.getFormat());
+    }
+
+    @Test
+    void testImportNativeCrac() {
+        CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
+        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023/ELIA_CO.xml");
+        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
+        assertNotNull(csaProfileCrac);
+        PropertyBags contingenciesPb = csaProfileCrac.getContingencies();
+        assertNotNull(contingenciesPb);
     }
 
     @Test

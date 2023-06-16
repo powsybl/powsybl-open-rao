@@ -1,40 +1,60 @@
 #
-# Copyright (c) 2021, RTE (http://www.rte-france.com)
+# Copyright (c) 2023, RTE (http://www.rte-france.com)
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# query: analogs
+# query: ordinaryContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 WHERE {
 { GRAPH ?graph {
-    ?Analog
-        a cim:Analog ;
-        cim:Measurement.PowerSystemResource ?powerSystemResource ;
-        cim:Measurement.measurementType ?type .
-    OPTIONAL { ?Analog cim:Measurement.Terminal ?Terminal }
+    ?contingencyEquipment
+        cim:ContingencyEquipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+    ?contingency
+        nc:OrdinaryContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
 }}
 }
 
-# query: discretes
+# query: exceptionalContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 WHERE {
 { GRAPH ?graph {
-    ?Discrete
-        a cim:Discrete ;
-        cim:Measurement.PowerSystemResource ?powerSystemResource ;
-        cim:Measurement.measurementType ?type .
-    OPTIONAL { ?Discrete cim:Measurement.Terminal ?Terminal }
+    ?contingencyEquipment
+        cim:ContingencyEquipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+    ?contingency
+        nc:ExceptionalContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
 }}
 }
 
-# query: bays
+# query: outOfRangeContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 WHERE {
 { GRAPH ?graph {
-    ?Bay
-        a cim:Bay ;
-        cim:Bay.VoltageLevel ?VoltageLevel
+    ?contingencyEquipment
+        cim:ContingencyEquipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+    ?contingency
+        nc:OutOfRangeContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
 }}
 }
