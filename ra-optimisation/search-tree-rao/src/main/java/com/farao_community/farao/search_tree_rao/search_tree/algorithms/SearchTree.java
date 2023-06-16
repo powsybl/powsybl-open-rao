@@ -13,8 +13,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
@@ -288,14 +286,12 @@ public class SearchTree {
                                 ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                             );
                         } else {
-                            previousDepthOptimalLeaf.getRangeActions()
-                                .forEach(ra -> {
-                                    if (shouldRangeActionBeApplied(ra, networkClone)) {
-                                        ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()));
-                                    }
-                                });
+                            input.getOptimizationPerimeter().getRangeActions()
+                                .forEach(ra ->
+                                        ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                            );
                         }
-                        optimizeNextLeafAndUpdate(naCombination, networkClone);
+                        optimizeNextLeafAndUpdate(naCombination, naCombinations.get(naCombination), networkClone);
 
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
@@ -319,15 +315,6 @@ public class SearchTree {
         if (!success) {
             throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
         }
-    }
-
-    private boolean shouldRangeActionBeApplied(RangeAction<?> rangeAction, Network network) {
-        boolean thisRangeActionIsAnHvdc = Arrays.asList(rangeAction.getClass().getInterfaces()).contains(HvdcRangeAction.class);
-        if (thisRangeActionIsAnHvdc) {
-            HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) rangeAction;
-            return !(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network));
-        }
-        return true;
     }
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
@@ -380,11 +367,11 @@ public class SearchTree {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel, false);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network) {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved, Network network) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = createChildLeaf(network, naCombination);
+            leaf = createChildLeaf(network, naCombination, shouldRangeActionBeRemoved);
         } catch (FaraoException e) {
             Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
             networkActions.addAll(naCombination.getNetworkActionSet());
@@ -394,7 +381,7 @@ public class SearchTree {
             throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(false));
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));
 
         topLevelLogger.info("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -416,15 +403,15 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination) {
+    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination, boolean shouldRangeActionBeRemoved) {
         return new Leaf(
             input.getOptimizationPerimeter(),
             network,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
-            previousDepthOptimalLeaf.getRangeActionActivationResult(),
+            shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
-            getAppliedRemedialActions(previousDepthOptimalLeaf));
+            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getAppliedRemedialActions(previousDepthOptimalLeaf));
     }
 
     private void optimizeLeaf(Leaf leaf) {
