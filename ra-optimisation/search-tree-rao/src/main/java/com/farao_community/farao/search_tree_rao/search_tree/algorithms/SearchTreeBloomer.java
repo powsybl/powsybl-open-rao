@@ -184,7 +184,7 @@ public final class SearchTreeBloomer {
                 }
             }
             if (naShouldBeKept) {
-                filteredNaCombinations.put(naCombination, removeRangeActions);
+                filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
             }
         }
 
