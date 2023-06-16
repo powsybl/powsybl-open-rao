@@ -202,8 +202,9 @@ public final class SearchTreeBloomer {
         for (Map.Entry<NetworkActionCombination, Boolean> entry : naCombinations.entrySet()) {
             NetworkActionCombination naCombination = entry.getKey();
             if (!exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos)) {
-                fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).forEach(pst -> alreadyActivatedTsos.add(pst.getOperator()));
-                boolean removeRangeActions = exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsos);
+                Set<String> alreadyActivatedTsosWithRangeActions = new HashSet<>(alreadyActivatedTsos);
+                fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).forEach(pst -> alreadyActivatedTsosWithRangeActions.add(pst.getOperator()));
+                boolean removeRangeActions = exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsosWithRangeActions);
                 filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
             }
         }
