@@ -7,8 +7,26 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-public class CsaProfileCracUtils {
+public final class CsaProfileCracUtils {
+
+    private CsaProfileCracUtils() {
+
+    }
+
+    public static PropertyBags getLinkedPropertyBags(PropertyBags sources, PropertyBag dest, String sourceProperty, String destProperty) {
+        PropertyBags linkedBags = new PropertyBags();
+        for (PropertyBag source : sources) {
+            String sourceValue = source.get(sourceProperty);
+            if (sourceValue != null && sourceValue.equals(dest.get(destProperty))) {
+                linkedBags.add(source);
+            }
+        }
+        return linkedBags;
+    }
 }

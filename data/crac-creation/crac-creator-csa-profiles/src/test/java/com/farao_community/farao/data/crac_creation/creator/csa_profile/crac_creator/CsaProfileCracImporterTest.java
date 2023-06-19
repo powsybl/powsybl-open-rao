@@ -29,19 +29,21 @@ public class CsaProfileCracImporterTest {
     @Test
     void testImportNativeCrac() {
         CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
-        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023/ELIA_CO.xml");
+        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
         CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
         assertNotNull(csaProfileCrac);
 
         PropertyBags contingenciesPb = csaProfileCrac.getContingencies();
         assertNotNull(contingenciesPb);
-        assertEquals(1, contingenciesPb.size());
-        assertEquals("CO1", contingenciesPb.get(0).get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME));
+        assertEquals(2, contingenciesPb.size());
+        assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", contingenciesPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY));
+        assertEquals("c0a25fd7-eee0-4191-98a5-71a74469d36e", contingenciesPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY));
 
         PropertyBags contingencyEquipmentsPb = csaProfileCrac.getContingencyEquipments();
         assertNotNull(contingencyEquipmentsPb);
-        assertEquals(1, contingencyEquipmentsPb.size());
-        assertEquals("17086487-56ba-4979-b8de-064025a6b4da", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID));
+        assertEquals(2, contingencyEquipmentsPb.size());
+        assertEquals("ef11f9bd-5da0-43e3-921b-7e92d2896136", contingencyEquipmentsPb.get(0).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        assertEquals("f19925fa-b114-48c5-97a4-42ef84372115", contingencyEquipmentsPb.get(1).getId(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT));
     }
 
     @Test

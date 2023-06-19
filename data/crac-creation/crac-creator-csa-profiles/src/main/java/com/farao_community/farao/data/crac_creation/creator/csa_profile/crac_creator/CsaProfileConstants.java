@@ -32,6 +32,8 @@ public final class CsaProfileConstants {
 
     public static final String SPARQL_FILE_CSA_PROFILE = "csa_profile.sparql";
 
+    public static final String REQUEST_CONTINGENCY = "contingency";
+
     public static final String REQUEST_ORDINARY_CONTINGENCY = "ordinaryContingency";
 
     public static final String REQUEST_EXCEPTIONAL_CONTINGENCY = "exceptionalContingency";
