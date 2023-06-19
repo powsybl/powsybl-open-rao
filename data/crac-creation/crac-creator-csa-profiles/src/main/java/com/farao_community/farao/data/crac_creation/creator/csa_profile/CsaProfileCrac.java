@@ -59,4 +59,8 @@ public class CsaProfileCrac implements NativeCrac {
     public PropertyBags getContingencies() {
         return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
     }
+
+    public PropertyBags getContingencyEquipments() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
+    }
 }

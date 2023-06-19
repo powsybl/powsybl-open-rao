@@ -5,22 +5,27 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+# query: contingencyEquipment
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?contingencyEquipment
+        rdf:type cim:ContingencyEquipment ;
+        cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+}
+
 # query: ordinaryContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 WHERE {
-{ GRAPH ?graph {
-    ?contingencyEquipment
-        cim:ContingencyEquipment ?contingencyEquipmentId ;
-        cim:ContingencyElement.Contingency ?contingency ;
-        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
     ?contingency
-        nc:OrdinaryContingency ;
+        rdf:type nc:OrdinaryContingency ;
         cim:IdentifiedObject.name ?name ;
         nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
-}}
 }
 
 # query: exceptionalContingency
@@ -28,17 +33,11 @@ PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 WHERE {
-{ GRAPH ?graph {
-    ?contingencyEquipment
-        cim:ContingencyEquipment ?contingencyEquipmentId ;
-        cim:ContingencyElement.Contingency ?contingency ;
-        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
     ?contingency
-        nc:ExceptionalContingency ;
+        rdf:type nc:ExceptionalContingency ;
         cim:IdentifiedObject.name ?name ;
         nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
-}}
 }
 
 # query: outOfRangeContingency
@@ -46,15 +45,9 @@ PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 SELECT *
 WHERE {
-{ GRAPH ?graph {
-    ?contingencyEquipment
-        cim:ContingencyEquipment ?contingencyEquipmentId ;
-        cim:ContingencyElement.Contingency ?contingency ;
-        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
     ?contingency
-        nc:OutOfRangeContingency ;
+        rdf:type nc:OutOfRangeContingency ;
         cim:IdentifiedObject.name ?name ;
         nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
-}}
 }

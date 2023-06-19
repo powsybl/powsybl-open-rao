@@ -27,47 +27,46 @@ public class CsaProfileContingencyCreator {
 
     private final Network network;
 
-    private final PropertyBags contingenciesPropertybags;
+    private final PropertyBags contingenciesPropertyBags;
+
+    private final PropertyBags contingencyEquipmentsPropertyBags;
 
     private Set<CsaProfileContingencyCreationContext> csaProfileContingencyCreationContexts;
     private CsaProfileCracCreationContext cracCreationContext;
 
-    public CsaProfileContingencyCreator(Crac crac, Network network, PropertyBags contingenciesPropertybags, CsaProfileCracCreationContext cracCreationContext) {
+    public CsaProfileContingencyCreator(Crac crac, Network network, PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
-        this.contingenciesPropertybags = contingenciesPropertybags;
+        this.contingenciesPropertyBags = contingenciesPropertyBags;
+        this.contingencyEquipmentsPropertyBags = contingencyEquipmentsPropertyBags;
         this.cracCreationContext = cracCreationContext;
     }
 
     public void createAndAddContingencies() {
         this.csaProfileContingencyCreationContexts = new HashSet<>();
-        Set<String> alreadyProcessedContingenciesId = new HashSet<>();
 
-        for (PropertyBag contingencyPropertyBag : contingenciesPropertybags) {
-            String contingencyId = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_RDFID);
-            if (!alreadyProcessedContingenciesId.contains(contingencyId)) {
-                String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
-                String equipmentId = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT);
-                Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
-                String contingentStatus = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
+        for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
+            String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_RDFID);
+            String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
+            String equipmentId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID);
+            Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
+            String contingentStatus = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
 
-                if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
-                    csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status"));
-                    return;
-                }
-
-                if (!mustStudy) {
-                    csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
-                    return;
-                }
-
-                alreadyProcessedContingenciesId.add(contingencyId);
-                crac.newContingency()
-                        .withId(contingencyId)
-                        .withName(contingencyName)
-                        .add();
-                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "contingency imported correctly", false));
+            if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
+                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status"));
+                return;
             }
+
+            if (!mustStudy) {
+                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
+                return;
+            }
+
+            crac.newContingency()
+                    .withId(contingencyId)
+                    .withName(contingencyName)
+                    .add();
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "contingency imported correctly", false));
         }
         this.cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
     }

@@ -38,13 +38,15 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_OUT_OF_RANGE_CONTINGENCY = "outOfRangeContingency";
 
+    public static final String REQUEST_CONTINGENCY_EQUIPMENT = "contingencyEquipment";
+
     public static final String REQUEST_CONTINGENCIES_RDFID = "rdfId";
 
     public static final String REQUEST_CONTINGENCIES_NAME = "name";
 
     public static final String REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR = "idEquipmentOperator";
 
-    public static final String REQUEST_CONTINGENCIES_EQUIPMENT = "contingencyEquipmentId";
+    public static final String REQUEST_CONTINGENCIES_EQUIPMENT_ID = "contingencyEquipmentId";
 
     public static final String REQUEST_CONTINGENCIES_MUST_STUDY = "normalMustStudy";
 
