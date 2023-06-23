@@ -28,7 +28,13 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     private final Set<ElementaryAction> elementaryActions;
 
     NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
-                             Set<ElementaryAction> elementaryNetworkActions) {
+                             Set<ElementaryAction> elementaryNetworkActions, Integer speed) {
+        super(id, name, operator, usageRules, speed);
+        this.elementaryActions = new HashSet<>(elementaryNetworkActions);
+    }
+
+    NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
+                      Set<ElementaryAction> elementaryNetworkActions) {
         super(id, name, operator, usageRules);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
     }

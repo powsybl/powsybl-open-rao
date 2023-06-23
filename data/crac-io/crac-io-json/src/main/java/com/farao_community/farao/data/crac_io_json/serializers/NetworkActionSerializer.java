@@ -33,9 +33,8 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         serializeElementaryActions(value, PstSetpoint.class, PST_SETPOINTS, gen);
         serializeElementaryActions(value, InjectionSetpoint.class, INJECTION_SETPOINTS, gen);
         serializeElementaryActions(value, SwitchPair.class, SWITCH_PAIRS, gen);
-
+        serializeSpeed(value, gen);
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
-
         gen.writeEndObject();
     }
 

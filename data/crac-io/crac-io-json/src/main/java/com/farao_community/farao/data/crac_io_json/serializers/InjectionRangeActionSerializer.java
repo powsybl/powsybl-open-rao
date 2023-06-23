@@ -61,13 +61,6 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
         }
     }
 
-    private void serializeSpeed(InjectionRangeAction value, JsonGenerator gen) throws IOException {
-        Optional<Integer> speed = value.getSpeed();
-        if (speed.isPresent()) {
-            gen.writeNumberField(SPEED, speed.get());
-        }
-    }
-
     private void serializeRanges(InjectionRangeAction value, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(RANGES);
         for (StandardRange range : value.getRanges()) {
