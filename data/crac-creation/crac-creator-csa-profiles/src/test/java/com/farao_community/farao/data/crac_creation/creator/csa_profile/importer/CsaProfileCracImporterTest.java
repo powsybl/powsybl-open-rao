@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
+package com.farao_community.farao.data.crac_creation.creator.csa_profile.importer;
 
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
@@ -48,8 +48,8 @@ public class CsaProfileCracImporterTest {
 
     @Test
     void testExists() {
-        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023/ELIA_CO.xml");
+        InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
         CsaProfileCracImporter importer = new CsaProfileCracImporter();
-        assertTrue(importer.exists("ELIA_CO.xml", is1));
+        assertTrue(importer.exists("TestConfiguration_TC1_v29Mar2023.zip", is1));
     }
 }

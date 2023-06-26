@@ -19,8 +19,7 @@ public final class CsaProfileConstants {
      * constants to read rdf files
      */
 
-    public static final String RDF_FORMAT_CSA_PROFILE = "ApplicationProfiles_NC_RDFS_SHACL_v2_2_v28Mar2023_UMLv90.zip";
-    //public static final String RDF_FORMAT_CSA_PROFILE = "RDFS/ContingencyProfile_v2_2_RDFSv2020_24Mar2023.rdf";
+    public static final String EXTENSION_FILE_CSA_PROFILE = "zip";
 
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 

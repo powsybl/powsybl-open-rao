@@ -19,13 +19,13 @@ public class CsaProfileCracUtilsTest {
         PropertyBag destPb = new PropertyBag(listPropDest, false);
         destPb.put("destProperty1", "destValue1");
         destPb.put("destProperty2", "destValue2");
-        destPb.put("destProperty3", "destValue3");
+        destPb.put("destProperty3", "http://blablabla.fr/#_destValue3");
         destPb.put("destProperty4", "destValue4");
 
         PropertyBags sourcesPb = new PropertyBags();
         PropertyBag sourcePb1 = new PropertyBag(listPropSource, false);
         sourcePb1.put("sourceProperty1", "sourceValue11");
-        sourcePb1.put("sourceProperty2", "destValue3");
+        sourcePb1.put("sourceProperty2", "_destValue3");
         sourcePb1.put("sourceProperty3", "sourceValue13");
         sourcePb1.put("sourceProperty4", "sourceValue14");
 
