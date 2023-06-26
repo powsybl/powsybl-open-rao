@@ -174,7 +174,8 @@ public final class SearchTreeBloomer {
             for (String tso : operators) {
                 int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
                 int alreadyActivatedRangeActionsSize = (int) fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> ra.getOperator().equals(tso)).count();
-                int alreadyActivatedNetworkActionsSize = (int) fromLeaf.getActivatedNetworkActions().stream().filter(ra -> ra.getOperator().equals(tso)).count();
+                int alreadyActivatedNetworkActionsSize = (int) fromLeaf.getActivatedNetworkActions().stream().filter(na -> na.getOperator().equals(tso)).count();
+                // The number of already applied network actions is taken in account in getMaxNetworkActionPerTso
                 if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
                     naShouldBeKept = false;
                     break;
