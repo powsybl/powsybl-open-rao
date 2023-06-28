@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -35,7 +37,18 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
-        tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "");
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+        ZipEntry zipEntry;
+        /*try {
+            zipInputStream.getNextEntry();
+            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                tripleStoreCsaProfile.read(zipInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
+        tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "test");
+
         return new CsaProfileCrac(tripleStoreCsaProfile);
     }
 

@@ -41,7 +41,11 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CONTINGENCY_EQUIPMENT = "contingencyEquipment";
 
-    public static final String REQUEST_CONTINGENCIES_RDFID = "rdfId";
+    public static final String REQUEST_CONTINGENCIES_START_DATE = "startDate";
+
+    public static final String REQUEST_CONTINGENCIES_END_DATE = "endDate";
+
+    public static final String REQUEST_CONTINGENCIES_KEYWORD = "keyword";
 
     public static final String REQUEST_CONTINGENCIES_NAME = "name";
 

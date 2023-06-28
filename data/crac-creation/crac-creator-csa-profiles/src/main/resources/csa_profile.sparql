@@ -19,35 +19,56 @@ WHERE {
 # query: ordinaryContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
-WHERE {
+{
+GRAPH <contexts:%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
     ?contingency
         rdf:type nc:OrdinaryContingency ;
         cim:IdentifiedObject.name ?name ;
         nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
 }
+}
 
 # query: exceptionalContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
-WHERE {
+{
+GRAPH <contexts:%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
     ?contingency
         rdf:type nc:ExceptionalContingency ;
         cim:IdentifiedObject.name ?name ;
         nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
 }
+}
 
 # query: outOfRangeContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
-WHERE {
+{
+GRAPH <contexts:%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
     ?contingency
         rdf:type nc:OutOfRangeContingency ;
         cim:IdentifiedObject.name ?name ;
         nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
         nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
 }

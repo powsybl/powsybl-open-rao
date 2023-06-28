@@ -39,28 +39,36 @@ public class CsaProfileCrac implements NativeCrac {
         return "CsaProfileCrac";
     }
 
-    private PropertyBags queryTripleStore(String queryKey) {
+    public PropertyBags getContingencies() {
+        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), "test");
+    }
+
+    public PropertyBags getContingencyEquipments() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
+    }
+
+    private PropertyBags queryTripleStore(List<String> queryKeys, String... contexts) {
+        PropertyBags mergedPropertyBags = new PropertyBags();
+        for (String queryKey : queryKeys) {
+            mergedPropertyBags.addAll(queryTripleStore(queryKey, contexts));
+        }
+        return mergedPropertyBags;
+    }
+
+    private PropertyBags queryTripleStore(String queryKey, String... contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);
         if (query == null) {
             LOGGER.warn("Query [{}] not found in catalog", queryKey);
             return new PropertyBags();
         }
-        return tripleStoreCsaProfileCrac.query(query);
-    }
 
-    private PropertyBags queryTripleStore(List<String> queryKeys) {
-        PropertyBags mergedPropertyBags = new PropertyBags();
-        for (String queryKey : queryKeys) {
-            mergedPropertyBags.addAll(queryTripleStore(queryKey));
+        if (contexts.length == 0) return tripleStoreCsaProfileCrac.query(query);
+
+        PropertyBags multiContextsPropertyBags = new PropertyBags();
+        for (String context : contexts) {
+            String contextQuery = String.format(query, context);
+            multiContextsPropertyBags.addAll(tripleStoreCsaProfileCrac.query(contextQuery));
         }
-        return mergedPropertyBags;
-    }
-
-    public PropertyBags getContingencies() {
-        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
-    }
-
-    public PropertyBags getContingencyEquipments() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
+        return multiContextsPropertyBags;
     }
 }

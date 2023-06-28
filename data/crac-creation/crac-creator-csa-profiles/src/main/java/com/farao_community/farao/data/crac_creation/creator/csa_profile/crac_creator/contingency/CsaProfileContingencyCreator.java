@@ -7,11 +7,14 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency;
 
+import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileCracUtils;
+import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -47,35 +50,72 @@ public class CsaProfileContingencyCreator {
         this.csaProfileContingencyCreationContexts = new HashSet<>();
 
         for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
-            String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_RDFID);
-            String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
+            String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_KEYWORD);
+            String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
+            String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
             Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
+
+            ContingencyAdder contingencyAdder = crac.newContingency()
+                    .withId(contingencyId)
+                    .withName(contingencyName);
 
             if (!mustStudy) {
                 csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
-                return;
+            } else {
+                PropertyBags contingencyEquipments = CsaProfileCracUtils.getLinkedPropertyBags(contingencyEquipmentsPropertyBags, contingencyPropertyBag, CsaProfileConstants.REQUEST_CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY);
+                if (contingencyEquipments.isEmpty()) {
+                    csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "no contingency equipment linked to the contingency"));
+                } else {
+                    boolean isIncorrectContingentStatus = false;
+                    boolean isMissingNetworkElement = false;
+                    String incorrectContingentStatusElements = "";
+                    String missingNetworkElements = "";
+                    for (PropertyBag contingencyEquipmentPropertyBag : contingencyEquipments) {
+                        String equipmentId = contingencyEquipmentPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID);
+                        String contingentStatus = contingencyEquipmentPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
+
+                        if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
+                            isIncorrectContingentStatus = true;
+                            incorrectContingentStatusElements = incorrectContingentStatusElements.concat(equipmentId + " ");
+                        } else {
+                            String networkElementId = this.getNetworkElementIdInNetwork("_" + equipmentId);
+                            if (networkElementId == null) {
+                                isMissingNetworkElement = true;
+                                missingNetworkElements = missingNetworkElements.concat(equipmentId + " ");
+                            } else {
+                                contingencyAdder.withNetworkElement(networkElementId);
+                            }
+                        }
+                    }
+
+                    if (isIncorrectContingentStatus) {
+                        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status for equipments : " + incorrectContingentStatusElements));
+                    } else if (isMissingNetworkElement) {
+                        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "missing contingency equipments in network : " + missingNetworkElements));
+                    } else {
+                        crac.newContingency()
+                                .withId(contingencyId)
+                                .withName(contingencyName)
+                                .add();
+                        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "", false));
+                    }
+                }
             }
-
-            PropertyBags contingencyEquipments = CsaProfileCracUtils.getLinkedPropertyBags(contingencyEquipmentsPropertyBags, contingencyPropertyBag, CsaProfileConstants.REQUEST_CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY);
-            if (contingencyEquipments.isEmpty()) {
-                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "no contingency equipment linked to the contingency"));
-                return;
-            }
-
-            String equipmentId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID);
-            String contingentStatus = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
-
-            if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
-                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status"));
-                return;
-            }
-
-            crac.newContingency()
-                    .withId(contingencyId)
-                    .withName(contingencyName)
-                    .add();
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "contingency imported correctly", false));
         }
         this.cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
+    }
+
+    private String getNetworkElementIdInNetwork(String networkElementIdInCrac) {
+        String networkElementId = null;
+        Identifiable<?> networkElement = network.getIdentifiable(networkElementIdInCrac);
+        if (networkElement == null) {
+            CgmesBranchHelper cgmesBranchHelper = new CgmesBranchHelper(networkElementIdInCrac, network);
+            if (cgmesBranchHelper.isValid()) {
+                networkElementId = cgmesBranchHelper.getIdInNetwork();
+            }
+        } else {
+            networkElementId = networkElement.getId();
+        }
+        return networkElementId;
     }
 }
