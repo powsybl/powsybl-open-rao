@@ -492,4 +492,16 @@ class JsonRetrocompatibilityTest {
         assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).collect(Collectors.toList()).size());
         assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).collect(Collectors.toList()).size());
     }
+
+    @Test
+    void importCracRasWithSpeedTest() {
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.6.json");
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().get().intValue());
+        assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().get().intValue());
+        assertEquals(30, crac.getInjectionRangeAction("injectionRange1Id").getSpeed().get().intValue());
+        assertEquals(40, crac.getNetworkAction("complexNetworkActionId").getSpeed().get().intValue());
+    }
+
 }
