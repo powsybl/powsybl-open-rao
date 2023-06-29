@@ -52,7 +52,9 @@ public class CsaProfileContingencyCreator {
         for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
             String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_KEYWORD);
             String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
-            String contingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME).concat(contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR));
+            String requestContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
+            String requestContingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
+            String contingencyName = requestContingencyId.substring(requestContingencyId.lastIndexOf('/') + 1).concat("_").concat(requestContingencyName);
             Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
 
             ContingencyAdder contingencyAdder = crac.newContingency()
@@ -78,7 +80,7 @@ public class CsaProfileContingencyCreator {
                             isIncorrectContingentStatus = true;
                             incorrectContingentStatusElements = incorrectContingentStatusElements.concat(equipmentId + " ");
                         } else {
-                            String networkElementId = this.getNetworkElementIdInNetwork("_" + equipmentId);
+                            String networkElementId = this.getNetworkElementIdInNetwork(equipmentId);
                             if (networkElementId == null) {
                                 isMissingNetworkElement = true;
                                 missingNetworkElements = missingNetworkElements.concat(equipmentId + " ");
@@ -93,9 +95,7 @@ public class CsaProfileContingencyCreator {
                     } else if (isMissingNetworkElement) {
                         csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "missing contingency equipments in network : " + missingNetworkElements));
                     } else {
-                        crac.newContingency()
-                                .withId(contingencyId)
-                                .withName(contingencyName)
+                        contingencyAdder
                                 .add();
                         csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "", false));
                     }
