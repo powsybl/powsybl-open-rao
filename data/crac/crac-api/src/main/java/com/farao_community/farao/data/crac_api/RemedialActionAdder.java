@@ -16,6 +16,8 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     T withOperator(String operator);
 
+    T withSpeed(Integer speed);
+
     OnInstantAdder<T> newOnInstantUsageRule();
 
     OnContingencyStateAdder<T> newOnContingencyStateUsageRule();

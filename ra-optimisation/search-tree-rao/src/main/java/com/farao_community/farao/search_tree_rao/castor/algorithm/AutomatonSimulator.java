@@ -82,8 +82,8 @@ public final class AutomatonSimulator {
     }
 
     /**
-     * This function simulates automatons at AUTO instant. First, it simulates topological automatons, then range actions
-     * by order of speed.
+     * This function simulates automatons at AUTO instant. First, it simulates topological automatons,
+     * then range actions by order of speed. TODO Network actions by speed  is not implemented yet
      * Returns an AutomatonPerimeterResult
      */
     AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, State curativeState, Network network) {

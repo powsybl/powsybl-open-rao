@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -183,4 +184,36 @@ class NetworkActionAdderImplTest {
             .withOperator("operator");
         assertThrows(FaraoException.class, networkActionAdder::add);
     }
+
+    @Test
+    void testOkWithoutSpeed() {
+        NetworkAction networkAction = crac.newNetworkAction()
+                .withId("networkActionId")
+                .withName("networkActionName")
+                .withOperator("operator")
+                .newPstSetPoint()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
+                .add();
+
+        assertEquals(Optional.empty(), networkAction.getSpeed());
+    }
+
+    @Test
+    void testOkWithSpeed() {
+        NetworkAction networkAction = crac.newNetworkAction()
+                .withId("networkActionId")
+                .withName("networkActionName")
+                .withOperator("operator")
+                .withSpeed(123)
+                .newPstSetPoint()
+                .withNetworkElement("pstNetworkElementId")
+                .withSetpoint(6)
+                .add()
+                .add();
+
+        assertEquals(123, networkAction.getSpeed().get().intValue());
+    }
+
 }

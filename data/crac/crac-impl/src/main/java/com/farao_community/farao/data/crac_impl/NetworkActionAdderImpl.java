@@ -67,7 +67,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new FaraoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
         }
 
-        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions);
+        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed);
         getCrac().addNetworkAction(networkAction);
         return networkAction;
     }

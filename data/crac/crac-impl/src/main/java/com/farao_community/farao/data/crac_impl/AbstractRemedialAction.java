@@ -27,6 +27,14 @@ import java.util.stream.Collectors;
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected List<UsageRule> usageRules;
+    protected Integer speed = null;
+
+    protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules, Integer speed) {
+        super(id, name);
+        this.operator = operator;
+        this.usageRules = usageRules;
+        this.speed = speed;
+    }
 
     protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name);
@@ -51,6 +59,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     @Override
     public final List<UsageRule> getUsageRules() {
         return usageRules;
+    }
+
+    @Override
+    public Optional<Integer> getSpeed() {
+        return Optional.ofNullable(speed);
     }
 
     @Override

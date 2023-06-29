@@ -6,12 +6,16 @@
  */
 package com.farao_community.farao.data.crac_io_json.serializers;
 
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
+import java.util.Optional;
+
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.SPEED;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -28,5 +32,12 @@ public abstract class AbstractJsonSerializer<T> extends JsonSerializer<T> {
          */
 
         serialize(value, jsonGenerator, serializerProvider);
+    }
+
+    protected void serializeRemedialActionSpeed(RemedialAction<?> ra, JsonGenerator gen) throws IOException {
+        Optional<Integer> speed = ra.getSpeed();
+        if (speed.isPresent()) {
+            gen.writeNumberField(SPEED, speed.get());
+        }
     }
 }

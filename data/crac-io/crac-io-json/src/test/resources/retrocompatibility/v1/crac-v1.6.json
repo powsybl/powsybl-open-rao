@@ -180,6 +180,7 @@
     "id" : "pstRange1Id",
     "name" : "pstRange1Name",
     "operator" : "RTE",
+    "speed" : 10,
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
@@ -267,6 +268,7 @@
     "id" : "hvdcRange1Id",
     "name" : "hvdcRange1Name",
     "operator" : "RTE",
+    "speed" : 20,
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"
@@ -297,6 +299,7 @@
     "id" : "injectionRange1Id",
     "name" : "injectionRange1Name",
     "operator" : null,
+    "speed" : 30,
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency1Id",
@@ -319,6 +322,7 @@
     "id" : "complexNetworkActionId",
     "name" : "complexNetworkActionName",
     "operator" : "RTE",
+    "speed" : 40,
     "onInstantUsageRules" : [ {
       "instant" : "preventive",
       "usageMethod" : "available"

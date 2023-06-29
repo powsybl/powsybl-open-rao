@@ -48,7 +48,8 @@ class NetworkActionImplTest {
             "name",
             "operator",
             Collections.singletonList(mockedUsageRule1),
-            Collections.singleton(mockedElementaryAction1)
+            Collections.singleton(mockedElementaryAction1),
+                10
         );
 
         assertEquals("id", networkAction.getId());
@@ -66,7 +67,8 @@ class NetworkActionImplTest {
             "name",
             "operator",
             Arrays.asList(mockedUsageRule1, mockedUsageRule2),
-            new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2))
+            new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2)),
+                10
         );
 
         assertEquals("id", networkAction.getId());
@@ -85,7 +87,8 @@ class NetworkActionImplTest {
             "name",
             "operator",
             List.of(mockedUsageRule1, mockedUsageRule2),
-            Set.of(mockedElementaryAction1, mockedElementaryAction2)
+            Set.of(mockedElementaryAction1, mockedElementaryAction2),
+                10
         );
 
         Mockito.when(mockedElementaryAction1.canBeApplied(Mockito.any())).thenReturn(false);
@@ -107,7 +110,8 @@ class NetworkActionImplTest {
             "name",
             "operator",
             List.of(mockedUsageRule1, mockedUsageRule2),
-            Set.of(mockedElementaryAction1, mockedElementaryAction2)
+            Set.of(mockedElementaryAction1, mockedElementaryAction2),
+                10
         );
 
         Mockito.when(mockedElementaryAction1.hasImpactOnNetwork(Mockito.any())).thenReturn(true);

@@ -106,6 +106,10 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
+                    case SPEED:
+                        jsonParser.nextToken();
+                        networkActionAdder.withSpeed(jsonParser.getIntValue());
+                        break;
                     default:
                         throw new FaraoException("Unexpected field in NetworkAction: " + jsonParser.getCurrentName());
                 }
