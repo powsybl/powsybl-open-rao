@@ -36,7 +36,7 @@ public class InjectionRangeActionSerializer extends AbstractJsonSerializer<Injec
         serializeInjectionDistributionKeys(value, gen);
         serializeGroupId(value, gen);
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
-        serializeSpeed(value, gen);
+        serializeRemedialActionSpeed(value, gen);
         serializeRanges(value, gen);
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
         gen.writeEndObject();

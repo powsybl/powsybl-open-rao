@@ -34,7 +34,7 @@ public abstract class AbstractJsonSerializer<T> extends JsonSerializer<T> {
         serialize(value, jsonGenerator, serializerProvider);
     }
 
-    protected void serializeSpeed(RemedialAction<? extends RemedialAction<?>> ra, JsonGenerator gen) throws IOException {
+    protected void serializeRemedialActionSpeed(RemedialAction<?> ra, JsonGenerator gen) throws IOException {
         Optional<Integer> speed = ra.getSpeed();
         if (speed.isPresent()) {
             gen.writeNumberField(SPEED, speed.get());

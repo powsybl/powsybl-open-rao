@@ -37,7 +37,7 @@ public class HvdcRangeActionSerializer extends AbstractJsonSerializer<HvdcRangeA
             gen.writeStringField(GROUP_ID, groupId.get());
         }
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
-        serializeSpeed(value, gen);
+        serializeRemedialActionSpeed(value, gen);
         serializeRanges(value, gen);
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
         gen.writeEndObject();
