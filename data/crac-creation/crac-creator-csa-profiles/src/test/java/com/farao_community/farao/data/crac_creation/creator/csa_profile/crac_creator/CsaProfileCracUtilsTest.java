@@ -19,7 +19,7 @@ public class CsaProfileCracUtilsTest {
         PropertyBag destPb = new PropertyBag(listPropDest, false);
         destPb.put("destProperty1", "destValue1");
         destPb.put("destProperty2", "destValue2");
-        destPb.put("destProperty3", "http://blablabla.fr/#_destValue3");
+        destPb.put("destProperty3", "http://blablabla.eu/#_destValue3");
         destPb.put("destProperty4", "destValue4");
 
         PropertyBags sourcesPb = new PropertyBags();

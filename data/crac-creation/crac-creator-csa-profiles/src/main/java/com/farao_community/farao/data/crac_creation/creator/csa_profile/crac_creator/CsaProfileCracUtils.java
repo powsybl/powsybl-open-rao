@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import com.farao_community.farao.commons.TsoEICode;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -28,5 +29,9 @@ public final class CsaProfileCracUtils {
             }
         }
         return linkedBags;
+    }
+
+    public static String getUniqueName(String idWithEicCode, String cracElementId) {
+        return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(cracElementId);
     }
 }

@@ -16,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -40,14 +42,14 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getContingencies() {
-        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), "test");
+        return this.queryTripleStore(Arrays.asList(CsaProfileConstants.REQUEST_ORDINARY_CONTINGENCY, CsaProfileConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, CsaProfileConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY), tripleStoreCsaProfileCrac.contextNames());
     }
 
     public PropertyBags getContingencyEquipments() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT, new HashSet<>());
     }
 
-    private PropertyBags queryTripleStore(List<String> queryKeys, String... contexts) {
+    private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {
         PropertyBags mergedPropertyBags = new PropertyBags();
         for (String queryKey : queryKeys) {
             mergedPropertyBags.addAll(queryTripleStore(queryKey, contexts));
@@ -55,14 +57,16 @@ public class CsaProfileCrac implements NativeCrac {
         return mergedPropertyBags;
     }
 
-    private PropertyBags queryTripleStore(String queryKey, String... contexts) {
+    private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);
         if (query == null) {
             LOGGER.warn("Query [{}] not found in catalog", queryKey);
             return new PropertyBags();
         }
 
-        if (contexts.length == 0) return tripleStoreCsaProfileCrac.query(query);
+        if (contexts.isEmpty()) {
+            return tripleStoreCsaProfileCrac.query(query);
+        }
 
         PropertyBags multiContextsPropertyBags = new PropertyBags();
         for (String context : contexts) {
@@ -70,5 +74,9 @@ public class CsaProfileCrac implements NativeCrac {
             multiContextsPropertyBags.addAll(tripleStoreCsaProfileCrac.query(contextQuery));
         }
         return multiContextsPropertyBags;
+    }
+
+    public TripleStore getTripleStoreCsaProfileCrac() {
+        return this.tripleStoreCsaProfileCrac;
     }
 }

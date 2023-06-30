@@ -23,13 +23,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CsaProfileCracCreatorTest {
 
     @Test
-    public void testCreateCrac_TestConfiguration_TC1_v29Mar2023() {
+    public void testCreateCracTestConfigurationTC1v29Mar2023() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
-
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
@@ -55,7 +55,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testCreateCrac_CSA_TestConfiguration_TC2_Draft_v14Apr2023() {
+    public void testCreateCracCSATestConfigurationTC2Draftv14Apr2023() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);

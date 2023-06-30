@@ -54,7 +54,7 @@ public class CsaProfileContingencyCreator {
             String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
             String requestContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
             String requestContingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
-            String contingencyName = requestContingencyId.substring(requestContingencyId.lastIndexOf('/') + 1).concat("_").concat(requestContingencyName);
+            String contingencyName = CsaProfileCracUtils.getUniqueName(requestContingencyId, requestContingencyName);
             Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
 
             ContingencyAdder contingencyAdder = crac.newContingency()

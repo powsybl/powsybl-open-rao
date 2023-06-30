@@ -32,7 +32,6 @@ public class CsaProfileCracImporterTest {
         InputStream is1 = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
         CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
         assertNotNull(csaProfileCrac);
-
         PropertyBags contingenciesPb = csaProfileCrac.getContingencies();
         assertNotNull(contingenciesPb);
         assertEquals(2, contingenciesPb.size());

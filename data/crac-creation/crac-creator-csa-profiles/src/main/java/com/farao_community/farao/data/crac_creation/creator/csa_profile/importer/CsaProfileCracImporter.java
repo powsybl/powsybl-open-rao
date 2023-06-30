@@ -17,7 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
+import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -39,15 +39,22 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry zipEntry;
-        /*try {
+        try {
             zipInputStream.getNextEntry();
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                tripleStoreCsaProfile.read(zipInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
+                if (!zipEntry.isDirectory()) {
+                    File tempFile = new File("fileCsaProfileCrac.tmp");
+                    FileOutputStream outputStream = new FileOutputStream(tempFile);
+                    zipInputStream.transferTo(outputStream);
+                    outputStream.close();
+                    FileInputStream fileInputStream = new FileInputStream(tempFile);
+                    tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
+                    tempFile.delete();
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }*/
-        tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "test");
+        }
 
         return new CsaProfileCrac(tripleStoreCsaProfile);
     }

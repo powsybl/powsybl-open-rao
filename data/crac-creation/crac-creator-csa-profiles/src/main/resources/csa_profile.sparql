@@ -22,7 +22,7 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <contexts:%s> {
+GRAPH <%s> {
     ?fullModel
         dcat:Model.startDate ?startDate ;
         dcat:Model.endDate ?endDate ;
@@ -41,7 +41,7 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <contexts:%s> {
+GRAPH <%s> {
     ?fullModel
         dcat:Model.startDate ?startDate ;
         dcat:Model.endDate ?endDate ;
@@ -60,7 +60,7 @@ PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
-GRAPH <contexts:%s> {
+GRAPH <%s> {
     ?fullModel
         dcat:Model.startDate ?startDate ;
         dcat:Model.endDate ?endDate ;
