@@ -59,4 +59,6 @@ public final class CsaProfileConstants {
 
     public static final String IMPORTED_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
 
+    public static final String CONTINGENCY_FILE_KEYWORD = "CO";
+
 }

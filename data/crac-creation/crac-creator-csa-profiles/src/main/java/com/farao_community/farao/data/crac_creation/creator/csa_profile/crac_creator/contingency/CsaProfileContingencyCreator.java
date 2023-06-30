@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,59 +51,81 @@ public class CsaProfileContingencyCreator {
         this.csaProfileContingencyCreationContexts = new HashSet<>();
 
         for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
-            String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_KEYWORD);
-            String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
-            String requestContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
-            String requestContingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
-            String contingencyName = CsaProfileCracUtils.getUniqueName(requestContingencyId, requestContingencyName);
-            Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
+            this.addContingency(contingencyPropertyBag);
+        }
+        this.cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
+    }
 
-            ContingencyAdder contingencyAdder = crac.newContingency()
-                    .withId(contingencyId)
-                    .withName(contingencyName);
+    private void addContingency(PropertyBag contingencyPropertyBag) {
+        String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_KEYWORD);
+        String startTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_START_DATE);
+        String endTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_END_DATE);
+        String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
+        String requestContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
+        String requestContingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
+        String contingencyName = CsaProfileCracUtils.getUniqueName(requestContingencyId, requestContingencyName);
+        Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
 
-            if (!mustStudy) {
-                csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
+        ContingencyAdder contingencyAdder = crac.newContingency()
+                .withId(contingencyId)
+                .withName(contingencyName);
+
+        if (!CsaProfileConstants.CONTINGENCY_FILE_KEYWORD.equals(keyword)) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be CO, but it is " + keyword));
+            return;
+        }
+
+        if (!this.isValidInterval(startTime, endTime)) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "Model.startDate and Model.endDate are incorrect"));
+            return;
+        }
+
+        if (!mustStudy) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
+            return;
+        }
+
+        PropertyBags contingencyEquipments = CsaProfileCracUtils.getLinkedPropertyBags(contingencyEquipmentsPropertyBags, contingencyPropertyBag, CsaProfileConstants.REQUEST_CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY);
+        if (contingencyEquipments.isEmpty()) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "no contingency equipment linked to the contingency"));
+            return;
+        }
+
+        boolean isIncorrectContingentStatus = false;
+        boolean isMissingNetworkElement = false;
+        String incorrectContingentStatusElements = "";
+        String missingNetworkElements = "";
+        for (PropertyBag contingencyEquipmentPropertyBag : contingencyEquipments) {
+            String equipmentId = contingencyEquipmentPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID);
+            String contingentStatus = contingencyEquipmentPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
+
+            if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
+                isIncorrectContingentStatus = true;
+                incorrectContingentStatusElements = incorrectContingentStatusElements.concat(equipmentId + " ");
             } else {
-                PropertyBags contingencyEquipments = CsaProfileCracUtils.getLinkedPropertyBags(contingencyEquipmentsPropertyBags, contingencyPropertyBag, CsaProfileConstants.REQUEST_CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY);
-                if (contingencyEquipments.isEmpty()) {
-                    csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "no contingency equipment linked to the contingency"));
+                String networkElementId = this.getNetworkElementIdInNetwork(equipmentId);
+                if (networkElementId == null) {
+                    isMissingNetworkElement = true;
+                    missingNetworkElements = missingNetworkElements.concat(equipmentId + " ");
                 } else {
-                    boolean isIncorrectContingentStatus = false;
-                    boolean isMissingNetworkElement = false;
-                    String incorrectContingentStatusElements = "";
-                    String missingNetworkElements = "";
-                    for (PropertyBag contingencyEquipmentPropertyBag : contingencyEquipments) {
-                        String equipmentId = contingencyEquipmentPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_ID);
-                        String contingentStatus = contingencyEquipmentPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_CONTINGENT_STATUS);
-
-                        if (!CsaProfileConstants.IMPORTED_CONTINGENT_STATUS.equals(contingentStatus)) {
-                            isIncorrectContingentStatus = true;
-                            incorrectContingentStatusElements = incorrectContingentStatusElements.concat(equipmentId + " ");
-                        } else {
-                            String networkElementId = this.getNetworkElementIdInNetwork(equipmentId);
-                            if (networkElementId == null) {
-                                isMissingNetworkElement = true;
-                                missingNetworkElements = missingNetworkElements.concat(equipmentId + " ");
-                            } else {
-                                contingencyAdder.withNetworkElement(networkElementId);
-                            }
-                        }
-                    }
-
-                    if (isIncorrectContingentStatus) {
-                        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status for equipments : " + incorrectContingentStatusElements));
-                    } else if (isMissingNetworkElement) {
-                        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "missing contingency equipments in network : " + missingNetworkElements));
-                    } else {
-                        contingencyAdder
-                                .add();
-                        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "", false));
-                    }
+                    contingencyAdder.withNetworkElement(networkElementId);
                 }
             }
         }
-        this.cracCreationContext.setContingencyCreationContexts(csaProfileContingencyCreationContexts);
+
+        if (isIncorrectContingentStatus) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status for equipments : " + incorrectContingentStatusElements));
+            return;
+        }
+
+        if (isMissingNetworkElement) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "missing contingency equipments in network : " + missingNetworkElements));
+            return;
+        }
+
+        contingencyAdder
+                .add();
+        csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyName, "", false));
     }
 
     private String getNetworkElementIdInNetwork(String networkElementIdInCrac) {
@@ -117,5 +140,12 @@ public class CsaProfileContingencyCreator {
             networkElementId = networkElement.getId();
         }
         return networkElementId;
+    }
+
+    private boolean isValidInterval(String startTime, String endTime) {
+        OffsetDateTime cracCreationTimeStamp = cracCreationContext.getTimeStamp();
+        OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
+        OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
+        return cracCreationTimeStamp.isAfter(startDateTime) && cracCreationTimeStamp.isBefore(endDateTime);
     }
 }

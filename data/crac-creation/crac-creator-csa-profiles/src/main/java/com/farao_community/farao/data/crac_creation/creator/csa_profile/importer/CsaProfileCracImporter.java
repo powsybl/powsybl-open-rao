@@ -34,6 +34,11 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         return "CsaProfileCrac";
     }
 
+    /**
+     * @param inputStream : zip file inputStream
+     * @return csa profile native crac, the tripleStore contains data of every rdf file included in the zip
+     * each context of the tripleStore contains one rdf file data
+     */
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
@@ -52,6 +57,8 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     tempFile.delete();
                 }
             }
+            zipInputStream.close();
+            inputStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

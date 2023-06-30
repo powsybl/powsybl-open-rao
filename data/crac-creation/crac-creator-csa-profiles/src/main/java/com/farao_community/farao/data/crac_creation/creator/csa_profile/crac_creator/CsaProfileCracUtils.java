@@ -31,7 +31,7 @@ public final class CsaProfileCracUtils {
         return linkedBags;
     }
 
-    public static String getUniqueName(String idWithEicCode, String cracElementId) {
-        return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(cracElementId);
+    public static String getUniqueName(String idWithEicCode, String elementId) {
+        return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(elementId);
     }
 }

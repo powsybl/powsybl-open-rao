@@ -57,6 +57,13 @@ public class CsaProfileCrac implements NativeCrac {
         return mergedPropertyBags;
     }
 
+    /**
+     * execute query on the whole tripleStore or on each context included in the set
+     *
+     * @param queryKey : query name in the sparql file
+     * @param contexts : list of contexts where the query will be executed (if empty, the query is executed on the whole tripleStore
+     * @return
+     */
     private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);
         if (query == null) {
@@ -74,9 +81,5 @@ public class CsaProfileCrac implements NativeCrac {
             multiContextsPropertyBags.addAll(tripleStoreCsaProfileCrac.query(contextQuery));
         }
         return multiContextsPropertyBags;
-    }
-
-    public TripleStore getTripleStoreCsaProfileCrac() {
-        return this.tripleStoreCsaProfileCrac;
     }
 }
