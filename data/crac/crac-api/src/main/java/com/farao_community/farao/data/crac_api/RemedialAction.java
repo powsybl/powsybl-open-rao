@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  *
  * A Remedial Action contains {@link UsageRule} which defines conditions under which it can be used.
  * For instance, most remedial actions cannot be used in all {@link State}, and the usage rules of the
- * remedial action specify on which state the it is available.
+ * remedial action specify on which state it is available.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -50,6 +50,11 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      * usage rules of the remedial action
      */
     UsageMethod getUsageMethod(State state);
+
+    /**
+     * Get the speed of the Remedial Action, i.e the time it takes to trigger.
+     */
+    Optional<Integer> getSpeed();
 
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
