@@ -34,32 +34,8 @@
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
-            <name>Baptiste SEGUINOT</name>
-            <email>baptiste.seguinot@rte-france.com</email>
-            <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Viktor TERRIER</name>
-            <email>viktor.terrier@rte-france.com</email>
-            <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Alexandre MONTIGNY</name>
-            <email>alexandre.montigny@rte-france.com</email>
-            <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
-        </developer>
-        <developer>
             <name>Philippe EDWARDS</name>
             <email>philippe.edwards@rte-france.com</email>
-            <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
-        </developer>
-        <developer>
-            <name>Joris MANCINI</name>
-            <email>joris.mancini@rte-france.com</email>
             <organization>RTE</organization>
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
@@ -266,7 +242,7 @@
                         <dependency>
                             <groupId>org.junit.jupiter</groupId>
                             <artifactId>junit-jupiter-engine</artifactId>
-                            <version>5.2.0</version>
+                            <version>${junit-jupiter.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -592,6 +568,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
