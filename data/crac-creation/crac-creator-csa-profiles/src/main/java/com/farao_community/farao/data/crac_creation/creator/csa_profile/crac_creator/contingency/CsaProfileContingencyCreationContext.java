@@ -14,31 +14,37 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
 public final class CsaProfileContingencyCreationContext implements ElementaryCreationContext {
-    private String contingencyID;
+    private String nativeId;
+    private String contingencyId;
     private String contingencyName;
     private ImportStatus importStatus;
     private String importStatusDetail;
     private boolean isAltered;
 
-    private CsaProfileContingencyCreationContext(String contingencyID, String contingencyName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
-        this.contingencyID = contingencyID;
+    private CsaProfileContingencyCreationContext(String nativeId, String contingencyId, String contingencyName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
+        this.nativeId = nativeId;
+        this.contingencyId = contingencyId;
         this.contingencyName = contingencyName;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         this.isAltered = isAltered;
     }
 
-    public static CsaProfileContingencyCreationContext imported(String contingencyID, String contingencyName, String importStatusDetail, boolean isAltered) {
-        return new CsaProfileContingencyCreationContext(contingencyID, contingencyName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
+    public static CsaProfileContingencyCreationContext imported(String nativeId, String contingencyId, String contingencyName, String importStatusDetail, boolean isAltered) {
+        return new CsaProfileContingencyCreationContext(nativeId, contingencyId, contingencyName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
     }
 
-    public static CsaProfileContingencyCreationContext notImported(String contingencyID, String contingencyName, ImportStatus importStatus, String importStatusDetail) {
-        return new CsaProfileContingencyCreationContext(contingencyID, contingencyName, importStatus, importStatusDetail, false);
+    public static CsaProfileContingencyCreationContext notImported(String nativeId, String contingencyId, String contingencyName, ImportStatus importStatus, String importStatusDetail) {
+        return new CsaProfileContingencyCreationContext(nativeId, contingencyId, contingencyName, importStatus, importStatusDetail, false);
     }
 
     @Override
     public String getNativeId() {
-        return this.contingencyID;
+        return this.nativeId;
+    }
+
+    public String getContigencyId() {
+        return this.contingencyId;
     }
 
     public String getNativeName() {
