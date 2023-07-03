@@ -43,11 +43,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons</artifactId>
         </dependency>
@@ -63,13 +58,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-util</artifactId>
-        </dependency>
-
-        <!-- Provided dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Runtime dependencies -->
