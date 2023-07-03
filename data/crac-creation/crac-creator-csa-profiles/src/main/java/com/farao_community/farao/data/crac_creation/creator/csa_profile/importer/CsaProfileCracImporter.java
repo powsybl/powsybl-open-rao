@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.importer;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
@@ -14,8 +15,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
@@ -26,8 +25,6 @@ import java.util.zip.ZipInputStream;
  */
 @AutoService(NativeCracImporter.class)
 public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsaProfileCracImporter.class);
 
     @Override
     public String getFormat() {
@@ -48,19 +45,23 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
             zipInputStream.getNextEntry();
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 if (!zipEntry.isDirectory()) {
-                    File tempFile = new File("fileCsaProfileCrac.tmp");
+                    FaraoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
+                    File tempFile = File.createTempFile("faraoCsaProfile", "tmp");
                     FileOutputStream outputStream = new FileOutputStream(tempFile);
                     zipInputStream.transferTo(outputStream);
                     outputStream.close();
                     FileInputStream fileInputStream = new FileInputStream(tempFile);
                     tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
-                    tempFile.delete();
+                    if (!tempFile.delete()) {
+                        FaraoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
+                        tempFile.deleteOnExit();
+                    }
                 }
             }
             zipInputStream.close();
             inputStream.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            FaraoLoggerProvider.TECHNICAL_LOGS.error("csa profile crac import interrupted, cause : {}", e.getMessage());
         }
 
         return new CsaProfileCrac(tripleStoreCsaProfile);
