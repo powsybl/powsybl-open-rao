@@ -61,38 +61,39 @@ public class CsaProfileContingencyCreator {
         String startTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_START_DATE);
         String endTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_END_DATE);
         String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
-        String requestContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
-        String requestContingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
-        String contingencyName = CsaProfileCracUtils.getUniqueName(requestContingencyId, requestContingencyName);
+        String nativeContingencyName = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_NAME);
+        String equipmentOperator = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCIES_EQUIPMENT_OPERATOR);
+        String contingencyName = CsaProfileCracUtils.getUniqueName(equipmentOperator, nativeContingencyName);
         Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
 
-        ContingencyAdder contingencyAdder = crac.newContingency()
-                .withId(contingencyId)
-                .withName(contingencyName);
-
         if (!CsaProfileConstants.CONTINGENCY_FILE_KEYWORD.equals(keyword)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be CO, but it is " + keyword));
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be CO, but it is " + keyword));
             return;
         }
 
         if (!this.isValidInterval(startTime, endTime)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "Model.startDate and Model.endDate are incorrect"));
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
             return;
         }
 
         if (!mustStudy) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "contingency.mustStudy is false"));
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
             return;
         }
 
         PropertyBags contingencyEquipments = CsaProfileCracUtils.getLinkedPropertyBags(contingencyEquipmentsPropertyBags, contingencyPropertyBag, CsaProfileConstants.REQUEST_CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY);
         if (contingencyEquipments.isEmpty()) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "no contingency equipment linked to the contingency"));
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, "no contingency equipment linked to the contingency"));
             return;
         }
 
+        ContingencyAdder contingencyAdder = crac.newContingency()
+                .withId(contingencyId)
+                .withName(contingencyName);
         boolean isIncorrectContingentStatus = false;
         boolean isMissingNetworkElement = false;
+        boolean atLeastOneCorrectContingentStatus = false;
+        boolean atLeastOneNetworkElement = false;
         String incorrectContingentStatusElements = "";
         String missingNetworkElements = "";
         for (PropertyBag contingencyEquipmentPropertyBag : contingencyEquipments) {
@@ -103,28 +104,41 @@ public class CsaProfileContingencyCreator {
                 isIncorrectContingentStatus = true;
                 incorrectContingentStatusElements = incorrectContingentStatusElements.concat(equipmentId + " ");
             } else {
+                atLeastOneCorrectContingentStatus = true;
                 String networkElementId = this.getNetworkElementIdInNetwork(equipmentId);
                 if (networkElementId == null) {
                     isMissingNetworkElement = true;
                     missingNetworkElements = missingNetworkElements.concat(equipmentId + " ");
                 } else {
+                    atLeastOneNetworkElement = true;
                     contingencyAdder.withNetworkElement(networkElementId);
                 }
             }
         }
 
-        if (isIncorrectContingentStatus) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "incorrect contingent status for equipments : " + incorrectContingentStatusElements));
+        if (!atLeastOneCorrectContingentStatus) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments have incorrect contingent status : " + incorrectContingentStatusElements));
             return;
         }
 
-        if (isMissingNetworkElement) {
-            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, contingencyId, contingencyName, ImportStatus.INCONSISTENCY_IN_DATA, "missing contingency equipments in network : " + missingNetworkElements));
+        if (!atLeastOneNetworkElement) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "all contingency equipments are missing in network : " + missingNetworkElements));
             return;
         }
 
         contingencyAdder
                 .add();
+
+        if (isIncorrectContingentStatus) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "incorrect contingent status for equipment(s) : " + incorrectContingentStatusElements, true));
+            return;
+        }
+
+        if (isMissingNetworkElement) {
+            csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "missing contingent equipment(s) in network : " + incorrectContingentStatusElements, true));
+            return;
+        }
+
         csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "", false));
     }
 
@@ -146,6 +160,6 @@ public class CsaProfileContingencyCreator {
         OffsetDateTime cracCreationTimeStamp = cracCreationContext.getTimeStamp();
         OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
         OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
-        return cracCreationTimeStamp.isAfter(startDateTime) && cracCreationTimeStamp.isBefore(endDateTime);
+        return !cracCreationTimeStamp.isBefore(startDateTime) && !cracCreationTimeStamp.isAfter(endDateTime);
     }
 }

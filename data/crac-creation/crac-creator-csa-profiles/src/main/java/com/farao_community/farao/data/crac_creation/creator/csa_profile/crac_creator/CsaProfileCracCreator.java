@@ -28,7 +28,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
 
     @Override
     public String getNativeCracFormat() {
-        return null;
+        return "CsaProfileCrac";
     }
 
     public CsaProfileCracCreationContext createCrac(CsaProfileCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
@@ -36,7 +36,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.network = network;
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
-        //TODO
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
         return creationContext.creationSuccess(crac);
     }

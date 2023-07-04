@@ -34,8 +34,8 @@ public final class CsaProfileContingencyCreationContext implements ElementaryCre
         return new CsaProfileContingencyCreationContext(nativeId, contingencyId, contingencyName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
     }
 
-    public static CsaProfileContingencyCreationContext notImported(String nativeId, String contingencyId, String contingencyName, ImportStatus importStatus, String importStatusDetail) {
-        return new CsaProfileContingencyCreationContext(nativeId, contingencyId, contingencyName, importStatus, importStatusDetail, false);
+    public static CsaProfileContingencyCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
+        return new CsaProfileContingencyCreationContext(nativeId, null, null, importStatus, importStatusDetail, false);
     }
 
     @Override

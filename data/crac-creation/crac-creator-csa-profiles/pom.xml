@@ -39,15 +39,6 @@
                     </plugins>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <excludePackageNames>
-                        com.farao_community.farao.data.crac_creation.creator.cim.xsd.*:com.farao_community.farao.data.crac_creation.creator.cim.xsd:eu.entsoe.*
-                    </excludePackageNames>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -71,12 +62,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-util</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.rdf4j</groupId>
