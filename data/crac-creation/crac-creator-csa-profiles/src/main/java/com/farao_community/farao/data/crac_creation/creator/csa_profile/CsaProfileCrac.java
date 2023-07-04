@@ -7,13 +7,12 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,8 +27,6 @@ public class CsaProfileCrac implements NativeCrac {
     private final TripleStore tripleStoreCsaProfileCrac;
 
     private final QueryCatalog queryCatalogCsaProfileCrac;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsaProfileCrac.class);
 
     public CsaProfileCrac(TripleStore tripleStoreCsaProfileCrac) {
         this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
@@ -67,7 +64,7 @@ public class CsaProfileCrac implements NativeCrac {
     private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
         String query = queryCatalogCsaProfileCrac.get(queryKey);
         if (query == null) {
-            LOGGER.warn("Query [{}] not found in catalog", queryKey);
+            FaraoLoggerProvider.TECHNICAL_LOGS.warn("Query [{}] not found in catalog", queryKey);
             return new PropertyBags();
         }
 
