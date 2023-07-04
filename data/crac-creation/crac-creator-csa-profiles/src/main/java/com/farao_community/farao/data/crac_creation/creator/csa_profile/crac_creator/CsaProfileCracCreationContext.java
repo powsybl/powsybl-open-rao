@@ -64,6 +64,10 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.contingencyCreationContexts = contingencyCreationContexts.stream().collect(Collectors.toSet());
     }
 
+    public Set<CsaProfileContingencyCreationContext> getContingencyCreationContexts() {
+        return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
+    }
+
     @Override
     public CracCreationReport getCreationReport() {
         return this.creationReport;
