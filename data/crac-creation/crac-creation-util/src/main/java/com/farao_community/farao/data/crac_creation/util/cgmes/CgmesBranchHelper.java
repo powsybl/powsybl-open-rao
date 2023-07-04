@@ -52,20 +52,17 @@ public class CgmesBranchHelper implements ElementHelper {
         branch = network.getBranch(mrId);
         if (Objects.isNull(branch)) {
             // check if it's a half line
-            for (Line line : network.getLines()) {
-                if (line.isTieLine()) {
-                    TieLine tieLine = (TieLine) line;
-                    if (tieLine.getHalf1().getId().equals(mrId)) {
-                        isHalfLine = true;
-                        tieLineSide = Branch.Side.ONE;
-                        branch = line;
-                        return;
-                    } else if (tieLine.getHalf2().getId().equals(mrId)) {
-                        isHalfLine = true;
-                        tieLineSide = Branch.Side.TWO;
-                        branch = line;
-                        return;
-                    }
+            for (TieLine tieLine : network.getTieLines()) {
+                if (tieLine.getDanglingLine1().getId().equals(mrId)) {
+                    isHalfLine = true;
+                    tieLineSide = Branch.Side.ONE;
+                    branch = tieLine;
+                    return;
+                } else if (tieLine.getDanglingLine2().getId().equals(mrId)) {
+                    isHalfLine = true;
+                    tieLineSide = Branch.Side.TWO;
+                    branch = tieLine;
+                    return;
                 }
             }
         }

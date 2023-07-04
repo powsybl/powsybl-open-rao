@@ -28,6 +28,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Objects;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
@@ -70,12 +73,12 @@ public class CimCracImporter implements NativeCracImporter<CimCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            LOGGER.info("CIM CRAC document is valid");
+            BUSINESS_LOGS.info("CIM CRAC document is valid");
             return FilenameUtils.getExtension(s).equals("xml");
         } catch (MalformedURLException e) {
             throw new FaraoException("URL error");
         } catch (SAXException e) {
-            LOGGER.debug("CIM CRAC document is NOT valid. Reason: {}", e.getMessage());
+            TECHNICAL_LOGS.debug("CIM CRAC document is NOT valid. Reason: {}", e.getMessage());
             return false;
         } catch (IOException e) {
             throw new UncheckedIOException(e);

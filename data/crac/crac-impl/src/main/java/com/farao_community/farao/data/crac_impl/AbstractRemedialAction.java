@@ -27,6 +27,14 @@ import java.util.stream.Collectors;
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected List<UsageRule> usageRules;
+    protected Integer speed = null;
+
+    protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules, Integer speed) {
+        super(id, name);
+        this.operator = operator;
+        this.usageRules = usageRules;
+        this.speed = speed;
+    }
 
     protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name);
@@ -54,6 +62,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     @Override
+    public Optional<Integer> getSpeed() {
+        return Optional.ofNullable(speed);
+    }
+
+    @Override
     public UsageMethod getUsageMethod(State state) {
         Set<UsageMethod> usageMethods = usageRules.stream()
             .map(usageRule -> usageRule.getUsageMethod(state))
@@ -72,20 +85,20 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
     }
 
-    @Override
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
      * If TO_BE_EVALUATED condition has not been evaluated, default behavior is false
      */
+    @Override
     public boolean isRemedialActionAvailable(State state) {
         return isRemedialActionAvailable(state, false);
     }
 
-    @Override
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
      * When UsageMethod is TO_BE_EVALUATED, condition has to have been evaluated previously
      */
+    @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
         switch (getUsageMethod(state)) {
             case AVAILABLE:

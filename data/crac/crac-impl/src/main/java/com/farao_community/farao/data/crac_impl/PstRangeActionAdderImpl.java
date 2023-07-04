@@ -34,7 +34,6 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     private String groupId = null;
     private Integer initialTap = null;
     private Map<Integer, Double> tapToAngleConversionMap;
-    private Integer speed = null;
 
     @Override
     protected String getTypeDescription() {
@@ -73,12 +72,6 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     @Override
     public PstRangeActionAdder withTapToAngleConversionMap(Map<Integer, Double> tapToAngleConversionMap) {
         this.tapToAngleConversionMap = tapToAngleConversionMap;
-        return this;
-    }
-
-    @Override
-    public PstRangeActionAdder withSpeed(Integer speed) {
-        this.speed = speed;
         return this;
     }
 

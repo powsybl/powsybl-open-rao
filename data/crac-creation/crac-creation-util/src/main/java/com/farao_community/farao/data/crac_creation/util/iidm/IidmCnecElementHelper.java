@@ -108,9 +108,6 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         if (interpretAsNetworkIdentifiable(network)) {
             return;
         }
-        if (interpretAsHalfLine(network)) {
-            return;
-        }
         invalidate(format("branch %s was not found in the Network", branchId));
 
     }
@@ -131,6 +128,9 @@ public class IidmCnecElementHelper implements CnecElementHelper {
             checkBranchNominalVoltage((Branch<?>) cnecElement);
             checkBranchCurrentLimits((Branch<?>) cnecElement);
         } else if (cnecElement instanceof DanglingLine) {
+            if (((DanglingLine) cnecElement).isPaired()) {
+                return interpretAsHalfLine(network);
+            }
             checkDanglingLineNominalVoltage((DanglingLine) cnecElement);
             checkDanglingLineCurrentLimits((DanglingLine) cnecElement);
         } else {
@@ -140,11 +140,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     }
 
     private boolean interpretAsHalfLine(Network network) {
-        Optional<TieLine> tieLine = network.getBranchStream()
-            .filter(TieLine.class::isInstance)
-            .map(TieLine.class::cast)
-            .filter(b -> b.getHalf1().getId().equals(branchId) || b.getHalf2().getId().equals(branchId))
-            .findAny();
+        Optional<TieLine> tieLine = ((DanglingLine) network.getIdentifiable(branchId)).getTieLine();
 
         if (tieLine.isEmpty()) {
             return false;
@@ -152,7 +148,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
         this.branchIdInNetwork = tieLine.get().getId();
         this.isHalfLine = true;
-        this.halfLineSide = tieLine.get().getHalf1().getId().equals(branchId) ? Branch.Side.ONE : Branch.Side.TWO;
+        this.halfLineSide = tieLine.get().getDanglingLine1().getId().equals(branchId) ? Branch.Side.ONE : Branch.Side.TWO;
         checkBranchNominalVoltage(tieLine.get());
         checkTieLineCurrentLimits(tieLine.get());
         // todo: check if halfLine can be inverted in CGMES format
