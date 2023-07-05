@@ -48,9 +48,10 @@ public class CsaProfileContingencyCreator {
         this.contingenciesPropertyBags = contingenciesPropertyBags;
         this.contingencyEquipmentsPropertyBags = contingencyEquipmentsPropertyBags;
         this.cracCreationContext = cracCreationContext;
+        this.createAndAddContingencies();
     }
 
-    public void createAndAddContingencies() {
+    private void createAndAddContingencies() {
         this.csaProfileContingencyCreationContexts = new HashSet<>();
 
         for (PropertyBag contingencyPropertyBag : contingenciesPropertyBags) {
