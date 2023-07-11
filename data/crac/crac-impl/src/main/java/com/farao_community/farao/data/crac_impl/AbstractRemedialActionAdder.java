@@ -18,9 +18,10 @@ import java.util.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<T>>  extends AbstractIdentifiableAdder<T> implements RemedialActionAdder<T> {
+public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<T>> extends AbstractIdentifiableAdder<T> implements RemedialActionAdder<T> {
 
     protected String operator;
+    protected Integer speed;
     protected List<UsageRule> usageRules = new ArrayList<>();
     private final CracImpl crac;
 
@@ -32,6 +33,12 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     @Override
     public T withOperator(String operator) {
         this.operator = operator;
+        return (T) this;
+    }
+
+    @Override
+    public T withSpeed(Integer speed) {
+        this.speed = speed;
         return (T) this;
     }
 

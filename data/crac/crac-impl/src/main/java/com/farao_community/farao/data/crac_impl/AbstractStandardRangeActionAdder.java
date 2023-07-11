@@ -22,7 +22,6 @@ import java.util.Objects;
 public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>>  extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
 
     protected String groupId;
-    protected Integer speed;
     protected double initialSetpoint;
     protected List<StandardRange> ranges;
 
@@ -34,12 +33,6 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     @Override
     public T withGroupId(String groupId) {
         this.groupId = groupId;
-        return (T) this;
-    }
-
-    @Override
-    public T withSpeed(Integer speed) {
-        this.speed = speed;
         return (T) this;
     }
 

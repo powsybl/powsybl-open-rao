@@ -18,22 +18,15 @@ import java.util.Optional;
 public abstract class AbstractRangeAction<T extends RangeAction<T>> extends AbstractRemedialAction<T> implements RangeAction<T> {
 
     protected String groupId = null;
-    protected Integer speed = null;
 
     AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules, String groupId, Integer speed) {
-        super(id, name, operator, usageRules);
+        super(id, name, operator, usageRules, speed);
         this.groupId = groupId;
-        this.speed = speed;
     }
 
     @Override
     public Optional<String> getGroupId() {
         return Optional.ofNullable(groupId);
-    }
-
-    @Override
-    public Optional<Integer> getSpeed() {
-        return Optional.ofNullable(speed);
     }
 
     @Override
