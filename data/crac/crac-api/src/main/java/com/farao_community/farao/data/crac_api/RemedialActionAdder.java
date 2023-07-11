@@ -24,5 +24,7 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
 
     OnAngleConstraintAdder<T> newOnAngleConstraintUsageRule();
 
+    OnVoltageConstraintAdder<T> newOnVoltageConstraintUsageRule();
+
     OnFlowConstraintInCountryAdder<T> newOnFlowConstraintInCountryUsageRule();
 }

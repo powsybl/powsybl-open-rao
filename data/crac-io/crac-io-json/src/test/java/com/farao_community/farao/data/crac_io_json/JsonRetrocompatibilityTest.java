@@ -186,6 +186,27 @@ class JsonRetrocompatibilityTest {
         testContentOfV1Point6Crac(crac);
     }
 
+    @Test
+    void importV1Point7Test() {
+
+        // renaming usage rules
+        // Branch threshold rule no longer handled
+
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.7.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(4, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point7Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
 
         // --------------------------
@@ -491,5 +512,12 @@ class JsonRetrocompatibilityTest {
         assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).collect(Collectors.toList()).size());
         assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).collect(Collectors.toList()).size());
         assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).collect(Collectors.toList()).size());
+    }
+
+    void testContentOfV1Point7Crac(Crac crac) {
+
+        testContentOfV1Point6Crac(crac);
+        // test usage rules
+        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnVoltageConstraint.class::isInstance).collect(Collectors.toList()).size());
     }
 }

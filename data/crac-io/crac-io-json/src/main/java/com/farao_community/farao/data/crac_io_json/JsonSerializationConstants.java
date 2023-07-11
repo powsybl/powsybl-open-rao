@@ -30,13 +30,14 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.6";
+    public static final String CRAC_IO_VERSION = "1.7";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
     v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
     v1.5: addition of VoltageCnecs
+    v1.7 addition of VoltageConstraints
      */
 
     // headers
@@ -70,6 +71,8 @@ public final class JsonSerializationConstants {
 
     public static final String VOLTAGE_CNECS = "voltageCnecs";
 
+    public static final String VOLTAGE_CNEC_ID = "voltageCnecId";
+
     public static final String THRESHOLDS = "thresholds";
     public static final String RELIABILITY_MARGIN = "reliabilityMargin";
     public static final String FRM = "frm";
@@ -95,6 +98,7 @@ public final class JsonSerializationConstants {
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules"; // retro-compatibility only
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
     public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
+    public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules";
     public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
 
     public static final String ID = "id";

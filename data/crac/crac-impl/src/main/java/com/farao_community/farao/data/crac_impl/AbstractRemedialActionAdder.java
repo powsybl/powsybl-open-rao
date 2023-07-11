@@ -22,7 +22,7 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     protected String operator;
     protected List<UsageRule> usageRules = new ArrayList<>();
-    private CracImpl crac;
+    private final CracImpl crac;
 
     AbstractRemedialActionAdder(CracImpl crac) {
         Objects.requireNonNull(crac);
@@ -53,6 +53,11 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     @Override
     public OnAngleConstraintAdder<T> newOnAngleConstraintUsageRule() {
         return new OnAngleConstraintAdderImpl(this);
+    }
+
+    @Override
+    public OnVoltageConstraintAdder<T> newOnVoltageConstraintUsageRule() {
+        return new OnVoltageConstraintAdderImpl(this);
     }
 
     @Override

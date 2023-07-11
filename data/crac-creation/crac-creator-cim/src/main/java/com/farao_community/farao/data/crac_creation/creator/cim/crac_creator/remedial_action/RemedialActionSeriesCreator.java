@@ -12,7 +12,9 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
@@ -46,6 +48,8 @@ public class RemedialActionSeriesCreator {
     private HvdcRangeActionCreator hvdcRangeActionCreator = null;
     private Set<FlowCnec> flowCnecs;
     private AngleCnec angleCnec;
+
+    private VoltageCnec voltageCnec;
     private final CimCracCreationParameters cimCracCreationParameters;
     private final Map<String, PstRangeActionCreator> pstRangeActionCreators = new HashMap<>();
     private final Map<String, NetworkActionCreator> networkActionCreators = new HashMap<>();
@@ -291,7 +295,7 @@ public class RemedialActionSeriesCreator {
     private void addExtraUsageRules(String applicationModeMarketObjectStatus, String remedialActionId, RemedialActionAdder<?> adder) {
         try {
             RemedialActionSeriesCreator.addUsageRules(
-                applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain
+                applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, flowCnecs, angleCnec,voltageCnec, sharedDomain
             );
         } catch (FaraoImportException e) {
             cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
@@ -372,18 +376,28 @@ public class RemedialActionSeriesCreator {
                                      Set<FlowCnec> flowCnecs,
                                      AngleCnec angleCnec,
                                      Country sharedDomain) {
+        addUsageRules(applicationModeMarketObjectStatus,remedialActionAdder,contingencies,invalidContingencies,flowCnecs,angleCnec,null,sharedDomain);
+    }
+    public static void addUsageRules(String applicationModeMarketObjectStatus,
+                                     RemedialActionAdder<?> remedialActionAdder,
+                                     List<Contingency> contingencies,
+                                     List<String> invalidContingencies,
+                                     Set<FlowCnec> flowCnecs,
+                                     AngleCnec angleCnec,
+                                     VoltageCnec voltageCnec,
+                                     Country sharedDomain) {
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, voltageCnec,sharedDomain, Instant.PREVENTIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec,voltageCnec, sharedDomain, Instant.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
+            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec,voltageCnec, sharedDomain, Instant.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec,voltageCnec, sharedDomain, Instant.CURATIVE);
         }
         if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.AUTO);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec,voltageCnec,sharedDomain, Instant.AUTO);
         }
     }
 
@@ -392,6 +406,7 @@ public class RemedialActionSeriesCreator {
                                                List<String> invalidContingencies,
                                                Set<FlowCnec> flowCnecs,
                                                AngleCnec angleCnec,
+                                               VoltageCnec voltageCnec,
                                                Country sharedDomain,
                                                Instant instant) {
         if (!flowCnecs.isEmpty()) {
@@ -400,6 +415,10 @@ public class RemedialActionSeriesCreator {
         }
         if (Objects.nonNull(angleCnec)) {
             addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec);
+            return;
+        }
+        if (Objects.nonNull(voltageCnec)) {
+            addOnVoltageConstraintUsageRule(remedialActionAdder, voltageCnec);
             return;
         }
         if (!Objects.isNull(sharedDomain)) {
@@ -482,6 +501,15 @@ public class RemedialActionSeriesCreator {
                 .withInstant(Instant.CURATIVE)
                 .add();
     }
+
+    private static void addOnVoltageConstraintUsageRule(RemedialActionAdder<?> adder, VoltageCnec voltageCnec) {
+        adder.newOnVoltageConstraintUsageRule()
+                .withVoltageCnec(voltageCnec.getId())
+                .withInstant(Instant.CURATIVE)
+                .add();
+    }
+
+
 
     /*-------------- SERIES CHECKS ------------------------------*/
     private boolean checkRemedialActionSeries(Series cimSerie) {
