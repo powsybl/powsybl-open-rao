@@ -38,7 +38,7 @@ public class OnVoltageConstraintImpl extends AbstractUsageRule implements OnVolt
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-       return UsageMethod.TO_BE_EVALUATED;
+        return UsageMethod.TO_BE_EVALUATED;
     }
 
     @Override
