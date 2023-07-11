@@ -55,7 +55,7 @@ class JsonVoltageCnecsCreationParametersTest {
         String exportedString = os.toString();
 
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-for-round-trip.json");
-        assertEquals(new String(inputStream.readAllBytes()).replaceAll("\r",""), exportedString.replaceAll("\r",""));
+        assertEquals(new String(inputStream.readAllBytes()).replaceAll("\r", ""), exportedString.replaceAll("\r", ""));
     }
 
     @ParameterizedTest
