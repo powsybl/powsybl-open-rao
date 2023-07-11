@@ -175,7 +175,7 @@ class IteratingLinearOptimizerTest {
                 return statuses.get(count - 1);
             }
         }).when(linearProblem).solve();
-     }
+    }
 
     @Test
     void firstOptimizationFails() {
