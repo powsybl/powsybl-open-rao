@@ -491,8 +491,17 @@ public class CastorFullOptimization {
             }
         }
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
-        addAppliedNetworkActionsPostContingency(com.farao_community.farao.data.crac_api.Instant.AUTO, appliedArasAndCras, newPostContingencyResults);
-        addAppliedRangeActionsPostContingency(com.farao_community.farao.data.crac_api.Instant.AUTO, appliedArasAndCras, newPostContingencyResults);
+        // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
+        // ---- this check is only performed here because SkippedOptimizationResultImpl with appliedRas can only be generated for AUTO instant
+        newPostContingencyResults.forEach((state, optResult) -> {
+            if (!(optResult instanceof SkippedOptimizationResultImpl)) {
+                if (state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO)) {
+                    appliedArasAndCras.addAppliedNetworkActions(state, optResult.getActivatedNetworkActions());
+                    optResult.getActivatedRangeActions(state).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, optResult.getOptimizedSetpoint(rangeAction, state)));
+
+                }
+            }
+        });
         // Run curative sensitivity analysis with appliedArasAndCras
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
