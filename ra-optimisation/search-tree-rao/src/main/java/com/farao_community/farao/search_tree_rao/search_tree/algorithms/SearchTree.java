@@ -252,19 +252,20 @@ public class SearchTree {
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
-        final Map<NetworkActionCombination, Boolean> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
-        networkPool.initClones(naCombinations.size());
-        List<NetworkActionCombination> naCombinationsKeys = new ArrayList<>(naCombinations.keySet());
-        naCombinationsKeys.sort(this::deterministicNetworkActionCombinationComparison);
-        if (naCombinations.isEmpty()) {
+        TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
+        naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
+        int amountOfCombinations = naCombinationsSorted.size();
+
+        networkPool.initClones(amountOfCombinations);
+        if (naCombinationsSorted.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
         } else {
-            TECHNICAL_LOGS.info("Leaves to evaluate: {}", naCombinations.size());
+            TECHNICAL_LOGS.info("Leaves to evaluate: {}", amountOfCombinations);
         }
-        AtomicInteger remainingLeaves = new AtomicInteger(naCombinations.size());
-        CountDownLatch latch = new CountDownLatch(naCombinations.size());
-        naCombinationsKeys.forEach(naCombination ->
+        AtomicInteger remainingLeaves = new AtomicInteger(amountOfCombinations);
+        CountDownLatch latch = new CountDownLatch(amountOfCombinations);
+        naCombinationsSorted.keySet().forEach(naCombination ->
             networkPool.submit(() -> {
                 Network networkClone;
                 try {
@@ -281,7 +282,7 @@ public class SearchTree {
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
 
-                        if (naCombinations.get(naCombination)) {
+                        if (naCombinationsSorted.get(naCombination)) {
                             previousDepthOptimalLeaf.getRangeActions().forEach(ra ->
                                 ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                             );
@@ -291,7 +292,7 @@ public class SearchTree {
                                         ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                             );
                         }
-                        optimizeNextLeafAndUpdate(naCombination, naCombinations.get(naCombination), networkClone);
+                        optimizeNextLeafAndUpdate(naCombination, naCombinationsSorted.get(naCombination), networkClone);
 
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
