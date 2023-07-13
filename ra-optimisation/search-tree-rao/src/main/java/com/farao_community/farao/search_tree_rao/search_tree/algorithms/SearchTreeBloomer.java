@@ -80,14 +80,13 @@ public final class SearchTreeBloomer {
 
         // + individual available Network Actions
         final List<NetworkActionCombination> finalNetworkActionCombinations = new ArrayList<>(networkActionCombinations.keySet());
-        Map<NetworkActionCombination, Boolean> auxNaCombinationsToRefactor = networkActionCombinations;
+        Map<NetworkActionCombination, Boolean> effectivelyFinalNACombinations = networkActionCombinations;
         networkActions.stream()
             .filter(na ->
                 finalNetworkActionCombinations.stream().noneMatch(naCombi -> naCombi.getNetworkActionSet().size() == 1 && naCombi.getNetworkActionSet().contains(na))
             )
-            //.map(NetworkActionCombination::new)
-            .forEach(ra -> auxNaCombinationsToRefactor.put(new NetworkActionCombination(Set.of(ra)), false));
-        networkActionCombinations.putAll(auxNaCombinationsToRefactor);
+            .forEach(ra -> effectivelyFinalNACombinations.put(new NetworkActionCombination(Set.of(ra)), false));
+        networkActionCombinations.putAll(effectivelyFinalNACombinations);
 
         // filters
         // (idea: create one class per filter which implement a common interface)
