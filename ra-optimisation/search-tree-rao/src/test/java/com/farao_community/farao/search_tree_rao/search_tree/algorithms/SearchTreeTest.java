@@ -111,6 +111,7 @@ class SearchTreeTest {
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         when(searchTreeParameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
         predefinedNaCombination = Mockito.mock(NetworkActionCombination.class);
+        when(predefinedNaCombination.getConcatenatedId()).thenReturn("predefinedNa");
         when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
     }
 
@@ -382,6 +383,7 @@ class SearchTreeTest {
         networkAction = Mockito.mock(NetworkAction.class);
         when(networkAction.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(networkAction.getOperator()).thenReturn("operator");
+        when(networkAction.getId()).thenReturn("na1");
         availableNetworkActions.add(networkAction);
         availableNaCombinations.add(new NetworkActionCombination(networkAction));
     }
