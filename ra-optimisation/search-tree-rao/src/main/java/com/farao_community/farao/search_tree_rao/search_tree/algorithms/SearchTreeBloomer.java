@@ -57,10 +57,13 @@ public final class SearchTreeBloomer {
     }
 
     /**
-     * This method generates a list a of NetworkActionCombinations that would be available after this leaf inside the tree.
-     * The returned NetworkActionCombination are either individual NetworkAction as defined in the Crac, or predefined
+     * This method generates a map of NetworkActionCombinations and associated boolean.
+     * The networkActionCombinations generated would be available after this leaf inside the tree.
+     * They are either individual NetworkAction as defined in the Crac, or predefined
      * combinations of NetworkActions, defined in the SearchTreeRaoParameters and considered as being efficient when
      * activated together.
+     * If the associated boolean is false, the combination can be applied while keeping parentLeafRangeActions.
+     * If it is true, parentLeafRangeActions must be removed before applying the combination.
      * <p>
      * Moreover, the bloom method ensure that the returned NetworkActionCombinations respect the following rules:
      * <ul>

@@ -277,22 +277,21 @@ public class SearchTree {
                 }
                 try {
                     if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
-                        // todo: Probably change the doc here
-                        // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
-                        // from previous optimal leaf starting point
-                        // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
-
-                        if (naCombinationsSorted.get(naCombination)) {
+                        boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
+                        if (shouldRangeActionBeRemoved) {
+                            // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                             previousDepthOptimalLeaf.getRangeActions().forEach(ra ->
                                 ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                             );
                         } else {
+                            // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
+                            // from previous optimal leaf starting point
                             input.getOptimizationPerimeter().getRangeActions()
                                 .forEach(ra ->
                                         ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                             );
                         }
-                        optimizeNextLeafAndUpdate(naCombination, naCombinationsSorted.get(naCombination), networkClone);
+                        optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
 
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
