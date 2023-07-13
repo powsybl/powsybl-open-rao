@@ -24,10 +24,13 @@ public final class CsaProfileCracUtils {
 
     public static PropertyBags getLinkedPropertyBags(PropertyBags sources, PropertyBag dest, String sourceProperty, String destProperty) {
         PropertyBags linkedBags = new PropertyBags();
-        for (PropertyBag source : sources) {
-            String sourceValue = source.getId(sourceProperty);
-            if (sourceValue != null && sourceValue.equals(dest.getId(destProperty))) {
-                linkedBags.add(source);
+        String destValue = dest.getId(destProperty);
+        if (destValue != null) {
+            for (PropertyBag source : sources) {
+                String sourceValue = source.getId(sourceProperty);
+                if (destValue.equals(sourceValue)) {
+                    linkedBags.add(source);
+                }
             }
         }
         return linkedBags;

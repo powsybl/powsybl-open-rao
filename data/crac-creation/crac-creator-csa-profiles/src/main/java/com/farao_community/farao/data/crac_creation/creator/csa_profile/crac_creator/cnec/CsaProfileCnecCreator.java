@@ -49,6 +49,7 @@ public class CsaProfileCnecCreator {
     }
 
     private void addCnec(PropertyBag assessedElementPropertyBag) {
+        String assessedElementId = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
         String keyword = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
         String startTime = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
         String endTime = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
