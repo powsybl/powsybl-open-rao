@@ -18,13 +18,13 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -67,8 +67,8 @@ public class CimContingencyCreator {
     private void addContingency(ContingencySeries cimContingency) {
         String createdContingencyId = cimContingency.getMRID();
         ContingencyAdder contingencyAdder = crac.newContingency()
-            .withId(createdContingencyId)
-            .withName(cimContingency.getName());
+                .withId(createdContingencyId)
+                .withName(cimContingency.getName());
 
         if (cimContingency.getRegisteredResource().isEmpty()) {
             cimContingencyCreationContexts.add(CimContingencyCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.INCOMPLETE_DATA, "No registered resources"));

@@ -1,0 +1,74 @@
+#
+# Copyright (c) 2023, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: contingencyEquipment
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?contingencyEquipment
+        rdf:type cim:ContingencyEquipment ;
+        cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+}
+
+# query: ordinaryContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?contingency
+        rdf:type nc:OrdinaryContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
+}
+
+# query: exceptionalContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?contingency
+        rdf:type nc:ExceptionalContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
+}
+
+# query: outOfRangeContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?contingency
+        rdf:type nc:OutOfRangeContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
+}

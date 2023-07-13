@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.cne_exporter_commons;
+package com.farao_community.farao.commons;
 
 import java.util.Arrays;
 
@@ -80,4 +80,3 @@ public enum TsoEICode {
         return Arrays.stream(TsoEICode.values()).filter(tsoEICode -> tsoEICode.eiCode.equals(eiCode)).findAny().orElseThrow();
     }
 }
-
