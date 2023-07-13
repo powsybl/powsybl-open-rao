@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Contingency;
@@ -16,6 +23,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -40,7 +48,7 @@ public class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted((Contingency c1, Contingency c2) -> c1.getId().compareTo(c2.getId())).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.get(0),
                 "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
@@ -67,7 +75,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted((Contingency c1, Contingency c2) -> c1.getId().compareTo(c2.getId())).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.get(0),
                 "13334fdf-9cc2-4341-adb6-1281269040b4", "REE_CO3",
@@ -132,7 +140,7 @@ public class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted((Contingency c1, Contingency c2) -> c1.getId().compareTo(c2.getId())).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.get(0),
                 "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
@@ -174,7 +182,7 @@ public class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
-                .stream().sorted((Contingency c1, Contingency c2) -> c1.getId().compareTo(c2.getId())).collect(Collectors.toList());
+                .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
         this.assertContingencyEquality(listContingencies.get(0),
                 "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
@@ -188,7 +196,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(expectedContingencyId, c.getId());
         assertEquals(expectedContingecyName, c.getName());
         List<NetworkElement> networkElements = c.getNetworkElements().stream()
-                .sorted((NetworkElement ne1, NetworkElement ne2) -> ne1.getId().compareTo(ne2.getId())).collect(Collectors.toList());
+                .sorted(Comparator.comparing(NetworkElement::getId)).collect(Collectors.toList());
         assertEquals(expectedNetworkElementsSize, networkElements.size());
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());

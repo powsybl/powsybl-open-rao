@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.TsoEICode;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.time.OffsetDateTime;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -33,5 +35,11 @@ public final class CsaProfileCracUtils {
 
     public static String getUniqueName(String idWithEicCode, String elementId) {
         return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(elementId);
+    }
+
+    public static boolean isValidInterval(OffsetDateTime dateTime, String startTime, String endTime) {
+        OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
+        OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
+        return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
     }
 }

@@ -43,7 +43,11 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getContingencyEquipments() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT, new HashSet<>());
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
+    }
+
+    private PropertyBags queryTripleStore(String queryKey) {
+        return this.queryTripleStore(queryKey, new HashSet<>());
     }
 
     private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {

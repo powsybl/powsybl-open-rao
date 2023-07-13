@@ -31,6 +31,20 @@ public final class CsaProfileConstants {
 
     public static final String SPARQL_FILE_CSA_PROFILE = "csa_profile.sparql";
 
+    /**
+     * constants to request file headers
+     */
+
+    public static final String REQUEST_HEADER_START_DATE = "startDate";
+
+    public static final String REQUEST_HEADER_END_DATE = "endDate";
+
+    public static final String REQUEST_HEADER_KEYWORD = "keyword";
+
+    /**
+     * constants to request contingencies
+     */
+
     public static final String REQUEST_CONTINGENCY = "contingency";
 
     public static final String REQUEST_ORDINARY_CONTINGENCY = "ordinaryContingency";
@@ -40,12 +54,6 @@ public final class CsaProfileConstants {
     public static final String REQUEST_OUT_OF_RANGE_CONTINGENCY = "outOfRangeContingency";
 
     public static final String REQUEST_CONTINGENCY_EQUIPMENT = "contingencyEquipment";
-
-    public static final String REQUEST_CONTINGENCIES_START_DATE = "startDate";
-
-    public static final String REQUEST_CONTINGENCIES_END_DATE = "endDate";
-
-    public static final String REQUEST_CONTINGENCIES_KEYWORD = "keyword";
 
     public static final String REQUEST_CONTINGENCIES_NAME = "name";
 
