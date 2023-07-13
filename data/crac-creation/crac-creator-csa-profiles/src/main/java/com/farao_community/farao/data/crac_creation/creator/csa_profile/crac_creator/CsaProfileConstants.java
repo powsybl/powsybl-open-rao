@@ -42,7 +42,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_HEADER_KEYWORD = "keyword";
 
     /**
-     * constants to request contingencies
+     * requests for contingencies
      */
 
     public static final String REQUEST_CONTINGENCY = "contingency";
@@ -69,4 +69,43 @@ public final class CsaProfileConstants {
 
     public static final String CONTINGENCY_FILE_KEYWORD = "CO";
 
+    /**
+     * requests for flow cnec
+     */
+
+    public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
+
+    public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_NAME = "name";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_OPERATOR = "assessedSystemOperator";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT = "operationalLimit";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_IS_CRITICAL = "isCritical";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
+
+    public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
+
+    public static final String REQUEST_CURRENT_LIMIT_NORMAL_VALUE = "normalValue";
+
+    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_SET = "operationalLimitSet";
+
+    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TYPE = "operationalLimitType";
+
+    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL = "terminal";
+
+    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND = "kind";
+
+    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_DIRECTION = "direction";
 }
