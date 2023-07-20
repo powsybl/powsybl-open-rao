@@ -83,11 +83,11 @@ public final class HvdcRangeActionArrayDeserializer {
                         OnAngleConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) < 7) {
-                            throw new FaraoException("onVoltageConstraintUsageRules does not exists before CRAC version 1.7");
-                        } else {
+                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 6) {
                             jsonParser.nextToken();
                             OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, hvdcRangeActionAdder);
+                        } else {
+                            throw new FaraoException("onVoltageConstraintUsageRules does not exists before CRAC version 1.7");
                         }
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
