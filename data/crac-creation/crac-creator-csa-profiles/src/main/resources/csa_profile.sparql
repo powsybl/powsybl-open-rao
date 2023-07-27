@@ -131,4 +131,8 @@ WHERE {
         rdf:type cim:OperationalLimitType ;
         eu:OperationalLimitType.kind ?kind ;
         cim:OperationalLimitType.direction ?direction .
+    OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
+        }
 }

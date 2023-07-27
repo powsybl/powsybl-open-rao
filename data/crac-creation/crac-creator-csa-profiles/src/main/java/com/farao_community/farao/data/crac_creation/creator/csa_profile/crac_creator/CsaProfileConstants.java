@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
+import java.util.List;
+
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
@@ -108,4 +110,28 @@ public final class CsaProfileConstants {
     public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND = "kind";
 
     public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_DIRECTION = "direction";
+
+    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
+
+    public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
+
+    public static final String ASSESSED_ELEMENT_WITH_CONTINGENCIES_LINK_CONSIDERED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered";
+
+    public static final String ASSESSED_ELEMENT_WITH_CONTINGENCIES_LINK_INCLUDED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included";
+
+    public static final String ASSESSED_ELEMENT_WITH_CONTINGENCIES_LINK_EXCLUDED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded";
+
+    public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
+
+    public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
+
+    public static final String OPERATIONAL_LIMIT_TYPE_PATL = "http://iec.ch/TC57/CIM100-European#LimitKind.patl";
+
+    public static final String OPERATIONAL_LIMIT_TYPE_TATL = "http://iec.ch/TC57/CIM100-European#LimitKind.tatl";
+
+    public static final String OPERATIONAL_LIMIT_TYPE_DIRECTION_ABSOLUTE = "http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue";
+
+    public static final String OPERATIONAL_LIMIT_TYPE_DIRECTION_HIGH = "http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.high";
+
+    public static final String OPERATIONAL_LIMIT_TYPE_DIRECTION_LOW = "http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.low";
 }

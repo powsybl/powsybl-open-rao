@@ -10,9 +10,12 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
+import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileFlowCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,8 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     private boolean isCreationSuccessful;
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
+
+    private Set<CsaProfileFlowCnecCreationContext> flowCnecCreationContexts;
 
     private final CracCreationReport creationReport;
 
@@ -68,6 +73,14 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
     }
 
+    public void setFlowCnecCreationContexts(Set<CsaProfileFlowCnecCreationContext> flowCnecCreationContexts) {
+        this.flowCnecCreationContexts = flowCnecCreationContexts.stream().collect(Collectors.toSet());
+    }
+
+    public Set<CsaProfileFlowCnecCreationContext> getFlowCnecCreationContexts() {
+        return this.flowCnecCreationContexts.stream().collect(Collectors.toSet());
+    }
+
     @Override
     public CracCreationReport getCreationReport() {
         return this.creationReport;
@@ -83,5 +96,19 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.isCreationSuccessful = true;
         this.crac = crac;
         return this;
+    }
+
+    public void buildCreationReport() {
+        addToReport(contingencyCreationContexts, "Contingencies");
+        addToReport(flowCnecCreationContexts, "FlowCnecs");
+    }
+
+    private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+        contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
+                creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+        );
+        contexts.stream().filter(context -> !context.isImported()).forEach(context ->
+                creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+        );
     }
 }

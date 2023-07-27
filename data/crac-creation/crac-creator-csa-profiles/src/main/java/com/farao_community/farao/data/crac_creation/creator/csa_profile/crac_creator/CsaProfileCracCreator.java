@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreator;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreator;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileFlowCnecCreator;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -39,6 +39,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
 
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
         createFlowCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithContingencies(), nativeCrac.getCurrentLimits());
+        creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
 
@@ -47,6 +48,6 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
     }
 
     private void createFlowCnecs(PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags) {
-        new CsaProfileCnecCreator(crac, network, assessedElementsPropertyBags, assessedElementsWithContingenciesPropertyBags, currentLimitsPropertyBags, creationContext);
+        new CsaProfileFlowCnecCreator(crac, network, assessedElementsPropertyBags, assessedElementsWithContingenciesPropertyBags, currentLimitsPropertyBags, creationContext);
     }
 }
