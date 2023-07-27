@@ -54,7 +54,7 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
                 throw new FaraoException(String.format("Unexpected field %s in %s", jsonParser.getCurrentName(), VOLTAGE_MONITORING_RESULT));
             }
         }
-        return new VoltageMonitoringResult(extremeVoltageValues);
+        return new VoltageMonitoringResult(extremeVoltageValues, new HashMap<>(), VoltageMonitoringResult.Status.UNKNOW);
     }
 
     private void readVoltageValues(JsonParser jsonParser, Map<VoltageCnec, ExtremeVoltageValues> voltageValues) throws IOException {

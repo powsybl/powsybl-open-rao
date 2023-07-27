@@ -7,7 +7,10 @@
 
 package com.farao_community.farao.monitoring.voltage_monitoring;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,9 +24,12 @@ public class VoltageMonitoringResult {
 
     public enum Status {
         SECURE,
+        UNSECURE,
         HIGH_VOLTAGE_CONSTRAINT,
         LOW_VOLTAGE_CONSTRAINT,
-        HIGH_AND_LOW_VOLTAGE_CONSTRAINTS;
+        HIGH_AND_LOW_VOLTAGE_CONSTRAINTS,
+        DIVERGENT,
+        UNKNOW;
 
         static Status fromConstraints(boolean highVoltageConstraints, boolean lowVoltageConstraints) {
             if (highVoltageConstraints && lowVoltageConstraints) {
@@ -41,9 +47,10 @@ public class VoltageMonitoringResult {
     private final Status status;
     private final Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues;
     private final Set<VoltageCnec> constrainedElements;
+    private final Map<State, Set<NetworkAction>> appliedCras;
     private List<String> constraints;
 
-    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues) {
+    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<NetworkAction>> appliedCras, Status status) {
         this.extremeVoltageValues = extremeVoltageValues;
         Set<VoltageCnec> tmpConstrainedElements = new HashSet<>();
         boolean highVoltageConstraints = false;
@@ -61,11 +68,35 @@ public class VoltageMonitoringResult {
             }
         }
         this.constrainedElements = Collections.unmodifiableSet(tmpConstrainedElements);
-        this.status = Status.fromConstraints(highVoltageConstraints, lowVoltageConstraints);
+        this.appliedCras = appliedCras;
+        if (status == Status.UNSECURE || status == Status.SECURE) {
+            this.status = Status.fromConstraints(highVoltageConstraints, lowVoltageConstraints);
+        } else {
+            this.status = status;
+        }
     }
 
     public Set<VoltageCnec> getConstrainedElements() {
         return constrainedElements;
+    }
+
+    public Set<NetworkAction> getAppliedCras(State state) {
+        return appliedCras.getOrDefault(state, Collections.emptySet());
+    }
+
+    public Set<String> getAppliedCras(String stateId) {
+        Set<State> states = appliedCras.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
+        if (states.isEmpty()) {
+            return Collections.emptySet();
+        } else if (states.size() > 1) {
+            throw new FaraoException(String.format("%s states share the same id : %s.", states.size(), stateId));
+        } else {
+            return appliedCras.get(states.iterator().next()).stream().map(NetworkAction::getId).collect(Collectors.toSet());
+        }
+    }
+
+    public Map<State, Set<NetworkAction>> getAppliedCras() {
+        return appliedCras;
     }
 
     public Status getStatus() {
