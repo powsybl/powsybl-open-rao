@@ -157,7 +157,7 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult monitorVoltageCnecs(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
         //First load flow with only preventive action, it is supposed to converge
         if (!computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.UNKNOW);
+            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.DIVERGENT);
         }
         //Check for threshold overshoot for the voltages of each cnec
         Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(NetworkAction::getId));
@@ -172,7 +172,7 @@ public class VoltageMonitoring {
         }
         //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.UNSECURE);
+            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.DIVERGENT);
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure
@@ -181,7 +181,9 @@ public class VoltageMonitoring {
             status = VoltageMonitoringResult.Status.UNSECURE;
         }
         Map<State, Set<NetworkAction>> appliedCra = new HashMap<>();
-        appliedCra.put(state, appliedNetworkActions);
+        if (!state.isPreventive()) {
+            appliedCra.put(state, appliedNetworkActions);
+        }
         return new VoltageMonitoringResult(newVoltageValues, appliedCra, status);
     }
 
