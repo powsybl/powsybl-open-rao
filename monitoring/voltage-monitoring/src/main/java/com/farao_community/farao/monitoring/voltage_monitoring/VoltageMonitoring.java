@@ -9,25 +9,23 @@ package com.farao_community.farao.monitoring.voltage_monitoring;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
-import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraint;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -266,13 +264,13 @@ public class VoltageMonitoring {
         Set<NetworkAction> topologicalNetworkActionsAdded = new HashSet<>();
         for (NetworkAction na : availableNetworkActions) {
             boolean areAllEATopological = true;
-            for (ElementaryAction ea : na.getElementaryActions()){
+            for (ElementaryAction ea : na.getElementaryActions()) {
                 if (!(ea instanceof TopologicalAction)) {
                     areAllEATopological = false;
                 }
             }
             if (areAllEATopological) {
-                na.apply(network);
+                na.apply(networkClone);
                 topologicalNetworkActionsAdded.add(na);
             }
         }
