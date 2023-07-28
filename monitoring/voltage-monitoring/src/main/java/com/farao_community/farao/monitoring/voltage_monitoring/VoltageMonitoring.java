@@ -170,7 +170,7 @@ public class VoltageMonitoring {
         }
         //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.DIVERGENT);
+            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.UNSECURE);
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure

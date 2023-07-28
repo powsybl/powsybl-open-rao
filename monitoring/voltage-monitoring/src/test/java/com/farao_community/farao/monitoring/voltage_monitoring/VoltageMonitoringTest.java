@@ -387,12 +387,14 @@ class VoltageMonitoringTest {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
 
-        crac.newContingency().withId("coL1").withNetworkElement("L2").add();
-        addVoltageCnec("vcCur1", Instant.CURATIVE, "coL1", "VL3_Break L2", 375., 395.);
+        crac.newContingency().withId("coL1").withNetworkElement("L1").add();
+        addVoltageCnec("vcCur1", Instant.CURATIVE, "coL1", "L1", 375., 395.);
 
         runVoltageMonitoring();
 
-        //assertEquals(DIVERGENT, voltageMonitoringResult.getStatus());
+        assertTrue(voltageMonitoringResult.getStatus() == LOW_VOLTAGE_CONSTRAINT ||
+                voltageMonitoringResult.getStatus() == HIGH_VOLTAGE_CONSTRAINT ||
+                voltageMonitoringResult.getStatus() == HIGH_AND_LOW_VOLTAGE_CONSTRAINTS);
         assertEquals(1, voltageMonitoringResult.getAppliedCras().size());
     }*/
 
