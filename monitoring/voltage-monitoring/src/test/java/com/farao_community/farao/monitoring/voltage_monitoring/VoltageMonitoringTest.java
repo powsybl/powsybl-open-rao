@@ -19,22 +19,24 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -52,6 +54,7 @@ class VoltageMonitoringTest {
     private NetworkAction naOpenL2;
     private NetworkAction naCloseL2;
     private PstRangeAction pst;
+    private VoltageCnec vcPrev;
 
     @BeforeEach
     public void setUp() {
@@ -345,5 +348,67 @@ class VoltageMonitoringTest {
             "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
             "Network element VL46 at state preventive has a voltage of 143 - 148 kV."),
             voltageMonitoringResult.printConstraints());
+    }
+
+    public void setUpCracFactory(String networkFileName) {
+        network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
+        crac = CracFactory.findDefault().create("test-crac");
+    }
+
+    public void mockPreventiveState() {
+        vcPrev =  addVoltageCnec("vcPrev", Instant.PREVENTIVE, null, "VL45", 145., 150.);
+        crac.newNetworkAction()
+                .withId("Open L1 - 1")
+                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+                .newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec(vcPrev.getId()).add()
+                .add();
+    }
+
+    public void mockCurativeState() {
+        crac.newContingency().withId("coL1").withNetworkElement("L1").add();
+        crac.newContingency().withId("coL2").withNetworkElement("L2").add();
+        crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
+        addVoltageCnec("vcCur1", Instant.CURATIVE, null, "VL2", 375., 395.);
+    }
+
+    @Test
+    void testDivergentLoadFlowDuringInitialLoadFlow() {
+        setUpCracFactory("networkKO.xiidm");
+        mockPreventiveState();
+
+        runVoltageMonitoring();
+
+        assertEquals(DIVERGENT, voltageMonitoringResult.getStatus());
+        voltageMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
+        assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
+    }
+
+    /*@Test
+    void testDivergentLoadFlowAfterApplicationOfRemedialAction() {
+        setUpCracFactory("network.xiidm");
+        mockPreventiveState();
+
+        crac.newContingency().withId("coL1").withNetworkElement("L2").add();
+        addVoltageCnec("vcCur1", Instant.CURATIVE, "coL1", "VL3_Break L2", 375., 395.);
+
+        runVoltageMonitoring();
+
+        //assertEquals(DIVERGENT, voltageMonitoringResult.getStatus());
+        assertEquals(1, voltageMonitoringResult.getAppliedCras().size());
+    }*/
+
+    @Test
+    void testSecureInitialSituationWithAvailableRemedialActions() {
+        setUpCracFactory("network.xiidm");
+        mockPreventiveState();
+        //Add contingency that doesn't break the loadflow
+        crac.newContingency().withId("coVL3").withNetworkElement("VL3_Break L2").add();
+        addVoltageCnec("vcCur1", Instant.CURATIVE, "coVL3", "VL3", 375., 395.);
+
+        runVoltageMonitoring();
+
+        assertEquals(SECURE, voltageMonitoringResult.getStatus());
+        assertEquals(0, voltageMonitoringResult.getAppliedCras().size());
     }
 }
