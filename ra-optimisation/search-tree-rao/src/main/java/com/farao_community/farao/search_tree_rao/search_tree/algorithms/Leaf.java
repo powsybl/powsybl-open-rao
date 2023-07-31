@@ -70,7 +70,7 @@ public class Leaf implements OptimizationResult {
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
     private Network network;
-    private final RangeActionActivationResult prePerimeterActivationResult;
+    private final RangeActionActivationResult raActivationResultFromParentLeaf;
     private final RangeActionSetpointResult prePerimeterSetpoints;
 
     /**
@@ -92,12 +92,12 @@ public class Leaf implements OptimizationResult {
          Network network,
          Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
          NetworkActionCombination newCombinationToApply,
-         RangeActionActivationResult prePerimeterActivationResult,
+         RangeActionActivationResult raActivationResultFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
-        this.prePerimeterActivationResult = prePerimeterActivationResult;
+        this.raActivationResultFromParentLeaf = raActivationResultFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
             this.appliedNetworkActionsInPrimaryState = Stream.concat(
@@ -152,7 +152,7 @@ public class Leaf implements OptimizationResult {
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, prePerimeterActivationResult, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+            preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
@@ -164,7 +164,7 @@ public class Leaf implements OptimizationResult {
         }
         preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
         preOptimFlowResult = sensitivityComputer.getBranchResult(network);
-        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, prePerimeterActivationResult, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
+        preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, raActivationResultFromParentLeaf, preOptimSensitivityResult, preOptimSensitivityResult.getSensitivityStatus());
         status = Status.EVALUATED;
     }
 
@@ -200,7 +200,7 @@ public class Leaf implements OptimizationResult {
                     .withPreOptimizationFlowResult(preOptimFlowResult)
                     .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
                     .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
-                    .withRaActivationFromParentLeaf(prePerimeterActivationResult)
+                    .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
                     .build();
@@ -231,7 +231,7 @@ public class Leaf implements OptimizationResult {
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-                rangeActions.forEach(ra -> ra.apply(network, prePerimeterActivationResult.getOptimizedSetpoint(ra, state))));
+                rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
     private RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
@@ -287,7 +287,7 @@ public class Leaf implements OptimizationResult {
 
     public RangeActionActivationResult getRangeActionActivationResult() {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult;
+            return raActivationResultFromParentLeaf;
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getRangeActionActivationResult();
         } else {
@@ -323,7 +323,7 @@ public class Leaf implements OptimizationResult {
     long getNumberOfActivatedRangeActions() {
         if (status == Status.EVALUATED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> prePerimeterActivationResult.getActivatedRangeActions(s).size())
+                    .mapToDouble(s -> raActivationResultFromParentLeaf.getActivatedRangeActions(s).size())
                     .sum();
         } else if (status == Status.OPTIMIZED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
@@ -480,7 +480,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Set<RangeAction<?>> getRangeActions() {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult.getRangeActions();
+            return raActivationResultFromParentLeaf.getRangeActions();
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getRangeActions();
         } else {
@@ -491,7 +491,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult.getActivatedRangeActions(state);
+            return raActivationResultFromParentLeaf.getActivatedRangeActions(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getActivatedRangeActions(state);
         } else {
@@ -502,12 +502,12 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult.getOptimizedSetpoint(rangeAction, state);
+            return raActivationResultFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             try {
                 return postOptimResult.getOptimizedSetpoint(rangeAction, state);
             } catch (FaraoException e) {
-                return prePerimeterActivationResult.getOptimizedSetpoint(rangeAction, state);
+                return raActivationResultFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
             }
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -517,7 +517,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult.getOptimizedSetpointsOnState(state);
+            return raActivationResultFromParentLeaf.getOptimizedSetpointsOnState(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getOptimizedSetpointsOnState(state);
         } else {
@@ -528,12 +528,12 @@ public class Leaf implements OptimizationResult {
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult.getOptimizedTap(pstRangeAction, state);
+            return raActivationResultFromParentLeaf.getOptimizedTap(pstRangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             try {
                 return postOptimResult.getOptimizedTap(pstRangeAction, state);
             } catch (FaraoException e) {
-                return prePerimeterActivationResult.getOptimizedTap(pstRangeAction, state);
+                return raActivationResultFromParentLeaf.getOptimizedTap(pstRangeAction, state);
             }
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -543,7 +543,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (status == Status.EVALUATED) {
-            return prePerimeterActivationResult.getOptimizedTapsOnState(state);
+            return raActivationResultFromParentLeaf.getOptimizedTapsOnState(state);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getOptimizedTapsOnState(state);
         } else {
