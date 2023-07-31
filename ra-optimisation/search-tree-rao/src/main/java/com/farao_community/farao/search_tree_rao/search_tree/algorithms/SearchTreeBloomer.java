@@ -144,6 +144,14 @@ public final class SearchTreeBloomer {
                 .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
     }
 
+    /**
+     * For each network actions combination, two checks are carried out:
+     * <ol>
+     *     <li>We ensure that the cumulated number of network actions in the combination and already applied network actions in the root leaf does not exceed the limit number of remedial actions so the applied network actions can be kept</li>
+     *     <li>If so, we also need to ensure that the cumulated number of network actions (combination + root leaf) and range actions (root leaf) does not exceed the limit number of remedial actions, so we know whether keeping the network actions requires unapplying the range actions or not.</li>
+     * </ol>
+     * If the first condition is not met, the combination is not kept. If the second condition is not met, the combination is kept but the range actions will be unapplied for the next optimization.
+     */
     Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxNumberOfRa(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
 
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
@@ -164,6 +172,14 @@ public final class SearchTreeBloomer {
         return filteredNaCombinations;
     }
 
+    /**
+     * For each network actions combination, we iterate on the TSOs that operate the network actions, and for each one of them, two checks are carried out:
+     * <ol>
+     *     <li>We ensure that the cumulated number of network actions in the combination and already applied network actions in the root leaf does not exceed the limit number of remedial actions that the TSO can apply so the applied network actions can be kept</li>
+     *     <li>If so, we also need to ensure that the cumulated number of network actions (combination + root leaf) and range actions (root leaf) does not exceed the limit number of remedial actions that the TSO can apply, so we know whether keeping the TSO's network actions requires unapplying the TSO's range actions or not.</li>
+     * </ol>
+     * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
+     */
     Map<NetworkActionCombination, Boolean> removeCombinationsWhichExceedMaxNumberOfRaPerTso(Map<NetworkActionCombination, Boolean> naCombinations, Leaf fromLeaf) {
 
         Map<NetworkActionCombination, Boolean> filteredNaCombinations = new HashMap<>();
@@ -175,13 +191,13 @@ public final class SearchTreeBloomer {
             boolean removeRangeActions = false;
             for (String tso : operators) {
                 int naCombinationSize = (int) naCombination.getNetworkActionSet().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
-                int alreadyActivatedRangeActionsSize = (int) fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> ra.getOperator().equals(tso)).count();
-                int alreadyActivatedNetworkActionsSize = (int) fromLeaf.getActivatedNetworkActions().stream().filter(na -> na.getOperator().equals(tso)).count();
+                int numberOfAlreadyActivatedRangeActionsForTso = (int) fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions).stream().filter(ra -> ra.getOperator().equals(tso)).count();
+                int numberOfAlreadyAppliedNetworkActionsForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(na -> na.getOperator().equals(tso)).count();
                 // The number of already applied network actions is taken in account in getMaxNetworkActionPerTso
                 if (naCombinationSize > maxNaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
                     naShouldBeKept = false;
                     break;
-                } else if (alreadyActivatedNetworkActionsSize + alreadyActivatedRangeActionsSize + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
+                } else if (numberOfAlreadyAppliedNetworkActionsForTso + numberOfAlreadyActivatedRangeActionsForTso + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
                     removeRangeActions = true;
                     break;
                 }
