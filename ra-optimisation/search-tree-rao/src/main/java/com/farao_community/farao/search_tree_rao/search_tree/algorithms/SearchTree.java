@@ -286,10 +286,10 @@ public class SearchTree {
                         } else {
                             // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                             // from previous optimal leaf starting point
-                            input.getOptimizationPerimeter().getRangeActions()
+                            previousDepthOptimalLeaf.getRangeActions()
                                 .forEach(ra ->
                                         ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
-                            );
+                                );
                         }
                         optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
 
