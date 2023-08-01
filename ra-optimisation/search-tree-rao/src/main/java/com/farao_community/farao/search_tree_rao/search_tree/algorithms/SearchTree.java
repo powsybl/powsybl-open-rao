@@ -280,12 +280,13 @@ public class SearchTree {
                         boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
                         if (shouldRangeActionBeRemoved) {
                             // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
-                            previousDepthOptimalLeaf.getRangeActions().forEach(ra ->
+                            input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
                                 ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                             );
                         } else {
                             // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                             // from previous optimal leaf starting point
+                            // todo : Not sure previousDepthOptimalLeaf.getRangeActions() returns what we expect, this needs to be investigated
                             previousDepthOptimalLeaf.getRangeActions()
                                 .forEach(ra ->
                                         ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
