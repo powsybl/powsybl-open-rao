@@ -67,7 +67,7 @@ public class CsaProfileCnecCreator {
         }
 
         String inBaseCaseStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE);
-        Boolean inBaseCase = Boolean.parseBoolean(inBaseCaseStr);
+        boolean inBaseCase = Boolean.parseBoolean(inBaseCaseStr);
 
         List<PropertyBag> assessedElementsWithContingencies = getAssessedElementsWithContingencies(assessedElementId, assessedElementPropertyBag, inBaseCase);
         if (!inBaseCase && assessedElementsWithContingencies == null) {
@@ -80,7 +80,7 @@ public class CsaProfileCnecCreator {
         }
 
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
-        Boolean isCombinableWithContingency = isCombinableWithContingencyStr != null && Boolean.parseBoolean(isCombinableWithContingencyStr);
+        boolean isCombinableWithContingency = isCombinableWithContingencyStr != null && Boolean.parseBoolean(isCombinableWithContingencyStr);
         Set<Contingency> combinableContingencies;
         if (isCombinableWithContingency) {
             combinableContingencies = cracCreationContext.getCrac().getContingencies();
@@ -162,7 +162,7 @@ public class CsaProfileCnecCreator {
         return true;
     }
 
-    private List<PropertyBag> getAssessedElementsWithContingencies(String assessedElementId, PropertyBag assessedElementPropertyBag, Boolean inBaseCase) {
+    private List<PropertyBag> getAssessedElementsWithContingencies(String assessedElementId, PropertyBag assessedElementPropertyBag, boolean inBaseCase) {
         List<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
 
         if (!inBaseCase && assessedElementsWithContingencies == null) {
@@ -181,7 +181,7 @@ public class CsaProfileCnecCreator {
         return currentLimits.get(0);
     }
 
-    private Set<Contingency> checkLinkAssessedElementContingency(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet, Boolean isCombinableWithContingency) {
+    private Set<Contingency> checkLinkAssessedElementContingency(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet, boolean isCombinableWithContingency) {
         Set<Contingency> combinableContingencies = combinableContingenciesSet.stream().collect(Collectors.toSet());
         String normalEnabledWithContingencies = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
 
@@ -220,7 +220,7 @@ public class CsaProfileCnecCreator {
         return combinableContingencies;
     }
 
-    private boolean addCurrentLimit(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Boolean inBaseCase) {
+    private boolean addCurrentLimit(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
         String currentLimitId = currentLimit.getId(CsaProfileConstants.REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL);
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(currentLimitId);
         if (networkElement == null) {
@@ -318,7 +318,7 @@ public class CsaProfileCnecCreator {
         return networkElement;
     }
 
-    private boolean addInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Boolean inBaseCase) {
+    private boolean addInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
         this.currentFlowCnecInstant = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND);
         Instant instant = null;

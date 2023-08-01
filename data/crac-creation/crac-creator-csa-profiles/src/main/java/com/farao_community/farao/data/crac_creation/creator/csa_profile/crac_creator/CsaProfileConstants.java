@@ -135,8 +135,9 @@ public final class CsaProfileConstants {
         private final String name;
         private static final String URL = ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.";
 
+        @Override
         public String toString() {
-            return this.URL + this.name;
+            return ElementCombinationConstraintKind.URL + this.name;
         }
     }
 
@@ -151,8 +152,9 @@ public final class CsaProfileConstants {
         private final String name;
         private static final String URL = IEC_URL + "CIM100-European#LimitKind.";
 
+        @Override
         public String toString() {
-            return this.URL + this.name;
+            return LimitKind.URL + this.name;
         }
     }
 
@@ -168,8 +170,9 @@ public final class CsaProfileConstants {
         private final String direction;
         private static final String URL = IEC_URL + "CIM100#OperationalLimitDirectionKind.";
 
+        @Override
         public String toString() {
-            return this.URL + this.direction;
+            return LimitDirectionKind.URL + this.direction;
         }
     }
 }
