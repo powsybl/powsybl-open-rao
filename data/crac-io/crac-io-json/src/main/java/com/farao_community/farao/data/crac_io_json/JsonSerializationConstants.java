@@ -37,7 +37,7 @@ public final class JsonSerializationConstants {
     v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
     v1.5: addition of VoltageCnecs
-    v1.7 addition of VoltageConstraints
+    v1.7: addition of VoltageConstraints usage rules
      */
 
     // headers

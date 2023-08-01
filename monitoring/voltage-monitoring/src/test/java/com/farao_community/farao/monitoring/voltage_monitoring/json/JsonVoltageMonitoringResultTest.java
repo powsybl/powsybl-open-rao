@@ -78,7 +78,7 @@ class JsonVoltageMonitoringResultTest {
         OutputStream os = new ByteArrayOutputStream();
         new VoltageMonitoringResultExporter().export(voltageMonitoringResult, os);
         String expected = new String(getClass().getResourceAsStream("/result.json").readAllBytes());
-        assertEquals(expected, os.toString());
+        assertEquals(expected, os.toString().replaceAll("\r", ""));
     }
 
     @ParameterizedTest

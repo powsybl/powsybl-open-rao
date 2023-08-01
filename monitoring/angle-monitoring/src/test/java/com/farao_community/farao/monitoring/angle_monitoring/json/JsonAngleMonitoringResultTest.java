@@ -102,7 +102,7 @@ class JsonAngleMonitoringResultTest {
         OutputStream os = new ByteArrayOutputStream();
         new AngleMonitoringResultExporter().export(angleMonitoringResult, os);
         String expected = new String(getClass().getResourceAsStream("/result-roundTrip.json").readAllBytes());
-        assertEquals(expected, os.toString());
+        assertEquals(expected, os.toString().replaceAll("\r", ""));
     }
 
     private boolean compareAngleResults(AngleMonitoringResult.AngleResult ar1, AngleMonitoringResult.AngleResult ar2) {
