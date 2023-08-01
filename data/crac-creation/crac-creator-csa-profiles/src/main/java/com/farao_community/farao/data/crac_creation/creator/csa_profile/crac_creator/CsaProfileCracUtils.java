@@ -12,6 +12,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -22,18 +25,18 @@ public final class CsaProfileCracUtils {
 
     }
 
-    public static PropertyBags getLinkedPropertyBags(PropertyBags sources, PropertyBag dest, String sourceProperty, String destProperty) {
-        PropertyBags linkedBags = new PropertyBags();
-        String destValue = dest.getId(destProperty);
-        if (destValue != null) {
-            for (PropertyBag source : sources) {
-                String sourceValue = source.getId(sourceProperty);
-                if (destValue.equals(sourceValue)) {
-                    linkedBags.add(source);
-                }
+    public static Map<String, ArrayList<PropertyBag>> getMappedPropertyBags(PropertyBags propertyBags, String property) {
+        Map<String, ArrayList<PropertyBag>> mappedPropertyBags = new HashMap<>();
+        for (PropertyBag propertyBag : propertyBags) {
+            String propValue = propertyBag.getId(property);
+            ArrayList<PropertyBag> propPropertyBags = mappedPropertyBags.get(propValue);
+            if (propPropertyBags == null) {
+                propPropertyBags = new ArrayList<>();
+                mappedPropertyBags.put(propValue, propPropertyBags);
             }
+            propPropertyBags.add(propertyBag);
         }
-        return linkedBags;
+        return mappedPropertyBags;
     }
 
     public static String getUniqueName(String idWithEicCode, String elementId) {

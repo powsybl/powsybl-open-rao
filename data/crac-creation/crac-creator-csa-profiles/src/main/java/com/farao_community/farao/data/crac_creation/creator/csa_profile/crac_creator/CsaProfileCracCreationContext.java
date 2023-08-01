@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileFlowCnecCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
 
 import java.time.OffsetDateTime;
@@ -30,9 +30,9 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
 
-    private Set<CsaProfileFlowCnecCreationContext> flowCnecCreationContexts;
+    private Set<CsaProfileCnecCreationContext> flowCnecCreationContexts;
 
-    private final CracCreationReport creationReport;
+    private CracCreationReport creationReport;
 
     private final OffsetDateTime timeStamp;
 
@@ -40,7 +40,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     CsaProfileCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
         this.crac = crac;
-        creationReport = new CracCreationReport();
+        this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
     }
@@ -73,11 +73,11 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
     }
 
-    public void setFlowCnecCreationContexts(Set<CsaProfileFlowCnecCreationContext> flowCnecCreationContexts) {
+    public void setFlowCnecCreationContexts(Set<CsaProfileCnecCreationContext> flowCnecCreationContexts) {
         this.flowCnecCreationContexts = flowCnecCreationContexts.stream().collect(Collectors.toSet());
     }
 
-    public Set<CsaProfileFlowCnecCreationContext> getFlowCnecCreationContexts() {
+    public Set<CsaProfileCnecCreationContext> getFlowCnecCreationContexts() {
         return this.flowCnecCreationContexts.stream().collect(Collectors.toSet());
     }
 
@@ -104,11 +104,12 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
+        creationReport = new CracCreationReport();
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
-                creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
+            creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
         );
         contexts.stream().filter(context -> !context.isImported()).forEach(context ->
-                creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
+            creationReport.removed(String.format("%s \"%s\" was not imported: %s. %s.", nativeTypeIdentifier, context.getNativeId(), context.getImportStatus(), context.getImportStatusDetail()))
         );
     }
 }

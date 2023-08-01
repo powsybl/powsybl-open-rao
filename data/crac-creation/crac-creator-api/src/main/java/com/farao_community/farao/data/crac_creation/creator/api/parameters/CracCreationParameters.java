@@ -34,7 +34,7 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
     }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
+        Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
 
     private String cracFactoryName = DEFAULT_CRAC_FACTORY_NAME;
 
@@ -104,7 +104,7 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         CracCreationParameters parameters = new CracCreationParameters();
 
         platformConfig.getOptionalModuleConfig(MODULE_NAME)
-                .ifPresent(config -> parameters.setCracFactoryName(config.getStringProperty("crac-factory", DEFAULT_CRAC_FACTORY_NAME)));
+            .ifPresent(config -> parameters.setCracFactoryName(config.getStringProperty("crac-factory", DEFAULT_CRAC_FACTORY_NAME)));
 
         parameters.readExtensions(platformConfig);
         return parameters;

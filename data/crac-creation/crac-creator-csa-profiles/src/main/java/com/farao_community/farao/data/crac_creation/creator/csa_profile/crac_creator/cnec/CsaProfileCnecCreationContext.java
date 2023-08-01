@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-public final class CsaProfileFlowCnecCreationContext implements ElementaryCreationContext {
+public final class CsaProfileCnecCreationContext implements ElementaryCreationContext {
     private String nativeId;
     private String flowCnecId;
     private String flowCnecName;
@@ -21,7 +21,7 @@ public final class CsaProfileFlowCnecCreationContext implements ElementaryCreati
     private String importStatusDetail;
     private boolean isAltered;
 
-    private CsaProfileFlowCnecCreationContext(String nativeId, String flowCnecId, String flowCnecName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
+    private CsaProfileCnecCreationContext(String nativeId, String flowCnecId, String flowCnecName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
         this.nativeId = nativeId;
         this.flowCnecId = flowCnecId;
         this.flowCnecName = flowCnecName;
@@ -30,12 +30,12 @@ public final class CsaProfileFlowCnecCreationContext implements ElementaryCreati
         this.isAltered = isAltered;
     }
 
-    public static CsaProfileFlowCnecCreationContext imported(String nativeId, String flowCnecId, String flowCnecName, String importStatusDetail, boolean isAltered) {
-        return new CsaProfileFlowCnecCreationContext(nativeId, flowCnecId, flowCnecName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
+    public static CsaProfileCnecCreationContext imported(String nativeId, String flowCnecId, String flowCnecName, String importStatusDetail, boolean isAltered) {
+        return new CsaProfileCnecCreationContext(nativeId, flowCnecId, flowCnecName, ImportStatus.IMPORTED, importStatusDetail, isAltered);
     }
 
-    public static CsaProfileFlowCnecCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
-        return new CsaProfileFlowCnecCreationContext(nativeId, null, null, importStatus, importStatusDetail, false);
+    public static CsaProfileCnecCreationContext notImported(String nativeId, ImportStatus importStatus, String importStatusDetail) {
+        return new CsaProfileCnecCreationContext(nativeId, null, null, importStatus, importStatusDetail, false);
     }
 
     @Override

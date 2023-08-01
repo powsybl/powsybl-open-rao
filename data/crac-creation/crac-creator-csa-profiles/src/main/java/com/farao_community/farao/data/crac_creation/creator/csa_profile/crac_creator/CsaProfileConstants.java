@@ -79,8 +79,6 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
 
-    public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
-
     public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
 
     public static final String REQUEST_ASSESSED_ELEMENT_NAME = "name";
@@ -99,6 +97,8 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
 
+    public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
+
     public static final String REQUEST_CURRENT_LIMIT_NORMAL_VALUE = "normalValue";
 
     public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_SET = "operationalLimitSet";
@@ -115,23 +115,58 @@ public final class CsaProfileConstants {
 
     public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
 
-    public static final String ASSESSED_ELEMENT_WITH_CONTINGENCIES_LINK_CONSIDERED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered";
-
-    public static final String ASSESSED_ELEMENT_WITH_CONTINGENCIES_LINK_INCLUDED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included";
-
-    public static final String ASSESSED_ELEMENT_WITH_CONTINGENCIES_LINK_EXCLUDED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded";
+    public static final String ENTSOE_NS_NC_URL = "http://entsoe.eu/ns/nc";
 
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
 
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
 
-    public static final String OPERATIONAL_LIMIT_TYPE_PATL = "http://iec.ch/TC57/CIM100-European#LimitKind.patl";
+    public static final String IEC_URL = "http://iec.ch/TC57/";
 
-    public static final String OPERATIONAL_LIMIT_TYPE_TATL = "http://iec.ch/TC57/CIM100-European#LimitKind.tatl";
+    public enum ElementCombinationConstraintKind {
+        CONSIDERED(ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.considered"),
+        INCLUDED(ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.included"),
+        EXCLUDED(ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.excluded");
 
-    public static final String OPERATIONAL_LIMIT_TYPE_DIRECTION_ABSOLUTE = "http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue";
+        ElementCombinationConstraintKind(String name) {
+            this.name = name;
+        }
 
-    public static final String OPERATIONAL_LIMIT_TYPE_DIRECTION_HIGH = "http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.high";
+        private final String name;
 
-    public static final String OPERATIONAL_LIMIT_TYPE_DIRECTION_LOW = "http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.low";
+        public String toString() {
+            return this.name;
+        }
+    }
+
+    public enum LimitKind {
+        PATL(IEC_URL + "CIM100-European#LimitKind.patl"),
+        TATL(IEC_URL + "CIM100-European#LimitKind.tatl");
+
+        LimitKind(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+
+        public String toString() {
+            return this.name;
+        }
+    }
+
+    public enum LimitDirectionKind {
+        ABSOLUTE(IEC_URL + "CIM100#OperationalLimitDirectionKind.absoluteValue"),
+        HIGH(IEC_URL + "CIM100#OperationalLimitDirectionKind.high"),
+        LOW(IEC_URL + "CIM100#OperationalLimitDirectionKind.low");
+
+        LimitDirectionKind(String direction) {
+            this.direction = direction;
+        }
+
+        private final String direction;
+
+        public String toString() {
+            return this.direction;
+        }
+    }
 }
