@@ -557,6 +557,7 @@ class LeafTest {
         rangeActions.add(pstRangeAction);
         rangeActions.add(rangeAction);
         when(prePerimeterResult.getRangeActions()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
         when(prePerimeterResult.getTap(pstRangeAction)).thenReturn(optimalTap);
         when(prePerimeterResult.getSetpoint(rangeAction)).thenReturn(optimalSetpoint);
         when(prePerimeterResult.getSetpoint(pstRangeAction)).thenReturn(optimalSetpoint);
@@ -595,7 +596,7 @@ class LeafTest {
         rangeActions.add(pstRangeAction);
         rangeActions.add(rangeAction);
 
-        when(linearOptimizationResult.getRangeActions()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
         assertEquals(rangeActions, leaf.getRangeActions());
 
         when(linearOptimizationResult.getOptimizedTap(pstRangeAction, optimizedState)).thenReturn(optimalTap);
