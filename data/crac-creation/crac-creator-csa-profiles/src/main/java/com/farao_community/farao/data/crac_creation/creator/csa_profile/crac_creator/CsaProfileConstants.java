@@ -124,49 +124,52 @@ public final class CsaProfileConstants {
     public static final String IEC_URL = "http://iec.ch/TC57/";
 
     public enum ElementCombinationConstraintKind {
-        CONSIDERED(ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.considered"),
-        INCLUDED(ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.included"),
-        EXCLUDED(ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.excluded");
+        CONSIDERED("considered"),
+        INCLUDED("included"),
+        EXCLUDED("excluded");
 
         ElementCombinationConstraintKind(String name) {
             this.name = name;
         }
 
         private final String name;
+        private static final String URL = ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.";
 
         public String toString() {
-            return this.name;
+            return this.URL + this.name;
         }
     }
 
     public enum LimitKind {
-        PATL(IEC_URL + "CIM100-European#LimitKind.patl"),
-        TATL(IEC_URL + "CIM100-European#LimitKind.tatl");
+        PATL("patl"),
+        TATL("tatl");
 
         LimitKind(String name) {
             this.name = name;
         }
 
         private final String name;
+        private static final String URL = IEC_URL + "CIM100-European#LimitKind.";
 
         public String toString() {
-            return this.name;
+            return this.URL + this.name;
         }
     }
 
     public enum LimitDirectionKind {
-        ABSOLUTE(IEC_URL + "CIM100#OperationalLimitDirectionKind.absoluteValue"),
-        HIGH(IEC_URL + "CIM100#OperationalLimitDirectionKind.high"),
-        LOW(IEC_URL + "CIM100#OperationalLimitDirectionKind.low");
+        ABSOLUTE("absoluteValue"),
+        HIGH("high"),
+        LOW("low");
 
         LimitDirectionKind(String direction) {
             this.direction = direction;
         }
 
         private final String direction;
+        private static final String URL = IEC_URL + "CIM100#OperationalLimitDirectionKind.";
 
         public String toString() {
-            return this.direction;
+            return this.URL + this.direction;
         }
     }
 }
