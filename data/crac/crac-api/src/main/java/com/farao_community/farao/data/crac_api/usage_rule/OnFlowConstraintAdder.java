@@ -17,7 +17,5 @@ public interface OnFlowConstraintAdder<T extends RemedialActionAdder<T>> {
 
     OnFlowConstraintAdder<T> withFlowCnec(String flowCnecId);
 
-    OnFlowConstraintAdder<T> withUsageMethod(UsageMethod usageMethod);
-
     T add();
 }

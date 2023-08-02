@@ -22,14 +22,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class OnAngleConstraintImplTest {
     AngleCnec angleCnec;
-    UsageMethod usageMethod;
     State preventiveState;
     State curativeState;
 
     @BeforeEach
     public void setUp() {
         angleCnec = Mockito.mock(AngleCnec.class);
-        usageMethod = Mockito.mock(UsageMethod.class);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
@@ -40,33 +38,33 @@ class OnAngleConstraintImplTest {
 
     @Test
     void testConstructor() {
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec, usageMethod);
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
 
         assertEquals(Instant.PREVENTIVE, onAngleConstraint.getInstant());
         assertSame(angleCnec, onAngleConstraint.getAngleCnec());
-        assertEquals(usageMethod, onAngleConstraint.getUsageMethod());
-        assertEquals(usageMethod, onAngleConstraint.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState));
     }
 
     @Test
     void testEquals() {
-        OnAngleConstraint onAngleConstraint1 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec, usageMethod);
+        OnAngleConstraint onAngleConstraint1 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
         assertEquals(onAngleConstraint1, onAngleConstraint1);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint1.hashCode());
 
         assertNotNull(onAngleConstraint1);
         assertNotEquals(onAngleConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnAngleConstraint onAngleConstraint2 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec, usageMethod);
+        OnAngleConstraint onAngleConstraint2 = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
         assertEquals(onAngleConstraint1, onAngleConstraint2);
         assertEquals(onAngleConstraint1.hashCode(), onAngleConstraint2.hashCode());
 
-        onAngleConstraint2 = new OnAngleConstraintImpl(Instant.CURATIVE, angleCnec, usageMethod);
+        onAngleConstraint2 = new OnAngleConstraintImpl(Instant.CURATIVE, angleCnec);
         assertNotEquals(onAngleConstraint1, onAngleConstraint2);
         assertNotEquals(onAngleConstraint1.hashCode(), onAngleConstraint2.hashCode());
 
-        onAngleConstraint2 = new OnAngleConstraintImpl(Instant.PREVENTIVE, Mockito.mock(AngleCnec.class), usageMethod);
+        onAngleConstraint2 = new OnAngleConstraintImpl(Instant.PREVENTIVE, Mockito.mock(AngleCnec.class));
         assertNotEquals(onAngleConstraint1, onAngleConstraint2);
         assertNotEquals(onAngleConstraint1.hashCode(), onAngleConstraint2.hashCode());
     }
@@ -77,15 +75,15 @@ class OnAngleConstraintImplTest {
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);
 
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec, usageMethod);
-        assertEquals(usageMethod, onAngleConstraint.getUsageMethod(preventiveState));
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(Instant.PREVENTIVE, angleCnec);
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState2));
 
         Mockito.when(angleCnec.getState()).thenReturn(curativeState);
-        onAngleConstraint = new OnAngleConstraintImpl(Instant.CURATIVE, angleCnec, usageMethod);
+        onAngleConstraint = new OnAngleConstraintImpl(Instant.CURATIVE, angleCnec);
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(preventiveState));
-        assertEquals(usageMethod, onAngleConstraint.getUsageMethod(curativeState));
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(curativeState2));
     }
 }

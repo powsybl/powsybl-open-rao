@@ -395,15 +395,15 @@ public class RemedialActionSeriesCreator {
                                                Country sharedDomain,
                                                Instant instant) {
         if (!flowCnecs.isEmpty()) {
-            flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant, UsageMethod.AVAILABLE));
+            flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
             return;
         }
         if (Objects.nonNull(angleCnec)) {
-            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, UsageMethod.AVAILABLE);
+            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec);
             return;
         }
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).withUsageMethod(UsageMethod.AVAILABLE).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).add();
             return;
         }
 
@@ -458,7 +458,7 @@ public class RemedialActionSeriesCreator {
                 .add());
     }
 
-    private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant, UsageMethod usageMethod) {
+    private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
         // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
         // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
         //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
@@ -473,15 +473,15 @@ public class RemedialActionSeriesCreator {
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
             .withInstant(instant)
-            .withUsageMethod(usageMethod)
+            .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 
-    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, UsageMethod usageMethod) {
+    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
             .withInstant(Instant.CURATIVE)
-            .withUsageMethod(usageMethod)
+            .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 

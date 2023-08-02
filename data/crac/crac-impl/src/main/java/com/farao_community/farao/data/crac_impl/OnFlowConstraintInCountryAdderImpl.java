@@ -10,10 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 
-import java.util.Objects;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -25,7 +23,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     private T owner;
     private Instant instant;
     private Country country;
-    private UsageMethod usageMethod;
 
     OnFlowConstraintInCountryAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -44,12 +41,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     }
 
     @Override
-    public OnFlowConstraintInCountryAdder<T> withUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
-        return this;
-    }
-
-    @Override
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
@@ -61,7 +52,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
             owner.getCrac().addPreventiveState();
         }
 
-        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(instant, country, Objects.isNull(usageMethod) ? UsageMethod.AVAILABLE : usageMethod);
+        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(instant, country);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }

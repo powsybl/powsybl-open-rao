@@ -23,11 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class OnFlowConstraintInCountryImplTest {
     State preventiveState;
     State curativeState;
-    UsageMethod usageMethod;
 
     @BeforeEach
     public void setUp() {
-        usageMethod = Mockito.mock(UsageMethod.class);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
         curativeState = Mockito.mock(State.class);
@@ -36,33 +34,33 @@ class OnFlowConstraintInCountryImplTest {
 
     @Test
     void testConstructor() {
-        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.EC, usageMethod);
+        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.EC);
 
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
         assertEquals(Country.EC, onFlowConstraint.getCountry());
-        assertEquals(usageMethod, onFlowConstraint.getUsageMethod());
-        assertEquals(usageMethod, onFlowConstraint.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState));
     }
 
     @Test
     void testEquals() {
-        OnFlowConstraintInCountry onFlowConstraint1 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES, usageMethod);
+        OnFlowConstraintInCountry onFlowConstraint1 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
         assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnFlowConstraintInCountry onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES, usageMethod);
+        OnFlowConstraintInCountry onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.ES);
         assertEquals(onFlowConstraint1, onFlowConstraint2);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.CURATIVE, Country.ES, usageMethod);
+        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.CURATIVE, Country.ES);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.FR, usageMethod);
+        onFlowConstraint2 = new OnFlowConstraintInCountryImpl(Instant.PREVENTIVE, Country.FR);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
     }

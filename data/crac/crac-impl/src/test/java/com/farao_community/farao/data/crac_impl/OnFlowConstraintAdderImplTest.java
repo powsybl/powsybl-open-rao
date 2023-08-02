@@ -84,7 +84,6 @@ class OnFlowConstraintAdderImplTest {
         assertTrue(usageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
-        // Default usageMethod is AVAILABLE
         assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
@@ -97,7 +96,6 @@ class OnFlowConstraintAdderImplTest {
         NetworkAction remedialAction = remedialActionAdder.newOnFlowConstraintUsageRule()
             .withInstant(Instant.CURATIVE)
             .withFlowCnec("cnec2stateCurativeContingency1")
-            .withUsageMethod(UsageMethod.UNAVAILABLE)
             .add()
             .add();
         UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
@@ -106,8 +104,8 @@ class OnFlowConstraintAdderImplTest {
         assertTrue(usageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
         assertEquals(Instant.CURATIVE, onFlowConstraint.getInstant());
-        assertEquals(UsageMethod.UNAVAILABLE, onFlowConstraint.getUsageMethod());
-        assertEquals(UsageMethod.UNAVAILABLE, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
+        assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
         assertEquals(1, crac.getStates().size());
     }
 
