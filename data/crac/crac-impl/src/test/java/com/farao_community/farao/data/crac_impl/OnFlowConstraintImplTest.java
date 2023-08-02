@@ -24,10 +24,12 @@ class OnFlowConstraintImplTest {
     FlowCnec flowCnec;
     State preventiveState;
     State curativeState;
+    UsageMethod usageMethod;
 
     @BeforeEach
     public void setUp() {
         flowCnec = Mockito.mock(FlowCnec.class);
+        usageMethod = Mockito.mock(UsageMethod.class);
         preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
@@ -38,33 +40,33 @@ class OnFlowConstraintImplTest {
 
     @Test
     void testConstructor() {
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec, usageMethod);
 
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
         assertSame(flowCnec, onFlowConstraint.getFlowCnec());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
+        assertEquals(usageMethod, onFlowConstraint.getUsageMethod());
+        assertEquals(usageMethod, onFlowConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState));
     }
 
     @Test
     void testEquals() {
-        OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
+        OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec, usageMethod);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
         assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
+        OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec, usageMethod);
         assertEquals(onFlowConstraint1, onFlowConstraint2);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintImpl(Instant.CURATIVE, flowCnec);
+        onFlowConstraint2 = new OnFlowConstraintImpl(Instant.CURATIVE, flowCnec, usageMethod);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, Mockito.mock(FlowCnec.class));
+        onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, Mockito.mock(FlowCnec.class), usageMethod);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
     }
@@ -75,15 +77,15 @@ class OnFlowConstraintImplTest {
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);
 
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec, usageMethod);
+        assertEquals(usageMethod, onFlowConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState2));
 
         Mockito.when(flowCnec.getState()).thenReturn(curativeState);
-        onFlowConstraint = new OnFlowConstraintImpl(Instant.CURATIVE, flowCnec);
+        onFlowConstraint = new OnFlowConstraintImpl(Instant.CURATIVE, flowCnec, usageMethod);
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(curativeState));
+        assertEquals(usageMethod, onFlowConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState2));
     }
 }

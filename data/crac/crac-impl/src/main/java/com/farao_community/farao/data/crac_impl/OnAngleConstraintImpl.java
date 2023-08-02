@@ -19,8 +19,8 @@ public class OnAngleConstraintImpl extends AbstractUsageRule implements OnAngleC
     private Instant instant;
     private AngleCnec angleCnec;
 
-    OnAngleConstraintImpl(Instant instant, AngleCnec angleCnec) {
-        super(UsageMethod.TO_BE_EVALUATED);
+    OnAngleConstraintImpl(Instant instant, AngleCnec angleCnec, UsageMethod usageMethod) {
+        super(usageMethod);
         this.instant = instant;
         this.angleCnec = angleCnec;
     }
@@ -38,9 +38,9 @@ public class OnAngleConstraintImpl extends AbstractUsageRule implements OnAngleC
     @Override
     public UsageMethod getUsageMethod(State state) {
         if (state.isPreventive()) {
-            return state.getInstant().equals(instant) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;
+            return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
         } else {
-            return state.getInstant().equals(instant) && state.equals(this.angleCnec.getState()) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;
+            return state.getInstant().equals(instant) && state.equals(this.angleCnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
         }
     }
 

@@ -36,7 +36,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -114,15 +113,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
                 if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
                     na.apply(network);
-                } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                    BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
-                    /*
-                     * This method is only used in FlowbasedComputation.
-                     * We do not assess the availability of such remedial actions: they're not supposed to exist.
-                     * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
-                     * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
-                     * until the list of applied remedial actions stops changing
-                     */
                 }
             });
         } else {
@@ -218,15 +208,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
                 networkActionsAppl.add(na);
-            } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
-                /*
-                 * This method is only used in FlowbasedComputation.
-                 * We do not assess the availability of such remedial actions: they're not supposed to exist.
-                 * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
-                 * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
-                 * until the list of applied remedial actions stops changing
-                 */
             }
         });
 

@@ -76,8 +76,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
             return UsageMethod.UNAVAILABLE;
         } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
             return UsageMethod.AVAILABLE;
-        } else if (usageMethods.contains(UsageMethod.TO_BE_EVALUATED)) {
-            return UsageMethod.TO_BE_EVALUATED;
         } else if (usageMethods.contains(UsageMethod.FORCED)) {
             return UsageMethod.FORCED;
         } else {
@@ -87,7 +85,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
-     * If TO_BE_EVALUATED condition has not been evaluated, default behavior is false
+     * If AVAILABLE condition has not been evaluated, default behavior is false
      */
     @Override
     public boolean isRemedialActionAvailable(State state) {
@@ -96,18 +94,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
-     * When UsageMethod is TO_BE_EVALUATED, condition has to have been evaluated previously
+     * When UsageMethod is AVAILABLE, condition has to have been evaluated previously
      */
     @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        switch (getUsageMethod(state)) {
-            case AVAILABLE:
-                return true;
-            case TO_BE_EVALUATED:
-                return evaluatedCondition;
-            default:
-                return false;
+        if (getUsageMethod(state) == UsageMethod.AVAILABLE) {
+            return evaluatedCondition;
         }
+        return false;
     }
 
     /**
@@ -117,12 +111,12 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint
         List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.AVAILABLE)).collect(Collectors.toList());
         onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
 
         // OnFlowConstraintInCountry
         List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
+                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.AVAILABLE)).collect(Collectors.toList());
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
             Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
                     Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),

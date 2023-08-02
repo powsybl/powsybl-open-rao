@@ -19,8 +19,8 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
     private Instant instant;
     private Country country;
 
-    OnFlowConstraintInCountryImpl(Instant instant, Country country) {
-        super(UsageMethod.TO_BE_EVALUATED);
+    OnFlowConstraintInCountryImpl(Instant instant, Country country, UsageMethod usageMethod) {
+        super(usageMethod);
         this.instant = instant;
         this.country = country;
     }
@@ -37,7 +37,7 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        return state.getInstant().equals(instant) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;
+        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
     }
 
     @Override

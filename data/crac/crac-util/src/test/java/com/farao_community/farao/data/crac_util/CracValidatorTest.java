@@ -101,7 +101,7 @@ class CracValidatorTest {
     @Test
     void testDuplicateAutoCnecs0() {
         // No auto RA in CRAC => no auto perimeter => no need to duplicate CNECs
-        List<String> report = CracValidator.validateCrac(crac, network);
+        List<String> report = CracValidator.validateCrac(crac);
 
         assertEquals(3, crac.getFlowCnecs().size());
     }
@@ -114,7 +114,7 @@ class CracValidatorTest {
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(Instant.AUTO).add()
             .add();
-        List<String> report = CracValidator.validateCrac(crac, network);
+        List<String> report = CracValidator.validateCrac(crac);
 
         assertEquals(6, crac.getFlowCnecs().size());
 
@@ -138,7 +138,7 @@ class CracValidatorTest {
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(Instant.AUTO).add()
             .add();
 
-        List<String> report = CracValidator.validateCrac(crac, network);
+        List<String> report = CracValidator.validateCrac(crac);
 
         assertEquals(5, crac.getFlowCnecs().size());
 
@@ -165,7 +165,7 @@ class CracValidatorTest {
             .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(Instant.AUTO).add()
             .add();
 
-        List<String> report = CracValidator.validateCrac(crac, network);
+        List<String> report = CracValidator.validateCrac(crac);
 
         assertEquals(4, crac.getFlowCnecs().size());
 
@@ -189,7 +189,7 @@ class CracValidatorTest {
             .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(Instant.AUTO).add()
             .add();
 
-        List<String> report = CracValidator.validateCrac(crac, network);
+        List<String> report = CracValidator.validateCrac(crac);
 
         assertEquals(4, crac.getFlowCnecs().size());
 
@@ -209,7 +209,7 @@ class CracValidatorTest {
             .newOnContingencyStateUsageRule().withContingency("co-2").withUsageMethod(UsageMethod.FORCED).withInstant(Instant.AUTO).add()
             .add();
 
-        CracValidator.validateCrac(crac, network);
+        CracValidator.validateCrac(crac);
         assertEquals(3, crac.getFlowCnecs().size());
     }
 }

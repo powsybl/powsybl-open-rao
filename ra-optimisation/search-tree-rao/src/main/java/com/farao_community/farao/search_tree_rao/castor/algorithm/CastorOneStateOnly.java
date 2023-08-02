@@ -66,7 +66,7 @@ public class CastorOneStateOnly {
         // compute initial sensitivity on CNECs of the only optimized state
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
-                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
+                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE),
                 raoParameters,
                 toolProvider);
 

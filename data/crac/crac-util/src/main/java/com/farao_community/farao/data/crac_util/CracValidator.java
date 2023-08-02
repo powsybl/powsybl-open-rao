@@ -36,8 +36,8 @@ public final class CracValidator {
         // should not be used
     }
 
-    public static List<String> validateCrac(Crac crac, Network network) {
-        return new ArrayList<>(addOutageCnecsForAutoCnecsWithoutRas(crac, network));
+    public static List<String> validateCrac(Crac crac) {
+        return new ArrayList<>(addOutageCnecsForAutoCnecsWithoutRas(crac));
     }
 
     /**
@@ -45,7 +45,7 @@ public final class CracValidator {
      * but on the OUTAGE instant.
      * Beware that the CRAC is modified since extra CNECs are added.
      */
-    private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
+    private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac) {
         List<String> report = new ArrayList<>();
         crac.getStates(Instant.AUTO).forEach(state -> {
             if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
@@ -56,7 +56,7 @@ public final class CracValidator {
             }
             // Find CNECs with no useful RA and duplicate them on outage instant
             crac.getFlowCnecs(state).stream()
-                .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec, network)))
+                .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec)))
                 .forEach(cnec -> {
                     duplicateCnecOnOutageInstant(crac, cnec);
                     report.add(String.format("CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", cnec.getId()));
@@ -107,22 +107,8 @@ public final class CracValidator {
         );
     }
 
-    private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec, Network network) {
-        if (Set.of(UsageMethod.AVAILABLE, UsageMethod.FORCED).contains(ra.getUsageMethod(cnec.getState()))) {
-            return true;
-        }
-        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.TO_BE_EVALUATED)) {
-            return ra.getUsageRules().stream()
-                .filter(OnFlowConstraint.class::isInstance)
-                .map(OnFlowConstraint.class::cast)
-                .anyMatch(ofc -> isOfcUsefulForCnec(ofc, cnec))
-                ||
-                ra.getUsageRules().stream()
-                    .filter(OnFlowConstraintInCountry.class::isInstance)
-                    .map(OnFlowConstraintInCountry.class::cast)
-                    .anyMatch(ofc -> isOfccUsefulForCnec(ofc, cnec, network));
-        }
-        return false;
+    private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec) {
+        return Set.of(UsageMethod.AVAILABLE, UsageMethod.FORCED).contains(ra.getUsageMethod(cnec.getState()));
     }
 
     /**

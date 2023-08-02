@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     private T owner;
     private Instant instant;
     private String flowCnecId;
+    private UsageMethod usageMethod;
 
     OnFlowConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -42,9 +44,16 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
+    public OnFlowConstraintAdder<T> withUsageMethod(UsageMethod usageMethod) {
+        this.usageMethod = usageMethod;
+        return this;
+    }
+
+    @Override
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
+        assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
@@ -60,7 +69,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
 
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec);
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec, usageMethod);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }

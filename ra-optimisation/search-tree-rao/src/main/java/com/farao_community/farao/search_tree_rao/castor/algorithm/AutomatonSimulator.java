@@ -142,8 +142,8 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
         flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
-        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
-        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED, UsageMethod.TO_BE_EVALUATED));
+        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.AVAILABLE));
+        rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
@@ -200,9 +200,9 @@ public final class AutomatonSimulator {
         // -- First get forced network actions
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
 
-        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
+        // -- Then add those with AVAILABLE usage method when evaluation condition is verified
         // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
-        crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
+        crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).stream()
                 .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(prePerimeterSensitivityOutput, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
                 .forEach(appliedNetworkActions::add);
 
@@ -312,13 +312,13 @@ public final class AutomatonSimulator {
     Set<FlowCnec> gatherFlowCnecsForAutoRangeAction(RangeAction<?> availableRa,
                                                     State automatonState,
                                                     Network network) {
-        // UsageMethod is either FORCED or TO_BE_EVALUATED
+        // UsageMethod is either FORCED or AVAILABLE
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
             return crac.getFlowCnecs(automatonState);
-        } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.TO_BE_EVALUATED)) {
+        } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.AVAILABLE)) {
             return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
         } else {
-            throw new FaraoException(String.format("Range action %s has usage method %s although FORCED or TO_BE_EVALUATED were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
+            throw new FaraoException(String.format("Range action %s has usage method %s although FORCED or AVAILABLE were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
     }
 
@@ -329,9 +329,9 @@ public final class AutomatonSimulator {
         // 1) Get available range actions
         // -- First get forced range actions
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
-        // -- Then add those with TO_BE_EVALUATED usage method when evaluation condition is verified
+        // -- Then add those with AVAILABLE usage method when evaluation condition is verified
         // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
-        crac.getRangeActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
+        crac.getRangeActions(automatonState, UsageMethod.AVAILABLE).stream()
             .filter(na -> na.isRemedialActionAvailable(automatonState, RaoUtil.isAnyMarginNegative(rangeActionSensitivity, na.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, automatonState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
             .forEach(availableRangeActions::add);
 
@@ -412,7 +412,7 @@ public final class AutomatonSimulator {
     private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, State curativeState, Network network) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED);
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         flowCnecs.addAll(crac.getFlowCnecs(curativeState));
