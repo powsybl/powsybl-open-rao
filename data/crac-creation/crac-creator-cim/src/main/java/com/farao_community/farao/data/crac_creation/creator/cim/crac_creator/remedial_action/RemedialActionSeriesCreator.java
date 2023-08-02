@@ -473,7 +473,6 @@ public class RemedialActionSeriesCreator {
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
             .withInstant(instant)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 
@@ -481,7 +480,6 @@ public class RemedialActionSeriesCreator {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
             .withInstant(Instant.CURATIVE)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 
