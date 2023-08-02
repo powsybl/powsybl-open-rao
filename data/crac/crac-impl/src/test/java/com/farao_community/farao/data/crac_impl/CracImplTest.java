@@ -724,7 +724,6 @@ class CracImplTest {
         State state1 = crac.getState("co1", CURATIVE);
         State state2 = crac.getState("co2", CURATIVE);
 
-        //assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
         assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
         assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
         assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
@@ -766,7 +765,6 @@ class CracImplTest {
         State state1 = crac.getState("co1", CURATIVE);
         State state2 = crac.getState("co2", CURATIVE);
 
-        //assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
         assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
         assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
         assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));

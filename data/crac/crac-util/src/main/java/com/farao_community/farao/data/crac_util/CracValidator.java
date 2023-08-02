@@ -23,7 +23,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Misc features that clean up a CRAC to prepare it for the RAO
@@ -36,8 +35,8 @@ public final class CracValidator {
         // should not be used
     }
 
-    public static List<String> validateCrac(Crac crac) {
-        return new ArrayList<>(addOutageCnecsForAutoCnecsWithoutRas(crac));
+    public static List<String> validateCrac(Crac crac, Network network) {
+        return new ArrayList<>(addOutageCnecsForAutoCnecsWithoutRas(crac, network));
     }
 
     /**
@@ -45,10 +44,10 @@ public final class CracValidator {
      * but on the OUTAGE instant.
      * Beware that the CRAC is modified since extra CNECs are added.
      */
-    private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac) {
+    private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
         crac.getStates(Instant.AUTO).forEach(state -> {
-            if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
+            if (hasNoRemedialAction(state, crac)) {
                 // 1. Auto state has no RA => it will not constitute a perimeter
                 //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them
                 // 2. If state has "global" RA (useful for all CNECs), nothing to do neither
@@ -56,7 +55,7 @@ public final class CracValidator {
             }
             // Find CNECs with no useful RA and duplicate them on outage instant
             crac.getFlowCnecs(state).stream()
-                .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec)))
+                .filter(cnec -> crac.getRemedialActions().stream().noneMatch(ra -> isRaUsefulForCnec(ra, cnec, network)))
                 .forEach(cnec -> {
                     duplicateCnecOnOutageInstant(crac, cnec);
                     report.add(String.format("CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", cnec.getId()));
@@ -86,11 +85,6 @@ public final class CracValidator {
             && crac.getPotentiallyAvailableNetworkActions(state).isEmpty();
     }
 
-    private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED).isEmpty()
-            || !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED).isEmpty();
-    }
-
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
         cnec.getThresholds().forEach(tr -> {
                 BranchThresholdAdder trAdder = adder.newThreshold()
@@ -107,8 +101,22 @@ public final class CracValidator {
         );
     }
 
-    private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec) {
-        return Set.of(UsageMethod.AVAILABLE, UsageMethod.FORCED).contains(ra.getUsageMethod(cnec.getState()));
+    private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec, Network network) {
+        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.FORCED)) {
+            return true;
+        }
+        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.AVAILABLE)) {
+            return ra.getUsageRules().stream()
+                .filter(OnFlowConstraint.class::isInstance)
+                .map(OnFlowConstraint.class::cast)
+                .anyMatch(ofc -> isOfcUsefulForCnec(ofc, cnec))
+                ||
+                ra.getUsageRules().stream()
+                    .filter(OnFlowConstraintInCountry.class::isInstance)
+                    .map(OnFlowConstraintInCountry.class::cast)
+                    .anyMatch(ofc -> isOfccUsefulForCnec(ofc, cnec, network));
+        }
+        return false;
     }
 
     /**
