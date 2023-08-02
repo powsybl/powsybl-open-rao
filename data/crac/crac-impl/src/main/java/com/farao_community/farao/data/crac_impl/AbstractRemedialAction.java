@@ -85,15 +85,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
-     * If AVAILABLE condition has not been evaluated, default behavior is false
-     */
-    @Override
-    public boolean isRemedialActionAvailable(State state) {
-        return isRemedialActionAvailable(state, false);
-    }
-
-    /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
      * When UsageMethod is AVAILABLE, condition has to have been evaluated previously
      */
     @Override

@@ -58,11 +58,6 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     /**
      * Evaluates if the remedial action is available depending on its UsageMethod.
      */
-    boolean isRemedialActionAvailable(State state);
-
-    /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
-     */
     boolean isRemedialActionAvailable(State state, boolean evaluatedCondition);
 
     Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
