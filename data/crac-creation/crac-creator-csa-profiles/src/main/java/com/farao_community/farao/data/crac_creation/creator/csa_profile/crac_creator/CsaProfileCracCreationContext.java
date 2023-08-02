@@ -99,12 +99,12 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     public void buildCreationReport() {
+        creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
         addToReport(flowCnecCreationContexts, "FlowCnecs");
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
-        creationReport = new CracCreationReport();
         contexts.stream().filter(ElementaryCreationContext::isAltered).forEach(context ->
             creationReport.altered(String.format("%s \"%s\" was modified: %s. ", nativeTypeIdentifier, context.getNativeId(), context.getImportStatusDetail()))
         );

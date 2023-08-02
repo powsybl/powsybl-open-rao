@@ -177,7 +177,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(16, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(24, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(1, cracCreationContext.getCrac().getFlowCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
@@ -223,7 +223,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
 
