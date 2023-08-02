@@ -243,7 +243,7 @@ class AutomatonSimulatorTest {
     @Test
     void testGatherCnecsError() {
         RangeAction<?> ra = Mockito.mock(RangeAction.class);
-        Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.UNDEFINED);
         assertThrows(FaraoException.class, () -> automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network));
     }
 

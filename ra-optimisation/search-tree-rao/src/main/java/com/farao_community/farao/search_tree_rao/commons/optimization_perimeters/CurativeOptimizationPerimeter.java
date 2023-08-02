@@ -46,12 +46,18 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> ra.isRemedialActionAvailable(curativeState, RaoUtil.isAnyMarginNegative(prePerimeterResult, ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, curativeState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
-            .collect(Collectors.toSet());
+            .filter(ra -> {
+                Set<FlowCnec> flowCnecsWithConstrainedUsageRule = ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, curativeState);
+                boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+                return ra.isRemedialActionAvailable(curativeState, evaluatedCondition);
+            })            .collect(Collectors.toSet());
 
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
-            .filter(ra -> ra.isRemedialActionAvailable(curativeState, RaoUtil.isAnyMarginNegative(prePerimeterResult, ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, curativeState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
-            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
+            .filter(ra -> {
+                Set<FlowCnec> flowCnecsWithConstrainedUsageRule = ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, curativeState);
+                boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+                return ra.isRemedialActionAvailable(curativeState, evaluatedCondition);
+            })            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
 

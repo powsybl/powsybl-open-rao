@@ -66,22 +66,17 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
             .filter(ra -> {
                 Set<FlowCnec> flowCnecsWithConstrainedUsageRule = ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, preventiveState);
-                if (flowCnecsWithConstrainedUsageRule.isEmpty()) {
-                    return ra.isRemedialActionAvailable(preventiveState, true);
-                } else {
-                    return ra.isRemedialActionAvailable(preventiveState, RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-                }
+                // todo: Probably extract this into a method usable for Preventive and Curative + add doc to explain
+                boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+                return ra.isRemedialActionAvailable(preventiveState, evaluatedCondition);
             })
             .collect(Collectors.toSet());
 
         Set<RangeAction<?>> availableRangeActions = rangeActions.stream()
             .filter(ra -> {
                 Set<FlowCnec> flowCnecsWithConstrainedUsageRule = ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, preventiveState);
-                if (flowCnecsWithConstrainedUsageRule.isEmpty()) {
-                    return ra.isRemedialActionAvailable(preventiveState, true);
-                } else {
-                    return ra.isRemedialActionAvailable(preventiveState, RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
-                }
+                boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+                return ra.isRemedialActionAvailable(preventiveState, evaluatedCondition);
             })
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
