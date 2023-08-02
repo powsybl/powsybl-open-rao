@@ -64,20 +64,11 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> {
-                Set<FlowCnec> flowCnecsWithConstrainedUsageRule = ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, preventiveState);
-                // todo: Probably extract this into a method usable for Preventive and Curative + add doc to explain
-                boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-                return ra.isRemedialActionAvailable(preventiveState, evaluatedCondition);
-            })
+            .filter(ra -> RaoUtil.isRaAvailable(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
         Set<RangeAction<?>> availableRangeActions = rangeActions.stream()
-            .filter(ra -> {
-                Set<FlowCnec> flowCnecsWithConstrainedUsageRule = ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, preventiveState);
-                boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || RaoUtil.isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-                return ra.isRemedialActionAvailable(preventiveState, evaluatedCondition);
-            })
+            .filter(ra -> RaoUtil.isRaAvailable(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);

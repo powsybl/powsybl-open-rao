@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -22,10 +23,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -126,6 +124,13 @@ public final class RaoUtil {
      */
     public static boolean isAnyMarginNegative(FlowResult flowResult, Set<FlowCnec> flowCnecs, Unit marginUnit) {
         return flowCnecs.stream().anyMatch(flowCnec -> flowResult.getMargin(flowCnec, marginUnit) <= 0);
+    }
+
+    // todo : add doc + UTs
+    public static boolean isRaAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        Set<FlowCnec> flowCnecsWithConstrainedUsageRule = remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state);
+        boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
+        return remedialAction.isRemedialActionAvailable(state, evaluatedCondition);
     }
 
     /**
