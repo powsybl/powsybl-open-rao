@@ -76,7 +76,6 @@ class OnFlowConstraintAdderImplTest {
         NetworkAction remedialAction = remedialActionAdder.newOnFlowConstraintUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withFlowCnec("cnec2stateCurativeContingency1")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
         UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
@@ -85,6 +84,7 @@ class OnFlowConstraintAdderImplTest {
         assertTrue(usageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
+        // Default usageMethod is AVAILABLE
         assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
@@ -126,19 +126,13 @@ class OnFlowConstraintAdderImplTest {
 
     @Test
     void testNoCnecException() {
-        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE);
+        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testNoInstantException() {
-        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1").withUsageMethod(UsageMethod.AVAILABLE);
-        assertThrows(FaraoException.class, adder::add);
-    }
-
-    @Test
-    void testNoUsageMethodException() {
-        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1").withInstant(Instant.PREVENTIVE);
+        OnFlowConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
 
@@ -170,28 +164,28 @@ class OnFlowConstraintAdderImplTest {
         OnFlowConstraintAdder<NetworkActionAdder> adder;
 
         // PREVENTIVE RA
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-prev").add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-out").add(); // ok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-auto"); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec-cur").add(); // ok
 
         // AUTO RA
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-prev"); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-out"); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-auto").add(); // ok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.AUTO).withFlowCnec("cnec-cur"); // nok
         assertThrows(FaraoException.class, adder::add);
 
         // CURATIVE RA
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-prev"); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-out"); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
+        adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-auto"); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec("cnec-cur").add(); // ok
     }
 }

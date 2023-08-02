@@ -73,7 +73,6 @@ class OnFlowConstraintInCountryAdderImplTest {
         NetworkAction remedialAction = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withCountry(Country.FR)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -81,6 +80,7 @@ class OnFlowConstraintInCountryAdderImplTest {
         assertTrue(remedialAction.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
         OnFlowConstraintInCountry onFlowConstraint = (OnFlowConstraintInCountry) remedialAction.getUsageRules().iterator().next();
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
+        // Default UsageMethod is AVAILABLE
         assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
@@ -91,25 +91,19 @@ class OnFlowConstraintInCountryAdderImplTest {
 
     @Test
     void testOutageException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.OUTAGE).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.OUTAGE).withCountry(Country.FR);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testAbsentCountryException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testNoInstantException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE);
-        assertThrows(FaraoException.class, adder::add);
-    }
-
-    @Test
-    void testNoUsageMethodException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.OUTAGE).withCountry(Country.FR);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR);
         assertThrows(FaraoException.class, adder::add);
     }
 }

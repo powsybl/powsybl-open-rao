@@ -53,7 +53,6 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
-        assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
@@ -69,7 +68,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
 
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec, usageMethod);
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec, Objects.isNull(usageMethod) ? UsageMethod.AVAILABLE : usageMethod);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }

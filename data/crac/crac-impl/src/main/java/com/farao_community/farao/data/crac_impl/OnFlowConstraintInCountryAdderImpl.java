@@ -13,6 +13,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCoun
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 
+import java.util.Objects;
+
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
@@ -51,7 +53,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
-        assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
@@ -60,7 +61,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
             owner.getCrac().addPreventiveState();
         }
 
-        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(instant, country, usageMethod);
+        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(instant, country, Objects.isNull(usageMethod) ? UsageMethod.AVAILABLE : usageMethod);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }

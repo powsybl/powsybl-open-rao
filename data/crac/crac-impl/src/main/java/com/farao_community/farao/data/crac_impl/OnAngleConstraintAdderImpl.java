@@ -53,7 +53,6 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
-        assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
@@ -69,7 +68,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, angleCnec);
 
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(instant, angleCnec, usageMethod);
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(instant, angleCnec, Objects.isNull(usageMethod) ? UsageMethod.AVAILABLE : usageMethod);
         owner.addUsageRule(onAngleConstraint);
         return owner;
     }
