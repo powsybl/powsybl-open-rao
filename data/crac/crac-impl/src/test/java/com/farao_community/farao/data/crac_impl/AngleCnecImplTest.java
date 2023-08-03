@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class AngleCnecImplTest {
-    private final static double DOUBLE_TOLERANCE = 1e-3;
+    private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private Crac crac;
 

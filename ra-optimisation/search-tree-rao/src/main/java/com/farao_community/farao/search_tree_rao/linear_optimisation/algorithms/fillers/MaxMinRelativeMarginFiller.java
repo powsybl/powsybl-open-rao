@@ -60,7 +60,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        if (minRelMarginSignBinaryVariable == null)  {
+        if (minRelMarginSignBinaryVariable == null) {
             throw new FaraoException("Minimum relative margin sign binary variable has not yet been created");
         }
         // Minimum Margin is negative or zero
@@ -103,7 +103,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         if (minRelMarginVariable == null) {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
-        if (minRelMarginSignBinaryVariable == null)  {
+        if (minRelMarginSignBinaryVariable == null) {
             throw new FaraoException("Minimum relative margin sign binary variable has not yet been created");
         }
         double maxPositiveRelativeRam = highestThreshold / ptdfSumLowerBound;

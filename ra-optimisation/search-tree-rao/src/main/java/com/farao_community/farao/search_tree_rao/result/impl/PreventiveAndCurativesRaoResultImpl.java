@@ -265,7 +265,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     @Override
     public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult =  getFlowResult(optimizationState, flowCnec);
+        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit);
         } else {

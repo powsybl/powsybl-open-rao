@@ -94,7 +94,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        TopologicalActionImpl oTopologicalAction =  (TopologicalActionImpl) o;
+        TopologicalActionImpl oTopologicalAction = (TopologicalActionImpl) o;
         return oTopologicalAction.getNetworkElement().equals(this.networkElement) && oTopologicalAction.getActionType().equals(this.actionType);
     }
 

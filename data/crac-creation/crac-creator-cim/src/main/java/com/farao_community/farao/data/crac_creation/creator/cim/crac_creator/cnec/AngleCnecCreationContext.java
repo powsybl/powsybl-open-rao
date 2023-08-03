@@ -33,7 +33,7 @@ public final class AngleCnecCreationContext implements ElementaryCreationContext
     }
 
     static AngleCnecCreationContext imported(String createdAngleCnecId, String contingencyID, String serieId, String alteringDetail) {
-        return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, ImportStatus.IMPORTED,  alteringDetail);
+        return new AngleCnecCreationContext(createdAngleCnecId, contingencyID, serieId, ImportStatus.IMPORTED, alteringDetail);
     }
 
     @Override

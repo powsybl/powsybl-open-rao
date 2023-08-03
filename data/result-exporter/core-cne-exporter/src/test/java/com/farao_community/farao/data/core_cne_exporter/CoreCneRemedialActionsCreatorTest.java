@@ -400,7 +400,7 @@ class CoreCneRemedialActionsCreatorTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
-        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext)  cracCreationContext.getRemedialActionCreationContexts().get(0);
+        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
         CoreCneRemedialActionsCreator cneRemedialActionsCreator = new CoreCneRemedialActionsCreator(cneHelper, cracCreationContext, new ArrayList<>());
@@ -444,7 +444,7 @@ class CoreCneRemedialActionsCreatorTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         UcteCracCreationContext cracCreationContext = new MockCracCreationContext(crac);
-        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext)  cracCreationContext.getRemedialActionCreationContexts().get(0);
+        MockCracCreationContext.MockRemedialActionCreationContext raContext = (MockCracCreationContext.MockRemedialActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().get(0);
         raContext.setInverted(true);
         raContext.setNativeNetworkElementId("BBE3AA1  BBE2AA1  1");
 

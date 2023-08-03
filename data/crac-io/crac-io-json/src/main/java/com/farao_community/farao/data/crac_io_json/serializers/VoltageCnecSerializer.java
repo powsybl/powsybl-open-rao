@@ -55,7 +55,7 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
         List<Threshold> sortedListOfThresholds = voltageCnec.getThresholds().stream()
             .sorted(new ThresholdComparator())
             .collect(Collectors.toList());
-        for (Threshold threshold: sortedListOfThresholds) {
+        for (Threshold threshold : sortedListOfThresholds) {
             gen.writeObject(threshold);
         }
         gen.writeEndArray();

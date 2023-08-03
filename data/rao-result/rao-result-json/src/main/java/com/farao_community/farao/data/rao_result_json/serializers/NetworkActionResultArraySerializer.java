@@ -58,7 +58,7 @@ final class NetworkActionResultArraySerializer {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(NETWORKACTION_ID, networkAction.getId());
         jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED);
-        for (State state: statesWhenNetworkActionIsActivated) {
+        for (State state : statesWhenNetworkActionIsActivated) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
             Optional<Contingency> optContingency = state.getContingency();

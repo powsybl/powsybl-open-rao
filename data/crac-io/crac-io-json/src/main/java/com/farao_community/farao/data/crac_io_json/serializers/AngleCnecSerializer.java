@@ -56,7 +56,7 @@ public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerial
         List<Threshold> sortedListOfThresholds = angleCnec.getThresholds().stream()
             .sorted(new ThresholdComparator())
             .collect(Collectors.toList());
-        for (Threshold threshold: sortedListOfThresholds) {
+        for (Threshold threshold : sortedListOfThresholds) {
             gen.writeObject(threshold);
         }
         gen.writeEndArray();

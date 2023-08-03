@@ -314,7 +314,7 @@ public class MonitoredSeriesCreator {
 
         Set<Side> monitoredSides = defaultMonitoredSides;
         if (branchHelper.isHalfLine()) {
-            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ?  "LEFT" : "RIGHT");
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ? "LEFT" : "RIGHT");
             monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {

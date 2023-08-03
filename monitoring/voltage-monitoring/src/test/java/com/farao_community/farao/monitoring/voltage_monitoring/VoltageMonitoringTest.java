@@ -330,7 +330,7 @@ class VoltageMonitoringTest {
         // VL45 : Min = 144.38, Max = 148.41
         // VL46 : Min = 143.10, Max = 147.66
 
-        VoltageCnec vc1 =  addVoltageCnec("VL45", Instant.PREVENTIVE, null, "VL45", 145., 150.);
+        VoltageCnec vc1 = addVoltageCnec("VL45", Instant.PREVENTIVE, null, "VL45", 145., 150.);
         VoltageCnec vc2 = addVoltageCnec("VL46", Instant.PREVENTIVE, null, "VL46", 140., 145.);
 
         runVoltageMonitoring();

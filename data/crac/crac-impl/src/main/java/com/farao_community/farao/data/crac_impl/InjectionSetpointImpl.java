@@ -91,7 +91,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InjectionSetpointImpl oInjectionSetPoint =  (InjectionSetpointImpl) o;
+        InjectionSetpointImpl oInjectionSetPoint = (InjectionSetpointImpl) o;
         return oInjectionSetPoint.getNetworkElement().equals(this.networkElement)
             && oInjectionSetPoint.getSetpoint() == this.setpoint;
     }

@@ -698,7 +698,7 @@ public class CastorFullOptimization {
 
     static boolean isRangeActionAutoOrCurative(RangeAction<?> rangeAction, Crac crac) {
         return crac.getStates().stream()
-                .filter(state -> state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO) ||  state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE))
+                .filter(state -> state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO) || state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.CURATIVE))
                 .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
     }
 

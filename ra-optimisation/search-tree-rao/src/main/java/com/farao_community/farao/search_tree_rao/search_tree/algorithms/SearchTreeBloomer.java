@@ -221,8 +221,8 @@ public final class SearchTreeBloomer {
         tsos.forEach(tso -> {
             int activatedTopoForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
 
-            int limitationDueToMaxRa =  maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
-            int limitationDueToMaxTopo =  maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
+            int limitationDueToMaxRa = maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
+            int limitationDueToMaxTopo = maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
 
             updatedMaxTopoPerTso.put(tso, Math.min(limitationDueToMaxRa, limitationDueToMaxTopo));
         });

@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class FlowCnecImplTest {
 
-    private final static double DOUBLE_TOLERANCE = 1; // high tolerance for conversion AMPERE <-> MEGAWATT
+    private static final double DOUBLE_TOLERANCE = 1; // high tolerance for conversion AMPERE <-> MEGAWATT
 
     private Crac crac;
 

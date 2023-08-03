@@ -100,7 +100,7 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        InjectionRangeAction injectionRangeAction =  crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)
@@ -128,7 +128,7 @@ class InjectionRangeActionAdderImplTest {
 
         This test should however warnings
          */
-        InjectionRangeAction injectionRangeAction =  crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)

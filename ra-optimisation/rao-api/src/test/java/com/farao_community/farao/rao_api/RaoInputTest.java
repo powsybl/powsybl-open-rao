@@ -72,7 +72,7 @@ class RaoInputTest {
                 .withRefProg(new ReferenceProgram(referenceExchangeDataList))
                 .build();
         assertNotNull(raoInput.getReferenceProgram());
-        ReferenceProgram actualRefProg =  raoInput.getReferenceProgram();
+        ReferenceProgram actualRefProg = raoInput.getReferenceProgram();
         assertEquals(2, actualRefProg.getReferenceExchangeDataList().size());
         assertEquals(100, actualRefProg.getExchange(areaFrance, areaBelgium), DOUBLE_TOLERANCE);
         assertEquals(-200, actualRefProg.getExchange(areaGermany, areaNetherlands), DOUBLE_TOLERANCE);

@@ -49,7 +49,7 @@ class BranchThresholdAdderImplTest {
 
     @Test
     void testAddThresholdInA() {
-        FlowCnec  cnec = crac.newFlowCnec()
+        FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withSide(Side.LEFT).add()
@@ -61,7 +61,7 @@ class BranchThresholdAdderImplTest {
 
     @Test
     void testAddThresholdInPercent() {
-        FlowCnec  cnec = crac.newFlowCnec()
+        FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.CURATIVE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withSide(Side.LEFT).add()

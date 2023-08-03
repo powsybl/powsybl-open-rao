@@ -41,7 +41,7 @@ public abstract class AbstractUsageRule implements UsageRule {
     }
 
     @Override
-    public int hashCode()  {
+    public int hashCode() {
         return usageMethod.hashCode() * 23;
     }
 }

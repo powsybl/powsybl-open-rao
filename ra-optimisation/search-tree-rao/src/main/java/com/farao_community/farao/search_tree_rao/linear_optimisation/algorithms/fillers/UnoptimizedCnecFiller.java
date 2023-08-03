@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -212,7 +213,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             double maxSetpoint = setPointVariable.ub();
             double minSetpoint = setPointVariable.lb();
-            double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT);
+            double magic = cnec.getState().getInstant() == Instant.CURATIVE ? 0.5 : 1;
+            double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT) * magic;
             Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
             Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
             double bigM = maxSetpoint - minSetpoint;
@@ -234,7 +236,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * abs(sensitivity));
-                double lb =  minFlow.get();
+                double lb = minFlow.get();
                 if (sensitivity >= 0) {
                     lb += -maxSetpoint * sensitivity;
                 } else {
@@ -258,7 +260,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * abs(sensitivity));
-                double lb =  -maxFlow.get();
+                double lb = -maxFlow.get();
                 if (sensitivity >= 0) {
                     lb += minSetpoint * abs(sensitivity);
                 } else {
@@ -332,8 +334,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
         double bigM = 2 * highestThresholdValue;
         getFlowCnecs().forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            FaraoMPVariable optimizeCnecBinaryVariable  = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
-            if (optimizeCnecBinaryVariable  == null) {
+            FaraoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side);
+            if (optimizeCnecBinaryVariable == null) {
                 throw new FaraoException(String.format(VARIABLE_NOT_CREATED, OPTIMIZE_CNEC_BINARY, cnec.getId(), side));
             }
             updateMinimumMarginConstraint(

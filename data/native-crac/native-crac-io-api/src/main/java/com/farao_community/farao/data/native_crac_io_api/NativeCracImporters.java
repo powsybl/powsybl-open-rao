@@ -93,7 +93,7 @@ public final class NativeCracImporters {
      * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
     public static NativeCracImporter findImporter(String fileFormat) {
-        List<NativeCracImporter> importersWithFormat =  NATIVE_CRAC_IMPORTERS.get().stream()
+        List<NativeCracImporter> importersWithFormat = NATIVE_CRAC_IMPORTERS.get().stream()
             .filter(importer -> importer.getFormat().equals(fileFormat))
             .collect(Collectors.toList());
 

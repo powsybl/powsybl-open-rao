@@ -22,7 +22,7 @@ public class MultithreadingParameters {
     private static final int DEFAULT_CURATIVE_LEAVES_IN_PARALLEL = 1;
     private int contingencyScenariosInParallel = DEFAULT_CONTINGENCY_SCENARIOS_IN_PARALLEL;
     private int preventiveLeavesInParallel = DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL;
-    private int curativeLeavesInParallel  = DEFAULT_CURATIVE_LEAVES_IN_PARALLEL;
+    private int curativeLeavesInParallel = DEFAULT_CURATIVE_LEAVES_IN_PARALLEL;
 
     public int getContingencyScenariosInParallel() {
         return contingencyScenariosInParallel;

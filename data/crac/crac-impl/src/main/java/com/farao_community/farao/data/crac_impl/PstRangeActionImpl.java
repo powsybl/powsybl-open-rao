@@ -164,7 +164,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         int maxTap = highTapPosition;
         int previousInstantTap = convertAngleToTap(previousInstantSetPoint);
 
-        for (TapRange range: ranges) {
+        for (TapRange range : ranges) {
             minTap = Math.max(minTap, getRangeMinTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
             maxTap = Math.min(maxTap, getRangeMaxTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
         }

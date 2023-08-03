@@ -78,7 +78,7 @@ public class AbsolutePtdfSumsComputation {
 
     private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
 
-        List<Double> zoneToSlackPtdf =  zToz.getZoneToSlackPtdfs().stream()
+        List<Double> zoneToSlackPtdf = zToz.getZoneToSlackPtdfs().stream()
             .filter(zToS -> zToSlackPtdfMap.containsKey(zToS.getEiCode()))
             .map(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
             .collect(Collectors.toList());

@@ -60,7 +60,7 @@ class VoltageCnecsCreatorTest {
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
-        cracCreationContext = cimCracCreator.createCrac(cimCrac, network,  OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
+        cracCreationContext = cimCracCreator.createCrac(cimCrac, network, OffsetDateTime.parse("2021-04-01T23:00Z"), new CracCreationParameters());
         crac = cracCreationContext.getCrac();
 
         // Imported contingencies (name -> id):

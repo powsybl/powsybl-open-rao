@@ -59,7 +59,7 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
         when(flowCnec.getOperator()).thenReturn("NL");
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(50.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec,  rangeActionActivationResult, sensitivityResult, Unit.AMPERE);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.AMPERE);
         assertEquals(50., margin, DOUBLE_TOLERANCE);
     }
 
@@ -69,7 +69,7 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
         when(prePerimeterFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(400.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec,  rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 
@@ -79,7 +79,7 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
         when(currentFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(200.);
         when(prePerimeterFlowResult.getMargin(flowCnec, Side.LEFT, Unit.MEGAWATT)).thenReturn(100.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec,  rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, rangeActionActivationResult, sensitivityResult, Unit.MEGAWATT);
         assertEquals(Double.MAX_VALUE, margin, DOUBLE_TOLERANCE);
     }
 }
