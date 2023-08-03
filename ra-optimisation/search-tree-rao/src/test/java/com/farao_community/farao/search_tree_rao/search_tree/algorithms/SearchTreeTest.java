@@ -23,17 +23,18 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
-import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -215,6 +216,48 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
+    }
+
+    private void setLeafStatusToEvaluated(Leaf leaf) {
+        SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
+        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
+        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
+        when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(null);
+        leaf.evaluate(objectiveFunction, sensitivityComputer);
+    }
+
+    @Test
+    void runTest() {
+        searchTreeWithOneChildLeaf();
+        when(networkAction.apply(network)).thenReturn(true);
+        NetworkActionCombination naCombination = new NetworkActionCombination(networkAction);
+
+        // 1) Mock rootLeaf and previousDepthOptimalLeaf to return Set.of(rangeAction)
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        RangeActionActivationResultImpl rangeActionActivationResult = Mockito.mock(RangeActionActivationResultImpl.class);
+        when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
+        when(rootLeaf.getRangeActionActivationResult()).thenReturn(rangeActionActivationResult);
+        doReturn(rootLeaf).when(searchTree).makeLeaf(any(), any(), any(), any());
+        searchTree.initLeaves(searchTreeInput);
+
+        // 2) Create 2 Leaf with different shouldRangeActionBeRemoved value
+        Leaf filteredLeaf = searchTree.createChildLeaf(network, naCombination, true);
+        Leaf unfilteredLeaf = searchTree.createChildLeaf(network, naCombination, false);
+
+        // 3) Mocks a sensitivity computer to set leaf.status to EVALUATED
+        setLeafStatusToEvaluated(filteredLeaf);
+        setLeafStatusToEvaluated(unfilteredLeaf);
+
+        // 4) Asserts that unfilteredLeaf keeps in memory activated range actions of parentLeaf
+        assertEquals(rangeActionActivationResult, unfilteredLeaf.getRangeActionActivationResult());
+        assertEquals(Set.of(rangeAction), unfilteredLeaf.getRangeActionActivationResult().getRangeActions());
+
+        // 5) Asserts that the filteredLeaf reset activated range actions of parentLeaf
+        assertEquals(Set.of(), filteredLeaf.getRangeActionActivationResult().getRangeActions());
     }
 
     @Test

@@ -515,7 +515,7 @@ class SearchTreeBloomerTest {
     }
 
     @Test
-    void testNotKeptCombinationBecauseItExceeedsMaxNaForSecondTso() {
+    void testNotKeptCombinationBecauseItExceedsMaxNaForSecondTso() {
         // The network action combination does not exceed the maximum number of network actions but exceeds the maximum number of range actions for the first TSO.
         // It exceeds the maximum number of network actions for the second TSO.
         // We ensure that the combination is not kept.
