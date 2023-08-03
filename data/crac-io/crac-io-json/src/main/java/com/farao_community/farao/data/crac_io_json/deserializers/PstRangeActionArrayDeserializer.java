@@ -84,6 +84,10 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnAngleConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
                         break;
+                    case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);

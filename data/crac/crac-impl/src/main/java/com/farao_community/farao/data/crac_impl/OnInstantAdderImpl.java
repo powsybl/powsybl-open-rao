@@ -51,8 +51,6 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
         if (instant.equals(Instant.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
-        // TODO: when Instant.AUTO will be handled by FARAO, consider adding some states in the CRAC here.
-        // not required as as soon as there is no RA on AUTO instant
 
         OnInstant onInstant = new OnInstantImpl(usageMethod, instant);
         owner.addUsageRule(onInstant);
