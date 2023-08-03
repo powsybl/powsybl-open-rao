@@ -42,8 +42,8 @@ class OnVoltageConstraintImplTest {
 
         assertEquals(Instant.PREVENTIVE, onVoltageConstraint.getInstant());
         assertSame(voltageCnec, onVoltageConstraint.getVoltageCnec());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, onVoltageConstraint.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, onVoltageConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState));
     }
 
@@ -76,14 +76,14 @@ class OnVoltageConstraintImplTest {
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);
 
         OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(Instant.PREVENTIVE, voltageCnec);
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(preventiveState));
+        assertEquals(UsageMethod.AVAILABLE, onVoltageConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState2));
 
         Mockito.when(voltageCnec.getState()).thenReturn(curativeState);
         onVoltageConstraint = new OnVoltageConstraintImpl(Instant.CURATIVE, voltageCnec);
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onVoltageConstraint.getUsageMethod(curativeState));
+        assertEquals(UsageMethod.AVAILABLE, onVoltageConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState2));
     }
 }

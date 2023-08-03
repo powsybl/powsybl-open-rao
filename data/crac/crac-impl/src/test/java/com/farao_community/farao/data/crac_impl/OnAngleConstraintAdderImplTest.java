@@ -70,8 +70,8 @@ class OnAngleConstraintAdderImplTest {
         assertTrue(usageRule instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
         assertEquals(Instant.PREVENTIVE, onAngleConstraint.getInstant());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getPreventiveState()));
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod(crac.getPreventiveState()));
         assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
@@ -90,8 +90,8 @@ class OnAngleConstraintAdderImplTest {
         assertTrue(usageRule instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
         assertEquals(Instant.CURATIVE, onAngleConstraint.getInstant());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
         assertEquals(1, crac.getStates().size());
     }
 
