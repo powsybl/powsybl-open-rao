@@ -231,7 +231,7 @@ class SearchTreeTest {
     }
 
     @Test
-    void runTest() {
+    void testCreateChildLeafFiltersOutRangeActionWhenNeeded() {
         searchTreeWithOneChildLeaf();
         when(networkAction.apply(network)).thenReturn(true);
         NetworkActionCombination naCombination = new NetworkActionCombination(networkAction);
