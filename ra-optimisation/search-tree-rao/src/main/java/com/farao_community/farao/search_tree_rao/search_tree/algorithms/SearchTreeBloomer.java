@@ -141,7 +141,7 @@ public final class SearchTreeBloomer {
         return naCombinations.keySet().stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().size() != 1
                 || !alreadyTestedNetworkActions.contains(naCombination.getNetworkActionSet().iterator().next()))
-                .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
+            .collect(Collectors.toMap(naCombination -> naCombination, naCombinations::get));
     }
 
     /**
@@ -199,7 +199,6 @@ public final class SearchTreeBloomer {
                     break;
                 } else if (numberOfAlreadyAppliedNetworkActionsForTso + numberOfAlreadyActivatedRangeActionsForTso + naCombinationSize > maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE)) {
                     removeRangeActions = true;
-                    break;
                 }
             }
             if (naShouldBeKept) {

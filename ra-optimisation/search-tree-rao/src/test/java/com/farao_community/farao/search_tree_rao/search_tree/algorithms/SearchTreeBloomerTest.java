@@ -501,4 +501,42 @@ class SearchTreeBloomerTest {
         Map<NetworkActionCombination, Boolean> result = bloomer.bloom(leaf, Set.of(na1, na2));
         assertEquals(4, result.size());
     }
+
+    @Test
+    void testNotKeptCombinationBecauseItExceeedsMaxNaForSecondTso() {
+        // The network action combination does not exceed the maximum number of network actions but exceeds the maximum number of range actions for the first TSO.
+        // It exceeds the maximum number of network actions for the second TSO.
+        // We ensure that the combination is not kept.
+        NetworkAction naFr1 = Mockito.mock(NetworkAction.class);
+        NetworkAction naNl1 = Mockito.mock(NetworkAction.class);
+        NetworkAction naNl2 = Mockito.mock(NetworkAction.class);
+        NetworkAction naNl3 = Mockito.mock(NetworkAction.class);
+        Mockito.when(naFr1.getOperator()).thenReturn("fr");
+        Mockito.when(naNl1.getOperator()).thenReturn("nl");
+        Mockito.when(naNl2.getOperator()).thenReturn("nl");
+        Mockito.when(naNl3.getOperator()).thenReturn("nl");
+
+        NetworkActionCombination nac = new NetworkActionCombination(Set.of(naFr1, naNl1, naNl2, naNl3));
+        assertEquals(Set.of("fr", "nl"), nac.getOperators());
+
+        List<NetworkActionCombination> listOfNaCombinations = List.of(nac);
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
+
+        PstRangeAction raFr1 = createPstRangeActionWithOperator("lineFr1", "fr");
+        PstRangeAction raFr2 = createPstRangeActionWithOperator("lineFr2", "fr");
+
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        Mockito.when(previousLeaf.getActivatedRangeActions(Mockito.any())).thenReturn(Set.of(raFr1, raFr2));
+        Mockito.when(previousLeaf.getOptimizedSetpoint(raFr1, pState)).thenReturn(5.);
+        Mockito.when(previousLeaf.getOptimizedSetpoint(raFr2, pState)).thenReturn(5.);
+
+        Map<String, Integer> maxTopoPerTso = Map.of("fr", 2, "nl", 2);
+        Map<String, Integer> maxRemedialActionsPerTso = Map.of("fr", 2, "nl", 5);
+
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, Integer.MAX_VALUE, maxTopoPerTso, maxRemedialActionsPerTso, false, 0, new ArrayList<>(), pState);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
+        assertEquals(0, filteredNaCombination.size()); // combination is filtered out
+    }
 }

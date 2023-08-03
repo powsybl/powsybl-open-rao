@@ -105,7 +105,7 @@ public class SearchTree {
                 parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
                 parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
                 parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                    input.getOptimizationPerimeter().getMainOptimizationState()
+                input.getOptimizationPerimeter().getMainOptimizationState()
             );
         } else {
             this.bloomer = new SearchTreeBloomer(
@@ -412,7 +412,7 @@ public class SearchTree {
             naCombination,
             shouldRangeActionBeRemoved ? new RangeActionActivationResultImpl(input.getPrePerimeterResult()) : previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
-            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getAppliedRemedialActions(previousDepthOptimalLeaf));
+            shouldRangeActionBeRemoved ? input.getPreOptimizationAppliedRemedialActions() : getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
     }
 
     private void optimizeLeaf(Leaf leaf) {
@@ -437,7 +437,7 @@ public class SearchTree {
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedRemedialActions());
         } else {
-            sensitivityComputerBuilder.withAppliedRemedialActions(getAppliedRemedialActions(previousDepthOptimalLeaf));
+            sensitivityComputerBuilder.withAppliedRemedialActions(getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(previousDepthOptimalLeaf));
         }
 
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
@@ -525,7 +525,7 @@ public class SearchTree {
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
-    private AppliedRemedialActions getAppliedRemedialActions(RangeActionActivationResult previousDepthRangeActionActivations) {
+    private AppliedRemedialActions getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation(RangeActionActivationResult previousDepthRangeActionActivations) {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedRemedialActions().copy();
         if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
