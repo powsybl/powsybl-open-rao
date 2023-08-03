@@ -75,7 +75,19 @@ class SearchTreeBloomerTest {
         crac = CommonCracCreation.create();
         pState = crac.getPreventiveState();
 
-        crac.newFlowCnec().withId("cnecBe").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(Instant.PREVENTIVE).withOptimized(true).withOperator("operator1").newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add().withNominalVoltage(380.).withIMax(5000.).add();
+        crac.newFlowCnec()
+            .withId("cnecBe")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(Instant.PREVENTIVE).withOptimized(true)
+            .withOperator("operator1").newThreshold()
+            .withUnit(Unit.MEGAWATT)
+            .withSide(Side.LEFT)
+            .withMin(-1500.)
+            .withMax(1500.)
+            .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
+            .add();
 
         naFr1 = createNetworkActionWithOperator("FFR1AA1  FFR2AA1  1", "fr");
         naBe1 = createNetworkActionWithOperator("BBE1AA1  BBE2AA1  1", "be");
