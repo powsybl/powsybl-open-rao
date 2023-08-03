@@ -203,7 +203,7 @@ public final class AutomatonSimulator {
         // -- Then add those with AVAILABLE usage method when evaluation condition is verified
         // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).stream()
-            .filter(na -> RaoUtil.isRaAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters))
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters))
                 .forEach(appliedNetworkActions::add);
 
         if (appliedNetworkActions.isEmpty()) {
@@ -332,7 +332,7 @@ public final class AutomatonSimulator {
         // -- Then add those with AVAILABLE usage method when evaluation condition is verified
         // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
         crac.getRangeActions(automatonState, UsageMethod.AVAILABLE).stream()
-            .filter(na -> RaoUtil.isRaAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
+            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
             .forEach(availableRangeActions::add);
 
         // 2) Sort range actions

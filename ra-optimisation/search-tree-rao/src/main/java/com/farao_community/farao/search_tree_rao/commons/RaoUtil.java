@@ -126,8 +126,13 @@ public final class RaoUtil {
         return flowCnecs.stream().anyMatch(flowCnec -> flowResult.getMargin(flowCnec, marginUnit) <= 0);
     }
 
-    // todo : add doc + UTs
-    public static boolean isRaAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    /**
+     * Evaluates condition to give to RemedialAction.isRemedialActionAvailable method
+     * Condition is true if there are no flowCnec associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
+     * The condition is also true if among all the associated flowCnecs, at least one has a negative margin.
+     * Else, the condition is false.
+     */
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         Set<FlowCnec> flowCnecsWithConstrainedUsageRule = remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state);
         boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
         return remedialAction.isRemedialActionAvailable(state, evaluatedCondition);
