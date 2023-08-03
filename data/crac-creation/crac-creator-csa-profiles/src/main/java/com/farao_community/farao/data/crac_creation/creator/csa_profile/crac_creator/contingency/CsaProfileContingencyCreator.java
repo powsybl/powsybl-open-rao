@@ -21,9 +21,7 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -36,7 +34,7 @@ public class CsaProfileContingencyCreator {
 
     private final PropertyBags contingenciesPropertyBags;
 
-    private final PropertyBags contingencyEquipmentsPropertyBags;
+    private final Map<String, ArrayList<PropertyBag>> contingencyEquipmentsPropertyBags;
 
     private Set<CsaProfileContingencyCreationContext> csaProfileContingencyCreationContexts;
     private CsaProfileCracCreationContext cracCreationContext;
@@ -45,7 +43,7 @@ public class CsaProfileContingencyCreator {
         this.crac = crac;
         this.network = network;
         this.contingenciesPropertyBags = contingenciesPropertyBags;
-        this.contingencyEquipmentsPropertyBags = contingencyEquipmentsPropertyBags;
+        this.contingencyEquipmentsPropertyBags = CsaProfileCracUtils.getMappedPropertyBags(contingencyEquipmentsPropertyBags, CsaProfileConstants.REQUEST_CONTINGENCY);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddContingencies();
     }
@@ -62,7 +60,7 @@ public class CsaProfileContingencyCreator {
     private void addContingency(PropertyBag contingencyPropertyBag) {
 
         String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
-        PropertyBags contingencyEquipments = this.dataCheck(contingencyPropertyBag, contingencyId);
+        List<PropertyBag> contingencyEquipments = this.dataCheck(contingencyPropertyBag, contingencyId);
         if (contingencyEquipments == null) {
             return;
         }
@@ -72,8 +70,8 @@ public class CsaProfileContingencyCreator {
         String contingencyName = CsaProfileCracUtils.getUniqueName(equipmentOperator, nativeContingencyName);
 
         ContingencyAdder contingencyAdder = crac.newContingency()
-                .withId(contingencyId)
-                .withName(contingencyName);
+            .withId(contingencyId)
+            .withName(contingencyName);
         boolean isIncorrectContingentStatus = false;
         boolean isMissingNetworkElement = false;
         boolean atLeastOneCorrectContingentStatus = false;
@@ -111,7 +109,7 @@ public class CsaProfileContingencyCreator {
         }
 
         contingencyAdder
-                .add();
+            .add();
 
         if (isIncorrectContingentStatus) {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "incorrect contingent status for equipment(s) : " + incorrectContingentStatusElements, true));
@@ -126,7 +124,7 @@ public class CsaProfileContingencyCreator {
         csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.imported(contingencyId, contingencyId, contingencyName, "", false));
     }
 
-    private PropertyBags dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
+    private List<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
         String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
         String startTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
         String endTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
@@ -147,8 +145,9 @@ public class CsaProfileContingencyCreator {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
             return null;
         }
-        PropertyBags contingencyEquipments = CsaProfileCracUtils.getLinkedPropertyBags(contingencyEquipmentsPropertyBags, contingencyPropertyBag, CsaProfileConstants.REQUEST_CONTINGENCY, CsaProfileConstants.REQUEST_CONTINGENCY);
-        if (contingencyEquipments.isEmpty()) {
+
+        List<PropertyBag> contingencyEquipments = contingencyEquipmentsPropertyBags.get(contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY));
+        if (contingencyEquipments == null) {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, "no contingency equipment linked to the contingency"));
             return null;
         }
