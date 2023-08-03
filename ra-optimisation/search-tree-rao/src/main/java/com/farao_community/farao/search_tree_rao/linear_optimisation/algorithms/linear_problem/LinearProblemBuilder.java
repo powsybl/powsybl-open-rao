@@ -72,11 +72,8 @@ public class LinearProblemBuilder {
         }
 
         // unoptimized CNECs for TSOs without curative RA
-        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
-            if ((!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter)
-                || !Objects.isNull(parameters.getUnoptimizedCnecParameters().getDoNotOptimizeCnecsSecuredByTheirPst())) {
-                this.withProblemFiller(buildUnoptimizedCnecFiller());
-            }
+        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
+            this.withProblemFiller(buildUnoptimizedCnecFiller());
         }
 
         // MIP optimization vs. CONTINUOUS optimization
