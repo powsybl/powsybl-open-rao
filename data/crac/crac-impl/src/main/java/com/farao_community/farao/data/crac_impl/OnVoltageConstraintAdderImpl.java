@@ -52,8 +52,6 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
         if (instant.equals(Instant.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
-        // TODO: when Instant.AUTO will be handled by FARAO, consider adding some states in the CRAC here.
-        // not required as as soon as there is no RA on AUTO instant
 
         VoltageCnec voltageCnec = owner.getCrac().getVoltageCnec(voltageCnecId);
         if (Objects.isNull(voltageCnec)) {

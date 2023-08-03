@@ -81,9 +81,9 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     }
 
     static void checkOnConstraintUsageRules(Instant instant, Cnec<?> cnec) {
-        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
-        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
+        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant AUTO
+        // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant CURATIVE
 
         Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
             Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
