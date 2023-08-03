@@ -615,7 +615,17 @@ class LeafTest {
     @Test
     void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        assertThrows(FaraoException.class, leaf::getRangeActions);
+        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
+        assertTrue(leaf.getRangeActions().isEmpty());
+
+        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
+        rangeActions.add(pstRangeAction);
+        rangeActions.add(rangeAction);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
+        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
+        assertEquals(rangeActions, leaf.getRangeActions());
     }
 
     @Test
