@@ -83,6 +83,10 @@ public final class InjectionRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnAngleConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
+                    case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
+                        break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
                         OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);

@@ -50,7 +50,7 @@ class CracImportExportTest {
         assertEquals(7, importedCrac.getFlowCnecs().size());
         assertEquals(1, importedCrac.getAngleCnecs().size());
         assertEquals(1, importedCrac.getVoltageCnecs().size());
-        assertEquals(6, importedCrac.getRangeActions().size());
+        assertEquals(7, importedCrac.getRangeActions().size());
         assertEquals(4, importedCrac.getNetworkActions().size());
 
         // --------------------------
@@ -273,6 +273,15 @@ class CracImportExportTest {
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) crac.getPstRangeAction("pstRange3Id").getUsageRules().get(0);
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
         assertSame(crac.getCnec("angleCnecId"), onAngleConstraint.getAngleCnec());
+
+        // check OnVoltageConstraint usage rule
+        List<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
+        assertEquals(1, pstRange4IdUsageRules.size());
+        UsageRule pstRange4IdFirstUsageRules = pstRange4IdUsageRules.get(0);
+        assertTrue(pstRange4IdFirstUsageRules instanceof OnVoltageConstraint);
+        OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) pstRange4IdFirstUsageRules;
+        assertEquals(CURATIVE, onVoltageConstraint.getInstant());
+        assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getVoltageCnec());
 
         // -----------------------------
         // --- test HvdcRangeActions ---
