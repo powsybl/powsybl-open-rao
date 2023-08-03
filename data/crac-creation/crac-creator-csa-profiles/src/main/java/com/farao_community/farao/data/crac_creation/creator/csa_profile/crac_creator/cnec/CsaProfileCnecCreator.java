@@ -174,8 +174,11 @@ public class CsaProfileCnecCreator {
     private PropertyBag getCurrentLimit(String assessedElementId, PropertyBag assessedElementPropertyBag) {
         List<PropertyBag> currentLimits = this.currentLimitsPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
 
-        if (currentLimits == null || currentLimits.size() > 1) {
+        if (currentLimits == null) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no current limit linked with the assessed element"));
+            return null;
+        } else if (currentLimits.size() > 1) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one current limit linked with the assessed element"));
             return null;
         }
         return currentLimits.get(0);
