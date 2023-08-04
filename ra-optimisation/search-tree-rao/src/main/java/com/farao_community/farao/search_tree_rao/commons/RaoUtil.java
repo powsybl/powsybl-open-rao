@@ -17,6 +17,10 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -27,10 +31,7 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -127,15 +128,22 @@ public final class RaoUtil {
     }
 
     /**
-     * Evaluates condition to give to RemedialAction.isRemedialActionAvailable method
-     * Condition is true if there are no flowCnec associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
-     * The condition is also true if among all the associated flowCnecs, at least one has a negative margin.
-     * Else, the condition is false.
+     * Evaluates if a remedial action is available.
+     * If the remedial action has no usage rule, it will not be available.
+     * Then, it checks if the remedial action has OnInstant or OnContingencyState usage rules.
+     * If so, all it takes is for one to be "AVAILABLE" for the remedial action to be available.
+     * Else, it calls the method RemedialAction.isRemedialActionAvailable to give the verdict.
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        Set<FlowCnec> flowCnecsWithConstrainedUsageRule = remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state);
-        boolean evaluatedCondition = flowCnecsWithConstrainedUsageRule.isEmpty() || isAnyMarginNegative(prePerimeterResult, flowCnecsWithConstrainedUsageRule, raoParameters.getObjectiveFunctionParameters().getType().getUnit());
-        return remedialAction.isRemedialActionAvailable(state, evaluatedCondition);
+        List<UsageRule> usageRules = remedialAction.getUsageRules();
+        if (usageRules.isEmpty()) {
+            FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
+            return false;
+        }
+        if (usageRules.stream().filter(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry)).anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE))) {
+            return true;
+        }
+        return remedialAction.isRemedialActionAvailable(state, isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state), raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
     }
 
     /**

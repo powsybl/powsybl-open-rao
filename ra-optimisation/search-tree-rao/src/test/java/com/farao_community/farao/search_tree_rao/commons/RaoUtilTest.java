@@ -231,6 +231,11 @@ class RaoUtilTest {
         assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
         assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
         assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // asserts that a remedial action with no usage rule cannot be available
+        NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
+        when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(List.of());
+        assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
     }
 
     @Test
