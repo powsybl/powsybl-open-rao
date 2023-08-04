@@ -1,0 +1,138 @@
+#
+# Copyright (c) 2023, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: contingencyEquipment
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?contingencyEquipment
+        rdf:type cim:ContingencyEquipment ;
+        cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+}
+
+# query: ordinaryContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?contingency
+        rdf:type nc:OrdinaryContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
+}
+
+# query: exceptionalContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?contingency
+        rdf:type nc:ExceptionalContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
+}
+
+# query: outOfRangeContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?contingency
+        rdf:type nc:OutOfRangeContingency ;
+        cim:IdentifiedObject.name ?name ;
+        nc:Contingency.EquipmentOperator ?idEquipmentOperator ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+}
+}
+
+# query: assessedElement
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:Model.startDate ?startDate ;
+        dcat:Model.endDate ?endDate ;
+        dcat:Model.keyword ?keyword .
+    ?assessedElement
+        rdf:type nc:AssessedElement ;
+        nc:AssessedElement.inBaseCase ?inBaseCase ;
+        cim:IdentifiedObject.name ?name ;
+        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator ;
+        nc:AssessedElement.OperationalLimit ?operationalLimit .
+    OPTIONAL {
+        ?assessedElement
+            nc:AssessedElement.isCritical ?isCritical ;
+            nc:AssessedElement.normalEnabled ?normalEnabled ;
+            nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+    }
+}
+}
+
+# query: assessedElementWithContingency
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+WHERE {
+    ?assessedElementWithContingency
+        rdf:type nc:AssessedElementWithContingency ;
+        nc:AssessedElementWithContingency.Contingency ?contingency ;
+        nc:AssessedElementWithContingency.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithContingency.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithContingency
+            nc:AssessedElementWithContingency.normalEnabled ?normalEnabled .
+    }
+}
+
+# query: currentLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX eu: <http://iec.ch/TC57/CIM100-European#>
+SELECT *
+WHERE {
+    ?currentLimit
+        rdf:type cim:CurrentLimit ;
+        cim:CurrentLimit.normalValue ?normalValue ;
+        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Terminal ?terminal .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        eu:OperationalLimitType.kind ?kind ;
+        cim:OperationalLimitType.direction ?direction .
+    OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
+        }
+}
