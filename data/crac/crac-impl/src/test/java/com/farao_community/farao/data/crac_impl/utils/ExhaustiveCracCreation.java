@@ -234,6 +234,16 @@ public final class ExhaustiveCracCreation {
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("voltageCnecId").add()
                 .add();
 
+        crac.newPstRangeAction().withId("pstRange5Id").withName("pstRange5Name").withOperator("RTE").withNetworkElement("pst3")
+            .withGroupId("group-3-pst")
+            .withInitialTap(-3)
+            .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5))
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+            .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
+            .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3curId").add()
+            .add();
+
         crac.newHvdcRangeAction().withId("hvdcRange1Id")
                 .withName("hvdcRange1Name")
                 .withOperator("RTE")

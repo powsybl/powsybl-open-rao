@@ -18,13 +18,16 @@ import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
@@ -232,6 +235,7 @@ class CracImportExportTest {
         assertNotNull(crac.getRangeAction("pstRange1Id"));
         assertNotNull(crac.getRangeAction("pstRange2Id"));
         assertNotNull(crac.getRangeAction("pstRange3Id"));
+        assertNotNull(crac.getRangeAction("pstRange5Id"));
 
         // check groupId
         assertTrue(crac.getRangeAction("pstRange1Id").getGroupId().isEmpty());
@@ -288,6 +292,21 @@ class CracImportExportTest {
         OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) pstRange4IdFirstUsageRules;
         assertEquals(CURATIVE, onVoltageConstraint.getInstant());
         assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getVoltageCnec());
+
+        // check Usage Method for pst5
+        PstRangeAction pst5 = crac.getPstRangeAction("pstRange5Id");
+        assertEquals(2, pst5.getUsageRules().size());
+
+        List<UsageRule> onFlowConstrainRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnFlowConstraint).collect(Collectors.toList());
+        assertEquals(1, onFlowConstrainRule.size());
+        assertEquals(UsageMethod.AVAILABLE, onFlowConstrainRule.get(0).getUsageMethod(crac.getPreventiveState()));
+
+        List<UsageRule> onInstantRule = pst5.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant).collect(Collectors.toList());
+        assertEquals(1, onInstantRule.size());
+        assertEquals(UsageMethod.FORCED, onInstantRule.get(0).getUsageMethod(crac.getPreventiveState()));
+
+        // asserts that FORCED UsageMethod prevails over AVAILABLE
+        assertEquals(UsageMethod.FORCED, pst5.getUsageMethod(crac.getPreventiveState()));
 
         // -----------------------------
         // --- test HvdcRangeActions ---
