@@ -131,36 +131,29 @@ public class CsaProfileCnecCreator {
 
         for (Contingency contingency : combinableContingencies) {
             String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.toString();
-            if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-                ((FlowCnecAdder) cnecAdder).withContingency(contingency.getId())
-                    .withId(assessedElementId + "-" + contingency.getId())
-                    .withName(cnecName)
-                    .add();
-            } else {
-                ((VoltageCnecAdder) cnecAdder).withContingency(contingency.getId())
-                    .withId(assessedElementId + "-" + contingency.getId())
-                    .withName(cnecName)
-                    .add();
-            }
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
+            this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant);
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
-                ((FlowCnecAdder) cnecAdder).withContingency(null)
-                    .withId(assessedElementId)
-                    .withName(cnecName)
-                    .withInstant(Instant.PREVENTIVE)
-                    .add();
-            } else {
-                ((VoltageCnecAdder) cnecAdder).withContingency(null)
-                    .withId(assessedElementId)
-                    .withName(cnecName)
-                    .withInstant(Instant.PREVENTIVE)
-                    .add();
-            }
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
+            this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE);
         }
+    }
+
+    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant) {
+        if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
+            ((FlowCnecAdder) cnecAdder).withContingency(contingencyId)
+                .withId((contingencyId == null) ? assessedElementId : (assessedElementId + "-" + contingencyId))
+                .withName(cnecName)
+                .withInstant(instant)
+                .add();
+        } else {
+            ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
+                .withId(assessedElementId)
+                .withName(cnecName)
+                .withInstant(instant)
+                .add();
+        }
+        csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
     }
 
     private boolean dataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
