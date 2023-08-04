@@ -479,13 +479,7 @@ public class Leaf implements OptimizationResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        if (status == Status.EVALUATED) {
-            return raActivationResultFromParentLeaf.getRangeActions();
-        } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getRangeActions();
-        } else {
-            throw new FaraoException(NO_RESULTS_AVAILABLE);
-        }
+        return optimizationPerimeter.getRangeActions();
     }
 
     @Override

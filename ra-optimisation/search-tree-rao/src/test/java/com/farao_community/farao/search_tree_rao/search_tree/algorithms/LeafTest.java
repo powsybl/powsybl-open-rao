@@ -557,6 +557,7 @@ class LeafTest {
         rangeActions.add(pstRangeAction);
         rangeActions.add(rangeAction);
         when(prePerimeterResult.getRangeActions()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
         when(prePerimeterResult.getTap(pstRangeAction)).thenReturn(optimalTap);
         when(prePerimeterResult.getSetpoint(rangeAction)).thenReturn(optimalSetpoint);
         when(prePerimeterResult.getSetpoint(pstRangeAction)).thenReturn(optimalSetpoint);
@@ -595,7 +596,7 @@ class LeafTest {
         rangeActions.add(pstRangeAction);
         rangeActions.add(rangeAction);
 
-        when(linearOptimizationResult.getRangeActions()).thenReturn(rangeActions);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
         assertEquals(rangeActions, leaf.getRangeActions());
 
         when(linearOptimizationResult.getOptimizedTap(pstRangeAction, optimizedState)).thenReturn(optimalTap);
@@ -614,7 +615,17 @@ class LeafTest {
     @Test
     void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        assertThrows(FaraoException.class, leaf::getRangeActions);
+        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
+        assertTrue(leaf.getRangeActions().isEmpty());
+
+        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
+        rangeActions.add(pstRangeAction);
+        rangeActions.add(rangeAction);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
+        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
+        assertEquals(rangeActions, leaf.getRangeActions());
     }
 
     @Test
