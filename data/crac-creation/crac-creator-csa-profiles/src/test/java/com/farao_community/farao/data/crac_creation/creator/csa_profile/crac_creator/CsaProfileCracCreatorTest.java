@@ -52,6 +52,7 @@ public class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
+        assertEquals(0, cracCreationContext.getCrac().getVoltageCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
@@ -181,6 +182,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(24, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(1, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(0, cracCreationContext.getCrac().getVoltageCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
@@ -227,6 +229,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(0, cracCreationContext.getCrac().getVoltageCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
