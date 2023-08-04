@@ -441,7 +441,7 @@ public final class AutomatonSimulator {
         Set<HvdcRangeAction> hvdcRasWithControl = alignedRa.stream()
             .filter(HvdcRangeAction.class::isInstance)
             .map(HvdcRangeAction.class::cast)
-            .filter(hvdcRa -> isAngleDroopActivePowerControlEnabled(hvdcRa, network))
+            .filter(hvdcRa -> hvdcRa.isAngleDroopActivePowerControlEnabled(network))
             .collect(Collectors.toSet());
 
         if (hvdcRasWithControl.isEmpty()) {
@@ -505,12 +505,6 @@ public final class AutomatonSimulator {
         network.getVariantManager().removeVariant(tmpVariant);
 
         return controls;
-    }
-
-    private static boolean isAngleDroopActivePowerControlEnabled(HvdcRangeAction hvdcRangeAction, Network network) {
-        HvdcLine hvdcLine = network.getHvdcLine(hvdcRangeAction.getNetworkElement().getId());
-        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
-        return (hvdcAngleDroopActivePowerControl != null) && hvdcAngleDroopActivePowerControl.isEnabled();
     }
 
     /**
