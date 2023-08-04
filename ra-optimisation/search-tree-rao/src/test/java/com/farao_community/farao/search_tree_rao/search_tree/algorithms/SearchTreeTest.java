@@ -23,17 +23,18 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
+import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
-import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
-import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -111,6 +112,7 @@ class SearchTreeTest {
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         when(searchTreeParameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
         predefinedNaCombination = Mockito.mock(NetworkActionCombination.class);
+        when(predefinedNaCombination.getConcatenatedId()).thenReturn("predefinedNa");
         when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
     }
 
@@ -209,11 +211,53 @@ class SearchTreeTest {
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction));
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction), false);
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
+    }
+
+    private void setLeafStatusToEvaluated(Leaf leaf) {
+        SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
+        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
+        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
+        when(objectiveFunction.evaluate(any(), any(), any(), any())).thenReturn(null);
+        leaf.evaluate(objectiveFunction, sensitivityComputer);
+    }
+
+    @Test
+    void testCreateChildLeafFiltersOutRangeActionWhenNeeded() {
+        searchTreeWithOneChildLeaf();
+        when(networkAction.apply(network)).thenReturn(true);
+        NetworkActionCombination naCombination = new NetworkActionCombination(networkAction);
+
+        // 1) Mock rootLeaf and previousDepthOptimalLeaf to return Set.of(rangeAction)
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        RangeActionActivationResultImpl rangeActionActivationResult = Mockito.mock(RangeActionActivationResultImpl.class);
+        when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
+        when(rootLeaf.getRangeActionActivationResult()).thenReturn(rangeActionActivationResult);
+        doReturn(rootLeaf).when(searchTree).makeLeaf(any(), any(), any(), any());
+        searchTree.initLeaves(searchTreeInput);
+
+        // 2) Create 2 Leaf with different shouldRangeActionBeRemoved value
+        Leaf filteredLeaf = searchTree.createChildLeaf(network, naCombination, true);
+        Leaf unfilteredLeaf = searchTree.createChildLeaf(network, naCombination, false);
+
+        // 3) Mocks a sensitivity computer to set leaf.status to EVALUATED
+        setLeafStatusToEvaluated(filteredLeaf);
+        setLeafStatusToEvaluated(unfilteredLeaf);
+
+        // 4) Asserts that unfilteredLeaf keeps in memory activated range actions of parentLeaf
+        assertEquals(rangeActionActivationResult, unfilteredLeaf.getRangeActionActivationResult());
+        assertEquals(Set.of(rangeAction), unfilteredLeaf.getRangeActionActivationResult().getRangeActions());
+
+        // 5) Asserts that the filteredLeaf reset activated range actions of parentLeaf
+        assertEquals(Set.of(), filteredLeaf.getRangeActionActivationResult().getRangeActions());
     }
 
     @Test
@@ -277,11 +321,11 @@ class SearchTreeTest {
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
-        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)));
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)), eq(false));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
-        Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)));
+        Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)), eq(false));
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(childLeaf1, result);
@@ -366,7 +410,7 @@ class SearchTreeTest {
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
         when(childLeaf.getVirtualCost()).thenReturn(childLeafCostAfterOptim);
-        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any());
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any(), eq(false));
     }
 
     private void mockNetworkPool(Network network) throws Exception {
@@ -382,6 +426,7 @@ class SearchTreeTest {
         networkAction = Mockito.mock(NetworkAction.class);
         when(networkAction.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(networkAction.getOperator()).thenReturn("operator");
+        when(networkAction.getId()).thenReturn("na1");
         availableNetworkActions.add(networkAction);
         availableNaCombinations.add(new NetworkActionCombination(networkAction));
     }
