@@ -88,9 +88,6 @@ public final class AutomatonSimulator {
      */
     AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, State curativeState, Network network) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
-        if (!crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).isEmpty()) {
-            BUSINESS_WARNS.warn("CRAC has network action automatons with usage method AVAILABLE. These are not supported.");
-        }
         TECHNICAL_LOGS.info("Initial situation:");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
 
