@@ -109,6 +109,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(10, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(0, cracCreationContext.getCrac().getVoltageCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());

@@ -136,3 +136,24 @@ WHERE {
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
         }
 }
+
+# query: voltageLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?voltageLimit
+        rdf:type cim:VoltageLimit ;
+        cim:VoltageLimit.normalValue ?normalValue ;
+        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Terminal ?terminal .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        cim:OperationalLimitType.direction ?direction .
+    OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
+        }
+}

@@ -30,7 +30,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
 
-    private Set<CsaProfileCnecCreationContext> flowCnecCreationContexts;
+    private Set<CsaProfileCnecCreationContext> cnecCreationContexts;
 
     private CracCreationReport creationReport;
 
@@ -73,12 +73,12 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
     }
 
-    public void setFlowCnecCreationContexts(Set<CsaProfileCnecCreationContext> flowCnecCreationContexts) {
-        this.flowCnecCreationContexts = flowCnecCreationContexts.stream().collect(Collectors.toSet());
+    public void setCnecCreationContexts(Set<CsaProfileCnecCreationContext> cnecCreationContexts) {
+        this.cnecCreationContexts = cnecCreationContexts.stream().collect(Collectors.toSet());
     }
 
-    public Set<CsaProfileCnecCreationContext> getFlowCnecCreationContexts() {
-        return this.flowCnecCreationContexts.stream().collect(Collectors.toSet());
+    public Set<CsaProfileCnecCreationContext> getCnecCreationContexts() {
+        return this.cnecCreationContexts.stream().collect(Collectors.toSet());
     }
 
     @Override
@@ -101,7 +101,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     public void buildCreationReport() {
         creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
-        addToReport(flowCnecCreationContexts, "FlowCnecs");
+        addToReport(cnecCreationContexts, "Cnecs");
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {
