@@ -28,13 +28,11 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -399,7 +397,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
 
         // check usage rules
-        assertEquals(4, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnInstant.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(4, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnInstant.class::isInstance).count());
     }
 
     void testContentOfV1Point1Crac(Crac crac) {
@@ -437,8 +435,8 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
-        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).collect(Collectors.toList()).size());
-        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).count());
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).count());
     }
 
     void testContentOfV1Point3Crac(Crac crac) {
@@ -480,7 +478,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
 
         // check usage rules
-        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).count());
     }
 
     void testContentOfV1Point5Crac(Crac crac) {
@@ -508,10 +506,10 @@ class JsonRetrocompatibilityTest {
 
         testContentOfV1Point5Crac(crac);
         // test usage rules
-        assertEquals(4, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnInstant.class::isInstance).collect(Collectors.toList()).size());
-        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).collect(Collectors.toList()).size());
-        assertEquals(3, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).collect(Collectors.toList()).size());
-        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).collect(Collectors.toList()).size());
+        assertEquals(4, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnInstant.class::isInstance).count());
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnContingencyState.class::isInstance).count());
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnFlowConstraint.class::isInstance).count());
+        assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnAngleConstraint.class::isInstance).count());
         // test speed
         assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().get().intValue());
         assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().get().intValue());
@@ -522,7 +520,7 @@ class JsonRetrocompatibilityTest {
     void testContentOfV1Point7Crac(Crac crac) {
 
         testContentOfV1Point6Crac(crac);
-        // test usage rules
-        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnVoltageConstraint.class::isInstance).collect(Collectors.toList()).size());
+        // test new voltage constraint usage rules
+        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnVoltageConstraint.class::isInstance).count());
     }
 }

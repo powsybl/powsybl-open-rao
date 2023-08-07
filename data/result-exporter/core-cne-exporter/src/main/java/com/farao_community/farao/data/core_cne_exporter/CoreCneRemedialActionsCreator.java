@@ -8,9 +8,9 @@
 package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
-import com.farao_community.farao.data.cne_exporter_commons.TsoEICode;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ConstraintSeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.ContingencySeries;
 import com.farao_community.farao.data.core_cne_exporter.xsd.RemedialActionRegisteredResource;
@@ -63,21 +63,22 @@ public final class CoreCneRemedialActionsCreator {
      * Creates RA ConstraintSeries for all RAs (B56) and adds them to the list
      * PS: This also adds the RemedialActionSeries to the CNECs' ConstraintSeries in the list,
      * so it should be done after adding the CNECs' ConstraintSeries to the list
+     *
      * @return a List of ConstraintSeries
      */
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
 
         List<PstRangeAction> sortedRangeActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-            .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
-            .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
-            .filter(ra -> !Objects.isNull(ra))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
+                .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
+                .filter(ra -> !Objects.isNull(ra))
+                .collect(Collectors.toList());
         List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-            .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
-            .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
-            .filter(ra -> !Objects.isNull(ra))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
+                .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
+                .filter(ra -> !Objects.isNull(ra))
+                .collect(Collectors.toList());
 
         logMissingRangeActions();
         List<PstRangeAction> usedRangeActions = sortedRangeActions.stream().filter(this::isRangeActionUsedInRao).collect(Collectors.toList());
@@ -165,7 +166,7 @@ public final class CoreCneRemedialActionsCreator {
 
     public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, OptimizationState optimizationState, State state, ConstraintSeries constraintSeriesB56) {
         if (rangeAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED)))  {
+                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -226,7 +227,7 @@ public final class CoreCneRemedialActionsCreator {
 
     public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, OptimizationState optimizationState, State state, ConstraintSeries constraintSeriesB56) {
         if (networkAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED)))  {
+                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception

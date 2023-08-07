@@ -15,7 +15,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -29,7 +30,8 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
     private static final String DEFAULT_CRAC_FACTORY_NAME = CracFactory.findDefault().getName();
     static final MonitoredLineSide DEFAULT_DEFAULT_MONITORED_LINE_SIDE = MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES;
 
-    public interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> { }
+    public interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> {
+    }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
@@ -42,12 +44,28 @@ public class CracCreationParameters extends AbstractExtendable<CracCreationParam
         MONITOR_LINES_ON_BOTH_SIDES(Set.of(Side.LEFT, Side.RIGHT));
 
         private final Set<Side> monitoredSides;
+
         MonitoredLineSide(Set<Side> monitoredSides) {
             this.monitoredSides = monitoredSides;
         }
 
         Set<Side> getMonitoredSides() {
             return monitoredSides;
+        }
+    }
+
+    public enum DurationThresholdsLimits {
+        DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT(60),
+        DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT(900);
+
+        private final int limit;
+
+        DurationThresholdsLimits(int limit) {
+            this.limit = limit;
+        }
+
+        public int getLimit() {
+            return limit;
         }
     }
 

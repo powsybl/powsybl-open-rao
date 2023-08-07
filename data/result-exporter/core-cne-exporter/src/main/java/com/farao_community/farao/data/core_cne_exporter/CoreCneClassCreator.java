@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.core_cne_exporter;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.cne_exporter_commons.TsoEICode;
 import com.farao_community.farao.data.core_cne_exporter.xsd.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
-import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.*;
+import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.cutString;
+import static com.farao_community.farao.data.cne_exporter_commons.CneUtil.limitFloatInterval;
 import static com.farao_community.farao.data.core_cne_exporter.CoreCneUtil.*;
 
 /**

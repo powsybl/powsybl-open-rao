@@ -84,12 +84,8 @@ public final class InjectionRangeActionArrayDeserializer {
                         OnAngleConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
-                        if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 6) {
-                            jsonParser.nextToken();
-                            OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
-                        } else {
-                            throw new FaraoException("onVoltageConstraintUsageRules does not exists before CRAC version 1.7");
-                        }
+                        jsonParser.nextToken();
+                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, injectionRangeActionAdder);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
