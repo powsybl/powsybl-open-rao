@@ -8,12 +8,12 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +27,9 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     private final Map<RangeAction<?>, ElementaryResult> elementaryResultMap = new HashMap<>();
 
-    private Map<RangeAction<?>, Map<State, Double> > memoizedSetpointPerStatePerRangeAction;
+    boolean shouldRecomputeSetpointsPerState = true;
+
+    private Map<String, Map<State, Double> > setpointPerStatePerPstId;
 
     private static class ElementaryResult {
         private final double refSetpoint;
@@ -59,34 +61,6 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             }
         }
 
-        private Pair<Double, Optional<State>> getSetpointAndLastActivation(State state) {
-            if (state.getContingency().isEmpty()) {
-                if (setPointPerState.containsKey(state) && Math.abs(setPointPerState.get(state) - refSetpoint) > 1e-6) {
-                    // activated in preventive, with setpoint modification
-                    return Pair.of(setPointPerState.get(state), Optional.of(state));
-                } else {
-                    // not activated in preventive
-                    return Pair.of(refSetpoint, Optional.empty());
-                }
-            } else {
-                Optional<State> lastActivation = getLastPreviousActivation(state);
-
-                if (setPointPerState.containsKey(state) && (
-                    (lastActivation.isPresent() && Math.abs(setPointPerState.get(lastActivation.get()) - setPointPerState.get(state)) > 1e-6) ||
-                    (lastActivation.isEmpty() && Math.abs(refSetpoint - setPointPerState.get(state)) > 1e-6))) {
-                    // activated during this post-contingency state, with setpoint modification
-                    return Pair.of(setPointPerState.get(state), Optional.of(state));
-
-                } else if (lastActivation.isPresent()) {
-                    // not activated during this post-contingency state, but activated in a previous instant
-                    return getSetpointAndLastActivation(lastActivation.get());
-                } else {
-                    // not activated during this post-contingency state, or during a previous instant
-                    return Pair.of(refSetpoint, Optional.empty());
-                }
-            }
-        }
-
         private Optional<State> getLastPreviousActivation(State state) {
             return setPointPerState.keySet().stream()
                 .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
@@ -100,13 +74,32 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     public RangeActionActivationResultImpl(RangeActionSetpointResult rangeActionSetpointResult) {
-        memoizedSetpointPerStatePerRangeAction = new HashMap<>();
+        shouldRecomputeSetpointsPerState = true;
         rangeActionSetpointResult.getRangeActions().forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(rangeActionSetpointResult.getSetpoint(ra))));
     }
 
     public void activate(RangeAction<?> rangeAction, State state, double setpoint) {
-        memoizedSetpointPerStatePerRangeAction = new HashMap<>();
+        shouldRecomputeSetpointsPerState = true;
         elementaryResultMap.get(rangeAction).activate(state, setpoint);
+    }
+
+    private void computeSetpointsPerStatePerPst() {
+        if (!shouldRecomputeSetpointsPerState) {
+            return;
+        }
+        setpointPerStatePerPstId = new HashMap<>();
+        elementaryResultMap.forEach((rangeAction, elementaryResult) -> {
+            String networkElementsIds = concatenateNetworkElementsIds(rangeAction);
+            setpointPerStatePerPstId.computeIfAbsent(networkElementsIds, raId -> new HashMap<>());
+            elementaryResult.getAllStatesWithActivation().forEach(state ->
+                setpointPerStatePerPstId.get(networkElementsIds).put(state, elementaryResult.getSetpoint(state))
+            );
+        });
+        shouldRecomputeSetpointsPerState = false;
+    }
+
+    private String concatenateNetworkElementsIds(RangeAction<?> rangeAction) {
+        return rangeAction.getNetworkElements().stream().map(Identifiable::getId).sorted().collect(Collectors.joining("+"));
     }
 
     @Override
@@ -116,6 +109,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
+        computeSetpointsPerStatePerPst();
         return elementaryResultMap.entrySet().stream()
             .filter(e -> e.getValue().isExplicitlyActivatedDuringState(state))
             .filter(e -> {
@@ -131,36 +125,37 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
-    public synchronized double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-        if (!(memoizedSetpointPerStatePerRangeAction.containsKey(rangeAction) && memoizedSetpointPerStatePerRangeAction.get(rangeAction).containsKey(state))) {
-            // find all range actions on same network elements
-            Set<RangeAction<?>> correspondingRa = elementaryResultMap.keySet().stream()
-                .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
-                .collect(Collectors.toSet());
-
-            if (correspondingRa.isEmpty()) {
-                throw new FaraoException(format("range action %s is not present in the result", rangeAction.getName()));
-            }
-
-            Optional<RangeAction<?>> lastActivatedRaOpt = correspondingRa.stream()
-                .max(Comparator.comparingInt(ra -> {
-                    Optional<State> lastActivation = elementaryResultMap.get(ra).getSetpointAndLastActivation(state).getRight();
-                    return lastActivation.isPresent() ? lastActivation.get().getInstant().getOrder() : -1;
-                }));
-
-            if (lastActivatedRaOpt.isPresent()) {
-                memoizedSetpointPerStatePerRangeAction.computeIfAbsent(rangeAction, ra -> new HashMap<>());
-                memoizedSetpointPerStatePerRangeAction.get(rangeAction).put(state, elementaryResultMap.get(lastActivatedRaOpt.get()).getSetpoint(state));
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+        computeSetpointsPerStatePerPst();
+        String networkElementsIds = concatenateNetworkElementsIds(rangeAction);
+        // if at least one elementary result is on the correct network elements, find the right state to get the setpoint
+        // else return the reference setpoint
+        if (setpointPerStatePerPstId.containsKey(networkElementsIds)) {
+            Map<State, Double> setPointPerState = setpointPerStatePerPstId.get(networkElementsIds);
+            // if an elementary result is defined for the network element and state, return it
+            // else find a previous state with an elementary result
+            // if none are found, return reference setpoint
+            if (setPointPerState.containsKey(state)) {
+                return setPointPerState.get(state);
             } else {
-                throw new FaraoException("Range action optimized setpoint not found.");
+                Optional<State> previousState = getPreviousState(state);
+                while (previousState.isPresent()) {
+                    if (setPointPerState.containsKey(previousState.get())) {
+                        return setPointPerState.get(previousState.get());
+                    }
+                    previousState = getPreviousState(previousState.get());
+                }
             }
         }
-
-        return memoizedSetpointPerStatePerRangeAction.get(rangeAction).get(state);
+        if (!elementaryResultMap.containsKey(rangeAction)) {
+            throw new FaraoException(format("range action %s is not present in the result", rangeAction.getName()));
+        }
+        return elementaryResultMap.get(rangeAction).refSetpoint;
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+        computeSetpointsPerStatePerPst();
         Map<RangeAction<?>, Double> optimizedSetpoints = new HashMap<>();
         elementaryResultMap.forEach((ra, re) -> optimizedSetpoints.put(ra, getOptimizedSetpoint(ra, state)));
         return optimizedSetpoints;
@@ -168,11 +163,13 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+        computeSetpointsPerStatePerPst();
         return pstRangeAction.convertAngleToTap(getOptimizedSetpoint(pstRangeAction, state));
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+        computeSetpointsPerStatePerPst();
         Map<PstRangeAction, Integer> optimizedTaps = new HashMap<>();
         elementaryResultMap.entrySet().stream()
             .filter(e -> e.getKey() instanceof PstRangeAction)

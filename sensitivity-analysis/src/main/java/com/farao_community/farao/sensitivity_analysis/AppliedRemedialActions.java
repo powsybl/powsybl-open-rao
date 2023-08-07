@@ -113,6 +113,17 @@ public class AppliedRemedialActions {
         return ara;
     }
 
+    public AppliedRemedialActions copyNetworkActionsAndAutomaticRangeActions() {
+        AppliedRemedialActions ara = new AppliedRemedialActions();
+        appliedRa.forEach((state, appliedRaOnState) -> ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions));
+        appliedRa.forEach((state, appliedRaOnState) -> {
+            if (state.getInstant().equals(Instant.AUTO)) {
+                ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
+            }
+        });
+        return ara;
+    }
+
     private void checkState(State state) {
         if (!state.getInstant().equals(Instant.CURATIVE) && !state.getInstant().equals(Instant.AUTO)) {
             throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
