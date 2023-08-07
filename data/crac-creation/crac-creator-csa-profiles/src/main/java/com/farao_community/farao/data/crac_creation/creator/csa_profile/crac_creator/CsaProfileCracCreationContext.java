@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.Set;
@@ -26,6 +27,8 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     private boolean isCreationSuccessful;
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
+
+    private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContext;
 
     private final CracCreationReport creationReport;
 
@@ -66,6 +69,14 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     public Set<CsaProfileContingencyCreationContext> getContingencyCreationContexts() {
         return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
+    }
+
+    public Set<CsaProfileRemedialActionCreationContext> getRemedialActionCreationContext() {
+        return remedialActionCreationContext;
+    }
+
+    public void setRemedialActionCreationContext(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContext) {
+        this.remedialActionCreationContext = remedialActionCreationContext;
     }
 
     @Override

@@ -8,25 +8,33 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
+import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
+import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
+import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,6 +64,10 @@ public class CsaProfileCracCreatorTest {
         this.assertContingencyEquality(listContingencies.get(1),
                 "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
                 1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+
+        // csa-9-1
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+
     }
 
     @Test
@@ -201,6 +213,241 @@ public class CsaProfileCracCreatorTest {
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());
         }
+    }
 
+    // csa-9
+    @Test
+    public void csa92() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-04-27T12:00Z"), new CracCreationParameters());
+
+        assertNotNull(cracCreationContext);
+        Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
+        assertEquals(9, remedialActions.size());
+        // RA17 (on instant)
+        NetworkActionImpl ra17 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA17")).findAny().get();
+        assertEquals("cfabf356-c5e1-4391-b91b-3330bc24f0c9", ra17.getId());
+        assertEquals("2db971f1-ed3d-4ea6-acf5-983c4289d51b", ra17.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra17.getElementaryActions().iterator().next()).getActionType());
+        assertEquals(Instant.PREVENTIVE, ra17.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra17.getUsageRules().get(0).getUsageMethod());
+        // RA11 (on instant)
+        NetworkActionImpl ra11 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA11")).findAny().get();
+        assertEquals("b2555ccc-6562-4887-8abc-19a6e51cfe36", ra11.getId());
+        assertEquals("86dff3a9-afae-4122-afeb-651f2c01c795", ra11.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra11.getElementaryActions().iterator().next()).getActionType());
+        assertEquals(Instant.PREVENTIVE, ra11.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra11.getUsageRules().get(0).getUsageMethod());
+        // RA2 (on instant)
+        NetworkActionImpl ra2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA2")).findAny().get();
+        assertEquals("d9bd3aaf-cda3-4b54-bb2e-b03dd9925817", ra2.getId());
+        assertEquals(2, ra2.getNetworkElements().size());
+        List<ElementaryAction> elementaryActions = new ArrayList<>(ra2.getElementaryActions());
+        elementaryActions.sort(Comparator.comparingInt(Object::hashCode));
+        TopologicalAction topologicalAction1 = (TopologicalAction) elementaryActions.get(0);
+        TopologicalAction topologicalAction2 = (TopologicalAction) elementaryActions.get(1);
+        assertEquals("39428c75-098b-4366-861d-2df2a857a805", topologicalAction1.getNetworkElement().getId());
+        assertEquals(ActionType.OPEN, topologicalAction1.getActionType());
+        assertEquals("902046a4-40e9-421d-9ef1-9adab0d9d41d", topologicalAction2.getNetworkElement().getId());
+        assertEquals(ActionType.OPEN, topologicalAction2.getActionType());
+        assertEquals(Instant.PREVENTIVE, ra2.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
+
+        // RA13 (on state)
+        NetworkActionImpl ra13 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA13")).findAny().get();
+        assertEquals("1fd630a9-b9d8-414b-ac84-b47a093af936", ra13.getId());
+        assertEquals(UsageMethod.FORCED, ra13.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra13.getUsageRules().get(0).getInstant());
+        assertEquals("b6b780cb-9fe5-4c45-989d-447a927c3874", ((OnContingencyStateImpl) ra13.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("52effb0d-091b-4867-a0a2-387109cdad5c", ra13.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra13.getElementaryActions().iterator().next()).getActionType());
+
+        // RA22 (on state)
+        NetworkActionImpl ra22 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA22")).findAny().get();
+        assertEquals("d856a2a2-3de4-4a7b-aea4-d363c13d9014", ra22.getId());
+        assertEquals(UsageMethod.FORCED, ra22.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra22.getUsageRules().get(0).getInstant());
+        assertEquals("96c96ad8-844c-4f3b-8b38-c886ba2c0214", ((OnContingencyStateImpl) ra22.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("c871da6f-816f-4398-82a4-698550cbee58", ra22.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra22.getElementaryActions().iterator().next()).getActionType());
+
+        // RA14 (on state)
+        NetworkActionImpl ra14 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA14")).findAny().get();
+        assertEquals("c8bf6b19-1c3b-4ce6-a15c-99995a3c88ce", ra14.getId());
+        assertEquals(UsageMethod.FORCED, ra14.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra14.getUsageRules().get(0).getInstant());
+        assertEquals("13334fdf-9cc2-4341-adb6-1281269040b4", ((OnContingencyStateImpl) ra14.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("88e2e417-fc08-41a7-a711-4c6d0784ac4f", ra14.getNetworkElements().iterator().next().getId()); // todo fix us
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra14.getElementaryActions().iterator().next()).getActionType());
+
+        // RA21 (on state)
+        NetworkActionImpl ra21 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA21")).findAny().get();
+        assertEquals("fb487cc2-0f7b-4958-8f66-1d3fabf7840d", ra21.getId());
+        assertEquals(UsageMethod.FORCED, ra21.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra21.getUsageRules().get(0).getInstant());
+        assertEquals("9d17b84c-33b5-4a68-b8b9-ed5b31038d40", ((OnContingencyStateImpl) ra21.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("65b97d2e-d749-41df-aa8f-0be4629d5e0e", ra21.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra21.getElementaryActions().iterator().next()).getActionType());
+
+        // RA3 (on state)
+        NetworkActionImpl ra3 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA3")).findAny().get();
+        assertEquals("5e401955-387e-45ce-b126-dd142b06b20c", ra3.getId());
+        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra3.getUsageRules().get(0).getInstant());
+        assertEquals("475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", ((OnContingencyStateImpl) ra3.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("8e55fb9d-e514-4f4b-8a5d-8fd05b1dc02e", ra3.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra3.getElementaryActions().iterator().next()).getActionType());
+
+        // RA5 (on state)
+        NetworkActionImpl ra5 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA5")).findAny().get();
+        assertEquals("587cb391-ed16-4a1d-876e-f90241addce5", ra5.getId());
+        assertEquals(UsageMethod.FORCED, ra5.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra5.getUsageRules().get(0).getInstant());
+        assertEquals("5d587c7e-9ced-416a-ad17-6ef9b241a998", ((OnContingencyStateImpl) ra5.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("21f21596-302e-4e0e-8009-2b8c3c23517f", ra5.getNetworkElements().iterator().next().getId());
+        assertEquals(ActionType.OPEN, ((TopologicalAction) ra5.getElementaryActions().iterator().next()).getActionType());
+    }
+
+    @Test
+    public void csa94() {
+        Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getSwitch("switch")).thenReturn(Mockito.mock(Switch.class));
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_4_ValidProfiles.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        // todo check with po if we ignore or we replace with a real use case : couldn't test on state because contingencies are created  in the same method  --> couldn't mock them
+
+        Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
+        // RA1 (on instant)
+        NetworkActionImpl ra1 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA1")).findAny().get();
+        assertEquals("on-instant-preventive-topological-action-parent-remedial-action", ra1.getId());
+        assertEquals(Instant.PREVENTIVE, ra1.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().get(0).getUsageMethod());
+
+        // RA2 (on instant)
+        NetworkActionImpl ra2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA2")).findAny().get();
+        assertEquals("on-instant-curative-topological-action-parent-remedial-action", ra2.getId());
+        assertEquals(Instant.CURATIVE, ra2.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
+
+        // RA3 (on instant)
+        NetworkActionImpl raNameless = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("nameless-topological-action-with-speed-parent-remedial-action")).findAny().get();
+        assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getId());
+        assertEquals(Instant.PREVENTIVE, raNameless.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().get(0).getUsageMethod());
+        assertEquals(137, raNameless.getSpeed().get());
+
+        // RA7 (on instant)
+        NetworkActionImpl ra7 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getId().equals("topological-action-with-tso-name-parent-remedial-action")).findAny().get();
+        // TODO test name after eic name conversion
+        assertEquals(Instant.PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
+
+        // RA3 (on instant)
+        NetworkActionImpl raNameless2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("nameless-topological-action-with-tso-name-parent-remedial-action")).findAny().get();
+        assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getId());
+        assertEquals(Instant.PREVENTIVE, raNameless2.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().get(0).getUsageMethod());
+    }
+
+    @Test
+    public void csa95() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_5_WrongKeyword.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_5_WrongKeyword.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
+    @Test
+    public void csa96() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_6_NotYetValidProfile.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_6_NotYetValidProfile.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
+    @Test
+    public void csa97() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_7_OutdatedProfile.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_7_OutdatedProfile.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
+    @Test
+    public void csa98() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_8_InvalidRemedialActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_8_InvalidRemedialActions.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
+    @Test
+    public void csa99() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_9_InvalidTopologicalActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_9_InvalidTopologicalActions.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
+    @Test
+    public void csa910() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_10_InvalidContingenciesWithRemedialActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_10_InvalidContingenciesWithRemedialActions.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
     }
 }

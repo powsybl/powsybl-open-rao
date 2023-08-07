@@ -69,4 +69,27 @@ public final class CsaProfileConstants {
 
     public static final String CONTINGENCY_FILE_KEYWORD = "CO";
 
+    public static final String REQUEST_REMEDIAL_ACTION_NAME = "name";
+
+    public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
+
+    public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+
+    public static final String TOPOLOGY_ACTION = "topologyAction";
+    public static final String CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
+
+    public static final String REQUEST_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+
+    public static final String TSO = "tso";
+    public static final String REQUEST_RA_NORMAL_AVAILABLE = "normalAvailable";
+    public static final String REQUEST_KIND = "kind";
+    public static final String KIND_CURATIVE = "http://entsoe.eu/ns/nc#RemedialActionKind.curative";
+    public static final String KIND_PREVENTIVE = "http://entsoe.eu/ns/nc#RemedialActionKind.preventive";
+    public static final String SWITCH = "switchId";
+
+    public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
+
+
+
+
 }
