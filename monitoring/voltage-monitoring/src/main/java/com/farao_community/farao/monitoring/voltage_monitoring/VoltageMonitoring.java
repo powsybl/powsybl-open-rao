@@ -59,6 +59,7 @@ public class VoltageMonitoring {
 
         if (crac.getVoltageCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No VoltageCnecs defined.");
+            stateSpecificResults.add(new VoltageMonitoringResult(Collections.emptyMap(), Collections.emptyMap(), VoltageMonitoringResult.Status.SECURE));
             return assembleVoltageMonitoringResults();
         }
 
@@ -155,7 +156,7 @@ public class VoltageMonitoring {
     private VoltageMonitoringResult monitorVoltageCnecs(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
         //First load flow with only preventive action, it is supposed to converge
         if (!computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.DIVERGENT);
+            return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.UNKNOWN);
         }
         //Check for threshold overshoot for the voltages of each cnec
         Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(NetworkAction::getId));
@@ -170,13 +171,13 @@ public class VoltageMonitoring {
         }
         //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.UNSECURE);
+            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.UNKNOWN);
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure
         Map<VoltageCnec, ExtremeVoltageValues> newVoltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters);
         if (newVoltageValues.entrySet().stream().anyMatch(entrySet -> thresholdOvershoot(entrySet.getKey(), entrySet.getValue()))) {
-            status = VoltageMonitoringResult.Status.UNSECURE;
+            status = VoltageMonitoringResult.getUnsecureStatus(newVoltageValues);
         }
         Map<State, Set<NetworkAction>> appliedCra = new HashMap<>();
         if (!state.isPreventive()) {
@@ -308,13 +309,17 @@ public class VoltageMonitoring {
             appliedCras.putAll(s.getAppliedCras());
         });
         if (stateSpecificResults.isEmpty()) {
-            securityStatus = VoltageMonitoringResult.Status.UNKNOW;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.DIVERGENT)) {
-            securityStatus = VoltageMonitoringResult.Status.DIVERGENT;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNSECURE)) {
-            securityStatus = VoltageMonitoringResult.Status.UNSECURE;
-        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNKNOW)) {
-            securityStatus = VoltageMonitoringResult.Status.UNKNOW;
+            securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
+        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.HIGH_AND_LOW_VOLTAGE_CONSTRAINTS)
+            || (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT)
+            && stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT))) {
+            securityStatus = VoltageMonitoringResult.Status.HIGH_AND_LOW_VOLTAGE_CONSTRAINTS;
+        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT)) {
+            securityStatus = VoltageMonitoringResult.Status.HIGH_VOLTAGE_CONSTRAINT;
+        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT)) {
+            securityStatus = VoltageMonitoringResult.Status.LOW_VOLTAGE_CONSTRAINT;
+        } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNKNOWN)) {
+            securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
         }
         return new VoltageMonitoringResult(extremeVoltageValuesMap, appliedCras, securityStatus);
     }

@@ -24,12 +24,10 @@ public class VoltageMonitoringResult {
 
     public enum Status {
         SECURE,
-        UNSECURE,
         HIGH_VOLTAGE_CONSTRAINT,
         LOW_VOLTAGE_CONSTRAINT,
         HIGH_AND_LOW_VOLTAGE_CONSTRAINTS,
-        DIVERGENT,
-        UNKNOW;
+        UNKNOWN;
 
         static Status fromConstraints(boolean highVoltageConstraints, boolean lowVoltageConstraints) {
             if (highVoltageConstraints && lowVoltageConstraints) {
@@ -53,27 +51,35 @@ public class VoltageMonitoringResult {
     public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<NetworkAction>> appliedCras, Status status) {
         this.extremeVoltageValues = extremeVoltageValues;
         Set<VoltageCnec> tmpConstrainedElements = new HashSet<>();
+        this.constrainedElements = Collections.unmodifiableSet(tmpConstrainedElements);
+        for (Map.Entry<VoltageCnec, ExtremeVoltageValues> entry : extremeVoltageValues.entrySet()) {
+            if (entry.getKey().getThresholds().stream()
+                    .anyMatch(threshold -> threshold.limitsByMax() && entry.getValue().getMax() != null && entry.getValue().getMax() > threshold.max().orElseThrow())) {
+                tmpConstrainedElements.add(entry.getKey());
+            }
+            if (entry.getKey().getThresholds().stream()
+                    .anyMatch(threshold -> threshold.limitsByMin() && entry.getValue().getMin() != null && entry.getValue().getMin() < threshold.min().orElseThrow())) {
+                tmpConstrainedElements.add(entry.getKey());
+            }
+        }
+        this.appliedCras = appliedCras;
+        this.status = status;
+    }
+
+    public static Status getUnsecureStatus(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues) {
         boolean highVoltageConstraints = false;
         boolean lowVoltageConstraints = false;
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> entry : extremeVoltageValues.entrySet()) {
             if (entry.getKey().getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && entry.getValue().getMax() != null && entry.getValue().getMax() > threshold.max().orElseThrow())) {
-                tmpConstrainedElements.add(entry.getKey());
+                    .anyMatch(threshold -> threshold.limitsByMax() && entry.getValue().getMax() != null && entry.getValue().getMax() > threshold.max().orElseThrow())) {
                 highVoltageConstraints = true;
             }
             if (entry.getKey().getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && entry.getValue().getMin() != null && entry.getValue().getMin() < threshold.min().orElseThrow())) {
-                tmpConstrainedElements.add(entry.getKey());
+                    .anyMatch(threshold -> threshold.limitsByMin() && entry.getValue().getMin() != null && entry.getValue().getMin() < threshold.min().orElseThrow())) {
                 lowVoltageConstraints = true;
             }
         }
-        this.constrainedElements = Collections.unmodifiableSet(tmpConstrainedElements);
-        this.appliedCras = appliedCras;
-        if (status == Status.UNSECURE || status == Status.SECURE) {
-            this.status = Status.fromConstraints(highVoltageConstraints, lowVoltageConstraints);
-        } else {
-            this.status = status;
-        }
+        return Status.fromConstraints(highVoltageConstraints, lowVoltageConstraints);
     }
 
     public Set<VoltageCnec> getConstrainedElements() {

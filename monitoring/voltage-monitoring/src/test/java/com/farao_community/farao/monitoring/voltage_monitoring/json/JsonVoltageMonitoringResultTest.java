@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
-import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.UNKNOW;
+import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -64,7 +64,7 @@ class JsonVoltageMonitoringResultTest {
         VoltageMonitoringResult voltageMonitoringResult =
             new VoltageMonitoringResultImporter().importVoltageMonitoringResult(getClass().getResourceAsStream("/result.json"), crac);
 
-        assertEquals(UNKNOW, voltageMonitoringResult.getStatus());
+        assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(vc1, vc2), voltageMonitoringResult.getConstrainedElements());
         assertEquals(144.4, voltageMonitoringResult.getMinVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(148.4, voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
