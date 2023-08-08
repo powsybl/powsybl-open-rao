@@ -169,9 +169,13 @@ public class VoltageMonitoring {
                 appliedNetworkActions = applyTopologicalNetworkActions(networkClone, availableNetworkActions);
             }
         }
+        Map<State, Set<NetworkAction>> appliedCra = new HashMap<>();
+        if (!state.isPreventive()) {
+            appliedCra.put(state, appliedNetworkActions);
+        }
         //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.Status.UNKNOWN);
+            return new VoltageMonitoringResult(voltageValues, appliedCra, VoltageMonitoringResult.Status.UNKNOWN);
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure
@@ -179,28 +183,20 @@ public class VoltageMonitoring {
         if (newVoltageValues.entrySet().stream().anyMatch(entrySet -> thresholdOvershoot(entrySet.getKey(), entrySet.getValue()))) {
             status = VoltageMonitoringResult.getUnsecureStatus(newVoltageValues);
         }
-        Map<State, Set<NetworkAction>> appliedCra = new HashMap<>();
-        if (!state.isPreventive()) {
-            appliedCra.put(state, appliedNetworkActions);
-        }
         return new VoltageMonitoringResult(newVoltageValues, appliedCra, status);
     }
 
-    private Map<VoltageCnec, ExtremeVoltageValues> computeVoltages(Set<VoltageCnec> voltageCnecs, Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
-            .run(network, loadFlowParameters);
-        if (!loadFlowResult.isOk()) {
-            throw new FaraoException("LoadFlow error");
-        }
+    private Map<VoltageCnec, ExtremeVoltageValues> computeVoltages(Set<VoltageCnec> voltageCnecs, Network networkClone, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+        computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone);
 
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         voltageCnecs.forEach(vc -> {
-            VoltageLevel voltageLevel = network.getVoltageLevel(vc.getNetworkElement().getId());
+            VoltageLevel voltageLevel = networkClone.getVoltageLevel(vc.getNetworkElement().getId());
             Set<Double> voltages = null;
             if (voltageLevel != null) {
                 voltages = voltageLevel.getBusView().getBusStream().map(Bus::getV).collect(Collectors.toSet());
             }
-            BusbarSection busbarSection = network.getBusbarSection(vc.getNetworkElement().getId());
+            BusbarSection busbarSection = networkClone.getBusbarSection(vc.getNetworkElement().getId());
             if (busbarSection != null) {
                 Double busBarVoltages = busbarSection.getV();
                 voltages = new HashSet<>();

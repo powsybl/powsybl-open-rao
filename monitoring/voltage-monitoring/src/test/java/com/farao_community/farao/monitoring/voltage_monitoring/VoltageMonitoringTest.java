@@ -375,19 +375,12 @@ class VoltageMonitoringTest {
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
     }
 
-    /*@Test
+    @Test
     void testDivergentLoadFlowAfterApplicationOfRemedialAction() {
         setUpCracFactory("network2.xiidm");
 
         crac.newContingency().withId("co").withNetworkElement("L1").add();
         VoltageCnec vc =  addVoltageCnec("vc", Instant.CURATIVE, "co", "VL1", 390., 399.);
-        crac.newNetworkAction()
-                .withId("Open L1 - 1")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                //.newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-                //.newTopologicalAction().withNetworkElement("L3").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
-                .add();
 
         crac.newNetworkAction()
                 .withId("Open L2 - 1")
@@ -399,13 +392,10 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
 
-        assertEquals(2, voltageMonitoringResult.getAppliedCras().size());
-        assertEquals(UNSECURE, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getStatus() == LOW_VOLTAGE_CONSTRAINT ||
-                voltageMonitoringResult.getStatus() == HIGH_VOLTAGE_CONSTRAINT ||
-                voltageMonitoringResult.getStatus() == HIGH_AND_LOW_VOLTAGE_CONSTRAINTS);
+        //assertEquals(2, voltageMonitoringResult.getAppliedCras().size());
+        assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedCras().size());
-    }*/
+    }
 
     @Test
     void testSecureInitialSituationWithAvailableRemedialActions() {
@@ -470,7 +460,7 @@ class VoltageMonitoringTest {
 
     /*@Test
     void testUnsecureInitialSituationWithRemedialActionThatSolveVC() {
-        setUpCracFactory("network.xiidm");
+        setUpCracFactory("network2.xiidm");
         vcPrev =  addVoltageCnec("vcPrev", Instant.PREVENTIVE, null, "VL1", 390., 399.);
         crac.newNetworkAction()
                 .withId("Open L1 - 1")
