@@ -124,7 +124,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         }
     }
 
-    private boolean isAngleDroopActivePowerControlEnabled(Network network) {
+    public boolean isAngleDroopActivePowerControlEnabled(Network network) {
         HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = getHvdcLine(network).getExtension(HvdcAngleDroopActivePowerControl.class);
         return (hvdcAngleDroopActivePowerControl != null) && hvdcAngleDroopActivePowerControl.isEnabled();
     }

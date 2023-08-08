@@ -47,7 +47,7 @@ public final class CsaProfileContingencyCreationContext implements ElementaryCre
         return this.contingencyId;
     }
 
-    public String getNativeName() {
+    public String getContingencyName() {
         return this.contingencyName;
     }
 

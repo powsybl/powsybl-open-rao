@@ -46,6 +46,18 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(CsaProfileConstants.REQUEST_CONTINGENCY_EQUIPMENT);
     }
 
+    public PropertyBags getAssessedElements() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getAssessedElementsWithContingencies() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY);
+    }
+
+    public PropertyBags getCurrentLimits() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_CURRENT_LIMIT);
+    }
+
     private PropertyBags queryTripleStore(String queryKey) {
         return this.queryTripleStore(queryKey, new HashSet<>());
     }

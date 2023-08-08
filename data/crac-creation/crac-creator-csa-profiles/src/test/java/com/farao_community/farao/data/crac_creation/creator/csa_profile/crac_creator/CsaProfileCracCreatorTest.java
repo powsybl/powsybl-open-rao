@@ -11,9 +11,12 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
@@ -35,7 +38,6 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CsaProfileCracCreatorTest {
@@ -54,6 +56,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
@@ -64,6 +67,35 @@ public class CsaProfileCracCreatorTest {
         this.assertContingencyEquality(listContingencies.get(1),
                 "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
                 1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+
+        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
+        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+
+        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+                "adad76ed-79e7-4985-84e1-eb493f168c85",
+                "TENNET_TSO_AE1NL - preventive",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                Instant.PREVENTIVE, null,
+                +1876, -1876, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+                "adad76ed-79e7-4985-84e1-eb493f168c85-c0a25fd7-eee0-4191-98a5-71a74469d36e",
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                Instant.CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+                +1876, -1876, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+                "dd5247a7-3cb1-43f8-8ce1-12f285653f06",
+                "ELIA_AE1 - preventive",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                Instant.PREVENTIVE, null,
+                +1312, -1312, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+                "dd5247a7-3cb1-43f8-8ce1-12f285653f06-493480ba-93c3-426e-bee5-347d8dda3749",
+                "ELIA_AE1 - ELIA_CO1 - curative",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                Instant.CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
+                +1312, -1312, Side.LEFT);
 
         // csa-9-1
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
@@ -84,7 +116,9 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(10, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
+        assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
@@ -134,6 +168,9 @@ public class CsaProfileCracCreatorTest {
         this.assertContingencyEquality(listContingencies.get(14),
                 "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", "ELIA_CO1",
                 1, Arrays.asList("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b"));
+
+        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
     }
 
     @Test
@@ -150,7 +187,9 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(24, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
+        assertEquals(1, cracCreationContext.getCrac().getFlowCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
@@ -176,6 +215,8 @@ public class CsaProfileCracCreatorTest {
                 "e05bbe20-9d4a-40da-9777-8424d216785d", "RTE_CO1",
                 1, Arrays.asList("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
 
+        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
     }
 
     @Test
@@ -192,7 +233,10 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(5, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(2, cracCreationContext.getCrac().getContingencies().size());
+        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
+
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
@@ -202,6 +246,9 @@ public class CsaProfileCracCreatorTest {
         this.assertContingencyEquality(listContingencies.get(1),
                 "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
                 1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+
+        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
     }
 
     private void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingecyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {
@@ -213,6 +260,23 @@ public class CsaProfileCracCreatorTest {
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());
         }
+    }
+
+    private void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
+                                        Instant expectedInstant, String expectedContingencyId, double expectedThresholdMax, double expectedThresholdMin, Side expectedThresholdSide) {
+        assertEquals(expectedFlowCnecId, fc.getId());
+        assertEquals(expectedFlowCnecName, fc.getName());
+        assertEquals(expectedNetworkElementId, fc.getNetworkElement().getId());
+        assertEquals(expectedInstant, fc.getState().getInstant());
+        if (expectedContingencyId == null) {
+            assertFalse(fc.getState().getContingency().isPresent());
+        } else {
+            assertEquals(expectedContingencyId, fc.getState().getContingency().get().getId());
+        }
+
+        BranchThreshold threshold = fc.getThresholds().stream().collect(Collectors.toList()).get(0);
+        assertEquals(expectedThresholdMax, threshold.max().get());
+        assertEquals(expectedThresholdMin, threshold.min().get());
     }
 
     // csa-9
@@ -259,7 +323,6 @@ public class CsaProfileCracCreatorTest {
         assertEquals(ActionType.OPEN, topologicalAction2.getActionType());
         assertEquals(Instant.PREVENTIVE, ra2.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
-
         // RA13 (on state)
         NetworkActionImpl ra13 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA13")).findAny().get();
         assertEquals("1fd630a9-b9d8-414b-ac84-b47a093af936", ra13.getId());

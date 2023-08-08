@@ -25,7 +25,21 @@ public final class CsaProfileCracUtils {
 
     }
 
-    public static Map<String, Set<PropertyBag>> getMappedPropertyBags(PropertyBags propertyBags, String property) {
+    public static Map<String, ArrayList<PropertyBag>> getMappedPropertyBags(PropertyBags propertyBags, String property) {
+        Map<String, ArrayList<PropertyBag>> mappedPropertyBags = new HashMap<>();
+        for (PropertyBag propertyBag : propertyBags) {
+            String propValue = propertyBag.getId(property);
+            ArrayList<PropertyBag> propPropertyBags = mappedPropertyBags.get(propValue);
+            if (propPropertyBags == null) {
+                propPropertyBags = new ArrayList<>();
+                mappedPropertyBags.put(propValue, propPropertyBags);
+            }
+            propPropertyBags.add(propertyBag);
+        }
+        return mappedPropertyBags;
+    }
+
+    public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {
         Map<String, Set<PropertyBag>> mappedPropertyBags = new HashMap<>();
         for (PropertyBag propertyBag : propertyBags) {
             String propValue = propertyBag.getId(property);
@@ -37,17 +51,6 @@ public final class CsaProfileCracUtils {
             propPropertyBags.add(propertyBag);
         }
         return mappedPropertyBags;
-    }
-
-    public static PropertyBags getLinkedPropertyBags(PropertyBags sources, PropertyBag dest, String sourceProperty, String destProperty) {
-        PropertyBags linkedBags = new PropertyBags();
-        for (PropertyBag source : sources) {
-            String sourceValue = source.getId(sourceProperty);
-            if (sourceValue != null && sourceValue.equals(dest.getId(destProperty))) {
-                linkedBags.add(source);
-            }
-        }
-        return linkedBags;
     }
 
     public static String getUniqueName(String idWithEicCode, String elementId) {
