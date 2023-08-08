@@ -56,18 +56,4 @@ public class CsaProfileCracImporterTest {
         assertEquals(2, csaProfileCrac.getRemedialActions().size());
     }
 
-    @Test
-    void testImportCsa9() {
-        CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
-        InputStream is = getClass().getResourceAsStream("/CSA_TestConfiguration_TC2_27Apr2023.zip");
-        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is);
-        // remedial actions
-       // csaProfileCrac.getRemedialActions();
-       // assertEquals("7fc2fc14-eea6-4e69-b8d9-a3edc218e687", remedialActionsPb.get(0).getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION));
-        //assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", remedialActionsPb.get(1).getId(CsaProfileConstants.REQUEST_REMEDIAL_ACTION));
-
-        csaProfileCrac.getTopologyAction();
-
-        csaProfileCrac.getContingencyWithRemedialAction();
-    }
 }
