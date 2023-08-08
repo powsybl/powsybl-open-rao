@@ -7,10 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -18,6 +15,7 @@ import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
@@ -25,9 +23,7 @@ import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -116,7 +112,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(10, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(19, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
 
@@ -187,7 +183,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(24, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(33, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(1, cracCreationContext.getCrac().getFlowCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
@@ -382,14 +378,16 @@ public class CsaProfileCracCreatorTest {
     public void csa94() {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getSwitch("switch")).thenReturn(Mockito.mock(Switch.class));
+        Branch networkElementMock = Mockito.mock(Branch.class);
+        Mockito.when(networkElementMock.getId()).thenReturn("equipment-with-contingency");
+        Mockito.when(network.getIdentifiable("equipment-with-contingency")).thenReturn(networkElementMock);
+
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-9/CSA_9_4_ValidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
 
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
-
-        // todo check with po if we ignore or we replace with a real use case : couldn't test on state because contingencies are created  in the same method  --> couldn't mock them
 
         Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
         // RA1 (on instant)
@@ -404,22 +402,50 @@ public class CsaProfileCracCreatorTest {
         assertEquals(Instant.CURATIVE, ra2.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
 
-        // RA3 (on instant)
+        // RA3 (on state)
+        NetworkActionImpl ra3 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA3")).findAny().get();
+        assertEquals("on-state-considered-curative-topological-action-parent-remedial-action", ra3.getId());
+        assertEquals(Instant.CURATIVE, ra3.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().get(0).getUsageMethod());
+        assertEquals("switch", ra3.getNetworkElements().iterator().next().getId());
+
+        // RA4 (on state)
+        NetworkActionImpl ra4 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA4")).findAny().get();
+        assertEquals("on-state-included-curative-topological-action-parent-remedial-action", ra4.getId());
+        assertEquals(Instant.CURATIVE, ra4.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.FORCED, ra4.getUsageRules().get(0).getUsageMethod());
+
+        // RA5 (on instant + on instant)
+        NetworkActionImpl ra5 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA5")).findAny().get();
+        assertEquals("on-state-excluded-curative-topological-action-parent-remedial-action", ra5.getId());
+        List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).collect(Collectors.toList());
+        assertEquals(2, usageRules.size());
+        assertEquals(Instant.CURATIVE, usageRules.get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, usageRules.get(0).getUsageMethod());
+
+        assertEquals(Instant.CURATIVE, usageRules.get(1).getInstant());
+        assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
+        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());
+
+        // RTE_RA7 (on instant)
+        NetworkActionImpl ra7 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getId().equals("topological-action-with-tso-name-parent-remedial-action")).findAny().get();
+        assertEquals("10XFR-RTE------Q_RA7", ra7.getName());
+        assertEquals("10XFR-RTE------Q", ra7.getOperator());
+        assertEquals(Instant.PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
+
+        // nameless-topological-action-with-speed-parent-remedial-action (on instant)
         NetworkActionImpl raNameless = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("nameless-topological-action-with-speed-parent-remedial-action")).findAny().get();
         assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getId());
         assertEquals(Instant.PREVENTIVE, raNameless.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().get(0).getUsageMethod());
         assertEquals(137, raNameless.getSpeed().get());
 
-        // RA7 (on instant)
-        NetworkActionImpl ra7 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getId().equals("topological-action-with-tso-name-parent-remedial-action")).findAny().get();
-        // TODO test name after eic name conversion
-        assertEquals(Instant.PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
-
-        // RA3 (on instant)
+        // nameless-topological-action-with-tso-name-parent-remedial-action (on instant)
         NetworkActionImpl raNameless2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("nameless-topological-action-with-tso-name-parent-remedial-action")).findAny().get();
         assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getId());
+        assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getName());
+        assertEquals("10XFR-RTE------Q", raNameless2.getOperator());
         assertEquals(Instant.PREVENTIVE, raNameless2.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().get(0).getUsageMethod());
     }

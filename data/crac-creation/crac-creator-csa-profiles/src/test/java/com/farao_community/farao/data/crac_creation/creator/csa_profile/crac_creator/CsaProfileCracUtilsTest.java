@@ -16,8 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsaProfileCracUtilsTest {
 
@@ -58,5 +57,25 @@ public class CsaProfileCracUtilsTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("sourceValue11", result.get(0).get("sourceProperty1"));
+    }
+
+    @Test
+    void testDurationConversion() {
+        assertEquals(90063, CsaProfileCracUtils.convertDurationToSeconds("P1DT1H1M3S"));
+        assertEquals(10920, CsaProfileCracUtils.convertDurationToSeconds("PT3H2M0S"));
+        assertEquals(315, CsaProfileCracUtils.convertDurationToSeconds("P0DT5M15S"));
+        assertEquals(172800, CsaProfileCracUtils.convertDurationToSeconds("P2DT0H0S"));
+        assertEquals(3600, CsaProfileCracUtils.convertDurationToSeconds("P0DT1H0M"));
+        assertEquals(62, CsaProfileCracUtils.convertDurationToSeconds("PT1M2S"));
+        assertEquals(2, CsaProfileCracUtils.convertDurationToSeconds("PT0H2S"));
+        assertEquals(2, CsaProfileCracUtils.convertDurationToSeconds("P0DT2S"));
+        assertEquals(240, CsaProfileCracUtils.convertDurationToSeconds("PT0H4M"));
+        assertEquals(60, CsaProfileCracUtils.convertDurationToSeconds("P0DT1M"));
+        assertEquals(3600, CsaProfileCracUtils.convertDurationToSeconds("P0DT1H"));
+        assertEquals(5, CsaProfileCracUtils.convertDurationToSeconds("PT5S"));
+        assertEquals(60, CsaProfileCracUtils.convertDurationToSeconds("PT1M"));
+        assertEquals(0, CsaProfileCracUtils.convertDurationToSeconds("PT0H"));
+        assertEquals(86400, CsaProfileCracUtils.convertDurationToSeconds("P1D"));
+        assertThrows(RuntimeException.class, () -> CsaProfileCracUtils.convertDurationToSeconds("P1R"));
     }
 }

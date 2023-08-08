@@ -70,21 +70,26 @@ public final class CsaProfileCracUtils {
         durationFactors.put('M', 60);
         durationFactors.put('S', 1);
 
-        Pattern pattern = Pattern.compile("P(?:\\d+D)?T(\\d+H)?(\\d+M)?(\\d+S)?");
+        Pattern pattern = Pattern.compile("P(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?");
         Matcher matcher = pattern.matcher(duration);
 
         if (!matcher.matches()) {
-            return -1;
+            throw new RuntimeException("Error occurred while converting time to implement to seconds, unknown pattern: " + duration);
         }
 
         int seconds = 0;
 
-        for (int i = 1; i <= 3; i++) {
-            String group = matcher.group(i);
-            if (group != null) {
-                seconds += Integer.parseInt(group, 0, group.length() - 1, 10) * durationFactors.get(group.charAt(group.length() - 1));
+        for (char unit : durationFactors.keySet()) {
+            Pattern unitPattern = Pattern.compile("(\\d+)" + unit);
+            Matcher unitMatcher = unitPattern.matcher(duration);
+
+            if (unitMatcher.find()) {
+                int value = Integer.parseInt(unitMatcher.group(1));
+                seconds += value * durationFactors.get(unit);
             }
         }
+
         return seconds;
     }
+
 }

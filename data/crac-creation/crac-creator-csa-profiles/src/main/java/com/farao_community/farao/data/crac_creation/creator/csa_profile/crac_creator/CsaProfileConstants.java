@@ -72,10 +72,10 @@ public final class CsaProfileConstants {
     public static final String CONTINGENCY_FILE_KEYWORD = "CO";
 
     /**
-     * requests for remedial actions
+     * remedial actions
      */
 
-    public static final String REQUEST_REMEDIAL_ACTION_NAME = "name";
+    public static final String REMEDIAL_ACTION_NAME = "name";
 
     public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
 
@@ -83,17 +83,25 @@ public final class CsaProfileConstants {
 
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
-
-    public static final String REQUEST_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
-
+    public static final String MRID = "mRID";
+    public static final String TIME_TO_IMPLEMENT = "timeToImplement";
     public static final String TSO = "tso";
-    public static final String REQUEST_RA_NORMAL_AVAILABLE = "normalAvailable";
-    public static final String REQUEST_KIND = "kind";
+    public static final String NORMAL_AVAILABLE = "normalAvailable";
+    public static final String RA_KIND = "kind";
+    public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
+    public static final String COMBINATION_CONSTRAINT_KIND_INCLUDED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included";
+
+    public static final String COMBINATION_CONSTRAINT_KIND_CONSIDERED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered";
+
+    public static final String COMBINATION_CONSTRAINT_KIND_EXCLUDED = "http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.excluded";
+
     public static final String KIND_CURATIVE = "http://entsoe.eu/ns/nc#RemedialActionKind.curative";
     public static final String KIND_PREVENTIVE = "http://entsoe.eu/ns/nc#RemedialActionKind.preventive";
     public static final String SWITCH = "switchId";
 
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
+    public static final String PROPERTY_REFERENCE_SWITCH_OPEN = "http://energy.referencedata.eu/PropertyReference/Switch.open";
+    public static final String CONTINGENCY_WITH_REMEDIAL_ACTION_NORMAL_ENABLED = "normalEnabled";
 
     /**
      * requests for flow cnec
