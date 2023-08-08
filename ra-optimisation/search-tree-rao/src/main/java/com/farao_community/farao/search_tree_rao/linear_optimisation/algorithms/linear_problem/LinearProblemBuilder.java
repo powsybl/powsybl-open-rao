@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
@@ -72,7 +73,11 @@ public class LinearProblemBuilder {
 
         // unoptimized CNECs for TSOs without curative RA
         if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
-            this.withProblemFiller(buildUnoptimizedCnecFiller());
+            if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
+                this.withProblemFiller(buildUnoptimizedCnecFiller());
+            } else if (!Objects.isNull(parameters.getUnoptimizedCnecParameters().getDoNotOptimizeCnecsSecuredByTheirPst())) {
+                this.withProblemFiller(buildUnoptimizedCnecFiller());
+            }
         }
 
         // MIP optimization vs. CONTINUOUS optimization
