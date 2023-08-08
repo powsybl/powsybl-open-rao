@@ -11,10 +11,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,11 +49,11 @@ public class CsaProfileCracUtilsTest {
 
         sourcesPb.addAll(Arrays.asList(sourcePb1, sourcePb2, sourcePb3));
 
-        Map<String, ArrayList<PropertyBag>> map = CsaProfileCracUtils.getMappedPropertyBags(sourcesPb, "sourceProperty2");
-        List<PropertyBag> result = map.get(destPb.getId("destProperty3"));
+        Map<String, Set<PropertyBag>> map = CsaProfileCracUtils.getMappedPropertyBagsSet(sourcesPb, "sourceProperty2");
+        Set<PropertyBag> result = map.get(destPb.getId("destProperty3"));
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("sourceValue11", result.get(0).get("sourceProperty1"));
+        assertEquals("sourceValue11", result.iterator().next().get("sourceProperty1"));
     }
 
     @Test

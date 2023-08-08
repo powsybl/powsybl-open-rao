@@ -25,20 +25,6 @@ public final class CsaProfileCracUtils {
 
     }
 
-    public static Map<String, ArrayList<PropertyBag>> getMappedPropertyBags(PropertyBags propertyBags, String property) {
-        Map<String, ArrayList<PropertyBag>> mappedPropertyBags = new HashMap<>();
-        for (PropertyBag propertyBag : propertyBags) {
-            String propValue = propertyBag.getId(property);
-            ArrayList<PropertyBag> propPropertyBags = mappedPropertyBags.get(propValue);
-            if (propPropertyBags == null) {
-                propPropertyBags = new ArrayList<>();
-                mappedPropertyBags.put(propValue, propPropertyBags);
-            }
-            propPropertyBags.add(propertyBag);
-        }
-        return mappedPropertyBags;
-    }
-
     public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {
         Map<String, Set<PropertyBag>> mappedPropertyBags = new HashMap<>();
         for (PropertyBag propertyBag : propertyBags) {
