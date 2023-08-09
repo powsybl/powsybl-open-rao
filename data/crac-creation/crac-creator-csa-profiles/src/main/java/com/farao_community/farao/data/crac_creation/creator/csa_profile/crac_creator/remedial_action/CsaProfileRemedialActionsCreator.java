@@ -1,5 +1,6 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -241,8 +242,7 @@ public class CsaProfileRemedialActionsCreator {
     private Optional<String> createRemedialActionName(String nativeRemedialActionName, String tsoName) {
         if (nativeRemedialActionName != null) {
             if (tsoName != null) {
-                // TODO add conversion tso eic to tso name
-                return Optional.of(tsoName.substring(33) + "_" + nativeRemedialActionName);
+                return Optional.of(TsoEICode.fromEICode(tsoName.substring(33)).getDisplayName() + "_" + nativeRemedialActionName);
             }
             return Optional.of(nativeRemedialActionName);
         } else {

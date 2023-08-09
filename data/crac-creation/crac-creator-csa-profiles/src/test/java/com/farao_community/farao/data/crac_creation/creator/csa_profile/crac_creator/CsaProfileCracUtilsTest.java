@@ -54,6 +54,7 @@ public class CsaProfileCracUtilsTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("sourceValue11", result.iterator().next().get("sourceProperty1"));
+
     }
 
     @Test

@@ -343,7 +343,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(UsageMethod.FORCED, ra14.getUsageRules().get(0).getUsageMethod());
         assertEquals(Instant.CURATIVE, ra14.getUsageRules().get(0).getInstant());
         assertEquals("13334fdf-9cc2-4341-adb6-1281269040b4", ((OnContingencyStateImpl) ra14.getUsageRules().get(0)).getContingency().getId());
-        assertEquals("88e2e417-fc08-41a7-a711-4c6d0784ac4f", ra14.getNetworkElements().iterator().next().getId()); // todo fix us
+        assertEquals("88e2e417-fc08-41a7-a711-4c6d0784ac4f", ra14.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra14.getElementaryActions().iterator().next()).getActionType());
 
         // RA21 (on state)
@@ -429,8 +429,8 @@ public class CsaProfileCracCreatorTest {
 
         // RTE_RA7 (on instant)
         NetworkActionImpl ra7 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getId().equals("topological-action-with-tso-name-parent-remedial-action")).findAny().get();
-        assertEquals("10XFR-RTE------Q_RA7", ra7.getName());
         assertEquals("10XFR-RTE------Q", ra7.getOperator());
+        assertEquals("RTE_RA7", ra7.getName());
         assertEquals(Instant.PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
 
