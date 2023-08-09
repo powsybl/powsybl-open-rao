@@ -91,7 +91,7 @@ public class CsaProfileRemedialActionsCreator {
 
                     if (!elementaryActions.isEmpty()) {
                         String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
-                        if (kind.equals(CsaProfileConstants.KIND_PREVENTIVE)) {
+                        if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
                             networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add().add();
                         } else {
                             networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add().add();
@@ -124,15 +124,15 @@ public class CsaProfileRemedialActionsCreator {
             atLeastOneContingencyAdded.set(true);
         });
 
-        if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND_INCLUDED)) {
+        if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
             onContingencyStateAdder.withUsageMethod(UsageMethod.FORCED).add().add();
 
         }
-        if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND_CONSIDERED)) {
+        if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
             onContingencyStateAdder.withUsageMethod(UsageMethod.AVAILABLE).add().add();
         }
 
-        if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND_EXCLUDED)) {
+        if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
             onContingencyStateAdder.withUsageMethod(UsageMethod.UNAVAILABLE).add();
             networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add().add();
         }
@@ -171,7 +171,7 @@ public class CsaProfileRemedialActionsCreator {
             csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "RemedialAction.normalAvailable must be 'true' to be imported"));
             return false;
         }
-        if (!kind.equals(CsaProfileConstants.KIND_CURATIVE) && !kind.equals(CsaProfileConstants.KIND_PREVENTIVE)) {
+        if (!kind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString()) && !kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
             csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Unsupported kind for remedial action" + remedialActionId));
             return false;
         }
@@ -181,12 +181,12 @@ public class CsaProfileRemedialActionsCreator {
 
     private void importOnStateRa(List<String> faraoContingenciesIds, PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, String combinationConstraintKind) {
         // check that parent ra is curative
-        if (!parentRemedialActionPropertyBag.get("kind").equals(CsaProfileConstants.KIND_CURATIVE)) {
+        if (!parentRemedialActionPropertyBag.get("kind").equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action" + remedialActionId + "is linked to a contingency but it's kind is not curative"));
         }
 
         // check combinationConstraintKind is handled
-        if (!combinationConstraintKind.equals(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND_INCLUDED) && !combinationConstraintKind.equals(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND_EXCLUDED) && !combinationConstraintKind.equals(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND_CONSIDERED)) {
+        if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
             csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind));
             return;
         }
