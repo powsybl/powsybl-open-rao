@@ -1,9 +1,9 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdder;
@@ -43,7 +43,6 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void createAndAddRemedialActions() {
-
         Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedContingencyWithRAs = CsaProfileCracUtils.getMappedPropertyBagsSet(contingencyWithRemedialActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
@@ -54,7 +53,7 @@ public class CsaProfileRemedialActionsCreator {
                 continue;
             }
 
-            if (importRemedialAction(parentRemedialActionPropertyBag)) {
+            if (canImportRemedialAction(parentRemedialActionPropertyBag)) {
                 Optional<String> nativeRaNameOpt = Optional.ofNullable(parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME));
                 Optional<String> tsoNameOpt = Optional.ofNullable(parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO));
                 Optional<String> targetRemedialActionNameOpt = createRemedialActionName(nativeRaNameOpt.orElse(null), tsoNameOpt.orElse(null));
@@ -66,89 +65,92 @@ public class CsaProfileRemedialActionsCreator {
                 tsoNameOpt.ifPresent(tso -> networkActionAdder.withOperator(tso.substring(33)));
                 speedOpt.ifPresent(networkActionAdder::withSpeed);
 
-                if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
-                    String combinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND); // any kind
-                    if (!checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), combinationConstraintKind)) {
-                        return;
-                    }
+                List<String> elementaryActions = new ArrayList<>();
 
-                    List<String> faraoContingenciesIds = new ArrayList<>();
-                    for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
-                        importOnStateRa(faraoContingenciesIds, contingencyWithRemedialActionPropertyBag, parentRemedialActionPropertyBag, remedialActionId, combinationConstraintKind);
-                    }
-
-                    if (!faraoContingenciesIds.isEmpty()) {
-                        fillContingencies(networkActionAdder, faraoContingenciesIds, linkedTopologyActions.get(remedialActionId), combinationConstraintKind);
-                    } else {
-                        csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "None of the remedial actions with contingency linked to the grid state alteration with id: " + remedialActionId + " matches a contingency that has has imported"));
-                    }
-
-                } else {
-                    List<String> elementaryActions = new ArrayList<>();
+                try {
                     for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(remedialActionId)) {
-                        importOnInstant(networkActionAdder, topologyActionPropertyBag, remedialActionId, elementaryActions);
+                        addElementaryActions(networkActionAdder, topologyActionPropertyBag, remedialActionId, elementaryActions);
                     }
 
+                } catch (FaraoException e) {
+                    csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage()));
+                    continue;
+                }
+
+                if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
+                    try {
+                        String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+                        checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), randomCombinationConstraintKind);
+
+                        List<String> faraoContingenciesIds = new ArrayList<>();
+                        for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
+                            checkContingency(faraoContingenciesIds, contingencyWithRemedialActionPropertyBag, parentRemedialActionPropertyBag, remedialActionId, randomCombinationConstraintKind);
+                        }
+
+                        if (!faraoContingenciesIds.isEmpty()) {
+                            fillContingencies(networkActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
+                        } else {
+                            //  fixme:  if ra was already imported with on state, --> not sure what to do here
+                            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "None of the remedial actions with contingency linked to the grid state alteration with id: " + remedialActionId + " matches a contingency that has has been imported"));
+                        }
+
+                    } catch (FaraoException e) {
+                        csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage()));
+                        continue;
+                    }
+
+                } else { // no linkedContingencyWithRAs --> on instant case
                     if (!elementaryActions.isEmpty()) {
                         String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                         if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-                            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add().add();
+                            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add();
                         } else {
-                            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add().add();
+                            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
                         }
                     } else {
                         csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "None of the topology actions linked to the grid state alteration with id: " + remedialActionId + " has a Switch that matches a switch in the network model"));
                     }
-
                 }
+
+                networkActionAdder.add();
                 csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.imported(remedialActionId, remedialActionId, targetRemedialActionNameOpt.orElse(remedialActionId), "", false));
+
             }
         }
-
         this.cracCreationContext.setRemedialActionCreationContext(csaProfileRemedialActionCreationContexts);
-
     }
 
-    private void fillContingencies(NetworkActionAdder networkActionAdder, List<String> faraoContingenciesIds, Set<PropertyBag> topologyActionPropertyBag, String combinationConstraintKind) {
+    private void fillContingencies(NetworkActionAdder networkActionAdder, List<String> faraoContingenciesIds, String combinationConstraintKind) {
         AtomicBoolean atLeastOneContingencyAdded = new AtomicBoolean(false);
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = networkActionAdder.newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE);
         faraoContingenciesIds.forEach(contingencyId -> {
-            String switchId = topologyActionPropertyBag.iterator().next().getId(CsaProfileConstants.SWITCH);
-            if (network.getSwitch(switchId) == null) {
-                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(topologyActionPropertyBag.iterator().next().getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION), ImportStatus.INCONSISTENCY_IN_DATA, "No switch with id: " + switchId + " found in network"));
-                return;
-            }
-            networkActionAdder.newTopologicalAction().withActionType(ActionType.OPEN)
-                    .withNetworkElement(switchId).add();
             onContingencyStateAdder.withContingency(contingencyId);
             atLeastOneContingencyAdded.set(true);
         });
 
         if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
-            onContingencyStateAdder.withUsageMethod(UsageMethod.FORCED).add().add();
+            onContingencyStateAdder.withUsageMethod(UsageMethod.FORCED).add();
 
         }
         if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-            onContingencyStateAdder.withUsageMethod(UsageMethod.AVAILABLE).add().add();
+            onContingencyStateAdder.withUsageMethod(UsageMethod.AVAILABLE).add();
         }
-
         if (atLeastOneContingencyAdded.get() && combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
             onContingencyStateAdder.withUsageMethod(UsageMethod.UNAVAILABLE).add();
-            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add().add();
+            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
         }
     }
 
-    private boolean checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String raId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
+    private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String
+                                                                                  remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
         for (PropertyBag propertyBag : linkedContingencyWithRAs) {
             if (!propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND).equals(firstKind)) {
-                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(raId, ImportStatus.INCONSISTENCY_IN_DATA, "ElementCombinationConstraintKind of a remedial action linked to a contingency must be the same kind"));
-                return false;
+                throw new FaraoException("Remedial Action: " + remedialActionId + " will not be imported because ElementCombinationConstraintKind of a remedial action linked to a contingency must be all of the same kind");
             }
         }
-        return true;
     }
 
-    private boolean importRemedialAction(PropertyBag remedialActionPropertyBag) {
+    private boolean canImportRemedialAction(PropertyBag remedialActionPropertyBag) {
         String keyword = remedialActionPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
         String startTime = remedialActionPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
         String endTime = remedialActionPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
@@ -179,52 +181,40 @@ public class CsaProfileRemedialActionsCreator {
         return true;
     }
 
-    private void importOnStateRa(List<String> faraoContingenciesIds, PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, String combinationConstraintKind) {
-        // check that parent ra is curative
-        if (!parentRemedialActionPropertyBag.get("kind").equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action" + remedialActionId + "is linked to a contingency but it's kind is not curative"));
+    private void checkContingency(List<String> faraoContingenciesIds, PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String remedialActionId, String combinationConstraintKind) {
+        if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
+            throw new FaraoException("Remedial action" + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
 
-        // check combinationConstraintKind is handled
         if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind));
-            return;
+            throw new FaraoException("Remedial action" + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
         }
 
         String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(19);
         Optional<CsaProfileContingencyCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
         if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingency" + contingencyId + "linked to RemedialAction" + remedialActionId + " does not exist or was not imported by farao"));
-            return;
+            throw new FaraoException("Remedial action" + remedialActionId + " will not be imported because contingency" + contingencyId + "linked to that remedialAction does not exist or was not imported by farao");
         } else {
             String faraoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getContigencyId();
             Optional<String> normalEnabledOpt = Optional.ofNullable(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION_NORMAL_ENABLED));
             if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
-                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "normalEnabled must be true or empty"));
-            } else {
-                Set<NetworkElement> networkElements = crac.getContingency(contingencyId).getNetworkElements();
-                if (networkElements.isEmpty()) {
-                    csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action" + remedialActionId + "has to have at least one ElementaryAction"));
-                    return;
-                }
+                throw new FaraoException("Remedial action" + remedialActionId + " will not be imported because ContingencyWithRemedialAction normalEnabled must be true or empty");
             }
             faraoContingenciesIds.add(faraoContingencyId);
         }
     }
 
-    private void importOnInstant(NetworkActionAdder networkActionAdder, PropertyBag topologyActionPropertyBag, String remedialActionId, List<String> elementaryActions) {
+    private void addElementaryActions(NetworkActionAdder networkActionAdder, PropertyBag
+            topologyActionPropertyBag, String remedialActionId, List<String> elementaryActions) {
         String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
         if (network.getSwitch(switchId) == null) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "No switch with id: " + switchId + " found in network"));
-            return;
+            throw new FaraoException("Remedial Action: " + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
         }
         String propertyReference = topologyActionPropertyBag.getId(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
         if (!propertyReference.equals(CsaProfileConstants.PROPERTY_REFERENCE_SWITCH_OPEN)) {
             // todo this is a temporary behaviour closing switch will be implemented in a later version
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Only Switch.open propertyReference is supported"));
-            return;
+            throw new FaraoException("Remedial Action: " + remedialActionId + " will not be imported because only Switch.open propertyReference is supported in the current version");
         }
-
         networkActionAdder.newTopologicalAction()
                 .withNetworkElement(switchId)
                 .withActionType(ActionType.OPEN).add();
