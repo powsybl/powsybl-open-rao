@@ -10,6 +10,9 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 
+/**
+ * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public final class CsaProfileRemedialActionCreationContext implements ElementaryCreationContext {
     private final String nativeId;
     private final String remedialActionId;
