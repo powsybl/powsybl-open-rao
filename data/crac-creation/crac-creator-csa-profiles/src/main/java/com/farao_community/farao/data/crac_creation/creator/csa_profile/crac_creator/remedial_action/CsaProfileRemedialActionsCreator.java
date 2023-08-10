@@ -70,8 +70,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<String> targetRemedialActionNameOpt = createRemedialActionName(nativeRaNameOpt.orElse(null), tsoNameOpt.orElse(null));
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
-                NetworkActionAdder networkActionAdder = crac.newNetworkAction();
-                networkActionAdder.withId(remedialActionId);
+                NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
                 targetRemedialActionNameOpt.ifPresent(networkActionAdder::withName);
                 tsoNameOpt.ifPresent(tso -> networkActionAdder.withOperator(tso.substring(33)));
                 speedOpt.ifPresent(networkActionAdder::withSpeed);
@@ -93,29 +92,10 @@ public class CsaProfileRemedialActionsCreator {
 
                     List<String> faraoContingenciesIds = new ArrayList<>();
                     for (PropertyBag contingencyWithRemedialActionPropertyBag : linkedContingencyWithRAs.get(remedialActionId)) {
-                        checkContingency(faraoContingenciesIds, contingencyWithRemedialActionPropertyBag, parentRemedialActionPropertyBag, remedialActionId, randomCombinationConstraintKind);
+                        checkContingencyAndFillImportedCo(faraoContingenciesIds, contingencyWithRemedialActionPropertyBag, parentRemedialActionPropertyBag, remedialActionId, randomCombinationConstraintKind);
                     }
 
-                    if (!faraoContingenciesIds.isEmpty()) {
-                        OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = fillContingencies(networkActionAdder, faraoContingenciesIds);
-
-                        if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
-                            onContingencyStateAdder.withUsageMethod(UsageMethod.FORCED).add();
-
-                        }
-                        if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                            onContingencyStateAdder.withUsageMethod(UsageMethod.AVAILABLE).add();
-                        }
-                        if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                            onContingencyStateAdder.withUsageMethod(UsageMethod.UNAVAILABLE).add();
-                            networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
-                        }
-
-                    } else {
-                        //  fixme:  if ra was already imported with on state, --> not sure what to do here
-                        csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because none of the remedial actions with contingency linked to that RA matches a contingency that has has been imported"));
-                    }
-
+                    addOnContingencyStateUsageRules(networkActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
                 } else { // no contingency linked to RA --> on instant case
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
@@ -135,10 +115,23 @@ public class CsaProfileRemedialActionsCreator {
         this.cracCreationContext.setRemedialActionCreationContext(csaProfileRemedialActionCreationContexts);
     }
 
-    private OnContingencyStateAdder<NetworkActionAdder> fillContingencies(NetworkActionAdder networkActionAdder, List<String> faraoContingenciesIds) {
-        OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = networkActionAdder.newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE);
-        faraoContingenciesIds.forEach(onContingencyStateAdder::withContingency);
-        return onContingencyStateAdder;
+    private void addOnContingencyStateUsageRules(NetworkActionAdder networkActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
+        faraoContingenciesIds.forEach(faraoContingenciesId -> {
+            OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = networkActionAdder.newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE).withContingency(faraoContingenciesId);
+
+            if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
+                onContingencyStateAdder.withUsageMethod(UsageMethod.FORCED).add();
+
+            }
+            if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
+                onContingencyStateAdder.withUsageMethod(UsageMethod.AVAILABLE).add();
+            }
+            if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
+                onContingencyStateAdder.withUsageMethod(UsageMethod.UNAVAILABLE).add();
+                networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
+            }
+        });
+
     }
 
     private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String
@@ -174,9 +167,9 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void checkContingency(List<String> faraoContingenciesIds, PropertyBag
+    private void checkContingencyAndFillImportedCo(List<String> faraoContingenciesIds, PropertyBag
             contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
-                                          remedialActionId, String combinationConstraintKind) {
+                                                           remedialActionId, String combinationConstraintKind) {
         if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             throw new CsaProfilesImportException("Remedial action" + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
