@@ -43,6 +43,17 @@ public final class CsaProfileCracUtils {
         return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(elementId);
     }
 
+    public static Optional<String> createRemedialActionName(String nativeRemedialActionName, String tsoName) {
+        if (nativeRemedialActionName != null) {
+            if (tsoName != null) {
+                return Optional.of(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf('/') + 1)).getDisplayName() + "_" + nativeRemedialActionName);
+            }
+            return Optional.of(nativeRemedialActionName);
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public static boolean isValidInterval(OffsetDateTime dateTime, String startTime, String endTime) {
         OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
         OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
