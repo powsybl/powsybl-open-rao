@@ -62,6 +62,18 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(queryKey, new HashSet<>());
     }
 
+    public PropertyBags getRemedialActions() {
+        return this.queryTripleStore(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getTopologyAction() {
+        return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getContingencyWithRemedialAction() {
+        return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
+    }
+
     private PropertyBags queryTripleStore(List<String> queryKeys, Set<String> contexts) {
         PropertyBags mergedPropertyBags = new PropertyBags();
         for (String queryKey : queryKeys) {
@@ -96,3 +108,4 @@ public class CsaProfileCrac implements NativeCrac {
         return multiContextsPropertyBags;
     }
 }
+
