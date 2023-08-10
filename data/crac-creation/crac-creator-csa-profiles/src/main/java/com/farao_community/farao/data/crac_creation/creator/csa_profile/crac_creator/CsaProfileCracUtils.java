@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.commons.TsoEICode;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -23,6 +24,14 @@ public final class CsaProfileCracUtils {
 
     private CsaProfileCracUtils() {
 
+    }
+
+    public static Map<String, UsageMethod> getConstraintToUsageMethodMap() {
+        Map<String, UsageMethod> constraintToUsageMethodMap = new HashMap<>();
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), UsageMethod.FORCED);
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString(), UsageMethod.AVAILABLE);
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString(), UsageMethod.UNAVAILABLE);
+        return constraintToUsageMethodMap;
     }
 
     public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {
