@@ -39,14 +39,14 @@ public final class CsaProfileCracUtils {
         return mappedPropertyBags;
     }
 
-    public static String getUniqueName(String idWithEicCode, String elementId) {
-        return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(elementId);
+    public static String getUniqueName(String prefixUrl, String suffix) {
+        return TsoEICode.fromEICode(prefixUrl.substring(prefixUrl.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(suffix);
     }
 
-    public static Optional<String> createRemedialActionName(String nativeRemedialActionName, String tsoName) {
+    public static Optional<String> createRemedialActionName(String nativeRemedialActionName, String tsoNameUrl) {
         if (nativeRemedialActionName != null) {
-            if (tsoName != null) {
-                return Optional.of(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf('/') + 1)).getDisplayName() + "_" + nativeRemedialActionName);
+            if (tsoNameUrl != null) {
+                return Optional.of(getUniqueName(tsoNameUrl, nativeRemedialActionName));
             }
             return Optional.of(nativeRemedialActionName);
         } else {
