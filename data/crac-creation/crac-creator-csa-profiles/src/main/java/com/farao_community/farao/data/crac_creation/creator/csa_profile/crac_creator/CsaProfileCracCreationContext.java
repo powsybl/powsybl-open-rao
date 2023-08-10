@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.CracCreationRepo
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     private boolean isCreationSuccessful;
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
-
+    private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContext;
     private Set<CsaProfileCnecCreationContext> flowCnecCreationContexts;
 
     private CracCreationReport creationReport;
@@ -73,6 +74,14 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
     }
 
+    public Set<CsaProfileRemedialActionCreationContext> getRemedialActionCreationContext() {
+        return remedialActionCreationContext;
+    }
+
+    public void setRemedialActionCreationContext(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContext) {
+        this.remedialActionCreationContext = remedialActionCreationContext;
+    }
+
     public void setFlowCnecCreationContexts(Set<CsaProfileCnecCreationContext> flowCnecCreationContexts) {
         this.flowCnecCreationContexts = flowCnecCreationContexts.stream().collect(Collectors.toSet());
     }
@@ -101,6 +110,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     public void buildCreationReport() {
         creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
+        addToReport(remedialActionCreationContext, "RemedialActions");
         addToReport(flowCnecCreationContexts, "FlowCnecs");
     }
 

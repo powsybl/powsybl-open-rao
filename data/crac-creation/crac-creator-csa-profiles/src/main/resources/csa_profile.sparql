@@ -136,3 +136,60 @@ WHERE {
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
         }
 }
+
+# query: gridStateAlterationRemedialAction
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:Model.startDate ?startDate ;
+            dcat:Model.endDate ?endDate ;
+            dcat:Model.keyword ?keyword .
+        ?gridStateAlterationRemedialAction
+            rdf:type nc:GridStateAlterationRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+    }
+}
+
+# query: contingencyWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+WHERE {
+    ?contingencyWithRemedialAction
+        rdf:type nc:ContingencyWithRemedialAction ;
+        nc:ContingencyWithRemedialAction.mRID ?mRID ;
+        nc:ContingencyWithRemedialAction.RemedialAction ?gridStateAlterationRemedialAction ;
+        nc:ContingencyWithRemedialAction.Contingency ?contingency ;
+        nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+}
+
+
+# query: topologyAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?topologyAction
+        rdf:type nc:TopologyAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
+        nc:TopologyAction.Switch ?switchId ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+}
+
