@@ -64,14 +64,17 @@ public class CsaProfileRemedialActionsCreator {
 
                 checkRemedialActionCanBeImported(parentRemedialActionPropertyBag);
 
-                Optional<String> nativeRaNameOpt = Optional.ofNullable(parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME));
-                Optional<String> tsoNameOpt = Optional.ofNullable(parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO));
-                Optional<String> targetRemedialActionNameOpt = CsaProfileCracUtils.createRemedialActionName(nativeRaNameOpt.orElse(null), tsoNameOpt.orElse(null));
+                String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
+                String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
+                Optional<String> targetRemedialActionNameOpt = CsaProfileCracUtils.createRemedialActionName(nativeRaName, tsoName);
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
                 targetRemedialActionNameOpt.ifPresent(networkActionAdder::withName);
-                tsoNameOpt.ifPresent(tso -> networkActionAdder.withOperator(tso.substring(tso.lastIndexOf("/") + 1)));
+                if (tsoName != null) {
+                    networkActionAdder.withOperator(tsoName.substring(tsoName.lastIndexOf("/") + 1));
+                }
+
                 speedOpt.ifPresent(networkActionAdder::withSpeed);
 
                 List<String> elementaryActions = new ArrayList<>();
