@@ -16,9 +16,11 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -236,6 +238,14 @@ class RaoUtilTest {
         NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
         when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(List.of());
         assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+
+        // asserts that an automaton with only OnInstant(AVAILABLE) usage rule is not available
+        NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        when(automatonRa.getUsageRules()).thenReturn(List.of(onInstant));
+        State automatonState = Mockito.mock(State.class);
+        when(automatonState.getInstant()).thenReturn(Instant.AUTO);
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
     }
 
     @Test
