@@ -79,6 +79,8 @@ public final class CsaProfileConstants {
     public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
+    public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
+    public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
     public static final String CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
     public static final String MRID = "mRID";
     public static final String TIME_TO_IMPLEMENT = "timeToImplement";

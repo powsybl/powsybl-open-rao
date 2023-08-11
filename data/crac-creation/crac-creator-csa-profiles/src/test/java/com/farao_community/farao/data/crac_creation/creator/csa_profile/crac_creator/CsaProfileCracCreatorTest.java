@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -429,7 +430,7 @@ public class CsaProfileCracCreatorTest {
 
         // RTE_RA7 (on instant)
         NetworkActionImpl ra7 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getId().equals("topological-action-with-tso-name-parent-remedial-action")).findAny().get();
-        assertEquals("10XFR-RTE------Q", ra7.getOperator());
+        assertEquals("RTE", ra7.getOperator());
         assertEquals("RTE_RA7", ra7.getName());
         assertEquals(Instant.PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
@@ -445,7 +446,7 @@ public class CsaProfileCracCreatorTest {
         NetworkActionImpl raNameless2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("nameless-topological-action-with-tso-name-parent-remedial-action")).findAny().get();
         assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getId());
         assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getName());
-        assertEquals("10XFR-RTE------Q", raNameless2.getOperator());
+        assertEquals("RTE", raNameless2.getOperator());
         assertEquals(Instant.PREVENTIVE, raNameless2.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().get(0).getUsageMethod());
     }
@@ -538,5 +539,64 @@ public class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
+    @Test
+    public void csa231() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_1_ValidProfiles.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_1_ValidProfiles.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        // TODO must be 8 but withContingency (onstate) RA's are not imported --> 0 contingency imported --> mock or fix use case
+        //assertEquals(8, cracCreationContext.getCrac().getRemedialActions().size());
+        Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
+        // RA1 (on instant)
+        NetworkActionImpl ra1 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA1")).findAny().get();
+        assertEquals("on-instant-preventive-remedial-action", ra1.getId());
+        assertEquals(Instant.PREVENTIVE, ra1.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().get(0).getUsageMethod());
+        assertEquals("rotating-machine", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(75., ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
+
+        // RA2 (on instant)
+        NetworkActionImpl ra2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA2")).findAny().get();
+        assertEquals("on-instant-curative-remedial-action", ra2.getId());
+        assertEquals(Instant.CURATIVE, ra2.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
+        assertEquals("rotating-machine", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(17.3, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+
+        // on-instant-preventive-nameless-remedial-action-with-speed (on instant)
+        NetworkActionImpl namelessRa = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("on-instant-preventive-nameless-remedial-action-with-speed")).findAny().get();
+        assertEquals("on-instant-preventive-nameless-remedial-action-with-speed", namelessRa.getId());
+        assertEquals(Instant.PREVENTIVE, namelessRa.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, namelessRa.getUsageRules().get(0).getUsageMethod());
+        assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(22.4, ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+        assertEquals(137, namelessRa.getSpeed().get());
+
+        // RTE_RA7 (on instant)
+        NetworkActionImpl ra7 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RTE_RA7")).findAny().get();
+        assertEquals("on-instant-preventive-remedial-with-tso-name", ra7.getId());
+        assertEquals(Instant.PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
+        assertEquals("rotating-machine", ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(100., ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+        assertEquals("RTE", ra7.getOperator());
+
+        // on-instant-nameless-preventive-remedial-with-tso-name (on instant)
+        NetworkActionImpl namelessRa2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("on-instant-nameless-preventive-remedial-with-tso-name")).findAny().get();
+        assertEquals("on-instant-nameless-preventive-remedial-with-tso-name", namelessRa2.getId());
+        assertEquals(Instant.PREVENTIVE, namelessRa2.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, namelessRa2.getUsageRules().get(0).getUsageMethod());
+        assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getNetworkElement().getId());
+        assertEquals(98., ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+        assertEquals("RTE", ra7.getOperator());
     }
 }
