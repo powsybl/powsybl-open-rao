@@ -325,7 +325,7 @@ public final class AutomatonSimulator {
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
             return crac.getFlowCnecs(automatonState);
         } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.AVAILABLE)) {
-            if (availableRa.getUsageRules().stream().anyMatch(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry))) {
+            if (availableRa.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry)) {
                 return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
             } else {
                 BUSINESS_WARNS.warn("Range action %s only contains OnInstant(AVAILABLE) or OnState(AVAILABLE) usage rules which are not supported. It will be ignored.", availableRa.getName());
