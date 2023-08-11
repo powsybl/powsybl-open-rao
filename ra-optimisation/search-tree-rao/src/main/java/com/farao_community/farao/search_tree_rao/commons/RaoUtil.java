@@ -129,10 +129,16 @@ public final class RaoUtil {
 
     /**
      * Evaluates if a remedial action is available.
-     * If the remedial action has no usage rule, it will not be available.
-     * Then, it checks if the remedial action has OnInstant or OnContingencyState usage rules.
-     * If so, all it takes is for one to be "AVAILABLE" for the remedial action to be available.
-     * Else, it calls the method RemedialAction.isRemedialActionAvailable to give the verdict.
+     * 1) If the remedial action has no usage rule, it will not be available.
+     * 2) Then we separate usageRules in two categories :
+     *      - OnInstant and OnContingencyState (OnState category)
+     *      - OnFlowConstraint and OnFlowConstraintInCountry (OnFlow category)
+     * For automatonState, we do not want to check the OnState category as they are supposed to be "FORCED"
+     * For the OnFlow category, we want to check their availability for every given state.
+     * Therefore, we perform a double check : The state must not be an automatonState.
+     * If so, it gathers every OnState usage rules and
+     * all it takes is for one to be "AVAILABLE" for the remedial action to be available.
+     * 3) Else, it calls the method RemedialAction.isRemedialActionAvailable to give the verdict.
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         List<UsageRule> usageRules = remedialAction.getUsageRules();
@@ -140,7 +146,10 @@ public final class RaoUtil {
             FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
             return false;
         }
-        if (usageRules.stream().filter(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry)).anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE))) {
+        if (!state.getInstant().equals(Instant.AUTO)
+            && usageRules.stream()
+            .filter(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry))
+            .anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE))) {
             return true;
         }
         return remedialAction.isRemedialActionAvailable(state, isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state), raoParameters.getObjectiveFunctionParameters().getType().getUnit()));

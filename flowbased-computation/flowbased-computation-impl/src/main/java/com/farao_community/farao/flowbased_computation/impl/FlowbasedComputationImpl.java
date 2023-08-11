@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -112,6 +113,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             crac.getNetworkActions().forEach(na -> {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
                 if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                    BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
                     na.apply(network);
                 }
             });
@@ -207,6 +209,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                BUSINESS_WARNS.warn("Remedial action may be available only on constraint. Condition is not checked but remedial action is applied");
                 networkActionsAppl.add(na);
             }
         });

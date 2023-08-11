@@ -89,10 +89,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      */
     @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        if (getUsageMethod(state) == UsageMethod.AVAILABLE) {
-            return evaluatedCondition;
-        }
-        return false;
+        return (getUsageMethod(state) == UsageMethod.AVAILABLE) && evaluatedCondition;
     }
 
     /**

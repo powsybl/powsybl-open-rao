@@ -18,6 +18,8 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -88,6 +90,9 @@ public final class AutomatonSimulator {
      */
     AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, State curativeState, Network network) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
+        if (doesCracContainsUnsupportedRemedialActions(automatonState)) {
+            BUSINESS_WARNS.warn("CRAC has remedial action automatons with usage rule OnState(AVAILABLE) or OnInstant(AVAILABLE). These usage rules are not supported for this instant and will be ignored.");
+        }
         TECHNICAL_LOGS.info("Initial situation:");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), numberLoggedElementsDuringRao);
 
@@ -139,7 +144,14 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
         flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
-        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.AVAILABLE));
+
+        // For automatonState, filters out rangeActions with usageMethod AVAILABLE having only
+        // OnFlowConstraint or OnFlowConstraintInCountry usageRules as they are not supported.
+        Set<RangeAction<?>> automatonStateRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.AVAILABLE)
+            .stream().filter(ra -> ra.getUsageMethod(automatonState).equals(UsageMethod.FORCED)
+                || ra.getUsageRules().stream().filter(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry)).findAny().isEmpty()).collect(Collectors.toSet());
+
+        rangeActionsInSensi.addAll(automatonStateRangeActions);
         rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
@@ -313,7 +325,12 @@ public final class AutomatonSimulator {
         if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.FORCED)) {
             return crac.getFlowCnecs(automatonState);
         } else if (availableRa.getUsageMethod(automatonState).equals(UsageMethod.AVAILABLE)) {
-            return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
+            if (availableRa.getUsageRules().stream().anyMatch(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry))) {
+                return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);
+            } else {
+                BUSINESS_WARNS.warn("Range action %s only contains OnInstant(AVAILABLE) or OnState(AVAILABLE) usage rules which are not supported. It will be ignored.", availableRa.getName());
+                return Collections.emptySet();
+            }
         } else {
             throw new FaraoException(String.format("Range action %s has usage method %s although FORCED or AVAILABLE were expected.", availableRa, availableRa.getUsageMethod(automatonState)));
         }
@@ -327,7 +344,7 @@ public final class AutomatonSimulator {
         // -- First get forced range actions
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED);
         // -- Then add those with AVAILABLE usage method when evaluation condition is verified
-        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
+        // -- Evaluation condition is isAnyMarginNegative amongst range actions flow cnecs associated to their usage rules
         crac.getRangeActions(automatonState, UsageMethod.AVAILABLE).stream()
             .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
             .forEach(availableRangeActions::add);
@@ -422,6 +439,17 @@ public final class AutomatonSimulator {
         // Run computation
         TECHNICAL_LOGS.info("Running pre curative sensitivity analysis after auto state {}.", automatonState.getId());
         return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
+    }
+
+    /**
+     * This function returns true if the crac contains remedialActions for automatonState that have
+     * OnState(AVAILABLE) or OnInstant(AVAILABLE) usage rules
+     */
+    private boolean doesCracContainsUnsupportedRemedialActions(State automatonState) {
+        return crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).stream()
+            .anyMatch(networkAction -> networkAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry))
+            || crac.getRangeActions(automatonState, UsageMethod.AVAILABLE).stream()
+            .anyMatch(networkAction -> networkAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry));
     }
 
     /**
