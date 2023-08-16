@@ -169,13 +169,13 @@ public class VoltageMonitoring {
                 appliedNetworkActions = applyTopologicalNetworkActions(networkClone, availableNetworkActions);
             }
         }
-        Map<State, Set<NetworkAction>> appliedCra = new HashMap<>();
-        if (!state.isPreventive()) {
-            appliedCra.put(state, appliedNetworkActions);
+        Map<State, Set<NetworkAction>> appliedRa = new HashMap<>();
+        if (!appliedNetworkActions.isEmpty()) {
+            appliedRa.put(state, appliedNetworkActions);
         }
         //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return new VoltageMonitoringResult(voltageValues, appliedCra, VoltageMonitoringResult.Status.UNKNOWN);
+            return new VoltageMonitoringResult(voltageValues, appliedRa, VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure
@@ -183,7 +183,7 @@ public class VoltageMonitoring {
         if (newVoltageValues.entrySet().stream().anyMatch(entrySet -> thresholdOvershoot(entrySet.getKey(), entrySet.getValue()))) {
             status = VoltageMonitoringResult.getUnsecureStatus(newVoltageValues);
         }
-        return new VoltageMonitoringResult(newVoltageValues, appliedCra, status);
+        return new VoltageMonitoringResult(newVoltageValues, appliedRa, status);
     }
 
     private Map<VoltageCnec, ExtremeVoltageValues> computeVoltages(Set<VoltageCnec> voltageCnecs, Network networkClone, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
@@ -298,11 +298,11 @@ public class VoltageMonitoring {
      */
     private VoltageMonitoringResult assembleVoltageMonitoringResults() {
         Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValuesMap = new HashMap<>();
-        Map<State, Set<NetworkAction>> appliedCras = new HashMap<>();
+        Map<State, Set<NetworkAction>> appliedRas = new HashMap<>();
         VoltageMonitoringResult.Status securityStatus = VoltageMonitoringResult.Status.SECURE;
         stateSpecificResults.forEach(s -> {
             extremeVoltageValuesMap.putAll(s.getExtremeVoltageValues());
-            appliedCras.putAll(s.getAppliedCras());
+            appliedRas.putAll(s.getAppliedRas());
         });
         if (stateSpecificResults.isEmpty()) {
             securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
@@ -317,7 +317,7 @@ public class VoltageMonitoring {
         } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNKNOWN)) {
             securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
         }
-        return new VoltageMonitoringResult(extremeVoltageValuesMap, appliedCras, securityStatus);
+        return new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus) {

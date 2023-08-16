@@ -370,7 +370,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
-        voltageMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        voltageMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
     }
@@ -393,8 +393,8 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         //assertEquals(2, voltageMonitoringResult.getAppliedCras().size());
-        assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
-        assertEquals(1, voltageMonitoringResult.getAppliedCras().size());
+        assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
+        assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
     }
 
     @Test
@@ -413,25 +413,23 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
-        assertEquals(0, voltageMonitoringResult.getAppliedCras().size());
+        assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
     }
 
     @Test
     void testUnsecureInitialSituationWithoutAvailableRemedialActions() {
         setUpCracFactory("network.xiidm");
         vcPrev =  addVoltageCnec("vcPrev", Instant.PREVENTIVE, null, "VL1", 390., 399.);
-        crac.newNetworkAction()
+        /*crac.newNetworkAction()
                 .withId("Open L1 - 1")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec(vcPrev.getId()).add()
-                .add();
+                .add();*/
 
         runVoltageMonitoring();
 
-        assertEquals(0, voltageMonitoringResult.getAppliedCras().size());
-        assertTrue(voltageMonitoringResult.getStatus() == LOW_VOLTAGE_CONSTRAINT ||
-                voltageMonitoringResult.getStatus() == HIGH_VOLTAGE_CONSTRAINT ||
-                voltageMonitoringResult.getStatus() == HIGH_AND_LOW_VOLTAGE_CONSTRAINTS);
+        assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
+        assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
     @Test
@@ -454,7 +452,7 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
 
-        assertEquals(1, voltageMonitoringResult.getAppliedCras().size());
+        assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 

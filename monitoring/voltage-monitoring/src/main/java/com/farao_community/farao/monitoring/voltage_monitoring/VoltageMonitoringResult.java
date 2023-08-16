@@ -45,10 +45,10 @@ public class VoltageMonitoringResult {
     private final Status status;
     private final Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues;
     private final Set<VoltageCnec> constrainedElements;
-    private final Map<State, Set<NetworkAction>> appliedCras;
+    private final Map<State, Set<NetworkAction>> appliedRas;
     private List<String> constraints;
 
-    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<NetworkAction>> appliedCras, Status status) {
+    public VoltageMonitoringResult(Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues, Map<State, Set<NetworkAction>> appliedRas, Status status) {
         this.extremeVoltageValues = extremeVoltageValues;
         Set<VoltageCnec> tmpConstrainedElements = new HashSet<>();
         this.constrainedElements = Collections.unmodifiableSet(tmpConstrainedElements);
@@ -62,7 +62,7 @@ public class VoltageMonitoringResult {
                 tmpConstrainedElements.add(entry.getKey());
             }
         }
-        this.appliedCras = appliedCras;
+        this.appliedRas = appliedRas;
         this.status = status;
     }
 
@@ -86,23 +86,23 @@ public class VoltageMonitoringResult {
         return constrainedElements;
     }
 
-    public Set<NetworkAction> getAppliedCras(State state) {
-        return appliedCras.getOrDefault(state, Collections.emptySet());
+    public Set<NetworkAction> getAppliedRas(State state) {
+        return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
-    public Set<String> getAppliedCras(String stateId) {
-        Set<State> states = appliedCras.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
+    public Set<String> getAppliedRas(String stateId) {
+        Set<State> states = appliedRas.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
         if (states.isEmpty()) {
             return Collections.emptySet();
         } else if (states.size() > 1) {
             throw new FaraoException(String.format("%s states share the same id : %s.", states.size(), stateId));
         } else {
-            return appliedCras.get(states.iterator().next()).stream().map(NetworkAction::getId).collect(Collectors.toSet());
+            return appliedRas.get(states.iterator().next()).stream().map(NetworkAction::getId).collect(Collectors.toSet());
         }
     }
 
-    public Map<State, Set<NetworkAction>> getAppliedCras() {
-        return appliedCras;
+    public Map<State, Set<NetworkAction>> getAppliedRas() {
+        return appliedRas;
     }
 
     public Status getStatus() {
