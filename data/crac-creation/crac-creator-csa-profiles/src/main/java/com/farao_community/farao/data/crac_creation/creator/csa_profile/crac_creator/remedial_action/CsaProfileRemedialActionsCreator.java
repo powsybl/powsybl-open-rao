@@ -135,26 +135,27 @@ public class CsaProfileRemedialActionsCreator {
 
     private void addInjectionSetPointElementaryAction(Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag) {
         String rotatingMachinePropertyReference = rotatingMachineActionPropertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
-        if (!rotatingMachinePropertyReference.equals("http://energy.referencedata.eu/PropertyReference/RotatingMachine.p")) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "RotatingMachineAction must have a property reference with RotatingMachine.p value, but it was: " + rotatingMachinePropertyReference));
+        if (!rotatingMachinePropertyReference.equals(CsaProfileConstants.PROPERTY_REFERENCE_ROTATING_MACHINE)) {
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because RotatingMachineAction must have a property reference with RotatingMachine.p value, but it was: " + rotatingMachinePropertyReference));
         }
-        String rotatingMachineId = rotatingMachineActionPropertyBag.get("rotatingMachineId").substring(rotatingMachineActionPropertyBag.get("rotatingMachineId").lastIndexOf("_") + 1);
+        String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
+        String rotatingMachineId = rawId.substring(rawId.lastIndexOf("_") + 1);
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
         Optional<Load> optionalLoad = network.getLoadStream().filter(load -> load.getId().equals(rotatingMachineId)).findAny();
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId));
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId));
         }
 
-        PropertyBag staticPropertyRangePropertyBag = linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().get();
-        float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get("normalValue"));
-        String valueKind = staticPropertyRangePropertyBag.get("valueKind");
-        String direction = staticPropertyRangePropertyBag.get("direction");
-        if (!(valueKind.equals("absolute") && direction.equals("none"))) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none"));
+        PropertyBag staticPropertyRangePropertyBag = linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().get(); // we know it exist otherwise we don't get here
+        float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
+        String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
+        String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
+        if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none"));
         }
-        String propertyReference = staticPropertyRangePropertyBag.get("propertyReference");
+        String propertyReference = staticPropertyRangePropertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
         if (!propertyReference.equals(rotatingMachinePropertyReference)) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "StaticPropertyRange must have the same property reference as the SetPointAction"));
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange must have the same property reference as the SetPointAction"));
         }
 
         networkActionAdder.newInjectionSetPoint()

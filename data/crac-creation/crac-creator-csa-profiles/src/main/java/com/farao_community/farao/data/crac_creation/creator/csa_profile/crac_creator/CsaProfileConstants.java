@@ -92,6 +92,14 @@ public final class CsaProfileConstants {
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
     public static final String PROPERTY_REFERENCE_SWITCH_OPEN = "http://energy.referencedata.eu/PropertyReference/Switch.open";
     public static final String CONTINGENCY_WITH_REMEDIAL_ACTION_NORMAL_ENABLED = "normalEnabled";
+    public static final String PROPERTY_REFERENCE_ROTATING_MACHINE = "http://energy.referencedata.eu/PropertyReference/RotatingMachine.p";
+    public static final String ROTATING_MACHINE = "rotatingMachineId";
+    public static final String NORMAL_VALUE = "normalValue";
+
+    public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
+    public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
+    public static final String DIRECTION_NONE = "none";
+    public static final String VALUE_KIND_ABSOLUTE = "absolute";
 
     public enum RemedialActionKind {
         CURATIVE("curative"),
