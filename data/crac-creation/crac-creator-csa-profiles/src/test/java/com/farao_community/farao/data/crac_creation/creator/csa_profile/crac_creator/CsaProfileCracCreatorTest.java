@@ -7,11 +7,13 @@
 
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -23,7 +25,10 @@ import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -309,14 +314,11 @@ public class CsaProfileCracCreatorTest {
         NetworkActionImpl ra2 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA2")).findAny().get();
         assertEquals("d9bd3aaf-cda3-4b54-bb2e-b03dd9925817", ra2.getId());
         assertEquals(2, ra2.getNetworkElements().size());
-        List<ElementaryAction> elementaryActions = new ArrayList<>(ra2.getElementaryActions());
-        elementaryActions.sort(Comparator.comparingInt(Object::hashCode));
-        TopologicalAction topologicalAction1 = (TopologicalAction) elementaryActions.get(0);
-        TopologicalAction topologicalAction2 = (TopologicalAction) elementaryActions.get(1);
-        assertEquals("39428c75-098b-4366-861d-2df2a857a805", topologicalAction1.getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, topologicalAction1.getActionType());
-        assertEquals("902046a4-40e9-421d-9ef1-9adab0d9d41d", topologicalAction2.getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, topologicalAction2.getActionType());
+        assertTrue(ra2.getElementaryActions().stream().allMatch(TopologicalAction.class::isInstance));
+        List<TopologicalAction> topologicalActions = ra2.getElementaryActions().stream().map(TopologicalAction.class::cast).collect(Collectors.toList());
+        assertTrue(topologicalActions.stream().anyMatch(action -> action.getNetworkElement().getId().equals("39428c75-098b-4366-861d-2df2a857a805")));
+        assertTrue(topologicalActions.stream().anyMatch(action -> action.getNetworkElement().getId().equals("902046a4-40e9-421d-9ef1-9adab0d9d41d")));
+        assertTrue(topologicalActions.stream().allMatch(action -> action.getActionType().equals(ActionType.OPEN)));
         assertEquals(Instant.PREVENTIVE, ra2.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
         // RA13 (on state)
