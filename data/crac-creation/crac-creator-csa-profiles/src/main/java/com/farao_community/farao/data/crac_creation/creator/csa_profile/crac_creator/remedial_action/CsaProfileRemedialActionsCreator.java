@@ -70,7 +70,7 @@ public class CsaProfileRemedialActionsCreator {
             String remedialActionId = parentRemedialActionPropertyBag.get(CsaProfileConstants.MRID);
 
             try {
-                checkRemedialActionCanBeImported(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions);
+                checkRemedialActionCanBeImported(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedStaticPropertyRanges);
 
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
@@ -87,12 +87,18 @@ public class CsaProfileRemedialActionsCreator {
 
                 if (linkedTopologyActions.containsKey(remedialActionId)) {
                     for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(remedialActionId)) {
-                        addElementaryActions(networkActionAdder, topologyActionPropertyBag, remedialActionId);
+                        addTopologicalElementaryAction(networkActionAdder, topologyActionPropertyBag, remedialActionId);
+                    }
+                }
+
+                if (linkedRotatingMachineActions.containsKey(remedialActionId) && linkedStaticPropertyRanges.containsKey(remedialActionId)) {
+                    for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(remedialActionId)) {
+                        addInjectionSetPointElementaryAction(linkedStaticPropertyRanges, remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
                     }
                 }
 
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
-
+                    // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
                     checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), randomCombinationConstraintKind);
 
@@ -108,41 +114,7 @@ public class CsaProfileRemedialActionsCreator {
                             .collect(Collectors.toList());
 
                     addOnContingencyStateUsageRules(networkActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
-                } else { // no contingency linked to RA --> on instant case
-
-                    if (linkedRotatingMachineActions.containsKey(remedialActionId) && linkedStaticPropertyRanges.containsKey(remedialActionId)) {
-                        for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(remedialActionId)) {
-                            String rotatingMachinePropertyReference = rotatingMachineActionPropertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
-                            if (!rotatingMachinePropertyReference.equals("http://energy.referencedata.eu/PropertyReference/RotatingMachine.p")) {
-                                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "RotatingMachineAction must have a property reference with RotatingMachine.p value, but it was: " + rotatingMachinePropertyReference));
-                            }
-                            String rotatingMachineId = rotatingMachineActionPropertyBag.get("rotatingMachineId").substring(rotatingMachineActionPropertyBag.get("rotatingMachineId").lastIndexOf("_") + 1);
-                            Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
-                            Optional<Load> optionalLoad = network.getLoadStream().filter(load -> load.getId().equals(rotatingMachineId)).findAny();
-                            if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-                                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId));
-                            }
-
-                            PropertyBag staticPropertyRangePropertyBag = linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().get();
-                            float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get("normalValue"));  //todo any float in spec but int in crac api
-                            // todo check with po's:  If missing, ignore this StaticPropertyRange and log the issue. --> can't log :  if mandatory field: it will not be imported with sparql
-                            String valueKind = staticPropertyRangePropertyBag.get("valueKind");
-                            String direction = staticPropertyRangePropertyBag.get("direction");
-                            if (!(valueKind.equals("absolute") && direction.equals("none"))) {
-                                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none"));
-                            }
-                            String propertyReference = staticPropertyRangePropertyBag.get("propertyReference");
-                            if (!propertyReference.equals(rotatingMachinePropertyReference)) {
-                                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "StaticPropertyRange must have the same property reference as the SetPointAction"));
-                            }
-
-                            networkActionAdder.newInjectionSetPoint()
-                                    .withSetpoint(normalValue)
-                                    .withNetworkElement(rotatingMachineId)
-                                    .add();
-                        }
-                    }
-
+                } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
                         networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add();
@@ -161,6 +133,36 @@ public class CsaProfileRemedialActionsCreator {
         this.cracCreationContext.setRemedialActionCreationContext(csaProfileRemedialActionCreationContexts);
     }
 
+    private void addInjectionSetPointElementaryAction(Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag) {
+        String rotatingMachinePropertyReference = rotatingMachineActionPropertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
+        if (!rotatingMachinePropertyReference.equals("http://energy.referencedata.eu/PropertyReference/RotatingMachine.p")) {
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "RotatingMachineAction must have a property reference with RotatingMachine.p value, but it was: " + rotatingMachinePropertyReference));
+        }
+        String rotatingMachineId = rotatingMachineActionPropertyBag.get("rotatingMachineId").substring(rotatingMachineActionPropertyBag.get("rotatingMachineId").lastIndexOf("_") + 1);
+        Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
+        Optional<Load> optionalLoad = network.getLoadStream().filter(load -> load.getId().equals(rotatingMachineId)).findAny();
+        if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId));
+        }
+
+        PropertyBag staticPropertyRangePropertyBag = linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().get();
+        float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get("normalValue"));
+        String valueKind = staticPropertyRangePropertyBag.get("valueKind");
+        String direction = staticPropertyRangePropertyBag.get("direction");
+        if (!(valueKind.equals("absolute") && direction.equals("none"))) {
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none"));
+        }
+        String propertyReference = staticPropertyRangePropertyBag.get("propertyReference");
+        if (!propertyReference.equals(rotatingMachinePropertyReference)) {
+            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "StaticPropertyRange must have the same property reference as the SetPointAction"));
+        }
+
+        networkActionAdder.newInjectionSetPoint()
+                .withSetpoint(normalValue)
+                .withNetworkElement(rotatingMachineId)
+                .add();
+    }
+
     private void addOnContingencyStateUsageRules(NetworkActionAdder networkActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
         if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
             networkActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
@@ -173,8 +175,7 @@ public class CsaProfileRemedialActionsCreator {
         });
     }
 
-    private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String
-                                                                                  remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
+    private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
         for (PropertyBag propertyBag : linkedContingencyWithRAs) {
             if (!propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND).equals(firstKind)) {
                 throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because ElementCombinationConstraintKind of a remedial action linked to a contingency must be all of the same kind");
@@ -182,10 +183,10 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void checkRemedialActionCanBeImported(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions) {
+    private void checkRemedialActionCanBeImported(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
         String remedialActionId = remedialActionPropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        if (!linkedTopologyActions.containsKey(remedialActionId) && !linkedRotatingMachineActions.containsKey(remedialActionId)) {
-            // fixme: create regression linkedTopologyActions and linkedRotatingMachineActions must be handled separately
+        if (!linkedTopologyActions.containsKey(remedialActionId)
+                && !(linkedRotatingMachineActions.containsKey(remedialActionId) && linkedStaticPropertyRanges.containsKey(remedialActionId))) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because there is no topology actions, nor Set point actions linked to that RA");
         }
 
@@ -235,7 +236,7 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private void addElementaryActions(NetworkActionAdder networkActionAdder, PropertyBag
+    private void addTopologicalElementaryAction(NetworkActionAdder networkActionAdder, PropertyBag
             topologyActionPropertyBag, String remedialActionId) {
         String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
         if (network.getSwitch(switchId) == null) {

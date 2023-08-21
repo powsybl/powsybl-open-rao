@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
@@ -540,18 +539,19 @@ public class CsaProfileCracCreatorTest {
 
     @Test
     public void csa231() {
-        Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_1_ValidProfiles.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
-
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_1_ValidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
 
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+
+        Network network = Mockito.mock(Network.class);
+        Branch networkElementMock = Mockito.mock(Branch.class);
+        Mockito.when(networkElementMock.getId()).thenReturn("equipment-with-contingency");
+        Mockito.when(network.getIdentifiable("equipment-with-contingency")).thenReturn(networkElementMock);
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
-        // TODO must be 8 but withContingency (onstate) RA's are not imported --> 0 contingency imported --> mock or fix use case
-        //assertEquals(8, cracCreationContext.getCrac().getRemedialActions().size());
+        assertEquals(8, cracCreationContext.getCrac().getRemedialActions().size());
         Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
         // RA1 (on instant)
         NetworkActionImpl ra1 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA1")).findAny().get();
@@ -595,5 +595,48 @@ public class CsaProfileCracCreatorTest {
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(98., ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
         assertEquals("RTE", ra7.getOperator());
+
+        // on-state-included-curative-remedial-action (on state)
+        NetworkActionImpl ra3 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA3")).findAny().get();
+        assertEquals("on-state-included-curative-remedial-action", ra3.getId());
+        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra3.getUsageRules().get(0).getInstant());
+        assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("rotating-machine", ra3.getNetworkElements().iterator().next().getId());
+        assertEquals(2.8, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+
+        // on-state-considered-curative-remedial-action (on state)
+        NetworkActionImpl ra4 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA4")).findAny().get();
+        assertEquals("on-state-considered-curative-remedial-action", ra4.getId());
+        assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().get(0).getUsageMethod());
+        assertEquals(Instant.CURATIVE, ra4.getUsageRules().get(0).getInstant());
+        assertEquals("contingency", ((OnContingencyStateImpl) ra4.getUsageRules().get(0)).getContingency().getId());
+        assertEquals("rotating-machine", ra4.getNetworkElements().iterator().next().getId());
+        assertEquals(15.6, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
+
+        // on-state-excluded-curative-remedial-action (on state + on instant)
+        NetworkActionImpl ra5 = (NetworkActionImpl) remedialActions.stream().filter(ra -> ra.getName().equals("RA5")).findAny().get();
+        assertEquals("on-state-excluded-curative-remedial-action", ra5.getId());
+        List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).collect(Collectors.toList());
+        assertEquals(2, usageRules.size());
+        assertTrue(ra5.getUsageRules().stream().map(UsageRule::getInstant).allMatch(i -> i.equals(Instant.CURATIVE)));
+        assertEquals(UsageMethod.AVAILABLE, usageRules.get(0).getUsageMethod());
+        assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
+        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());
+        assertEquals("rotating-machine", ra5.getNetworkElements().iterator().next().getId());
+        assertEquals(25.7, ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
     }
+
+    @Test
+    public void csa232() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_2_InvalidProfiles.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_2_InvalidProfiles.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+    }
+
 }
