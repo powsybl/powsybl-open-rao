@@ -193,3 +193,30 @@ WHERE {
         nc:GridStateAlteration.PropertyReference ?propertyReference ;
 }
 
+# query: rotatingMachineAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?rotatingMachineAction
+        rdf:type nc:RotatingMachineAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
+        nc:GridStateAlteration.normalEnabled ?normalEnabled ;
+        nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+}
+
+# query: staticPropertyRange
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?staticPropertyRange
+        rdf:type nc:StaticPropertyRange ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:RangeConstraint.normalValue ?normalValue ;
+        nc:RangeConstraint.valueKind ?valueKind ;
+        nc:RangeConstraint.GridStateAlteration ?gridStateAlterationRemedialAction ;
+        nc:StaticPropertyRange.PropertyReference ?propertyReference;
+}

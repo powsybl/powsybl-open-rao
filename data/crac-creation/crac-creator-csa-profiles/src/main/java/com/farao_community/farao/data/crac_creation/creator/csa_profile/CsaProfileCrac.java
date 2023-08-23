@@ -70,6 +70,14 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(CsaProfileConstants.TOPOLOGY_ACTION, tripleStoreCsaProfileCrac.contextNames());
     }
 
+    public PropertyBags getRotatingMachineAction() {
+        return this.queryTripleStore(CsaProfileConstants.ROTATING_MACHINE_ACTION, tripleStoreCsaProfileCrac.contextNames());
+    }
+
+    public PropertyBags getStaticPropertyRanges() {
+        return this.queryTripleStore(CsaProfileConstants.STATIC_PROPERTY_RANGE, tripleStoreCsaProfileCrac.contextNames());
+    }
+
     public PropertyBags getContingencyWithRemedialAction() {
         return this.queryTripleStore(CsaProfileConstants.CONTINGENCY_WITH_REMEDIAL_ACTION, tripleStoreCsaProfileCrac.contextNames());
     }
