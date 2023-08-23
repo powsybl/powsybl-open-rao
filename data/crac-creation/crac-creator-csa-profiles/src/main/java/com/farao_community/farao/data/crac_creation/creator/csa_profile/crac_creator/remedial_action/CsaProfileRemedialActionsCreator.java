@@ -146,22 +146,23 @@ public class CsaProfileRemedialActionsCreator {
             csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId));
         }
 
-        PropertyBag staticPropertyRangePropertyBag = linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().get(); // we know it exist otherwise we don't get here
-        float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
-        String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
-        String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
-        if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none"));
-        }
-        String propertyReference = staticPropertyRangePropertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
-        if (!propertyReference.equals(rotatingMachinePropertyReference)) {
-            csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange must have the same property reference as the SetPointAction"));
-        }
+        linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().ifPresent(staticPropertyRangePropertyBag -> {
+            float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
+            String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
+            String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
+            if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
+                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none"));
+            }
+            String propertyReference = staticPropertyRangePropertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
+            if (!propertyReference.equals(rotatingMachinePropertyReference)) {
+                csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange must have the same property reference as the SetPointAction"));
+            }
 
-        networkActionAdder.newInjectionSetPoint()
-                .withSetpoint(normalValue)
-                .withNetworkElement(rotatingMachineId)
-                .add();
+            networkActionAdder.newInjectionSetPoint()
+                    .withSetpoint(normalValue)
+                    .withNetworkElement(rotatingMachineId)
+                    .add();
+        });
     }
 
     private void addOnContingencyStateUsageRules(NetworkActionAdder networkActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
