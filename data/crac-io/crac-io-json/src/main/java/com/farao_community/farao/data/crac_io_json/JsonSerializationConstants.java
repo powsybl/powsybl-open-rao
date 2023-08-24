@@ -394,10 +394,9 @@ public final class JsonSerializationConstants {
             String unit1 = serializeUnit(o1.getUnit());
             String unit2 = serializeUnit(o2.getUnit());
             if (unit1.equals(unit2)) {
-                if (o1 instanceof BranchThreshold && o2 instanceof BranchThreshold) {
-                    if (!((BranchThreshold) o1).getSide().equals(((BranchThreshold) o2).getSide())) {
-                        return serializeSide(((BranchThreshold) o1).getSide()).compareTo(serializeSide(((BranchThreshold) o2).getSide()));
-                    }
+                if ((o1 instanceof BranchThreshold && o2 instanceof BranchThreshold) &&
+                    !((BranchThreshold) o1).getSide().equals(((BranchThreshold) o2).getSide())) {
+                    return serializeSide(((BranchThreshold) o1).getSide()).compareTo(serializeSide(((BranchThreshold) o2).getSide()));
                 }
                 if (o1.min().isPresent()) {
                     return -1;
@@ -425,7 +424,7 @@ public final class JsonSerializationConstants {
                 return 0;
             }
             if (o1 instanceof OnContingencyState) {
-                return ((OnContingencyState) o1).getState().toString().compareTo(((OnContingencyState) o2).getState().toString());
+                return ((OnContingencyState) o1).getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
             }
             if (o1 instanceof OnFlowConstraint) {
                 return ((OnFlowConstraint) o1).getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
