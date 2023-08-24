@@ -125,13 +125,13 @@ class JsonSerializationConstantsTest {
     void testUsageRuleComparatorOnInstant() {
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule onInstant1 =mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
-        UsageRule onInstant2 =mockUsageRule(Instant.PREVENTIVE, UsageMethod.FORCED, null, null, null, null, null);
-        UsageRule onInstant3 =mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.FORCED, null, null, null, null, null);
+        UsageRule onInstant3 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
 
-        assertEquals(comparator.compare(onInstant1, onInstant1) , 0);
-        assertEquals(comparator.compare(onInstant2, onInstant2) , 0);
-        assertEquals(comparator.compare(onInstant3, onInstant3) , 0);
+        assertEquals(comparator.compare(onInstant1, onInstant1), 0);
+        assertEquals(comparator.compare(onInstant2, onInstant2), 0);
+        assertEquals(comparator.compare(onInstant3, onInstant3), 0);
         assertTrue(comparator.compare(onInstant1, onInstant2) < 0);
         assertTrue(comparator.compare(onInstant2, onInstant3) < 0);
         assertTrue(comparator.compare(onInstant1, onInstant3) < 0);
