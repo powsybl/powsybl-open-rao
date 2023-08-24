@@ -79,6 +79,8 @@ public final class CsaProfileConstants {
     public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
+    public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
+    public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
     public static final String CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
     public static final String MRID = "mRID";
     public static final String TIME_TO_IMPLEMENT = "timeToImplement";
@@ -90,6 +92,14 @@ public final class CsaProfileConstants {
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
     public static final String PROPERTY_REFERENCE_SWITCH_OPEN = "http://energy.referencedata.eu/PropertyReference/Switch.open";
     public static final String CONTINGENCY_WITH_REMEDIAL_ACTION_NORMAL_ENABLED = "normalEnabled";
+    public static final String PROPERTY_REFERENCE_ROTATING_MACHINE = "http://energy.referencedata.eu/PropertyReference/RotatingMachine.p";
+    public static final String ROTATING_MACHINE = "rotatingMachineId";
+    public static final String NORMAL_VALUE = "normalValue";
+
+    public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
+    public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
+    public static final String DIRECTION_NONE = "none";
+    public static final String VALUE_KIND_ABSOLUTE = "absolute";
 
     public enum RemedialActionKind {
         CURATIVE("curative"),
