@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -38,11 +40,7 @@ public final class CsaProfileCracUtils {
         Map<String, Set<PropertyBag>> mappedPropertyBags = new HashMap<>();
         for (PropertyBag propertyBag : propertyBags) {
             String propValue = propertyBag.getId(property);
-            Set<PropertyBag> propPropertyBags = mappedPropertyBags.get(propValue);
-            if (propPropertyBags == null) {
-                propPropertyBags = new HashSet<>();
-                mappedPropertyBags.put(propValue, propPropertyBags);
-            }
+            Set<PropertyBag> propPropertyBags = mappedPropertyBags.computeIfAbsent(propValue, k -> new HashSet<>());
             propPropertyBags.add(propertyBag);
         }
         return mappedPropertyBags;
@@ -98,4 +96,19 @@ public final class CsaProfileCracUtils {
         return seconds;
     }
 
+    public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, String expectedPropertyReference) {
+        String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
+        if (!actualPropertyReference.equals(expectedPropertyReference)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because '%s' must have a property reference with '%s' value, but it was: '%s'", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
+        }
+    }
+
+    public static void checkNormalEnabled(PropertyBag propertyBag, String remedialActionId, String propertyBagKind) {
+        Optional<String> normalEnabledOpt = Optional.ofNullable(propertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
+        if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in '%s' must be true or empty", remedialActionId, propertyBagKind));
+        }
+    }
+
 }
+
