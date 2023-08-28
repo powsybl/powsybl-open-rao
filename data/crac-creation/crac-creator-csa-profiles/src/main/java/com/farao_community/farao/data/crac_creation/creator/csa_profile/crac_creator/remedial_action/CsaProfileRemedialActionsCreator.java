@@ -66,8 +66,7 @@ public class CsaProfileRemedialActionsCreator {
         Map<String, Set<PropertyBag>> linkedTopologyActions = CsaProfileCracUtils.getMappedPropertyBagsSet(topologyActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(rotatingMachineActionsPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
         Map<String, Set<PropertyBag>> linkedTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(tapPositionPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToTapPositionActions = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
+        Map<String, Set<PropertyBag>> linkedStaticPropertyRanges = CsaProfileCracUtils.getMappedPropertyBagsSet(staticPropertyRangesPropertyBags, CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION); // the id here is the id of the subclass of gridStateAlteration (tapPositionAction, RotatingMachine, ..)
 
         NetworkActionCreator networkActionCreator = new NetworkActionCreator(crac, network);
         PstRangeActionCreator pstRangeActionCreator = new PstRangeActionCreator(crac, network);
@@ -76,7 +75,7 @@ public class CsaProfileRemedialActionsCreator {
             String remedialActionId = parentRemedialActionPropertyBag.get(CsaProfileConstants.MRID);
 
             try {
-                String remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedTapPositionActions, staticPropertyRangesLinkedToRotatingMachineActions);
+                String remedialActionType = checkRemedialActionCanBeImportedAndIdentifyType(parentRemedialActionPropertyBag, linkedTopologyActions, linkedRotatingMachineActions, linkedTapPositionActions, linkedStaticPropertyRanges);
                 RemedialActionAdder remedialActionAdder;
                 String nativeRaName = parentRemedialActionPropertyBag.get(CsaProfileConstants.REMEDIAL_ACTION_NAME);
                 String tsoName = parentRemedialActionPropertyBag.get(CsaProfileConstants.TSO);
@@ -84,9 +83,9 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
                 if (remedialActionType.equals(NetworkAction.class.getName())) {
-                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, staticPropertyRangesLinkedToRotatingMachineActions, remedialActionId);
+                    remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedStaticPropertyRanges, remedialActionId);
                 } else {
-                    remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, staticPropertyRangesLinkedToTapPositionActions, remedialActionId);
+                    remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId);
                 }
 
                 targetRemedialActionNameOpt.ifPresent(remedialActionAdder::withName);
@@ -157,7 +156,7 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private String checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+    private String checkRemedialActionCanBeImportedAndIdentifyType(PropertyBag remedialActionPropertyBag, Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges) {
         String remedialActionId = remedialActionPropertyBag.getId(CsaProfileConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION);
 
         String keyword = remedialActionPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
@@ -182,7 +181,7 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         if (linkedTopologyActions.containsKey(remedialActionId)
-                || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), staticPropertyRangesLinkedToRotatingMachineActions))) {
+                || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
             return NetworkAction.class.getName();
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return PstRangeAction.class.getName();

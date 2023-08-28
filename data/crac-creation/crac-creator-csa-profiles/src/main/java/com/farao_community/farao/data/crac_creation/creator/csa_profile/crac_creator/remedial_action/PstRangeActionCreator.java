@@ -35,21 +35,21 @@ public class PstRangeActionCreator {
         this.network = network;
     }
 
-    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToTapPositionActions, String remedialActionId) {
+    public PstRangeActionAdder getPstRangeActionAdder(Map<String, Set<PropertyBag>> linkedTapPositionActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId) {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction().withId(remedialActionId);
         if (linkedTapPositionActions.containsKey(remedialActionId)) {
             for (PropertyBag tapPositionActionPropertyBag : linkedTapPositionActions.get(remedialActionId)) {
-                Set<PropertyBag> linkedStaticPropertyRanges = new HashSet<>();
-                if (staticPropertyRangesLinkedToTapPositionActions.containsKey(tapPositionActionPropertyBag.getId("mRID"))) {
-                    linkedStaticPropertyRanges = staticPropertyRangesLinkedToTapPositionActions.get(tapPositionActionPropertyBag.getId("mRID"));
+                Set<PropertyBag> linkedStaticPropertyRangesFoTapPositionAction = new HashSet<>();
+                if (linkedStaticPropertyRanges.containsKey(tapPositionActionPropertyBag.getId("mRID"))) {
+                    linkedStaticPropertyRangesFoTapPositionAction = linkedStaticPropertyRanges.get(tapPositionActionPropertyBag.getId("mRID"));
                 }
-                addTapPositionElementaryAction(linkedStaticPropertyRanges, remedialActionId, pstRangeActionAdder, tapPositionActionPropertyBag);
+                addTapPositionElementaryAction(linkedStaticPropertyRangesFoTapPositionAction, remedialActionId, pstRangeActionAdder, tapPositionActionPropertyBag);
             }
         }
         return pstRangeActionAdder;
     }
 
-    private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRanges, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag) {
+    private void addTapPositionElementaryAction(Set<PropertyBag> linkedStaticPropertyRangesFoTapPositionAction, String remedialActionId, PstRangeActionAdder pstRangeActionAdder, PropertyBag tapPositionActionPropertyBag) {
         CsaProfileCracUtils.checkNormalEnabled(tapPositionActionPropertyBag, remedialActionId, "TapPositionAction");
         CsaProfileCracUtils.checkPropertyReference(tapPositionActionPropertyBag, remedialActionId, "TapPositionAction", CsaProfileConstants.PROPERTY_REFERENCE_TAP_POSITION);
         String rawId = tapPositionActionPropertyBag.get(CsaProfileConstants.TAP_CHANGER);
@@ -64,10 +64,10 @@ public class PstRangeActionCreator {
                 .withInitialTap(iidmPstHelper.getInitialTap())
                 .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap());
 
-        if (!linkedStaticPropertyRanges.isEmpty()) {
+        if (!linkedStaticPropertyRangesFoTapPositionAction.isEmpty()) {
             Optional<Integer> normalValueUp = Optional.empty();
             Optional<Integer> normalValueDown = Optional.empty();
-            for (PropertyBag staticPropertyRangePropertyBag : linkedStaticPropertyRanges) {
+            for (PropertyBag staticPropertyRangePropertyBag : linkedStaticPropertyRangesFoTapPositionAction) {
                 CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PROPERTY_REFERENCE_TAP_POSITION);
                 String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
 
