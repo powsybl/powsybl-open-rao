@@ -34,7 +34,7 @@ public class NetworkActionCreator {
         this.network = network;
     }
 
-    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId) {
+    public NetworkActionAdder getNetworkActionAdder(Map<String, Set<PropertyBag>> linkedTopologyActions, Map<String, Set<PropertyBag>> linkedRotatingMachineActions, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions, String remedialActionId) {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction().withId(remedialActionId);
         if (linkedTopologyActions.containsKey(remedialActionId)) {
             for (PropertyBag topologyActionPropertyBag : linkedTopologyActions.get(remedialActionId)) {
@@ -42,15 +42,21 @@ public class NetworkActionCreator {
             }
         }
 
-        if (linkedRotatingMachineActions.containsKey(remedialActionId) && linkedStaticPropertyRanges.containsKey(remedialActionId)) {
+        if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
             for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(remedialActionId)) {
-                addInjectionSetPointElementaryAction(linkedStaticPropertyRanges, remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
+                if (staticPropertyRangesLinkedToRotatingMachineActions.containsKey(rotatingMachineActionPropertyBag.getId("mRID"))) {
+                    addInjectionSetPointElementaryAction(
+                            staticPropertyRangesLinkedToRotatingMachineActions.get(rotatingMachineActionPropertyBag.getId("mRID")),
+                            remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
+                } else {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because there is no linked StaticPropertyRange to that RA");
+                }
             }
         }
         return networkActionAdder;
     }
 
-    private void addInjectionSetPointElementaryAction(Map<String, Set<PropertyBag>> linkedStaticPropertyRanges, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag) {
+    private void addInjectionSetPointElementaryAction(Set<PropertyBag> linkedStaticPropertyRanges, String remedialActionId, NetworkActionAdder networkActionAdder, PropertyBag rotatingMachineActionPropertyBag) {
         CsaProfileCracUtils.checkNormalEnabled(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction");
         CsaProfileCracUtils.checkPropertyReference(rotatingMachineActionPropertyBag, remedialActionId, "RotatingMachineAction", CsaProfileConstants.PROPERTY_REFERENCE_ROTATING_MACHINE);
         String rawId = rotatingMachineActionPropertyBag.get(CsaProfileConstants.ROTATING_MACHINE);
@@ -61,19 +67,18 @@ public class NetworkActionCreator {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId);
         }
 
-        linkedStaticPropertyRanges.get(remedialActionId).stream().findAny().ifPresent(staticPropertyRangePropertyBag -> {
-            CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PROPERTY_REFERENCE_ROTATING_MACHINE);
-            float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
-            String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
-            String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
-            if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-            }
-            networkActionAdder.newInjectionSetPoint()
-                    .withSetpoint(normalValue)
-                    .withNetworkElement(rotatingMachineId)
-                    .add();
-        });
+        PropertyBag staticPropertyRangePropertyBag = linkedStaticPropertyRanges.iterator().next(); // get a random one
+        CsaProfileCracUtils.checkPropertyReference(staticPropertyRangePropertyBag, remedialActionId, "StaticPropertyRange", CsaProfileConstants.PROPERTY_REFERENCE_ROTATING_MACHINE);
+        float normalValue = Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
+        String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
+        String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
+        if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        }
+        networkActionAdder.newInjectionSetPoint()
+                .withSetpoint(normalValue)
+                .withNetworkElement(rotatingMachineId)
+                .add();
     }
 
     private Optional<Load> findLoad(String rotatingMachineId) {
