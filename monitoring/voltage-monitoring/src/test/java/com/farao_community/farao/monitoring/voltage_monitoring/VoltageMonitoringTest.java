@@ -469,20 +469,14 @@ class VoltageMonitoringTest {
         assertEquals(LOW_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
-    /*@Test
+    @Test
     void testUnsecureInitialSituationWithRemedialActionThatSolveVC() {
-        setUpCracFactory("network2.xiidm");
-        vcPrev =  addVoltageCnec("vcPrev", Instant.PREVENTIVE, null, "VL1", 400., 400.);
-        crac.newNetworkAction()
-                .withId("Open L1 - 1")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec(vcPrev.getId()).add()
-                .add();
+        setUpCracFactory("network3.xiidm");
 
         crac.newContingency().withId("co").withNetworkElement("L1").add();
-        VoltageCnec vc =  addVoltageCnec("vc", Instant.CURATIVE, "co", "VL1", 400., 400.);
+        VoltageCnec vc =  addVoltageCnec("vc", Instant.CURATIVE, "co", "VL2", 385., 400.);
         crac.newNetworkAction()
-                .withId("Open L1 - 2")
+                .withId("Close L1 - 1")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
                 .add();
@@ -491,6 +485,21 @@ class VoltageMonitoringTest {
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-    }*/
+
+        setUpCracFactory("network3.xiidm");
+
+        crac.newContingency().withId("co").withNetworkElement("L1").add();
+        vc =  addVoltageCnec("vc", Instant.CURATIVE, "co", "VL2", 340., 350.);
+        crac.newNetworkAction()
+                .withId("Open L2 - 1")
+                .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
+                .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
+                .add();
+
+        runVoltageMonitoring();
+
+        assertEquals(SECURE, voltageMonitoringResult.getStatus());
+        assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
+    }
 }
 
