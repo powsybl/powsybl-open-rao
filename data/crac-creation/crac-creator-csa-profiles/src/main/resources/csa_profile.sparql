@@ -217,6 +217,21 @@ WHERE {
         cim:IdentifiedObject.mRID ?mRID ;
         nc:RangeConstraint.normalValue ?normalValue ;
         nc:RangeConstraint.valueKind ?valueKind ;
+        nc:RangeConstraint.direction ?direction ;
         nc:RangeConstraint.GridStateAlteration ?gridStateAlterationRemedialAction ;
         nc:StaticPropertyRange.PropertyReference ?propertyReference;
+}
+
+# query: tapPositionAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?tapPositionAction
+        rdf:type nc:TapPositionAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference;
+        nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
+        nc:GridStateAlteration.normalEnabled ?normalEnabled ;
+        nc:TapPositionAction.TapChanger ?tapChangerId ;
 }
