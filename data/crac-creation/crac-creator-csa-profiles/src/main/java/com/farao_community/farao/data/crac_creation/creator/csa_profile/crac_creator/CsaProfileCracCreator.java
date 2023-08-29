@@ -39,14 +39,14 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         this.creationContext = new CsaProfileCracCreationContext(crac, offsetDateTime, network.getNameOrId());
 
         createContingencies(nativeCrac.getContingencies(), nativeCrac.getContingencyEquipments());
-        createRemedialActions(nativeCrac.getRemedialActions(), nativeCrac.getTopologyAction(), nativeCrac.getRotatingMachineAction(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getContingencyWithRemedialAction());
+        createRemedialActions(nativeCrac.getRemedialActions(), nativeCrac.getTopologyAction(), nativeCrac.getRotatingMachineAction(), nativeCrac.getTapPositionAction(), nativeCrac.getStaticPropertyRanges(), nativeCrac.getContingencyWithRemedialAction());
         createFlowCnecs(nativeCrac.getAssessedElements(), nativeCrac.getAssessedElementsWithContingencies(), nativeCrac.getCurrentLimits());
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
     }
 
-    private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags) {
-        new CsaProfileRemedialActionsCreator(crac, network, creationContext, remedialActionsPropertyBags, contingencyWithRemedialActionsPropertyBags, topologyActionsPropertyBags, rotatingMachineActionPropertyBags, staticPropertyRanges);
+    private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags tapPositionPropertyBags,  PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags) {
+        new CsaProfileRemedialActionsCreator(crac, network, creationContext, remedialActionsPropertyBags, contingencyWithRemedialActionsPropertyBags, topologyActionsPropertyBags, rotatingMachineActionPropertyBags, tapPositionPropertyBags, staticPropertyRanges);
     }
 
     private void createContingencies(PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags) {
