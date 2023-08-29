@@ -166,7 +166,7 @@ public class VoltageMonitoring {
             //If there is a threshold overshoot, apply topological network action
             if (thresholdOvershoot(voltageCnec, voltages.getValue())) {
                 Set<NetworkAction> availableNetworkActions = getVoltageCnecNetworkActions(state, voltageCnec);
-                appliedNetworkActions = applyTopologicalNetworkActions(networkClone, availableNetworkActions);
+                appliedNetworkActions.addAll(applyTopologicalNetworkActions(networkClone, availableNetworkActions));
             }
         }
         Map<State, Set<NetworkAction>> appliedRa = new HashMap<>();
