@@ -292,8 +292,9 @@ public class VoltageMonitoring {
      * Individual VoltageResults and appliedCras maps are concatenated.
      * Global status :
      * - SECURE if all VoltageMonitoringResults are SECURE.
-     * - DIVERGENT if any AngleMonitoringResult is DIVERGENT.
-     * - UNSECURE if any AngleMonitoringResult is UNSECURE.
+     * - HIGH_AND_LOW_VOLTAGE_CONSTRAINT if any AngleMonitoringResult is HIGH_AND_LOW_VOLTAGE_CONSTRAINT
+     * or if an AngleMonitoringResult is LOW_VOLTAGE_CONSTRAINT and another is HIGH_VOLTAGE_CONSTRAINT.
+     * - HIGH/LOW_VOLTAGE_CONSTRAINT if any AngleMonitoringResult is HIGH/LOW_VOLTAGE_CONSTRAINT.
      * - UNKNOWN if any AngleMonitoringResult is UNKNOWN and no AngleMonitoringResult is UNSECURE.
      */
     private VoltageMonitoringResult assembleVoltageMonitoringResults() {
