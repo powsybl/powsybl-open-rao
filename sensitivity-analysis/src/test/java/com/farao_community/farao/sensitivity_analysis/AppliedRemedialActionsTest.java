@@ -37,7 +37,7 @@ class AppliedRemedialActionsTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithCurativePstRange();
         pstRangeAction = crac.getPstRangeAction("pst");
-        networkAction = crac.newNetworkAction()
+        networkAction = (NetworkAction) crac.newNetworkAction()
                 .withId("na-id")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
                 .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add()

@@ -122,8 +122,9 @@ public final class InjectionRangeActionArrayDeserializer {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
                 injectionRangeActionAdder.withInitialSetpoint(0);
             }
-            InjectionRangeAction injectionRangeAction = injectionRangeActionAdder.add();
+            InjectionRangeAction injectionRangeAction = (InjectionRangeAction) injectionRangeActionAdder.add();
             if (!extensions.isEmpty()) {
+                // TODO : do we still use extensions?
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(injectionRangeAction, extensions);
             }
         }

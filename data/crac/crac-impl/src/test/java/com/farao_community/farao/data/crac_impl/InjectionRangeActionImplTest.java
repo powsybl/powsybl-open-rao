@@ -35,7 +35,7 @@ class InjectionRangeActionImplTest {
 
     @Test
     void applyOnTwoGeneratorsTest() {
-        InjectionRangeAction ira = crac.newInjectionRangeAction()
+        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _generator")
                 .withNetworkElementAndKey(-1., "DDE3AA1 _generator")
@@ -58,7 +58,7 @@ class InjectionRangeActionImplTest {
 
     @Test
     void applyOnCombinationOfLoadAndGeneratorsTest() {
-        InjectionRangeAction ira = crac.newInjectionRangeAction()
+        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(0.2, "BBE3AA1 _load")
                 .withNetworkElementAndKey(0.3, "FFR2AA1 _generator")
@@ -84,7 +84,7 @@ class InjectionRangeActionImplTest {
 
     @Test
     void rangeActionOnNonExistingElementTest() {
-        InjectionRangeAction ira = crac.newInjectionRangeAction()
+        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "unknown _load")
                 .newRange().withMin(-1000).withMax(1000).add()
@@ -108,7 +108,7 @@ class InjectionRangeActionImplTest {
 
     @Test
     void rangeActionOnNotAnInjectionTest() {
-        InjectionRangeAction ira = crac.newInjectionRangeAction()
+        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
                 .newRange().withMin(-1000).withMax(1000).add()
@@ -132,7 +132,7 @@ class InjectionRangeActionImplTest {
 
     @Test
     void getCurrentSetpointTest() {
-        InjectionRangeAction ira = crac.newInjectionRangeAction()
+        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
                 .withNetworkElementAndKey(1., "DDE3AA1 _generator")
@@ -161,7 +161,7 @@ class InjectionRangeActionImplTest {
 
     @Test
     void getMinMaxAdmissibleSetpointTest() {
-        InjectionRangeAction ira = crac.newInjectionRangeAction()
+        InjectionRangeAction ira = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
                 .newRange().withMin(-1000).withMax(1000).add()
