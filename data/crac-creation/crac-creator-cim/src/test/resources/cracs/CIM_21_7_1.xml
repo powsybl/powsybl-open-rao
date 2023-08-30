@@ -368,7 +368,7 @@
             <mRID>InvalidCo</mRID>
             <name>InvalidCo-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29_doesnt_exist</mRID>
               <name>Co1NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>

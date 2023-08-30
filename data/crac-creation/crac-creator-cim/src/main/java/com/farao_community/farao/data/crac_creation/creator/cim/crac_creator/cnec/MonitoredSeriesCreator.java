@@ -85,7 +85,7 @@ public class MonitoredSeriesCreator {
     }
 
     private boolean describesCnecsToImport(Series series) {
-        return series.getBusinessType().equals(CNECS_SERIES_BUSINESS_TYPE);
+        return series.getBusinessType().equals(CNECS_SERIES_BUSINESS_TYPE) || series.getBusinessType().equals(REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE);
     }
 
     private void readAndAddCnec(MonitoredSeries monitoredSeries, List<Contingency> contingencies, String optimizationStatus, List<String> invalidContingencies) {
@@ -132,7 +132,7 @@ public class MonitoredSeriesCreator {
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
             monitoredSeriesCreationContext = MonitoredSeriesCreationContext.imported(nativeId, nativeName, resourceId, resourceName,
-                true, String.format("Contingencies %s not defined in B55s", contingencyList));
+                true, String.format("Contingencies %s were not imported", contingencyList));
         }
 
         // Read measurements
@@ -180,13 +180,7 @@ public class MonitoredSeriesCreator {
     }
 
     private boolean isMnec(String optimizationStatus) {
-        if (Objects.nonNull(optimizationStatus) && optimizationStatus.equals(CNECS_MNEC_MARKET_OBJECT_STATUS)) {
-            return true;
-        } else if (Objects.isNull(optimizationStatus) || optimizationStatus.equals(CNECS_OPTIMIZED_MARKET_OBJECT_STATUS)) {
-            return false;
-        } else {
-            throw new FaraoException(String.format("Unrecognized optimization_MarketObjectStatus.status: %s", optimizationStatus));
-        }
+        return Objects.nonNull(optimizationStatus) && optimizationStatus.equals(CNECS_MNEC_MARKET_OBJECT_STATUS);
     }
 
     private MeasurementCreationContext createCnecFromMeasurement(Analog measurement, String cnecId, boolean isMnec, CgmesBranchHelper branchHelper, List<Contingency> contingencies) {
