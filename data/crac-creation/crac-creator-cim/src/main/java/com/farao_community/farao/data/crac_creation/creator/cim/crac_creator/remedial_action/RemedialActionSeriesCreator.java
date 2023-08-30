@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.FaraoImportException;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AdditionalConstraintSeriesCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
@@ -343,7 +343,7 @@ public class RemedialActionSeriesCreator {
             return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s not defined in B55s", contingencyList));
+            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList));
         }
     }
 
@@ -352,7 +352,7 @@ public class RemedialActionSeriesCreator {
             return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s not defined in B55s", contingencyList));
+            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s were not imported", contingencyList));
         }
     }
 
