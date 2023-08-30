@@ -26,7 +26,7 @@ public final class CimCracUtils {
 
     public static Contingency getContingencyFromCrac(ContingencySeries cimContingency, CimCracCreationContext cracCreationContext) {
         CimContingencyCreationContext ccc = cracCreationContext.getContingencyCreationContextById(cimContingency.getMRID());
-        if (ccc == null || ccc.getCreatedContingencyId() == null) {
+        if (ccc == null || !ccc.isImported()) {
             return null;
         }
         return cracCreationContext.getCrac().getContingency(ccc.getCreatedContingencyId());

@@ -161,7 +161,7 @@ public class HvdcRangeActionCreator {
             return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, false, isDirectionInverted.get(id), "")).collect(Collectors.toSet());
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, true, isDirectionInverted.get(id), String.format("Contingencies %s not defined in B55s", contingencyList))).collect(Collectors.toSet());
+            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, true, isDirectionInverted.get(id), String.format("Contingencies %s were not imported", contingencyList))).collect(Collectors.toSet());
         }
 
     }

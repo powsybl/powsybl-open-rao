@@ -343,7 +343,7 @@ public class RemedialActionSeriesCreator {
             return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s not defined in B55s", contingencyList));
+            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList));
         }
     }
 
@@ -352,7 +352,7 @@ public class RemedialActionSeriesCreator {
             return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s not defined in B55s", contingencyList));
+            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s were not imported", contingencyList));
         }
     }
 

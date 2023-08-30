@@ -117,6 +117,12 @@
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
             </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
+              <name>Co2NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
           </Contingency_Series>
         </Series>
       </Point>
