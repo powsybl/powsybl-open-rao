@@ -85,6 +85,9 @@ public class MonitoredSeriesCreator {
     }
 
     private boolean describesCnecsToImport(Series series) {
+        // Read CNECs from B57 or B56 series
+        // WARNING: if the same CNEC is defined in multiple places, but with different information (e.g. different
+        // thresholds), the imported CNEC will be unpredictable
         return series.getBusinessType().equals(CNECS_SERIES_BUSINESS_TYPE) || series.getBusinessType().equals(REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE);
     }
 
