@@ -118,11 +118,7 @@ public final class NetworkActionArrayDeserializer {
                         throw new FaraoException("Unexpected field in NetworkAction: " + jsonParser.getCurrentName());
                 }
             }
-            NetworkAction networkAction = (NetworkAction) networkActionAdder.add();
-            if (!extensions.isEmpty()) {
-                // TODO : do we still use extensions?
-                ExtensionsHandler.getExtensionsSerializers().addExtensions(networkAction, extensions);
-            }
+            networkActionAdder.add();
         }
     }
 }

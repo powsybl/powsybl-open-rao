@@ -120,11 +120,7 @@ public final class HvdcRangeActionArrayDeserializer {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
                 hvdcRangeActionAdder.withInitialSetpoint(0);
             }
-            HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) hvdcRangeActionAdder.add();
-            if (!extensions.isEmpty()) {
-                // TODO : do we still use extensions?
-                ExtensionsHandler.getExtensionsSerializers().addExtensions(hvdcRangeAction, extensions);
-            }
+            hvdcRangeActionAdder.add();
         }
     }
 

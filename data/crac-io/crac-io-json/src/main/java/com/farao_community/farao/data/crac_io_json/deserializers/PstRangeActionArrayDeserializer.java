@@ -127,11 +127,7 @@ public final class PstRangeActionArrayDeserializer {
                         throw new FaraoException("Unexpected field in PstRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            PstRangeAction pstRangeAction = (PstRangeAction) pstRangeActionAdder.add();
-            if (!extensions.isEmpty()) {
-                // TODO : do we still use extensions?
-                ExtensionsHandler.getExtensionsSerializers().addExtensions(pstRangeAction, extensions);
-            }
+            pstRangeActionAdder.add();
         }
     }
 
