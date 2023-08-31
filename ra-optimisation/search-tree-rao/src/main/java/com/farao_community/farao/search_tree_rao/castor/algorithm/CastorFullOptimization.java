@@ -491,8 +491,14 @@ public class CastorFullOptimization {
             }
         }
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
-        addAppliedNetworkActionsPostContingency(com.farao_community.farao.data.crac_api.Instant.AUTO, appliedArasAndCras, newPostContingencyResults);
-        addAppliedRangeActionsPostContingency(com.farao_community.farao.data.crac_api.Instant.AUTO, appliedArasAndCras, newPostContingencyResults);
+        // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
+        // ---- this check is only performed here because SkippedOptimizationResultImpl with appliedRas can only be generated for AUTO instant
+        newPostContingencyResults.entrySet().stream().filter(entry ->
+                !(entry.getValue() instanceof SkippedOptimizationResultImpl) && entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO))
+            .forEach(entry -> {
+                appliedArasAndCras.addAppliedNetworkActions(entry.getKey(), entry.getValue().getActivatedNetworkActions());
+                entry.getValue().getActivatedRangeActions(entry.getKey()).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(entry.getKey(), rangeAction, entry.getValue().getOptimizedSetpoint(rangeAction, entry.getKey())));
+            });
         // Run curative sensitivity analysis with appliedArasAndCras
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
@@ -653,7 +659,7 @@ public class CastorFullOptimization {
         OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
         // apply PRAs
-        result.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));
+        result.getActivatedRangeActions(raoInput.getCrac().getPreventiveState()).forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
         return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), prePerimeterResult, result, optPerimeter.getFlowCnecs()));
