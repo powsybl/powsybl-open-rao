@@ -7,9 +7,11 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -30,6 +32,7 @@ class AppliedRemedialActionsTest {
     private Network network;
     private Crac crac;
     private NetworkAction networkAction;
+    private NetworkAction autoNetworkAction;
     private PstRangeAction pstRangeAction;
 
     @BeforeEach
@@ -42,6 +45,11 @@ class AppliedRemedialActionsTest {
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
                 .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add()
                 .add();
+        autoNetworkAction = crac.newNetworkAction()
+            .withId("na-auto-id")
+            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.AUTO).add()
+            .add();
     }
 
     @Test
@@ -131,17 +139,55 @@ class AppliedRemedialActionsTest {
     }
 
     @Test
-    void testCopyNetworkActions() {
+    void testCopyNetworkActionsAndAutomaticRangeActions() {
+        // Add cnecs to create auto states
+        crac.newFlowCnec()
+            .withId("autoCnec")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(Instant.AUTO)
+            .withContingency("Contingency FR1 FR3")
+            .withOptimized(true)
+            .withOperator("operator1")
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
+            .newThreshold()
+            .withUnit(Unit.MEGAWATT)
+            .withSide(Side.LEFT)
+            .withMin(-1500.)
+            .withMax(1500.)
+            .add()
+            .add();
+        crac.newFlowCnec()
+            .withId("autoCnec2")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(Instant.AUTO)
+            .withContingency("Contingency FR1 FR2")
+            .withOptimized(true)
+            .withOperator("operator1")
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
+            .newThreshold()
+            .withUnit(Unit.MEGAWATT)
+            .withSide(Side.LEFT)
+            .withMin(-1500.)
+            .withMax(1500.)
+            .add()
+            .add();
+
         AppliedRemedialActions originalAra = new AppliedRemedialActions();
         originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), networkAction);
         originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), pstRangeAction, 3.2);
+        originalAra.addAppliedNetworkAction(crac.getState("Contingency FR1 FR3", Instant.AUTO), autoNetworkAction);
+        originalAra.addAppliedRangeAction(crac.getState("Contingency FR1 FR2", Instant.AUTO), pstRangeAction, 2.3);
 
         // make a copy
-        AppliedRemedialActions copyAra = originalAra.copyNetworkActions();
+        AppliedRemedialActions copyAra = originalAra.copyNetworkActionsAndAutomaticRangeActions();
         assertFalse(originalAra.isEmpty(network));
         assertFalse(copyAra.isEmpty(network));
         assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", Instant.CURATIVE)).size());
         assertEquals(0, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", Instant.CURATIVE)).size());
+        assertEquals(1, copyAra.getAppliedNetworkActions(crac.getState("Contingency FR1 FR3", Instant.AUTO)).size());
+        assertEquals(1, copyAra.getAppliedRangeActions(crac.getState("Contingency FR1 FR2", Instant.AUTO)).size());
 
         // reset the original one
         originalAra = new AppliedRemedialActions();
