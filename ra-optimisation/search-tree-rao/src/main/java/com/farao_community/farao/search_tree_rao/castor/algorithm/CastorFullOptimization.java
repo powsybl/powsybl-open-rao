@@ -493,15 +493,12 @@ public class CastorFullOptimization {
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
         // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
         // ---- this check is only performed here because SkippedOptimizationResultImpl with appliedRas can only be generated for AUTO instant
-        newPostContingencyResults.forEach((state, optResult) -> {
-            if (!(optResult instanceof SkippedOptimizationResultImpl)) {
-                if (state.getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO)) {
-                    appliedArasAndCras.addAppliedNetworkActions(state, optResult.getActivatedNetworkActions());
-                    optResult.getActivatedRangeActions(state).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, optResult.getOptimizedSetpoint(rangeAction, state)));
-
-                }
-            }
-        });
+        newPostContingencyResults.entrySet().stream().filter(entry ->
+                !(entry.getValue() instanceof SkippedOptimizationResultImpl) && entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO))
+            .forEach(entry -> {
+                appliedArasAndCras.addAppliedNetworkActions(entry.getKey(), entry.getValue().getActivatedNetworkActions());
+                entry.getValue().getActivatedRangeActions(entry.getKey()).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(entry.getKey(), rangeAction, entry.getValue().getOptimizedSetpoint(rangeAction, entry.getKey())));
+            });
         // Run curative sensitivity analysis with appliedArasAndCras
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {

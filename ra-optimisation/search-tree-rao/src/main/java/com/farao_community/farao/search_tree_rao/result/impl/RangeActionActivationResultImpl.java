@@ -135,22 +135,24 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             // if an elementary result is defined for the network element and state, return it
             // else find a previous state with an elementary result
             // if none are found, return reference setpoint
-            if (setPointPerState.containsKey(state)) {
-                return setPointPerState.get(state);
-            } else {
-                Optional<State> previousState = getPreviousState(state);
-                while (previousState.isPresent()) {
-                    if (setPointPerState.containsKey(previousState.get())) {
-                        return setPointPerState.get(previousState.get());
-                    }
-                    previousState = getPreviousState(previousState.get());
-                }
+            Double lastSetpoint = getSetpointForState(setPointPerState, state);
+            if (lastSetpoint != null) {
+                return lastSetpoint;
             }
         }
         if (!elementaryResultMap.containsKey(rangeAction)) {
             throw new FaraoException(format("range action %s is not present in the result", rangeAction.getName()));
         }
         return elementaryResultMap.get(rangeAction).refSetpoint;
+    }
+
+    private Double getSetpointForState(Map<State, Double> setPointPerState, State state) {
+        if (setPointPerState.containsKey(state)) {
+            return setPointPerState.get(state);
+        }
+        Optional<State> previousState = getPreviousState(state);
+        // setPointPerState does not contain a setpoint for any of state's previous states
+        return previousState.map(value -> getSetpointForState(setPointPerState, value)).orElse(null);
     }
 
     @Override
