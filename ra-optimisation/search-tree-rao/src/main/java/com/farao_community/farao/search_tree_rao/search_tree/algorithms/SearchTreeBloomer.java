@@ -224,7 +224,7 @@ public final class SearchTreeBloomer {
                 fromLeaf.getActivatedRangeActions(optimizedStateForNetworkActions)
                     .stream().map(RemedialAction::getOperator)
                     .filter(Objects::nonNull)
-                    .forEach(alreadyActivatedTsos::add);
+                    .forEach(alreadyActivatedTsosWithRangeActions::add);
                 boolean removeRangeActions = exceedMaxNumberOfTsos(naCombination, alreadyActivatedTsosWithRangeActions);
                 filteredNaCombinations.put(naCombination, removeRangeActions || naCombinations.get(naCombination));
             }
