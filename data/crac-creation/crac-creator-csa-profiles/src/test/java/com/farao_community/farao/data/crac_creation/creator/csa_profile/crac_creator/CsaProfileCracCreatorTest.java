@@ -432,7 +432,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
 
         // nameless-topological-action-with-speed-parent-remedial-action (on instant)
-        NetworkAction raNameless =  cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
+        NetworkAction raNameless = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
         assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getName());
         assertEquals(Instant.PREVENTIVE, raNameless.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().get(0).getUsageMethod());
@@ -562,7 +562,6 @@ public class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
 
         assertEquals(8, cracCreationContext.getCrac().getRemedialActions().size());
-        Set<RemedialAction<?>> remedialActions = cracCreationContext.getCrac().getRemedialActions();
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-action");
         assertEquals("RA1", ra1.getName());
@@ -770,5 +769,19 @@ public class CsaProfileCracCreatorTest {
 
         assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContext().stream().filter(ra -> ra.getNativeId().equals("5e5ff13e-2043-4468-9351-01920d3d9504")).findAny().get().getImportStatus());
         assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContext().stream().filter(ra -> ra.getNativeId().equals("2e4f4212-7b30-4316-9fce-ca618f2a8a05")).findAny().get().getImportStatus());
+    }
+
+    @Test
+    public void csa111() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        assertNotNull(cracCreationContext);
     }
 }
