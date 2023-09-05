@@ -551,4 +551,22 @@ class SearchTreeBloomerTest {
         Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
         assertEquals(0, filteredNaCombination.size()); // combination is filtered out
     }
+
+    @Test
+    void testDontFilterNullOperator() {
+        NetworkAction naNoOperator1 = createNetworkActionWithOperator("NNL2AA1  NNL3AA1  1", null);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(new NetworkActionCombination(Set.of(naFr1, naBe1, naNoOperator1)));
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
+
+        // previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
+
+        // max 2 TSOs
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, 2, null, null, false, 0, new ArrayList<>(), pState);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
+
+        assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count
+    }
 }
