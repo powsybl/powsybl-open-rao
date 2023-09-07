@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static  com.farao_community.farao.data.crac_api.Instant.*;
+import static com.farao_community.farao.data.crac_api.Instant.*;
 
 public class CsaProfileCracCreatorTest {
 
@@ -832,7 +832,6 @@ public class CsaProfileCracCreatorTest {
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
         cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
         importedCrac = cracCreationContext.getCrac();
-
 
         assertTrue(cracCreationContext.isCreationSuccessful());
 
