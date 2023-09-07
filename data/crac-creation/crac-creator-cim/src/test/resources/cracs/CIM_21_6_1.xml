@@ -58,8 +58,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -176,8 +176,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -345,8 +345,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -471,8 +471,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -589,8 +589,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -707,8 +707,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -825,8 +825,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -941,10 +941,10 @@
             <mRID>Co-1</mRID>
             <name>Contingency name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">ELEMENT NOT IN NETWORK</mRID>
+              <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -1061,8 +1061,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>
@@ -1179,8 +1179,8 @@
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <RemedialAction_Series>

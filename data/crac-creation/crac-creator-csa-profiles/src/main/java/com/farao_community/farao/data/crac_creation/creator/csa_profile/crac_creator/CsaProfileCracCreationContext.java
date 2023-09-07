@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,17 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
+    }
+
+    protected CsaProfileCracCreationContext(CsaProfileCracCreationContext toCopy) {
+        this.crac = toCopy.crac;
+        this.creationReport = toCopy.creationReport;
+        this.timeStamp = toCopy.timeStamp;
+        this.networkName = toCopy.networkName;
+        this.isCreationSuccessful = toCopy.isCreationSuccessful;
+        this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
+        this.remedialActionCreationContext = new HashSet<>(toCopy.remedialActionCreationContext);
+        this.flowCnecCreationContexts = new HashSet<>(toCopy.flowCnecCreationContexts);
     }
 
     @Override
