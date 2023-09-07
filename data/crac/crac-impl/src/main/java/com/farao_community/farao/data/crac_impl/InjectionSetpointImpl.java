@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.network.*;
@@ -25,15 +26,22 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
 
     private final NetworkElement networkElement;
     private final double setpoint;
+    private final Unit unit;
 
-    InjectionSetpointImpl(NetworkElement networkElement, double setpoint) {
+    InjectionSetpointImpl(NetworkElement networkElement, double setpoint, Unit unit) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
+        this.unit = unit;
     }
 
     @Override
     public double getSetpoint() {
         return setpoint;
+    }
+
+    @Override
+    public Unit getUnit() {
+        return unit;
     }
 
     @Override
@@ -45,6 +53,8 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
             return Math.abs(((Load) identifiable).getP0() - setpoint) >= EPSILON;
         } else if (identifiable instanceof DanglingLine) {
             return Math.abs(((DanglingLine) identifiable).getP0() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof ShuntCompensator) {
+            return Math.abs(((ShuntCompensator) identifiable).getSectionCount() - setpoint) >= EPSILON;
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
         }
@@ -52,7 +62,11 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
 
     @Override
     public boolean canBeApplied(Network network) {
-        // TODO : setpoint out of range ?
+        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
+        if (identifiable instanceof ShuntCompensator) {
+            ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
+            return shuntCompensator.getMaximumSectionCount() < setpoint;
+        }
         return true;
     }
 
@@ -68,6 +82,9 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
         } else if (identifiable instanceof DanglingLine) {
             DanglingLine danglingLine = (DanglingLine) identifiable;
             danglingLine.setP0(setpoint);
+        } else if (identifiable instanceof ShuntCompensator) {
+            ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
+            shuntCompensator.setSectionCount((int) setpoint);
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
         }
