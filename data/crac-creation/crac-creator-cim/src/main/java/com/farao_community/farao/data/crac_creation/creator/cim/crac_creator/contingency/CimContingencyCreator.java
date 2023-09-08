@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
+import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -65,6 +65,10 @@ public class CimContingencyCreator {
     }
 
     private void addContingency(ContingencySeries cimContingency) {
+        if (cimContingencyCreationContexts.stream().anyMatch(ccc -> ccc.getNativeId().equals(cimContingency.getMRID()))) {
+            return;
+        }
+
         String createdContingencyId = cimContingency.getMRID();
         ContingencyAdder contingencyAdder = crac.newContingency()
                 .withId(createdContingencyId)
@@ -125,6 +129,8 @@ public class CimContingencyCreator {
     }
 
     private boolean describesContingencyToImport(Series series) {
-        return series.getBusinessType().equals(CONTINGENCY_SERIES_BUSINESS_TYPE);
+        return series.getBusinessType().equals(CONTINGENCY_SERIES_BUSINESS_TYPE)
+            || series.getBusinessType().equals(CNECS_SERIES_BUSINESS_TYPE)
+            || series.getBusinessType().equals(REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE);
     }
 }
