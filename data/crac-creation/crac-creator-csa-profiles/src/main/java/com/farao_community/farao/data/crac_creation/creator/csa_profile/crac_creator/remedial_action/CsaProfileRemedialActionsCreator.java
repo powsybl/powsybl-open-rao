@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -131,7 +130,7 @@ public class CsaProfileRemedialActionsCreator {
                 csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, e.getImportStatus(), e.getMessage()));
             }
         }
-        this.cracCreationContext.setRemedialActionCreationContext(csaProfileRemedialActionCreationContexts);
+        this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
     }
 
     private void addOnContingencyStateUsageRules(RemedialActionAdder remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
