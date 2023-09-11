@@ -45,7 +45,7 @@ public class CsaProfileCracCreator implements CracCreator<CsaProfileCrac, CsaPro
         return creationContext.creationSuccess(crac);
     }
 
-    private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags tapPositionPropertyBags,  PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags) {
+    private void createRemedialActions(PropertyBags remedialActionsPropertyBags, PropertyBags topologyActionsPropertyBags, PropertyBags rotatingMachineActionPropertyBags, PropertyBags tapPositionPropertyBags, PropertyBags staticPropertyRanges, PropertyBags contingencyWithRemedialActionsPropertyBags) {
         new CsaProfileRemedialActionsCreator(crac, network, creationContext, remedialActionsPropertyBags, contingencyWithRemedialActionsPropertyBags, topologyActionsPropertyBags, rotatingMachineActionPropertyBags, tapPositionPropertyBags, staticPropertyRanges);
     }
 

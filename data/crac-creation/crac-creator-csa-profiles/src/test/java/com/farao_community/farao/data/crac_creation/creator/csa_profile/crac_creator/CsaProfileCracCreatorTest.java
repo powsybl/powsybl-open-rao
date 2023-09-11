@@ -480,7 +480,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
 
         // nameless-topological-action-with-speed-parent-remedial-action (on instant)
-        NetworkAction raNameless =  cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
+        NetworkAction raNameless = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
         assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getName());
         assertEquals(PREVENTIVE, raNameless.getUsageRules().get(0).getInstant());
         assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().get(0).getUsageMethod());
