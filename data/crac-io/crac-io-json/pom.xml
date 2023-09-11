@@ -75,6 +75,11 @@
             <artifactId>powsybl-commons-test</artifactId>
             <version>${powsybl.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
     </dependencies>
 
 
