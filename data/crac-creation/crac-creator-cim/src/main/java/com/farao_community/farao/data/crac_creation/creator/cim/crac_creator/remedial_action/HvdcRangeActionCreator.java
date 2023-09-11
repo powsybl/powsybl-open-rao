@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
-import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.FaraoImportException;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.RangeActionSpeed;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
@@ -161,7 +161,7 @@ public class HvdcRangeActionCreator {
             return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, false, isDirectionInverted.get(id), "")).collect(Collectors.toSet());
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, true, isDirectionInverted.get(id), String.format("Contingencies %s not defined in B55s", contingencyList))).collect(Collectors.toSet());
+            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, true, isDirectionInverted.get(id), String.format("Contingencies %s were not imported", contingencyList))).collect(Collectors.toSet());
         }
 
     }

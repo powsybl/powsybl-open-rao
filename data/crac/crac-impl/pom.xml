@@ -5,7 +5,7 @@
     <parent>
         <artifactId>farao-crac</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -58,11 +58,6 @@
         </dependency>
 
         <!--test-->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-creation-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

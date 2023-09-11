@@ -64,19 +64,19 @@
           <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
           <Contingency_Series>
             <mRID>Co-1</mRID>
-            <name>Contingency name</name>
+            <name>Contingency 1 name</name>
             <RegisteredResource>
               <mRID codingScheme="A02">FFR1AA11 FFR3AA11 1</mRID>
               <name>FFR1AA11 FFR3AA11 1</name>
-              <in_Domain.mRID codingScheme="A01">1------C</in_Domain.mRID>
-              <out_Domain.mRID codingScheme="A01">1------C</out_Domain.mRID>
+              <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
             </RegisteredResource>
           </Contingency_Series>
           <Contingency_Series>
             <mRID>Co-2</mRID>
             <name>Contingency 2 name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">BBE1AA11 BBE3AA1 1</mRID>
+              <mRID codingScheme="A02">BBE1AA11 BBE3AA11 1</mRID>
               <name>BBE1AA11 BBE3AA11 1</name>
               <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">10YFR-RTE------C</out_Domain.mRID>
@@ -232,6 +232,36 @@
           <Monitored_Series>
             <mRID>CNEC-2</mRID>
             <name>CNEC-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">FFR1AA11 FFR2AA11 1</mRID>
+              <name>CNEC-2</name>
+              <in_Domain.mRID codingScheme="A01">1---W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1--W</out_Domain.mRID>
+              <Measurements>
+                <measurementType>A02</measurementType>
+                <unitSymbol>P1</unitSymbol>
+                <positiveFlowIn>A01</positiveFlowIn>
+                <analogValues.value>2.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A07</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>7.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A12</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>12.0</analogValues.value>
+              </Measurements>
+              <Measurements>
+                <measurementType>A13</measurementType>
+                <unitSymbol>AMP</unitSymbol>
+                <positiveFlowIn>A02</positiveFlowIn>
+                <analogValues.value>13.0</analogValues.value>
+              </Measurements>
+            </RegisteredResource>
           </Monitored_Series>
           <RemedialAction_Series>
             <mRID>PRA_1</mRID>

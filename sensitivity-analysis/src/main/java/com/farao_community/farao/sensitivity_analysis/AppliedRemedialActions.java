@@ -107,9 +107,14 @@ public class AppliedRemedialActions {
         return ara;
     }
 
-    public AppliedRemedialActions copyNetworkActions() {
+    public AppliedRemedialActions copyNetworkActionsAndAutomaticRangeActions() {
         AppliedRemedialActions ara = new AppliedRemedialActions();
         appliedRa.forEach((state, appliedRaOnState) -> ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions));
+        appliedRa.forEach((state, appliedRaOnState) -> {
+            if (state.getInstant().equals(Instant.AUTO)) {
+                ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
+            }
+        });
         return ara;
     }
 

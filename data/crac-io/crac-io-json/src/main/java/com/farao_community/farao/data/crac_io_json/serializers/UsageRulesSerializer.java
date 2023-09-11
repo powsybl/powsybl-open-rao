@@ -29,12 +29,15 @@ public final class UsageRulesSerializer {
         serializeUsageRules(remedialAction, OnContingencyState.class, ON_CONTINGENCY_STATE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnFlowConstraint.class, ON_FLOW_CONSTRAINT_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnAngleConstraint.class, ON_ANGLE_CONSTRAINT_USAGE_RULES, gen);
+        serializeUsageRules(remedialAction, OnVoltageConstraint.class, ON_VOLTAGE_CONSTRAINT_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnFlowConstraintInCountry.class, ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES, gen);
     }
 
     private static void serializeUsageRules(RemedialAction<?> remedialAction, Class<? extends UsageRule> usageRuleType, String arrayName, JsonGenerator gen) throws IOException {
         List<UsageRule> usageRules = remedialAction.getUsageRules().stream()
-                .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass())).collect(Collectors.toList());
+                .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass()))
+                .sorted(new UsageRuleComparator())
+                .collect(Collectors.toList());
         if (!usageRules.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (UsageRule ea : usageRules) {
