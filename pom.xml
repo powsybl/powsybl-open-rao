@@ -107,7 +107,7 @@
         <maven.dependency.version>3.2.0</maven.dependency.version>
         <maven.deploy.version>2.8.2</maven.deploy.version>
         <maven.gpg.version>3.0.1</maven.gpg.version>
-        <maven.jacoco.version>0.8.5</maven.jacoco.version>
+        <maven.jacoco.version>0.8.8</maven.jacoco.version>
         <maven.jar.version>3.2.0</maven.jar.version>
         <maven.javadoc.version>3.2.0</maven.javadoc.version>
         <maven.jaxb2.version>0.15.3</maven.jaxb2.version>
