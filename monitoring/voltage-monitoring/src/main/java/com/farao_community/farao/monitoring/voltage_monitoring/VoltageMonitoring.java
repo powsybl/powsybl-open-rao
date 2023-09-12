@@ -11,9 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraint;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
@@ -169,13 +167,13 @@ public class VoltageMonitoring {
                 appliedNetworkActions.addAll(applyTopologicalNetworkActions(networkClone, availableNetworkActions));
             }
         }
+        //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
+        if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
+            return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.getUnsecureStatus(voltageValues));
+        }
         Map<State, Set<NetworkAction>> appliedRa = new HashMap<>();
         if (!appliedNetworkActions.isEmpty()) {
             appliedRa.put(state, appliedNetworkActions);
-        }
-        //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
-        if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
-            return new VoltageMonitoringResult(voltageValues, appliedRa, VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure
@@ -260,16 +258,8 @@ public class VoltageMonitoring {
     private Set<NetworkAction> applyTopologicalNetworkActions(Network networkClone, Set<NetworkAction> availableNetworkActions) {
         Set<NetworkAction> topologicalNetworkActionsAdded = new HashSet<>();
         for (NetworkAction na : availableNetworkActions) {
-            boolean areAllEATopological = true;
-            for (ElementaryAction ea : na.getElementaryActions()) {
-                if (!(ea instanceof TopologicalAction)) {
-                    areAllEATopological = false;
-                }
-            }
-            if (areAllEATopological) {
-                na.apply(networkClone);
-                topologicalNetworkActionsAdded.add(na);
-            }
+            na.apply(networkClone);
+            topologicalNetworkActionsAdded.add(na);
         }
         return topologicalNetworkActionsAdded;
     }
