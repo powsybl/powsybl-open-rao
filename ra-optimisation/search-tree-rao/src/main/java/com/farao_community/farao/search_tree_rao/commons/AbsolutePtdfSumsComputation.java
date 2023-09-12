@@ -47,7 +47,7 @@ public class AbsolutePtdfSumsComputation {
         XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskProvider, contingencies, network);
 
         Map<FlowCnec, Map<Side, Double>> ptdfSums = new HashMap<>();
-        List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
+        List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).toList();
 
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
@@ -81,7 +81,7 @@ public class AbsolutePtdfSumsComputation {
         List<Double> zoneToSlackPtdf = zToz.getZoneToSlackPtdfs().stream()
             .filter(zToS -> zToSlackPtdfMap.containsKey(zToS.getEiCode()))
             .map(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
-            .collect(Collectors.toList());
+            .toList();
 
         if (zoneToSlackPtdf.size() < 2) {
             // the boundary should at least contains two zoneToSlack PTDFs

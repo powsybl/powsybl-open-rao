@@ -160,9 +160,9 @@ public class PerimeterResultImpl implements PerimeterResult {
         NetworkElement networkElement = pstRangeAction.getNetworkElement();
 
         for (RangeAction<?> rangeAction : optimizationResult.getRangeActions()) {
-            if (rangeAction instanceof PstRangeAction && ((PstRangeAction) rangeAction).getNetworkElement() != null
-                && ((PstRangeAction) rangeAction).getNetworkElement().equals(networkElement)) {
-                pstRangeActionOnSameElement = (PstRangeAction) rangeAction;
+            if (rangeAction instanceof PstRangeAction otherPstRA && otherPstRA.getNetworkElement() != null
+                && otherPstRA.getNetworkElement().equals(networkElement)) {
+                pstRangeActionOnSameElement = otherPstRA;
                 break;
             }
         }

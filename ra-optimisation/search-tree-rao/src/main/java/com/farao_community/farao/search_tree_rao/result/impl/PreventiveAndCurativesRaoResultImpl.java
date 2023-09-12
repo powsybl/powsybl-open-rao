@@ -183,8 +183,7 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public ComputationStatus getComputationStatus(State state) {
         List<OptimizationState> possibleOptimizationStates;
         switch (state.getInstant()) {
-            case PREVENTIVE:
-            case OUTAGE:
+            case PREVENTIVE, OUTAGE:
                 possibleOptimizationStates = List.of(OptimizationState.AFTER_PRA);
                 break;
             case AUTO:
@@ -423,10 +422,10 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction) {
-            return isActivatedDuringState(state, (NetworkAction) remedialAction);
-        } else if (remedialAction instanceof RangeAction<?>) {
-            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+            return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }

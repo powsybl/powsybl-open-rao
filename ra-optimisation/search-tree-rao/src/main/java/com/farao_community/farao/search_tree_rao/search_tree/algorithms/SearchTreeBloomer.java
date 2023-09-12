@@ -129,7 +129,7 @@ public final class SearchTreeBloomer {
             // elements of the combination which have not been activated yet
             List<NetworkAction> notTestedNaInCombination = preDefinedCombination.getNetworkActionSet().stream()
                 .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
-                .collect(Collectors.toList());
+                .toList();
 
             // if all the actions of the combinations have been selected but one, there is no need
             // to test that individual action anymore

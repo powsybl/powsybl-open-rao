@@ -39,12 +39,12 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public boolean hasImpactOnNetwork(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator) {
-            return Math.abs(((Generator) identifiable).getTargetP() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof Load) {
-            return Math.abs(((Load) identifiable).getP0() - setpoint) >= EPSILON;
-        } else if (identifiable instanceof DanglingLine) {
-            return Math.abs(((DanglingLine) identifiable).getP0() - setpoint) >= EPSILON;
+        if (identifiable instanceof Generator generator) {
+            return Math.abs(generator.getTargetP() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof Load load) {
+            return Math.abs(load.getP0() - setpoint) >= EPSILON;
+        } else if (identifiable instanceof DanglingLine danglingLine) {
+            return Math.abs(danglingLine.getP0() - setpoint) >= EPSILON;
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
         }
@@ -59,14 +59,11 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public void apply(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-        if (identifiable instanceof Generator) {
-            Generator generator = (Generator) identifiable;
+        if (identifiable instanceof Generator generator) {
             generator.setTargetP(setpoint);
-        } else if (identifiable instanceof Load) {
-            Load load = (Load) identifiable;
+        } else if (identifiable instanceof Load load) {
             load.setP0(setpoint);
-        } else if (identifiable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) identifiable;
+        } else if (identifiable instanceof DanglingLine danglingLine) {
             danglingLine.setP0(setpoint);
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");

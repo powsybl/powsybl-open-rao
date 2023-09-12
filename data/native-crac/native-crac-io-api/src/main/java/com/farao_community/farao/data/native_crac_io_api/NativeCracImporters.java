@@ -95,7 +95,7 @@ public final class NativeCracImporters {
     public static NativeCracImporter findImporter(String fileFormat) {
         List<NativeCracImporter> importersWithFormat = NATIVE_CRAC_IMPORTERS.get().stream()
             .filter(importer -> importer.getFormat().equals(fileFormat))
-            .collect(Collectors.toList());
+            .toList();
 
         if (importersWithFormat.size() == 1) {
             return importersWithFormat.get(0);

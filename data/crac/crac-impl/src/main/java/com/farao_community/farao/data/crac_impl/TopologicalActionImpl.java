@@ -43,8 +43,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public void apply(Network network) {
         Identifiable<?> element = network.getIdentifiable(networkElement.getId());
-        if (element instanceof Branch) {
-            Branch<?> branch = (Branch<?>) element;
+        if (element instanceof Branch<?> branch) {
             if (actionType == ActionType.OPEN) {
                 branch.getTerminal1().disconnect();
                 branch.getTerminal2().disconnect();
@@ -52,9 +51,8 @@ public final class TopologicalActionImpl implements TopologicalAction {
                 branch.getTerminal1().connect();
                 branch.getTerminal2().connect();
             }
-        } else if (element instanceof Switch) {
-            Switch aSwitch = (Switch) element;
-            aSwitch.setOpen(actionType == ActionType.OPEN);
+        } else if (element instanceof Switch sw) {
+            sw.setOpen(actionType == ActionType.OPEN);
         } else {
             throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }
@@ -63,8 +61,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public boolean hasImpactOnNetwork(Network network) {
         Identifiable<?> element = network.getIdentifiable(networkElement.getId());
-        if (element instanceof Branch) {
-            Branch<?> branch = (Branch<?>) element;
+        if (element instanceof Branch<?> branch) {
             if (actionType == ActionType.OPEN) {
                 // Line is considered closed if both terminal are connected
                 return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
@@ -72,9 +69,8 @@ public final class TopologicalActionImpl implements TopologicalAction {
                 // Line is already considered opened if one of the terminals is disconnected
                 return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
             }
-        } else if (element instanceof Switch) {
-            Switch aSwitch = (Switch) element;
-            return aSwitch.isOpen() == (actionType == ActionType.CLOSE);
+        } else if (element instanceof Switch sw) {
+            return sw.isOpen() == (actionType == ActionType.CLOSE);
         } else {
             throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }

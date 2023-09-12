@@ -304,7 +304,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private State getLastStateWithRangeActionAvailableForCnec(FlowCnec cnec) {
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
                 .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-                .collect(Collectors.toList());
+                .toList();
 
         Optional<State> lastState = statesBeforeCnec.stream().filter(state ->
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecRangeActionMap.get(cnec)))

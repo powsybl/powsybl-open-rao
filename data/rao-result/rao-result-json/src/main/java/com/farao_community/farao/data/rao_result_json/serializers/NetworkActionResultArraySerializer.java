@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.CONTINGENCY_ID;
@@ -35,7 +34,7 @@ final class NetworkActionResultArraySerializer {
 
         List<NetworkAction> sortedListOfNetworkActions = crac.getNetworkActions().stream()
             .sorted(Comparator.comparing(NetworkAction::getId))
-            .collect(Collectors.toList());
+            .toList();
 
         jsonGenerator.writeArrayFieldStart(NETWORKACTION_RESULTS);
         for (NetworkAction networkAction : sortedListOfNetworkActions) {
@@ -49,7 +48,7 @@ final class NetworkActionResultArraySerializer {
         List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
                 .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
                 .sorted(STATE_COMPARATOR)
-                .collect(Collectors.toList());
+                .toList();
 
         if (statesWhenNetworkActionIsActivated.isEmpty()) {
             return;
