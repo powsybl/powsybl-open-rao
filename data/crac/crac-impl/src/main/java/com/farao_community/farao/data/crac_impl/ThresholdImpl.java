@@ -65,7 +65,7 @@ public class ThresholdImpl implements Threshold {
             return false;
         }
         ThresholdImpl otherT = (ThresholdImpl) o;
-        return ((unit == null && otherT.getUnit() == null) || (unit != null && unit.equals(otherT.getUnit())))
+        return (unit == null && otherT.getUnit() == null || unit != null && unit.equals(otherT.getUnit()))
                 && equalsDouble(max, otherT.getMax())
                 && equalsDouble(min, otherT.getMin());
     }
@@ -82,6 +82,7 @@ public class ThresholdImpl implements Threshold {
     private boolean equalsDouble(Double d1, Double d2) {
         boolean isD1null = d1 == null || Double.isNaN(d1);
         boolean isD2null = d2 == null || Double.isNaN(d2);
-        return (isD1null && isD2null) || (!isD1null && !isD2null && abs(d1 - d2) < 1e-6);
+        return isD1null && isD2null
+            || !isD1null && !isD2null && abs(d1 - d2) < 1e-6;
     }
 }

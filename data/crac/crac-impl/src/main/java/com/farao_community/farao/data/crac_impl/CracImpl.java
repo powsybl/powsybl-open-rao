@@ -157,11 +157,27 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
-        return getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
-                        && cnec.getState().getContingency().get().getId().equals(contingencyId))
-                || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
-                .anyMatch(usageMethod -> (usageMethod instanceof OnContingencyStateImpl)
-                        && ((OnContingencyStateImpl) usageMethod).getContingency().getId().equals(contingencyId));
+        return isContingencyUsedForCnecs(contingencyId) || isContingencyUsedForRemedialActions(contingencyId);
+    }
+
+    /**
+     * Check if a Contingency is referenced in a Cnec
+     * @param contingencyId: ID of the Contingency
+     * @return true if the Contingency is referenced in a Cnec
+     */
+    private boolean isContingencyUsedForCnecs(String contingencyId) {
+        return getCnecs().stream().anyMatch(cnec ->
+            cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId));
+    }
+
+    /**
+     * Check if a Contingency is referenced in a RemedialAction's UsageRule
+     * @param contingencyId: ID of the Contingency
+     * @return true if the Contingency is referenced in a RemedialAction's UsageRule
+     */
+    private boolean isContingencyUsedForRemedialActions(String contingencyId) {
+        return getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).anyMatch(usageRule ->
+            usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getContingency().getId().equals(contingencyId));
     }
 
     //endregion

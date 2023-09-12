@@ -110,8 +110,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     private boolean isPreventiveUsageRule(UsageRule usageRule) {
-        return (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(Instant.PREVENTIVE))
-            || (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getInstant().equals(Instant.PREVENTIVE));
+        return usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(Instant.PREVENTIVE)
+            || usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getInstant().equals(Instant.PREVENTIVE);
     }
 
     private List<TapRange> checkRanges() {
@@ -156,8 +156,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
             if (!tapToAngleConversionMap.containsKey(tap)) {
                 throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should contain all the consecutive taps between %d and %d", id, minTap, maxTap));
             }
-            if ((!isInverted && tapToAngleConversionMap.get(tap) < previousTapAngle)
-                || (isInverted && tapToAngleConversionMap.get(tap) > previousTapAngle)) {
+            if (!isInverted && tapToAngleConversionMap.get(tap) < previousTapAngle
+                || isInverted && tapToAngleConversionMap.get(tap) > previousTapAngle) {
                 throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should be increasing or decreasing", id));
             }
             previousTapAngle = tapToAngleConversionMap.get(tap);

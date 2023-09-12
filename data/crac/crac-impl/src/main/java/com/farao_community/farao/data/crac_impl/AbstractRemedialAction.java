@@ -155,7 +155,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction)
                 && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
-                && ((operator != null && operator.equals(remedialAction.operator)) || (operator == null && remedialAction.operator == null));
+                && (operator != null && operator.equals(remedialAction.operator) || operator == null && remedialAction.operator == null);
     }
 
     @Override
