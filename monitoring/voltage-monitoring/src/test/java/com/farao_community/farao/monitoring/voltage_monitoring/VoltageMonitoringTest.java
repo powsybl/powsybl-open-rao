@@ -368,7 +368,6 @@ class VoltageMonitoringTest {
 
         assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
-        voltageMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
     }
