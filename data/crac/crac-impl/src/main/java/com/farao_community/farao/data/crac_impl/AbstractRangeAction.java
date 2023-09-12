@@ -40,7 +40,7 @@ public abstract class AbstractRangeAction<T extends RangeAction<T>> extends Abst
         AbstractRangeAction otherRa = (AbstractRangeAction) o;
 
         return super.equals(o)
-                && (groupId == null && otherRa.getGroupId().isEmpty()) || (groupId != null && groupId.equals(otherRa.getGroupId().orElse(null)));
+                && (groupId == null && otherRa.getGroupId().isEmpty() || groupId != null && groupId.equals(otherRa.getGroupId().orElse(null)));
     }
 
     @Override
