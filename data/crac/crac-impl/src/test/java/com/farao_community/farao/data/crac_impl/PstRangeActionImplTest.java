@@ -209,8 +209,8 @@ class PstRangeActionImplTest {
     @Test
     void pstEquals() {
 
-        PstRangeAction pstRa1 = pstRangeActionAdder.add();
-        PstRangeAction pstRa2 = pstRangeActionAdder.withId("anotherId").add();
+        PstRangeAction pstRa1 = pstRangeActionAdder.withGroupId("g1").add();
+        PstRangeAction pstRa2 = pstRangeActionAdder.withId("anotherId").withGroupId("g1").add();
 
         assertEquals(pstRa1.hashCode(), pstRa1.hashCode());
         assertEquals(pstRa1, pstRa1);
