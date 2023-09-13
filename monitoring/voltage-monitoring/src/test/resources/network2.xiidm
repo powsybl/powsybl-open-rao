@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="phaseShifter" caseDate="2016-10-18T10:06:00.000+02:00" forecastDistance="0" sourceFormat="DIE" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1" country="FR" tso="TSO">
+        <iidm:voltageLevel id="VL1" nominalV="380.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL1_B1" name="B1" node="0"/>
+                <iidm:switch id="VL1_Break couple G1" name="Break couple G1" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="VL1_Break G1" name="Break G1" kind="BREAKER" retained="true" open="false" node1="2" node2="3"/>
+                <iidm:switch id="VL1_Disc B1 G1" name="Disc B1 G1" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="0"/>
+                <iidm:switch id="VL1_Break L1" name="Break L1" kind="BREAKER" retained="true" open="false" node1="4" node2="5"/>
+                <iidm:switch id="VL1_Disc B1 L1" name="Disc B1 L1" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="0"/>
+                <iidm:switch id="VL1_Break L2" name="Break L2" kind="BREAKER" retained="true" open="false" node1="6" node2="7"/>
+                <iidm:switch id="VL1_Disc B1 L2" name="Disc B1 L2" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="0"/>
+                <iidm:switch id="VL1_Break L3" name="Break L3" kind="BREAKER" retained="true" open="false" node1="8" node2="9"/>
+                <iidm:switch id="VL1_Disc B1 L3" name="Disc B1 L3" kind="DISCONNECTOR" retained="false" open="false" node1="9" node2="0"/>
+                <iidm:bus v="400.0" angle="0.0" nodes="0,1,2,3,4,5,6,7,8,9"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="G1" energySource="OTHER" minP="50.0" maxP="150.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" targetQ="0.0" node="1" p="-100.16796875" q="-58.40283203125">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="50.0" minQ="-9999.0" maxQ="9999.0"/>
+                    <iidm:point p="150.0" minQ="-9999.0" maxQ="9999.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2" country="FR" tso="TSO">
+        <iidm:voltageLevel id="VL2" nominalV="380.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL2_B2" name="B2" node="0"/>
+                <iidm:switch id="VL2_Break LD2" name="Break LD2" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="VL2_Disc B2 LD2" name="Disc B2 LD2" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
+                <iidm:switch id="VL2_Break L1" name="Break L1" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:switch id="VL2_Disc B2 L1" name="Disc B2 L1" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="0"/>
+                <iidm:switch id="VL2_Break L2" name="Break L2" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
+                <iidm:switch id="VL2_Disc B2 L2" name="Disc B2 L2" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="0"/>
+                <iidm:switch id="VL2_Break L3" name="Break L3" kind="BREAKER" retained="true" open="false" node1="7" node2="8"/>
+                <iidm:switch id="VL2_Disc B2 L3" name="Disc B2 L3" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="0"/>
+                <iidm:bus v="400." angle="0.0" nodes="0,1,2,3,4,5,6,7,8"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="LD2" loadType="UNDEFINED" p0="100.0" q0="50.0" node="1" p="100.0" q="50.0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="L1" r="1." x="100." g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="4" voltageLevelId1="VL1" node2="3" voltageLevelId2="VL2" p1="50." q1="29." p2="-50.0" q2="-25.0"/>
+    <iidm:line id="L2" r="1." x="100." g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="6" voltageLevelId1="VL1" node2="5" voltageLevelId2="VL2" p1="50." q1="29." p2="-50.0" q2="-25.0"/>
+    <iidm:line id="L3" r="1." x="1000." g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="8" voltageLevelId1="VL1" node2="7" voltageLevelId2="VL2" p1="50." q1="29." p2="-50.0" q2="-25.0"/>
+</iidm:network>
