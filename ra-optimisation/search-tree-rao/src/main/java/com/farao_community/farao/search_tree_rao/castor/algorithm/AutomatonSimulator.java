@@ -138,6 +138,7 @@ public final class AutomatonSimulator {
         return automatonPerimeterResultImpl;
     }
 
+    // TODO : add all curative states
     private PrePerimeterSensitivityAnalysis getPreAutoPerimeterSensitivityAnalysis(State automatonState, State curativeState) {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
         flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));

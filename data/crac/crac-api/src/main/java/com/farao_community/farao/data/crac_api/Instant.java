@@ -20,7 +20,9 @@ public enum Instant {
     PREVENTIVE(0, "preventive"),
     OUTAGE(1, "outage"),
     AUTO(2, "auto"),
-    CURATIVE(3, "curative");
+    CURATIVE1(3, "curative1"),
+    CURATIVE2(4, "curative2"),
+    CURATIVE(5, "curative");
 
     private final int order;
     private final String name;
@@ -41,5 +43,10 @@ public enum Instant {
 
     public boolean comesBefore(Instant otherInstant) {
         return this.order < otherInstant.order;
+    }
+
+    // TODO : UT
+    public boolean comesAfter(Instant otherInstant) {
+        return this.order > otherInstant.order;
     }
 }

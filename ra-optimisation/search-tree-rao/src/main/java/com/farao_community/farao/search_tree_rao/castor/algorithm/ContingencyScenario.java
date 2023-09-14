@@ -9,10 +9,11 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class represents the functional contingency scenario
@@ -22,31 +23,30 @@ import java.util.Optional;
  */
 public class ContingencyScenario {
     private final Contingency contingency;
-    private final State automatonState;
-    private final State curativeState;
+    private final Map<Instant, State> contingencyStates;
 
     /**
      * Construct a post-contingency scenario
      * @param contingency the contingency (required)
-     * @param automatonState the automaton state (can be null)
-     * @param curativeState the curative state (required)
+     * @param contingencyStates TODO
      */
-    public ContingencyScenario(Contingency contingency, State automatonState, State curativeState) {
+    public ContingencyScenario(Contingency contingency, Map<Instant, State> contingencyStates) {
         Objects.requireNonNull(contingency);
+        State curativeState = contingencyStates.get(Instant.CURATIVE);
         Objects.requireNonNull(curativeState);
         Optional<Contingency> curativeContingency = curativeState.getContingency();
         if (curativeContingency.isEmpty() || !curativeContingency.get().equals(contingency)) {
             throw new FaraoException(String.format("Curative state %s do not refer to the contingency %s", curativeState, contingency));
         }
-        if (automatonState != null) {
-            Optional<Contingency> automatonContingency = automatonState.getContingency();
-            if (automatonContingency.isEmpty() || !automatonContingency.get().equals(contingency)) {
-                throw new FaraoException(String.format("Automaton state %s do not refer to the contingency %s", automatonState, contingency));
-            }
+        if (contingencyStates.values().stream().anyMatch(state -> !state.getContingency().equals(curativeContingency))) {
+            throw new FaraoException(String.format("All states do not refer to the same contingency %s", contingency));
         }
         this.contingency = contingency;
-        this.automatonState = automatonState;
-        this.curativeState = curativeState;
+        this.contingencyStates = new HashMap<>(contingencyStates);
+    }
+
+    public ContingencyScenario(Map<Instant, State> contingencyStates) {
+        this(contingencyStates.values().iterator().next().getContingency().orElse(null), contingencyStates);
     }
 
     /**
@@ -55,7 +55,13 @@ public class ContingencyScenario {
      * @param curativeState the curative state (required)
      */
     public ContingencyScenario(State automatonState, State curativeState) {
-        this(curativeState.getContingency().orElse(null), automatonState, curativeState);
+        // TODO : remove this
+        this(curativeState.getContingency().orElse(null), Map.of(Instant.AUTO, automatonState, Instant.CURATIVE, curativeState));
+    }
+
+    public ContingencyScenario(Contingency contingency, State automatonState, State curativeState) {
+        // TODO : remove this
+        this(contingency, Map.of(Instant.AUTO, automatonState, Instant.CURATIVE, curativeState));
     }
 
     public Contingency getContingency() {
@@ -63,10 +69,16 @@ public class ContingencyScenario {
     }
 
     public Optional<State> getAutomatonState() {
-        return automatonState == null ? Optional.empty() : Optional.of(automatonState);
+        return Optional.ofNullable(contingencyStates.get(Instant.AUTO));
     }
 
     public State getCurativeState() {
-        return curativeState;
+        return contingencyStates.get(Instant.CURATIVE);
+    }
+
+    // TODO : UT
+    public List<State> getCurativeStates() {
+        return Arrays.stream(Instant.values()).filter(instant -> instant.comesAfter(Instant.AUTO) && contingencyStates.containsKey(instant))
+            .sorted().map(contingencyStates::get).collect(Collectors.toList());
     }
 }

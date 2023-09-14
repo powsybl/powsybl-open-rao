@@ -213,7 +213,9 @@ class PreventiveAndCurativesRaoResultImplTest {
             initialResult,
             postPrevResult,
             preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2));
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
+            null // TODO
+        );
     }
 
     private void mockCnecResults(FlowResult flowResult, FlowCnec cnec, double marginMw, double marginA, double relMarginMw, double relMarginA) {
@@ -854,7 +856,9 @@ class PreventiveAndCurativesRaoResultImplTest {
             secondPreventivePerimeterResult,
             remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2));
+            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
+            null // TODO
+        );
 
         when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
         when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
@@ -892,6 +896,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             remedialActionsExcludedFromSecondPreventive,
             preCurativeResult,
             Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
+            null, // TODO
             postSecondAraoResults);
 
         when(postSecondAraoResults.getFunctionalCost()).thenReturn(123.);

@@ -70,6 +70,8 @@ public class SystematicSensitivityResult {
         this.status = SensitivityComputationStatus.SUCCESS;
         this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
         this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE1, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE2, new HashMap<>());
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
@@ -77,6 +79,8 @@ public class SystematicSensitivityResult {
         this.status = status;
         this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
         this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE1, new HashMap<>());
+        this.postContingencyResults.put(Instant.CURATIVE2, new HashMap<>());
         this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
@@ -137,6 +141,8 @@ public class SystematicSensitivityResult {
         postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
         postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
         postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        postContingencyResults.get(Instant.CURATIVE1).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        postContingencyResults.get(Instant.CURATIVE2).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
         postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
         return this;
     }

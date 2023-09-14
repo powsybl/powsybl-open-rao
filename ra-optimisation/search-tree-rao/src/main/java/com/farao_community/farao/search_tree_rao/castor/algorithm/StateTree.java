@@ -11,9 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +31,7 @@ public class StateTree {
             processAutoAndCurativeInstants(contingency, crac);
         }
 
+        // TODO : update this
         Set<State> optimizedCurativeStates = contingencyScenarios.stream().map(ContingencyScenario::getCurativeState).collect(Collectors.toSet());
         this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, optimizedCurativeStates);
     }
@@ -63,27 +62,23 @@ public class StateTree {
      * If AUTO or CURATIVE state does not exist, it will not be optimized.
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
-        State automatonState = crac.getState(contingency.getId(), Instant.AUTO);
-        State curativeState = crac.getState(contingency.getId(), Instant.CURATIVE);
-        boolean autoRasExist = (automatonState != null) && anyAvailableRemedialAction(crac, automatonState);
-        boolean curativeRasExist = (curativeState != null) && anyAvailableRemedialAction(crac, curativeState);
-
-        if (autoRasExist && !curativeRasExist) {
-            throw new FaraoException(String.format("Automaton state %s has RAs, but curative state %s doesn't. This is not supported.", automatonState, curativeState));
-        } else if (autoRasExist) {
-            contingencyScenarios.add(new ContingencyScenario(automatonState, curativeState));
-        } else if (curativeRasExist) {
-            if (automatonState != null) {
-                basecaseScenario.addOtherState(automatonState);
+        Map<Instant, State> contingencyStates = new HashMap<>();
+        for (Instant instant : Instant.values()) {
+            if (instant.comesAfter(Instant.OUTAGE)) {
+                State state = crac.getState(contingency.getId(), instant);
+                if (state == null) {
+                    continue;
+                }
+                if (anyAvailableRemedialAction(crac, state)) {
+                    contingencyStates.put(instant, state);
+                } else {
+                    basecaseScenario.addOtherState(state);
+                    // TODO : fail if a previous instant's state has RAs?
+                }
             }
-            contingencyScenarios.add(new ContingencyScenario(null, curativeState));
-        } else {
-            if (automatonState != null) {
-                basecaseScenario.addOtherState(automatonState);
-            }
-            if (curativeState != null) {
-                basecaseScenario.addOtherState(curativeState);
-            }
+        }
+        if (!contingencyStates.isEmpty()) {
+            contingencyScenarios.add(new ContingencyScenario(contingencyStates));
         }
     }
 

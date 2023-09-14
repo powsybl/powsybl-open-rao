@@ -11,8 +11,10 @@ import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
@@ -40,6 +42,7 @@ import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTr
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -161,15 +164,15 @@ public class CastorFullOptimization {
         }
 
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
-        Map<State, OptimizationResult> postContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), raoParameters, stateTree, toolProvider, curativeTreeParameters, network, initialOutput, preCurativeSensitivityAnalysisOutput, false);
+        Pair<Map<State, OptimizationResult>, Map<State, PrePerimeterResult>> postContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), raoParameters, stateTree, toolProvider, curativeTreeParameters, network, initialOutput, preCurativeSensitivityAnalysisOutput, false);
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
 
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
-        mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
+        mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults.getLeft(), postContingencyResults.getRight());
         boolean logFinalResultsOutsideOfSecondPreventive = true;
         // Run second preventive when necessary
-        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
-            RaoResult secondPreventiveRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults);
+        if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.getLeft().values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {
+            RaoResult secondPreventiveRaoResults = runSecondPreventiveAndAutoRao(raoInput, raoParameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, postContingencyResults.getLeft());
             if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
                 mergedRaoResults = secondPreventiveRaoResults;
                 mergedRaoResults.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
@@ -181,7 +184,7 @@ public class CastorFullOptimization {
         // Log final results
         if (logFinalResultsOutsideOfSecondPreventive) {
             BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults.getLeft(), raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
@@ -278,16 +281,17 @@ public class CastorFullOptimization {
         return new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialResult, optResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs());
     }
 
-    private Map<State, OptimizationResult> optimizeContingencyScenarios(Crac crac,
-                                                                        RaoParameters raoParameters,
-                                                                        StateTree stateTree,
-                                                                        ToolProvider toolProvider,
-                                                                        TreeParameters curativeTreeParameters,
-                                                                        Network network,
-                                                                        PrePerimeterResult initialSensitivityOutput,
-                                                                        PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                        boolean automatonsOnly) {
+    private Pair<Map<State, OptimizationResult>, Map<State, PrePerimeterResult>> optimizeContingencyScenarios(Crac crac,
+                                                                                                              RaoParameters raoParameters,
+                                                                                                              StateTree stateTree,
+                                                                                                              ToolProvider toolProvider,
+                                                                                                              TreeParameters curativeTreeParameters,
+                                                                                                              Network network,
+                                                                                                              PrePerimeterResult initialSensitivityOutput,
+                                                                                                              PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                                                              boolean automatonsOnly) {
         Map<State, OptimizationResult> contingencyScenarioResults = new ConcurrentHashMap<>();
+        Map<State, PrePerimeterResult> contingencyScenarioPrePerimeterResults = new ConcurrentHashMap<>();
         // Create a new variant
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), newVariant);
@@ -334,12 +338,26 @@ public class CastorFullOptimization {
                                 || (automatonState.isPresent() && autoStateSensiFailed))) {
                             contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
                         } else if (!automatonsOnly) {
-                            // Optimize curative instant
-                            OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
+                            // Optimize curative instants
+                            List<State> curativeStates = optimizedScenario.getCurativeStates();
+                            for (State optCurativeState : curativeStates) {
+                                contingencyScenarioPrePerimeterResults.put(optCurativeState, preCurativeResult);
+
+                                OptimizationResult curativeResult = optimizeCurativeState(optCurativeState, crac, networkClone,
                                     raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-                            contingencyScenarioResults.put(curativeState, curativeResult);
-                            if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                                contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+                               // preCurativeResult = new PrePerimeterSensitivityResultImpl(curativeResult, curativeResult, RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(curativeResult, optCurativeState), curativeResult);
+                                // TODO : update flows & margins for CNECs in the following curative instants
+
+                                curativeResult.getActivatedNetworkActions().forEach(na -> na.apply(network));
+                                    // TODO : same for range actions
+                                preCurativeResult = updateSensiBetweenCurativeInstants(network, crac, optCurativeState,
+                                    curativeStates.stream().filter(state -> state.getInstant().comesAfter(optCurativeState.getInstant())).collect(Collectors.toList()),
+                                    toolProvider, initialSensitivityOutput, preCurativeResult, stateTree.getOperatorsNotSharingCras());
+
+                                contingencyScenarioResults.put(optCurativeState, curativeResult);
+                                if (curativeResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                                    contingencyScenarioResults.put(optCurativeState, new SkippedOptimizationResultImpl(optCurativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE));
+                                }
                             }
                         }
                         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
@@ -361,7 +379,32 @@ public class CastorFullOptimization {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return contingencyScenarioResults;
+        return Pair.of(contingencyScenarioResults, contingencyScenarioPrePerimeterResults);
+    }
+
+    private PrePerimeterResult updateSensiBetweenCurativeInstants(Network network, Crac crac, State firstCurativeState, List<State> followingStates,
+                                                                  ToolProvider toolProvider,
+                                                                  FlowResult initialFlowResult,
+                                                                  RangeActionSetpointResult prePerimeterRangeActionSetpointResult,
+                                                                  Set<String> operatorsNotSharingCras) {
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs(firstCurativeState);
+        Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
+
+        for (State curativeState : followingStates) {
+            flowCnecs.addAll(crac.getFlowCnecs(curativeState));
+            curativeRangeActions.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED));
+        }
+
+        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+            flowCnecs,
+            curativeRangeActions,
+            raoParameters,
+            toolProvider);
+
+        // Run computation
+        TECHNICAL_LOGS.info("Running pre curative sensitivity analysis after curative state {}.", firstCurativeState);
+        return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, prePerimeterRangeActionSetpointResult, operatorsNotSharingCras, null);
+
     }
 
     private OptimizationResult optimizeCurativeState(State curativeState,
@@ -373,7 +416,7 @@ public class CastorFullOptimization {
                                                      TreeParameters curativeTreeParameters,
                                                      PrePerimeterResult initialSensitivityOutput,
                                                      PrePerimeterResult prePerimeterSensitivityOutput) {
-        TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
+        TECHNICAL_LOGS.info("!!!!!!!!!!!!!!!!! Optimizing curative state {}.", curativeState.getId());
 
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(curativeState, crac, network, raoParameters, prePerimeterSensitivityOutput);
 
@@ -470,7 +513,7 @@ public class CastorFullOptimization {
 
         // Run 2nd automaton simulation and update results
         BUSINESS_LOGS.info("----- Second automaton simulation [start]");
-        Map<State, OptimizationResult> newPostContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), raoParameters, stateTree, toolProvider, null, raoInput.getNetwork(), initialOutput, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput, true);
+        Pair<Map<State, OptimizationResult>, Map<State, PrePerimeterResult>> newPostContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), raoParameters, stateTree, toolProvider, null, raoInput.getNetwork(), initialOutput, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput, true);
         BUSINESS_LOGS.info("----- Second automaton simulation [end]");
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
@@ -493,12 +536,13 @@ public class CastorFullOptimization {
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
         // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
         // ---- this check is only performed here because SkippedOptimizationResultImpl with appliedRas can only be generated for AUTO instant
-        newPostContingencyResults.entrySet().stream().filter(entry ->
+        newPostContingencyResults.getLeft().entrySet().stream().filter(entry ->
                 !(entry.getValue() instanceof SkippedOptimizationResultImpl) && entry.getKey().getInstant().equals(com.farao_community.farao.data.crac_api.Instant.AUTO))
             .forEach(entry -> {
                 appliedArasAndCras.addAppliedNetworkActions(entry.getKey(), entry.getValue().getActivatedNetworkActions());
                 entry.getValue().getActivatedRangeActions(entry.getKey()).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(entry.getKey(), rangeAction, entry.getValue().getOptimizedSetpoint(rangeAction, entry.getKey())));
             });
+        // TODO : same on Right ?
         // Run curative sensitivity analysis with appliedArasAndCras
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(raoInput.getNetwork(), raoInput.getCrac(), initialOutput, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
@@ -513,10 +557,11 @@ public class CastorFullOptimization {
             // Specific case : curative state was previously skipped because it led to a sensitivity analysis failure.
             // Curative state is still a SkippedOptimizationResultImpl, but its computation status must be updated
             if (entry.getValue() instanceof SkippedOptimizationResultImpl) {
-                newPostContingencyResults.put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey())));
+                newPostContingencyResults.getLeft().put(state, new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey())));
             } else {
-                newPostContingencyResults.put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult, secondPreventiveRaoResult.remedialActionsExcluded, postCraSensitivityAnalysisOutput));
+                newPostContingencyResults.getLeft().put(state, new CurativeWithSecondPraoResult(state, entry.getValue(), secondPreventiveRaoResult.perimeterResult, secondPreventiveRaoResult.remedialActionsExcluded, postCraSensitivityAnalysisOutput));
             }
+            // TODO : same on Right ?
         }
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -526,7 +571,8 @@ public class CastorFullOptimization {
                 secondPreventiveRaoResult.perimeterResult,
                 secondPreventiveRaoResult.remedialActionsExcluded,
                 secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
-                newPostContingencyResults,
+                newPostContingencyResults.getLeft(),
+                newPostContingencyResults.getRight(),
                 postCraSensitivityAnalysisOutput);
     }
 

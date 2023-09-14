@@ -42,7 +42,7 @@ class InstantTest {
     @Test
     void testCurative() {
         Instant instant = Instant.CURATIVE;
-        assertEquals(3, instant.getOrder());
+        assertEquals(5, instant.getOrder());
         assertEquals("curative", instant.toString());
     }
 

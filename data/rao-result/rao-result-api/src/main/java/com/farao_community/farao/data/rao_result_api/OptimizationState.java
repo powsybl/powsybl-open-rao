@@ -18,7 +18,9 @@ public enum OptimizationState {
     INITIAL(0, Instant.PREVENTIVE, "initial"),
     AFTER_PRA(1, Instant.PREVENTIVE, "after PRA"),
     AFTER_ARA(2, Instant.AUTO, "after ARA"),
-    AFTER_CRA(3, Instant.CURATIVE, "after CRA");
+    AFTER_CRA1(3, Instant.CURATIVE1, "after CRA1"),
+    AFTER_CRA2(4, Instant.CURATIVE2, "after CRA2"),
+    AFTER_CRA(5, Instant.CURATIVE, "after CRA");
 
     private final int order;
     private final Instant firstInstant;
@@ -40,8 +42,12 @@ public enum OptimizationState {
                 return INITIAL;
             case AUTO:
                 return AFTER_PRA;
-            case CURATIVE:
+            case CURATIVE1:
                 return AFTER_ARA;
+            case CURATIVE2:
+                return AFTER_CRA1;
+            case CURATIVE:
+                return AFTER_CRA2;
             default:
                 throw new FaraoException(String.format("Unknown instant %s", instant));
         }
@@ -64,6 +70,8 @@ public enum OptimizationState {
                 return AFTER_PRA;
             case AUTO:
                 return AFTER_ARA;
+            case CURATIVE1:
+                return AFTER_CRA1;
             case CURATIVE:
                 return AFTER_CRA;
             default:
