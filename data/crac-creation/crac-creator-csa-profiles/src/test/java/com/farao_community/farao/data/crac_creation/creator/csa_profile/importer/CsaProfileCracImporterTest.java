@@ -56,4 +56,17 @@ public class CsaProfileCracImporterTest {
         assertEquals(2, csaProfileCrac.getRemedialActions().size());
     }
 
+    @Test
+    void testImportNativeCracWithoutSubdirectory() {
+        CsaProfileCracImporter csaProfileCracImporter = new CsaProfileCracImporter();
+        InputStream is1 = getClass().getResourceAsStream("/TestCaseWithoutSubdirectory.zip");
+        CsaProfileCrac csaProfileCrac = csaProfileCracImporter.importNativeCrac(is1);
+        assertNotNull(csaProfileCrac);
+
+        PropertyBags contingencies = csaProfileCrac.getContingencies();
+        assertEquals(1, contingencies.size());
+
+        PropertyBags currentLimits = csaProfileCrac.getCurrentLimits();
+        assertEquals(52, currentLimits.size());
+    }
 }

@@ -42,7 +42,6 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry zipEntry;
         try {
-            zipInputStream.getNextEntry();
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                 if (!zipEntry.isDirectory()) {
                     FaraoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
