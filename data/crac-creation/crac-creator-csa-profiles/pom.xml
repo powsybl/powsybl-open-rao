@@ -74,6 +74,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-impl</artifactId>
             <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -103,7 +104,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
