@@ -34,12 +34,14 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     private final Set<FlowCnec> optimizedFlowCnecs;
     private final Set<FlowCnec> monitoredFlowCnecs;
     private final Set<FlowCnec> loopFlowCnecs;
+    private final Set<FlowCnec> computedFlowCnecs;
     private final Set<NetworkAction> availableNetworkActions;
     private final Map<State, Set<RangeAction<?>>> availableRangeActions;
 
     protected AbstractOptimizationPerimeter(State mainOptimizationState,
                                          Set<FlowCnec> flowCnecs,
                                          Set<FlowCnec> loopFlowCnecs,
+                                         Set<FlowCnec> computedFlowCnecs,
                                          Set<NetworkAction> availableNetworkActions,
                                          Map<State, Set<RangeAction<?>>> availableRangeActions) {
         this.mainOptimizationState = mainOptimizationState;
@@ -48,6 +50,8 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
 
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(flowCnecs);
+
+        this.computedFlowCnecs = computedFlowCnecs;
 
         this.optimizedFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedFlowCnecs.addAll(flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()));
@@ -102,6 +106,11 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     @Override
     public Set<FlowCnec> getLoopFlowCnecs() {
         return loopFlowCnecs;
+    }
+
+    @Override
+    public Set<FlowCnec> getComputedFlowCnecs() {
+        return computedFlowCnecs;
     }
 
     @Override

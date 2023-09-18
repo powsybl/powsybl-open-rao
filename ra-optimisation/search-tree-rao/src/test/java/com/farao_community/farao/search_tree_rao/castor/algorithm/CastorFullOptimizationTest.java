@@ -24,14 +24,16 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.SecondPreventiveRaoParameters;
-import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
+import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedRaoResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
@@ -718,6 +720,114 @@ class CastorFullOptimizationTest {
         assertEquals(671.88, raoResult.getFunctionalCost(OptimizationState.INITIAL), 1.);
         assertEquals(429.22, raoResult.getFunctionalCost(OptimizationState.AFTER_PRA), 1.);
         assertEquals(-20.30, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA1), 1.); // TODO
+        assertEquals(-20.30, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), 1.);
+    }
+
+    @Test
+    void testCurative2Instant() {
+        Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        Crac crac = CracFactory.findDefault().create("crac");
+
+        Contingency co = crac.newContingency().withId("co1").withNetworkElement("FFR2AA1  FFR3AA1  1").add();
+
+        crac.newFlowCnec().withId("c1-prev").withInstant(Instant.PREVENTIVE).withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
+            .newThreshold().withSide(Side.LEFT).withMax(2000.).withUnit(Unit.AMPERE).add()
+            .withOptimized().add();
+        crac.newFlowCnec().withId("c1-out").withInstant(Instant.OUTAGE).withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
+            .newThreshold().withSide(Side.LEFT).withMax(2500.).withUnit(Unit.AMPERE).add()
+            .withOptimized().add();
+        crac.newFlowCnec().withId("c1-cur1").withInstant(Instant.CURATIVE1).withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
+            .newThreshold().withSide(Side.LEFT).withMax(2400.).withUnit(Unit.AMPERE).add()
+            .withOptimized().add();
+        crac.newFlowCnec().withId("c1-cur2").withInstant(Instant.CURATIVE2).withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
+            .newThreshold().withSide(Side.LEFT).withMax(2300.).withUnit(Unit.AMPERE).add()
+            .withOptimized().add();
+        crac.newFlowCnec().withId("c1-cur").withInstant(Instant.CURATIVE).withContingency("co1").withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
+            .newThreshold().withSide(Side.LEFT).withMax(1700.).withUnit(Unit.AMPERE).add()
+            .withOptimized().add();
+
+        NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
+            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(10).add()
+            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
+            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
+            .newOnInstantUsageRule().withInstant(Instant.CURATIVE1).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        NetworkAction pstCur2 = crac.newNetworkAction().withId("pst_fr@-3-cur2")
+            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(-3).add()
+            .newOnInstantUsageRule().withInstant(Instant.CURATIVE2).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur")
+            .newPstSetPoint().withNetworkElement("FFR2AA1  FFR4AA1  1").withSetpoint(-16).add()
+            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
+
+        //co.apply(network, null);
+        //pstPrev.apply(network);
+        //naCur1.apply(network);
+        //pstCur2.apply(network);
+        //pstCur.apply(network);
+        //LoadFlow.find("OpenLoadFlow").run(network, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+
+        assertEquals(Set.of(pstPrev), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(Set.of(naCur1), raoResult.getActivatedNetworkActionsDuringState(crac.getState("co1", Instant.CURATIVE1)));
+        assertEquals(Set.of(pstCur2), raoResult.getActivatedNetworkActionsDuringState(crac.getState("co1", Instant.CURATIVE2)));
+        assertEquals(Set.of(pstCur), raoResult.getActivatedNetworkActionsDuringState(crac.getState("co1", Instant.CURATIVE)));
+
+        FlowCnec cnec;
+        cnec = crac.getFlowCnec("c1-prev");
+        assertEquals(2228.9, raoResult.getFlow(OptimizationState.INITIAL, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(1979.7, raoResult.getFlow(OptimizationState.AFTER_PRA, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(-228.9, raoResult.getMargin(OptimizationState.INITIAL, cnec, Unit.AMPERE), 1.);
+        assertEquals(20.3, raoResult.getMargin(OptimizationState.AFTER_PRA, cnec, Unit.AMPERE), 1.);
+
+        cnec = crac.getFlowCnec("c1-out");
+        assertEquals(2371.88, raoResult.getFlow(OptimizationState.INITIAL, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(OptimizationState.AFTER_PRA, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(128.12, raoResult.getMargin(OptimizationState.INITIAL, cnec, Unit.AMPERE), 1.);
+        assertEquals(370.78, raoResult.getMargin(OptimizationState.AFTER_PRA, cnec, Unit.AMPERE), 1.);
+
+        cnec = crac.getFlowCnec("c1-cur1");
+        assertEquals(2371.88, raoResult.getFlow(OptimizationState.INITIAL, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(OptimizationState.AFTER_PRA, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(OptimizationState.AFTER_CRA1, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(28.12, raoResult.getMargin(OptimizationState.INITIAL, cnec, Unit.AMPERE), 1.);
+        assertEquals(270.78, raoResult.getMargin(OptimizationState.AFTER_PRA, cnec, Unit.AMPERE), 1.);
+        assertEquals(850.82, raoResult.getMargin(OptimizationState.AFTER_CRA1, cnec, Unit.AMPERE), 1.);
+
+        cnec = crac.getFlowCnec("c1-cur2");
+        assertEquals(2371.88, raoResult.getFlow(OptimizationState.INITIAL, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(OptimizationState.AFTER_PRA, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(OptimizationState.AFTER_CRA1, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(990.32, raoResult.getFlow(OptimizationState.AFTER_CRA2, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(-71.88, raoResult.getMargin(OptimizationState.INITIAL, cnec, Unit.AMPERE), 1.);
+        assertEquals(170.78, raoResult.getMargin(OptimizationState.AFTER_PRA, cnec, Unit.AMPERE), 1.);
+        assertEquals(750.82, raoResult.getMargin(OptimizationState.AFTER_CRA1, cnec, Unit.AMPERE), 1.);
+        assertEquals(1309.68, raoResult.getMargin(OptimizationState.AFTER_CRA2, cnec, Unit.AMPERE), 1.);
+
+        cnec = crac.getFlowCnec("c1-cur");
+        assertEquals(2371.88, raoResult.getFlow(OptimizationState.INITIAL, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(2129.22, raoResult.getFlow(OptimizationState.AFTER_PRA, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(1549.18, raoResult.getFlow(OptimizationState.AFTER_CRA1, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(990.32, raoResult.getFlow(OptimizationState.AFTER_CRA2, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(432.73, raoResult.getFlow(OptimizationState.AFTER_CRA, cnec, Side.LEFT, Unit.AMPERE), 1.);
+        assertEquals(-671.88, raoResult.getMargin(OptimizationState.INITIAL, cnec, Unit.AMPERE), 1.);
+        assertEquals(-429.22, raoResult.getMargin(OptimizationState.AFTER_PRA, cnec, Unit.AMPERE), 1.);
+        assertEquals(150.82, raoResult.getMargin(OptimizationState.AFTER_CRA1, cnec, Unit.AMPERE), 1.);
+        assertEquals(709.68, raoResult.getMargin(OptimizationState.AFTER_CRA2, cnec, Unit.AMPERE), 1.);
+        assertEquals(1267.27, raoResult.getMargin(OptimizationState.AFTER_CRA, cnec, Unit.AMPERE), 1.);
+
+        assertEquals(671.88, raoResult.getFunctionalCost(OptimizationState.INITIAL), 1.);
+        assertEquals(429.22, raoResult.getFunctionalCost(OptimizationState.AFTER_PRA), 1.);
+        assertEquals(-20.30, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA1), 1.); // TODO
+        assertEquals(-20.30, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA2), 1.); // TODO
         assertEquals(-20.30, raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), 1.);
     }
 }

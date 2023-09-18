@@ -70,6 +70,16 @@ final class FlowCnecResultArrayDeserializer {
                     eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_ARA);
                     deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
                     break;
+                case AFTER_CRA1_OPT_STATE:
+                    jsonParser.nextToken();
+                    eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA1);
+                    deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
+                    break;
+                case AFTER_CRA2_OPT_STATE:
+                    jsonParser.nextToken();
+                    eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA2);
+                    deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
+                    break;
                 case AFTER_CRA_OPT_STATE:
                     jsonParser.nextToken();
                     eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA);

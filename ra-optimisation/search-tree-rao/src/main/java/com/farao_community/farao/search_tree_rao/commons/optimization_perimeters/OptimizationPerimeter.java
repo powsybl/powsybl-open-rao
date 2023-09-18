@@ -67,6 +67,11 @@ public interface OptimizationPerimeter {
     Set<FlowCnec> getMonitoredFlowCnecs();
 
     /**
+     TODO
+     */
+    Set<FlowCnec> getComputedFlowCnecs();
+
+    /**
      Returns the set of FlowCnec whose loop-flows are monitored
      */
     Set<FlowCnec> getLoopFlowCnecs();

@@ -30,7 +30,7 @@ class OptimizationStateTest {
         assertEquals(AFTER_PRA, OptimizationState.beforeOptimizing(AUTO));
         assertEquals(AFTER_ARA, OptimizationState.afterOptimizing(AUTO));
 
-        assertEquals(AFTER_ARA, OptimizationState.beforeOptimizing(CURATIVE));
+        assertEquals(AFTER_CRA2, OptimizationState.beforeOptimizing(CURATIVE));
         assertEquals(AFTER_CRA, OptimizationState.afterOptimizing(CURATIVE));
     }
 
@@ -51,7 +51,7 @@ class OptimizationStateTest {
         assertEquals(AFTER_ARA, OptimizationState.afterOptimizing(state));
 
         Mockito.when(state.getInstant()).thenReturn(CURATIVE);
-        assertEquals(AFTER_ARA, OptimizationState.beforeOptimizing(state));
+        assertEquals(AFTER_CRA2, OptimizationState.beforeOptimizing(state));
         assertEquals(AFTER_CRA, OptimizationState.afterOptimizing(state));
     }
 

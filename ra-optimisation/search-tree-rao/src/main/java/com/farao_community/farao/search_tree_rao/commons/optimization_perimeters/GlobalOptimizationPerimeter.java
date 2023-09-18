@@ -18,6 +18,7 @@ import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
                                        Set<FlowCnec> loopFlowCnecs,
                                        Set<NetworkAction> availableNetworkActions,
                                        Map<State, Set<RangeAction<?>>> availableRangeActions) {
-        super(mainOptimizationState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions);
+        super(mainOptimizationState, flowCnecs, loopFlowCnecs, new HashSet<>(), availableNetworkActions, availableRangeActions);
     }
 
     public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {

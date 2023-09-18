@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 
+import java.util.Arrays;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -30,6 +32,10 @@ public enum OptimizationState {
         this.order = order;
         this.firstInstant = firstInstant;
         this.name = name;
+    }
+
+    private int getOrder() {
+        return order;
     }
 
     /**
@@ -64,19 +70,9 @@ public enum OptimizationState {
      * Returns the OptimizationState that corresponds to the situation after optimizing a given instant
      */
     public static OptimizationState afterOptimizing(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-            case OUTAGE:
-                return AFTER_PRA;
-            case AUTO:
-                return AFTER_ARA;
-            case CURATIVE1:
-                return AFTER_CRA1;
-            case CURATIVE:
-                return AFTER_CRA;
-            default:
-                throw new FaraoException(String.format("Unknown instant %s", instant));
-        }
+        return Arrays.stream(values()).sorted((o1, o2) -> Integer.compare(o2.getOrder(), o1.getOrder()))
+            .filter(optimizationState -> !optimizationState.getFirstInstant().comesAfter(instant))
+            .findFirst().orElseThrow();
     }
 
     /**

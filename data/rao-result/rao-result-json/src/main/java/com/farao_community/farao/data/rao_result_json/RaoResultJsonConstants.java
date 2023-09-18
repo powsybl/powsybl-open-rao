@@ -83,6 +83,8 @@ public final class RaoResultJsonConstants {
     public static final String PREVENTIVE_INSTANT = "preventive";
     public static final String OUTAGE_INSTANT = "outage";
     public static final String AUTO_INSTANT = "auto";
+    public static final String CURATIVE1_INSTANT = "curative1";
+    public static final String CURATIVE2_INSTANT = "curative2";
     public static final String CURATIVE_INSTANT = "curative";
 
     // units
@@ -101,6 +103,8 @@ public final class RaoResultJsonConstants {
     public static final String INITIAL_OPT_STATE = "initial";
     public static final String AFTER_PRA_OPT_STATE = "afterPRA";
     public static final String AFTER_ARA_OPT_STATE = "afterARA";
+    public static final String AFTER_CRA1_OPT_STATE = "afterCRA1";
+    public static final String AFTER_CRA2_OPT_STATE = "afterCRA2";
     public static final String AFTER_CRA_OPT_STATE = "afterCRA";
 
     // computation statuses
@@ -204,6 +208,10 @@ public final class RaoResultJsonConstants {
                 return OUTAGE_INSTANT;
             case AUTO:
                 return AUTO_INSTANT;
+            case CURATIVE1:
+                return CURATIVE1_INSTANT;
+            case CURATIVE2:
+                return CURATIVE2_INSTANT;
             case CURATIVE:
                 return CURATIVE_INSTANT;
             default:
@@ -219,6 +227,10 @@ public final class RaoResultJsonConstants {
                 return Instant.OUTAGE;
             case AUTO_INSTANT:
                 return Instant.AUTO;
+            case CURATIVE1_INSTANT:
+                return Instant.CURATIVE1;
+            case CURATIVE2_INSTANT:
+                return Instant.CURATIVE2;
             case CURATIVE_INSTANT:
                 return Instant.CURATIVE;
             default:
@@ -234,6 +246,10 @@ public final class RaoResultJsonConstants {
                 return AFTER_PRA_OPT_STATE;
             case AFTER_ARA:
                 return AFTER_ARA_OPT_STATE;
+            case AFTER_CRA1:
+                return AFTER_CRA1_OPT_STATE;
+            case AFTER_CRA2:
+                return AFTER_CRA2_OPT_STATE;
             case AFTER_CRA:
                 return AFTER_CRA_OPT_STATE;
             default:
@@ -249,6 +265,10 @@ public final class RaoResultJsonConstants {
                 return OptimizationState.AFTER_PRA;
             case AFTER_ARA_OPT_STATE:
                 return OptimizationState.AFTER_ARA;
+            case AFTER_CRA1_OPT_STATE:
+                return OptimizationState.AFTER_CRA1;
+            case AFTER_CRA2_OPT_STATE:
+                return OptimizationState.AFTER_CRA2;
             case AFTER_CRA_OPT_STATE:
                 return OptimizationState.AFTER_CRA;
             default:

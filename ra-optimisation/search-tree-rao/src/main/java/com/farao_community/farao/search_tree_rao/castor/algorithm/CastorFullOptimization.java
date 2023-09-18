@@ -169,6 +169,9 @@ public class CastorFullOptimization {
 
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
         mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults.getLeft(), postContingencyResults.getRight());
+        //postContingencyResults.getLeft().put(raoInput.getCrac().getPreventiveState(), preventiveResult);
+        //postContingencyResults.getRight().put(raoInput.getCrac().getPreventiveState(), initialOutput);
+        //mergedRaoResults = new NewResultImpl(stateTree, postContingencyResults.getLeft(), postContingencyResults.getRight());
         boolean logFinalResultsOutsideOfSecondPreventive = true;
         // Run second preventive when necessary
         if (shouldRunSecondPreventiveRao(raoParameters, preventiveResult, postContingencyResults.getLeft().values(), mergedRaoResults, targetEndInstant, preventiveRaoTime)) {

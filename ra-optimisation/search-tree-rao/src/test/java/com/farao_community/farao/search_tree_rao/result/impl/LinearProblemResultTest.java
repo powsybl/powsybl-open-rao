@@ -155,7 +155,7 @@ class LinearProblemResultTest {
     @Test
     void testGetOptimizedSetPointPreventivePerimeter() {
         OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
-            preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
+            preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
 
         linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
         assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, preventiveState), DOUBLE_TOLERANCE);
@@ -167,7 +167,7 @@ class LinearProblemResultTest {
     @Test
     void testGetOptimizedSetPointCurativePerimeter() {
         OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(
-            aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(aCurativeState));
+            aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(aCurativeState));
 
         linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
         assertEquals(0.8, linearProblemResult.getOptimizedSetpoint(pst1, aCurativeState), DOUBLE_TOLERANCE);

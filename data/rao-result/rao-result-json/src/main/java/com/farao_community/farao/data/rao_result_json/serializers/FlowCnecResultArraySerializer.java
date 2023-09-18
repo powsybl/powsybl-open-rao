@@ -58,8 +58,10 @@ final class FlowCnecResultArraySerializer {
         serializeFlowCnecResultForOptimizationState(OptimizationState.INITIAL, flowCnec, raoResult, flowUnits, jsonGenerator);
         serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_PRA, flowCnec, raoResult, flowUnits, jsonGenerator);
         Instant flowCnecInstant = flowCnec.getState().getInstant();
-        if (flowCnecInstant.equals(Instant.CURATIVE) || flowCnecInstant.equals(Instant.AUTO)) {
+        if (flowCnecInstant.comesAfter(Instant.OUTAGE)) {
             serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_ARA, flowCnec, raoResult, flowUnits, jsonGenerator);
+            serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_CRA1, flowCnec, raoResult, flowUnits, jsonGenerator);
+            serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_CRA2, flowCnec, raoResult, flowUnits, jsonGenerator);
             serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_CRA, flowCnec, raoResult, flowUnits, jsonGenerator);
         }
         jsonGenerator.writeEndObject();
@@ -137,6 +139,8 @@ final class FlowCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.INITIAL, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_PRA, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_ARA, unit) ||
+                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_CRA1, unit) ||
+                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_CRA2, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_CRA, unit);
         }
     }

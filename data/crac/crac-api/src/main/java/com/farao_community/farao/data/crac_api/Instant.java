@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public enum Instant {
+    INITIAL0(-1, "initial"),
     PREVENTIVE(0, "preventive"),
     OUTAGE(1, "outage"),
     AUTO(2, "auto"),

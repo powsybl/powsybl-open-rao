@@ -30,10 +30,11 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
     public PreventiveOptimizationPerimeter(State preventiveState,
                                            Set<FlowCnec> flowCnecs,
                                            Set<FlowCnec> loopFlowCnecs,
+                                           Set<FlowCnec> computedFlowCnecs,
                                            Set<NetworkAction> availableNetworkActions,
                                            Set<RangeAction<?>> availableRangeActions) {
 
-        super(preventiveState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions.isEmpty() ? Collections.emptyMap() : Map.of(preventiveState, availableRangeActions));
+        super(preventiveState, flowCnecs, loopFlowCnecs, computedFlowCnecs, availableNetworkActions, availableRangeActions.isEmpty() ? Collections.emptyMap() : Map.of(preventiveState, availableRangeActions));
 
         if (!preventiveState.isPreventive()) {
             throw new FaraoException("a PreventiveOptimizationContext must be based on the preventive state");
@@ -63,6 +64,8 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
 
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
+        Set<FlowCnec> computedFlowCnecs = crac.getFlowCnecs().stream().filter(fc -> !flowCnecs.contains(fc)).collect(Collectors.toSet());
+
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
             .filter(ra -> ra.isRemedialActionAvailable(preventiveState, RaoUtil.isAnyMarginNegative(prePerimeterResult, ra.getFlowCnecsConstrainingUsageRules(flowCnecs, network, preventiveState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())))
             .collect(Collectors.toSet());
@@ -76,6 +79,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         return new PreventiveOptimizationPerimeter(preventiveState,
             flowCnecs,
             loopFlowCnecs,
+            computedFlowCnecs,
             availableNetworkActions,
             availableRangeActions);
     }

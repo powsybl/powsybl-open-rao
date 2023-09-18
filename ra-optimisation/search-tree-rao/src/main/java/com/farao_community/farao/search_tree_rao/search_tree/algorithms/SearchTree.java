@@ -429,9 +429,12 @@ public class SearchTree {
 
     private SensitivityComputer getSensitivityComputerForEvaluation(boolean isRootLeaf) {
 
+        Set<FlowCnec> cnecs = new HashSet<>(input.getOptimizationPerimeter().getFlowCnecs());
+        cnecs.addAll(input.getOptimizationPerimeter().getComputedFlowCnecs());
+
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
-            .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
+            .withCnecs(cnecs)
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
 
         if (isRootLeaf) {

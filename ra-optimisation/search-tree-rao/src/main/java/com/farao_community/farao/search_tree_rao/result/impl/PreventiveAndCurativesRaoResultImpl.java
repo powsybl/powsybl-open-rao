@@ -205,8 +205,14 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             case AUTO:
                 possibleOptimizationStates = List.of(OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
                 break;
+            case CURATIVE1:
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA1, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
+                break;
+            case CURATIVE2:
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA2, OptimizationState.AFTER_CRA1, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
+                break;
             case CURATIVE:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
+                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA, OptimizationState.AFTER_CRA2, OptimizationState.AFTER_CRA1, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
                 break;
             default:
                 throw new FaraoException(String.format("Instant %s was not recognized", state.getInstant()));
@@ -233,6 +239,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
                 return postContingencyResults.keySet().stream()
                     .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
                     .findAny().map(postContingencyResults::get).orElse(null);
+            case AFTER_CRA1:
+            case AFTER_CRA2:
             case AFTER_CRA:
                 return postContingencyResults.get(state);
             default:

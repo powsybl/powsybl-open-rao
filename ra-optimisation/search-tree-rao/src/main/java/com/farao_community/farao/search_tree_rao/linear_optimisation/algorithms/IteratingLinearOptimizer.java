@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -23,7 +24,9 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
@@ -179,8 +182,11 @@ public final class IteratingLinearOptimizer {
 
     private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
 
+        Set<FlowCnec> cnecs = new HashSet<>(input.getOptimizationPerimeter().getFlowCnecs());
+        cnecs.addAll(input.getOptimizationPerimeter().getComputedFlowCnecs());
+
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
-                .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
+                .withCnecs(cnecs)
                 .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
                 .withAppliedRemedialActions(appliedRemedialActions)
                 .withToolProvider(input.getToolProvider());

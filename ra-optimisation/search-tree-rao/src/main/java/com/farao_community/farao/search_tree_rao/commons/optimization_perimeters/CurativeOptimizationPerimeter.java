@@ -18,6 +18,7 @@ import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,10 +31,11 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
     public CurativeOptimizationPerimeter(State curativeState,
                                          Set<FlowCnec> flowCnecs,
                                          Set<FlowCnec> looopFlowCnecs,
+                                         Set<FlowCnec> computedFlowCnecs,
                                          Set<NetworkAction> availableNetworkActions,
                                          Set<RangeAction<?>> availableRangeActions) {
 
-        super(curativeState, flowCnecs, looopFlowCnecs, availableNetworkActions, Map.of(curativeState, availableRangeActions));
+        super(curativeState, flowCnecs, looopFlowCnecs, computedFlowCnecs, availableNetworkActions, Map.of(curativeState, availableRangeActions));
 
         if (!curativeState.getInstant().comesAfter(Instant.AUTO) && !curativeState.getInstant().equals(Instant.OUTAGE)) {
             throw new FaraoException("a CurativeOptimizationContext must be based on a curative state");
@@ -55,9 +57,15 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
 
+        Set<FlowCnec> computedFlowCnecs = new HashSet<>();
+        crac.getStates(curativeState.getContingency().orElseThrow())
+            .stream().filter(state -> state.getInstant().comesAfter(curativeState.getInstant()))
+            .forEach(state -> computedFlowCnecs.addAll(crac.getFlowCnecs(state)));
+
         return new CurativeOptimizationPerimeter(curativeState,
             flowCnecs,
             loopFlowCnecs,
+            computedFlowCnecs,
             availableNetworkActions,
             availableRangeActions);
     }

@@ -127,6 +127,8 @@ public final class JsonSerializationConstants {
     public static final String PREVENTIVE_INSTANT = "preventive";
     public static final String OUTAGE_INSTANT = "outage";
     public static final String AUTO_INSTANT = "auto";
+    public static final String CURATIVE1_INSTANT = "curative1";
+    public static final String CURATIVE2_INSTANT = "curative2";
     public static final String CURATIVE_INSTANT = "curative";
 
     // units
@@ -191,6 +193,10 @@ public final class JsonSerializationConstants {
                 return OUTAGE_INSTANT;
             case AUTO:
                 return AUTO_INSTANT;
+            case CURATIVE1:
+                return CURATIVE1_INSTANT;
+            case CURATIVE2:
+                return CURATIVE2_INSTANT;
             case CURATIVE:
                 return CURATIVE_INSTANT;
             default:
@@ -206,6 +212,10 @@ public final class JsonSerializationConstants {
                 return Instant.OUTAGE;
             case AUTO_INSTANT:
                 return Instant.AUTO;
+            case CURATIVE1_INSTANT:
+                return Instant.CURATIVE1;
+            case CURATIVE2_INSTANT:
+                return Instant.CURATIVE2;
             case CURATIVE_INSTANT:
                 return Instant.CURATIVE;
             default:
