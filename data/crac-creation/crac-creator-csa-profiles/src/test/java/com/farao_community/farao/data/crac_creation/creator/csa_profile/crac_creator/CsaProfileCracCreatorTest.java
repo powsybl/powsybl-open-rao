@@ -146,29 +146,29 @@ public class CsaProfileCracCreatorTest {
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
         this.assertFlowCnecEquality(listFlowCnecs.get(0),
-                "adad76ed-79e7-4985-84e1-eb493f168c85",
-                "TENNET_TSO_AE1NL - preventive",
-                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-                PREVENTIVE, null,
-                +1876, -1876, Side.RIGHT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(1),
-                "adad76ed-79e7-4985-84e1-eb493f168c85-c0a25fd7-eee0-4191-98a5-71a74469d36e",
-                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
-                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-                CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
-                +1876, -1876, Side.RIGHT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(2),
-                "dd5247a7-3cb1-43f8-8ce1-12f285653f06",
-                "ELIA_AE1 - preventive",
-                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-                PREVENTIVE, null,
-                +1312, -1312, Side.LEFT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(3),
-                "dd5247a7-3cb1-43f8-8ce1-12f285653f06-493480ba-93c3-426e-bee5-347d8dda3749",
+                "ELIA_AE1 - ELIA_CO1 - curative",
                 "ELIA_AE1 - ELIA_CO1 - curative",
                 "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
                 CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
                 +1312, -1312, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+                "ELIA_AE1 - preventive",
+                "ELIA_AE1 - preventive",
+                "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                PREVENTIVE, null,
+                +1312, -1312, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+                +1876, -1876, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+                "TENNET_TSO_AE1NL - preventive",
+                "TENNET_TSO_AE1NL - preventive",
+                "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                PREVENTIVE, null,
+                +1876, -1876, Side.RIGHT);
 
         // csa-9-1
         assertTrue(cracCreationContext.getCrac().getNetworkActions().isEmpty());
@@ -841,17 +841,17 @@ public class CsaProfileCracCreatorTest {
 
         // Check Flow Cnecs
         assertEquals(6, importedCrac.getFlowCnecs().size());
-        assertFlowCnecEquality(importedCrac.getFlowCnec("079f1887-f33e-49ef-b1ff-22e871055fd0-co1_fr2_fr3_1"), "079f1887-f33e-49ef-b1ff-22e871055fd0-co1_fr2_fr3_1", "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative",
+        assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative",
             "FFR2AA1--FFR3AA1--2", CURATIVE, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
-        assertFlowCnecEquality(importedCrac.getFlowCnec("755832d8-220a-4e5a-b133-dfd27b3c8a78-co1_fr2_fr3_1"), "755832d8-220a-4e5a-b133-dfd27b3c8a78-co1_fr2_fr3_1", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage",
+        assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage",
             "FFR3AA1--FFR5AA1--1", OUTAGE, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
-        assertFlowCnecEquality(importedCrac.getFlowCnec("77320d6c-7880-43b1-ac28-e27a85ebda82"), "77320d6c-7880-43b1-ac28-e27a85ebda82", "RTE_FFR2AA1--DDE3AA1--1 - preventive",
+        assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - preventive"), "RTE_FFR2AA1--DDE3AA1--1 - preventive", "RTE_FFR2AA1--DDE3AA1--1 - preventive",
             "FFR2AA1--DDE3AA1--1", PREVENTIVE, null, 1000., -1000., Side.RIGHT);
-        assertFlowCnecEquality(importedCrac.getFlowCnec("ec2ba2f9-f230-40f9-b665-71c892a80874-co1_fr2_fr3_1"), "ec2ba2f9-f230-40f9-b665-71c892a80874-co1_fr2_fr3_1", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative",
+        assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative",
             "FFR3AA1--FFR5AA1--1", CURATIVE, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
-        assertFlowCnecEquality(importedCrac.getFlowCnec("f0208d08-2ed5-4d92-91a1-4e89ac71e17e"), "f0208d08-2ed5-4d92-91a1-4e89ac71e17e", "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive",
+        assertFlowCnecEquality(importedCrac.getFlowCnec("TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive"), "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive", "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive",
             "NNL2AA1--BBE3AA1--1", PREVENTIVE, null, 5000., -5000., Side.RIGHT);
-        assertFlowCnecEquality(importedCrac.getFlowCnec("f7708112-b880-4674-98a1-b005a01a61d5-co1_fr2_fr3_1"), "f7708112-b880-4674-98a1-b005a01a61d5-co1_fr2_fr3_1", "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage",
+        assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage",
             "FFR2AA1--DDE3AA1--1", OUTAGE, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
