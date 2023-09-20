@@ -29,7 +29,6 @@ public final class MonitoringCommonSerializer {
             for (NetworkAction networkAction : entry.getValue().stream().sorted(Comparator.comparing(NetworkAction::getId)).collect(Collectors.toList())) {
                 jsonGenerator.writeString(networkAction.getId());
             }
-            //entry.getValue().stream().map(NetworkAction::getId).sorted().forEach(jsonGenerator::writeString);
             jsonGenerator.writeEndArray();
             jsonGenerator.writeEndObject();
         }
