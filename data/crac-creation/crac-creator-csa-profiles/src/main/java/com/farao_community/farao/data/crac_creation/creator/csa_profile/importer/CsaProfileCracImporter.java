@@ -51,24 +51,24 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     FaraoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
                     int currentSizeEntry = 0;
                     File tempFile = File.createTempFile("faraoCsaProfile", ".tmp");
-                    tempFile.setExecutable(true, true);
-                    tempFile.setReadable(true, true);
-                    tempFile.setWritable(true, true);
-                    FileOutputStream outputStream = new FileOutputStream(tempFile);
+                    boolean tempFileOk = tempFile.setExecutable(true, true) &&
+                        tempFile.setReadable(true, true) &&
+                        tempFile.setWritable(true, true);
+                    if (tempFileOk) {
+                        InputStream in = new BufferedInputStream(zipInputStream);
+                        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
+                            int nBytes = -1;
+                            byte[] buffer = new byte[2048];
 
-                    InputStream in = new BufferedInputStream(zipInputStream);
-                    OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile));
-                    int nBytes = -1;
-                    byte[] buffer = new byte[2048];
+                            while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) { // Compliant
+                                out.write(buffer, 0, nBytes);
+                                currentSizeEntry += nBytes;
 
-                    while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) { // Compliant
-                        out.write(buffer, 0, nBytes);
-                        currentSizeEntry += nBytes;
-
+                            }
+                        }
+                        FileInputStream fileInputStream = new FileInputStream(tempFile);
+                        tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
                     }
-                    out.close();
-                    FileInputStream fileInputStream = new FileInputStream(tempFile);
-                    tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
                     if (!tempFile.delete()) {
                         FaraoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
                         tempFile.deleteOnExit();
