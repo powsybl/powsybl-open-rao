@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -78,6 +79,7 @@ public class NetworkActionCreator {
         networkActionAdder.newInjectionSetPoint()
                 .withSetpoint(normalValue)
                 .withNetworkElement(rotatingMachineId)
+                .withUnit(Unit.MEGAWATT)
                 .add();
     }
 

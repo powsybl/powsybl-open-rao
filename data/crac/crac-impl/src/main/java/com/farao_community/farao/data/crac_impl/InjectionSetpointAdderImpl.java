@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
@@ -23,7 +24,7 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
     private String networkElementId;
     private String networkElementName;
     private Double setpoint;
-    private Unit unit = Unit.MEGAWATT;
+    private Unit unit;
 
     InjectionSetpointAdderImpl(NetworkActionAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;
@@ -50,6 +51,9 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
 
     @Override
     public InjectionSetpointAdder withUnit(Unit unit) {
+        if (unit == Unit.SECTION_COUNT && setpoint < 0) {
+            throw new FaraoException("With a SECTION_COUNT unit, setpoint should be a positive integer");
+        }
         this.unit = unit;
         return this;
     }
@@ -58,6 +62,7 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
     public NetworkActionAdder add() {
         assertAttributeNotNull(networkElementId, "InjectionSetPoint", "network element", "withNetworkElement()");
         assertAttributeNotNull(setpoint, "InjectionSetPoint", "setpoint", "withSetPoint()");
+        assertAttributeNotNull(unit, "InjectionSetPoint", "unit", "withUnit()");
 
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         InjectionSetpoint injectionSetpoint = new InjectionSetpointImpl(networkElement, setpoint, unit);

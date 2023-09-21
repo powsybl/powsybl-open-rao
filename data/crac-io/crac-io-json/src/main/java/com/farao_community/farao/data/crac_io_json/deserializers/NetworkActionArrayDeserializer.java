@@ -100,7 +100,7 @@ public final class NetworkActionArrayDeserializer {
                         break;
                     case INJECTION_SETPOINTS:
                         jsonParser.nextToken();
-                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        InjectionSetpointArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId, version);
                         break;
                     case SWITCH_PAIRS:
                         jsonParser.nextToken();

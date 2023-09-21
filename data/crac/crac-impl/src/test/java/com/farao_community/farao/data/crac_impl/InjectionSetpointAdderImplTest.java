@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpointAdder;
@@ -39,6 +40,7 @@ class InjectionSetpointAdderImplTest {
         NetworkAction networkAction = networkActionAdder.newInjectionSetPoint()
             .withNetworkElement("groupNetworkElementId")
             .withSetpoint(100.)
+            .withUnit(Unit.MEGAWATT)
             .add()
             .add();
 
@@ -54,14 +56,21 @@ class InjectionSetpointAdderImplTest {
     @Test
     void testNoNetworkElement() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withSetpoint(100.);
+            .withSetpoint(100.).withUnit(Unit.MEGAWATT);
         assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
 
     @Test
     void testNoSetpoint() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement("groupNetworkElementId");
+            .withNetworkElement("groupNetworkElementId").withUnit(Unit.MEGAWATT);
+        assertThrows(FaraoException.class, injectionSetpointAdder::add);
+    }
+
+    @Test
+    void testNoUnit() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement("groupNetworkElementId").withSetpoint(100.);
         assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
 }

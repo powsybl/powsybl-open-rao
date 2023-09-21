@@ -174,7 +174,7 @@ public final class ExhaustiveCracCreation {
         crac.newNetworkAction().withId("injectionSetpointRaId")
                 .withName("injectionSetpointRaName")
                 .withOperator("RTE")
-                .newInjectionSetPoint().withSetpoint(260).withNetworkElement("injection").add()
+                .newInjectionSetPoint().withSetpoint(260).withNetworkElement("injection").withUnit(Unit.MEGAWATT).add()
                 .newOnFlowConstraintUsageRule().withFlowCnec("cnec3autoId").withInstant(Instant.AUTO).add()
                 .add();
 
