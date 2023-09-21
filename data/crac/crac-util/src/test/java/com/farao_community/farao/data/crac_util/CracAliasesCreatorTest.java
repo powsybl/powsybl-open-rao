@@ -25,10 +25,31 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CracAliasesCreatorTest {
 
     @Test
-    void testDeprecatedCracAliasesUtil7Char() {
+    void testDeprecatedCracExtensions1() {
         // Extensions have been deprecated
-        InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases.json");
-        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases.json", inputStream));
+        InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-1.json");
+        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-1.json", inputStream));
+    }
+
+    @Test
+    void testDeprecatedCracExtensions2() {
+        // Extensions have been deprecated
+        InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-2.json");
+        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-2.json", inputStream));
+    }
+
+    @Test
+    void testDeprecatedCracExtensions3() {
+        // Extensions have been deprecated
+        InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-3.json");
+        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-3.json", inputStream));
+    }
+
+    @Test
+    void testDeprecatedCracExtensions4() {
+        // Extensions have been deprecated
+        InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-4.json");
+        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-4.json", inputStream));
     }
 
     @Test
