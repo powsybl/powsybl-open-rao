@@ -181,7 +181,7 @@ class SystematicSensitivityResultTest {
             .withInstant(com.farao_community.farao.data.crac_api.Instant.OUTAGE)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
-        hvdcRangeAction = crac.newHvdcRangeAction()
+        hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()
             .withId("hvdc-ra")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .newRange().withMin(-1000.).withMax(1000.).add()

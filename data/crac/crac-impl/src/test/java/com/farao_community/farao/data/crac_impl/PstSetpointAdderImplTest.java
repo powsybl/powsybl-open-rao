@@ -37,7 +37,7 @@ class PstSetpointAdderImplTest {
     @Test
     void testOk() {
 
-        NetworkAction networkAction = networkActionAdder.newPstSetPoint()
+        NetworkAction networkAction = (NetworkAction) networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
             .withSetpoint(0)
             .add()

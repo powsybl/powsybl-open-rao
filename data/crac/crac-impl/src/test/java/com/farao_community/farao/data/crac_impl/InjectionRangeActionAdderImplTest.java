@@ -36,7 +36,7 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAdd() {
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withGroupId("groupId1")
@@ -67,7 +67,7 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithSumOnSameInjection() {
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withGroupId("groupId1")
@@ -100,7 +100,7 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        InjectionRangeAction injectionRangeAction =  crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)
@@ -128,7 +128,7 @@ class InjectionRangeActionAdderImplTest {
 
         This test should however warnings
          */
-        InjectionRangeAction injectionRangeAction =  crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElementAndKey(1., injectionId1)
@@ -147,7 +147,7 @@ class InjectionRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutOperator() {
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction()
                 .withId("id1")
                 .withGroupId("groupId1")
                 .withNetworkElementAndKey(1., injectionId1)

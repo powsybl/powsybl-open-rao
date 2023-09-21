@@ -547,28 +547,28 @@ class CracImplTest {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
-        PstRangeAction ra1 = crac.newPstRangeAction()
+        RemedialAction<?> ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
-        PstRangeAction ra2 = crac.newPstRangeAction()
+        RemedialAction<?> ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
-        PstRangeAction ra3 = crac.newPstRangeAction()
+        RemedialAction<?> ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
-        PstRangeAction ra4 = crac.newPstRangeAction()
+        RemedialAction<?> ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
@@ -622,25 +622,25 @@ class CracImplTest {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
-        HvdcRangeAction ra1 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
-        HvdcRangeAction ra2 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
-        HvdcRangeAction ra3 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
-        HvdcRangeAction ra4 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
@@ -692,28 +692,28 @@ class CracImplTest {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
-        PstRangeAction ra1 = crac.newPstRangeAction()
+        RemedialAction<?> ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
-        PstRangeAction ra2 = crac.newPstRangeAction()
+        RemedialAction<?> ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
-        PstRangeAction ra3 = crac.newPstRangeAction()
+        RemedialAction<?> ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
-        PstRangeAction ra4 = crac.newPstRangeAction()
+        RemedialAction<?> ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
@@ -738,25 +738,25 @@ class CracImplTest {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
-        HvdcRangeAction ra1 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
-        HvdcRangeAction ra2 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
-        HvdcRangeAction ra3 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
-        HvdcRangeAction ra4 = crac.newHvdcRangeAction()
+        RemedialAction<?> ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
                 .newOnContingencyStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()

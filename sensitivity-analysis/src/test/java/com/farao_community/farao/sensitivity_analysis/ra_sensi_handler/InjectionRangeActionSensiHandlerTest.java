@@ -32,7 +32,7 @@ class InjectionRangeActionSensiHandlerTest {
     void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_load")
                 .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
@@ -50,7 +50,7 @@ class InjectionRangeActionSensiHandlerTest {
     void getSensitivityOnFlowSimpleTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE2AA12_generator")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -70,7 +70,7 @@ class InjectionRangeActionSensiHandlerTest {
     void getSensitivityOnFlowComplexTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
                 .withNetworkElementAndKey(0.4, "BBE2AA12_load")
                 .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
@@ -95,7 +95,7 @@ class InjectionRangeActionSensiHandlerTest {
     void checkConsistencyNotAnInjection() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -110,7 +110,7 @@ class InjectionRangeActionSensiHandlerTest {
     void checkConsistencyNotANetworkElement() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
+        InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "unknown")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()

@@ -36,7 +36,7 @@ class InjectionSetpointAdderImplTest {
 
     @Test
     void testOk() {
-        NetworkAction networkAction = networkActionAdder.newInjectionSetPoint()
+        NetworkAction networkAction = (NetworkAction) networkActionAdder.newInjectionSetPoint()
             .withNetworkElement("groupNetworkElementId")
             .withSetpoint(100.)
             .add()

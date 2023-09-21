@@ -56,27 +56,27 @@ class VoltageMonitoringTest {
         network = Network.read("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
         crac = CracFactory.findDefault().create("test-crac");
 
-        naOpenL1 = crac.newNetworkAction()
+        naOpenL1 = (NetworkAction) crac.newNetworkAction()
             .withId("Open L1")
             .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        naCloseL1 = crac.newNetworkAction()
+        naCloseL1 = (NetworkAction) crac.newNetworkAction()
             .withId("Close L1")
             .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        naOpenL2 = crac.newNetworkAction()
+        naOpenL2 = (NetworkAction) crac.newNetworkAction()
             .withId("Open L2")
             .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        naCloseL2 = crac.newNetworkAction()
+        naCloseL2 = (NetworkAction) crac.newNetworkAction()
             .withId("Close L2")
             .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
-        pst = crac.newPstRangeAction()
+        pst = (PstRangeAction) crac.newPstRangeAction()
             .withId("pst")
             .withNetworkElement("PS1")
             .withInitialTap(2).withTapToAngleConversionMap(Map.of(1, -20., 2, 0., 3, 20.))

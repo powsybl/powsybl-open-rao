@@ -260,5 +260,35 @@
       "rangeType" : "absolute"
     } ]
   } ],
-  "networkActions" : [ ]
+  "hvdcRangeActions" : [ {
+    "id" : "hvdcRange1Id",
+    "name" : "hvdcRange1Name",
+    "operator" : "RTE",
+    "freeToUseUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "networkElementId" : "hvdc",
+    "ranges" : [ {
+      "min" : -1000.0,
+      "max" : 1000.0
+    } ]
+  }, {
+    "id" : "hvdcRange2Id",
+    "name" : "hvdcRange2Name",
+    "operator" : "RTE",
+    "onFlowConstraintUsageRules" : [ {
+      "instant" : "preventive",
+      "flowCnecId" : "cnec3curId"
+    } ],
+    "networkElementId" : "hvdc2",
+    "groupId" : "group-1-hvdc",
+    "ranges" : [ {
+      "min" : -1000.0,
+      "max" : 1000.0
+    } ],
+    "extensions" : {
+
+    }
+  } ]
 }

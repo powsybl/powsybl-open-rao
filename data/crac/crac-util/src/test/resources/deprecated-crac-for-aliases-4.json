@@ -260,5 +260,28 @@
       "rangeType" : "absolute"
     } ]
   } ],
-  "networkActions" : [ ]
+  "injectionRangeActions" : [ {
+    "id" : "injectionRange1Id",
+    "name" : "injectionRange1Name",
+    "operator" : null,
+    "onStateUsageRules" : [ {
+      "instant" : "curative",
+      "contingencyId" : "contingency1Id",
+      "usageMethod" : "available"
+    } ],
+    "networkElementIdsAndKeys" : {
+      "generator1Id" : 1.0,
+      "generator2Id" : -1.0
+    },
+    "initialSetpoint" : 50,
+    "ranges" : [ {
+      "min" : -500.0,
+      "max" : 500.0
+    }, {
+      "min" : -1000.0,
+      "max" : 1000.0
+    } ],
+    "extensions" : {
+    }
+  } ]
 }

@@ -39,7 +39,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOk() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
@@ -63,7 +63,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOkWithTwoElementaryActions() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
@@ -87,7 +87,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOkWithTwoUsageRules() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
             .withOperator("operator")
@@ -116,7 +116,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOkWithoutName() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
             .withId("networkActionId")
             .withOperator("operator")
             .newPstSetPoint()
@@ -134,7 +134,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOkWithoutOperator() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
             .newPstSetPoint()
@@ -187,7 +187,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOkWithoutSpeed() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
                 .withId("networkActionId")
                 .withName("networkActionName")
                 .withOperator("operator")
@@ -202,7 +202,7 @@ class NetworkActionAdderImplTest {
 
     @Test
     void testOkWithSpeed() {
-        NetworkAction networkAction = crac.newNetworkAction()
+        NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
                 .withId("networkActionId")
                 .withName("networkActionName")
                 .withOperator("operator")
