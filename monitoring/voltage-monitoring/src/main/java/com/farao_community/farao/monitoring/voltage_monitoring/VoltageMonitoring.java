@@ -158,7 +158,7 @@ public class VoltageMonitoring {
         }
         //Check for threshold overshoot for the voltages of each cnec
         Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(NetworkAction::getId));
-        Map<VoltageCnec, ExtremeVoltageValues> voltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters);
+        Map<VoltageCnec, ExtremeVoltageValues> voltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone);
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> voltages : voltageValues.entrySet()) {
             VoltageCnec voltageCnec = voltages.getKey();
             //If there is a threshold overshoot, apply topological network action
@@ -177,16 +177,14 @@ public class VoltageMonitoring {
         }
         VoltageMonitoringResult.Status status = VoltageMonitoringResult.Status.SECURE;
         //Check that with the curative action, the new voltage don't overshoot the threshold, else it is unsecure
-        Map<VoltageCnec, ExtremeVoltageValues> newVoltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters);
+        Map<VoltageCnec, ExtremeVoltageValues> newVoltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone);
         if (newVoltageValues.entrySet().stream().anyMatch(entrySet -> thresholdOvershoot(entrySet.getKey(), entrySet.getValue()))) {
             status = VoltageMonitoringResult.getUnsecureStatus(newVoltageValues);
         }
         return new VoltageMonitoringResult(newVoltageValues, appliedRa, status);
     }
 
-    private Map<VoltageCnec, ExtremeVoltageValues> computeVoltages(Set<VoltageCnec> voltageCnecs, Network networkClone, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone);
-
+    private Map<VoltageCnec, ExtremeVoltageValues> computeVoltages(Set<VoltageCnec> voltageCnecs, Network networkClone) {
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         voltageCnecs.forEach(vc -> {
             VoltageLevel voltageLevel = networkClone.getVoltageLevel(vc.getNetworkElement().getId());
