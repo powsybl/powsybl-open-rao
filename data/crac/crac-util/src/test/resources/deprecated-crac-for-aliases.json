@@ -258,7 +258,56 @@
       "min" : 1.0,
       "max" : 33.0,
       "rangeType" : "absolute"
-    } ]
+    } ],
+    "extensions" : {
+      "RangeActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "preventive" : 0
+            },
+            "setPointPerStates" : {
+              "Contingency FR1 FR3-outage" : NaN,
+              "Contingency FR1 FR3-curative" : NaN,
+              "preventive" : 0.0
+            }
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "preventive" : -16
+            },
+            "setPointPerStates" : {
+              "Contingency FR1 FR3-outage" : NaN,
+              "Contingency FR1 FR3-curative" : NaN,
+              "preventive" : -6.22764253616333
+            }
+          }
+        }
+      }
+    }
   } ],
-  "networkActions" : [ ]
+  "networkActions" : [ ],
+  "extensions" : {
+    "ResultVariantManager" : {
+      "variantIds" : [ "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf", "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" ]
+    },
+    "CracResultExtension" : {
+      "resultsPerVariant" : {
+        "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 460.5489344039861,
+          "virtualCost" : 0.0
+        },
+        "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 287.1525720992986,
+          "virtualCost" : 0.0
+        }
+      }
+    }
+  }
 }

@@ -7,12 +7,16 @@
 
 package com.farao_community.farao.data.crac_util;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -21,7 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CracAliasesCreatorTest {
 
     @Test
+    void testDeprecatedCracAliasesUtil7Char() {
+        // Extensions have been deprecated
+        InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases.json");
+        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases.json", inputStream));
+    }
+
+    @Test
     void testCracAliasesUtil7Char() {
+        // Extensions have been deprecated
         Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
         Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 
