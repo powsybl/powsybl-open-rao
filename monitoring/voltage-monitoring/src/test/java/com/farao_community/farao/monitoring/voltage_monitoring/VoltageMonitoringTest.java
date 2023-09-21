@@ -142,7 +142,8 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage("vc"), VOLTAGE_TOLERANCE);
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
-        assertEquals(List.of("Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -153,7 +154,8 @@ class VoltageMonitoringTest {
         assertEquals(400., voltageMonitoringResult.getMaxVoltage("vc"), VOLTAGE_TOLERANCE);
         assertEquals(LOW_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertEquals(Set.of(crac.getVoltageCnec("vc")), voltageMonitoringResult.getConstrainedElements());
-        assertEquals(List.of("Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL1 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -172,7 +174,8 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL2 at state preventive has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL2 at state preventive has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -191,7 +194,8 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(383., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 383 - 383 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 383 - 383 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -210,7 +214,8 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -229,7 +234,8 @@ class VoltageMonitoringTest {
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL2 at state preventive has a voltage of 368 - 368 kV.", "Network element VL3 at state preventive has a voltage of 400 - 400 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -249,7 +255,8 @@ class VoltageMonitoringTest {
         assertEquals(379., voltageMonitoringResult.getMaxVoltage(vc1), VOLTAGE_TOLERANCE);
         assertEquals(387., voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(387., voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL2 at state preventive has a voltage of 379 - 379 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL2 at state preventive has a voltage of 379 - 379 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -272,7 +279,8 @@ class VoltageMonitoringTest {
         assertTrue(Double.isNaN(voltageMonitoringResult.getMaxVoltage(vc1b)));
         assertEquals(400., voltageMonitoringResult.getMinVoltage(vc2b), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageMonitoringResult.getMaxVoltage(vc2b), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL2 at state coL1 - curative has a voltage of 368 - 368 kV.",
             "Network element VL3 at state coL2 - curative has a voltage of 400 - 400 kV.",
             "Network element VL3 at state coL1L2 - curative has a voltage of 400 - 400 kV."),
             voltageMonitoringResult.printConstraints());
@@ -319,7 +327,8 @@ class VoltageMonitoringTest {
         assertEquals(Set.of(vc), voltageMonitoringResult.getConstrainedElements());
         assertEquals(368., voltageMonitoringResult.getMinVoltage(vc), VOLTAGE_TOLERANCE);
         assertEquals(368., voltageMonitoringResult.getMaxVoltage(vc), VOLTAGE_TOLERANCE);
-        assertEquals(List.of("Network element VL2 at state co3 - curative has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(List.of("Some voltage CNECs are not secure:",
+            "Network element VL2 at state co3 - curative has a voltage of 368 - 368 kV."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -340,6 +349,7 @@ class VoltageMonitoringTest {
         assertEquals(143.1, voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of(
+            "Some voltage CNECs are not secure:",
             "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
             "Network element VL46 at state preventive has a voltage of 143 - 148 kV."),
             voltageMonitoringResult.printConstraints());

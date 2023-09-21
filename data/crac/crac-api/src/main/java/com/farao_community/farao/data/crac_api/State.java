@@ -37,7 +37,7 @@ public interface State extends Comparable<State> {
     Optional<Contingency> getContingency();
 
     /**
-     * Returns a boolean indicating whether or not the state is the preventive one
+     * Returns a boolean indicating whether the state is the preventive one
      */
     default boolean isPreventive() {
         return getContingency().isEmpty();

@@ -57,6 +57,8 @@ public class RedispatchAction {
     public void apply(Network network) {
         filterGlskPoint();
         double redispatchedPower = GlskPointScalableConverter.convert(network, glskPoint).scale(network, powerToBeRedispatched);
-        BUSINESS_WARNS.warn("Scaling : asked={}, done={}", powerToBeRedispatched, redispatchedPower);
+        if (Math.abs(redispatchedPower - powerToBeRedispatched) > 1) {
+            BUSINESS_WARNS.warn("Redispatching failed: asked={} MW, applied={} MW", powerToBeRedispatched, redispatchedPower);
+        }
     }
 }

@@ -135,6 +135,7 @@ public class AngleMonitoringResult {
             return List.of("Unknown status on AngleCnecs.");
         }
         List<String> constraints = new ArrayList<>();
+        constraints.add("Some AngleCnecs are not secure:");
         angleCnecsWithAngle.stream().filter(angleResult ->
             AngleMonitoring.thresholdOvershoot(angleResult.getAngleCnec(), angleResult.getAngle()))
                     .forEach(angleResult ->
