@@ -8,10 +8,7 @@
 package com.farao_community.farao.monitoring.voltage_monitoring;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -371,7 +368,6 @@ class VoltageMonitoringTest {
 
         assertEquals(UNKNOWN, voltageMonitoringResult.getStatus());
         assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
-        voltageMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(Double.NaN, voltageMonitoringResult.getMinVoltage(vcPrev));
         assertEquals(Double.NaN, voltageMonitoringResult.getMaxVoltage(vcPrev));
     }
@@ -393,8 +389,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
-        assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(networkActionName, voltageMonitoringResult.getAppliedRas().entrySet().iterator().next().getValue().stream().findFirst().orElseThrow().getName());
+        assertEquals(0, voltageMonitoringResult.getAppliedRas().size());
     }
 
     @Test
@@ -440,7 +435,7 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("co").withNetworkElement("L1").add();
         VoltageCnec vc = addVoltageCnec("vc", Instant.CURATIVE, "co", "VL1", 390., 399.);
         String networkActionName = "Open L1 - 2";
-        crac.newNetworkAction()
+        RemedialAction<?> networkAction = crac.newNetworkAction()
                 .withId(networkActionName)
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
@@ -449,7 +444,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(networkActionName, voltageMonitoringResult.getAppliedRas().entrySet().iterator().next().getValue().stream().findFirst().orElseThrow().getName());
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", Instant.CURATIVE)));
         assertEquals(HIGH_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -466,7 +461,7 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("co").withNetworkElement("L1").add();
         VoltageCnec vc =  addVoltageCnec("vc", Instant.CURATIVE, "co", "VL1", 440., 450.);
         String networkActionName = "Open L1 - 2";
-        crac.newNetworkAction()
+        RemedialAction<?> networkAction = crac.newNetworkAction()
                 .withId(networkActionName)
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
@@ -475,7 +470,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(networkActionName, voltageMonitoringResult.getAppliedRas().entrySet().iterator().next().getValue().stream().findFirst().orElseThrow().getName());
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", Instant.CURATIVE)));
         assertEquals(LOW_VOLTAGE_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -486,7 +481,7 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("co").withNetworkElement("L1").add();
         VoltageCnec vc = addVoltageCnec("vc", Instant.CURATIVE, "co", "VL2", 385., 400.);
         String networkActionName = "Close L1 - 1";
-        crac.newNetworkAction()
+        RemedialAction<?> networkAction = crac.newNetworkAction()
                 .withId(networkActionName)
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
@@ -496,7 +491,7 @@ class VoltageMonitoringTest {
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(networkActionName, voltageMonitoringResult.getAppliedRas().entrySet().iterator().next().getValue().stream().findFirst().orElseThrow().getName());
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", Instant.CURATIVE)));
     }
 
     @Test
@@ -506,7 +501,7 @@ class VoltageMonitoringTest {
         crac.newContingency().withId("co").withNetworkElement("L1").add();
         VoltageCnec vc =  addVoltageCnec("vc", Instant.CURATIVE, "co", "VL2", 340., 350.);
         String networkActionName = "Close L1 - 1";
-        crac.newNetworkAction()
+        RemedialAction<?> networkAction = crac.newNetworkAction()
                 .withId(networkActionName)
                 .newTopologicalAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
                 .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc.getId()).add()
@@ -516,7 +511,7 @@ class VoltageMonitoringTest {
 
         assertEquals(SECURE, voltageMonitoringResult.getStatus());
         assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
-        assertEquals(networkActionName, voltageMonitoringResult.getAppliedRas().entrySet().iterator().next().getValue().stream().findFirst().orElseThrow().getName());
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", Instant.CURATIVE)));
     }
 }
 

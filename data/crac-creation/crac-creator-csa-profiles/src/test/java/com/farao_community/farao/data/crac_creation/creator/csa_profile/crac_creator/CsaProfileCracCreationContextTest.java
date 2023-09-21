@@ -37,7 +37,7 @@ class CsaProfileCracCreationContextTest {
 
         context.setContingencyCreationContexts(Set.of(cocc));
         context.setFlowCnecCreationContexts(Set.of(cncc));
-        context.setRemedialActionCreationContext(Set.of(racc));
+        context.setRemedialActionCreationContexts(Set.of(racc));
 
         CsaProfileCracCreationContext copy = new CsaProfileCracCreationContext(context);
         assertEquals(crac, copy.getCrac());
@@ -45,7 +45,7 @@ class CsaProfileCracCreationContextTest {
         assertEquals(offsetDateTime, copy.getTimeStamp());
         assertEquals("network_name", copy.getNetworkName());
         assertEquals(Set.of(cocc), copy.getContingencyCreationContexts());
-        assertEquals(Set.of(racc), copy.getRemedialActionCreationContext());
+        assertEquals(Set.of(racc), copy.getRemedialActionCreationContexts());
         assertEquals(Set.of(cncc), copy.getFlowCnecCreationContexts());
     }
 }
