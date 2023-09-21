@@ -122,7 +122,7 @@ public class CsaProfileRemedialActionsCreator {
                 csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.notImported(remedialActionId, e.getImportStatus(), e.getMessage()));
             }
         }
-        this.cracCreationContext.setRemedialActionCreationContext(csaProfileRemedialActionCreationContexts);
+        this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
     }
 
     private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {

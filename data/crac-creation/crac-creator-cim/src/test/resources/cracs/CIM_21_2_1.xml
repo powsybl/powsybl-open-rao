@@ -134,7 +134,7 @@
             <mRID>Co-1</mRID>
             <name>Co-1-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
               <name>Co1NetworkElementName</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
@@ -144,7 +144,7 @@
             <mRID>Fake-Co</mRID>
             <name>Fake-Co-name</name>
             <RegisteredResource>
-              <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da</mRID>
+              <mRID codingScheme="A02">_df16b3dd-c905-4a6f-84ee-f067be86f5da_doesnt_exist</mRID>
               <name>FakeCoElement</name>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>

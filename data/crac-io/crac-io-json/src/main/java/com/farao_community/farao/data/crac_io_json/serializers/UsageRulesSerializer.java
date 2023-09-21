@@ -35,7 +35,9 @@ public final class UsageRulesSerializer {
 
     private static void serializeUsageRules(RemedialAction<?> remedialAction, Class<? extends UsageRule> usageRuleType, String arrayName, JsonGenerator gen) throws IOException {
         List<UsageRule> usageRules = remedialAction.getUsageRules().stream()
-                .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass())).collect(Collectors.toList());
+                .filter(usageRule -> usageRuleType.isAssignableFrom(usageRule.getClass()))
+                .sorted(new UsageRuleComparator())
+                .collect(Collectors.toList());
         if (!usageRules.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (UsageRule ea : usageRules) {
