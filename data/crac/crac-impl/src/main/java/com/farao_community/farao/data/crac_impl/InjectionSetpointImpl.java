@@ -56,7 +56,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
         } else if (identifiable instanceof ShuntCompensator) {
             return Math.abs(((ShuntCompensator) identifiable).getSectionCount() - setpoint) >= EPSILON;
         } else {
-            throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
+            throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensator");
         }
     }
 

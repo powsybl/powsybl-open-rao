@@ -73,4 +73,11 @@ class InjectionSetpointAdderImplTest {
                 .withNetworkElement("groupNetworkElementId").withSetpoint(100.);
         assertThrows(FaraoException.class, injectionSetpointAdder::add);
     }
+
+    @Test
+    void testNegativeSetPointWithSectionCount() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement("groupNetworkElementId").withSetpoint(-100.);
+        assertThrows(FaraoException.class, () -> injectionSetpointAdder.withUnit(Unit.SECTION_COUNT));
+    }
 }
