@@ -18,6 +18,6 @@
     <modules>
         <module>angle-monitoring</module>
         <module>voltage-monitoring</module>
-        <module>monitoring-common</module>
+        <module>monitoring-commons</module>
     </modules>
 </project>

@@ -154,7 +154,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-monitoring-common</artifactId>
+            <artifactId>farao-monitoring-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
