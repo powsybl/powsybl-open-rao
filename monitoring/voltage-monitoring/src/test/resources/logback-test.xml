@@ -5,10 +5,9 @@
         </encoder>
     </appender>
 
-    <root level="ERROR">
+    <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
     <logger name="com.powsybl.openloadflow" level="ERROR"/>
     <logger name="com.powsybl.math" level="ERROR"/>
-    <logger name="com.farao_community" level="DEBUG"/>
 </configuration>
