@@ -10,9 +10,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraintAdder;
@@ -59,7 +59,7 @@ class OnVoltageConstraintAdderImplTest {
 
     @Test
     void testOkPreventive() {
-        NetworkAction networkAction = remedialActionAdder.newOnVoltageConstraintUsageRule()
+        RemedialAction<?> networkAction = remedialActionAdder.newOnVoltageConstraintUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withVoltageCnec("cnec2stateCurativeContingency1")
             .add()
@@ -78,7 +78,7 @@ class OnVoltageConstraintAdderImplTest {
 
     @Test
     void testOkCurative() {
-        NetworkAction networkAction = remedialActionAdder.newOnVoltageConstraintUsageRule()
+        RemedialAction<?> networkAction = remedialActionAdder.newOnVoltageConstraintUsageRule()
             .withInstant(Instant.CURATIVE)
             .withVoltageCnec("cnec2stateCurativeContingency1")
             .add()
