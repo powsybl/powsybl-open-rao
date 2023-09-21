@@ -76,7 +76,6 @@ public final class CsaProfileConstants {
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
-
     public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
     public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";

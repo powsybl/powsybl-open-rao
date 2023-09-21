@@ -39,9 +39,8 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
-        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry zipEntry;
-        try {
+        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
             //max number of entries and max size of entry are checked to avoid ddos attack with malicious zip file
             int maxNbEntries = 200;
             int maxSizeEntry = 10000000;
@@ -76,8 +75,6 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
                     }
                 }
             }
-            zipInputStream.close();
-            inputStream.close();
         } catch (IOException e) {
             FaraoLoggerProvider.TECHNICAL_LOGS.error("csa profile crac import interrupted, cause : {}", e.getMessage());
         }
