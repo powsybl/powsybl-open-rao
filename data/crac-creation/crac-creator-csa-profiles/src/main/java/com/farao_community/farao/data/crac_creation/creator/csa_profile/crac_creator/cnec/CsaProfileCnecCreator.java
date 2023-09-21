@@ -114,7 +114,7 @@ public class CsaProfileCnecCreator {
         for (Contingency contingency : combinableContingencies) {
             String flowCnecName = assessedElementName + " - " + contingency.getName() + " - " + currentFlowCnecInstant.toString();
             flowCnecAdder.withContingency(contingency.getId())
-                .withId(assessedElementId + "-" + contingency.getId())
+                .withId(flowCnecName)
                 .withName(flowCnecName)
                 .add();
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, flowCnecName, "", false));
@@ -122,7 +122,7 @@ public class CsaProfileCnecCreator {
         if (inBaseCase) {
             String flowCnecName = assessedElementName + " - preventive";
             flowCnecAdder.withContingency(null)
-                .withId(assessedElementId)
+                .withId(flowCnecName)
                 .withName(flowCnecName)
                 .withInstant(Instant.PREVENTIVE)
                 .add();
