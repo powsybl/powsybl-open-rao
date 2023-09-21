@@ -118,8 +118,10 @@ public class VoltageMonitoring {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        VoltageMonitoringResult result = assembleVoltageMonitoringResults();
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
         BUSINESS_LOGS.info("----- Voltage monitoring [end]");
-        return assembleVoltageMonitoringResults();
+        return result;
     }
 
     /**
