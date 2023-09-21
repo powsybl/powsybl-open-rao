@@ -42,17 +42,17 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
         ZipEntry zipEntry;
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
             //max number of entries and max size of entry are checked to avoid ddos attack with malicious zip file
+            //TODO parametrization for gridcapa_swe_csa service
             int maxNbEntries = 200;
-            int maxSizeEntry = 10000000;
+            long maxSizeEntry = 10_000_000_000L;
             int countEntries = 0;
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) {
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
                     FaraoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
-                    int currentSizeEntry = 0;
+                    long currentSizeEntry = 0L;
                     File tempFile = File.createTempFile("faraoCsaProfile", ".tmp");
-                    boolean tempFileOk = tempFile.setExecutable(true, true) &&
-                        tempFile.setReadable(true, true) &&
+                    boolean tempFileOk = tempFile.setReadable(true, true) &&
                         tempFile.setWritable(true, true);
                     if (tempFileOk) {
                         InputStream in = new BufferedInputStream(zipInputStream);
