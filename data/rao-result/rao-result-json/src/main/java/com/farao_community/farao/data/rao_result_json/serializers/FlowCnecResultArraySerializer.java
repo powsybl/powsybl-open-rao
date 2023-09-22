@@ -17,6 +17,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -136,12 +137,8 @@ final class FlowCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.INITIAL, unit) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_PRA, unit);
         } else {
-            return containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.INITIAL, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_PRA, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_ARA, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_CRA1, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_CRA2, unit) ||
-                containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_CRA, unit);
+            return Arrays.stream(OptimizationState.values()).anyMatch(optState ->
+                containsAnyResultForOptimizationState(raoResult, flowCnec, optState, unit));
         }
     }
 
