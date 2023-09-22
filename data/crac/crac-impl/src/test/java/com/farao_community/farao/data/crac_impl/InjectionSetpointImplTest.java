@@ -13,6 +13,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -129,6 +130,23 @@ class InjectionSetpointImplTest {
 
         danglingLineSetpoint.apply(network);
         assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
+    }
+
+    @Test
+    void getUnit() {
+        InjectionSetpointImpl dummy = new InjectionSetpointImpl(
+                new NetworkElementImpl("wrong_name"),
+                100, Unit.MEGAWATT);
+        assertEquals(Unit.MEGAWATT, dummy.getUnit());
+    }
+
+    @Test
+    void hasImpactOnNetworkThrow() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpointImpl dummy = new InjectionSetpointImpl(
+                new NetworkElementImpl("wrong_name"),
+                100, Unit.MEGAWATT);
+        assertThrows(NotImplementedException.class, () -> dummy.hasImpactOnNetwork(network));
     }
 
     @Test
