@@ -56,7 +56,7 @@ class PstRangeActionSensiHandlerTest {
     void checkConsistencyNotAPst() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
                 .withId("pstOnBranch")
                 .withNetworkElement("BBE1AA1  BB23AA1  1")
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -73,7 +73,7 @@ class PstRangeActionSensiHandlerTest {
     void checkConsistencyNotANetworkElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
                 .withId("pstOnNonExistingElement")
                 .withNetworkElement("unknown")
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()

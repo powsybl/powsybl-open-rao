@@ -10,9 +10,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
@@ -58,7 +58,7 @@ class OnAngleConstraintAdderImplTest {
 
     @Test
     void testOkPreventive() {
-        NetworkAction networkAction = remedialActionAdder.newOnAngleConstraintUsageRule()
+        RemedialAction<?> networkAction = remedialActionAdder.newOnAngleConstraintUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withAngleCnec("cnec2stateCurativeContingency1")
             .add()
@@ -77,7 +77,7 @@ class OnAngleConstraintAdderImplTest {
 
     @Test
     void testOkCurative() {
-        NetworkAction networkAction = remedialActionAdder.newOnAngleConstraintUsageRule()
+        RemedialAction<?> networkAction = remedialActionAdder.newOnAngleConstraintUsageRule()
             .withInstant(Instant.CURATIVE)
             .withAngleCnec("cnec2stateCurativeContingency1")
             .add()

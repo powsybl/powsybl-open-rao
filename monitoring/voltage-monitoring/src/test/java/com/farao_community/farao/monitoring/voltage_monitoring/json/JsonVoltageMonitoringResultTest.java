@@ -87,6 +87,7 @@ class JsonVoltageMonitoringResultTest {
         assertEquals(143.1, voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of(
+            "Some voltage CNECs are not secure:",
             "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
             "Network element VL46 at state co1 - curative has a voltage of 143 - 148 kV."),
             voltageMonitoringResult.printConstraints());
