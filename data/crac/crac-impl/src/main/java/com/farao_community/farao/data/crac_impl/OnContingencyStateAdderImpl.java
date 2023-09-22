@@ -57,12 +57,12 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
 
         State state;
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             if (usageMethod != UsageMethod.FORCED) {
                 throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
             state = owner.getCrac().addPreventiveState();
-        } else if (instant.equals(Instant.OUTAGE)) {
+        } else if (instant.isOutage()) {
             throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {
             assertAttributeNotNull(contingencyId, CLASS_NAME, "contingency", "withContingency()");

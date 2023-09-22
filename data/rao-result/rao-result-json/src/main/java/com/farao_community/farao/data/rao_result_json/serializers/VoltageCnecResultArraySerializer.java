@@ -37,23 +37,23 @@ final class VoltageCnecResultArraySerializer {
 
         jsonGenerator.writeArrayFieldStart(VOLTAGECNEC_RESULTS);
         for (VoltageCnec voltageCnec : sortedListOfVoltageCnecs) {
-            serializeVoltageCnecResult(voltageCnec, raoResult, jsonGenerator);
+            serializeVoltageCnecResult(voltageCnec, raoResult, crac, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeVoltageCnecResult(VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeVoltageCnecResult(VoltageCnec voltageCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
-        if (containsAnyResultForVoltageCnec(raoResult, voltageCnec)) {
+        if (containsAnyResultForVoltageCnec(raoResult, voltageCnec, crac)) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(VOLTAGECNEC_ID, voltageCnec.getId());
 
-            serializeVoltageCnecResultForOptimizationState(OptimizationState.INITIAL, voltageCnec, raoResult, jsonGenerator);
-            serializeVoltageCnecResultForOptimizationState(OptimizationState.AFTER_PRA, voltageCnec, raoResult, jsonGenerator);
+            serializeVoltageCnecResultForOptimizationState(OptimizationState.initial(crac), voltageCnec, raoResult, jsonGenerator);
+            serializeVoltageCnecResultForOptimizationState(OptimizationState.afterPra(crac), voltageCnec, raoResult, jsonGenerator);
 
             if (!voltageCnec.getState().isPreventive()) {
-                serializeVoltageCnecResultForOptimizationState(OptimizationState.AFTER_ARA, voltageCnec, raoResult, jsonGenerator);
-                serializeVoltageCnecResultForOptimizationState(OptimizationState.AFTER_CRA, voltageCnec, raoResult, jsonGenerator);
+                serializeVoltageCnecResultForOptimizationState(OptimizationState.afterAra(crac), voltageCnec, raoResult, jsonGenerator);
+                serializeVoltageCnecResultForOptimizationState(OptimizationState.afterCra(crac), voltageCnec, raoResult, jsonGenerator);
             }
             jsonGenerator.writeEndObject();
         }
@@ -87,16 +87,16 @@ final class VoltageCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean containsAnyResultForVoltageCnec(RaoResult raoResult, VoltageCnec voltageCnec) {
+    private static boolean containsAnyResultForVoltageCnec(RaoResult raoResult, VoltageCnec voltageCnec, Crac crac) {
 
         if (voltageCnec.getState().isPreventive()) {
-            return containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.INITIAL) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.AFTER_PRA);
+            return containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.initial(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.afterPra(crac));
         } else {
-            return containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.INITIAL) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.AFTER_PRA) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.AFTER_ARA) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.AFTER_CRA);
+            return containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.initial(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.afterPra(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.afterAra(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, voltageCnec, OptimizationState.afterCra(crac));
         }
     }
 

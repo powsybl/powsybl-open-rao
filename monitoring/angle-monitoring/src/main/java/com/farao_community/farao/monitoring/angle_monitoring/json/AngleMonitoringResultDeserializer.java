@@ -90,7 +90,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        instant = crac.getInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY:
                         contingencyId = jsonParser.nextTextValue();
@@ -130,7 +130,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        instant = crac.getInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY:
                         contingencyId = jsonParser.nextTextValue();
@@ -159,7 +159,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
 
     private State getState(Instant instant, String contingencyId) {
         if (Objects.isNull(contingencyId)) {
-            if (instant.equals(Instant.PREVENTIVE)) {
+            if (instant.isPreventive()) {
                 return crac.getPreventiveState();
             } else {
                 throw new FaraoException(String.format("No contingency defined with instant %s", instant.toString()));

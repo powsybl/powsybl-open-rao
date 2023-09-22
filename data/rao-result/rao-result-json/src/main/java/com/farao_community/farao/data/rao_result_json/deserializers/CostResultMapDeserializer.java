@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_impl.CostResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -24,25 +25,25 @@ final class CostResultMapDeserializer {
     private CostResultMapDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case INITIAL_OPT_STATE:
                     jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.INITIAL);
+                    deserializeCostResult(jsonParser, raoResult, OptimizationState.initial(crac));
                     break;
                 case AFTER_PRA_OPT_STATE:
                     jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_PRA);
+                    deserializeCostResult(jsonParser, raoResult, OptimizationState.afterPra(crac));
                     break;
                 case AFTER_ARA_OPT_STATE:
                     jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_ARA);
+                    deserializeCostResult(jsonParser, raoResult, OptimizationState.afterAra(crac));
                     break;
                 case AFTER_CRA_OPT_STATE:
                     jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_CRA);
+                    deserializeCostResult(jsonParser, raoResult, OptimizationState.afterCra(crac));
                     break;
                 default:
                     throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", COST_RESULTS, jsonParser.getCurrentName()));

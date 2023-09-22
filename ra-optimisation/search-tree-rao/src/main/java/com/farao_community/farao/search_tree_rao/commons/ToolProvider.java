@@ -7,8 +7,11 @@
 
 package com.farao_community.farao.search_tree_rao.commons;
 
-import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -78,13 +81,6 @@ public final class ToolProvider {
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
                                                                             Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
-                                                                            boolean computeLoopFlows) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null);
-    }
-
-    public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction<?>> rangeActions,
-                                                                            boolean computePtdfs,
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions) {
 
@@ -108,7 +104,9 @@ public final class ToolProvider {
         } else if (computePtdfs) {
             builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
         }
-
+        // TODO : improve this
+        Instant outageInstant = new Instant(-1, "outageMock", Instant.Kind.OUTAGE);
+        builder.withOutageInstant(outageInstant);
         return builder.build();
     }
 

@@ -112,9 +112,9 @@ public class CsaProfileRemedialActionsCreator {
                 } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-                        remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add();
+                        remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add();
                     } else {
-                        remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
+                        remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.CURATIVE)).add();
                     }
                 }
 
@@ -135,13 +135,13 @@ public class CsaProfileRemedialActionsCreator {
 
     private void addOnContingencyStateUsageRules(RemedialActionAdder remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
         if (randomCombinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
+            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.CURATIVE)).add();
         }
 
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> {
             remedialActionAdder.newOnContingencyStateUsageRule()
-                    .withInstant(Instant.CURATIVE)
+                    .withInstant(crac.getInstant(Instant.Kind.CURATIVE))
                     .withContingency(faraoContingencyId)
                     .withUsageMethod(usageMethod).add();
         });

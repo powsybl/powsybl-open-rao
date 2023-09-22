@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -137,7 +136,8 @@ public final class RaoUtil {
         if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
             // no previous instant
             return null;
-        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+        } else if (state.getInstant().isCurative()) {
+            // TODO : handle extra curative instants here?
 
             // look if a preventive range action acts on the same network elements
             State preventiveState = optimizationContext.getMainOptimizationState();

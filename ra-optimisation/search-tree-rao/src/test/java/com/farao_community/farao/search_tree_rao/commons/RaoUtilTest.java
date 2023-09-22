@@ -190,20 +190,20 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintAvailable() {
-        State optimizedState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        State optimizedState = crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.CURATIVE));
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
 
         NetworkAction na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         NetworkAction na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).add()
+            .newOnFlowConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withFlowCnec(flowCnec.getId()).add()
             .add();
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().get(0);
 
@@ -224,7 +224,7 @@ class RaoUtilTest {
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
         State optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(optimizedState.getInstant()).thenReturn(crac.getInstant(Instant.Kind.CURATIVE));
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
@@ -232,17 +232,17 @@ class RaoUtilTest {
 
         NetworkAction na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.FR).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withCountry(Country.FR).add()
             .add();
 
         NetworkAction na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.BE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withCountry(Country.BE).add()
             .add();
 
         NetworkAction na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.DE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withCountry(Country.DE).add()
             .add();
 
         when(flowResult.getMargin(any(), any())).thenReturn(100.);
@@ -269,7 +269,7 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
         when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(optimizedState.getInstant()).thenReturn(crac.getInstant(Instant.Kind.PREVENTIVE));
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);

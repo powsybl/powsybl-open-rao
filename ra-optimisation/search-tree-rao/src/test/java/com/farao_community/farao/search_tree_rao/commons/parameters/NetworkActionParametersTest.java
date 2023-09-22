@@ -83,21 +83,21 @@ class NetworkActionParametersTest {
                 .withId("topological-action-1")
                 .withOperator("operator-1")
                 .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("topological-action-2")
                 .withOperator("operator-2")
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("pst-setpoint")
                 .withOperator("operator-2")
                 .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
                 .add();
 
         // test list

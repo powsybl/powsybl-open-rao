@@ -111,7 +111,7 @@ public class AppliedRemedialActions {
         AppliedRemedialActions ara = new AppliedRemedialActions();
         appliedRa.forEach((state, appliedRaOnState) -> ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions));
         appliedRa.forEach((state, appliedRaOnState) -> {
-            if (state.getInstant().equals(Instant.AUTO)) {
+            if (state.getInstant().getKind().equals(Instant.Kind.AUTO)) {
                 ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
             }
         });
@@ -119,14 +119,14 @@ public class AppliedRemedialActions {
     }
 
     private void checkState(State state) {
-        if (!state.getInstant().equals(Instant.CURATIVE) && !state.getInstant().equals(Instant.AUTO)) {
+        if (!state.getInstant().getKind().equals(Instant.Kind.CURATIVE) && !state.getInstant().getKind().equals(Instant.Kind.AUTO)) {
             throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE and AUTO remedial actions.");
         }
         appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
 
     public AppliedRemedialActions copyCurative() {
-        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().equals(Instant.CURATIVE))
+        Map<State, AppliedRemedialActionsPerState> curativeMap =  appliedRa.entrySet().stream().filter(entry -> entry.getKey().getInstant().getKind().equals(Instant.Kind.CURATIVE))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         AppliedRemedialActions ara = new AppliedRemedialActions();
         curativeMap.forEach((state, appliedRaOnState) -> {

@@ -32,13 +32,15 @@ public class ContingencyScenario {
      */
     public ContingencyScenario(Contingency contingency, Map<Instant, State> contingencyStates) {
         Objects.requireNonNull(contingency);
-        State curativeState = contingencyStates.get(Instant.CURATIVE);
-        Objects.requireNonNull(curativeState);
-        Optional<Contingency> curativeContingency = curativeState.getContingency();
-        if (curativeContingency.isEmpty() || !curativeContingency.get().equals(contingency)) {
-            throw new FaraoException(String.format("Curative state %s do not refer to the contingency %s", curativeState, contingency));
+        if (contingencyStates.isEmpty()) {
+            throw new FaraoException("There should be at least one contingency state");
         }
-        if (contingencyStates.values().stream().anyMatch(state -> !state.getContingency().equals(curativeContingency))) {
+        State anyState = contingencyStates.values().iterator().next();
+        Optional<Contingency> anyStateContingency = anyState.getContingency();
+        if (anyStateContingency.isEmpty() || !anyStateContingency.get().equals(contingency)) {
+            throw new FaraoException(String.format("Curative state %s do not refer to the contingency %s", anyState, contingency));
+        }
+        if (contingencyStates.values().stream().anyMatch(state -> !state.getContingency().equals(anyStateContingency))) {
             throw new FaraoException(String.format("All states do not refer to the same contingency %s", contingency));
         }
         this.contingency = contingency;
@@ -55,13 +57,13 @@ public class ContingencyScenario {
      * @param curativeState the curative state (required)
      */
     public ContingencyScenario(State automatonState, State curativeState) {
-        // TODO : remove this
-        this(curativeState.getContingency().orElse(null), Map.of(Instant.AUTO, automatonState, Instant.CURATIVE, curativeState));
+        // TODO : remove this, only used in tests
+        this(curativeState.getContingency().orElse(null), null);
     }
 
     public ContingencyScenario(Contingency contingency, State automatonState, State curativeState) {
-        // TODO : remove this
-        this(contingency, Map.of(Instant.AUTO, automatonState, Instant.CURATIVE, curativeState));
+        // TODO : remove this, only used in tests
+        this(contingency, null);
     }
 
     public Contingency getContingency() {
@@ -69,16 +71,25 @@ public class ContingencyScenario {
     }
 
     public Optional<State> getAutomatonState() {
-        return Optional.ofNullable(contingencyStates.get(Instant.AUTO));
+        return contingencyStates.entrySet().stream()
+            .filter(e -> e.getKey().isAuto())
+            .map(Map.Entry::getValue)
+            .findAny();
     }
 
-    public State getCurativeState() {
-        return contingencyStates.get(Instant.CURATIVE);
+    public State getAnyCurativeState() {
+        return contingencyStates.entrySet().stream()
+            .filter(e -> e.getKey().isCurative())
+            .map(Map.Entry::getValue)
+            .findAny().orElseThrow();
     }
 
     // TODO : UT
     public List<State> getCurativeStates() {
-        return Arrays.stream(Instant.values()).filter(instant -> instant.comesAfter(Instant.AUTO) && contingencyStates.containsKey(instant))
-            .sorted().map(contingencyStates::get).collect(Collectors.toList());
+        return contingencyStates.entrySet().stream()
+            .filter(e -> e.getKey().isCurative())
+            .sorted(Map.Entry.comparingByKey())
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toList());
     }
 }

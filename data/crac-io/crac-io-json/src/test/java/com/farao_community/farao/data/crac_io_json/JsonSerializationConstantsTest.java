@@ -83,7 +83,7 @@ class JsonSerializationConstantsTest {
         assertTrue(comparator.compare(bt1, bt2) < 0);
     }
 
-    private UsageRule mockUsageRule(Instant instant, UsageMethod usageMethod, String stateId, String flowCnecId, Country country, String angleCnecId, String voltageCnecId) {
+    private UsageRule mockUsageRule(Instant.Kind instantKind, UsageMethod usageMethod, String stateId, String flowCnecId, Country country, String angleCnecId, String voltageCnecId) {
         UsageRule usageRule = null;
         if (stateId != null) {
             OnContingencyState ur = mock(OnContingencyState.class);
@@ -116,7 +116,7 @@ class JsonSerializationConstantsTest {
         } else {
             usageRule = mock(OnInstant.class);
         }
-        when(usageRule.getInstant()).thenReturn(instant);
+        when(usageRule.getInstant()).thenReturn(new Instant(instantKind.getOrder(), instantKind.toString(), instantKind));
         when(usageRule.getUsageMethod()).thenReturn(usageMethod);
         return usageRule;
     }
@@ -125,9 +125,9 @@ class JsonSerializationConstantsTest {
     void testUsageRuleComparatorOnInstant() {
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule onInstant1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
-        UsageRule onInstant2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.FORCED, null, null, null, null, null);
-        UsageRule onInstant3 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant1 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule onInstant2 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.FORCED, null, null, null, null, null);
+        UsageRule onInstant3 = mockUsageRule(Instant.Kind.CURATIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
 
         assertEquals(comparator.compare(onInstant1, onInstant1), 0);
         assertEquals(comparator.compare(onInstant2, onInstant2), 0);
@@ -144,30 +144,30 @@ class JsonSerializationConstantsTest {
     void testUsageRuleComparatorMix() {
         UsageRuleComparator comparator = new UsageRuleComparator();
 
-        UsageRule oi1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
+        UsageRule oi1 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.AVAILABLE, null, null, null, null, null);
 
-        UsageRule ocs1 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, "state1", null, null, null, null);
-        UsageRule ocs2 = mockUsageRule(Instant.CURATIVE, UsageMethod.AVAILABLE, "state2", null, null, null, null);
+        UsageRule ocs1 = mockUsageRule(Instant.Kind.CURATIVE, UsageMethod.AVAILABLE, "state1", null, null, null, null);
+        UsageRule ocs2 = mockUsageRule(Instant.Kind.CURATIVE, UsageMethod.AVAILABLE, "state2", null, null, null, null);
         assertTrue(comparator.compare(ocs1, ocs2) < 0);
         assertTrue(comparator.compare(ocs2, ocs1) > 0);
 
-        UsageRule ofc1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
-        UsageRule ofc2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
+        UsageRule ofc1 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.AVAILABLE, null, "fc1", null, null, null);
+        UsageRule ofc2 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.AVAILABLE, null, "fc2", null, null, null);
         assertTrue(comparator.compare(ofc1, ofc2) < 0);
         assertTrue(comparator.compare(ofc2, ofc1) > 0);
 
-        UsageRule ofcc1 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
-        UsageRule ofcc2 = mockUsageRule(Instant.PREVENTIVE, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
+        UsageRule ofcc1 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.AVAILABLE, null, null, Country.FR, null, null);
+        UsageRule ofcc2 = mockUsageRule(Instant.Kind.PREVENTIVE, UsageMethod.AVAILABLE, null, null, Country.ES, null, null);
         assertTrue(comparator.compare(ofcc1, ofcc2) > 0);
         assertTrue(comparator.compare(ofcc2, ofcc1) < 0);
 
-        UsageRule oac1 = mockUsageRule(Instant.AUTO, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
-        UsageRule oac2 = mockUsageRule(Instant.AUTO, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
+        UsageRule oac1 = mockUsageRule(Instant.Kind.AUTO, UsageMethod.AVAILABLE, null, null, null, "BBB", null);
+        UsageRule oac2 = mockUsageRule(Instant.Kind.AUTO, UsageMethod.AVAILABLE, null, null, null, "AAA", null);
         assertTrue(comparator.compare(oac1, oac2) > 0);
         assertTrue(comparator.compare(oac2, oac1) < 0);
 
-        UsageRule ovc1 = mockUsageRule(Instant.CURATIVE, UsageMethod.FORCED, null, null, null, null, "z");
-        UsageRule ovc2 = mockUsageRule(Instant.CURATIVE, UsageMethod.FORCED, null, null, null, null, "x");
+        UsageRule ovc1 = mockUsageRule(Instant.Kind.CURATIVE, UsageMethod.FORCED, null, null, null, null, "z");
+        UsageRule ovc2 = mockUsageRule(Instant.Kind.CURATIVE, UsageMethod.FORCED, null, null, null, null, "x");
         assertTrue(comparator.compare(ovc1, ovc2) > 0);
         assertTrue(comparator.compare(ovc2, ovc1) < 0);
 

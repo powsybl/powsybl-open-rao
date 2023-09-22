@@ -57,6 +57,8 @@ class RaoLoggerTest {
     private FlowCnec cnec3;
     private FlowCnec cnec4;
     private FlowCnec cnec5;
+    private Instant preventiveInstant;
+    private Instant curativeInstant;
     private State statePreventive;
     private State stateCo1Auto;
     private State stateCo1Curative;
@@ -68,10 +70,12 @@ class RaoLoggerTest {
         objectiveFunctionResult = mock(ObjectiveFunctionResult.class);
         flowResult = mock(FlowResult.class);
         basecaseOptimResult = mock(OptimizationResult.class);
-        statePreventive = mockState("preventive", Instant.PREVENTIVE);
-        stateCo1Auto = mockState("co1 - auto", Instant.AUTO);
-        stateCo1Curative = mockState("co1 - curative", Instant.CURATIVE);
-        stateCo2Curative = mockState("co2 - curative", Instant.CURATIVE);
+        preventiveInstant = new Instant(0, "preventive", Instant.Kind.PREVENTIVE);
+        statePreventive = mockState("preventive", preventiveInstant);
+        stateCo1Auto = mockState("co1 - auto", new Instant(2, "auto", Instant.Kind.AUTO));
+        curativeInstant = new Instant(3, "curative", Instant.Kind.CURATIVE);
+        stateCo1Curative = mockState("co1 - curative", curativeInstant);
+        stateCo2Curative = mockState("co2 - curative", curativeInstant);
 
         cnec1 = mockCnec("ne1", stateCo1Curative, -10, -10, 30, 300, 0.1);
         cnec2 = mockCnec("ne2", statePreventive, 0, 0, -10, -10, 0.2);
@@ -293,9 +297,9 @@ class RaoLoggerTest {
     @Test
     void testLogOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(preventive.getInstant()).thenReturn(preventiveInstant);
         State curative = Mockito.mock(State.class);
-        when(curative.getInstant()).thenReturn(Instant.CURATIVE);
+        when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));
@@ -368,9 +372,9 @@ class RaoLoggerTest {
     @Test
     void testLogFailedOptimizationSummary() {
         State preventive = Mockito.mock(State.class);
-        when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(preventive.getInstant()).thenReturn(preventiveInstant);
         State curative = Mockito.mock(State.class);
-        when(curative.getInstant()).thenReturn(Instant.CURATIVE);
+        when(curative.getInstant()).thenReturn(curativeInstant);
         Contingency contingency = Mockito.mock(Contingency.class);
         when(contingency.getName()).thenReturn("contingency");
         when(curative.getContingency()).thenReturn(Optional.of(contingency));

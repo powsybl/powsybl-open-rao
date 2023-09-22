@@ -46,10 +46,10 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(voltageCnecId, "OnVoltageConstraint", "voltage cnec", "withVoltageCnec()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.isAuto()) {
             throw new FaraoException("OnVoltageConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 

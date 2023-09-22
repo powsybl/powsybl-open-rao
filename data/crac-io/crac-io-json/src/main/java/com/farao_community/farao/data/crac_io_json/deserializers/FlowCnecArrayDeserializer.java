@@ -56,7 +56,7 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withOperator(jsonParser.nextTextValue());
                         break;
                     case INSTANT:
-                        flowCnecAdder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        flowCnecAdder.withInstant(deserializeInstant(jsonParser.nextTextValue(), crac));
                         break;
                     case CONTINGENCY_ID:
                         flowCnecAdder.withContingency(jsonParser.nextTextValue());

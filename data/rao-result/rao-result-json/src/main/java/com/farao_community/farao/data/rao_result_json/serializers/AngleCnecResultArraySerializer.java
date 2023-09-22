@@ -37,23 +37,23 @@ final class AngleCnecResultArraySerializer {
 
         jsonGenerator.writeArrayFieldStart(ANGLECNEC_RESULTS);
         for (AngleCnec angleCnec : sortedListOfAngleCnecs) {
-            serializeAngleCnecResult(angleCnec, raoResult, jsonGenerator);
+            serializeAngleCnecResult(angleCnec, raoResult, crac, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeAngleCnecResult(AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeAngleCnecResult(AngleCnec angleCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
-        if (containsAnyResultForAngleCnec(raoResult, angleCnec)) {
+        if (containsAnyResultForAngleCnec(raoResult, angleCnec, crac)) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(ANGLECNEC_ID, angleCnec.getId());
 
-            serializeAngleCnecResultForOptimizationState(OptimizationState.INITIAL, angleCnec, raoResult, jsonGenerator);
-            serializeAngleCnecResultForOptimizationState(OptimizationState.AFTER_PRA, angleCnec, raoResult, jsonGenerator);
+            serializeAngleCnecResultForOptimizationState(OptimizationState.initial(crac), angleCnec, raoResult, jsonGenerator);
+            serializeAngleCnecResultForOptimizationState(OptimizationState.afterPra(crac), angleCnec, raoResult, jsonGenerator);
 
             if (!angleCnec.getState().isPreventive()) {
-                serializeAngleCnecResultForOptimizationState(OptimizationState.AFTER_ARA, angleCnec, raoResult, jsonGenerator);
-                serializeAngleCnecResultForOptimizationState(OptimizationState.AFTER_CRA, angleCnec, raoResult, jsonGenerator);
+                serializeAngleCnecResultForOptimizationState(OptimizationState.afterAra(crac), angleCnec, raoResult, jsonGenerator);
+                serializeAngleCnecResultForOptimizationState(OptimizationState.afterCra(crac), angleCnec, raoResult, jsonGenerator);
             }
             jsonGenerator.writeEndObject();
         }
@@ -87,16 +87,16 @@ final class AngleCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean containsAnyResultForAngleCnec(RaoResult raoResult, AngleCnec angleCnec) {
+    private static boolean containsAnyResultForAngleCnec(RaoResult raoResult, AngleCnec angleCnec, Crac crac) {
 
         if (angleCnec.getState().isPreventive()) {
-            return containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.INITIAL) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.AFTER_PRA);
+            return containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.initial(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.afterPra(crac));
         } else {
-            return containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.INITIAL) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.AFTER_PRA) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.AFTER_ARA) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.AFTER_CRA);
+            return containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.initial(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.afterPra(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.afterAra(crac)) ||
+                containsAnyResultForOptimizationState(raoResult, angleCnec, OptimizationState.afterCra(crac));
         }
     }
 

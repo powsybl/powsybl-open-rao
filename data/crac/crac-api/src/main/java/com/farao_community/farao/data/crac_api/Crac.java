@@ -427,7 +427,7 @@ public interface Crac extends Identifiable<Crac> {
     Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state);
 
     /**
-     * Find a NetworkAction by its id, returns null if the network action does not exists
+     * Find a NetworkAction by its id, returns null if the network action does not exist
      */
     NetworkAction getNetworkAction(String id);
 
@@ -435,4 +435,19 @@ public interface Crac extends Identifiable<Crac> {
      * Remove a NetworkAction - identified by its id - from the Crac
      */
     void removeNetworkAction(String id);
+
+    List<Instant> getInstants();
+
+    void setInstants(List<Instant> instants); // TODO : replace with adder
+
+    Instant getInstant(String name); // TODO : maybe remove
+
+    Instant getInstant(Instant.Kind instantKind); // TODO : remove ? (supposes that there is only one instant per type)
+
+    List<Instant> getInstants(Instant.Kind instantKind);
+
+    Instant getFirstInstant(Instant.Kind instantKind);
+
+    Instant getInstantFollowing(Instant instant);
+
 }

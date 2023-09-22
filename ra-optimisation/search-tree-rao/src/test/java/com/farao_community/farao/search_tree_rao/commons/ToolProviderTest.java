@@ -66,8 +66,9 @@ class ToolProviderTest {
         assertNull(toolProvider.getAbsolutePtdfSumsComputation());
         assertTrue(toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)).isEmpty());
 
+        // TODO : change constructor used
         SystematicSensitivityInterface sensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false
+                Set.of(cnec1, cnec2), Set.of(Mockito.mock(RangeAction.class)), false, false, null
         );
         assertNotNull(sensitivityInterface);
     }

@@ -39,7 +39,7 @@ public final class JsonVoltageCnecsCreationParameters {
     }
 
     static VoltageCnecsCreationParameters deserialize(JsonParser jsonParser) throws IOException {
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = new TreeMap<>();
+        Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = new TreeMap<>();
         Set<String> monitoredNetworkElements = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
@@ -63,17 +63,17 @@ public final class JsonVoltageCnecsCreationParameters {
         return new VoltageCnecsCreationParameters(voltageMonitoringStatesAndThresholds, monitoredNetworkElements);
     }
 
-    private static Map<Instant, VoltageMonitoredContingenciesAndThresholds> deserializeStatesAndThresholds(JsonParser jsonParser) throws IOException, NoSuchFieldException {
-        Map<Instant, VoltageMonitoredContingenciesAndThresholds> statesAndThresholds = new EnumMap<>(Instant.class);
+    private static Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> deserializeStatesAndThresholds(JsonParser jsonParser) throws IOException, NoSuchFieldException {
+        Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> statesAndThresholds = new HashMap<>();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            Instant instant = null;
+            Instant.Kind instant = null;
             Set<String> contingencyNames = null;
             Map<Double, VoltageThreshold> thresholdPerNominalV = new TreeMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        instant = Instant.valueOf(jsonParser.nextTextValue().toUpperCase());
+                        instant = Instant.Kind.valueOf(jsonParser.nextTextValue().toUpperCase());
                         break;
                     case CONTINGENCY_NAMES:
                         jsonParser.nextToken();
@@ -89,7 +89,7 @@ public final class JsonVoltageCnecsCreationParameters {
                 }
             }
             Objects.requireNonNull(instant);
-            if (instant.equals(Instant.PREVENTIVE) && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
+            if (instant == Instant.Kind.PREVENTIVE && !Objects.isNull(contingencyNames) && !contingencyNames.isEmpty()) {
                 throw new FaraoException("When monitoring the preventive instant, no contingency can be defined.");
             }
             if (statesAndThresholds.containsKey(instant)) {
@@ -148,9 +148,9 @@ public final class JsonVoltageCnecsCreationParameters {
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeMonitoredStatesAndThresholds(Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeMonitoredStatesAndThresholds(Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeArrayFieldStart(MONITORED_STATES_AND_THRESHOLDS);
-        for (Map.Entry<Instant, VoltageMonitoredContingenciesAndThresholds> entry : monitoredStatesAndThresholds.entrySet()) {
+        for (Map.Entry<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> entry : monitoredStatesAndThresholds.entrySet()) {
             jsonGenerator.writeStartObject();
 
             // Instant

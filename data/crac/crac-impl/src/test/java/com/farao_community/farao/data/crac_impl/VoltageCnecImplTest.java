@@ -41,7 +41,7 @@ class VoltageCnecImplTest {
             .withName("voltage-cnec-name")
             .withNetworkElement("networkElement")
             .withOperator("FR")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
             .withOptimized(false);
     }
 
@@ -53,14 +53,14 @@ class VoltageCnecImplTest {
         VoltageCnec cnec1 = crac.newVoltageCnec()
             .withId("cnec-1-id")
             .withNetworkElement("BBE1AA1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add()
             .add();
 
         VoltageCnec cnec2 = crac.newVoltageCnec()
             .withId("cnec-2-id")
             .withNetworkElement("DDE2AA1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add()
             .add();
 

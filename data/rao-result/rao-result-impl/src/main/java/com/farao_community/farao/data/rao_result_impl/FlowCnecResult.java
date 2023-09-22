@@ -8,7 +8,7 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,7 +20,7 @@ public class FlowCnecResult {
     private final Map<OptimizationState, ElementaryFlowCnecResult> results;
 
     FlowCnecResult() {
-        results = new EnumMap<>(OptimizationState.class);
+        results = new HashMap<>();
     }
 
     public ElementaryFlowCnecResult getResult(OptimizationState optimizationState) {

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -186,7 +187,7 @@ public final class JsonSerializationConstants {
     // serialization of enums
 
     public static String serializeInstant(Instant instant) {
-        switch (instant) {
+        /*switch (instant) {
             case PREVENTIVE:
                 return PREVENTIVE_INSTANT;
             case OUTAGE:
@@ -201,26 +202,14 @@ public final class JsonSerializationConstants {
                 return CURATIVE_INSTANT;
             default:
                 throw new FaraoException(String.format("Unsupported instant %s", instant));
-        }
+        }*/
+        return instant.getId();
     }
 
-    public static Instant deserializeInstant(String stringValue) {
-        switch (stringValue) {
-            case PREVENTIVE_INSTANT:
-                return Instant.PREVENTIVE;
-            case OUTAGE_INSTANT:
-                return Instant.OUTAGE;
-            case AUTO_INSTANT:
-                return Instant.AUTO;
-            case CURATIVE1_INSTANT:
-                return Instant.CURATIVE1;
-            case CURATIVE2_INSTANT:
-                return Instant.CURATIVE2;
-            case CURATIVE_INSTANT:
-                return Instant.CURATIVE;
-            default:
-                throw new FaraoException(String.format("Unrecognized instant %s", stringValue));
-        }
+    public static Instant deserializeInstant(String stringValue, Crac crac) {
+        // TODO how to improve this ? make it more robust to change of default names ?
+        // TODO handle retro-compatibility with a switch
+        return crac.getInstant(stringValue);
     }
 
     public static String serializeUnit(Unit unit) {

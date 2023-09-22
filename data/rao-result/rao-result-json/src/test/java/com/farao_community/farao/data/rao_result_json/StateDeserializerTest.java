@@ -29,14 +29,14 @@ class StateDeserializerTest {
         State outageState = Mockito.mock(State.class);
         String contingencyId = "contingency";
         Mockito.when(crac.getPreventiveState()).thenReturn(preventiveState);
-        Mockito.when(crac.getState(contingencyId, Instant.CURATIVE)).thenReturn(curativeState);
-        Mockito.when(crac.getState(contingencyId, Instant.OUTAGE)).thenReturn(outageState);
+        Mockito.when(crac.getState(contingencyId, crac.getInstant(Instant.Kind.CURATIVE))).thenReturn(curativeState);
+        Mockito.when(crac.getState(contingencyId, crac.getInstant(Instant.Kind.OUTAGE))).thenReturn(outageState);
 
         assertThrows(FaraoException.class, () -> StateDeserializer.getState(null, contingencyId, crac, "type"));
-        assertEquals(preventiveState, StateDeserializer.getState(Instant.PREVENTIVE, null, crac, null));
-        assertThrows(FaraoException.class, () -> StateDeserializer.getState(Instant.OUTAGE, null, crac, "type"));
-        assertThrows(FaraoException.class, () -> StateDeserializer.getState(Instant.OUTAGE, "wrongContingencyId", crac, "type"));
-        assertEquals(outageState, StateDeserializer.getState(Instant.OUTAGE, contingencyId, crac, "type"));
-        assertEquals(curativeState, StateDeserializer.getState(Instant.CURATIVE, contingencyId, crac, "type"));
+        assertEquals(preventiveState, StateDeserializer.getState(crac.getInstant(Instant.Kind.PREVENTIVE), null, crac, null));
+        assertThrows(FaraoException.class, () -> StateDeserializer.getState(crac.getInstant(Instant.Kind.OUTAGE), null, crac, "type"));
+        assertThrows(FaraoException.class, () -> StateDeserializer.getState(crac.getInstant(Instant.Kind.OUTAGE), "wrongContingencyId", crac, "type"));
+        assertEquals(outageState, StateDeserializer.getState(crac.getInstant(Instant.Kind.OUTAGE), contingencyId, crac, "type"));
+        assertEquals(curativeState, StateDeserializer.getState(crac.getInstant(Instant.Kind.CURATIVE), contingencyId, crac, "type"));
     }
 }

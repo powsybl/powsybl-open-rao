@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,13 +25,13 @@ public final class OnAngleConstraintArrayDeserializer {
     private OnAngleConstraintArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnAngleConstraintAdder<?> adder = ownerAdder.newOnAngleConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue(), crac));
                         break;
                     case ANGLE_CNEC_ID:
                         adder.withAngleCnec(jsonParser.nextTextValue());

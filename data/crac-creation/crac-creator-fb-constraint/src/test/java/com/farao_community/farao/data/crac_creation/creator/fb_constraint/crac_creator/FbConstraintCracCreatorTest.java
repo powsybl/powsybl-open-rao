@@ -100,7 +100,7 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isImported());
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000001").isBaseCase());
         assertEquals(1, creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(Instant.PREVENTIVE));
+        assertEquals("BE_CBCO_000001 - preventive", creationContext.getBranchCnecCreationContext("BE_CBCO_000001").getCreatedCnecsIds().get(crac.getInstant(Instant.Kind.PREVENTIVE)));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000001 - preventive"));
         assertEquals("[BE-BE] BBE1 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000001 - preventive").getName());
@@ -113,8 +113,8 @@ class FbConstraintCracCreatorTest {
         assertTrue(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isImported());
         assertFalse(creationContext.getBranchCnecCreationContext("BE_CBCO_000003").isBaseCase());
         assertEquals(2, creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().size());
-        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(Instant.OUTAGE));
-        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(Instant.CURATIVE));
+        assertEquals("BE_CBCO_000003 - outage", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(crac.getInstant(Instant.Kind.OUTAGE)));
+        assertEquals("BE_CBCO_000003 - curative", creationContext.getBranchCnecCreationContext("BE_CBCO_000003").getCreatedCnecsIds().get(crac.getInstant(Instant.Kind.CURATIVE)));
 
         assertNotNull(crac.getFlowCnec("BE_CBCO_000003 - outage"));
         assertEquals("[BE-BE] BBE3 - BBE2 [DIR]", crac.getFlowCnec("BE_CBCO_000003 - outage").getName());

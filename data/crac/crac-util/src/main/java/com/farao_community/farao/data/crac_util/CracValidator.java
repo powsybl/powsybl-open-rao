@@ -47,7 +47,7 @@ public final class CracValidator {
      */
     private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
-        crac.getStates(Instant.AUTO).forEach(state -> {
+        crac.getStates(crac.getInstant(Instant.Kind.AUTO)).forEach(state -> {
             if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
                 // 1. Auto state has no RA => it will not constitute a perimeter
                 //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them
@@ -74,7 +74,7 @@ public final class CracValidator {
             .withNominalVoltage(cnec.getNominalVoltage(Side.LEFT), Side.LEFT)
             .withNominalVoltage(cnec.getNominalVoltage(Side.RIGHT), Side.RIGHT)
             .withReliabilityMargin(cnec.getReliabilityMargin())
-            .withInstant(Instant.OUTAGE).withContingency(cnec.getState().getContingency().orElseThrow().getId())
+            .withInstant(crac.getInstant(Instant.Kind.OUTAGE)).withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());
         copyThresholds(cnec, adder);

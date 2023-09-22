@@ -41,7 +41,7 @@ class ContingencyScenarioTest {
         ContingencyScenario contingencyScenario = new ContingencyScenario(contingency, automatonState, curativeState);
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.of(automatonState), contingencyScenario.getAutomatonState());
-        assertEquals(curativeState, contingencyScenario.getCurativeState());
+        assertEquals(curativeState, contingencyScenario.getAnyCurativeState());
     }
 
     @Test
@@ -49,12 +49,12 @@ class ContingencyScenarioTest {
         ContingencyScenario contingencyScenario = new ContingencyScenario(automatonState, curativeState);
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.of(automatonState), contingencyScenario.getAutomatonState());
-        assertEquals(curativeState, contingencyScenario.getCurativeState());
+        assertEquals(curativeState, contingencyScenario.getAnyCurativeState());
 
         contingencyScenario = new ContingencyScenario(null, curativeState);
         assertEquals(contingency, contingencyScenario.getContingency());
         assertEquals(Optional.empty(), contingencyScenario.getAutomatonState());
-        assertEquals(curativeState, contingencyScenario.getCurativeState());
+        assertEquals(curativeState, contingencyScenario.getAnyCurativeState());
     }
 
     @Test

@@ -23,7 +23,7 @@ public final class StateDeserializer {
         if (instant == null) {
             throw new FaraoException(String.format("Cannot deserialize RaoResult: no instant defined in activated states of %s", parentType));
         }
-        if (instant == Instant.PREVENTIVE) {
+        if (instant.isPreventive()) {
             return crac.getPreventiveState();
         } else {
             if (contingencyId == null) {

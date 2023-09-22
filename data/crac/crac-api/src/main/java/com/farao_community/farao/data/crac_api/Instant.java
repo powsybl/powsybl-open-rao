@@ -16,21 +16,47 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public enum Instant {
-    INITIAL0(-1, "initial"),
-    PREVENTIVE(0, "preventive"),
-    OUTAGE(1, "outage"),
-    AUTO(2, "auto"),
-    CURATIVE1(3, "curative1"),
-    CURATIVE2(4, "curative2"),
-    CURATIVE(5, "curative");
+public class Instant implements Comparable<Instant> {
+    // TODO : add an interface
+
+    public enum Kind {
+        PREVENTIVE(0),
+        OUTAGE(1),
+        AUTO(2),
+        CURATIVE(3);
+
+        private final int order;
+
+        private Kind(int order) {
+            this.order = order;
+        }
+
+        public int getOrder() {
+            return order;
+        }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
+    }
 
     private final int order;
-    private final String name;
+    private final String id;
+    private final Kind kind;
 
-    Instant(int order, String name) {
+    public Instant(int order, String id, Kind kind) {
         this.order = order;
-        this.name = name;
+        this.id = id;
+        this.kind = kind;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Kind getKind() {
+        return kind;
     }
 
     public int getOrder() {
@@ -39,7 +65,7 @@ public enum Instant {
 
     @Override
     public String toString() {
-        return name;
+        return id;
     }
 
     public boolean comesBefore(Instant otherInstant) {
@@ -49,5 +75,26 @@ public enum Instant {
     // TODO : UT
     public boolean comesAfter(Instant otherInstant) {
         return this.order > otherInstant.order;
+    }
+
+    public boolean isPreventive() {
+        return kind.equals(Kind.PREVENTIVE);
+    }
+
+    public boolean isOutage() {
+        return kind.equals(Kind.OUTAGE);
+    }
+
+    public boolean isAuto() {
+        return kind.equals(Kind.AUTO);
+    }
+
+    public boolean isCurative() {
+        return kind.equals(Kind.CURATIVE);
+    }
+
+    @Override
+    public int compareTo(Instant otherInstant) {
+        return Integer.compare(this.order, otherInstant.order);
     }
 }

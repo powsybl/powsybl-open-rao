@@ -2,11 +2,11 @@
 <GLSK_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:glskdocument:2:1 iec62325-451-n-glsk_v2_1.xsd">
   <mRID>49V000000000017G-20180829-F717</mRID>
   <revisionNumber>1</revisionNumber>
-  <type>B22</type>
+  <kind>B22</kind>
   <sender_MarketParticipant.mRID codingScheme="A01">49V000000000017G</sender_MarketParticipant.mRID>
-  <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+  <sender_MarketParticipant.marketRole.kind>A36</sender_MarketParticipant.marketRole.kind>
   <receiver_MarketParticipant.mRID codingScheme="A01">10XDE-RWENET---W</receiver_MarketParticipant.mRID>
-  <receiver_MarketParticipant.marketRole.type>A04</receiver_MarketParticipant.marketRole.type>
+  <receiver_MarketParticipant.marketRole.kind>A04</receiver_MarketParticipant.marketRole.kind>
   <createdDateTime>2018-10-02T12:21:00Z</createdDateTime>
   <status>
     <value>A42</value>

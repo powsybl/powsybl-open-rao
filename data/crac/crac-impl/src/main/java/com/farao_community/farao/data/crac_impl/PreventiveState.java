@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -17,8 +18,13 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PreventiveState implements State {
+    private final Instant instant;
 
-    PreventiveState() {
+    PreventiveState(Instant instant) {
+        if (!instant.isPreventive()) {
+            throw new FaraoException("Instant should be preventive");
+        }
+        this.instant = instant;
     }
 
     @Override
@@ -28,7 +34,7 @@ public class PreventiveState implements State {
 
     @Override
     public Instant getInstant() {
-        return Instant.PREVENTIVE;
+        return instant;
     }
 
     @Override

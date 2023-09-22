@@ -21,10 +21,10 @@ import java.util.Set;
  */
 public class VoltageCnecsCreationParameters {
 
-    private Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
+    private Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
     private Set<String> monitoredNetworkElements;
 
-    public VoltageCnecsCreationParameters(Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, Set<String> monitoredNetworkElements) {
+    public VoltageCnecsCreationParameters(Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, Set<String> monitoredNetworkElements) {
         Objects.requireNonNull(monitoredStatesAndThresholds);
         Objects.requireNonNull(monitoredNetworkElements);
         if (monitoredStatesAndThresholds.isEmpty() || monitoredNetworkElements.isEmpty()) {
@@ -34,7 +34,7 @@ public class VoltageCnecsCreationParameters {
         this.monitoredNetworkElements = monitoredNetworkElements;
     }
 
-    public Map<Instant, VoltageMonitoredContingenciesAndThresholds> getMonitoredStatesAndThresholds() {
+    public Map<Instant.Kind, VoltageMonitoredContingenciesAndThresholds> getMonitoredStatesAndThresholds() {
         return monitoredStatesAndThresholds;
     }
 

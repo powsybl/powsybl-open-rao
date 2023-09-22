@@ -61,7 +61,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 .withNetworkElement("NNL1AA1  NNL2AA1  1")
                 .newThreshold().withSide(Side.RIGHT).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
                 .withOptimized(true)
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withOperator("NL")
                 .add();
 

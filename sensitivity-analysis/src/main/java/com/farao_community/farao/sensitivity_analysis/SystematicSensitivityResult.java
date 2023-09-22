@@ -62,30 +62,22 @@ public class SystematicSensitivityResult {
 
     private SensitivityComputationStatus status;
     private final StateResult nStateResult = new StateResult();
-    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new EnumMap<>(Instant.class);
+    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new HashMap<>();
 
     private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
 
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
-        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
-        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE1, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE2, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
     public SystematicSensitivityResult(SensitivityComputationStatus status) {
         this.status = status;
-        this.postContingencyResults.put(Instant.OUTAGE, new HashMap<>());
-        this.postContingencyResults.put(Instant.AUTO, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE1, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE2, new HashMap<>());
-        this.postContingencyResults.put(Instant.CURATIVE, new HashMap<>());
     }
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Instant instant) {
-
+        if (!postContingencyResults.containsKey(instant)) {
+            postContingencyResults.put(instant, new HashMap<>());
+        }
         if (results == null) {
             this.status = SensitivityComputationStatus.FAILURE;
             return this;
@@ -139,11 +131,9 @@ public class SystematicSensitivityResult {
 
     public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
         postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
-        postContingencyResults.get(Instant.OUTAGE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.AUTO).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE1).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE2).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
-        postContingencyResults.get(Instant.CURATIVE).values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        for (Map<String, StateResult> result : postContingencyResults.values()) {
+            result.values().forEach(stateResult -> postTreatHvdcsOnState(network, hvdcRangeActions, stateResult));
+        }
         return this;
     }
 
@@ -220,6 +210,7 @@ public class SystematicSensitivityResult {
     public SensitivityComputationStatus getStatus(State state) {
         Optional<Contingency> optionalContingency = state.getContingency();
         if (optionalContingency.isPresent()) {
+            // TODO : improve this
             List<Instant> possibleInstants = postContingencyResults.keySet().stream()
                     .filter(instant -> instant.comesBefore(state.getInstant()) || instant.equals(state.getInstant()))
                     .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
@@ -289,6 +280,7 @@ public class SystematicSensitivityResult {
         }
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
+            // TODO : improve this
             List<Instant> possibleInstants = postContingencyResults.keySet().stream()
                     .filter(instant -> instant.comesBefore(cnec.getState().getInstant()) || instant.equals(cnec.getState().getInstant()))
                     .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))

@@ -9,7 +9,10 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.google.auto.service.AutoService;
+
+import java.util.List;
 
 /**
  * Crac Factory implementation.
@@ -28,11 +31,35 @@ public class CracImplFactory implements CracFactory {
 
     @Override
     public Crac create(String id, String name) {
-        return new CracImpl(id, name);
+        Crac crac = new CracImpl(id, name);
+        // TODO : move this
+        crac.setInstants(
+            List.of(
+                new Instant(0, "preventive", Instant.Kind.PREVENTIVE),
+                new Instant(1, "outage", Instant.Kind.OUTAGE),
+                new Instant(2, "auto", Instant.Kind.AUTO),
+                //new Instant(3, "curative1", Instant.Kind.CURATIVE),
+                //new Instant(4, "curative2", Instant.Kind.CURATIVE),
+                new Instant(3, "curative", Instant.Kind.CURATIVE)
+            )
+        );
+        return crac;
     }
 
     @Override
     public Crac create(String id) {
-        return new CracImpl(id);
+        Crac crac = new CracImpl(id);
+        // TODO : move this
+        crac.setInstants(
+            List.of(
+                new Instant(0, "preventive", Instant.Kind.PREVENTIVE),
+                new Instant(1, "outage", Instant.Kind.OUTAGE),
+                new Instant(2, "auto", Instant.Kind.AUTO),
+                //new Instant(3, "curative1", Instant.Kind.CURATIVE),
+                //new Instant(4, "curative2", Instant.Kind.CURATIVE),
+                new Instant(3, "curative", Instant.Kind.CURATIVE)
+            )
+        );
+        return crac;
     }
 }

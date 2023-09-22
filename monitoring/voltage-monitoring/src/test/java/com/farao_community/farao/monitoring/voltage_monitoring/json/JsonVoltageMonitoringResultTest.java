@@ -52,7 +52,7 @@ class JsonVoltageMonitoringResultTest {
     private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max) {
         return crac.newVoltageCnec()
             .withId(id)
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
             .withNetworkElement(networkElement)
             .withMonitored()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(min).withMax(max).add()

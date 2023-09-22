@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +29,11 @@ class BasecaseScenarioTest {
     @BeforeEach
     public void setUp() {
         basecaseState = Mockito.mock(State.class);
-        Mockito.when(basecaseState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        //Mockito.when(basecaseState.getInstant()).thenReturn(Instant.PREVENTIVE);
         otherState1 = Mockito.mock(State.class);
-        Mockito.when(otherState1.getInstant()).thenReturn(Instant.OUTAGE);
+        //Mockito.when(otherState1.getInstant()).thenReturn(Instant.OUTAGE);
         otherState2 = Mockito.mock(State.class);
-        Mockito.when(otherState2.getInstant()).thenReturn(Instant.CURATIVE);
+        //Mockito.when(otherState2.getInstant()).thenReturn(Instant.CURATIVE);
     }
 
     @Test

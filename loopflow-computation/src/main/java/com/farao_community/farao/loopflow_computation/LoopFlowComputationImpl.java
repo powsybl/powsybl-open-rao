@@ -9,6 +9,7 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -47,6 +48,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
                 .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .withOutageInstant(new Instant(0, "outage", Instant.Kind.OUTAGE))
                 .build();
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);

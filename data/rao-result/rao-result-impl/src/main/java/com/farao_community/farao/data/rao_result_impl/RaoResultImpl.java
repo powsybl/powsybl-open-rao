@@ -49,7 +49,7 @@ public class RaoResultImpl implements RaoResult {
     private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
-    private final Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
+    private final Map<OptimizationState, CostResult> costResults = new HashMap<>();
 
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
@@ -298,7 +298,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.comesBefore(Instant.AUTO)) {
+        if (instant.isOutage() || instant.isPreventive()) {
             return crac.getPreventiveState();
         }
         State stateBefore = lookupState(contingencyId, instantBefore(instant));
@@ -310,17 +310,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private Instant instantBefore(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-            case OUTAGE:
-                return Instant.PREVENTIVE;
-            case AUTO:
-                return Instant.OUTAGE;
-            case CURATIVE:
-                return Instant.AUTO;
-            default:
-                throw new FaraoException(String.format("Unknown instant: %s", instant));
-        }
+        return crac.getInstants().get(Math.max(0, crac.getInstants().indexOf(instant) - 1));
     }
 
     private State lookupState(String contingencyId, Instant instant) {

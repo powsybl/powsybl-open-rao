@@ -47,18 +47,18 @@ class JsonAngleMonitoringResultTest {
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac");
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
-        ac1 = addAngleCnec("ac1", "impNe1", "expNe1", Instant.PREVENTIVE, null, 145., 150.);
-        ac2 = addAngleCnec("ac2", "impNe2", "expNe2", Instant.CURATIVE, co1.getId(), 140., 145.);
+        ac1 = addAngleCnec("ac1", "impNe1", "expNe1", crac.getInstant(Instant.Kind.PREVENTIVE), null, 145., 150.);
+        ac2 = addAngleCnec("ac2", "impNe2", "expNe2", crac.getInstant(Instant.Kind.CURATIVE), co1.getId(), 140., 145.);
         preventiveState = crac.getPreventiveState();
         na1 = crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec(ac1.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withAngleCnec(ac1.getId()).add()
                 .add();
         na2 = crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(ac2.getId()).add()
+                .newOnAngleConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withAngleCnec(ac2.getId()).add()
                 .add();
         angleMonitoringResultImporter = new AngleMonitoringResultImporter();
     }
@@ -94,7 +94,7 @@ class JsonAngleMonitoringResultTest {
         assertEquals(Set.of("na1"), angleMonitoringResult.getAppliedCras(preventiveState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
         assertEquals(2, angleMonitoringResult.getAppliedCras().keySet().size());
         assertEquals(1, angleMonitoringResult.getAppliedCras().get(preventiveState).size());
-        assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), Instant.CURATIVE)).size());
+        assertEquals(1, angleMonitoringResult.getAppliedCras().get(crac.getState(co1.getId(), crac.getInstant(Instant.Kind.CURATIVE))).size());
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
         Set<AngleMonitoringResult.AngleResult> expectedResult = Set.of(new AngleMonitoringResult.AngleResult(ac1, 2.3), new AngleMonitoringResult.AngleResult(ac2, 4.6));
         angleMonitoringResult.getAngleCnecsWithAngle().forEach(angleResult ->

@@ -32,7 +32,7 @@ public class StateTree {
         }
 
         // TODO : update this
-        Set<State> optimizedCurativeStates = contingencyScenarios.stream().map(ContingencyScenario::getCurativeState).collect(Collectors.toSet());
+        Set<State> optimizedCurativeStates = contingencyScenarios.stream().map(ContingencyScenario::getAnyCurativeState).collect(Collectors.toSet());
         this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, optimizedCurativeStates);
     }
 
@@ -42,7 +42,7 @@ public class StateTree {
      * Else, the state is optimized in basecase RAO.
      */
     private void processOutageInstant(Contingency contingency, Crac crac) {
-        State outageState = crac.getState(contingency.getId(), Instant.OUTAGE);
+        State outageState = crac.getState(contingency.getId(), crac.getInstant(Instant.Kind.OUTAGE));
         if (outageState != null) {
             if (anyAvailableRemedialAction(crac, outageState)) {
                 throw new FaraoException(String.format("Outage state %s has available RAs. This is not supported.", outageState));
@@ -63,8 +63,8 @@ public class StateTree {
      */
     private void processAutoAndCurativeInstants(Contingency contingency, Crac crac) {
         Map<Instant, State> contingencyStates = new HashMap<>();
-        for (Instant instant : Instant.values()) {
-            if (instant.comesAfter(Instant.OUTAGE)) {
+        for (Instant instant : crac.getInstants()) {
+            if (instant.comesAfter(crac.getInstant(Instant.Kind.OUTAGE))) {
                 State state = crac.getState(contingency.getId(), instant);
                 if (state == null) {
                     continue;

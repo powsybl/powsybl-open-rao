@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_creation.creator.api.std_creation_con
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Dummy class that has no real use, but allows the CRAC exporters
@@ -119,8 +118,8 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             Map<Instant, String> map = new HashMap<>();
             map.put(flowCnec.getState().getInstant(), flowCnec.getId());
             if (!isBaseCase) {
-                Stream.of(Instant.values())
-                    .filter(instant -> instant != Instant.PREVENTIVE)
+                crac.getInstants().stream()
+                    .filter(instant -> !instant.isPreventive())
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {
                         FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().get().getId(), instant)).stream()

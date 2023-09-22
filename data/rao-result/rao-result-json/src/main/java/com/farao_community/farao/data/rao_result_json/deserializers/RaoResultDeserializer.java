@@ -90,7 +90,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case COST_RESULTS:
                     jsonParser.nextToken();
-                    CostResultMapDeserializer.deserialize(jsonParser, raoResult);
+                    CostResultMapDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
                 case FLOWCNEC_RESULTS:

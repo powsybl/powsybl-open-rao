@@ -47,7 +47,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
             throw new FaraoException("Cnec not optimized in this perimeter.");
         }
         State state = flowCnec.getState();
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizationState.isInitial()) {
             return initialResult;
         }
         if (optimizedState.isPreventive()) {
@@ -122,7 +122,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     public PerimeterResult getPostPreventivePerimeterResult() {
-        if (!optimizedState.getInstant().equals(Instant.PREVENTIVE)) {
+        if (!optimizedState.getInstant().isPreventive()) {
             // TODO : review this also
             throw new FaraoException(WRONG_STATE);
         }
@@ -135,7 +135,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
 
     @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizationState.isInitial()) {
             return initialResult.getFunctionalCost();
         } else {
             return postOptimizationResult.getFunctionalCost();
@@ -143,7 +143,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizationState.isInitial()) {
             return initialResult.getMostLimitingElements(number);
         } else {
             return postOptimizationResult.getMostLimitingElements(number);
@@ -152,7 +152,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizationState.isInitial()) {
             return initialResult.getVirtualCost();
         } else {
             return postOptimizationResult.getVirtualCost();
@@ -173,7 +173,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizationState.isInitial()) {
             return initialResult.getVirtualCost(virtualCostName);
         } else {
             return postOptimizationResult.getVirtualCost(virtualCostName);
@@ -181,7 +181,7 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizationState.isInitial()) {
             return initialResult.getCostlyElements(virtualCostName, number);
         } else {
             return postOptimizationResult.getCostlyElements(virtualCostName, number);

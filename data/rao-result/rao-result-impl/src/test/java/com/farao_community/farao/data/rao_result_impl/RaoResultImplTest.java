@@ -27,7 +27,6 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,25 +39,35 @@ class RaoResultImplTest {
     private FlowCnec cnec;
     private PstRangeAction pst;
     private NetworkAction na;
+    private OptimizationState initialState;
+    private OptimizationState afterPra;
+    private OptimizationState afterAra;
+    private OptimizationState afterCra;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
+
+        initialState = OptimizationState.beforeOptimizing(crac.getInstant(Instant.Kind.PREVENTIVE));
+        afterPra = OptimizationState.afterOptimizing(crac.getInstant(Instant.Kind.PREVENTIVE));
+        afterAra = OptimizationState.between(crac.getInstant(Instant.Kind.AUTO), crac.getInstant(Instant.Kind.AUTO));
+        afterCra = OptimizationState.afterOptimizing(crac.getInstant(Instant.Kind.CURATIVE));
+
         cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
         na = crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
-            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR3").withInstant(crac.getInstant(Instant.Kind.AUTO)).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("Contingency FR1 FR2").withInstant(crac.getInstant(Instant.Kind.AUTO)).withUsageMethod(UsageMethod.UNAVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
         raoResult = new RaoResultImpl(crac);
 
         FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
 
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
-        ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(INITIAL);
+        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(initialState);
+        ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(initialState);
 
         elementaryFlowCnecResult.setFlow(Side.LEFT, 100., MEGAWATT);
         elementaryFlowCnecResult.setMargin(101., MEGAWATT);
@@ -74,8 +83,8 @@ class RaoResultImplTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
-        elementaryFlowCnecResult = flowCnecResult.getResult(AFTER_PRA);
+        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterPra);
+        elementaryFlowCnecResult = flowCnecResult.getResult(afterPra);
 
         elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
         elementaryFlowCnecResult.setMargin(201., MEGAWATT);
@@ -89,19 +98,19 @@ class RaoResultImplTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", Instant.AUTO));
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.AUTO)));
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", crac.getInstant(Instant.Kind.CURATIVE)));
 
         RangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(pst);
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(INITIAL);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(initialState);
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
 
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_CRA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(afterCra);
         costResult.setFunctionalCost(-50.);
         costResult.setVirtualCost("loopFlow", 10.);
         costResult.setVirtualCost("MNEC", 2.);
@@ -129,24 +138,24 @@ class RaoResultImplTest {
     void testPreventiveCnecResults() {
         setUp();
 
-        assertEquals(100., raoResult.getFlow(INITIAL, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(101., raoResult.getMargin(INITIAL, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(102., raoResult.getRelativeMargin(INITIAL, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(103., raoResult.getLoopFlow(INITIAL, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(104., raoResult.getCommercialFlow(INITIAL, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(100., raoResult.getFlow(initialState, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(101., raoResult.getMargin(initialState, cnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(102., raoResult.getRelativeMargin(initialState, cnec, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(103., raoResult.getLoopFlow(initialState, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(104., raoResult.getCommercialFlow(initialState, cnec, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertEquals(110., raoResult.getFlow(INITIAL, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(111., raoResult.getMargin(INITIAL, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(112., raoResult.getRelativeMargin(INITIAL, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(113., raoResult.getLoopFlow(INITIAL, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(114., raoResult.getCommercialFlow(INITIAL, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(110., raoResult.getFlow(initialState, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(111., raoResult.getMargin(initialState, cnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(112., raoResult.getRelativeMargin(initialState, cnec, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(113., raoResult.getLoopFlow(initialState, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(114., raoResult.getCommercialFlow(initialState, cnec, Side.LEFT, AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(0.1, raoResult.getPtdfZonalSum(INITIAL, cnec, Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(0.1, raoResult.getPtdfZonalSum(initialState, cnec, Side.LEFT), DOUBLE_TOLERANCE);
 
         // should always return after pra results because the cnec is Preventive
-        getResultAtAGivenState(AFTER_PRA);
-        getResultAtAGivenState(AFTER_ARA);
-        getResultAtAGivenState(AFTER_CRA);
+        getResultAtAGivenState(afterPra);
+        getResultAtAGivenState(afterAra);
+        getResultAtAGivenState(afterCra);
     }
 
     @Test
@@ -160,7 +169,7 @@ class RaoResultImplTest {
         assertEquals(-3.1, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertEquals(Map.of(pst, -3.1), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
         assertEquals(Set.of(pst), raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(), raoResult.getActivatedRangeActionsDuringState(crac.getState("Contingency FR1 FR3", Instant.AUTO)));
+        assertEquals(Set.of(), raoResult.getActivatedRangeActionsDuringState(crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.AUTO))));
     }
 
     @Test
@@ -170,23 +179,23 @@ class RaoResultImplTest {
         assertFalse(raoResult.isActivatedDuringState(crac.getPreventiveState(), na));
         assertEquals(Set.of(), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
 
-        State state = crac.getState("Contingency FR1 FR3", Instant.AUTO);
+        State state = crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.AUTO));
         assertFalse(raoResult.wasActivatedBeforeState(state, na));
         assertTrue(raoResult.isActivated(state, na));
         assertTrue(raoResult.isActivatedDuringState(state, na));
         assertEquals(Set.of(na), raoResult.getActivatedNetworkActionsDuringState(state));
-        state = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        state = crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.CURATIVE));
         assertTrue(raoResult.wasActivatedBeforeState(state, na));
         assertTrue(raoResult.isActivated(state, na));
         assertFalse(raoResult.isActivatedDuringState(state, na));
         assertEquals(Set.of(), raoResult.getActivatedNetworkActionsDuringState(state));
 
-        state = crac.getState("Contingency FR1 FR2", Instant.AUTO);
+        state = crac.getState("Contingency FR1 FR2", crac.getInstant(Instant.Kind.AUTO));
         assertFalse(raoResult.wasActivatedBeforeState(state, na));
         assertFalse(raoResult.isActivated(state, na));
         assertFalse(raoResult.isActivatedDuringState(state, na));
         assertEquals(Set.of(), raoResult.getActivatedNetworkActionsDuringState(state));
-        state = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
+        state = crac.getState("Contingency FR1 FR2", crac.getInstant(Instant.Kind.CURATIVE));
         assertFalse(raoResult.wasActivatedBeforeState(state, na));
         assertTrue(raoResult.isActivated(state, na));
         assertTrue(raoResult.isActivatedDuringState(state, na));
@@ -199,17 +208,17 @@ class RaoResultImplTest {
 
         assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
 
-        assertEquals(100., raoResult.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(INITIAL, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(INITIAL, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
-        assertEquals(100., raoResult.getCost(INITIAL), DOUBLE_TOLERANCE);
+        assertEquals(100., raoResult.getFunctionalCost(initialState), DOUBLE_TOLERANCE);
+        assertEquals(0., raoResult.getVirtualCost(initialState, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., raoResult.getVirtualCost(initialState, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., raoResult.getVirtualCost(initialState), DOUBLE_TOLERANCE);
+        assertEquals(100., raoResult.getCost(initialState), DOUBLE_TOLERANCE);
 
-        assertEquals(-50., raoResult.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(AFTER_CRA, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(AFTER_CRA, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(AFTER_CRA), DOUBLE_TOLERANCE);
+        assertEquals(-50., raoResult.getFunctionalCost(afterCra), DOUBLE_TOLERANCE);
+        assertEquals(10., raoResult.getVirtualCost(afterCra, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., raoResult.getVirtualCost(afterCra, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., raoResult.getVirtualCost(afterCra), DOUBLE_TOLERANCE);
+        assertEquals(-38, raoResult.getCost(afterCra), DOUBLE_TOLERANCE);
 
         assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
     }
@@ -228,7 +237,7 @@ class RaoResultImplTest {
     @Test
     void testSensitivityStatus() {
         setUp();
-        raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", Instant.AUTO), ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", Instant.AUTO)));
+        raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.AUTO)), ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.AUTO))));
     }
 }

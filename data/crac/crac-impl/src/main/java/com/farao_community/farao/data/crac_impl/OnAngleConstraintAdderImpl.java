@@ -46,10 +46,10 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.isAuto()) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 

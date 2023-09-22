@@ -46,21 +46,21 @@ class RangeActionActivationResultImplTest {
         crac.newFlowCnec()
             .withId("cnecOnOutageState1")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(Instant.OUTAGE)
+            .withInstant(crac.getInstant(Instant.Kind.OUTAGE))
             .withContingency("Contingency FR1 FR3")
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(Side.LEFT).withMin(-1500.).withMax(1500.).add()
             .add();
 
         pState = crac.getPreventiveState();
-        oState1 = crac.getState("Contingency FR1 FR3", Instant.OUTAGE);
-        cState1 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-        cState2 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
+        oState1 = crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.OUTAGE));
+        cState1 = crac.getState("Contingency FR1 FR3", crac.getInstant(Instant.Kind.CURATIVE));
+        cState2 = crac.getState("Contingency FR1 FR2", crac.getInstant(Instant.Kind.CURATIVE));
 
         pstRangeAction1 = crac.newPstRangeAction()
             .withId("pst1")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();
@@ -68,8 +68,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction2 = crac.newPstRangeAction()
             .withId("pst2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();
@@ -77,8 +77,8 @@ class RangeActionActivationResultImplTest {
         pstRangeAction3 = crac.newPstRangeAction()
             .withId("pst3")
             .withNetworkElement("anotherPst")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-3, -3.1, -2, -2.1, -1, -1.1, 0, 0., 1, 1.1, 2, 2.1, 3, 3.1))
             .add();

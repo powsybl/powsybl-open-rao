@@ -44,10 +44,10 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.isAuto()) {
             throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             owner.getCrac().addPreventiveState();
         }
 

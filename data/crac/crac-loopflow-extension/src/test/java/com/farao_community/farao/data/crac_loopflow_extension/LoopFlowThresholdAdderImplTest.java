@@ -24,7 +24,7 @@ class LoopFlowThresholdAdderImplTest {
             .withId("flowCnecId")
             .withName("flowCnecName")
             .withNetworkElement("networkElementId")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()

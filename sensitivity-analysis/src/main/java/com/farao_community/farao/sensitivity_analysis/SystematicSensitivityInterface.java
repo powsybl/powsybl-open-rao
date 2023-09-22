@@ -9,6 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -49,6 +50,9 @@ public final class SystematicSensitivityInterface {
      */
     private AppliedRemedialActions appliedRemedialActions;
 
+    // TODO
+    private Instant outageInstant;
+
     /**
      * Builder
      */
@@ -58,6 +62,7 @@ public final class SystematicSensitivityInterface {
         private final MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
+        private Instant outageInstant;
 
         private SystematicSensitivityInterfaceBuilder() {
 
@@ -99,6 +104,11 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
+        public SystematicSensitivityInterfaceBuilder withOutageInstant(Instant outageInstant) {
+            this.outageInstant = outageInstant;
+            return this;
+        }
+
         public SystematicSensitivityInterface build() {
             if (Objects.isNull(sensitivityProvider)) {
                 throw new FaraoException("Please provide a sensitivity provider implementation name when building a SystematicSensitivityInterface");
@@ -114,6 +124,7 @@ public final class SystematicSensitivityInterface {
             systematicSensitivityInterface.parameters = defaultParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
+            systematicSensitivityInterface.outageInstant = outageInstant;
             return systematicSensitivityInterface;
         }
     }
@@ -144,7 +155,7 @@ public final class SystematicSensitivityInterface {
      */
     private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider, outageInstant);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
             TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");

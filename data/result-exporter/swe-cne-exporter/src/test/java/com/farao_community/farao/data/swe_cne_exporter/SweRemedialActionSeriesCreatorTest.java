@@ -37,7 +37,7 @@ class SweRemedialActionSeriesCreatorTest {
 
     @BeforeEach
     public void setup() {
-        this.crac = Mockito.mock(Crac.class);
+        this.crac = CracFactory.findDefault().create("crac");
         this.raoResult = Mockito.mock(RaoResult.class);
         this.cracCreationContext = Mockito.mock(CimCracCreationContext.class);
         this.cneHelper = Mockito.mock(SweCneHelper.class);
@@ -68,11 +68,11 @@ class SweRemedialActionSeriesCreatorTest {
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs1", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 2", "hvdcPtEs2", HvdcRangeAction.class);
 
-        State preventiveState = addStateToCrac(Instant.PREVENTIVE, null);
+        State preventiveState = addStateToCrac(Instant.Kind.PREVENTIVE, null);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
-        State autoState = addStateToCrac(Instant.AUTO, contingency);
-        State curativeState = addStateToCrac(Instant.CURATIVE, contingency);
+        State autoState = addStateToCrac(Instant.Kind.AUTO, contingency);
+        State curativeState = addStateToCrac(Instant.Kind.CURATIVE, contingency);
 
         addNetworkActionToRaoResult(preventiveState, "networkActionCreatedId");
         addNetworkActionToRaoResult(preventiveState, "na_missing");
@@ -116,12 +116,13 @@ class SweRemedialActionSeriesCreatorTest {
         return rascc;
     }
 
-    private State addStateToCrac(Instant instant, Contingency contingency) {
+    private State addStateToCrac(Instant.Kind instantKind, Contingency contingency) {
         State state = Mockito.mock(State.class);
+        Instant instant = crac.getInstant(instantKind);
         Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
         Mockito.when(crac.getState(contingency, instant)).thenReturn(state);
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             Mockito.when(state.isPreventive()).thenReturn(true);
             Mockito.when(crac.getPreventiveState()).thenReturn(state);
         } else {

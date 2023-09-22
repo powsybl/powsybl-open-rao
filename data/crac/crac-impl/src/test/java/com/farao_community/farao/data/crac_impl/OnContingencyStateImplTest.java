@@ -23,14 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  */
 class OnContingencyStateImplTest {
 
+    private Crac crac;
     private State initialState;
     private State curativeState1;
     private State curativeState2;
 
     @BeforeEach
     public void setUp() {
-        initialState = new PreventiveState();
-        Crac crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId");
+        initialState = crac.getPreventiveState();
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("anyNetworkElement")
@@ -39,8 +40,8 @@ class OnContingencyStateImplTest {
             .withId("contingency2")
             .withNetworkElement("anyNetworkElement")
             .add();
-        curativeState1 = new PostContingencyState(contingency1, Instant.CURATIVE);
-        curativeState2 = new PostContingencyState(contingency2, Instant.CURATIVE);
+        curativeState1 = new PostContingencyState(contingency1, crac.getInstant(Instant.Kind.CURATIVE));
+        curativeState2 = new PostContingencyState(contingency2, crac.getInstant(Instant.Kind.CURATIVE));
     }
 
     @Test
@@ -48,7 +49,7 @@ class OnContingencyStateImplTest {
         OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
         assertEquals(curativeState1, rule1.getState());
         assertEquals("contingency1", rule1.getContingency().getId());
-        assertEquals(Instant.CURATIVE, rule1.getInstant());
+        assertEquals(crac.getInstant(Instant.Kind.CURATIVE), rule1.getInstant());
     }
 
     @Test
@@ -67,7 +68,7 @@ class OnContingencyStateImplTest {
     @Test
     void testEqualsFalseNotTheSameObject() {
         OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertNotEquals(Instant.PREVENTIVE, rule1);
+        assertNotEquals(crac.getInstant(Instant.Kind.PREVENTIVE), rule1);
     }
 
     @Test

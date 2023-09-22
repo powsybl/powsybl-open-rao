@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json.serializers;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -24,13 +25,13 @@ final class CostResultMapSerializer {
     private CostResultMapSerializer() {
     }
 
-    static void serialize(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
-        serializeCostResultForOptimizationState(OptimizationState.INITIAL, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(OptimizationState.AFTER_PRA, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(OptimizationState.AFTER_ARA, raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(OptimizationState.AFTER_CRA, raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.initial(crac), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.afterPra(crac), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.afterAra(crac), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.afterCra(crac), raoResult, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 

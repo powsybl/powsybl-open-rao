@@ -16,18 +16,24 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
 
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class ExhaustiveRaoResultCreation {
+
+    private static Crac crac;
+    private static OptimizationState initial;
+    private static OptimizationState afterPra;
+    private static OptimizationState afterAra;
+    private static OptimizationState afterCra;
 
     /*
     Small CRAC used in unit tests of farao-core
@@ -43,30 +49,36 @@ public final class ExhaustiveRaoResultCreation {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 
+        ExhaustiveRaoResultCreation.crac = crac;
+        initial = OptimizationState.beforeOptimizing(crac.getInstant(Instant.Kind.PREVENTIVE));
+        afterPra = OptimizationState.afterOptimizing(crac.getInstant(Instant.Kind.PREVENTIVE));
+        afterAra = OptimizationState.between(crac.getInstant(Instant.Kind.AUTO), crac.getInstant(Instant.Kind.CURATIVE));
+        afterCra = OptimizationState.afterOptimizing(crac.getInstant(Instant.Kind.CURATIVE));
+
         // --------------------
         // --- Cost results ---
         // --------------------
 
         // CostResult at initial state
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(INITIAL);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(initial);
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
 
         // CostResult after PRA
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_PRA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(afterPra);
         costResult.setFunctionalCost(80.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
 
         // CostResult after ARA
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_ARA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(afterAra);
         costResult.setFunctionalCost(-20.);
         costResult.setVirtualCost("loopFlow", 15.);
         costResult.setVirtualCost("MNEC", 20.);
 
         // CostResult after CRA
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_CRA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(afterCra);
         costResult.setFunctionalCost(-50.);
         costResult.setVirtualCost("loopFlow", 10.);
         costResult.setVirtualCost("MNEC", 2.);
@@ -121,11 +133,11 @@ public final class ExhaustiveRaoResultCreation {
                     break;
                 case "injectionSetpointRaId" :
                     // automaton, activated
-                    nar.addActivationForState(crac.getState("contingency2Id", Instant.AUTO));
+                    nar.addActivationForState(crac.getState("contingency2Id", crac.getInstant(Instant.Kind.AUTO)));
                     break;
                 case "pstSetpointRaId" :
                     // forced in curative, activated
-                    nar.addActivationForState(crac.getState("contingency1Id", Instant.CURATIVE));
+                    nar.addActivationForState(crac.getState("contingency1Id", crac.getInstant(Instant.Kind.CURATIVE)));
                     break;
                 case "switchPairRaId" :
                     // available in curative, not activated
@@ -177,8 +189,8 @@ public final class ExhaustiveRaoResultCreation {
                 case "hvdcRange2Id":
                     // activated for two curative states
                     hrar.setInitialSetpoint(-100);
-                    hrar.addActivationForState(crac.getState("contingency1Id", Instant.CURATIVE), 100);
-                    hrar.addActivationForState(crac.getState("contingency2Id", Instant.CURATIVE), 400);
+                    hrar.addActivationForState(crac.getState("contingency1Id", crac.getInstant(Instant.Kind.CURATIVE)), 100);
+                    hrar.addActivationForState(crac.getState("contingency2Id", crac.getInstant(Instant.Kind.CURATIVE)), 400);
                     break;
                 default:
                     // do nothing
@@ -190,7 +202,7 @@ public final class ExhaustiveRaoResultCreation {
         // ------------------------------------
         RangeActionResult irar = raoResult.getAndCreateIfAbsentRangeActionResult(crac.getInjectionRangeAction("injectionRange1Id"));
         irar.setInitialSetpoint(100);
-        irar.addActivationForState(crac.getState("contingency1Id", Instant.CURATIVE), -300);
+        irar.addActivationForState(crac.getState("contingency1Id", crac.getInstant(Instant.Kind.CURATIVE)), -300);
 
         return raoResult;
     }
@@ -201,17 +213,17 @@ public final class ExhaustiveRaoResultCreation {
         boolean hasLoopFlow = cnec.getId().startsWith("cnec1") || cnec.getId().startsWith("cnec2");
         boolean isPureMnec = cnec.isMonitored() && !cnec.isOptimized();
 
-        ElementaryFlowCnecResult initialEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        ElementaryFlowCnecResult initialEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(initial);
         fillElementaryResult(initialEfcr, x, 100, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
-        ElementaryFlowCnecResult afterPraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        ElementaryFlowCnecResult afterPraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterPra);
         fillElementaryResult(afterPraEfcr, x, 200, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
 
-        if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryFlowCnecResult afterAraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+        if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant() == crac.getInstant(Instant.Kind.CURATIVE)) {
+            ElementaryFlowCnecResult afterAraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterAra);
             fillElementaryResult(afterAraEfcr, x, 300, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
-        if (cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryFlowCnecResult afterCraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+        if (cnec.getState().getInstant() == crac.getInstant(Instant.Kind.CURATIVE)) {
+            ElementaryFlowCnecResult afterCraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterCra);
             fillElementaryResult(afterCraEfcr, x, 400, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
     }
@@ -220,17 +232,17 @@ public final class ExhaustiveRaoResultCreation {
 
         double x = 3000;
 
-        ElementaryAngleCnecResult initialEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        ElementaryAngleCnecResult initialEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(initial);
         fillElementaryResult(initialEacr, x, 100);
-        ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterPra);
         fillElementaryResult(afterPraEacr, x, 200);
 
-        if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+        if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant() == crac.getInstant(Instant.Kind.CURATIVE)) {
+            ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterAra);
             fillElementaryResult(afterAraEacr, x, 300);
         }
-        if (cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+        if (cnec.getState().getInstant() == crac.getInstant(Instant.Kind.CURATIVE)) {
+            ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterCra);
             fillElementaryResult(afterCraEacr, x, 400);
         }
     }
@@ -239,17 +251,17 @@ public final class ExhaustiveRaoResultCreation {
 
         double x = 4000;
 
-        ElementaryVoltageCnecResult initialEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        ElementaryVoltageCnecResult initialEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(initial);
         fillElementaryResult(initialEacr, x, 100);
-        ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterPra);
         fillElementaryResult(afterPraEacr, x, 200);
 
-        if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+        if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant() == crac.getInstant(Instant.Kind.CURATIVE)) {
+            ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterAra);
             fillElementaryResult(afterAraEacr, x, 300);
         }
-        if (cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+        if (cnec.getState().getInstant() == crac.getInstant(Instant.Kind.CURATIVE)) {
+            ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(afterCra);
             fillElementaryResult(afterCraEacr, x, 400);
         }
     }

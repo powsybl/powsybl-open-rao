@@ -40,7 +40,7 @@ class HvdcRangeActionAdderImplTest {
                 .withGroupId("groupId1")
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -65,7 +65,7 @@ class HvdcRangeActionAdderImplTest {
                 .withInitialSetpoint(1)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(Instant.AUTO)
+                .withInstant(crac.getInstant(Instant.Kind.AUTO))
                 .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
@@ -91,7 +91,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(Instant.AUTO)
+            .withInstant(crac.getInstant(Instant.Kind.AUTO))
             .withUsageMethod(UsageMethod.FORCED)
             .add();
         assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
@@ -105,7 +105,7 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
@@ -146,7 +146,7 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();

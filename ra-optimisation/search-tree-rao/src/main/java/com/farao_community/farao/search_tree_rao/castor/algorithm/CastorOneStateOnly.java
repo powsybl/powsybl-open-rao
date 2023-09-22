@@ -85,9 +85,9 @@ public class CastorOneStateOnly {
         OptimizationResult optimizationResult;
         Set<FlowCnec> perimeterFlowCnecs;
 
-        if (raoInput.getOptimizedState().getInstant().equals(Instant.AUTO)) {
+        if (raoInput.getOptimizedState().getInstant().isAuto()) {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
-            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow().getId(), Instant.CURATIVE);
+            State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow().getId(), raoInput.getCrac().getFirstInstant(Instant.Kind.CURATIVE)); // TODO : handle this
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
             optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), curativeState, raoInput.getNetwork());
         } else {

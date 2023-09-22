@@ -49,11 +49,11 @@ class LinearProblemResultTest {
     @BeforeEach
     public void setUp() {
         preventiveState = Mockito.mock(State.class);
-        Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Mockito.when(preventiveState.getInstant()).thenReturn(new Instant(0, "preventive", Instant.Kind.PREVENTIVE));
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         Mockito.when(preventiveState.getId()).thenReturn("pState");
         aCurativeState = Mockito.mock(State.class);
-        Mockito.when(aCurativeState.getInstant()).thenReturn(Instant.CURATIVE);
+        Mockito.when(aCurativeState.getInstant()).thenReturn(new Instant(1, "curative", Instant.Kind.CURATIVE));
         Mockito.when(aCurativeState.getId()).thenReturn("cState");
 
         pst1 = Mockito.mock(PstRangeAction.class);

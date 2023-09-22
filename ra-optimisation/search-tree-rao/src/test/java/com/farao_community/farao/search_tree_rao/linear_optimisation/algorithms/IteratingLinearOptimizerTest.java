@@ -73,7 +73,7 @@ class IteratingLinearOptimizerTest {
         when(rangeAction.getId()).thenReturn("ra");
         when(rangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
         optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(optimizedState.getInstant()).thenReturn(new Instant(0, "preventive", Instant.Kind.PREVENTIVE));
 
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);

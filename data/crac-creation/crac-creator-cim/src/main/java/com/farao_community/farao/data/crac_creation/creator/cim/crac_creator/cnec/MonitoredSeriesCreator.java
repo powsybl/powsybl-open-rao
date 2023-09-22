@@ -206,13 +206,13 @@ public class MonitoredSeriesCreator {
     private Instant getMeasurementInstant(Analog measurement) {
         switch (measurement.getMeasurementType()) {
             case CNECS_N_STATE_MEASUREMENT_TYPE:
-                return Instant.PREVENTIVE;
+                return crac.getInstant(Instant.Kind.PREVENTIVE);
             case CNECS_OUTAGE_STATE_MEASUREMENT_TYPE:
-                return Instant.OUTAGE;
+                return crac.getInstant(Instant.Kind.OUTAGE);
             case CNECS_AUTO_STATE_MEASUREMENT_TYPE:
-                return Instant.AUTO;
+                return crac.getInstant(Instant.Kind.AUTO);
             case CNECS_CURATIVE_STATE_MEASUREMENT_TYPE:
-                return Instant.CURATIVE;
+                return crac.getInstant(Instant.Kind.CURATIVE);
             default:
                 throw new FaraoException(String.format("Unrecognized measurementType: %s", measurement.getMeasurementType()));
         }
@@ -246,7 +246,7 @@ public class MonitoredSeriesCreator {
                                                 boolean isMnec, String direction, Unit unit, double threshold,
                                                 List<Contingency> contingencies, Instant instant) {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
-        if (instant == Instant.PREVENTIVE) {
+        if (instant.isPreventive()) {
             addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext);
         } else {
             contingencies.forEach(contingency ->
@@ -284,7 +284,7 @@ public class MonitoredSeriesCreator {
             flowCnecAdder.withOptimized();
         }
 
-        if (instant != Instant.PREVENTIVE) {
+        if (!instant.isPreventive()) {
             flowCnecAdder.withContingency(contingencyId);
             cnecId += " - " + contingencyId;
         }

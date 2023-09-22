@@ -41,7 +41,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
         AdderUtils.assertAttributeNotEmpty(networkElementsIdAndName.entrySet(), "Cnec", "network element", "withNetworkElement()");
         AdderUtils.assertAttributeNotNull(instant, "Cnec", "instant", "withInstant()");
 
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.isPreventive()) {
             if (contingencyId != null) {
                 throw new FaraoException("You cannot define a contingency for a preventive cnec.");
             }
@@ -61,7 +61,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     protected State getState() {
         State state;
-        if (instant != Instant.PREVENTIVE) {
+        if (!instant.isPreventive()) {
             state = owner.addState(owner.getContingency(contingencyId), instant);
         } else {
             state = owner.addPreventiveState();

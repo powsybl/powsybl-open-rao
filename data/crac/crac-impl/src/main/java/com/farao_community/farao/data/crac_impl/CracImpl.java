@@ -40,6 +40,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, HvdcRangeAction> hvdcRangeActions = new HashMap<>();
     private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
+    private List<Instant> instants;
 
     public CracImpl(String id, String name) {
         super(id, name);
@@ -204,7 +205,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState();
+            State state = new PreventiveState(instants.stream().filter(Instant::isPreventive).findAny().orElseThrow());
             states.put(state.getId(), state);
             return state;
         }
@@ -212,7 +213,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getKind().equals(Instant.Kind.PREVENTIVE)) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
         if (getState(contingency, instant) != null) {
@@ -711,4 +712,47 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.put(networkAction.getId(), networkAction);
     }
     // endregion
+
+    @Override
+    public List<Instant> getInstants() {
+        return new ArrayList<>(instants);
+    }
+
+    @Override
+    public void setInstants(List<Instant> instants) {
+        this.instants = new ArrayList<>(instants);
+        // TODO : check correct order ? preventive -> outage -> auto -> curative
+        // TODO : only handle multiplicity of curative instants for now
+    }
+
+    @Override
+    public Instant getInstant(String name) {
+        return instants.stream().filter(i -> i.getId().equals(name)).findAny().orElse(null);
+    }
+
+    @Override
+    public Instant getInstant(Instant.Kind instantKind) {
+        List<Instant> list = getInstants(instantKind);
+        if (list.size() != 1) {
+            throw new FaraoException("Can't fetch one instant for this Instant.Type");
+        }
+        return list.get(0);
+    }
+
+    @Override
+    public Instant getFirstInstant(Instant.Kind instantKind) {
+        return getInstants(instantKind).stream().sorted().findFirst().orElseThrow();
+    }
+
+    @Override
+    public Instant getInstantFollowing(Instant instant) {
+        return instants.get(
+            Math.min(instants.size() - 1, instants.indexOf(instant) + 1)
+        );
+    }
+
+    @Override
+    public List<Instant> getInstants(Instant.Kind instantKind) {
+        return instants.stream().filter(i -> i.getKind().equals(instantKind)).sorted().collect(Collectors.toList());
+    }
 }

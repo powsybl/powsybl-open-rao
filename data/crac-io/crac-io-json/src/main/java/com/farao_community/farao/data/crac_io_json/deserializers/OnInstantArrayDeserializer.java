@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstantAdder;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,13 +25,13 @@ public final class OnInstantArrayDeserializer {
     private OnInstantArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, RemedialActionAdder<?> ownerAdder, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnInstantAdder<?> adder = ownerAdder.newOnInstantUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue(), crac));
                         break;
                     case USAGE_METHOD:
                         adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue(), version));

@@ -51,7 +51,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newFlowCnec().withId("cnec1prevId")
                 .withNetworkElement("ne4Id")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withOperator("operator1")
                 .withOptimized()
                 .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
@@ -61,7 +61,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newFlowCnec().withId("cnec1outageId")
                 .withNetworkElement("ne4Id")
-                .withInstant(Instant.OUTAGE)
+                .withInstant(crac.getInstant(Instant.Kind.OUTAGE))
                 .withContingency(contingency1Id)
                 .withOperator("operator1")
                 .withOptimized()
@@ -71,7 +71,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newFlowCnec().withId("cnec2prevId")
                 .withNetworkElement("ne5Id", "ne5Name")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withOperator("operator2")
                 .withOptimized()
                 .newThreshold().withSide(Side.LEFT).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
@@ -86,7 +86,7 @@ public final class ExhaustiveCracCreation {
         crac.newFlowCnec().withId("cnec3prevId")
                 .withName("cnec3prevName")
                 .withNetworkElement("ne2Id", "ne2Name")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.RIGHT).add()
@@ -97,7 +97,7 @@ public final class ExhaustiveCracCreation {
         crac.newFlowCnec().withId("cnec3autoId")
                 .withName("cnec3autoName")
                 .withNetworkElement("ne2Id", "ne2Name")
-                .withInstant(Instant.AUTO)
+                .withInstant(crac.getInstant(Instant.Kind.AUTO))
                 .withContingency(contingency2Id)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
@@ -108,7 +108,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newFlowCnec().withId("cnec3curId")
                 .withNetworkElement("ne2Id", "ne2Name")
-                .withInstant(Instant.CURATIVE)
+                .withInstant(crac.getInstant(Instant.Kind.CURATIVE))
                 .withContingency(contingency2Id)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
@@ -120,7 +120,7 @@ public final class ExhaustiveCracCreation {
         crac.newFlowCnec().withId("cnec4prevId")
                 .withName("cnec4prevName")
                 .withNetworkElement("ne3Id")
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withOperator("operator4")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(Side.LEFT).add()
                 .withReliabilityMargin(0.)
@@ -132,7 +132,7 @@ public final class ExhaustiveCracCreation {
                 .withName("angleCnecName")
                 .withExportingNetworkElement("eneId", "eneName")
                 .withImportingNetworkElement("ineId", "ineName")
-                .withInstant(Instant.CURATIVE)
+                .withInstant(crac.getInstant(Instant.Kind.CURATIVE))
                 .withContingency(contingency1Id)
                 .withOperator("operator1")
                 .newThreshold().withUnit(Unit.DEGREE).withMin(-100.).withMax(100.).add()
@@ -143,7 +143,7 @@ public final class ExhaustiveCracCreation {
         crac.newVoltageCnec().withId("voltageCnecId")
             .withName("voltageCnecName")
             .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(crac.getInstant(Instant.Kind.CURATIVE))
             .withContingency(contingency1Id)
             .withOperator("operator1")
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(380.).add()
@@ -156,8 +156,8 @@ public final class ExhaustiveCracCreation {
                 .withName("pstSetpointRaName")
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(crac.getInstant(Instant.Kind.CURATIVE)).add()
                 .add();
 
         // complex network action with one pst set point and one topology
@@ -166,8 +166,8 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
                 .add();
 
         // network action with one injection set point
@@ -175,7 +175,7 @@ public final class ExhaustiveCracCreation {
                 .withName("injectionSetpointRaName")
                 .withOperator("RTE")
                 .newInjectionSetPoint().withSetpoint(260).withNetworkElement("injection").add()
-                .newOnFlowConstraintUsageRule().withFlowCnec("cnec3autoId").withInstant(Instant.AUTO).add()
+                .newOnFlowConstraintUsageRule().withFlowCnec("cnec3autoId").withInstant(crac.getInstant(Instant.Kind.AUTO)).add()
                 .add();
 
         // network action with one switch pair
@@ -183,7 +183,7 @@ public final class ExhaustiveCracCreation {
                 .withName("switchPairRaName")
                 .withOperator("RTE")
                 .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency(contingency2Id).withInstant(Instant.CURATIVE).add()
+                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency(contingency2Id).withInstant(crac.getInstant(Instant.Kind.CURATIVE)).add()
                 .add();
 
         // range actions
@@ -195,7 +195,7 @@ public final class ExhaustiveCracCreation {
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).add()
                 .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")
@@ -207,7 +207,7 @@ public final class ExhaustiveCracCreation {
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3prevId").add()
+                .newOnFlowConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withFlowCnec("cnec3prevId").add()
                 .add();
 
         crac.newPstRangeAction().withId("pstRange3Id")
@@ -219,7 +219,7 @@ public final class ExhaustiveCracCreation {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec("angleCnecId").add()
+            .newOnAngleConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withAngleCnec("angleCnecId").add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange4Id")
@@ -231,7 +231,7 @@ public final class ExhaustiveCracCreation {
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("voltageCnecId").add()
+                .newOnVoltageConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withVoltageCnec("voltageCnecId").add()
                 .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange1Id")
@@ -239,7 +239,7 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .withNetworkElement("hvdc")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE).withCountry(Country.FR).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withCountry(Country.FR).add()
                 .add();
 
         crac.newHvdcRangeAction().withId("hvdcRange2Id")
@@ -248,9 +248,9 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElement("hvdc2")
                 .withGroupId("group-1-hvdc")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3curId").add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintUsageRule().withInstant(crac.getInstant(Instant.Kind.PREVENTIVE)).withFlowCnec("cnec3curId").add()
                 .add();
 
         crac.newInjectionRangeAction().withId("injectionRange1Id")
@@ -259,8 +259,8 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()
-                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withCountry(Country.ES).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(crac.getInstant(Instant.Kind.CURATIVE)).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         return crac;

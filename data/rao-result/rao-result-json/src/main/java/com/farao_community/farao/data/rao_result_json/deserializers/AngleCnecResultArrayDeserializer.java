@@ -44,32 +44,32 @@ final class AngleCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: angleCnec with id %s does not exist in the Crac", angleCnecId));
             }
             AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(angleCnec);
-            deserializeAngleCnecResult(jsonParser, angleCnecResult);
+            deserializeAngleCnecResult(jsonParser, angleCnecResult, crac);
         }
     }
 
-    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult) throws IOException {
+    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
             switch (jsonParser.getCurrentName()) {
                 case INITIAL_OPT_STATE:
                     jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.INITIAL);
+                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.initial(crac));
                     deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
                     break;
                 case AFTER_PRA_OPT_STATE:
                     jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_PRA);
+                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterPra(crac));
                     deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
                     break;
                 case AFTER_ARA_OPT_STATE:
                     jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_ARA);
+                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterAra(crac));
                     deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
                     break;
                 case AFTER_CRA_OPT_STATE:
                     jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA);
+                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterCra(crac));
                     deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
                     break;
                 default:

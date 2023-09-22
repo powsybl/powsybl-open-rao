@@ -67,21 +67,21 @@ class CriticalBranchReader {
 
     String getBaseCaseCnecId() {
         if (isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(Instant.PREVENTIVE.toString());
+            return criticalBranch.getId().concat(" - ").concat(Instant.Kind.PREVENTIVE.toString());
         }
         return null;
     }
 
     String getOutageCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(Instant.OUTAGE.toString());
+            return criticalBranch.getId().concat(" - ").concat(Instant.Kind.OUTAGE.toString());
         }
         return null;
     }
 
     String getCurativeCnecId() {
         if (!isBaseCase) {
-            return criticalBranch.getId().concat(" - ").concat(Instant.CURATIVE.toString());
+            return criticalBranch.getId().concat(" - ").concat(Instant.Kind.CURATIVE.toString());
         }
         return null;
     }
@@ -106,10 +106,10 @@ class CriticalBranchReader {
 
     void addCnecs(Crac crac) {
         if (isBaseCase) {
-            addCnecWithPermanentThreshold(crac, Instant.PREVENTIVE);
+            addCnecWithPermanentThreshold(crac, crac.getInstant(Instant.Kind.PREVENTIVE));
         } else {
             addOutageCnecWithTemporaryThreshold(crac);
-            addCnecWithPermanentThreshold(crac, Instant.CURATIVE);
+            addCnecWithPermanentThreshold(crac, crac.getInstant(Instant.Kind.CURATIVE));
         }
     }
 
@@ -177,7 +177,7 @@ class CriticalBranchReader {
     }
 
     private void addOutageCnecWithTemporaryThreshold(Crac crac) {
-        FlowCnecAdder curativeCnecAdder = createCnecAdder(crac, Instant.OUTAGE);
+        FlowCnecAdder curativeCnecAdder = createCnecAdder(crac, crac.getInstant(Instant.Kind.OUTAGE));
         addTemporaryThresholds(curativeCnecAdder);
         FlowCnec cnec = curativeCnecAdder.add();
         addLoopFlowExtension(cnec, criticalBranch);

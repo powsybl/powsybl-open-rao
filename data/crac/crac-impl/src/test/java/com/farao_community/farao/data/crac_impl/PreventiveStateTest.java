@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,21 +19,24 @@ class PreventiveStateTest {
 
     @Test
     void testEqualsForPreventive() {
-        PreventiveState state1 = new PreventiveState();
-        PreventiveState state2 = new PreventiveState();
+        Instant instant = new Instant(0, "preventive", Instant.Kind.PREVENTIVE);
+        PreventiveState state1 = new PreventiveState(instant);
+        PreventiveState state2 = new PreventiveState(instant);
 
         assertEquals(state1, state2);
     }
 
     @Test
     void testHashCodeForPreventive() {
-        PreventiveState state = new PreventiveState();
+        Instant instant = new Instant(0, "preventive", Instant.Kind.PREVENTIVE);
+        PreventiveState state = new PreventiveState(instant);
         assertEquals("preventive".hashCode(), state.hashCode());
     }
 
     @Test
     void testToStringForPreventive() {
-        PreventiveState state = new PreventiveState();
+        Instant instant = new Instant(0, "preventive", Instant.Kind.PREVENTIVE);
+        PreventiveState state = new PreventiveState(instant);
         assertEquals("preventive", state.toString());
     }
 }

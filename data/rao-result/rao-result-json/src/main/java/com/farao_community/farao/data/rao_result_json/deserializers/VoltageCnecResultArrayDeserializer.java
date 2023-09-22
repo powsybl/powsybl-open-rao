@@ -44,32 +44,32 @@ final class VoltageCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: voltageCnec with id %s does not exist in the Crac", voltageCnecId));
             }
             VoltageCnecResult voltageCnecResult = raoResult.getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
-            deserializeVoltageCnecResult(jsonParser, voltageCnecResult);
+            deserializeVoltageCnecResult(jsonParser, voltageCnecResult, crac);
         }
     }
 
-    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult) throws IOException {
+    private static void deserializeVoltageCnecResult(JsonParser jsonParser, VoltageCnecResult voltageCnecResult, Crac crac) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryVoltageCnecResult eVoltageCnecResult;
             switch (jsonParser.getCurrentName()) {
                 case INITIAL_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.INITIAL);
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.initial(crac));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 case AFTER_PRA_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_PRA);
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterPra(crac));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 case AFTER_ARA_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_ARA);
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterAra(crac));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 case AFTER_CRA_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA);
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterCra(crac));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 default:

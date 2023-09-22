@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -25,14 +26,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
-import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -92,7 +90,7 @@ class AbsolutePtdfSumsComputationTest {
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
-                .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
+                .getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
                 new ZoneToZonePtdfDefinition("{FR}-{BE}"),
@@ -115,7 +113,7 @@ class AbsolutePtdfSumsComputationTest {
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
-                .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
+                .getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
         Crac crac = CommonCracCreation.create(Set.of(Side.LEFT, Side.RIGHT));
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
                 new ZoneToZonePtdfDefinition("{FR}-{BE}"),
@@ -140,7 +138,7 @@ class AbsolutePtdfSumsComputationTest {
         // prepare data
         Network network = Network.read("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_with_virtual_hubs.xml"))
-                .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
+                .getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
 
         Crac crac = CracFactory.findDefault().create("cracId");
 
@@ -156,14 +154,14 @@ class AbsolutePtdfSumsComputationTest {
         crac.newFlowCnec()
                 .withId("cnec1-in-basecase")
                 .withNetworkElement("NNL2AA1  NNL3AA1  1")
-                .withInstant(PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .withOptimized(true)
                 .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
                 .add();
         crac.newFlowCnec()
                 .withId("cnec1-after-internal-contingency")
                 .withNetworkElement("NNL2AA1  NNL3AA1  1")
-                .withInstant(CURATIVE)
+                .withInstant(crac.getInstant(Instant.Kind.CURATIVE))
                 .withContingency("contingency-on-internal-line")
                 .withOptimized(true)
                 .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
@@ -171,7 +169,7 @@ class AbsolutePtdfSumsComputationTest {
         crac.newFlowCnec()
                 .withId("cnec1-after-contingency-on-xNode")
                 .withNetworkElement("NNL2AA1  NNL3AA1  1")
-                .withInstant(CURATIVE)
+                .withInstant(crac.getInstant(Instant.Kind.CURATIVE))
                 .withContingency("contingency-on-xnode")
                 .withOptimized(true)
                 .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()

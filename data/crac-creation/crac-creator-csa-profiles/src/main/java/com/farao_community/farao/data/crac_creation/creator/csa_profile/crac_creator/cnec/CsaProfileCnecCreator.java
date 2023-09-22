@@ -124,7 +124,7 @@ public class CsaProfileCnecCreator {
             flowCnecAdder.withContingency(null)
                 .withId(assessedElementId)
                 .withName(flowCnecName)
-                .withInstant(Instant.PREVENTIVE)
+                .withInstant(crac.getInstant(Instant.Kind.PREVENTIVE))
                 .add();
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, flowCnecName, "", false));
         }
@@ -324,7 +324,8 @@ public class CsaProfileCnecCreator {
     private boolean addInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
         this.currentFlowCnecInstant = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND);
-        Instant instant = null;
+        Instant.Kind instantKind = null;
+        // TODO : handle multiple curative instants here
 
         if (CsaProfileConstants.LimitKind.TATL.toString().equals(kind)) {
             String acceptableDurationStr = currentLimit.get(CsaProfileConstants.REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
@@ -333,23 +334,23 @@ public class CsaProfileCnecCreator {
                 csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.acceptableDuration is incorrect : " + acceptableDurationStr));
                 return false;
             } else if (acceptableDuration == 0) {
-                instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
+                instantKind = inBaseCase ? Instant.Kind.PREVENTIVE : Instant.Kind.CURATIVE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_OUTAGE_INSTANT.getLimit()) {
-                instant = Instant.OUTAGE;
+                instantKind = Instant.Kind.OUTAGE;
             } else if (acceptableDuration <= CracCreationParameters.DurationThresholdsLimits.DURATION_THRESHOLDS_LIMITS_MAX_AUTO_INSTANT.getLimit()) {
-                instant = Instant.AUTO;
+                instantKind = Instant.Kind.AUTO;
             } else {
-                instant = Instant.CURATIVE;
+                instantKind = Instant.Kind.CURATIVE;
             }
-            flowCnecAdder.withInstant(instant);
+            flowCnecAdder.withInstant(crac.getInstant(instantKind));
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
-            instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
-            flowCnecAdder.withInstant(instant);
+            instantKind = inBaseCase ? Instant.Kind.PREVENTIVE : Instant.Kind.CURATIVE;
+            flowCnecAdder.withInstant(crac.getInstant(instantKind));
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
             return false;
         }
-        this.currentFlowCnecInstant = instant;
+        this.currentFlowCnecInstant = crac.getInstant(instantKind);
         return true;
     }
 

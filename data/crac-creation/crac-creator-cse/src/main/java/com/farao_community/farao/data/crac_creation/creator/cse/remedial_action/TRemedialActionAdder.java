@@ -319,27 +319,27 @@ public class TRemedialActionAdder {
         }
     }
 
-    private static Instant getInstant(TApplication tApplication) {
+    private static Instant getInstant(TApplication tApplication, Crac crac) {
         switch (tApplication.getV()) {
             case "PREVENTIVE":
-                return Instant.PREVENTIVE;
+                return crac.getInstant(Instant.Kind.PREVENTIVE);
             case "SPS":
-                return Instant.AUTO;
+                return crac.getInstant(Instant.Kind.AUTO);
             case "CURATIVE":
-                return Instant.CURATIVE;
+                return crac.getInstant(Instant.Kind.CURATIVE);
             default:
                 throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
         }
     }
 
     void addUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {
-        Instant raApplicationInstant = getInstant(tRemedialAction.getApplication());
+        Instant raApplicationInstant = getInstant(tRemedialAction.getApplication(), crac);
         addOnFlowConstraintUsageRules(remedialActionAdder, tRemedialAction, raApplicationInstant);
 
         // According to <SharedWith> tag :
         String sharedWithId = tRemedialAction.getSharedWith().getV();
         if (sharedWithId.equals("CSE")) {
-            if (raApplicationInstant.equals(Instant.AUTO)) {
+            if (raApplicationInstant.isAuto()) {
                 throw new FaraoException("Cannot import automatons from CSE CRAC yet");
             } else {
                 addOnInstantUsageRules(remedialActionAdder, raApplicationInstant);
