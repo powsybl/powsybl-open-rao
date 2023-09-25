@@ -17,15 +17,14 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
+import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
-import com.farao_community.farao.search_tree_rao.castor.algorithm.ContingencyScenario;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import org.apache.commons.lang3.StringUtils;
 
@@ -267,7 +266,7 @@ public final class RaoLogger {
                 initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost()), formatDouble(preOptimObjectiveFunctionResult.getFunctionalCost()), formatDouble(preOptimObjectiveFunctionResult.getVirtualCost()), initialVirtualCostDetailed);
             }
         }
-        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState.getInstant()),
+        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, "after optimizing " + optimizedState.getInstant(),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
     }
 

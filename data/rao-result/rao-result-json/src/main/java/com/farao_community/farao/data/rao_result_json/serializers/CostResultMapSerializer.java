@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -28,30 +28,30 @@ final class CostResultMapSerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
-        serializeCostResultForOptimizationState(OptimizationState.initial(crac), raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(OptimizationState.afterPra(crac), raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(OptimizationState.afterAra(crac), raoResult, jsonGenerator);
-        serializeCostResultForOptimizationState(OptimizationState.afterCra(crac), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(null, raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(crac.getInstant(Instant.Kind.PREVENTIVE), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(crac.getInstant(Instant.Kind.AUTO), raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(crac.getInstant(Instant.Kind.CURATIVE), raoResult, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeCostResultForOptimizationState(OptimizationState optState, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
-        double functionalCost = raoResult.getFunctionalCost(optState);
+    private static void serializeCostResultForOptimizationState(Instant optInstant, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+        double functionalCost = raoResult.getFunctionalCost(optInstant);
         boolean isFunctionalCostNaN = Double.isNaN(functionalCost);
 
-        if (isFunctionalCostNaN && Double.isNaN(raoResult.getVirtualCost(optState))) {
+        if (isFunctionalCostNaN && Double.isNaN(raoResult.getVirtualCost(optInstant))) {
             return;
         }
 
-        jsonGenerator.writeObjectFieldStart(serializeOptimizationState(optState));
+        jsonGenerator.writeObjectFieldStart(serializeOptimizationState(optInstant));
         if (!isFunctionalCostNaN) {
             jsonGenerator.writeNumberField(FUNCTIONAL_COST, Math.round(100.0 * functionalCost) / 100.0);
         }
 
-        if (containAnyVirtualCostForOptimizationState(raoResult, optState)) {
+        if (containAnyVirtualCostForOptimizationState(raoResult, optInstant)) {
             jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
             for (String virtualCostName : raoResult.getVirtualCostNames()) {
-                double virtualCostForAGivenName = raoResult.getVirtualCost(optState, virtualCostName);
+                double virtualCostForAGivenName = raoResult.getVirtualCost(optInstant, virtualCostName);
                 if (!Double.isNaN(virtualCostForAGivenName)) {
                     jsonGenerator.writeNumberField(virtualCostName, Math.round(100.0 * virtualCostForAGivenName) / 100.0);
                 }
@@ -61,8 +61,8 @@ final class CostResultMapSerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean containAnyVirtualCostForOptimizationState(RaoResult raoResult, OptimizationState optState) {
+    private static boolean containAnyVirtualCostForOptimizationState(RaoResult raoResult, Instant optInstant) {
         return !Objects.isNull(raoResult.getVirtualCostNames()) &&
-            raoResult.getVirtualCostNames().stream().anyMatch(costName -> !Double.isNaN(raoResult.getVirtualCost(optState, costName)));
+            raoResult.getVirtualCostNames().stream().anyMatch(costName -> !Double.isNaN(raoResult.getVirtualCost(optInstant, costName)));
     }
 }

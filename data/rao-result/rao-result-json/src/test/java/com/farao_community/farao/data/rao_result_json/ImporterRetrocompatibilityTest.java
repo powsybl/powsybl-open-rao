@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_io_json.JsonImport;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import org.junit.jupiter.api.Test;
 
@@ -152,10 +151,10 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testBaseContentOfV1RaoResult(RaoResult importedRaoResult, Crac crac) {
-        OptimizationState initial = OptimizationState.initial(crac);
-        OptimizationState afterPra = OptimizationState.afterPra(crac);
-        OptimizationState afterAra = OptimizationState.afterAra(crac);
-        OptimizationState afterCra = OptimizationState.afterCra(crac);
+        Instant initial = null;
+        Instant afterPra = crac.getInstant(Instant.Kind.PREVENTIVE);
+        Instant afterAra = crac.getInstant(Instant.Kind.AUTO);
+        Instant afterCra = crac.getInstant(Instant.Kind.CURATIVE);
 
         // --------------------------
         // --- Computation status ---
@@ -400,10 +399,10 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testExtraContentOfV1Point1RaoResult(RaoResult importedRaoResult, Crac crac) {
-        OptimizationState initial = OptimizationState.initial(crac);
-        OptimizationState afterPra = OptimizationState.afterPra(crac);
-        OptimizationState afterAra = OptimizationState.afterAra(crac);
-        OptimizationState afterCra = OptimizationState.afterCra(crac);
+        Instant initial = null;
+        Instant afterPra = crac.getInstant(Instant.Kind.PREVENTIVE);
+        Instant afterAra = crac.getInstant(Instant.Kind.AUTO);
+        Instant afterCra = crac.getInstant(Instant.Kind.CURATIVE);
 
         assertEquals(-1, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), crac.getPstRangeAction("pstRange3Id")));
 
@@ -433,10 +432,10 @@ class ImporterRetrocompatibilityTest {
     }
 
     private void testBaseContentOfV1Point2RaoResult(RaoResult importedRaoResult, Crac crac) {
-        OptimizationState initial = OptimizationState.initial(crac);
-        OptimizationState afterPra = OptimizationState.afterPra(crac);
-        OptimizationState afterAra = OptimizationState.afterAra(crac);
-        OptimizationState afterCra = OptimizationState.afterCra(crac);
+        Instant initial = null;
+        Instant afterPra = crac.getInstant(Instant.Kind.PREVENTIVE);
+        Instant afterAra = crac.getInstant(Instant.Kind.AUTO);
+        Instant afterCra = crac.getInstant(Instant.Kind.CURATIVE);
         // --------------------------
         // --- Computation status ---
         // --------------------------

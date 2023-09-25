@@ -24,7 +24,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.PstRangeActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,15 +69,15 @@ public final class CoreCneRemedialActionsCreator {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();
 
         List<PstRangeAction> sortedRangeActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
-                .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
-                .filter(ra -> !Objects.isNull(ra))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
+            .map(raCreationContext -> cneHelper.getCrac().getPstRangeAction(raCreationContext.getCreatedRAId()))
+            .filter(ra -> !Objects.isNull(ra))
+            .collect(Collectors.toList());
         List<NetworkAction> sortedNetworkActions = cracCreationContext.getRemedialActionCreationContexts().stream()
-                .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
-                .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
-                .filter(ra -> !Objects.isNull(ra))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparing(RemedialActionCreationContext::getNativeId))
+            .map(raCreationContext -> cneHelper.getCrac().getNetworkAction(raCreationContext.getCreatedRAId()))
+            .filter(ra -> !Objects.isNull(ra))
+            .collect(Collectors.toList());
 
         logMissingRangeActions();
         List<PstRangeAction> usedRangeActions = sortedRangeActions.stream().filter(this::isRangeActionUsedInRao).collect(Collectors.toList());
@@ -115,10 +114,10 @@ public final class CoreCneRemedialActionsCreator {
     private RemedialActionSeries createPreOptimRangeRemedialActionSeries(PstRangeAction pstRangeAction) {
         PstRangeActionCreationContext context = (PstRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContexts().stream().filter(raContext -> pstRangeAction.getId().equals(raContext.getCreatedRAId())).findFirst().orElseThrow();
         int initialTap = (context.isInverted() ? -1 : 1) * pstRangeAction.getInitialTap();
-        RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(pstRangeAction.getId(), pstRangeAction.getName(), pstRangeAction.getOperator(), OptimizationState.initial(cracCreationContext.getCrac()));
+        RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(pstRangeAction.getId(), pstRangeAction.getName(), pstRangeAction.getOperator(), null);
         pstRangeAction.getNetworkElements().forEach(networkElement -> {
             RemedialActionRegisteredResource registeredResource = newRemedialActionRegisteredResource(context.getNativeId(), context.getNativeNetworkElementId(),
-                    PST_RANGE_PSR_TYPE, initialTap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
+                PST_RANGE_PSR_TYPE, initialTap, WITHOUT_UNIT_SYMBOL, ABSOLUTE_MARKET_OBJECT_STATUS);
             remedialActionSeries.getRegisteredResource().add(registeredResource);
             remedialActionSeries.setMRID(createRangeActionId(remedialActionSeries.getMRID()));
         });
@@ -127,13 +126,13 @@ public final class CoreCneRemedialActionsCreator {
 
     private ConstraintSeries createPostPraRaConstraintSeries(List<PstRangeAction> sortedRangeActions, List<NetworkAction> sortedNetworkActions) {
         ConstraintSeries preventiveB56 = newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
-        sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, OptimizationState.afterPra(cneHelper.getCrac()), cneHelper.getCrac().getPreventiveState(), preventiveB56));
-        sortedNetworkActions.forEach(networkAction -> createPostOptimNetworkRemedialActionSeries(networkAction, OptimizationState.afterPra(cneHelper.getCrac()), cneHelper.getCrac().getPreventiveState(), preventiveB56));
+        sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE), cneHelper.getCrac().getPreventiveState(), preventiveB56));
+        sortedNetworkActions.forEach(networkAction -> createPostOptimNetworkRemedialActionSeries(networkAction, cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE), cneHelper.getCrac().getPreventiveState(), preventiveB56));
 
         // Add the remedial action series to B54 and B57
         List<ConstraintSeries> basecaseConstraintSeriesList = cnecsConstraintSeries.stream()
-                .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE))
-                .collect(Collectors.toList());
+            .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE) || constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE))
+            .collect(Collectors.toList());
         addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), basecaseConstraintSeriesList);
         return preventiveB56;
     }
@@ -148,14 +147,14 @@ public final class CoreCneRemedialActionsCreator {
             ConstraintSeries curativeB56 = newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
             ContingencySeries contingencySeries = newContingencySeries(contingency.getId(), contingency.getName());
             curativeB56.getContingencySeries().add(contingencySeries);
-            sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, OptimizationState.afterCra(cneHelper.getCrac()), curativeState, curativeB56));
-            sortedNetworkActions.forEach(networkAction -> createPostOptimNetworkRemedialActionSeries(networkAction, OptimizationState.afterCra(cneHelper.getCrac()), curativeState, curativeB56));
+            sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE), curativeState, curativeB56));
+            sortedNetworkActions.forEach(networkAction -> createPostOptimNetworkRemedialActionSeries(networkAction, cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE), curativeState, curativeB56));
             if (!curativeB56.getRemedialActionSeries().isEmpty()) {
                 // Add remedial actions to corresponding CNECs' B54
                 List<ConstraintSeries> contingencyConstraintSeriesList = cnecsConstraintSeries.stream()
-                        .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)
-                                && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName())))
-                        .collect(Collectors.toList());
+                    .filter(constraintSeries -> constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)
+                        && constraintSeries.getContingencySeries().stream().anyMatch(series -> series.getName().equals(contingency.getName())))
+                    .collect(Collectors.toList());
                 addRemedialActionsToOtherConstraintSeries(curativeB56.getRemedialActionSeries(), contingencyConstraintSeriesList);
                 // Add B56 to document
                 constraintSeriesList.add(curativeB56);
@@ -164,9 +163,9 @@ public final class CoreCneRemedialActionsCreator {
         return constraintSeriesList;
     }
 
-    public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, OptimizationState optimizationState, State state, ConstraintSeries constraintSeriesB56) {
+    public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, Instant optimizedInstant, State state, ConstraintSeries constraintSeriesB56) {
         if (rangeAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+            usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -174,19 +173,19 @@ public final class CoreCneRemedialActionsCreator {
         // that's why we use getActivatedRangeActionsDuringState instead
         boolean isActivated = cneHelper.getRaoResult().getActivatedRangeActionsDuringState(state).contains(rangeAction);
         if (isActivated && !rangeAction.getNetworkElements().isEmpty()) {
-            RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), optimizationState);
+            RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(rangeAction.getId(), rangeAction.getName(), rangeAction.getOperator(), optimizedInstant);
             createPstRangeActionRegisteredResource(rangeAction, state, remedialActionSeries);
             constraintSeriesB56.getRemedialActionSeries().add(remedialActionSeries);
         }
     }
 
-    private RemedialActionSeries createB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, OptimizationState optimizationState) {
+    private RemedialActionSeries createB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, Instant optimizedInstant) {
         String marketObjectStatus = null;
-        if (optimizationState.getOptimizedInstant() == null) {
+        if (optimizedInstant == null) {
             // nothing to do
-        }        else if (optimizationState.getOptimizedInstant().isPreventive()) {
+        } else if (optimizedInstant.isPreventive()) {
             marketObjectStatus = PREVENTIVE_MARKET_OBJECT_STATUS;
-        } else if (optimizationState.getOptimizedInstant().isCurative()) {
+        } else if (optimizedInstant.isCurative()) {
             marketObjectStatus = CURATIVE_MARKET_OBJECT_STATUS;
         } else {
             throw new FaraoException("Unknown CNE state");
@@ -205,8 +204,8 @@ public final class CoreCneRemedialActionsCreator {
         return remedialActionSeries;
     }
 
-    private void fillB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, OptimizationState optimizationState, ConstraintSeries constraintSeries) {
-        RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(remedialActionId, remedialActionName, operator, optimizationState);
+    private void fillB56ConstraintSeries(String remedialActionId, String remedialActionName, String operator, Instant optimizedInstant, ConstraintSeries constraintSeries) {
+        RemedialActionSeries remedialActionSeries = createB56RemedialActionSeries(remedialActionId, remedialActionName, operator, optimizedInstant);
         constraintSeries.getRemedialActionSeries().add(remedialActionSeries);
     }
 
@@ -222,9 +221,9 @@ public final class CoreCneRemedialActionsCreator {
         return cutString(mRid, 55);
     }
 
-    public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, OptimizationState optimizationState, State state, ConstraintSeries constraintSeriesB56) {
+    public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, Instant optimizedInstant, State state, ConstraintSeries constraintSeriesB56) {
         if (networkAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+            usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -232,7 +231,7 @@ public final class CoreCneRemedialActionsCreator {
         // that's why we use getActivatedNetworkActionsDuringState instead
         boolean isActivated = cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(state).contains(networkAction);
         if (isActivated && !networkAction.getNetworkElements().isEmpty()) {
-            fillB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), optimizationState, constraintSeriesB56);
+            fillB56ConstraintSeries(networkAction.getId(), networkAction.getName(), networkAction.getOperator(), optimizedInstant, constraintSeriesB56);
         }
     }
 

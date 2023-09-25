@@ -10,9 +10,9 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
 import com.farao_community.farao.data.rao_result_impl.FlowCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -55,9 +55,9 @@ final class FlowCnecResultArrayDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
             // TODO : handle this only for old versions, for new version do something different
-            OptimizationState optState = deserializeOptimizationState(jsonParser.getCurrentName(), jsonFileVersion, crac);
+            Instant optInstant = deserializeOptimizationState(jsonParser.getCurrentName(), jsonFileVersion, crac);
             jsonParser.nextToken();
-            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optState);
+            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optInstant);
             deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
         }
     }

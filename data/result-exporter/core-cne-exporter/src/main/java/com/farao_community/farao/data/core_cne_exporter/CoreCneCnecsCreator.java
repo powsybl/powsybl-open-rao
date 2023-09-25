@@ -22,7 +22,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.UcteCracCreationContext;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -157,33 +156,33 @@ public final class CoreCneCnecsCreator {
 
     private List<Analog> createB88MeasurementsOfCnec(FlowCnec permanentCnec, FlowCnec temporaryCnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(permanentCnec, OptimizationState.initial(cneHelper.getCrac()), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(permanentCnec, OptimizationState.initial(cneHelper.getCrac()), asMnec, false, shouldInvertBranchDirection));
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(temporaryCnec, OptimizationState.initial(cneHelper.getCrac()), asMnec, true, shouldInvertBranchDirection));
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(permanentCnec, null, true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(permanentCnec, null, asMnec, false, shouldInvertBranchDirection));
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(temporaryCnec, null, asMnec, true, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
     }
 
     private List<Analog> createB57MeasurementsOfCnec(FlowCnec cnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, OptimizationState.afterPra(cneHelper.getCrac()), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, OptimizationState.afterPra(cneHelper.getCrac()), asMnec, true, shouldInvertBranchDirection));
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE), asMnec, true, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
     }
 
     private List<Analog> createB54MeasurementsOfCnec(FlowCnec cnec, boolean asMnec, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
-        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, OptimizationState.afterCra(cneHelper.getCrac()), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
-        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, OptimizationState.afterCra(cneHelper.getCrac()), asMnec, false, shouldInvertBranchDirection));
+        measurements.addAll(createFlowMeasurementsOfFlowCnec(cnec, cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE), true, shouldInvertBranchDirection)); // TODO : replace true with !asMnec when we go back to proper implementation
+        measurements.addAll(createMarginMeasurementsOfFlowCnec(cnec, cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE), asMnec, false, shouldInvertBranchDirection));
         measurements.sort(new AnalogComparator());
         return measurements;
     }
 
-    private List<Analog> createFlowMeasurementsOfFlowCnec(FlowCnec cnec, OptimizationState optimizationState, boolean withSumPtdf, boolean shouldInvertBranchDirection) {
+    private List<Analog> createFlowMeasurementsOfFlowCnec(FlowCnec cnec, Instant optimizedInstant, boolean withSumPtdf, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
         // A01
-        measurements.add(createFlowMeasurement(cnec, optimizationState, Unit.MEGAWATT, shouldInvertBranchDirection));
+        measurements.add(createFlowMeasurement(cnec, optimizedInstant, Unit.MEGAWATT, shouldInvertBranchDirection));
         // Z11
         if (withSumPtdf && cneHelper.isRelativePositiveMargins()) {
             measurements.add(createPtdfZonalSumMeasurement(cnec));
@@ -192,74 +191,74 @@ public final class CoreCneCnecsCreator {
         measurements.add(createFrmMeasurement(cnec));
         if (cneHelper.isWithLoopflows()) {
             // Z16 & Z17
-            measurements.addAll(createLoopflowMeasurements(cnec, optimizationState, shouldInvertBranchDirection));
+            measurements.addAll(createLoopflowMeasurements(cnec, optimizedInstant, shouldInvertBranchDirection));
         }
         return measurements;
     }
 
-    private List<Analog> createMarginMeasurementsOfFlowCnec(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, boolean isTemporary, boolean shouldInvertBranchDirection) {
+    private List<Analog> createMarginMeasurementsOfFlowCnec(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, boolean isTemporary, boolean shouldInvertBranchDirection) {
         List<Analog> measurements = new ArrayList<>();
         String measurementType;
         for (Unit unit : List.of(Unit.AMPERE, Unit.MEGAWATT)) {
             // A02 / A07
             measurementType = isTemporary ? TATL_MEASUREMENT_TYPE : PATL_MEASUREMENT_TYPE;
-            measurements.add(createThresholdMeasurement(cnec, optimizationState, asMnec, unit, measurementType, shouldInvertBranchDirection));
+            measurements.add(createThresholdMeasurement(cnec, optimizedInstant, asMnec, unit, measurementType, shouldInvertBranchDirection));
         }
         // Z12 / Z14
         measurementType = isTemporary ? ABS_MARG_TATL_MEASUREMENT_TYPE : ABS_MARG_PATL_MEASUREMENT_TYPE;
-        measurements.add(createMarginMeasurement(cnec, optimizationState, asMnec, Unit.MEGAWATT, measurementType));
+        measurements.add(createMarginMeasurement(cnec, optimizedInstant, asMnec, Unit.MEGAWATT, measurementType));
         // Z13 / Z15
         if (true) { // (!asMnec) { TODO : reactivate this when we go back to proper implementation
             measurementType = isTemporary ? OBJ_FUNC_TATL_MEASUREMENT_TYPE : OBJ_FUNC_PATL_MEASUREMENT_TYPE;
-            measurements.add(createObjectiveValueMeasurement(cnec, optimizationState, asMnec, Unit.MEGAWATT, measurementType));
+            measurements.add(createObjectiveValueMeasurement(cnec, optimizedInstant, asMnec, Unit.MEGAWATT, measurementType));
         }
         return measurements;
     }
 
-    private double getCnecFlow(FlowCnec cnec, Side side, OptimizationState optimizationState) {
-        OptimizationState resultState = optimizationState;
-        if (resultState.equals(OptimizationState.afterCra(cneHelper.getCrac())) && cnec.getState().getInstant().isPreventive()) {
-            resultState = OptimizationState.afterPra(cneHelper.getCrac());
+    private double getCnecFlow(FlowCnec cnec, Side side, Instant optimizedInstant) {
+        Instant resultState = optimizedInstant;
+        if (resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
+            resultState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
 
-    private double getCnecMargin(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
-        OptimizationState resultState = optimizationState;
-        if (resultState.equals(OptimizationState.afterCra(cneHelper.getCrac())) && cnec.getState().getInstant().isPreventive()) {
-            resultState = OptimizationState.afterPra(cneHelper.getCrac());
+    private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
+        Instant resultState = optimizedInstant;
+        if (resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
+            resultState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         return getThresholdToMarginMap(cnec, resultState, asMnec, unit, deductFrmFromThreshold).values().stream().min(Double::compareTo).orElseThrow();
     }
 
-    private double getCnecRelativeMargin(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit) {
-        double absoluteMargin = getCnecMargin(cnec, optimizationState, asMnec, unit, true);
-        OptimizationState resultState = optimizationState;
-        if (resultState.equals(OptimizationState.afterCra(cneHelper.getCrac())) && cnec.getState().getInstant().isPreventive()) {
-            resultState = OptimizationState.afterPra(cneHelper.getCrac());
+    private double getCnecRelativeMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit) {
+        double absoluteMargin = getCnecMargin(cnec, optimizedInstant, asMnec, unit, true);
+        Instant resultState = optimizedInstant;
+        if (resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
+            resultState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
     }
 
-    private Analog createFlowMeasurement(FlowCnec cnec, OptimizationState optimizationState, Unit unit, boolean shouldInvertBranchDirection) {
+    private Analog createFlowMeasurement(FlowCnec cnec, Instant optimizedInstant, Unit unit, boolean shouldInvertBranchDirection) {
         double invert = shouldInvertBranchDirection ? -1 : 1;
-        return newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, invert * getCnecFlow(cnec, getMonitoredSide(cnec), optimizationState));
+        return newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, invert * getCnecFlow(cnec, getMonitoredSide(cnec), optimizedInstant));
     }
 
-    private Analog createThresholdMeasurement(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, String measurementType, boolean shouldInvertBranchDirection) {
-        double threshold = getClosestThreshold(cnec, optimizationState, asMnec, unit);
+    private Analog createThresholdMeasurement(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, String measurementType, boolean shouldInvertBranchDirection) {
+        double threshold = getClosestThreshold(cnec, optimizedInstant, asMnec, unit);
         double invert = shouldInvertBranchDirection ? -1 : 1;
         return newFlowMeasurement(measurementType, unit, invert * threshold);
     }
 
-    private Analog createMarginMeasurement(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, String measurementType) {
-        return newFlowMeasurement(measurementType, unit, getCnecMargin(cnec, optimizationState, asMnec, unit, false));
+    private Analog createMarginMeasurement(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, String measurementType) {
+        return newFlowMeasurement(measurementType, unit, getCnecMargin(cnec, optimizedInstant, asMnec, unit, false));
     }
 
-    private Analog createObjectiveValueMeasurement(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, String measurementType) {
-        double margin = getCnecMargin(cnec, optimizationState, asMnec, unit, true);
+    private Analog createObjectiveValueMeasurement(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, String measurementType) {
+        double margin = getCnecMargin(cnec, optimizedInstant, asMnec, unit, true);
         if (cneHelper.isRelativePositiveMargins() && margin > 0) {
-            margin = getCnecRelativeMargin(cnec, optimizationState, asMnec, unit);
+            margin = getCnecRelativeMargin(cnec, optimizedInstant, asMnec, unit);
         }
         return newFlowMeasurement(measurementType, unit, margin);
     }
@@ -268,8 +267,8 @@ public final class CoreCneCnecsCreator {
      * Select the threshold closest to the flow, that will be added in the measurement.
      * This is useful when a cnec has both a Max and a Min threshold.
      */
-    private double getClosestThreshold(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit) {
-        Map<Double, Double> thresholdToMarginMap = getThresholdToMarginMap(cnec, optimizationState, asMnec, unit, false);
+    private double getClosestThreshold(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit) {
+        Map<Double, Double> thresholdToMarginMap = getThresholdToMarginMap(cnec, optimizedInstant, asMnec, unit, false);
         if (thresholdToMarginMap.isEmpty()) {
             return 0;
         }
@@ -281,14 +280,14 @@ public final class CoreCneCnecsCreator {
      * If the CNEC is also a MNEC, extra thresholds corresponding to the MNEc constraints are returned
      *
      * @param cnec              the FlowCnec
-     * @param optimizationState the OptimizationState for computing margins
+     * @param optimizedInstant the Instant for computing margins
      * @param asMnec            true if it should be treated as a MNEC
      * @param unit              the unit of the threshold and margin
      */
-    private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, OptimizationState optimizationState, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
+    private Map<Double, Double> getThresholdToMarginMap(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Map<Double, Double> thresholdToMarginMap = new HashMap<>();
         Side side = getMonitoredSide(cnec);
-        double flow = getCnecFlow(cnec, side, optimizationState);
+        double flow = getCnecFlow(cnec, side, optimizedInstant);
         if (!Double.isNaN(flow)) {
             if (false) {
                 // TODO : reactivate this for MNECs (if (asMnec)) when we should go back to the full version
@@ -317,7 +316,7 @@ public final class CoreCneCnecsCreator {
     private void getThresholdToMarginMapAsMnec(FlowCnec cnec, Unit unit, Map<Double, Double> thresholdToMarginMap, double flow, Side side) {
         // Look at thresholds computed using initial flow
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec, side, Unit.MEGAWATT, unit);
-        double initialFlow = getCnecFlow(cnec, getMonitoredSide(cnec), OptimizationState.initial(cneHelper.getCrac())) * flowUnitMultiplier;
+        double initialFlow = getCnecFlow(cnec, getMonitoredSide(cnec), null) * flowUnitMultiplier;
         double tolerance = cneHelper.getMnecAcceptableMarginDiminution() * flowUnitMultiplier;
 
         double mnecUpperThreshold = Math.max(cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE), initialFlow + tolerance);
@@ -334,14 +333,14 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createPtdfZonalSumMeasurement(FlowCnec cnec) {
-        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(OptimizationState.initial(cneHelper.getCrac()), cnec, getMonitoredSide(cnec));
+        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(null, cnec, getMonitoredSide(cnec));
         return newPtdfMeasurement(SUM_PTDF_MEASUREMENT_TYPE, absPtdfSum);
     }
 
-    private List<Analog> createLoopflowMeasurements(FlowCnec cnec, OptimizationState optimizationState, boolean shouldInvertBranchDirection) {
-        OptimizationState resultOptimState = optimizationState;
-        if (optimizationState.equals(OptimizationState.afterCra(cneHelper.getCrac())) && cnec.getState().isPreventive()) {
-            resultOptimState = OptimizationState.afterPra(cneHelper.getCrac());
+    private List<Analog> createLoopflowMeasurements(FlowCnec cnec, Instant optimizedInstant, boolean shouldInvertBranchDirection) {
+        Instant resultOptimState = optimizedInstant;
+        if (optimizedInstant.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().isPreventive()) {
+            resultOptimState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         List<Analog> measurements = new ArrayList<>();
         try {

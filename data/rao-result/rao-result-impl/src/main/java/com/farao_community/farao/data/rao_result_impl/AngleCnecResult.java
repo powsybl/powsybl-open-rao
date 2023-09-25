@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.crac_api.Instant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,18 +17,18 @@ import java.util.Map;
 public class AngleCnecResult {
 
     private static final ElementaryAngleCnecResult DEFAULT_RESULT = new ElementaryAngleCnecResult();
-    private final Map<OptimizationState, ElementaryAngleCnecResult> results;
+    private final Map<Instant, ElementaryAngleCnecResult> resultPerOptimizedInstant;
 
     AngleCnecResult() {
-        results = new HashMap<>();
+        resultPerOptimizedInstant = new HashMap<>();
     }
 
-    public ElementaryAngleCnecResult getResult(OptimizationState optimizationState) {
-        return results.getOrDefault(optimizationState, DEFAULT_RESULT);
+    public ElementaryAngleCnecResult getResult(Instant optimizedInstant) {
+        return resultPerOptimizedInstant.getOrDefault(optimizedInstant, DEFAULT_RESULT);
     }
 
-    public ElementaryAngleCnecResult getAndCreateIfAbsentResultForOptimizationState(OptimizationState optimizationState) {
-        results.putIfAbsent(optimizationState, new ElementaryAngleCnecResult());
-        return results.get(optimizationState);
+    public ElementaryAngleCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
+        resultPerOptimizedInstant.putIfAbsent(optimizedInstant, new ElementaryAngleCnecResult());
+        return resultPerOptimizedInstant.get(optimizedInstant);
     }
 }

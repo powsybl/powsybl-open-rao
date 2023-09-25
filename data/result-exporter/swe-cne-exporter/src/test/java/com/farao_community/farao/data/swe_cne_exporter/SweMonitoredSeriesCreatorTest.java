@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.Cim
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
 import com.powsybl.iidm.network.Branch;
@@ -192,8 +191,8 @@ class SweMonitoredSeriesCreatorTest {
         }
         FlowCnec flowCnec = crac.getFlowCnec(cnecId);
         Mockito.when(flowCnec.getMonitoredSides()).thenReturn(Set.of(Side.LEFT, Side.RIGHT));
-        Mockito.when(raoResult.getFlow(OptimizationState.afterOptimizing(instant), flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(flow);
-        Mockito.when(raoResult.getFlow(OptimizationState.afterOptimizing(instant), flowCnec, Side.RIGHT, Unit.AMPERE)).thenReturn(flow + 10);
+        Mockito.when(raoResult.getFlow(instant, flowCnec, Side.LEFT, Unit.AMPERE)).thenReturn(flow);
+        Mockito.when(raoResult.getFlow(instant, flowCnec, Side.RIGHT, Unit.AMPERE)).thenReturn(flow + 10);
         Mockito.when(flowCnec.computeMargin(flow, Side.LEFT, Unit.AMPERE)).thenReturn(1000 - flow);
         Mockito.when(flowCnec.computeMargin(flow, Side.RIGHT, Unit.AMPERE)).thenReturn(1100 - flow);
     }

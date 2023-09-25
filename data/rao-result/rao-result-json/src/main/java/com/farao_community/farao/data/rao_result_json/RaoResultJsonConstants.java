@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.apache.commons.lang3.StringUtils;
 
@@ -239,37 +238,33 @@ public final class RaoResultJsonConstants {
         }
     }
 
-    public static String serializeOptimizationState(OptimizationState optimizationState) {
-        if (optimizationState.isInitial()) {
-            return INITIAL_OPT_STATE;
+    public static String serializeOptimizationState(Instant instant) {
+        if (instant == null) {
+            return "initial";
         }
-        if (optimizationState.isAfterPra()) {
-            return AFTER_PRA_OPT_STATE;
-        }
-        if (optimizationState.isAfterAra()) {
-            return AFTER_ARA_OPT_STATE;
-        }
-        if (optimizationState.isAfterCra()) {
-            return AFTER_CRA_OPT_STATE;
-        }
-        throw new FaraoException(String.format("Unsupported optimization state %s", optimizationState));
+        return String.format("after \"%s\"", instant.getId());
         // TODO improve this to handle multiple curative instants
     }
 
-    public static OptimizationState deserializeOptimizationState(String stringValue, String jsonVersion, Crac crac) {
+    public static Instant deserializeOptimizationState(String stringValue, String jsonVersion, Crac crac) {
         // TODO : only if old version, do the following
         // otherwise do something more complex
         switch (stringValue) {
             case INITIAL_OPT_STATE:
-                return OptimizationState.initial(crac);
+                return null;
             case AFTER_PRA_OPT_STATE:
-                return OptimizationState.afterPra(crac);
+                return crac.getInstant(Instant.Kind.PREVENTIVE);
             case AFTER_ARA_OPT_STATE:
-                return OptimizationState.afterAra(crac);
+                return crac.getInstant(Instant.Kind.AUTO);
             case AFTER_CRA_OPT_STATE:
-                return OptimizationState.afterCra(crac);
+                return crac.getInstant(Instant.Kind.CURATIVE);
             default:
-                throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
+                if (stringValue.contains("after ")) {
+                    // TODO : improve this
+                    return crac.getInstant(stringValue.replace("after ", "").replace("\"", ""));
+                } else {
+                    throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
+                }
         }
     }
 

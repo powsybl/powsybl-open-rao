@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -74,14 +73,11 @@ public class CastorFullOptimization {
     private final RaoInput raoInput;
     private final RaoParameters raoParameters;
     private final Instant targetEndInstant;
-    private final OptimizationState afterCra;
 
     public CastorFullOptimization(RaoInput raoInput, RaoParameters raoParameters, Instant targetEndInstant) {
         this.raoInput = raoInput;
         this.raoParameters = raoParameters;
         this.targetEndInstant = targetEndInstant;
-        // TODO : make this cleaner
-        afterCra = OptimizationState.afterOptimizing(raoInput.getCrac().getInstants().get(raoInput.getCrac().getInstants().size() - 1));
     }
 
     public CompletableFuture<RaoResult> run() {
@@ -208,12 +204,13 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        double firstPreventiveCost = mergedRaoResults.getCost(afterCra);
-        double secondPreventiveCost = secondPreventiveRaoResults.getCost(afterCra);
+        com.farao_community.farao.data.crac_api.Instant lastInstant = raoInput.getCrac().getInstants().get(raoInput.getCrac().getInstants().size() - 1);
+        double firstPreventiveCost = mergedRaoResults.getCost(lastInstant);
+        double secondPreventiveCost = secondPreventiveRaoResults.getCost(lastInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
             BUSINESS_LOGS.info("Second preventive step has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to previous solution:",
-                formatDouble(firstPreventiveCost), formatDouble(mergedRaoResults.getFunctionalCost(afterCra)), formatDouble(mergedRaoResults.getVirtualCost(afterCra)),
-                formatDouble(secondPreventiveCost), formatDouble(secondPreventiveRaoResults.getFunctionalCost(afterCra)), formatDouble(secondPreventiveRaoResults.getVirtualCost(afterCra)));
+                formatDouble(firstPreventiveCost), formatDouble(mergedRaoResults.getFunctionalCost(lastInstant)), formatDouble(mergedRaoResults.getVirtualCost(lastInstant)),
+                formatDouble(secondPreventiveCost), formatDouble(secondPreventiveRaoResults.getFunctionalCost(lastInstant)), formatDouble(secondPreventiveRaoResults.getVirtualCost(lastInstant)));
             return false;
         }
         return true;
@@ -225,12 +222,13 @@ public class CastorFullOptimization {
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters) {
         RaoResult finalRaoResult = raoResult;
 
+        com.farao_community.farao.data.crac_api.Instant lastInstant = raoInput.getCrac().getInstants().get(raoInput.getCrac().getInstants().size() - 1);
         double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
-        double finalCost = finalRaoResult.getCost(afterCra);
-        double finalFunctionalCost = finalRaoResult.getFunctionalCost(afterCra);
-        double finalVirtualCost = finalRaoResult.getVirtualCost(afterCra);
+        double finalCost = finalRaoResult.getCost(lastInstant);
+        double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
+        double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
 
         if (objectiveFunctionParameters.getForbidCostIncrease() && finalCost > initialCost) {
             BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
@@ -469,10 +467,9 @@ public class CastorFullOptimization {
             return false;
         }
         // TODO : clean this up
-        OptimizationState initial = OptimizationState.beforeOptimizing(crac.getInstants().get(0));
-        OptimizationState afterCra = OptimizationState.afterOptimizing(crac.getInstants().get(crac.getInstants().size() - 1));
+        com.farao_community.farao.data.crac_api.Instant lastInstant = crac.getInstants().get(crac.getInstants().size() - 1);
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
-            && postFirstRaoResult.getCost(afterCra) <= postFirstRaoResult.getCost(initial)) {
+            && postFirstRaoResult.getCost(lastInstant) <= postFirstRaoResult.getCost(null)) {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
             // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
             // only compare initial cost with the curative costs
@@ -488,10 +485,10 @@ public class CastorFullOptimization {
                 return isAnyResultUnsecure(curativeRaoResults);
             case PREVENTIVE_OBJECTIVE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter
-                return isFinalCostWorseThanPreventive(afterCra, raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
+                return isFinalCostWorseThanPreventive(lastInstant, raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 // Run 2nd preventive RAO if the final result has a worse cost than the preventive perimeter or is unsecure
-                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(afterCra, raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
+                return isAnyResultUnsecure(curativeRaoResults) || isFinalCostWorseThanPreventive(lastInstant, raoParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), firstPreventiveResult, postFirstRaoResult);
             default:
                 throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeStopCriterion));
         }
@@ -507,8 +504,8 @@ public class CastorFullOptimization {
     /**
      * Returns true if final cost (after PRAO + ARAO + CRAO) is worse than the cost at the end of the preventive perimeter
      */
-    private static boolean isFinalCostWorseThanPreventive(OptimizationState afterCra, double curativeMinObjImprovement, OptimizationResult preventiveResult, RaoResult postFirstRaoResult) {
-        return postFirstRaoResult.getCost(afterCra) > preventiveResult.getCost() - curativeMinObjImprovement;
+    private static boolean isFinalCostWorseThanPreventive(com.farao_community.farao.data.crac_api.Instant optimizedInstant, double curativeMinObjImprovement, OptimizationResult preventiveResult, RaoResult postFirstRaoResult) {
+        return postFirstRaoResult.getCost(optimizedInstant) > preventiveResult.getCost() - curativeMinObjImprovement;
     }
 
     private RaoResult runSecondPreventiveAndAutoRao(RaoInput raoInput,

@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.crac_api.Instant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,18 +17,18 @@ import java.util.Map;
 public class FlowCnecResult {
 
     private static final ElementaryFlowCnecResult DEFAULT_RESULT = new ElementaryFlowCnecResult();
-    private final Map<OptimizationState, ElementaryFlowCnecResult> results;
+    private final Map<Instant, ElementaryFlowCnecResult> resultPerOptimizedInstant;
 
     FlowCnecResult() {
-        results = new HashMap<>();
+        resultPerOptimizedInstant = new HashMap<>();
     }
 
-    public ElementaryFlowCnecResult getResult(OptimizationState optimizationState) {
-        return results.getOrDefault(optimizationState, DEFAULT_RESULT);
+    public ElementaryFlowCnecResult getResult(Instant optimizedInstant) {
+        return resultPerOptimizedInstant.getOrDefault(optimizedInstant, DEFAULT_RESULT);
     }
 
-    public ElementaryFlowCnecResult getAndCreateIfAbsentResultForOptimizationState(OptimizationState optimizationState) {
-        results.putIfAbsent(optimizationState, new ElementaryFlowCnecResult());
-        return results.get(optimizationState);
+    public ElementaryFlowCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
+        resultPerOptimizedInstant.putIfAbsent(optimizedInstant, new ElementaryFlowCnecResult());
+        return resultPerOptimizedInstant.get(optimizedInstant);
     }
 }

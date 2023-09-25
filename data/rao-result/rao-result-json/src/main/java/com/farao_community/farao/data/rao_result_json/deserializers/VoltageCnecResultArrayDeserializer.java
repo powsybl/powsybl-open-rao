@@ -10,11 +10,11 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.data.rao_result_impl.VoltageCnecResult;
 import com.farao_community.farao.data.rao_result_impl.ElementaryVoltageCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
+import com.farao_community.farao.data.rao_result_impl.VoltageCnecResult;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -54,26 +54,34 @@ final class VoltageCnecResultArrayDeserializer {
             switch (jsonParser.getCurrentName()) {
                 case INITIAL_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.initial(crac));
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 case AFTER_PRA_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterPra(crac));
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant(Instant.Kind.PREVENTIVE));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 case AFTER_ARA_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterAra(crac));
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant(Instant.Kind.AUTO));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 case AFTER_CRA_OPT_STATE:
                     jsonParser.nextToken();
-                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.afterCra(crac));
+                    eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant(Instant.Kind.CURATIVE));
                     deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
                     break;
                 default:
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", VOLTAGECNEC_RESULTS, jsonParser.getCurrentName()));
+
+                    if (jsonParser.getCurrentName().contains("after ")) {
+                        // TODO : improve this
+                        Instant instant = crac.getInstant(jsonParser.getCurrentName().replace("after ", "").replace("\"", ""));
+                        eVoltageCnecResult = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(instant);
+                        deserializeElementaryVoltageCnecResult(jsonParser, eVoltageCnecResult);
+                    } else {
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", VOLTAGECNEC_RESULTS, jsonParser.getCurrentName()));
+                    }
             }
         }
     }
