@@ -8,17 +8,19 @@
 package com.farao_community.farao.monitoring.voltage_monitoring.json;
 
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonSerializer;
+import com.farao_community.farao.monitoring.voltage_monitoring.ExtremeVoltageValues;
+import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.farao_community.farao.monitoring.voltage_monitoring.ExtremeVoltageValues;
-import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
 
 /**
@@ -27,7 +29,6 @@ import static com.farao_community.farao.monitoring.voltage_monitoring.json.JsonV
 public class VoltageMonitoringResultSerializer extends JsonSerializer<VoltageMonitoringResult> {
 
     VoltageMonitoringResultSerializer() {
-
     }
 
     @Override
@@ -35,20 +36,29 @@ public class VoltageMonitoringResultSerializer extends JsonSerializer<VoltageMon
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField(TYPE, VOLTAGE_MONITORING_RESULT);
+        jsonGenerator.writeStringField(STATUS, voltageMonitoringResult.getStatus().toString());
+        // VOLTAGE_VALUE
         jsonGenerator.writeArrayFieldStart(VOLTAGE_VALUES);
+        serializeExtremeVoltageValue(voltageMonitoringResult, jsonGenerator);
+        jsonGenerator.writeEndArray();
+        // APPLIED_RAS
+        jsonGenerator.writeArrayFieldStart(APPLIED_RAS);
+        MonitoringCommonSerializer.serializeAppliedRas(voltageMonitoringResult.getAppliedRas(), jsonGenerator);
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeExtremeVoltageValue(VoltageMonitoringResult voltageMonitoringResult, JsonGenerator jsonGenerator) throws IOException {
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> entry :
-            voltageMonitoringResult.getExtremeVoltageValues().entrySet()
-                .stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
-                .collect(Collectors.toList())) {
+                voltageMonitoringResult.getExtremeVoltageValues().entrySet()
+                        .stream().sorted(Comparator.comparing(e -> e.getKey().getId()))
+                        .collect(Collectors.toList())) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(CNEC_ID, entry.getKey().getId());
             jsonGenerator.writeNumberField(MIN, entry.getValue().getMin());
             jsonGenerator.writeNumberField(MAX, entry.getValue().getMax());
             jsonGenerator.writeEndObject();
         }
-        jsonGenerator.writeEndArray();
-
-        jsonGenerator.writeEndObject();
     }
-
 }
