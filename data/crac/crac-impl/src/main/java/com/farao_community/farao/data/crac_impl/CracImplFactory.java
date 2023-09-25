@@ -37,10 +37,8 @@ public class CracImplFactory implements CracFactory {
             List.of(
                 Instant.preventive(),
                 Instant.outage(),
-                new Instant(2, "auto", Instant.Kind.AUTO),
-                //new Instant(3, "curative1", Instant.Kind.CURATIVE),
-                //new Instant(4, "curative2", Instant.Kind.CURATIVE),
-                new Instant(3, "curative", Instant.Kind.CURATIVE)
+                Instant.auto(2, "auto"),
+                Instant.curative(3, "curative")
             )
         );
         return crac;
@@ -54,10 +52,8 @@ public class CracImplFactory implements CracFactory {
             List.of(
                 Instant.preventive(),
                 Instant.outage(),
-                new Instant(2, "auto", Instant.Kind.AUTO),
-                //new Instant(3, "curative1", Instant.Kind.CURATIVE),
-                //new Instant(4, "curative2", Instant.Kind.CURATIVE),
-                new Instant(3, "curative", Instant.Kind.CURATIVE)
+                Instant.auto(2, "auto"),
+                Instant.curative(3, "curative")
             )
         );
         return crac;

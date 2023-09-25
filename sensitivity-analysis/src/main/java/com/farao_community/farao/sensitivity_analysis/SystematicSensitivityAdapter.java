@@ -38,8 +38,7 @@ final class SystematicSensitivityAdapter {
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
-                                                      String sensitivityProvider,
-                                                      Instant outageInstant) {
+                                                      String sensitivityProvider) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
@@ -54,17 +53,16 @@ final class SystematicSensitivityAdapter {
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, outageInstant).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return new SystematicSensitivityResult().completeData(result, Instant.outage()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
-                                                      String sensitivityProvider,
-                                                      Instant outageInstant) {
+                                                      String sensitivityProvider) {
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
-            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant);
+            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
@@ -93,7 +91,7 @@ final class SystematicSensitivityAdapter {
             allFactorsWithoutRa,
             contingenciesWithoutRa,
             cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters), outageInstant);
+            sensitivityComputationParameters), Instant.outage());
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();

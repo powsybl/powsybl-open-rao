@@ -45,6 +45,7 @@ public class Instant implements Comparable<Instant> {
     private final String id;
     private final Kind kind;
 
+    // TODO make this private
     public Instant(int order, String id, Kind kind) {
         this.order = order;
         this.id = id;
@@ -56,6 +57,7 @@ public class Instant implements Comparable<Instant> {
     private static Instant outage;
 
     public static Instant preventive() {
+        // Singleton: we only allow one preventive instant
         if (preventive == null) {
             preventive = new Instant(0, "preventive", Kind.PREVENTIVE);
         }
@@ -63,10 +65,19 @@ public class Instant implements Comparable<Instant> {
     }
 
     public static Instant outage() {
+        // Singleton: we only allow one outage instant
         if (outage == null) {
             outage = new Instant(1, "outage", Kind.OUTAGE);
         }
         return outage;
+    }
+
+    public static Instant auto(int order, String id) {
+        return new Instant(order, id, Kind.AUTO);
+    }
+
+    public static Instant curative(int order, String id) {
+        return new Instant(order, id, Kind.CURATIVE);
     }
 
     public String getId() {

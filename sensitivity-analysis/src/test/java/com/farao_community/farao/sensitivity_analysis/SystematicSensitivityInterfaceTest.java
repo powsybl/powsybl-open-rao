@@ -66,7 +66,7 @@ class SystematicSensitivityInterfaceTest {
     @Test
     void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         // run engine
