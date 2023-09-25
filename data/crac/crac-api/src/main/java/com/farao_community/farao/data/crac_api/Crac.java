@@ -450,4 +450,8 @@ public interface Crac extends Identifiable<Crac> {
 
     Instant getInstantFollowing(Instant instant);
 
+    Instant getLastInstant();
+
+    Instant getInstantBefore(Instant instant);
+
 }

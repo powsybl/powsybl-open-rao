@@ -752,6 +752,18 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Instant getLastInstant() {
+        return instants.get(instants.size() - 1);
+    }
+
+    @Override
+    public Instant getInstantBefore(Instant instant) {
+        return instants.get(
+            Math.max(0, instants.indexOf(instant) - 1)
+        );
+    }
+
+    @Override
     public List<Instant> getInstants(Instant.Kind instantKind) {
         return instants.stream().filter(i -> i.getKind().equals(instantKind)).sorted().collect(Collectors.toList());
     }

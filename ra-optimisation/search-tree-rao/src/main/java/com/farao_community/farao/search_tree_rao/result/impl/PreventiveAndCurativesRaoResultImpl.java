@@ -9,10 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -27,13 +24,13 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.rao_result_api.ComputationStatus.DEFAULT;
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
+    private Crac crac;
     private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult firstPreventivePerimeterResult;
@@ -44,6 +41,11 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     private final Map<State, PerimeterResult> postContingencyResults;
     private final ObjectiveFunctionResult finalCostEvaluator;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
+
+    public void setCrac(Crac crac) {
+        // TODO : move this to constructor
+        this.crac = crac;
+    }
 
     /**
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
@@ -196,35 +198,14 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        //List<OptimizationState> possibleOptimizationStates;
-        /*switch (state.getInstant()) {
-            case PREVENTIVE:
-            case OUTAGE:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_PRA);
-                break;
-            case AUTO:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
-                break;
-            case CURATIVE1:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA1, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
-                break;
-            case CURATIVE2:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA2, OptimizationState.AFTER_CRA1, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
-                break;
-            case CURATIVE:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA, OptimizationState.AFTER_CRA2, OptimizationState.AFTER_CRA1, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
-                break;
-            default:
-                throw new FaraoException(String.format("Instant %s was not recognized", state.getInstant()));
-        }
-        for (OptimizationState optimizationState : possibleOptimizationStates) {
-            PerimeterResult perimeterResult = getPerimeterResult(optimizationState, state);
+        Instant instant = state.getInstant();
+        while (true) {
+            PerimeterResult perimeterResult = getPerimeterResult(instant, state);
             if (Objects.nonNull(perimeterResult)) {
                 return perimeterResult.getSensitivityStatus(state);
             }
-        }*/
-        // TODO : enable this
-        return DEFAULT;
+            instant = crac.getInstantBefore(instant);
+        }
     }
 
     public PerimeterResult getPerimeterResult(Instant optimizedInstant, State state) {

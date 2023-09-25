@@ -156,6 +156,7 @@ public class CastorFullOptimization {
             && preventiveOptimalCost > 0) {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(raoInput.getCrac().getPreventiveState(), initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput);
+            ((PreventiveAndCurativesRaoResultImpl) mergedRaoResults).setCrac(raoInput.getCrac());
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -168,6 +169,7 @@ public class CastorFullOptimization {
 
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
         mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults.getLeft(), postContingencyResults.getRight());
+        ((PreventiveAndCurativesRaoResultImpl) mergedRaoResults).setCrac(raoInput.getCrac());
         //postContingencyResults.getLeft().put(raoInput.getCrac().getPreventiveState(), preventiveResult);
         //postContingencyResults.getRight().put(raoInput.getCrac().getPreventiveState(), initialOutput);
         //mergedRaoResults = new NewResultImpl(stateTree, postContingencyResults.getLeft(), postContingencyResults.getRight());
@@ -204,7 +206,7 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.info("RAO has succeeded thanks to second preventive step when first preventive step had failed");
             return true;
         }
-        com.farao_community.farao.data.crac_api.Instant lastInstant = raoInput.getCrac().getInstants().get(raoInput.getCrac().getInstants().size() - 1);
+        com.farao_community.farao.data.crac_api.Instant lastInstant = raoInput.getCrac().getLastInstant();
         double firstPreventiveCost = mergedRaoResults.getCost(lastInstant);
         double secondPreventiveCost = secondPreventiveRaoResults.getCost(lastInstant);
         if (secondPreventiveCost > firstPreventiveCost) {
@@ -222,7 +224,7 @@ public class CastorFullOptimization {
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters) {
         RaoResult finalRaoResult = raoResult;
 
-        com.farao_community.farao.data.crac_api.Instant lastInstant = raoInput.getCrac().getInstants().get(raoInput.getCrac().getInstants().size() - 1);
+        com.farao_community.farao.data.crac_api.Instant lastInstant = raoInput.getCrac().getLastInstant();
         double initialCost = initialResult.getCost();
         double initialFunctionalCost = initialResult.getFunctionalCost();
         double initialVirtualCost = initialResult.getVirtualCost();
@@ -467,7 +469,7 @@ public class CastorFullOptimization {
             return false;
         }
         // TODO : clean this up
-        com.farao_community.farao.data.crac_api.Instant lastInstant = crac.getInstants().get(crac.getInstants().size() - 1);
+        com.farao_community.farao.data.crac_api.Instant lastInstant = crac.getLastInstant();
         if (raoParameters.getSecondPreventiveRaoParameters().getExecutionCondition().equals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE)
             && postFirstRaoResult.getCost(lastInstant) <= postFirstRaoResult.getCost(null)) {
             BUSINESS_LOGS.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
@@ -576,7 +578,7 @@ public class CastorFullOptimization {
         }
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, parameters.getObjectiveFunctionParameters().getType(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
-        return new PreventiveAndCurativesRaoResultImpl(stateTree,
+        PreventiveAndCurativesRaoResultImpl result = new PreventiveAndCurativesRaoResultImpl(stateTree,
             initialOutput,
             firstPreventiveResult,
             secondPreventiveRaoResult.perimeterResult,
@@ -585,6 +587,8 @@ public class CastorFullOptimization {
             newPostContingencyResults.getLeft(),
             newPostContingencyResults.getRight(),
             postCraSensitivityAnalysisOutput);
+        result.setCrac(raoInput.getCrac());
+        return result;
     }
 
     private static class SecondPreventiveRaoResult {

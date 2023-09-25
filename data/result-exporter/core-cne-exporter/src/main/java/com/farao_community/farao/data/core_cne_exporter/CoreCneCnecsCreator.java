@@ -68,11 +68,11 @@ public final class CoreCneCnecsCreator {
         String outageBranchCnecId;
         String curativeBranchCnecId;
         if (branchCnecCreationContext.isBaseCase()) {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE));
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE).getId());
             curativeBranchCnecId = outageBranchCnecId;
         } else {
-            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(Instant.Kind.OUTAGE));
-            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE));
+            outageBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(Instant.Kind.OUTAGE).getId());
+            curativeBranchCnecId = branchCnecCreationContext.getCreatedCnecsIds().get(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE).getId());
         }
 
         // A52 (CNEC)
@@ -217,7 +217,7 @@ public final class CoreCneCnecsCreator {
 
     private double getCnecFlow(FlowCnec cnec, Side side, Instant optimizedInstant) {
         Instant resultState = optimizedInstant;
-        if (resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
+        if (resultState != null && resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
             resultState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
@@ -225,7 +225,7 @@ public final class CoreCneCnecsCreator {
 
     private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit, boolean deductFrmFromThreshold) {
         Instant resultState = optimizedInstant;
-        if (resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
+        if (resultState != null && resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
             resultState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         return getThresholdToMarginMap(cnec, resultState, asMnec, unit, deductFrmFromThreshold).values().stream().min(Double::compareTo).orElseThrow();
@@ -234,7 +234,7 @@ public final class CoreCneCnecsCreator {
     private double getCnecRelativeMargin(FlowCnec cnec, Instant optimizedInstant, boolean asMnec, Unit unit) {
         double absoluteMargin = getCnecMargin(cnec, optimizedInstant, asMnec, unit, true);
         Instant resultState = optimizedInstant;
-        if (resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
+        if (resultState != null && resultState.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().getInstant().isPreventive()) {
             resultState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
@@ -339,7 +339,7 @@ public final class CoreCneCnecsCreator {
 
     private List<Analog> createLoopflowMeasurements(FlowCnec cnec, Instant optimizedInstant, boolean shouldInvertBranchDirection) {
         Instant resultOptimState = optimizedInstant;
-        if (optimizedInstant.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().isPreventive()) {
+        if (resultOptimState != null && optimizedInstant.equals(cneHelper.getCrac().getInstant(Instant.Kind.CURATIVE)) && cnec.getState().isPreventive()) {
             resultOptimState = cneHelper.getCrac().getInstant(Instant.Kind.PREVENTIVE);
         }
         List<Analog> measurements = new ArrayList<>();

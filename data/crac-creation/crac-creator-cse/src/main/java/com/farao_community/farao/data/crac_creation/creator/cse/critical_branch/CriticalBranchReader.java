@@ -32,7 +32,7 @@ public class CriticalBranchReader {
     private final String criticalBranchName;
     private final NativeBranch nativeBranch;
     private boolean isBaseCase;
-    private final Map<Instant, String> createdCnecIds = new HashMap<>();
+    private final Map<String, String> createdCnecIds = new HashMap<>();
     private String contingencyId;
     private final boolean isImported;
     private String invalidBranchReason;
@@ -54,7 +54,7 @@ public class CriticalBranchReader {
         return isBaseCase;
     }
 
-    public Map<Instant, String> getCreatedCnecIds() {
+    public Map<String, String> getCreatedCnecIds() {
         return new HashMap<>(createdCnecIds);
     }
 
@@ -169,7 +169,7 @@ public class CriticalBranchReader {
         }
         addThreshold(cnecAdder, tImax.getV(), unit, tBranch.getDirection().getV(), isDirectionInverted, monitoredSidesForThreshold);
         cnecAdder.add();
-        createdCnecIds.put(instant, cnecId);
+        createdCnecIds.put(instant.getId(), cnecId);
         if (!isMonitored) {
             storeRemedialActions(tBranch);
         }
