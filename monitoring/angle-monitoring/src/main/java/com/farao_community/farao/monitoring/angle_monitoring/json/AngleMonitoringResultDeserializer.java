@@ -14,17 +14,21 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.monitoring.angle_monitoring.AngleMonitoringResult;
+import com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonDeserializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.farao_community.farao.monitoring.angle_monitoring.json.JsonAngleMonitoringResultConstants.*;
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
+import static com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonDeserializer.getState;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -64,7 +68,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
                 readAngleValues(jsonParser, angleResults);
             } else if (jsonParser.getCurrentName().equals(APPLIED_CRAS)) {
                 jsonParser.nextToken();
-                readAppliedCras(jsonParser, appliedCras);
+                MonitoringCommonDeserializer.readAppliedRas(jsonParser, appliedCras, crac);
             } else {
                 throw new FaraoException(String.format(UNEXPECTED_FIELD_ERROR, jsonParser.getCurrentName(), ANGLE_MONITORING_RESULT));
             }
@@ -113,66 +117,12 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             if (angleCnec == null) {
                 throw new FaraoException(String.format("AngleCnec %s does not exist in the CRAC", cnecId));
             }
-            State state = getState(instant, contingencyId);
+            State state = getState(instant, contingencyId, crac);
             if (angleResults.stream().anyMatch(angleResult -> angleResult.getAngleCnec().equals(angleCnec) &&
                     angleResult.getState().equals(state))) {
                 throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant.toString(), contingencyId));
             }
             angleResults.add(new AngleMonitoringResult.AngleResult(angleCnec, quantity));
         }
-    }
-
-    private void readAppliedCras(JsonParser jsonParser, Map<State, Set<NetworkAction>> appliedCras) throws IOException {
-        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            String contingencyId = null;
-            Instant instant = null;
-            Set<String> remedialActionIds = new HashSet<>();
-            while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.currentName()) {
-                    case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
-                        break;
-                    case CONTINGENCY:
-                        contingencyId = jsonParser.nextTextValue();
-                        break;
-                    case REMEDIAL_ACTIONS:
-                        jsonParser.nextToken();
-                        remedialActionIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
-                        });
-                        break;
-                    default:
-                        throw new FaraoException(String.format(UNEXPECTED_FIELD_ERROR, jsonParser.currentName(), REMEDIAL_ACTIONS));
-                }
-            }
-            if (instant == null) {
-                throw new FaraoException(String.format("Instant must be defined in %s", REMEDIAL_ACTIONS));
-            }
-            // Get network Actions from string
-            State state = getState(instant, contingencyId);
-            if (appliedCras.containsKey(state)) {
-                throw new FaraoException(String.format("State with instant %s and contingency %s has previously been defined in %s", instant.toString(), contingencyId, REMEDIAL_ACTIONS));
-            } else {
-                appliedCras.put(state, getNetworkActions(remedialActionIds));
-            }
-        }
-    }
-
-    private State getState(Instant instant, String contingencyId) {
-        if (Objects.isNull(contingencyId)) {
-            if (instant.equals(Instant.PREVENTIVE)) {
-                return crac.getPreventiveState();
-            } else {
-                throw new FaraoException(String.format("No contingency defined with instant %s", instant.toString()));
-            }
-        }
-        State state = crac.getState(contingencyId, instant);
-        if (Objects.isNull(state)) {
-            throw new FaraoException(String.format("State with instant %s and contingency %s does not exist in CRAC", instant.toString(), contingencyId));
-        }
-        return state;
-    }
-
-    private Set<NetworkAction> getNetworkActions(Set<String> ids) {
-        return crac.getNetworkActions().stream().filter(networkAction -> ids.contains(networkAction.getId())).collect(Collectors.toSet());
     }
 }
