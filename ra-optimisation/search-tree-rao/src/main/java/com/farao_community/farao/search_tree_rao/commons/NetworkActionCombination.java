@@ -65,8 +65,8 @@ public class NetworkActionCombination {
             return false;
         }
         NetworkActionCombination oNetworkActionCombination = (NetworkActionCombination) o;
-        return (this.detectedDuringRao == oNetworkActionCombination.isDetectedDuringRao())
-                && (this.networkActionSet.equals(oNetworkActionCombination.networkActionSet));
+        return this.detectedDuringRao == oNetworkActionCombination.isDetectedDuringRao()
+                && this.networkActionSet.equals(oNetworkActionCombination.networkActionSet);
     }
 
     @Override

@@ -409,7 +409,7 @@ public class RemedialActionSeriesCreator {
 
         checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
 
-        if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && contingencies.isEmpty())) {
+        if (instant.equals(Instant.PREVENTIVE) || instant.equals(Instant.CURATIVE) && contingencies.isEmpty()) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
             UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
@@ -420,7 +420,8 @@ public class RemedialActionSeriesCreator {
     private static void checkUsageRulesContingencies(Instant instant, List<Contingency> contingencies, List<String> invalidContingencies) {
         switch (instant) {
             case PREVENTIVE:
-                if ((Objects.nonNull(contingencies) && !contingencies.isEmpty()) || (Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty())) {
+                if (Objects.nonNull(contingencies) && !contingencies.isEmpty()
+                    || Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty()) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
                 }
                 break;

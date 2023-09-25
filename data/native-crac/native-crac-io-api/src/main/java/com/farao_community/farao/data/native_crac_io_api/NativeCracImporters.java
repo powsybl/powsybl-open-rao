@@ -16,7 +16,6 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * A utility class to work with native CRAC importers

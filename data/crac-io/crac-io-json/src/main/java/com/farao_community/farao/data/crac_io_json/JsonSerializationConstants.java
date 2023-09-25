@@ -394,9 +394,9 @@ public final class JsonSerializationConstants {
             String unit1 = serializeUnit(o1.getUnit());
             String unit2 = serializeUnit(o2.getUnit());
             if (unit1.equals(unit2)) {
-                if ((o1 instanceof BranchThreshold && o2 instanceof BranchThreshold) &&
-                    !((BranchThreshold) o1).getSide().equals(((BranchThreshold) o2).getSide())) {
-                    return serializeSide(((BranchThreshold) o1).getSide()).compareTo(serializeSide(((BranchThreshold) o2).getSide()));
+                if (o1 instanceof BranchThreshold bt1 && o2 instanceof BranchThreshold bt2 &&
+                    !bt1.getSide().equals(bt2.getSide())) {
+                    return serializeSide(bt1.getSide()).compareTo(serializeSide(bt2.getSide()));
                 }
                 if (o1.min().isPresent()) {
                     return -1;

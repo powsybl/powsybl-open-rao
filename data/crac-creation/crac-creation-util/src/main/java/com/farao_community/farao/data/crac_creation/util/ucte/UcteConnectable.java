@@ -107,7 +107,8 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     }
 
     private boolean matchSuffix(String suffix) {
-        return (suffix.equals(ucteOrderCode)) || (ucteElementNames != null && ucteElementNames.contains(suffix));
+        return suffix.equals(ucteOrderCode)
+            || ucteElementNames != null && ucteElementNames.contains(suffix);
     }
 
     private boolean matchType(ConnectableType... connectableTypes) {

@@ -149,14 +149,16 @@ class CseCracCreatorWithMneTest {
 
     private boolean hasThreshold(String nativeId, double expectedThreshold, Unit expectedThresholdUnit, FlowCnec flowCnec, String direction, Side side) {
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
-        if ((!directionInvertedInNetwork && direction.equals("DIRECT")) || (directionInvertedInNetwork && direction.equals("OPPOSITE"))) {
+        if (!directionInvertedInNetwork && direction.equals("DIRECT")
+            || directionInvertedInNetwork && direction.equals("OPPOSITE")) {
             // should have max
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
                     && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
                     && threshold.getUnit().equals(expectedThresholdUnit)
             );
         }
-        if ((directionInvertedInNetwork && direction.equals("DIRECT")) || (!directionInvertedInNetwork && direction.equals("OPPOSITE"))) {
+        if (directionInvertedInNetwork && direction.equals("DIRECT")
+            || !directionInvertedInNetwork && direction.equals("OPPOSITE")) {
             // should have min
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
                     && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)

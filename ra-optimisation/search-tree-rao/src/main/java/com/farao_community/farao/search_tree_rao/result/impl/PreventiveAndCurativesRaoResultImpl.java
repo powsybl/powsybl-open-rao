@@ -228,8 +228,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty() ||
+            optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs.getFunctionalCost();
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
@@ -307,8 +307,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
             return initialResult;
         } else if (flowCnec.getState().getInstant().comesBefore(optimizationState.getFirstInstant())) {
             throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizationState));
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-                (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty() ||
+                optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs;
         } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizationState.getFirstInstant().equals(flowCnec.getState().getInstant())) {
@@ -355,8 +355,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public double getVirtualCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getVirtualCost();
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty() ||
+            optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO))) {
             return resultsWithPrasForAllCnecs.getVirtualCost();
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost();
@@ -392,8 +392,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getVirtualCost(virtualCostName);
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty() ||
+            optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO))) {
             return resultsWithPrasForAllCnecs.getVirtualCost(virtualCostName);
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost(virtualCostName);
@@ -409,8 +409,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty() ||
+            optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO))) {
             return resultsWithPrasForAllCnecs.getCostlyElements(virtualCostName, number);
         } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
             return finalCostEvaluator.getCostlyElements(virtualCostName, number);

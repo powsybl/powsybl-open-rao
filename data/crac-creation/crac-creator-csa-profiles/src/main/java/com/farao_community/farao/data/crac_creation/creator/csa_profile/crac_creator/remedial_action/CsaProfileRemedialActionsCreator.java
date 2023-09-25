@@ -180,7 +180,7 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         if (linkedTopologyActions.containsKey(remedialActionId)
-                || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
+                || linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges)) {
             return RemedialActionType.NetworkAction;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PstRangeAction;

@@ -169,7 +169,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return voltageCnecCreationContexts.stream().filter(creationContext ->
             nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId())
                 && instant.equals(creationContext.getInstant())
-                && ((nativeContingencyName == null && creationContext.getNativeContingencyName() == null) || (nativeContingencyName != null && nativeContingencyName.equals(creationContext.getNativeContingencyName())))
+                && (nativeContingencyName == null && creationContext.getNativeContingencyName() == null || nativeContingencyName != null && nativeContingencyName.equals(creationContext.getNativeContingencyName()))
         ).findAny().orElse(null);
     }
 

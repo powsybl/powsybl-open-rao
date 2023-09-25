@@ -51,7 +51,7 @@ public class VoltageThreshold {
             return false;
         }
         VoltageThreshold otherT = (VoltageThreshold) o;
-        return ((unit == null && otherT.getUnit() == null) || (unit != null && unit.equals(otherT.getUnit())))
+        return (unit == null && otherT.getUnit() == null || unit != null && unit.equals(otherT.getUnit()))
                 && equalsDouble(max, otherT.getMax())
                 && equalsDouble(min, otherT.getMin());
     }
@@ -66,6 +66,7 @@ public class VoltageThreshold {
     }
 
     private boolean equalsDouble(Double d1, Double d2) {
-        return (d1 == null && d2 == null) || (d1 != null && d2 != null && abs(d1 - d2) < 1e-6);
+        return d1 == null && d2 == null
+            || d1 != null && d2 != null && abs(d1 - d2) < 1e-6;
     }
 }

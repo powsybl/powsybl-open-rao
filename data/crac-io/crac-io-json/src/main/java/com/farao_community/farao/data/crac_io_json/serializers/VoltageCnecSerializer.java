@@ -18,7 +18,6 @@ import com.powsybl.commons.json.JsonUtil;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
