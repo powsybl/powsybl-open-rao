@@ -94,6 +94,9 @@ public class SystematicSensitivityResult {
             );
             postContingencyResults.get(instant).put(contingencyStatus.getContingencyId(), contingencyStateResult);
         }
+        if (postContingencyResults.get(instant).values().stream().anyMatch(result -> result.status.equals(SensitivityComputationStatus.FAILURE))) {
+            this.status = SensitivityComputationStatus.FAILURE;
+        }
         nStateResult.status = this.status;
         return this;
     }

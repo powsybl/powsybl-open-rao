@@ -35,8 +35,8 @@ public class CracImplFactory implements CracFactory {
         // TODO : move this
         crac.setInstants(
             List.of(
-                new Instant(0, "preventive", Instant.Kind.PREVENTIVE),
-                new Instant(1, "outage", Instant.Kind.OUTAGE),
+                Instant.preventive(),
+                Instant.outage(),
                 new Instant(2, "auto", Instant.Kind.AUTO),
                 //new Instant(3, "curative1", Instant.Kind.CURATIVE),
                 //new Instant(4, "curative2", Instant.Kind.CURATIVE),
@@ -52,8 +52,8 @@ public class CracImplFactory implements CracFactory {
         // TODO : move this
         crac.setInstants(
             List.of(
-                new Instant(0, "preventive", Instant.Kind.PREVENTIVE),
-                new Instant(1, "outage", Instant.Kind.OUTAGE),
+                Instant.preventive(),
+                Instant.outage(),
                 new Instant(2, "auto", Instant.Kind.AUTO),
                 //new Instant(3, "curative1", Instant.Kind.CURATIVE),
                 //new Instant(4, "curative2", Instant.Kind.CURATIVE),

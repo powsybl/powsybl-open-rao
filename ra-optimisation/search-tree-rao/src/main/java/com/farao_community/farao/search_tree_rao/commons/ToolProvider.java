@@ -105,8 +105,7 @@ public final class ToolProvider {
             builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
         }
         // TODO : improve this
-        Instant outageInstant = new Instant(-1, "outageMock", Instant.Kind.OUTAGE);
-        builder.withOutageInstant(outageInstant);
+        builder.withOutageInstant(Instant.outage());
         return builder.build();
     }
 

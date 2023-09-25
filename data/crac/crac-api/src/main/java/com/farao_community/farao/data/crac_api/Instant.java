@@ -49,6 +49,24 @@ public class Instant implements Comparable<Instant> {
         this.order = order;
         this.id = id;
         this.kind = kind;
+        // TODO : lock preventive and outage instants
+    }
+
+    private static Instant preventive;
+    private static Instant outage;
+
+    public static Instant preventive() {
+        if (preventive == null) {
+            preventive = new Instant(0, "preventive", Kind.PREVENTIVE);
+        }
+        return preventive;
+    }
+
+    public static Instant outage() {
+        if (outage == null) {
+            outage = new Instant(1, "outage", Kind.OUTAGE);
+        }
+        return outage;
     }
 
     public String getId() {
