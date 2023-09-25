@@ -26,8 +26,8 @@ public final class MonitoringCommonSerializer {
                 jsonGenerator.writeStringField(JsonCommonMonitoringResultConstants.CONTINGENCY, optContingency.get().getId());
             }
             jsonGenerator.writeArrayFieldStart(JsonCommonMonitoringResultConstants.REMEDIAL_ACTIONS);
-            for (NetworkAction networkAction : entry.getValue().stream().sorted(Comparator.comparing(NetworkAction::getId)).collect(Collectors.toList())) {
-                jsonGenerator.writeString(networkAction.getId());
+            for (String networkActionId : entry.getValue().stream().map(NetworkAction::getId).sorted().collect(Collectors.toList())) {
+                jsonGenerator.writeString(networkActionId);
             }
             jsonGenerator.writeEndArray();
             jsonGenerator.writeEndObject();
