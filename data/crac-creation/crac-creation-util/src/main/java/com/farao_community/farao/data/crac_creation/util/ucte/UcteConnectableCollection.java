@@ -156,7 +156,7 @@ class UcteConnectableCollection {
                   - if a criticial branch is defined with from = "UCTNODE2" and to = "X___NODE", the threshold
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
-                String xnode = ((TieLine) branch).getUcteXnodeCode();
+                String xnode = ((TieLine) branch).getPairingKey();
                 connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
                 connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
             } else if (branch instanceof TwoWindingsTransformer) {
@@ -177,7 +177,7 @@ class UcteConnectableCollection {
         network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
             // A dangling line is an Injection with a generator convention.
             // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-            String xNode = danglingLine.getUcteXnodeCode();
+            String xNode = danglingLine.getPairingKey();
             String rNode = getNodeName(danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId());
 
             if (danglingLine.getId().startsWith("X")) {
