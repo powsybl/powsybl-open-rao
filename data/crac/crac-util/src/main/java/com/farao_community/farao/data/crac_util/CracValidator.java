@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Misc features that clean up a CRAC to prepare it for the RAO
@@ -84,8 +85,12 @@ public final class CracValidator {
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return !crac.getRangeActions(state, UsageMethod.FORCED).isEmpty()
-            || !crac.getNetworkActions(state, UsageMethod.FORCED).isEmpty();
+        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state, UsageMethod.FORCED)) ||
+            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state, UsageMethod.FORCED));
+    }
+
+    private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {
+        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState));
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {

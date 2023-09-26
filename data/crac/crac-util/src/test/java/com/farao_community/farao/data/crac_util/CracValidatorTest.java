@@ -101,7 +101,7 @@ class CracValidatorTest {
     @Test
     void testDuplicateAutoCnecs0() {
         // No auto RA in CRAC => no auto perimeter => no need to duplicate CNECs
-        List<String> report = CracValidator.validateCrac(crac, network);
+        CracValidator.validateCrac(crac, network);
 
         assertEquals(3, crac.getFlowCnecs().size());
     }
@@ -116,17 +116,16 @@ class CracValidatorTest {
             .add();
         List<String> report = CracValidator.validateCrac(crac, network);
 
-        // todo: uncomment these lines
-        // assertEquals(6, crac.getFlowCnecs().size());
+        assertEquals(6, crac.getFlowCnecs().size());
 
-        // assertCnecHasOutageDuplicate("auto-cnec-1");
-        // assertCnecHasOutageDuplicate("auto-cnec-2");
-        // assertCnecHasOutageDuplicate("auto-cnec-3");
+        assertCnecHasOutageDuplicate("auto-cnec-1");
+        assertCnecHasOutageDuplicate("auto-cnec-2");
+        assertCnecHasOutageDuplicate("auto-cnec-3");
 
-        // assertEquals(3, report.size());
-        // assertTrue(report.contains("CNEC \"auto-cnec-1\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
-        // assertTrue(report.contains("CNEC \"auto-cnec-2\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
-        // assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertEquals(3, report.size());
+        assertTrue(report.contains("CNEC \"auto-cnec-1\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertTrue(report.contains("CNEC \"auto-cnec-2\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
     }
 
     @Test
@@ -141,15 +140,14 @@ class CracValidatorTest {
 
         List<String> report = CracValidator.validateCrac(crac, network);
 
-        // todo: uncomment these lines
-        // assertEquals(5, crac.getFlowCnecs().size());
+        assertEquals(5, crac.getFlowCnecs().size());
 
-        // assertCnecHasOutageDuplicate("auto-cnec-2");
-        // assertCnecHasOutageDuplicate("auto-cnec-3");
+        assertCnecHasOutageDuplicate("auto-cnec-2");
+        assertCnecHasOutageDuplicate("auto-cnec-3");
 
-        // assertEquals(2, report.size());
-        // assertTrue(report.contains("CNEC \"auto-cnec-2\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
-        // assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertEquals(2, report.size());
+        assertTrue(report.contains("CNEC \"auto-cnec-2\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
     }
 
     @Test
@@ -169,13 +167,12 @@ class CracValidatorTest {
 
         List<String> report = CracValidator.validateCrac(crac, network);
 
-        // todo: uncomment these lines
-        // assertEquals(4, crac.getFlowCnecs().size());
+        assertEquals(4, crac.getFlowCnecs().size());
 
-        // assertCnecHasOutageDuplicate("auto-cnec-3");
+        assertCnecHasOutageDuplicate("auto-cnec-3");
 
-        // assertEquals(1, report.size());
-        // assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertEquals(1, report.size());
+        assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
     }
 
     @Test
@@ -194,13 +191,12 @@ class CracValidatorTest {
 
         List<String> report = CracValidator.validateCrac(crac, network);
 
-        // todo: uncomment these lines
-        // assertEquals(4, crac.getFlowCnecs().size());
+        assertEquals(4, crac.getFlowCnecs().size());
 
-        // assertCnecHasOutageDuplicate("auto-cnec-3");
+        assertCnecHasOutageDuplicate("auto-cnec-3");
 
-        // assertEquals(1, report.size());
-        // assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertEquals(1, report.size());
+        assertTrue(report.contains("CNEC \"auto-cnec-3\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
     }
 
     @Test
@@ -214,7 +210,6 @@ class CracValidatorTest {
             .add();
 
         CracValidator.validateCrac(crac, network);
-        // todo: uncomment these lines
-        // assertEquals(3, crac.getFlowCnecs().size());
+        assertEquals(3, crac.getFlowCnecs().size());
     }
 }
