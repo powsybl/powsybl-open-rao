@@ -400,6 +400,11 @@
                 <version>${farao.virtualhubs.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>farao-virtual-hubs-api</artifactId>
+                <version>${farao.virtualhubs.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
