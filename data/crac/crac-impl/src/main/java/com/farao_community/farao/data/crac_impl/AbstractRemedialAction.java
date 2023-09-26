@@ -96,17 +96,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
      */
 
-    // todo: modify this
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint
-        List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.AVAILABLE)).collect(Collectors.toList());
-        onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
+        getUsageRules(OnFlowConstraint.class, optimizedState).forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
 
         // OnFlowConstraintInCountry
-        List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.AVAILABLE)).collect(Collectors.toList());
+        List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules(OnFlowConstraintInCountry.class, optimizedState);
+
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
             Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
                     Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
@@ -119,6 +116,17 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
                     .collect(Collectors.toSet()));
         });
         return toBeConsideredCnecs;
+    }
+
+    private <T> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
+        return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
+            .filter(ofc -> {
+                UsageRule castedOf = (UsageRule) ofc;
+                return state.getInstant().equals(Instant.AUTO) ?
+                    castedOf.getUsageMethod(state).equals(UsageMethod.FORCED) :
+                    castedOf.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || castedOf.getUsageMethod(state).equals(UsageMethod.FORCED);
+            })
+            .collect(Collectors.toList());
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
