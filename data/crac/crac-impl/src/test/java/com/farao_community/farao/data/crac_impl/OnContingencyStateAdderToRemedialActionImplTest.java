@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -25,7 +24,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
     private Crac crac;
     private Contingency contingency;
-    private NetworkAction remedialAction = null;
+    private RemedialAction<?> remedialAction = null;
 
     @BeforeEach
     public void setUp() {
@@ -70,21 +69,21 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
     @Test
     void testNoState() {
-        OnContingencyStateAdderToRemedialAction<NetworkAction> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
+        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withUsageMethod(UsageMethod.FORCED);
         assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
     }
 
     @Test
     void testNoUsageMethod() {
-        OnContingencyStateAdderToRemedialAction<NetworkAction> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
+        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withState(crac.getState(contingency, Instant.CURATIVE));
         assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
     }
 
     @Test
     void testPreventiveInstantNotForced() {
-        OnContingencyStateAdderToRemedialAction<NetworkAction> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
+        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withState(crac.getPreventiveState())
             .withUsageMethod(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
@@ -93,7 +92,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     @Test
     void testOutageInstant() {
         State outageState = ((CracImpl) crac).addState(contingency, Instant.OUTAGE);
-        OnContingencyStateAdderToRemedialAction<NetworkAction> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
+        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withState(outageState)
             .withUsageMethod(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
