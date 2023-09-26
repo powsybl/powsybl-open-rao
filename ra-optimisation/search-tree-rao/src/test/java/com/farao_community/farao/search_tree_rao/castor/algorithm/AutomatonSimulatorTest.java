@@ -596,8 +596,7 @@ class AutomatonSimulatorTest {
         assertNotNull(result);
         assertNotNull(result.getPerimeterResult());
 
-        // todo: uncomment these lines
-        // assertEquals(Set.of(), result.getActivatedNetworkActions());
+        assertEquals(Set.of(), result.getActivatedNetworkActions());
     }
 
     @Test
@@ -639,12 +638,11 @@ class AutomatonSimulatorTest {
         SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
         when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
-        // todo: uncomment these lines
-        // AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
-        // assertNotNull(result);
-        // assertEquals(Set.of(), result.getActivatedNetworkActions());
-        // assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
-        // assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, curativeState, network);
+        assertNotNull(result);
+        assertEquals(Set.of(), result.getActivatedNetworkActions());
+        assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
+        assertEquals(Map.of(ara1, 0.1, ara2, 0.1), result.getOptimizedSetpointsOnState(autoState));
     }
 
     @Test
