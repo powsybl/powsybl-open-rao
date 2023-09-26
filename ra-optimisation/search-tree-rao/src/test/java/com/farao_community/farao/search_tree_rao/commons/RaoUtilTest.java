@@ -240,7 +240,7 @@ class RaoUtilTest {
         assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // asserts that an automaton with only OnInstant(AVAILABLE) usage rule is not available
-        // todo: change this test
+        // todo: uncomment these lines. In fact, this test should be changed because the method does not do this anymore
         /*
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
         OnInstant onInstant = Mockito.mock(OnInstant.class);
