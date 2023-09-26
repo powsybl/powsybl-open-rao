@@ -16,11 +16,11 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnAngleConstraintImpl extends AbstractUsageRule implements OnAngleConstraint {
-    private Instant instant;
-    private AngleCnec angleCnec;
+    private final Instant instant;
+    private final AngleCnec angleCnec;
 
-    OnAngleConstraintImpl(Instant instant, AngleCnec angleCnec) {
-        super(UsageMethod.AVAILABLE);
+    OnAngleConstraintImpl(UsageMethod usageMethod, Instant instant, AngleCnec angleCnec) {
+        super(usageMethod);
         this.instant = instant;
         this.angleCnec = angleCnec;
     }
@@ -38,9 +38,9 @@ public class OnAngleConstraintImpl extends AbstractUsageRule implements OnAngleC
     @Override
     public UsageMethod getUsageMethod(State state) {
         if (state.isPreventive()) {
-            return state.getInstant().equals(instant) ? UsageMethod.AVAILABLE : UsageMethod.UNDEFINED;
+            return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
         } else {
-            return state.getInstant().equals(instant) && state.equals(this.angleCnec.getState()) ? UsageMethod.AVAILABLE : UsageMethod.UNDEFINED;
+            return state.getInstant().equals(instant) && state.equals(this.angleCnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
         }
     }
 

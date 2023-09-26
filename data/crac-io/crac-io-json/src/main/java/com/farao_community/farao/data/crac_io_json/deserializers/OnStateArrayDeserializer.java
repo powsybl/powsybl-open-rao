@@ -24,7 +24,7 @@ public final class OnStateArrayDeserializer {
     private OnStateArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnContingencyStateAdder<?> adder = ownerAdder.newOnContingencyStateUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -33,7 +33,7 @@ public final class OnStateArrayDeserializer {
                         adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
                         break;
                     case USAGE_METHOD:
-                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue(), version));
+                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     case CONTINGENCY_ID:
                         adder.withContingency(jsonParser.nextTextValue());

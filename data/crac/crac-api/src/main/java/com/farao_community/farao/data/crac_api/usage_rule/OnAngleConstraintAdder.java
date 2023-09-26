@@ -17,5 +17,7 @@ public interface OnAngleConstraintAdder<T extends RemedialActionAdder<T>> {
 
     OnAngleConstraintAdder<T> withAngleCnec(String angleCnecId);
 
+    OnAngleConstraintAdder<T> withUsageMethod(UsageMethod usageMethod);
+
     T add();
 }

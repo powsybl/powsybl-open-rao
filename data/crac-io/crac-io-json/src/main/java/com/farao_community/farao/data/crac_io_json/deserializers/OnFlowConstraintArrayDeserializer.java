@@ -8,8 +8,10 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -25,12 +27,19 @@ public final class OnFlowConstraintArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+        boolean isUsageMethodPresent = false;
+        Instant instant = Instant.PREVENTIVE;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintAdder<?> adder = ownerAdder.newOnFlowConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        adder.withInstant(instant);
+                        break;
+                    case USAGE_METHOD:
+                        isUsageMethodPresent = true;
+                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     case FLOW_CNEC_ID:
                         adder.withFlowCnec(jsonParser.nextTextValue());
@@ -38,6 +47,9 @@ public final class OnFlowConstraintArrayDeserializer {
                     default:
                         throw new FaraoException("Unexpected field in OnFlowConstraint: " + jsonParser.getCurrentName());
                 }
+            }
+            if (!isUsageMethodPresent) {
+                adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
             }
             adder.add();
         }

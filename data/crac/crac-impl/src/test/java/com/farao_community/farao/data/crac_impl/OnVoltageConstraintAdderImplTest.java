@@ -63,6 +63,7 @@ class OnVoltageConstraintAdderImplTest {
         RemedialAction<?> networkAction = remedialActionAdder.newOnVoltageConstraintUsageRule()
             .withInstant(Instant.PREVENTIVE)
             .withVoltageCnec("cnec2stateCurativeContingency1")
+            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
         UsageRule usageRule = networkAction.getUsageRules().iterator().next();
@@ -83,6 +84,7 @@ class OnVoltageConstraintAdderImplTest {
         RemedialAction<?> networkAction = remedialActionAdder.newOnVoltageConstraintUsageRule()
             .withInstant(Instant.CURATIVE)
             .withVoltageCnec("cnec2stateCurativeContingency1")
+            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
         UsageRule usageRule = networkAction.getUsageRules().iterator().next();
@@ -98,26 +100,32 @@ class OnVoltageConstraintAdderImplTest {
 
     @Test
     void testOutageException() {
-        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.OUTAGE).withVoltageCnec("cnec2stateCurativeContingency1");
+        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.OUTAGE).withVoltageCnec("cnec2stateCurativeContingency1").withUsageMethod(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testAbsentCnecException() {
         OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE)
-            .withVoltageCnec("fake_cnec");
+            .withVoltageCnec("fake_cnec").withUsageMethod(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testNoCnecException() {
-        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE);
+        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testNoInstantException() {
-        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withVoltageCnec("cnec2stateCurativeContingency1");
+        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withVoltageCnec("cnec2stateCurativeContingency1").withUsageMethod(UsageMethod.AVAILABLE);
+        assertThrows(FaraoException.class, adder::add);
+    }
+
+    @Test
+    void testNoUsageMethodException() {
+        OnVoltageConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
 
@@ -145,28 +153,28 @@ class OnVoltageConstraintAdderImplTest {
         OnVoltageConstraintAdder<NetworkActionAdder> adder;
 
         // PREVENTIVE RA
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-prev").add(); // ok
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-out").add(); // ok
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-auto"); // nok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
 
         // AUTO RA
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-prev"); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.FORCED); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-out"); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.FORCED); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-auto").add(); // ok
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-cur"); // nok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.FORCED).add(); // ok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.AUTO).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.FORCED); // nok
         assertThrows(FaraoException.class, adder::add);
 
         // CURATIVE RA
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-prev"); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-out"); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-out").withUsageMethod(UsageMethod.AVAILABLE); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-auto"); // nok
+        adder = remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-auto").withUsageMethod(UsageMethod.AVAILABLE); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec("cnec-cur").withUsageMethod(UsageMethod.AVAILABLE).add(); // ok
     }
 }

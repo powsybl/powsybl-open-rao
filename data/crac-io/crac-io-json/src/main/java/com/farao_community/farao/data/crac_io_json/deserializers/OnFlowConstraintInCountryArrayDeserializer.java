@@ -8,8 +8,10 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Country;
@@ -26,12 +28,19 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+        boolean isUsageMethodPresent = false;
+        Instant instant = Instant.PREVENTIVE;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnFlowConstraintInCountryAdder<?> adder = ownerAdder.newOnFlowConstraintInCountryUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        adder.withInstant(instant);
+                        break;
+                    case USAGE_METHOD:
+                        isUsageMethodPresent = true;
+                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));
@@ -39,6 +48,9 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                     default:
                         throw new FaraoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
                 }
+            }
+            if (!isUsageMethodPresent) {
+                adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
             }
             adder.add();
         }

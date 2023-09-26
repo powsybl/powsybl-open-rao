@@ -20,8 +20,8 @@ public class OnVoltageConstraintImpl extends AbstractUsageRule implements OnVolt
 
     private final VoltageCnec voltageCnec;
 
-    OnVoltageConstraintImpl(Instant instant, VoltageCnec angleCnec) {
-        super(UsageMethod.AVAILABLE);
+    OnVoltageConstraintImpl(UsageMethod usageMethod, Instant instant, VoltageCnec angleCnec) {
+        super(usageMethod);
         this.instant = instant;
         this.voltageCnec = angleCnec;
     }
@@ -39,9 +39,9 @@ public class OnVoltageConstraintImpl extends AbstractUsageRule implements OnVolt
     @Override
     public UsageMethod getUsageMethod(State state) {
         if (state.isPreventive()) {
-            return state.getInstant().equals(instant) ? UsageMethod.AVAILABLE : UsageMethod.UNDEFINED;
+            return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
         } else {
-            return state.getInstant().equals(instant) && state.equals(this.voltageCnec.getState()) ? UsageMethod.AVAILABLE : UsageMethod.UNDEFINED;
+            return state.getInstant().equals(instant) && state.equals(this.voltageCnec.getState()) ? usageMethod : UsageMethod.UNDEFINED;
         }
     }
 

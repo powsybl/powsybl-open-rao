@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.Objects;
 
@@ -21,9 +22,10 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnAngleConstraintAdder<T> {
 
-    private T owner;
+    private final T owner;
     private Instant instant;
     private String angleCnecId;
+    private UsageMethod usageMethod;
 
     OnAngleConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -32,6 +34,12 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
     @Override
     public OnAngleConstraintAdder<T> withInstant(Instant instant) {
         this.instant = instant;
+        return this;
+    }
+
+    @Override
+    public OnAngleConstraintAdder<T> withUsageMethod(UsageMethod usageMethod) {
+        this.usageMethod = usageMethod;
         return this;
     }
 
@@ -45,6 +53,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
+        assertAttributeNotNull(usageMethod, "OnAngleConstraint", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
@@ -60,7 +69,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, angleCnec);
 
-        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(instant, angleCnec);
+        OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(usageMethod, instant, angleCnec);
         owner.addUsageRule(onAngleConstraint);
         return owner;
     }

@@ -335,7 +335,7 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static UsageMethod deserializeUsageMethod(String stringValue, String version) {
+    public static UsageMethod deserializeUsageMethod(String stringValue) {
         switch (stringValue) {
             case UNAVAILABLE_USAGE_METHOD:
                 return UsageMethod.UNAVAILABLE;

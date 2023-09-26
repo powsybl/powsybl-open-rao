@@ -399,11 +399,11 @@ public class RemedialActionSeriesCreator {
             return;
         }
         if (Objects.nonNull(angleCnec)) {
-            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec);
+            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec, instant);
             return;
         }
         if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).add();
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE).add();
             return;
         }
 
@@ -472,13 +472,15 @@ public class RemedialActionSeriesCreator {
         }
         adder.newOnFlowConstraintUsageRule()
             .withFlowCnec(flowCnec.getId())
+            .withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant)
             .add();
     }
 
-    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec) {
+    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec, Instant instant) {
         adder.newOnAngleConstraintUsageRule()
             .withAngleCnec(angleCnec.getId())
+            .withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(Instant.CURATIVE)
             .add();
     }

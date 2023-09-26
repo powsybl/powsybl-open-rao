@@ -38,7 +38,7 @@ class OnVoltageConstraintImplTest {
 
     @Test
     void testConstructor() {
-        OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(Instant.PREVENTIVE, voltageCnec);
+        OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE, voltageCnec);
 
         assertEquals(Instant.PREVENTIVE, onVoltageConstraint.getInstant());
         assertSame(voltageCnec, onVoltageConstraint.getVoltageCnec());
@@ -49,22 +49,22 @@ class OnVoltageConstraintImplTest {
 
     @Test
     void testEquals() {
-        OnVoltageConstraint onVoltageConstraint1 = new OnVoltageConstraintImpl(Instant.PREVENTIVE, voltageCnec);
+        OnVoltageConstraint onVoltageConstraint1 = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE, voltageCnec);
         assertEquals(onVoltageConstraint1, onVoltageConstraint1);
         assertEquals(onVoltageConstraint1.hashCode(), onVoltageConstraint1.hashCode());
 
         assertNotNull(onVoltageConstraint1);
         assertNotEquals(onVoltageConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnVoltageConstraint onVoltageConstraint2 = new OnVoltageConstraintImpl(Instant.PREVENTIVE, voltageCnec);
+        OnVoltageConstraint onVoltageConstraint2 = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE, voltageCnec);
         assertEquals(onVoltageConstraint1, onVoltageConstraint2);
         assertEquals(onVoltageConstraint1.hashCode(), onVoltageConstraint2.hashCode());
 
-        onVoltageConstraint2 = new OnVoltageConstraintImpl(Instant.CURATIVE, voltageCnec);
+        onVoltageConstraint2 = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.CURATIVE, voltageCnec);
         assertNotEquals(onVoltageConstraint1, onVoltageConstraint2);
         assertNotEquals(onVoltageConstraint1.hashCode(), onVoltageConstraint2.hashCode());
 
-        onVoltageConstraint2 = new OnVoltageConstraintImpl(Instant.PREVENTIVE, Mockito.mock(VoltageCnec.class));
+        onVoltageConstraint2 = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE, Mockito.mock(VoltageCnec.class));
         assertNotEquals(onVoltageConstraint1, onVoltageConstraint2);
         assertNotEquals(onVoltageConstraint1.hashCode(), onVoltageConstraint2.hashCode());
     }
@@ -75,13 +75,13 @@ class OnVoltageConstraintImplTest {
         Mockito.when(curativeState2.getInstant()).thenReturn(Instant.CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);
 
-        OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(Instant.PREVENTIVE, voltageCnec);
+        OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE, voltageCnec);
         assertEquals(UsageMethod.AVAILABLE, onVoltageConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState2));
 
         Mockito.when(voltageCnec.getState()).thenReturn(curativeState);
-        onVoltageConstraint = new OnVoltageConstraintImpl(Instant.CURATIVE, voltageCnec);
+        onVoltageConstraint = new OnVoltageConstraintImpl(UsageMethod.AVAILABLE, Instant.CURATIVE, voltageCnec);
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.AVAILABLE, onVoltageConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onVoltageConstraint.getUsageMethod(curativeState2));

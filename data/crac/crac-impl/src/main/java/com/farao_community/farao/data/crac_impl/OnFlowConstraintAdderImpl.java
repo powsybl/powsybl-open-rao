@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.Objects;
 
@@ -21,9 +22,10 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
-    private T owner;
+    private final T owner;
     private Instant instant;
     private String flowCnecId;
+    private UsageMethod usageMethod;
 
     OnFlowConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -32,6 +34,12 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     @Override
     public OnFlowConstraintAdder<T> withInstant(Instant instant) {
         this.instant = instant;
+        return this;
+    }
+
+    @Override
+    public OnFlowConstraintAdder<T> withUsageMethod(UsageMethod usageMethod) {
+        this.usageMethod = usageMethod;
         return this;
     }
 
@@ -45,6 +53,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
+        assertAttributeNotNull(usageMethod, "OnFlowConstraint", "usage method", "withUsageMethod()");
 
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
@@ -60,7 +69,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
 
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec);
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(usageMethod, instant, flowCnec);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }
