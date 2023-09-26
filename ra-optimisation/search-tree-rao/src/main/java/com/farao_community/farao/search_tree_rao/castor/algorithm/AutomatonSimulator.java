@@ -147,11 +147,7 @@ public final class AutomatonSimulator {
 
         // For automatonState, filters out rangeActions with usageMethod AVAILABLE having only
         // OnFlowConstraint or OnFlowConstraintInCountry usageRules as they are not supported.
-        Set<RangeAction<?>> automatonStateRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED, UsageMethod.AVAILABLE)
-            .stream().filter(ra -> ra.getUsageMethod(automatonState).equals(UsageMethod.FORCED)
-                || ra.getUsageRules().stream().filter(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry)).findAny().isEmpty()).collect(Collectors.toSet());
-
-        rangeActionsInSensi.addAll(automatonStateRangeActions);
+        rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED));
         rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
@@ -209,8 +205,7 @@ public final class AutomatonSimulator {
         // -- First get forced network actions
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
 
-        // -- Then add those with AVAILABLE usage method when evaluation condition is verified
-        // -- Evaluation condition is isAnyMarginNegative amongst network actions' flow cnecs associated to their usage rules
+        // todo: Filter out the ones that are forced but with OFC not verified, I think
         crac.getNetworkActions(automatonState, UsageMethod.AVAILABLE).stream()
             .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters))
                 .forEach(appliedNetworkActions::add);
