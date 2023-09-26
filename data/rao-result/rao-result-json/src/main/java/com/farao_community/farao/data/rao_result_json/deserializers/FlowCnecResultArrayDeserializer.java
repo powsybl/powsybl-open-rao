@@ -10,9 +10,9 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
 import com.farao_community.farao.data.rao_result_impl.FlowCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -54,30 +54,10 @@ final class FlowCnecResultArrayDeserializer {
     private static void deserializeFlowCnecResult(JsonParser jsonParser, FlowCnecResult flowCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryFlowCnecResult eFlowCnecResult;
-            switch (jsonParser.getCurrentName()) {
-                case INITIAL_OPT_STATE:
-                    jsonParser.nextToken();
-                    eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.INITIAL);
-                    deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
-                    break;
-                case AFTER_PRA_OPT_STATE:
-                    jsonParser.nextToken();
-                    eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_PRA);
-                    deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
-                    break;
-                case AFTER_ARA_OPT_STATE:
-                    jsonParser.nextToken();
-                    eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_ARA);
-                    deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
-                    break;
-                case AFTER_CRA_OPT_STATE:
-                    jsonParser.nextToken();
-                    eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA);
-                    deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
-                    break;
-                default:
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
-            }
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            jsonParser.nextToken();
+            eFlowCnecResult = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
+            deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult, jsonFileVersion);
         }
     }
 
