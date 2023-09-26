@@ -89,12 +89,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      */
     @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        return (getUsageMethod(state) == UsageMethod.AVAILABLE) && evaluatedCondition;
+        return (getUsageMethod(state) == UsageMethod.AVAILABLE || getUsageMethod(state) == UsageMethod.FORCED) && evaluatedCondition;
     }
 
     /**
      * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
      */
+
+    // todo: modify this
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint

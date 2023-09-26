@@ -17,10 +17,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
-import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -32,6 +29,7 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -146,10 +144,15 @@ public final class RaoUtil {
             FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
             return false;
         }
-        if (!state.getInstant().equals(Instant.AUTO)
-            && usageRules.stream()
-            .filter(usageRule -> !(usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry))
-            .anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE))) {
+        Set<UsageRule> usageRulesOnTime = usageRules.stream()
+            .filter(usageRule -> usageRule instanceof OnContingencyState || usageRule instanceof OnInstant).collect(Collectors.toSet());
+        if (state.getInstant().equals(Instant.AUTO)) {
+            if (usageRulesOnTime.stream().anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+                return true;
+            }
+        } else if (usageRulesOnTime.stream()
+            .anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE)
+                || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
             return true;
         }
         return remedialAction.isRemedialActionAvailable(state, isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state), raoParameters.getObjectiveFunctionParameters().getType().getUnit()));

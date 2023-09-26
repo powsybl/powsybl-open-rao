@@ -105,10 +105,7 @@ public final class CracValidator {
     }
 
     private static boolean isRaUsefulForCnec(RemedialAction<?> ra, FlowCnec cnec, Network network) {
-        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.AVAILABLE)) {
-            return true;
-        }
-        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.FORCED)) {
+        if (ra.getUsageMethod(cnec.getState()).equals(UsageMethod.FORCED) || ra.getUsageMethod(cnec.getState()).equals(UsageMethod.AVAILABLE)) {
             return ra.getUsageRules().stream()
                 .filter(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
                 .anyMatch(usageRule -> usageRule.getInstant().equals(cnec.getState().getInstant()))
