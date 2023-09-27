@@ -133,8 +133,34 @@ class InjectionSetpointImplTest {
     }
 
     @Test
+    void hasImpactOnNetworkForShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+                new NetworkElementImpl("SC1"),
+                0, Unit.SECTION_COUNT);
+        assertTrue(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void hasNoImpactOnNetworkForShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+                new NetworkElementImpl("SC1"),
+                1, Unit.SECTION_COUNT);
+        assertFalse(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
     void applyOnShuntCompensator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+                new NetworkElementImpl("SC1"),
+                1, Unit.SECTION_COUNT);
+        shuntCompensatorSetpoint.apply(network);
+        assertEquals(1., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
     }
 
     @Test

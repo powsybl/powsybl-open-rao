@@ -86,7 +86,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
             ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
             shuntCompensator.setSectionCount((int) setpoint);
         } else {
-            throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
+            throw new NotImplementedException("Injection setpoint only handled for generators, loads, dangling lines or shunt compensators");
         }
     }
 
