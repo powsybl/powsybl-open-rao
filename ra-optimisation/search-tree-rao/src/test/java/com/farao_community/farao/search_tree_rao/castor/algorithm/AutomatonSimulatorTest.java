@@ -702,8 +702,7 @@ class AutomatonSimulatorTest {
         AutomatonSimulator.RangeAutomatonSimulationResult shiftResult =
             automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(ara1, ara2), Set.of(cnec1), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, autoState);
 
-        // todo: uncomment these lines
-        // assertTrue(shiftResult.getActivatedRangeActions().isEmpty());
+        assertTrue(shiftResult.getActivatedRangeActions().isEmpty());
     }
 
     @Test
