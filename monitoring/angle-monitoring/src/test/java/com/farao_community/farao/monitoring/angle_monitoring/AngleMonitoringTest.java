@@ -232,6 +232,8 @@ class AngleMonitoringTest {
         acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
 
         runAngleMonitoring();
+        assertEquals(1, angleMonitoringResult.getAngleCnecsWithAngle().size());
+        assertEquals("acCur1", angleMonitoringResult.getAngleCnecsWithAngle().stream().findFirst().orElseThrow().getId());
         assertTrue(angleMonitoringResult.isSecure());
     }
 
