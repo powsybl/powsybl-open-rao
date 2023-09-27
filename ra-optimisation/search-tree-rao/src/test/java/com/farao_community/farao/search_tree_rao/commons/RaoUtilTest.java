@@ -239,16 +239,26 @@ class RaoUtilTest {
         when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(List.of());
         assertFalse(isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
-        // asserts that an automaton with only OnInstant(AVAILABLE) usage rule is not available
-        // todo: uncomment these lines. In fact, this test should be changed because the method does not do this anymore
-        /*
+        // mock AUTO state for the next assertions
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
         OnInstant onInstant = Mockito.mock(OnInstant.class);
-        when(automatonRa.getUsageRules()).thenReturn(List.of(onInstant));
+        OnFlowConstraint onFlowConstraint = Mockito.mock(OnFlowConstraint.class);
         State automatonState = Mockito.mock(State.class);
         when(automatonState.getInstant()).thenReturn(Instant.AUTO);
+
+        // remedial action with OnInstant Usage Rule
+        when(automatonRa.getUsageRules()).thenReturn(List.of(onInstant));
+        when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
+        assertTrue(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
         assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
-         */
+
+        // remedial action with OnFlowConstraint Usage Rule
+        when(automatonRa.getUsageRules()).thenReturn(List.of(onFlowConstraint));
+        when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
+        assertFalse(isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
     }
 
     @Test
