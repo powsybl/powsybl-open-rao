@@ -51,9 +51,6 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
 
     @Override
     public InjectionSetpointAdder withUnit(Unit unit) {
-        if (unit == Unit.SECTION_COUNT && setpoint < 0) {
-            throw new FaraoException("With a SECTION_COUNT unit, setpoint should be a positive integer");
-        }
         this.unit = unit;
         return this;
     }
@@ -63,6 +60,9 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
         assertAttributeNotNull(networkElementId, "InjectionSetPoint", "network element", "withNetworkElement()");
         assertAttributeNotNull(setpoint, "InjectionSetPoint", "setpoint", "withSetPoint()");
         assertAttributeNotNull(unit, "InjectionSetPoint", "unit", "withUnit()");
+        if (unit == Unit.SECTION_COUNT && (setpoint < 0 || Math.abs(setpoint - Math.floor(setpoint)) > 1e-6)) {
+            throw new FaraoException("With a SECTION_COUNT unit, setpoint should be a positive integer");
+        }
 
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         InjectionSetpoint injectionSetpoint = new InjectionSetpointImpl(networkElement, setpoint, unit);

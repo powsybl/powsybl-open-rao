@@ -116,4 +116,7 @@ public final class NetworkImportsUtil {
                 .setQ(0.);
     }
 
+    public static void addShuntCompensator(Network network) {
+    }
+
 }

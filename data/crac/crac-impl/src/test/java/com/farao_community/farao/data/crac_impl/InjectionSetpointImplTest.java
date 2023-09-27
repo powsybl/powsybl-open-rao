@@ -133,6 +133,11 @@ class InjectionSetpointImplTest {
     }
 
     @Test
+    void applyOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+    }
+
+    @Test
     void getUnit() {
         InjectionSetpointImpl dummy = new InjectionSetpointImpl(
                 new NetworkElementImpl("wrong_name"),

@@ -375,8 +375,8 @@
     "injectionSetpoints" : [ {
       "networkElementId" : "injection",
       "setpoint" : 260.0,
-      "unit" : "section_count"
-    } ]
+      "unit" : "megawatt"
+    }]
   }, {
     "id" : "pstSetpointRaId",
     "name" : "pstSetpointRaName",

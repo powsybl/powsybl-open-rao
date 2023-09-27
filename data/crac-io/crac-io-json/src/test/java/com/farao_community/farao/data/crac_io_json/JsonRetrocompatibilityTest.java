@@ -549,6 +549,6 @@ class JsonRetrocompatibilityTest {
 
         testContentOfV1Point7Crac(crac);
         // test new injection setpoint unit
-        assertEquals(Unit.SECTION_COUNT, ((InjectionSetpoint) crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).findFirst().orElseThrow()).getUnit());
+        assertEquals(Unit.MEGAWATT, ((InjectionSetpoint) crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).findFirst().orElseThrow()).getUnit());
     }
 }
