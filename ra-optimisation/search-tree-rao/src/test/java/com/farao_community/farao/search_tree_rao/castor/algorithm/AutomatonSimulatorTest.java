@@ -17,7 +17,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.NotOptimizedCnecsParameters;
@@ -238,14 +237,7 @@ class AutomatonSimulatorTest {
     @Test
     void testGatherCnecs() {
         assertEquals(2, automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra2, autoState, network).size());
-
         assertEquals(1, automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra3, autoState, network).size());
-        RangeAction<?> ra = Mockito.mock(RangeAction.class);
-        Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.FORCED);
-        OnInstant onInstant = Mockito.mock(OnInstant.class);
-        Mockito.when(ra.getUsageRules()).thenReturn(List.of(onInstant));
-        // todo: uncomment these lines
-        // assert automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network).isEmpty();
     }
 
     @Test
