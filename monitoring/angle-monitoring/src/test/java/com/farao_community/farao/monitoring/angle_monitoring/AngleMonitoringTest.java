@@ -226,6 +226,18 @@ class AngleMonitoringTest {
     }
 
     @Test
+    void testAngleCnecOnBus() {
+        setUpCracFactory("network.xiidm");
+        crac.newContingency().withId("coL1").withNetworkElement("L2").add();
+        acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
+
+        runAngleMonitoring();
+        assertEquals(1, angleMonitoringResult.getAngleCnecsWithAngle().size());
+        assertEquals("acCur1", angleMonitoringResult.getAngleCnecsWithAngle().stream().findFirst().orElseThrow().getId());
+        assertTrue(angleMonitoringResult.isSecure());
+    }
+
+    @Test
     void testCracCim() {
         setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
         assertEquals(2, crac.getAngleCnecs().size());
