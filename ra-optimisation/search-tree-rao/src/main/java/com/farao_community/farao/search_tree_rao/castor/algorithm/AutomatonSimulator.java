@@ -354,7 +354,7 @@ public final class AutomatonSimulator {
             if (rangeActionsOnAutomatonState.stream().anyMatch(l -> l.contains(availableRangeAction))) {
                 continue;
             }
-            // Look for aligned range actions in all range actions : they have the same groupId and the same usageMethod
+            // Look for aligned range actions in all range actions : they have the same groupId and should both be available
             Optional<String> groupId = availableRangeAction.getGroupId();
             List<RangeAction<?>> alignedRa;
             if (groupId.isPresent()) {

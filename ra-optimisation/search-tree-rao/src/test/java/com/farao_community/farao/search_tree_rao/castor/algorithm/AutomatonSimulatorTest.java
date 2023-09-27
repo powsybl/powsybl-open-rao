@@ -275,8 +275,7 @@ class AutomatonSimulatorTest {
         PrePerimeterResult rangeActionSensitivity = Mockito.mock(PrePerimeterResult.class);
         List<List<RangeAction<?>>> result = automatonSimulator.buildRangeActionsGroupsOrderedBySpeed(rangeActionSensitivity, autoState, network);
 
-        // todo: uncomment these lines
-        // assertEquals(List.of(List.of(hvdcRa1, hvdcRa2), List.of(ra2), List.of(ara1, ara2), List.of(ra3)), result);
+        assertEquals(List.of(List.of(hvdcRa1, hvdcRa2), List.of(ra2), List.of(ara1, ara2), List.of(ra3), List.of(ara5, ara6)), result);
     }
 
     @Test
