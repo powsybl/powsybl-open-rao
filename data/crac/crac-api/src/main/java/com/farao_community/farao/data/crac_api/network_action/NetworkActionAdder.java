@@ -21,6 +21,4 @@ public interface NetworkActionAdder extends RemedialActionAdder<NetworkActionAdd
     InjectionSetpointAdder newInjectionSetPoint();
 
     SwitchPairAdder newSwitchPair();
-
-    NetworkAction add();
 }

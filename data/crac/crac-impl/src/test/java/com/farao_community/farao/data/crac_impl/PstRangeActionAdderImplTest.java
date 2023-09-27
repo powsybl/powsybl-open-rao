@@ -40,7 +40,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAdd() {
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
@@ -90,7 +90,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAddAutoWithSpeed() {
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -114,7 +114,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutGroupId() {
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
@@ -145,9 +145,9 @@ class PstRangeActionAdderImplTest {
             - without range, the default range will be defined by the min/max value of the network
             - without usage rule, the remedial action will never be available
 
-        This test should however returns two warnings
+        This test should however return two warnings
          */
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
@@ -164,7 +164,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testAddWithoutOperator() {
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .newTapRange()
@@ -290,7 +290,7 @@ class PstRangeActionAdderImplTest {
 
     @Test
     void testPraRelativeToPreviousInstantRange() {
-        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+        PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("id1")
             .withNetworkElement(networkElementId)
             .newTapRange()

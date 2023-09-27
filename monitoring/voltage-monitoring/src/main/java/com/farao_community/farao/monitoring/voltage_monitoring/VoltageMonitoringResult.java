@@ -134,7 +134,9 @@ public class VoltageMonitoringResult {
             if (constrainedElements.isEmpty()) {
                 constraints = List.of("All voltage CNECs are secure.");
             } else {
-                constraints = constrainedElements.stream()
+                constraints = new ArrayList<>();
+                constraints.add("Some voltage CNECs are not secure:");
+                constrainedElements.stream()
                     .sorted(Comparator.comparing(VoltageCnec::getId)).map(vc ->
                         String.format("Network element %s at state %s has a voltage of %.0f - %.0f kV.",
                             vc.getNetworkElement().getId(),
@@ -142,7 +144,7 @@ public class VoltageMonitoringResult {
                             extremeVoltageValues.get(vc).getMin(),
                             extremeVoltageValues.get(vc).getMax()
                         )
-                    ).collect(Collectors.toList());
+                    ).forEach(constraints::add);
             }
         }
         return constraints;

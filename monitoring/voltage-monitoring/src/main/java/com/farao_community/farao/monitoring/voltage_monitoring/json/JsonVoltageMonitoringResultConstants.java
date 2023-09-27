@@ -14,10 +14,9 @@ public final class JsonVoltageMonitoringResultConstants {
     private JsonVoltageMonitoringResultConstants() {
     }
 
-    static final String TYPE = "type";
     static final String VOLTAGE_MONITORING_RESULT = "VOLTAGE_MONITORING_RESULT";
     static final String VOLTAGE_VALUES = "extreme-voltage-values-in-kilovolts";
-    static final String CNEC_ID = "cnec-id";
+    static final String APPLIED_RAS = "applied-ras";
     static final String MIN = "min";
     static final String MAX = "max";
 }
