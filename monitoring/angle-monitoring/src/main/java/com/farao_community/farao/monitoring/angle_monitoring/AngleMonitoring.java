@@ -221,13 +221,17 @@ public class AngleMonitoring {
     private Map<AngleCnec, Double> computeAngles(Set<AngleCnec> angleCnecs, Network network) {
         Map<AngleCnec, Double> anglePerCnec = new HashMap<>();
         angleCnecs.forEach(ac -> {
-            VoltageLevel exportingVoltageLevel = network.getVoltageLevel(ac.getExportingNetworkElement().getId());
-            if (exportingVoltageLevel == null) {
+            VoltageLevel exportingVoltageLevel;
+            if (network.getBusBreakerView().getBus(ac.getExportingNetworkElement().getId()) != null) {
                 exportingVoltageLevel = network.getBusBreakerView().getBus(ac.getExportingNetworkElement().getId()).getVoltageLevel();
+            } else {
+                exportingVoltageLevel = network.getVoltageLevel(ac.getExportingNetworkElement().getId());
             }
-            VoltageLevel importingVoltageLevel = network.getVoltageLevel(ac.getImportingNetworkElement().getId());
-            if (importingVoltageLevel == null) {
+            VoltageLevel importingVoltageLevel;
+            if (network.getBusBreakerView().getBus(ac.getImportingNetworkElement().getId()) != null) {
                 importingVoltageLevel = network.getBusBreakerView().getBus(ac.getImportingNetworkElement().getId()).getVoltageLevel();
+            } else {
+                importingVoltageLevel = network.getVoltageLevel(ac.getImportingNetworkElement().getId());
             }
             Double angle = exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
                     - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
