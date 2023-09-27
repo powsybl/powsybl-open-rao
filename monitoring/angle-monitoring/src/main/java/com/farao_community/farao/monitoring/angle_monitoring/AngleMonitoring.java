@@ -74,7 +74,6 @@ public class AngleMonitoring {
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
             stateSpecificResults.add(new AngleMonitoringResult(Collections.emptySet(), Collections.emptyMap(), AngleMonitoringResult.Status.SECURE));
-            BUSINESS_LOGS.info("----- Angle monitoring [end]");
             return assembleAngleMonitoringResults();
         }
 
@@ -86,7 +85,6 @@ public class AngleMonitoring {
         // II) Curative states
         Set<State> contingencyStates = crac.getAngleCnecs().stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
-            BUSINESS_LOGS.info("----- Angle monitoring [end]");
             return assembleAngleMonitoringResults();
         }
 
@@ -130,7 +128,6 @@ public class AngleMonitoring {
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }
-        BUSINESS_LOGS.info("----- Angle monitoring [end]");
         return assembleAngleMonitoringResults();
     }
 
@@ -411,7 +408,10 @@ public class AngleMonitoring {
         } else if (stateSpecificResults.stream().anyMatch(AngleMonitoringResult::isUnknown)) {
             assembledStatus = AngleMonitoringResult.Status.UNKNOWN;
         }
-        return new AngleMonitoringResult(assembledAngleCnecsWithAngle, assembledAppliedCras, assembledStatus);
+        AngleMonitoringResult result = new AngleMonitoringResult(assembledAngleCnecsWithAngle, assembledAppliedCras, assembledStatus);
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("----- Angle monitoring [end]");
+        return result;
     }
 
     private AngleMonitoringResult catchAngleMonitoringResult(State state, AngleMonitoringResult.Status status) {
