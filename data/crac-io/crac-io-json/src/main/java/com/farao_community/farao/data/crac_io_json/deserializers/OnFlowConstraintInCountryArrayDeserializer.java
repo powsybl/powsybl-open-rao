@@ -27,7 +27,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
     private OnFlowConstraintInCountryArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
         boolean isUsageMethodPresent = false;
         Instant instant = Instant.PREVENTIVE;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -50,6 +50,9 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                 }
             }
             if (!isUsageMethodPresent) {
+                if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 6) {
+                    throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnFlowConstraintInCountry usage rules");
+                }
                 adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
             }
             adder.add();

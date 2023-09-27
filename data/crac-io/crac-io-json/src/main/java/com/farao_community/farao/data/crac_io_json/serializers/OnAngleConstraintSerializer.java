@@ -24,6 +24,7 @@ public class OnAngleConstraintSerializer extends AbstractJsonSerializer<OnAngleC
         gen.writeStartObject();
         gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
         gen.writeStringField(ANGLE_CNEC_ID, value.getAngleCnec().getId());
+        gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

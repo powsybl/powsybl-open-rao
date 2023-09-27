@@ -215,6 +215,7 @@ class CracImportExportTest {
         OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) injectionSetpointRaUsageRule;
         assertEquals("cnec3autoId", onFlowConstraint1.getFlowCnec().getId());
         assertEquals(AUTO, onFlowConstraint1.getInstant());
+        assertEquals(FORCED, onFlowConstraint1.getUsageMethod());
 
         // test SwitchPair
 
@@ -274,6 +275,7 @@ class CracImportExportTest {
         OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) pstRange2UsageRule;
         assertEquals(PREVENTIVE, onFlowConstraint2.getInstant());
         assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
+        assertEquals(AVAILABLE, onFlowConstraint2.getUsageMethod());
 
         // check OnAngleConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
@@ -283,6 +285,7 @@ class CracImportExportTest {
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) pstRange3UsageRule;
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
         assertSame(crac.getCnec("angleCnecId"), onAngleConstraint.getAngleCnec());
+        assertEquals(AVAILABLE, onAngleConstraint.getUsageMethod());
 
         // check OnVoltageConstraint usage rule
         Set<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
@@ -292,6 +295,7 @@ class CracImportExportTest {
         OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) pstRange4IdFirstUsageRules;
         assertEquals(CURATIVE, onVoltageConstraint.getInstant());
         assertSame(crac.getCnec("voltageCnecId"), onVoltageConstraint.getVoltageCnec());
+        assertEquals(AVAILABLE, onVoltageConstraint.getUsageMethod());
 
         // check Usage Method for pst5
         PstRangeAction pst5 = crac.getPstRangeAction("pstRange5Id");
@@ -323,6 +327,7 @@ class CracImportExportTest {
         assertEquals(3, crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().size());
         OnFlowConstraint onFlowConstraint3 = (OnFlowConstraint) crac.getHvdcRangeAction("hvdcRange2Id").getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).findAny().orElseThrow();
         assertEquals(PREVENTIVE, onFlowConstraint3.getInstant());
+        assertEquals(AVAILABLE, onFlowConstraint3.getUsageMethod());
         assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getFlowCnec());
 
         // check Hvdc range
@@ -341,6 +346,7 @@ class CracImportExportTest {
         OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) hvdcRange1UsageRule;
         assertEquals(PREVENTIVE, ur.getInstant());
         assertEquals(Country.FR, ur.getCountry());
+        assertEquals(AVAILABLE, ur.getUsageMethod());
 
         // ---------------------------------
         // --- test InjectionRangeAction ---
@@ -384,5 +390,7 @@ class CracImportExportTest {
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(CURATIVE, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
+        assertEquals(AVAILABLE, ur.getUsageMethod());
+
     }
 }

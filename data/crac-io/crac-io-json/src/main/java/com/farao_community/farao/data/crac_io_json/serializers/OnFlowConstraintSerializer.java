@@ -24,6 +24,7 @@ public class OnFlowConstraintSerializer extends AbstractJsonSerializer<OnFlowCon
         gen.writeStartObject();
         gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
         gen.writeStringField(FLOW_CNEC_ID, value.getFlowCnec().getId());
+        gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

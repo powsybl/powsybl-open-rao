@@ -24,6 +24,7 @@ public class OnVoltageConstraintSerializer extends AbstractJsonSerializer<OnVolt
         gen.writeStartObject();
         gen.writeStringField(INSTANT, serializeInstant(value.getInstant()));
         gen.writeStringField(VOLTAGE_CNEC_ID, value.getVoltageCnec().getId());
+        gen.writeStringField(USAGE_METHOD, serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

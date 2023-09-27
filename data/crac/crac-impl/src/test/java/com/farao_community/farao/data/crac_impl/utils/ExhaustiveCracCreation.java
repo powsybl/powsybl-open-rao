@@ -175,7 +175,7 @@ public final class ExhaustiveCracCreation {
                 .withName("injectionSetpointRaName")
                 .withOperator("RTE")
                 .newInjectionSetPoint().withSetpoint(260).withNetworkElement("injection").withUnit(Unit.SECTION_COUNT).add()
-                .newOnFlowConstraintUsageRule().withFlowCnec("cnec3autoId").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnFlowConstraintUsageRule().withFlowCnec("cnec3autoId").withInstant(Instant.AUTO).withUsageMethod(UsageMethod.FORCED).add()
                 .add();
 
         // network action with one switch pair

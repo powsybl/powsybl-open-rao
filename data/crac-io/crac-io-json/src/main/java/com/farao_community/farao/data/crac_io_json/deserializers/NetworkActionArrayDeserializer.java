@@ -68,19 +68,19 @@ public final class NetworkActionArrayDeserializer {
                         break;
                     case ON_FLOW_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case ON_ANGLE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnAngleConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case ON_VOLTAGE_CONSTRAINT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnVoltageConstraintArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnFlowConstraintInCountryArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case TOPOLOGICAL_ACTIONS:
                         jsonParser.nextToken();
