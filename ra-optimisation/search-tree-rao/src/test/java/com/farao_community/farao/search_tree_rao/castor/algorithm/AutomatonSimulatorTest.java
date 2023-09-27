@@ -258,19 +258,16 @@ class AutomatonSimulatorTest {
     @Test
     void testCheckAlignedRangeActions1() {
         // OK
-        assertTrue(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara1, ara2), List.of(ara1, ara2)));
-        assertTrue(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara2, ara1), List.of(ara1, ara2)));
+        assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara1, ara2), List.of(ara1, ara2)));
+        assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara2, ara1), List.of(ara1, ara2)));
+        assertTrue(AutomatonSimulator.checkAlignedRangeActions(List.of(ara5, ra4), List.of(ara5, ra3, ra4)));
+
         // different types
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara3, ara4), List.of(ara3, ara4)));
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara4, ara3), List.of(ara3, ara4)));
-        // different usage method
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara3, ara4), List.of(ara3, ara4)));
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara4, ara3), List.of(ara3, ara4)));
 
-        // todo: uncomment these lines
-        // assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara5, ara6), List.of(ara5, ara6)));
-
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara5, ra4), List.of(ara5, ra3, ra4)));
         // one unavailable RA
-        assertFalse(AutomatonSimulator.checkAlignedRangeActions(autoState, List.of(ara1, ara2), List.of(ara1)));
+        assertFalse(AutomatonSimulator.checkAlignedRangeActions(List.of(ara1, ara2), List.of(ara1)));
     }
 
     @Test

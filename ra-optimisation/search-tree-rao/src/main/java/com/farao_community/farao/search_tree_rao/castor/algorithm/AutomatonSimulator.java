@@ -365,7 +365,7 @@ public final class AutomatonSimulator {
             } else {
                 alignedRa = List.of(availableRangeAction);
             }
-            if (!checkAlignedRangeActions(automatonState, alignedRa, rangeActionsOrderedBySpeed)) {
+            if (!checkAlignedRangeActions(alignedRa, rangeActionsOrderedBySpeed)) {
                 continue;
             }
             rangeActionsOnAutomatonState.add(alignedRa);
@@ -376,11 +376,10 @@ public final class AutomatonSimulator {
     /**
      * This function checks that the group of aligned range actions :
      * - contains same type range actions (PST, HVDC, or other) : all-or-none principle
-     * - contains range actions that share the same usage rule
      * - contains range actions that are all available at AUTO instant.
      * Returns true if checks are valid.
      */
-    static boolean checkAlignedRangeActions(State automatonState, List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
+    static boolean checkAlignedRangeActions(List<RangeAction<?>> alignedRa, List<RangeAction<?>> rangeActionsOrderedBySpeed) {
         if (alignedRa.size() == 1) {
             // nothing to check
             return true;
@@ -388,11 +387,6 @@ public final class AutomatonSimulator {
         // Ignore aligned range actions with heterogeneous types
         if (alignedRa.stream().map(Object::getClass).distinct().count() > 1) {
             BUSINESS_WARNS.warn("Range action group {} contains range actions of different types; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
-            return false;
-        }
-        // Ignore aligned range actions when one element of the group has a different usage method than the others
-        if (alignedRa.stream().map(rangeAction -> rangeAction.getUsageMethod(automatonState)).distinct().count() > 1) {
-            BUSINESS_WARNS.warn("Range action group {} contains range actions with different usage methods; they are not simulated", alignedRa.get(0).getGroupId().orElseThrow());
             return false;
         }
         // Ignore aligned range actions when one element of the group is not available at AUTO instant
