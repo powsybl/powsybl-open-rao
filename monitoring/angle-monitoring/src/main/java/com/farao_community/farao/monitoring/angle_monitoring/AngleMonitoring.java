@@ -220,9 +220,6 @@ public class AngleMonitoring {
         if (network.getBusBreakerView().getBus(elementId) != null) {
             return network.getBusBreakerView().getBus(elementId).getVoltageLevel();
         }
-        if (network.getIdentifiable(elementId) == null) {
-            return null;
-        }
         return network.getVoltageLevel(elementId);
     }
 
