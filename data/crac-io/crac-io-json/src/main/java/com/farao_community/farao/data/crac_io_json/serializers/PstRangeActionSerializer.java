@@ -7,12 +7,10 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -40,7 +38,6 @@ public class PstRangeActionSerializer extends AbstractJsonSerializer<PstRangeAct
         gen.writeObjectField(TAP_TO_ANGLE_CONVERSION_MAP, value.getTapToAngleConversionMap());
         serializeRemedialActionSpeed(value, gen);
         serializeRanges(value, gen);
-        JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
         gen.writeEndObject();
     }
 

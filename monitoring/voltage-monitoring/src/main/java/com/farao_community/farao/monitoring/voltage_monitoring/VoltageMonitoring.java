@@ -28,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Monitors voltage of VoltageCnecs
@@ -53,23 +53,26 @@ public class VoltageMonitoring {
      * Returns an VoltageMonitoringResult
      */
     public VoltageMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel) {
+        BUSINESS_LOGS.info("----- Voltage monitoring [start]");
         stateSpecificResults = new ArrayList<>();
 
         if (crac.getVoltageCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No VoltageCnecs defined.");
             stateSpecificResults.add(new VoltageMonitoringResult(Collections.emptyMap(), Collections.emptyMap(), VoltageMonitoringResult.Status.SECURE));
+            BUSINESS_LOGS.info("----- Voltage monitoring [end]");
             return assembleVoltageMonitoringResults();
         }
 
         // I) Preventive state
         if (Objects.nonNull(crac.getPreventiveState())) {
             applyOptimalRemedialActions(crac.getPreventiveState(), network);
-            stateSpecificResults.add(monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, crac.getPreventiveState(), network));
+            stateSpecificResults.add(monitorVoltageCnecsAndLog(loadFlowProvider, loadFlowParameters, crac.getPreventiveState(), network));
         }
 
         // II) Curative states
         Set<State> contingencyStates = crac.getVoltageCnecs().stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
+            BUSINESS_LOGS.info("----- Voltage monitoring [end]");
             return assembleVoltageMonitoringResults();
         }
 
@@ -91,7 +94,7 @@ public class VoltageMonitoring {
                         try {
                             state.getContingency().orElseThrow().apply(networkClone, null);
                             applyOptimalRemedialActionsOnContingencyState(state, networkClone);
-                            stateSpecificResults.add(monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone));
+                            stateSpecificResults.add(monitorVoltageCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone));
                         } catch (Exception e) {
                             stateCountDownLatch.countDown();
                             Thread.currentThread().interrupt();
@@ -115,7 +118,10 @@ public class VoltageMonitoring {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return assembleVoltageMonitoringResults();
+        VoltageMonitoringResult result = assembleVoltageMonitoringResults();
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("----- Voltage monitoring [end]");
+        return result;
     }
 
     /**
@@ -147,6 +153,14 @@ public class VoltageMonitoring {
             .forEach(ra -> ra.apply(network, raoResult.getOptimizedSetPointOnState(state, ra)));
     }
 
+    private VoltageMonitoringResult monitorVoltageCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
+        BUSINESS_LOGS.info("-- Monitoring voltages at state \"{}\" [start]", state);
+        VoltageMonitoringResult result = monitorVoltageCnecs(loadFlowProvider, loadFlowParameters, state, networkClone);
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("-- Monitoring voltages at state \"{}\" [end]", state);
+        return result;
+    }
+
     /**
      * VoltageMonitoring computation on all VoltageCnecs in the CRAC for a given state.
      * Returns an VoltageMonitoringResult.
@@ -156,7 +170,7 @@ public class VoltageMonitoring {
         if (!computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
             return catchVoltageMonitoringResult(state, VoltageMonitoringResult.Status.UNKNOWN);
         }
-        //Check for threshold overshoot for the voltages of each cnec
+        // Check for threshold overshoot for the voltages of each cnec
         Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(NetworkAction::getId));
         Map<VoltageCnec, ExtremeVoltageValues> voltageValues = computeVoltages(crac.getVoltageCnecs(state), networkClone);
         for (Map.Entry<VoltageCnec, ExtremeVoltageValues> voltages : voltageValues.entrySet()) {
@@ -167,8 +181,9 @@ public class VoltageMonitoring {
                 appliedNetworkActions.addAll(applyTopologicalNetworkActions(networkClone, availableNetworkActions));
             }
         }
-        //If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
+        // If some action were applied, recompute a loadflow. If the loadflow doesn't converge, it is unsecure
         if (!appliedNetworkActions.isEmpty() && !computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone)) {
+            BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", state);
             return new VoltageMonitoringResult(voltageValues, new HashMap<>(), VoltageMonitoringResult.getUnsecureStatus(voltageValues));
         }
         Map<State, Set<NetworkAction>> appliedRa = new HashMap<>();
@@ -237,7 +252,7 @@ public class VoltageMonitoring {
             return Collections.emptySet();
         }
         // Convert remedial actions to network actions
-        return availableRemedialActions.stream().filter(remedialAction -> {
+        Set<NetworkAction> networkActions = availableRemedialActions.stream().filter(remedialAction -> {
             if (remedialAction instanceof NetworkAction) {
                 return true;
             } else {
@@ -245,6 +260,8 @@ public class VoltageMonitoring {
                 return false;
             }
         }).map(NetworkAction.class::cast).collect(Collectors.toSet());
+        BUSINESS_LOGS.info("Applying the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", voltageCnec.getId(), networkActions.stream().map(com.farao_community.farao.data.crac_api.Identifiable::getId).collect(Collectors.joining(", ")));
+        return networkActions;
     }
 
     /**
@@ -267,11 +284,13 @@ public class VoltageMonitoring {
      * Returns false if loadFlow has not converged.
      */
     private boolean computeLoadFlow(String loadFlowProvider, LoadFlowParameters loadFlowParameters, Network networkClone) {
+        TECHNICAL_LOGS.info("Load-flow computation [start]");
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
                 .run(networkClone, loadFlowParameters);
         if (!loadFlowResult.isOk()) {
             BUSINESS_WARNS.warn("LoadFlow error.");
         }
+        TECHNICAL_LOGS.info("Load-flow computation [end]");
         return loadFlowResult.isOk();
     }
 
@@ -310,6 +329,7 @@ public class VoltageMonitoring {
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus) {
+        BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         Map<VoltageCnec, ExtremeVoltageValues> voltagePerCnec = new HashMap<>();
         crac.getVoltageCnecs(state).forEach(vc -> {
             voltagePerCnec.put(vc, new ExtremeVoltageValues(new HashSet<>(Arrays.asList(Double.NaN))));
