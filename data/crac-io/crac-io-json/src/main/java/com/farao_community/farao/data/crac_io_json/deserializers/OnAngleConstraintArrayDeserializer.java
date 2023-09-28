@@ -27,18 +27,18 @@ public final class OnAngleConstraintArrayDeserializer {
     }
 
     public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
-        boolean isUsageMethodPresent = false;
-        Instant instant = Instant.PREVENTIVE;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnAngleConstraintAdder<?> adder = ownerAdder.newOnAngleConstraintUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        instant = deserializeInstant(jsonParser.nextTextValue());
+                        Instant instant = deserializeInstant(jsonParser.nextTextValue());
                         adder.withInstant(instant);
+                        if (getPrimaryVersionNumber(version) < 2 && getSubVersionNumber(version) < 7) {
+                            adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
+                        }
                         break;
                     case USAGE_METHOD:
-                        isUsageMethodPresent = true;
                         adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
                         break;
                     case ANGLE_CNEC_ID:
@@ -47,12 +47,6 @@ public final class OnAngleConstraintArrayDeserializer {
                     default:
                         throw new FaraoException("Unexpected field in OnAngleConstraint: " + jsonParser.getCurrentName());
                 }
-            }
-            if (!isUsageMethodPresent) {
-                if (getPrimaryVersionNumber(version) > 1 || getSubVersionNumber(version) > 6) {
-                    throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnAngleConstraint usage rules");
-                }
-                adder.withUsageMethod(instant.equals(Instant.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
             }
             adder.add();
         }

@@ -53,8 +53,10 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
-        assertAttributeNotNull(usageMethod, "OnAngleConstraint", "usage method", "withUsageMethod()");
 
+        if (Objects.isNull(usageMethod)) {
+            throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnAngleConstraint usage rules");
+        }
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
         }

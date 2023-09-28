@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCoun
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 
+import java.util.Objects;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -21,7 +22,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintInCountryAdder<T> {
 
-    private T owner;
+    private final T owner;
     private Instant instant;
     private Country country;
     private UsageMethod usageMethod;
@@ -52,8 +53,10 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
-        assertAttributeNotNull(usageMethod, "OnFlowConstraintInCountry", "usage method", "withUsageMethod()");
 
+        if (Objects.isNull(usageMethod)) {
+            throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnFlowConstraintInCountry usage rules");
+        }
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
         }

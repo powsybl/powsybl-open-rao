@@ -53,8 +53,10 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     public T add() {
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
-        assertAttributeNotNull(usageMethod, "OnFlowConstraint", "usage method", "withUsageMethod()");
 
+        if (Objects.isNull(usageMethod)) {
+            throw new FaraoException("Since CRAC version 1.7, the field usageMethod is required for OnFlowConstraint usage rules");
+        }
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
