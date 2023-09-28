@@ -127,16 +127,14 @@ public final class RaoUtil {
 
     /**
      * Evaluates if a remedial action is available.
-     * 1) If the remedial action has no usage rule, it will not be available.
-     * 2) Then we separate usageRules in two categories :
-     *      - OnInstant and OnContingencyState (OnState category)
-     *      - OnFlowConstraint and OnFlowConstraintInCountry (OnFlow category)
-     * For automatonState, we do not want to check the OnState category as they are supposed to be "FORCED"
-     * For the OnFlow category, we want to check their availability for every given state.
-     * Therefore, we perform a double check : The state must not be an automatonState.
-     * If so, it gathers every OnState usage rules and
-     * all it takes is for one to be "AVAILABLE" for the remedial action to be available.
-     * 3) Else, it calls the method RemedialAction.isRemedialActionAvailable to give the verdict.
+     * 1) The remedial action has no usage rule:
+     * It will not be available.
+     * 2) The remedial action has onFlow usage rules but none with its associated cnecs under constraint.
+     * It will not be available.
+     * 3) Otherwise :
+     * We compute the "strongest" usage method.
+     * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
+     * For other states, the remedial action is available if and only if the usage method is "AVAIABLE" or "FORCED".
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         List<UsageRule> usageRules = remedialAction.getUsageRules();
@@ -144,23 +142,23 @@ public final class RaoUtil {
             FaraoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
             return false;
         }
-        Set<UsageMethod> usageMethodsOnTime = new HashSet<>();
-        Set<UsageMethod> usageMethodsOnFlow = new HashSet<>();
+        Set<UsageMethod> onInstantUsageMethods = new HashSet<>();
+        Set<UsageMethod> onFlowUsageMethods = new HashSet<>();
         usageRules.stream()
             .filter(usageRule -> usageRule instanceof OnContingencyState || usageRule instanceof OnInstant)
-            .forEach(usageRule -> usageMethodsOnTime.add(usageRule.getUsageMethod(state)));
+            .forEach(usageRule -> onInstantUsageMethods.add(usageRule.getUsageMethod(state)));
         Set<UsageRule> usageRulesOnFlow = usageRules.stream()
             .filter(usageRule -> usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry).collect(Collectors.toSet());
         usageRulesOnFlow.forEach(usageRule -> {
             if (isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(usageRule, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit())) {
-                usageMethodsOnFlow.add(usageRule.getUsageMethod(state));
+                onFlowUsageMethods.add(usageRule.getUsageMethod(state));
             }
         });
-        if (usageMethodsOnFlow.isEmpty() && !usageRulesOnFlow.isEmpty()) {
+        if (onFlowUsageMethods.isEmpty() && !usageRulesOnFlow.isEmpty()) {
             return false;
         }
-        usageMethodsOnTime.addAll(usageMethodsOnFlow);
-        UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(usageMethodsOnTime);
+        onInstantUsageMethods.addAll(onFlowUsageMethods);
+        UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(onInstantUsageMethods);
         return state.getInstant().equals(Instant.AUTO) ? finalUsageMethod.equals(UsageMethod.FORCED) : finalUsageMethod.equals(UsageMethod.AVAILABLE) || finalUsageMethod.equals(UsageMethod.FORCED);
     }
 

@@ -203,8 +203,6 @@ class RaoUtilTest {
             .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        // Asserts getFlowCnecsConstrainingUsageRules returns an empty set
-        assertFalse(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
         // Asserts that the method returns True when given an empty set
         assertTrue(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
@@ -215,23 +213,19 @@ class RaoUtilTest {
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
         assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
         assertTrue(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         optimizedState = crac.getPreventiveState();
-        assertFalse(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
         assertFalse(isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
-        assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
         assertFalse(isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
 
         // asserts that a remedial action with no usage rule cannot be available
@@ -268,7 +262,7 @@ class RaoUtilTest {
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
-        FlowResult flowResult = mock(FlowResult.class);
+        PrePerimeterResult flowResult = mock(PrePerimeterResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
@@ -316,7 +310,7 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, ra.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
+        assertEquals(available, isRemedialActionAvailable(ra, optimizedState, (PrePerimeterResult) flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
     }
 
     @Test

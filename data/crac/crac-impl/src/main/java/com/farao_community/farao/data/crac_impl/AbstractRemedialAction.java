@@ -76,17 +76,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     /**
-     * Evaluates if the remedial action is available depending on its UsageMethod.
-     * When UsageMethod is AVAILABLE, condition has to have been evaluated previously
-     */
-    @Override
-    public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        return state.getInstant().equals(Instant.AUTO) ?
-            getUsageMethod(state) == UsageMethod.FORCED && evaluatedCondition
-            : getUsageMethod(state) == UsageMethod.AVAILABLE && evaluatedCondition;
-    }
-
-    /**
      * Retrieves cnecs associated to the remedial action's OnFlowConstraint and OnFlowConstraintInCountry usage rules.
      */
 
