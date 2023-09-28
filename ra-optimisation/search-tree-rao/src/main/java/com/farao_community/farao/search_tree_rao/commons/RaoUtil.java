@@ -141,21 +141,27 @@ public final class RaoUtil {
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         List<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
-            FaraoLoggerProvider.BUSINESS_WARNS.warn(String.format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
+            FaraoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
             return false;
         }
-        Set<UsageRule> usageRulesOnTime = usageRules.stream()
-            .filter(usageRule -> usageRule instanceof OnContingencyState || usageRule instanceof OnInstant).collect(Collectors.toSet());
-        if (state.getInstant().equals(Instant.AUTO)) {
-            if (usageRulesOnTime.stream().anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
-                return true;
+        Set<UsageMethod> usageMethodsOnTime = new HashSet<>();
+        Set<UsageMethod> usageMethodsOnFlow = new HashSet<>();
+        usageRules.stream()
+            .filter(usageRule -> usageRule instanceof OnContingencyState || usageRule instanceof OnInstant)
+            .forEach(usageRule -> usageMethodsOnTime.add(usageRule.getUsageMethod(state)));
+        Set<UsageRule> usageRulesOnFlow = usageRules.stream()
+            .filter(usageRule -> usageRule instanceof OnFlowConstraint || usageRule instanceof OnFlowConstraintInCountry).collect(Collectors.toSet());
+        usageRulesOnFlow.forEach(usageRule -> {
+            if (isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(usageRule, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getType().getUnit())) {
+                usageMethodsOnFlow.add(usageRule.getUsageMethod(state));
             }
-        } else if (usageRulesOnTime.stream()
-            .anyMatch(usageRule -> usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE)
-                || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
-            return true;
+        });
+        if (usageMethodsOnFlow.isEmpty() && !usageRulesOnFlow.isEmpty()) {
+            return false;
         }
-        return remedialAction.isRemedialActionAvailable(state, isAnyMarginNegative(prePerimeterResult, remedialAction.getFlowCnecsConstrainingUsageRules(flowCnecs, network, state), raoParameters.getObjectiveFunctionParameters().getType().getUnit()));
+        usageMethodsOnTime.addAll(usageMethodsOnFlow);
+        UsageMethod finalUsageMethod = UsageMethod.getStrongestUsageMethod(usageMethodsOnTime);
+        return state.getInstant().equals(Instant.AUTO) ? finalUsageMethod.equals(UsageMethod.FORCED) : finalUsageMethod.equals(UsageMethod.AVAILABLE) || finalUsageMethod.equals(UsageMethod.FORCED);
     }
 
     /**

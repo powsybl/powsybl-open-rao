@@ -62,6 +62,8 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
 
     Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState);
 
+    Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network);
+
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network
      * elements must not be duplicated inside a remedial action and there is no defined order for network elements.

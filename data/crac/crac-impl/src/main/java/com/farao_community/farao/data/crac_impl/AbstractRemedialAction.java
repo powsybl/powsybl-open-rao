@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
@@ -71,16 +72,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         Set<UsageMethod> usageMethods = usageRules.stream()
             .map(usageRule -> usageRule.getUsageMethod(state))
             .collect(Collectors.toSet());
-
-        if (usageMethods.contains(UsageMethod.UNAVAILABLE)) {
-            return UsageMethod.UNAVAILABLE;
-        } else if (usageMethods.contains(UsageMethod.FORCED)) {
-            return UsageMethod.FORCED;
-        } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
-            return UsageMethod.AVAILABLE;
-        }  else {
-            return UsageMethod.UNAVAILABLE;
-        }
+        return UsageMethod.getStrongestUsageMethod(usageMethods);
     }
 
     /**
@@ -89,7 +81,9 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      */
     @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        return (getUsageMethod(state) == UsageMethod.AVAILABLE || getUsageMethod(state) == UsageMethod.FORCED) && evaluatedCondition;
+        return state.getInstant().equals(Instant.AUTO) ?
+            getUsageMethod(state) == UsageMethod.FORCED && evaluatedCondition
+            : getUsageMethod(state) == UsageMethod.AVAILABLE && evaluatedCondition;
     }
 
     /**
@@ -98,24 +92,28 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     public Set<FlowCnec> getFlowCnecsConstrainingUsageRules(Set<FlowCnec> perimeterCnecs, Network network, State optimizedState) {
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
-        // OnFlowConstraint
-        getUsageRules(OnFlowConstraint.class, optimizedState).forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
-
-        // OnFlowConstraintInCountry
-        List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules(OnFlowConstraintInCountry.class, optimizedState);
-
-        onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
-            Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
-                    Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
-                    Instant.AUTO, Set.of(Instant.AUTO),
-                    Instant.CURATIVE, Set.of(Instant.CURATIVE)
-            );
-            toBeConsideredCnecs.addAll(perimeterCnecs.stream()
-                    .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant()).contains(cnec.getState().getInstant()))
-                    .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
-                    .collect(Collectors.toSet()));
-        });
+        Set<UsageRule> usageRulesOnFlowConstraint = new HashSet<>();
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraint.class, optimizedState));
+        usageRulesOnFlowConstraint.addAll(getUsageRules(OnFlowConstraintInCountry.class, optimizedState));
+        usageRulesOnFlowConstraint.forEach(usageRule -> toBeConsideredCnecs.addAll(getFlowCnecsConstrainingForOneUsageRule(usageRule, perimeterCnecs, network)));
         return toBeConsideredCnecs;
+    }
+
+    public Set<FlowCnec> getFlowCnecsConstrainingForOneUsageRule(UsageRule usageRule, Set<FlowCnec> perimeterCnecs, Network network) {
+        if (usageRule instanceof OnFlowConstraint) {
+            return Set.of(((OnFlowConstraint) usageRule).getFlowCnec());
+        } else if (usageRule instanceof OnFlowConstraintInCountry) {
+            Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
+                Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
+                Instant.AUTO, Set.of(Instant.AUTO),
+                Instant.CURATIVE, Set.of(Instant.CURATIVE)
+            );
+            return perimeterCnecs.stream()
+                .filter(cnec -> allowedCnecInstantPerRaInstant.get(usageRule.getInstant()).contains(cnec.getState().getInstant()))
+                .filter(cnec -> isCnecInCountry(cnec, ((OnFlowConstraintInCountry) usageRule).getCountry(), network)).collect(Collectors.toSet());
+        } else {
+            throw new FaraoException(String.format("This method should only be used for Ofc Usage rules not for this type of UsageRule: %s", usageRule.getClass().getName()));
+        }
     }
 
     private <T> List<T> getUsageRules(Class<T> usageRuleClass, State state) {

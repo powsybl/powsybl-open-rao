@@ -201,8 +201,8 @@ public final class AutomatonSimulator {
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis) {
         // -- Apply network actions
         // -- First get forced network actions
-        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters))
+        Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions().stream()
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterSensitivityOutput, crac.getFlowCnecs(), network, raoParameters))
             .collect(Collectors.toSet());
 
         if (appliedNetworkActions.isEmpty()) {
@@ -330,8 +330,8 @@ public final class AutomatonSimulator {
     List<List<RangeAction<?>>> buildRangeActionsGroupsOrderedBySpeed(PrePerimeterResult rangeActionSensitivity, State automatonState, Network network) {
         // 1) Get available range actions
         // -- First get forced range actions
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(automatonState, UsageMethod.FORCED).stream()
-            .filter(na -> RaoUtil.isRemedialActionAvailable(na, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
+        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
             .collect(Collectors.toSet());
 
         // 2) Sort range actions
