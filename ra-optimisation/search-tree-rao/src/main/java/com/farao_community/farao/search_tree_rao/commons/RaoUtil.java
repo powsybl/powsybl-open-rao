@@ -129,12 +129,12 @@ public final class RaoUtil {
      * Evaluates if a remedial action is available.
      * 1) The remedial action has no usage rule:
      * It will not be available.
-     * 2) The remedial action has onFlow usage rules but none with its associated cnecs under constraint.
+     * 2) The remedial action has onFlowConstraint/onFlowConstraintInCountry usage rules but none with its associated cnecs under constraint.
      * It will not be available.
      * 3) Otherwise :
      * We compute the "strongest" usage method.
      * For automatonState, the remedial action is available if and only if the usage method is "FORCED".
-     * For other states, the remedial action is available if and only if the usage method is "AVAIABLE" or "FORCED".
+     * For other states, the remedial action is available if and only if the usage method is "AVAILABLE" or "FORCED".
      */
     public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, PrePerimeterResult prePerimeterResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
         List<UsageRule> usageRules = remedialAction.getUsageRules();

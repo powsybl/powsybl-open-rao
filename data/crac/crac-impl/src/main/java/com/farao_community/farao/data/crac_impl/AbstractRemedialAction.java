@@ -105,14 +105,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
     }
 
-    private <T> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
+    private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
         return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
-            .filter(ofc -> {
-                UsageRule castedOf = (UsageRule) ofc;
-                return state.getInstant().equals(Instant.AUTO) ?
-                    castedOf.getUsageMethod(state).equals(UsageMethod.FORCED) :
-                    castedOf.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || castedOf.getUsageMethod(state).equals(UsageMethod.FORCED);
-            })
+            .filter(ofc -> state.getInstant().equals(Instant.AUTO) ?
+                ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
+                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
             .collect(Collectors.toList());
     }
 

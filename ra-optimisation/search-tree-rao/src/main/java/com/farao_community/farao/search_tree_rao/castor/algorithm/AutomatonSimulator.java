@@ -142,9 +142,6 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(automatonState);
         flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>();
-
-        // For automatonState, filters out rangeActions with usageMethod AVAILABLE having only
-        // OnFlowConstraint or OnFlowConstraintInCountry usageRules as they are not supported.
         rangeActionsInSensi.addAll(crac.getRangeActions(automatonState, UsageMethod.FORCED));
         rangeActionsInSensi.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.FORCED));
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
