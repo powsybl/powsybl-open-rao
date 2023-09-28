@@ -21,7 +21,10 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -61,7 +64,7 @@ public class CsaProfileContingencyCreator {
 
         String contingencyId = contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
         Set<PropertyBag> contingencyEquipments = this.dataCheck(contingencyPropertyBag, contingencyId);
-        if (contingencyEquipments == null) {
+        if (contingencyEquipments.isEmpty()) {
             return;
         }
 
@@ -133,23 +136,23 @@ public class CsaProfileContingencyCreator {
 
         if (!CsaProfileConstants.CONTINGENCY_FILE_KEYWORD.equals(keyword)) {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be CO, but it is " + keyword));
-            return null;
+            return new HashSet<PropertyBag>();
         }
 
         if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return null;
+            return new HashSet<PropertyBag>();
         }
 
-        if (!mustStudy) {
+        if (!Boolean.TRUE.equals(mustStudy)) {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
-            return null;
+            return new HashSet<PropertyBag>();
         }
 
         Set<PropertyBag> contingencyEquipments = contingencyEquipmentsPropertyBags.get(contingencyPropertyBag.getId(CsaProfileConstants.REQUEST_CONTINGENCY));
         if (contingencyEquipments == null) {
             csaProfileContingencyCreationContexts.add(CsaProfileContingencyCreationContext.notImported(contingencyId, ImportStatus.INCOMPLETE_DATA, "no contingency equipment linked to the contingency"));
-            return null;
+            return new HashSet<PropertyBag>();
         }
 
         return contingencyEquipments;
