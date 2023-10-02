@@ -59,6 +59,7 @@ import static com.farao_community.farao.search_tree_rao.castor.algorithm.Automat
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTree {
+    private static final int TIMEOUT_PER_NA_BATCH = 10; // 10 minutes to optimize one leaf
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
     private static final int NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS = 10;
@@ -254,17 +255,18 @@ public class SearchTree {
 
         TreeMap<NetworkActionCombination, Boolean> naCombinationsSorted = new TreeMap<>(this::deterministicNetworkActionCombinationComparison);
         naCombinationsSorted.putAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions()));
-        int amountOfCombinations = naCombinationsSorted.size();
+        int nCombinations = naCombinationsSorted.size();
 
-        networkPool.initClones(amountOfCombinations);
+        networkPool.initClones(nCombinations);
         if (naCombinationsSorted.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
         } else {
-            TECHNICAL_LOGS.info("Leaves to evaluate: {}", amountOfCombinations);
+            TECHNICAL_LOGS.info("Leaves to evaluate: {}", nCombinations);
         }
-        AtomicInteger remainingLeaves = new AtomicInteger(amountOfCombinations);
-        CountDownLatch latch = new CountDownLatch(amountOfCombinations);
+        AtomicInteger remainingLeaves = new AtomicInteger(nCombinations);
+        CountDownLatch latch = new CountDownLatch(nCombinations);
+        int timeout = (int) Math.ceil((double) nCombinations / networkPool.getParallelism()) * TIMEOUT_PER_NA_BATCH;
         naCombinationsSorted.keySet().forEach(naCombination ->
             networkPool.submit(() -> {
                 Network networkClone;
@@ -311,8 +313,7 @@ public class SearchTree {
                 }
             })
         );
-        // TODO : change the 24 hours to something more useful when a target end time is known by the RAO
-        boolean success = latch.await(24, TimeUnit.HOURS);
+        boolean success = latch.await(timeout, TimeUnit.MINUTES);
         if (!success) {
             throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
         }

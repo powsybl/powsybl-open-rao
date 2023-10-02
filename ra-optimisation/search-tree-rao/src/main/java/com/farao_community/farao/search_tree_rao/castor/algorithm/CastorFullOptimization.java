@@ -65,6 +65,7 @@ public class CastorFullOptimization {
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO = "SecondPreventiveScenario";
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
+    private static final int TIMEOUT_PER_POSTCONTINGENCY_SCENARIO = 30; // 30 minutes to optimize one post-contingency scenario
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 
@@ -298,6 +299,7 @@ public class CastorFullOptimization {
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, raoParameters.getMultithreadingParameters().getContingencyScenariosInParallel(), true)) {
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             CountDownLatch contingencyCountDownLatch = new CountDownLatch(stateTree.getContingencyScenarios().size());
+            int timeout = (int) Math.ceil((double) stateTree.getContingencyScenarios().size() / networkPool.getParallelism()) * TIMEOUT_PER_POSTCONTINGENCY_SCENARIO;
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                     networkPool.submit(() -> {
                         Network networkClone;
@@ -357,7 +359,7 @@ public class CastorFullOptimization {
             if (!success) {
                 throw new FaraoException("At least one post-contingency state could not be optimized within the given time (24 hours). This should not happen.");
             }
-            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
+            networkPool.shutdownAndAwaitTermination(timeout, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
