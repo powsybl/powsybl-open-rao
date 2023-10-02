@@ -302,11 +302,6 @@ public class SearchTree {
                 throw new FaraoException(e);
             }
         }
-        /*// TODO : change the 24 hours to something more useful when a target end time is known by the RAO
-        boolean success = latch.await(24, TimeUnit.HOURS);
-        if (!success) {
-            throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
-        }*/
     }
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
