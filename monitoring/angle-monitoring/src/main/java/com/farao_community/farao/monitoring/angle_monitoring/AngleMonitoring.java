@@ -44,6 +44,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  */
 public class AngleMonitoring {
     public static final String CONTINGENCY_ERROR = "At least one contingency could not be monitored within the given time (24 hours). This should not happen.";
+    public static final int TIMEOUT_PER_CONTINGENCY_STATE = 10; // 10 minutes to simulate one contingency
 
     private final Crac crac;
     private final Network inputNetwork;
@@ -95,6 +96,7 @@ public class AngleMonitoring {
                          AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)
             ) {
                 CountDownLatch stateCountDownLatch = new CountDownLatch(contingencyStates.size());
+                int timeout = (int) Math.ceil((double) contingencyStates.size() / networkPool.getParallelism()) * TIMEOUT_PER_CONTINGENCY_STATE;
                 contingencyStates.forEach(state ->
                         networkPool.submit(() -> {
                             Network networkClone = null;
@@ -122,7 +124,7 @@ public class AngleMonitoring {
                                 throw new FaraoException(ex);
                             }
                         }));
-                boolean success = stateCountDownLatch.await(24, TimeUnit.HOURS);
+                boolean success = stateCountDownLatch.await(timeout, TimeUnit.MINUTES);
                 if (!success) {
                     throw new FaraoException(CONTINGENCY_ERROR);
                 }
