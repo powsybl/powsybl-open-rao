@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.rao_result_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.rao_result_impl.CostResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,35 +24,17 @@ final class CostResultMapDeserializer {
     private CostResultMapDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult) throws IOException {
-
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
-                case INITIAL_OPT_STATE:
-                    jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.INITIAL);
-                    break;
-                case AFTER_PRA_OPT_STATE:
-                    jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_PRA);
-                    break;
-                case AFTER_ARA_OPT_STATE:
-                    jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_ARA);
-                    break;
-                case AFTER_CRA_OPT_STATE:
-                    jsonParser.nextToken();
-                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_CRA);
-                    break;
-                default:
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", COST_RESULTS, jsonParser.getCurrentName()));
-            }
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            jsonParser.nextToken();
+            deserializeCostResult(jsonParser, raoResult, optimizedInstant);
         }
     }
 
-    private static void deserializeCostResult(JsonParser jsonParser, RaoResultImpl raoResult, OptimizationState optState) throws IOException {
+    private static void deserializeCostResult(JsonParser jsonParser, RaoResultImpl raoResult, Instant optInstant) throws IOException {
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(optState);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(optInstant);
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {

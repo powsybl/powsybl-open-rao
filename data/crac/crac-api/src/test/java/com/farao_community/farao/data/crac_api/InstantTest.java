@@ -68,4 +68,12 @@ class InstantTest {
         assertFalse(CURATIVE.comesBefore(AUTO));
         assertFalse(CURATIVE.comesBefore(CURATIVE));
     }
+
+    @Test
+    void testGetPreviousInstant() {
+        assertEquals(null, PREVENTIVE.getPreviousInstant());
+        assertEquals(PREVENTIVE, OUTAGE.getPreviousInstant());
+        assertEquals(OUTAGE, AUTO.getPreviousInstant());
+        assertEquals(AUTO, CURATIVE.getPreviousInstant());
+    }
 }

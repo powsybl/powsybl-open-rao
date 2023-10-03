@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,9 +23,10 @@ import java.util.Comparator;
  */
 public final class RaoResultJsonConstants {
 
-    private RaoResultJsonConstants() { }
+    private RaoResultJsonConstants() {
+    }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.3";
+    public static final String RAO_RESULT_IO_VERSION = "1.4";
 
     // header
     public static final String TYPE = "type";
@@ -80,6 +80,7 @@ public final class RaoResultJsonConstants {
 
     // instants
     public static final String INSTANT = "instant";
+    public static final String INITIAL_INSTANT = "initial";
     public static final String PREVENTIVE_INSTANT = "preventive";
     public static final String OUTAGE_INSTANT = "outage";
     public static final String AUTO_INSTANT = "auto";
@@ -97,7 +98,7 @@ public final class RaoResultJsonConstants {
     public static final String LEFT_SIDE = "leftSide";
     public static final String RIGHT_SIDE = "rightSide";
 
-    // optimization states
+    // optimization states - for retro-compatibility only
     public static final String INITIAL_OPT_STATE = "initial";
     public static final String AFTER_PRA_OPT_STATE = "afterPRA";
     public static final String AFTER_ARA_OPT_STATE = "afterARA";
@@ -197,6 +198,9 @@ public final class RaoResultJsonConstants {
     }
 
     public static String serializeInstant(Instant instant) {
+        if (instant == null) {
+            return INITIAL_INSTANT;
+        }
         switch (instant) {
             case PREVENTIVE:
                 return PREVENTIVE_INSTANT;
@@ -213,6 +217,8 @@ public final class RaoResultJsonConstants {
 
     public static Instant deserializeInstant(String stringValue) {
         switch (stringValue) {
+            case INITIAL_INSTANT:
+                return null;
             case PREVENTIVE_INSTANT:
                 return Instant.PREVENTIVE;
             case OUTAGE_INSTANT:
@@ -226,33 +232,22 @@ public final class RaoResultJsonConstants {
         }
     }
 
-    public static String serializeOptimizationState(OptimizationState optimizationState) {
-        switch (optimizationState) {
-            case INITIAL:
-                return INITIAL_OPT_STATE;
-            case AFTER_PRA:
-                return AFTER_PRA_OPT_STATE;
-            case AFTER_ARA:
-                return AFTER_ARA_OPT_STATE;
-            case AFTER_CRA:
-                return AFTER_CRA_OPT_STATE;
-            default:
-                throw new FaraoException(String.format("Unsupported optimization state %s", optimizationState));
-        }
-    }
-
-    public static OptimizationState deserializeOptimizationState(String stringValue) {
-        switch (stringValue) {
-            case INITIAL_OPT_STATE:
-                return OptimizationState.INITIAL;
-            case AFTER_PRA_OPT_STATE:
-                return OptimizationState.AFTER_PRA;
-            case AFTER_ARA_OPT_STATE:
-                return OptimizationState.AFTER_ARA;
-            case AFTER_CRA_OPT_STATE:
-                return OptimizationState.AFTER_CRA;
-            default:
-                throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
+    public static Instant deserializeOptimizedInstant(String stringValue, String jsonFileVersion) {
+        if (getPrimaryVersionNumber(jsonFileVersion) <= 1 && getSubVersionNumber(jsonFileVersion) <= 3) {
+            switch (stringValue) {
+                case INITIAL_OPT_STATE:
+                    return null;
+                case AFTER_PRA_OPT_STATE:
+                    return Instant.PREVENTIVE;
+                case AFTER_ARA_OPT_STATE:
+                    return Instant.AUTO;
+                case AFTER_CRA_OPT_STATE:
+                    return Instant.CURATIVE;
+                default:
+                    throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
+            }
+        } else {
+            return deserializeInstant(stringValue);
         }
     }
 

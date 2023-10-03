@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -17,7 +18,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
@@ -51,47 +51,47 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return initialResult.getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return initialResult.getRelativeMargin(flowCnec, unit);
     }
 
     @Override
-    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
         return initialResult.getPtdfZonalSum(flowCnec, side);
     }
 
     @Override
-    public double getCost(OptimizationState optimizationState) {
+    public double getCost(Instant optimizedInstant) {
         return initialResult.getCost();
     }
 
     @Override
-    public double getFunctionalCost(OptimizationState optimizationState) {
+    public double getFunctionalCost(Instant optimizedInstant) {
         return initialResult.getFunctionalCost();
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState) {
+    public double getVirtualCost(Instant optimizedInstant) {
         return initialResult.getVirtualCost();
     }
 
@@ -101,7 +101,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
+    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
         return initialResult.getVirtualCost(virtualCostName);
     }
 

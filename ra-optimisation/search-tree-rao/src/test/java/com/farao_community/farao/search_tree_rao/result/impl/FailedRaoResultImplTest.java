@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -17,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FailedRaoResultImplTest {
     @Test
     void testBasicReturns() {
-        OptimizationState optimizationState = mock(OptimizationState.class);
+        Instant optInstant = mock(Instant.class);
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction rangeAction = mock(RangeAction.class);
@@ -42,10 +42,10 @@ class FailedRaoResultImplTest {
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus());
         assertEquals(ComputationStatus.FAILURE, failedRaoResultImpl.getComputationStatus(state));
 
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFunctionalCost(optimizationState));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFunctionalCost(optInstant));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant));
         assertThrows(FaraoException.class, failedRaoResultImpl::getVirtualCostNames);
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optimizationState, ""));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVirtualCost(optInstant, ""));
 
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.wasActivatedBeforeState(state, networkAction));
         assertThrows(FaraoException.class, () -> failedRaoResultImpl.isActivatedDuringState(state, networkAction));
@@ -65,27 +65,27 @@ class FailedRaoResultImplTest {
 
     @Test
     void testAngleAndVoltageCnec() {
-        OptimizationState optimizationState = mock(OptimizationState.class);
+        Instant optInstant = mock(Instant.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         AngleCnec angleCnec = mock(AngleCnec.class);
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, angleCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, voltageCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVoltage(optimizationState, voltageCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optimizationState, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstant, angleCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstant, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getVoltage(optInstant, voltageCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getAngle(optInstant, angleCnec, MEGAWATT));
     }
 
     @Test
     void testgetFlowAndMargin() {
-        OptimizationState optimizationState = mock(OptimizationState.class);
+        Instant optInstant = mock(Instant.class);
         FailedRaoResultImpl failedRaoResultImpl = new FailedRaoResultImpl();
         FlowCnec flowCnec = mock(FlowCnec.class);
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optimizationState, flowCnec, Side.LEFT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optimizationState, flowCnec, Side.LEFT, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optimizationState, flowCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getRelativeMargin(optimizationState, flowCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getCommercialFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getLoopFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getPtdfZonalSum(optInstant, flowCnec, Side.LEFT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getFlow(optInstant, flowCnec, Side.LEFT, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getMargin(optInstant, flowCnec, MEGAWATT));
+        assertThrows(FaraoException.class, () -> failedRaoResultImpl.getRelativeMargin(optInstant, flowCnec, MEGAWATT));
     }
 }

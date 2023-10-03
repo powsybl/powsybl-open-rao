@@ -22,7 +22,7 @@ import com.farao_community.farao.data.rao_result_impl.*;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.*;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
+import static com.farao_community.farao.data.crac_api.Instant.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -48,25 +48,25 @@ public final class ExhaustiveRaoResultCreation {
         // --------------------
 
         // CostResult at initial state
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(INITIAL);
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(null);
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
 
         // CostResult after PRA
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_PRA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(PREVENTIVE);
         costResult.setFunctionalCost(80.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
 
         // CostResult after ARA
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_ARA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(AUTO);
         costResult.setFunctionalCost(-20.);
         costResult.setVirtualCost("loopFlow", 15.);
         costResult.setVirtualCost("MNEC", 20.);
 
         // CostResult after CRA
-        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_CRA);
+        costResult = raoResult.getAndCreateIfAbsentCostResult(CURATIVE);
         costResult.setFunctionalCost(-50.);
         costResult.setVirtualCost("loopFlow", 10.);
         costResult.setVirtualCost("MNEC", 2.);
@@ -201,17 +201,17 @@ public final class ExhaustiveRaoResultCreation {
         boolean hasLoopFlow = cnec.getId().startsWith("cnec1") || cnec.getId().startsWith("cnec2");
         boolean isPureMnec = cnec.isMonitored() && !cnec.isOptimized();
 
-        ElementaryFlowCnecResult initialEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        ElementaryFlowCnecResult initialEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
         fillElementaryResult(initialEfcr, x, 100, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
-        ElementaryFlowCnecResult afterPraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        ElementaryFlowCnecResult afterPraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(PREVENTIVE);
         fillElementaryResult(afterPraEfcr, x, 200, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
 
         if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryFlowCnecResult afterAraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+            ElementaryFlowCnecResult afterAraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AUTO);
             fillElementaryResult(afterAraEfcr, x, 300, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
         if (cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryFlowCnecResult afterCraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+            ElementaryFlowCnecResult afterCraEfcr = flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(CURATIVE);
             fillElementaryResult(afterCraEfcr, x, 400, hasLoopFlow, isPureMnec, cnec.getMonitoredSides());
         }
     }
@@ -220,17 +220,17 @@ public final class ExhaustiveRaoResultCreation {
 
         double x = 3000;
 
-        ElementaryAngleCnecResult initialEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        ElementaryAngleCnecResult initialEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
         fillElementaryResult(initialEacr, x, 100);
-        ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        ElementaryAngleCnecResult afterPraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(PREVENTIVE);
         fillElementaryResult(afterPraEacr, x, 200);
 
         if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+            ElementaryAngleCnecResult afterAraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AUTO);
             fillElementaryResult(afterAraEacr, x, 300);
         }
         if (cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+            ElementaryAngleCnecResult afterCraEacr = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(CURATIVE);
             fillElementaryResult(afterCraEacr, x, 400);
         }
     }
@@ -239,17 +239,17 @@ public final class ExhaustiveRaoResultCreation {
 
         double x = 4000;
 
-        ElementaryVoltageCnecResult initialEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+        ElementaryVoltageCnecResult initialEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
         fillElementaryResult(initialEacr, x, 100);
-        ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_PRA);
+        ElementaryVoltageCnecResult afterPraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(PREVENTIVE);
         fillElementaryResult(afterPraEacr, x, 200);
 
         if (cnec.getState().getInstant() == Instant.AUTO || cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_ARA);
+            ElementaryVoltageCnecResult afterAraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AUTO);
             fillElementaryResult(afterAraEacr, x, 300);
         }
         if (cnec.getState().getInstant() == Instant.CURATIVE) {
-            ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+            ElementaryVoltageCnecResult afterCraEacr = voltageCnecResult.getAndCreateIfAbsentResultForOptimizationState(CURATIVE);
             fillElementaryResult(afterCraEacr, x, 400);
         }
     }

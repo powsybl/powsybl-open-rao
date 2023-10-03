@@ -33,8 +33,6 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.INITIAL;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -252,8 +250,8 @@ class FlowbasedComputationImplTest {
         flowCnecs.forEach(cnec -> {
             FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
 
-            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
-            ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(INITIAL);
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
+            ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(null);
 
             elementaryFlowCnecResult.setFlow(Side.LEFT, 100., MEGAWATT);
             elementaryFlowCnecResult.setMargin(101., MEGAWATT);
@@ -269,8 +267,8 @@ class FlowbasedComputationImplTest {
 
             elementaryFlowCnecResult.setPtdfZonalSum(Side.LEFT, 0.1);
 
-            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
-            elementaryFlowCnecResult = flowCnecResult.getResult(AFTER_CRA);
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(Instant.CURATIVE);
+            elementaryFlowCnecResult = flowCnecResult.getResult(Instant.CURATIVE);
 
             elementaryFlowCnecResult.setFlow(Side.LEFT, 200., MEGAWATT);
             elementaryFlowCnecResult.setMargin(201., MEGAWATT);
