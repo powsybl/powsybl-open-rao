@@ -19,7 +19,6 @@ import static com.farao_community.farao.commons.Unit.TAP;
 import static com.farao_community.farao.commons.Unit.*;
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.*;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -52,6 +51,7 @@ class RaoResultJsonConstantsTest {
 
     @Test
     void testSerializeInstant() {
+        assertEquals("initial", serializeInstant(null));
         assertEquals("preventive", serializeInstant(PREVENTIVE));
         assertEquals("outage", serializeInstant(OUTAGE));
         assertEquals("auto", serializeInstant(AUTO));
@@ -60,6 +60,7 @@ class RaoResultJsonConstantsTest {
 
     @Test
     void testDeserializeInstant() {
+        assertEquals(null, deserializeInstant("initial"));
         assertEquals(PREVENTIVE, deserializeInstant("preventive"));
         assertEquals(OUTAGE, deserializeInstant("outage"));
         assertEquals(AUTO, deserializeInstant("auto"));
@@ -67,19 +68,12 @@ class RaoResultJsonConstantsTest {
     }
 
     @Test
-    void testSerializeOptimizationState() {
-        assertEquals("initial", serializeOptimizationState(INITIAL));
-        assertEquals("afterPRA", serializeOptimizationState(AFTER_PRA));
-        assertEquals("afterARA", serializeOptimizationState(AFTER_ARA));
-        assertEquals("afterCRA", serializeOptimizationState(AFTER_CRA));
-    }
-
-    @Test
-    void testDeserializeOptimizationState() {
-        assertEquals(INITIAL, deserializeOptimizationState("initial"));
-        assertEquals(AFTER_PRA, deserializeOptimizationState("afterPRA"));
-        assertEquals(AFTER_ARA, deserializeOptimizationState("afterARA"));
-        assertEquals(AFTER_CRA, deserializeOptimizationState("afterCRA"));
+    void testDeserializeOptimizedInstant() {
+        assertEquals(null, deserializeOptimizedInstant("initial", "1.4"));
+        assertEquals(PREVENTIVE, deserializeOptimizedInstant("preventive", "1.4"));
+        assertEquals(OUTAGE, deserializeOptimizedInstant("outage", "1.4"));
+        assertEquals(AUTO, deserializeOptimizedInstant("auto", "1.4"));
+        assertEquals(CURATIVE, deserializeOptimizedInstant("curative", "1.4"));
     }
 
     @Test

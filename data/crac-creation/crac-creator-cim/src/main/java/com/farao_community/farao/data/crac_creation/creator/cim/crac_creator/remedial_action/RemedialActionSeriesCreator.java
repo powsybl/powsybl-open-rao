@@ -16,10 +16,10 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AdditionalConstraintSeriesCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -146,7 +146,7 @@ public class RemedialActionSeriesCreator {
      */
     private boolean isAValidAngleCnecSeries(Series cimSerie) {
         if (cimSerie.getAdditionalConstraintSeries().size() == 1
-                && contingencies.size() == 1 && invalidContingencies.isEmpty()) {
+            && contingencies.size() == 1 && invalidContingencies.isEmpty()) {
             return true;
         } else if (cimSerie.getAdditionalConstraintSeries().size() > 1) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("Angle cnec series has too many (%s) additional constraint series", cimSerie.getAdditionalConstraintSeries().size())));
@@ -409,7 +409,7 @@ public class RemedialActionSeriesCreator {
 
         checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
 
-        if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && contingencies.isEmpty())) {
+        if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
             UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
@@ -478,9 +478,9 @@ public class RemedialActionSeriesCreator {
 
     private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec) {
         adder.newOnAngleConstraintUsageRule()
-                .withAngleCnec(angleCnec.getId())
-                .withInstant(Instant.CURATIVE)
-                .add();
+            .withAngleCnec(angleCnec.getId())
+            .withInstant(Instant.CURATIVE)
+            .add();
     }
 
     /*-------------- SERIES CHECKS ------------------------------*/

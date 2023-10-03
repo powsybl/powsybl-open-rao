@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.rao_result_impl;
 
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.crac_api.Instant;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,18 +17,18 @@ import java.util.Map;
 public class VoltageCnecResult {
 
     private static final ElementaryVoltageCnecResult DEFAULT_RESULT = new ElementaryVoltageCnecResult();
-    private final Map<OptimizationState, ElementaryVoltageCnecResult> results;
+    private final Map<Instant, ElementaryVoltageCnecResult> results;
 
     VoltageCnecResult() {
-        results = new EnumMap<>(OptimizationState.class);
+        results = new HashMap<>();
     }
 
-    public ElementaryVoltageCnecResult getResult(OptimizationState optimizationState) {
-        return results.getOrDefault(optimizationState, DEFAULT_RESULT);
+    public ElementaryVoltageCnecResult getResult(Instant optimizedInstant) {
+        return results.getOrDefault(optimizedInstant, DEFAULT_RESULT);
     }
 
-    public ElementaryVoltageCnecResult getAndCreateIfAbsentResultForOptimizationState(OptimizationState optimizationState) {
-        results.putIfAbsent(optimizationState, new ElementaryVoltageCnecResult());
-        return results.get(optimizationState);
+    public ElementaryVoltageCnecResult getAndCreateIfAbsentResultForOptimizationState(Instant optimizedInstant) {
+        results.putIfAbsent(optimizedInstant, new ElementaryVoltageCnecResult());
+        return results.get(optimizedInstant);
     }
 }
