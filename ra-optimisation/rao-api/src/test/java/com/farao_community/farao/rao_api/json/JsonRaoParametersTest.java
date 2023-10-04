@@ -13,6 +13,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.SecondPreventiveRaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
 import com.farao_community.farao.rao_api.parameters.extensions.MnecParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -96,7 +97,7 @@ class JsonRaoParametersTest extends AbstractConverterTest {
         // -- LoopFlow parameters
         parameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
         parameters.getExtension(LoopFlowParametersExtension.class).setAcceptableIncrease(20.);
-        parameters.getExtension(LoopFlowParametersExtension.class).setApproximation(LoopFlowParametersExtension.Approximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        parameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
         parameters.getExtension(LoopFlowParametersExtension.class).setConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
         countries.add("BE");
@@ -111,6 +112,7 @@ class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}"));
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
+        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
@@ -168,14 +170,15 @@ class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void readErrorUnexpectedExtension() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/RaoParametersError_v2.json")) {
-            JsonRaoParameters.read(is);
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-            assertTrue(e.getMessage().contains("Unexpected field"));
-        }
+    void readErrorUnexpectedExtension() {
+        FaraoException e = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError_v2.json")));
+        assertEquals("Unexpected field in rao parameters: unknownField", e.getMessage());
+    }
+
+    @Test
+    void testFailOnWrongVersion() {
+        FaraoException e = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_wrongVersion.json")));
+        assertEquals("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '2.1'.", e.getMessage());
     }
 
     @ParameterizedTest

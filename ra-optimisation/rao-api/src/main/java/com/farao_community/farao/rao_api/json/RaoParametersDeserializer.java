@@ -42,6 +42,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             switch (parser.getCurrentName()) {
                 case VERSION:
                     parser.nextToken();
+                    String version = parser.getValueAsString();
+                    if (!RAO_PARAMETERS_VERSION.equals(version)) {
+                        throw new FaraoException(String.format("RaoParameters version '%s' cannot be deserialized. The only supported version currently is '%s'.", version, RAO_PARAMETERS_VERSION));
+                    }
                     break;
                 case OBJECTIVE_FUNCTION:
                     parser.nextToken();

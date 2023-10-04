@@ -1,5 +1,5 @@
 {
-  "version" : "2.1",
+  "version" : "2.0",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN_IN_MEGAWATT",
     "forbid-cost-increase" : false,
@@ -16,6 +16,7 @@
     "hvdc-sensitivity-threshold" : 0.0,
     "injection-ra-penalty-cost" : 0.001,
     "injection-ra-sensitivity-threshold" : 0.0,
+    "ra-range-shrinking" : "DISABLED",
     "linear-optimization-solver" : {
       "solver" : "CBC",
       "relative-mip-gap" : 1.0E-4,
@@ -51,9 +52,9 @@
     "sensitivity-provider" : "OpenLoadFlow",
     "sensitivity-failure-overcost" : 10000.0,
     "sensitivity-parameters" : {
-      "version" : "1.0",
+      "version" : "1.1",
       "load-flow-parameters" : {
-        "version" : "1.8",
+        "version" : "1.9",
         "voltageInitMode" : "UNIFORM_VALUES",
         "transformerVoltageControlOn" : false,
         "phaseShifterRegulationOn" : false,
@@ -68,13 +69,18 @@
         "dcUseTransformerRatio" : true,
         "countriesToBalance" : [ ],
         "connectedComponentMode" : "MAIN",
-        "hvdcAcEmulation" : true
-      }
+        "hvdcAcEmulation" : true,
+        "dcPowerFactor" : 1.0
+      },
+      "flow-flow-sensitivity-value-threshold" : 0.0,
+      "voltage-voltage-sensitivity-value-threshold" : 0.0,
+      "flow-voltage-sensitivity-value-threshold" : 0.0,
+      "angle-flow-sensitivity-value-threshold" : 0.0
     }
   },
   "multi-threading" : {
     "contingency-scenarios-in-parallel" : 1,
-    "leaves-in-parallel" : 1,
+    "preventive-leaves-in-parallel" : 1,
     "curative-leaves-in-parallel" : 1
   }
 }

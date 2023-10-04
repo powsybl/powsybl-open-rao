@@ -36,6 +36,7 @@ public class JsonRelativeMarginsParametersExtension implements JsonRaoParameters
             jsonGenerator.writeString(ptdfBoundary);
         }
         jsonGenerator.writeEndArray();
+        jsonGenerator.writeObjectField(PTDF_APPROXIMATION, relativeMarginParameters.getPtdfApproximation());
         jsonGenerator.writeNumberField(PTDF_SUM_LOWER_BOUND, relativeMarginParameters.getPtdfSumLowerBound());
         jsonGenerator.writeEndObject();
     }
@@ -51,6 +52,9 @@ public class JsonRelativeMarginsParametersExtension implements JsonRaoParameters
             switch (jsonParser.getCurrentName()) {
                 case PTDF_BOUNDARIES:
                     readPtdfBoundaries(jsonParser, parameters);
+                    break;
+                case PTDF_APPROXIMATION:
+                    parameters.setPtdfApproximation(stringToPtdfApproximation(jsonParser.nextTextValue()));
                     break;
                 case PTDF_SUM_LOWER_BOUND:
                     jsonParser.nextToken();

@@ -23,10 +23,12 @@ import static com.farao_community.farao.rao_api.RaoParametersConstants.*;
 public class RelativeMarginsParametersExtension extends AbstractExtension<RaoParameters> {
 
     static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
+    static final PtdfApproximation DEFAULT_PTDF_APPROXIMATION = PtdfApproximation.FIXED_PTDF;
     static final List<ZoneToZonePtdfDefinition> DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES = new ArrayList<>();
     private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
     // prevents relative margins from diverging to +infinity
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
+    private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
 
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
         return ptdfBoundaries;
@@ -46,6 +48,14 @@ public class RelativeMarginsParametersExtension extends AbstractExtension<RaoPar
 
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;
+    }
+
+    public PtdfApproximation getPtdfApproximation() {
+        return ptdfApproximation;
+    }
+
+    public void setPtdfApproximation(PtdfApproximation ptdfApproximation) {
+        this.ptdfApproximation = ptdfApproximation;
     }
 
     public void setPtdfSumLowerBound(double ptdfSumLowerBound) {

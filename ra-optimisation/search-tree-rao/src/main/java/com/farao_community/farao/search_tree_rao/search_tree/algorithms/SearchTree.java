@@ -441,10 +441,14 @@ public class SearchTree {
         }
 
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
-            sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
+            if (parameters.getMaxMinRelativeMarginParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withPtdfsResults(input.getToolProvider().getAbsolutePtdfSumsComputation(), input.getOptimizationPerimeter().getFlowCnecs());
+            } else {
+                sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
+            }
         }
 
-        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+        if (parameters.getLoopFlowParameters() != null && parameters.getLoopFlowParameters().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.getLoopFlowParameters() != null) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());

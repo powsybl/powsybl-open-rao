@@ -27,6 +27,7 @@ public class RelativeMarginsParametersConfigLoader implements RaoParameters.Conf
         platformConfig.getOptionalModuleConfig(RELATIVE_MARGINS_SECTION)
                 .ifPresent(config -> {
                     parameters.setPtdfBoundariesFromString(config.getStringListProperty(PTDF_BOUNDARIES, new ArrayList<>()));
+                    parameters.setPtdfApproximation(config.getEnumProperty(PTDF_APPROXIMATION, PtdfApproximation.class, LoopFlowParametersExtension.DEFAULT_PTDF_APPROXIMATION));
                     parameters.setPtdfSumLowerBound(config.getDoubleProperty(PTDF_SUM_LOWER_BOUND, RelativeMarginsParametersExtension.DEFAULT_PTDF_SUM_LOWER_BOUND));
                 });
         return parameters;

@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPVariable;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -31,7 +32,7 @@ import java.util.TreeSet;
 public class MaxLoopFlowFiller implements ProblemFiller {
     private final Set<FlowCnec> loopFlowCnecs;
     private final FlowResult initialFlowResult;
-    private final LoopFlowParametersExtension.Approximation loopFlowApproximationLevel;
+    private final PtdfApproximation loopFlowPtdfApproximationLevel;
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
@@ -40,7 +41,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.loopFlowCnecs.addAll(loopFlowCnecs);
         this.initialFlowResult = initialFlowResult;
-        this.loopFlowApproximationLevel = loopFlowParameters.getApproximation();
+        this.loopFlowPtdfApproximationLevel = loopFlowParameters.getPtdfApproximation();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
         this.loopFlowViolationCost = loopFlowParameters.getViolationCost();
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getConstraintAdjustmentCoefficient();
@@ -147,7 +148,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      */
     private void updateLoopFlowConstraints(LinearProblem linearProblem, FlowResult flowResult) {
 
-        if (!loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) {
+        if (!loopFlowPtdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
             return;
         }
 

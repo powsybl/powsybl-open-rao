@@ -56,7 +56,8 @@ public class FaraoMPSolver {
     }
 
     public FaraoMPConstraint makeConstraint(double lb, double ub, String name) {
-        // check that constraint does not already exists
+        // check that constraint does not already exist
+        System.out.println(String.format("!!!!!!! adding constraint: %s - %.1f - %.1f", name, lb, ub));
         assertFalse(constraints.stream().anyMatch(v -> v.name().equals(name)));
 
         MPConstraintMock newConstraint = new MPConstraintMock(name, lb, ub);
@@ -65,7 +66,7 @@ public class FaraoMPSolver {
     }
 
     public FaraoMPVariable makeBoolVar(String name) {
-        // check that variable does not already exists
+        // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
         MPVariableMock newVariable = new MPVariableMock(name, 0, 1, true);
@@ -74,7 +75,7 @@ public class FaraoMPSolver {
     }
 
     public FaraoMPVariable makeIntVar(double lb, double ub, String name) {
-        // check that variable does not already exists
+        // check that variable does not already exist
         assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
 
         MPVariableMock newVariable = new MPVariableMock(name, lb, ub, true);
@@ -83,6 +84,7 @@ public class FaraoMPSolver {
     }
 
     public FaraoMPConstraint makeConstraint(String name) {
+        System.out.println("!!!!!!! adding constraint: " + name);
         MPConstraintMock newConstraint = new MPConstraintMock(name, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         constraints.add(newConstraint);
         return newConstraint;
