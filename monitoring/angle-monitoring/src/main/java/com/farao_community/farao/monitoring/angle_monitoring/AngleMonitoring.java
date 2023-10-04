@@ -43,8 +43,6 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class AngleMonitoring {
-    public static final String CONTINGENCY_ERROR = "At least one contingency could not be monitored within the given time (24 hours). This should not happen.";
-
     private final Crac crac;
     private final Network inputNetwork;
     private final RaoResult raoResult;
@@ -91,9 +89,7 @@ public class AngleMonitoring {
         }
 
         try {
-            try (AbstractNetworkPool networkPool =
-                     AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)
-            ) {
+            try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
                 List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
                     networkPool.submit(() -> {
                         Network networkClone = networkPool.getAvailableNetwork();
