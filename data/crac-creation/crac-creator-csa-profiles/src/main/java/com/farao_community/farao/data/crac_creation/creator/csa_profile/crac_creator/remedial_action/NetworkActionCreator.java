@@ -47,10 +47,10 @@ public class NetworkActionCreator {
             for (PropertyBag rotatingMachineActionPropertyBag : linkedRotatingMachineActions.get(remedialActionId)) {
                 if (staticPropertyRanges.containsKey(rotatingMachineActionPropertyBag.getId("mRID"))) {
                     addInjectionSetPointElementaryAction(
-                            staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId("mRID")),
-                            remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
+                        staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId("mRID")),
+                        remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because there is no linked StaticPropertyRange to that RA");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no linked StaticPropertyRange to that RA");
                 }
             }
         }
@@ -65,7 +65,7 @@ public class NetworkActionCreator {
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
         Optional<Load> optionalLoad = findLoad(rotatingMachineId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId);
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId);
         }
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one (in theory only one will be present in case of rotating machines)
@@ -74,7 +74,7 @@ public class NetworkActionCreator {
         String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
         String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
         if (!(valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE) && direction.equals(CsaProfileConstants.DIRECTION_NONE))) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
         }
         networkActionAdder.newInjectionSetPoint()
                 .withSetpoint(normalValue)
@@ -88,15 +88,15 @@ public class NetworkActionCreator {
     }
 
     private void addTopologicalElementaryAction(NetworkActionAdder networkActionAdder, PropertyBag
-            topologyActionPropertyBag, String remedialActionId) {
+        topologyActionPropertyBag, String remedialActionId) {
         String switchId = topologyActionPropertyBag.getId(CsaProfileConstants.SWITCH);
         if (network.getSwitch(switchId) == null) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial Action: " + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because network model does not contain a switch with id: " + switchId);
         }
         CsaProfileCracUtils.checkPropertyReference(topologyActionPropertyBag, remedialActionId, "TopologyAction", CsaProfileConstants.PROPERTY_REFERENCE_SWITCH_OPEN);
         networkActionAdder.newTopologicalAction()
-                .withNetworkElement(switchId)
-                // todo this is a temporary behaviour closing switch will be implemented in a later version
-                .withActionType(ActionType.OPEN).add();
+            .withNetworkElement(switchId)
+            // todo this is a temporary behaviour closing switch will be implemented in a later version
+            .withActionType(ActionType.OPEN).add();
     }
 }
