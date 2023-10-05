@@ -225,7 +225,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                             LinearProblem.infinity(), cnec,
                             side,
                             LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                    extendSetpointBounds.setCoefficient(flowVariable, 1);
+                    extendSetpointBounds.setCoefficient(flowVariable, sensitivity >= 0 ? 1 : -1);
                 } else {
                     extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     if (extendSetpointBounds == null) {
@@ -234,12 +234,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * abs(sensitivity));
-                double lb =  minFlow.get();
-                if (sensitivity >= 0) {
-                    lb += -maxSetpoint * sensitivity;
-                } else {
-                    lb += -minSetpoint * sensitivity;
-                }
+                double lb = sensitivity >= 0 ? minFlow.get() - maxSetpoint * sensitivity : -minFlow.get() - minSetpoint * sensitivity;
                 extendSetpointBounds.setLb(lb);
             }
             if (maxFlow.isPresent()) {
@@ -249,7 +244,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                             -LinearProblem.infinity(),
                             LinearProblem.infinity(), cnec, side,
                             LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                    extendSetpointBounds.setCoefficient(flowVariable, -1);
+                    extendSetpointBounds.setCoefficient(flowVariable, sensitivity >= 0 ? -1 : 1);
                 } else {
                     extendSetpointBounds = linearProblem.getDontOptimizeCnecConstraint(cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     if (extendSetpointBounds == null) {
@@ -258,12 +253,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
                 extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * abs(sensitivity));
-                double lb =  -maxFlow.get();
-                if (sensitivity >= 0) {
-                    lb += minSetpoint * abs(sensitivity);
-                } else {
-                    lb += maxSetpoint * abs(sensitivity);
-                }
+                double lb = sensitivity >= 0 ? -maxFlow.get() + minSetpoint * sensitivity : maxFlow.get() + maxSetpoint * sensitivity;
                 extendSetpointBounds.setLb(lb);
             }
         }));
