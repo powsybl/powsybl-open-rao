@@ -44,9 +44,6 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
                                             PropertyBags tapPositionPropertyBags,
-                                            PropertyBags staticPropertyRangesPropertyBags) {
-                                            PropertyBags rotatingMachineActionsPropertyBags,
-                                            PropertyBags tapPositionPropertyBags,
                                             PropertyBags staticPropertyRangesPropertyBags,
                                             OnConstraintUsageRuleHelper onConstraintUsageRuleHelper) {
         this.crac = crac;
@@ -94,6 +91,8 @@ public class CsaProfileRemedialActionsCreator {
                     remedialActionAdder.withOperator(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf("/") + 1)).getDisplayName());
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
+
+                Instant remedialActionInstant;
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
                     // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
@@ -111,12 +110,15 @@ public class CsaProfileRemedialActionsCreator {
                         .collect(Collectors.toList());
 
                     addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
+                    remedialActionInstant = Instant.OUTAGE;
                 } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
                         remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add();
+                        remedialActionInstant = Instant.PREVENTIVE;
                     } else {
                         remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
+                        remedialActionInstant = Instant.CURATIVE;
                     }
                 }
                 if (!assessedElementCombinableWithRaIsExcluded(remedialActionId)) {
@@ -130,7 +132,6 @@ public class CsaProfileRemedialActionsCreator {
             }
         }
         this.cracCreationContext.setRemedialActionCreationContexts(csaProfileRemedialActionCreationContexts);
-        this.cracCreationContext.setRemedialActionCreationContext(csaProfileRemedialActionCreationContexts);
     }
 
     private boolean assessedElementCombinableWithRaIsExcluded(String remedialActionId) {
@@ -168,7 +169,6 @@ public class CsaProfileRemedialActionsCreator {
                 });
             }
         });
-
     }
 
     private void addOnContingencyStateUsageRules(RemedialActionAdder<?> remedialActionAdder, List<String> faraoContingenciesIds, String randomCombinationConstraintKind) {
