@@ -128,7 +128,7 @@ public final class NetworkImportsUtil {
                 .setSectionCount(1)
                 .setVoltageRegulatorOn(true)
                 .setTargetDeadband(5.0)
-                .newLinearModel().setBPerSection(1E-2).setGPerSection(0.0).setMaximumSectionCount(1).add()
+                .newLinearModel().setBPerSection(1E-2).setGPerSection(0.0).setMaximumSectionCount(2).add()
                 .add();
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
     }

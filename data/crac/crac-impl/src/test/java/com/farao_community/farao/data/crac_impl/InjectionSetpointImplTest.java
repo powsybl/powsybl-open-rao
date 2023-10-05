@@ -158,9 +158,9 @@ class InjectionSetpointImplTest {
         NetworkImportsUtil.addShuntCompensator(network);
         InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("SC1"),
-                1, Unit.SECTION_COUNT);
+                2, Unit.SECTION_COUNT);
         shuntCompensatorSetpoint.apply(network);
-        assertEquals(1., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
+        assertEquals(2., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
     }
 
     @Test
