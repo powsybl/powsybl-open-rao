@@ -114,7 +114,7 @@ public class CsaProfileCnecCreator {
         for (Contingency contingency : combinableContingencies) {
             String flowCnecName = assessedElementName + " - " + contingency.getName() + " - " + currentFlowCnecInstant.toString();
             flowCnecAdder.withContingency(contingency.getId())
-                .withId(assessedElementId + "-" + contingency.getId())
+                .withId(flowCnecName)
                 .withName(flowCnecName)
                 .add();
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, flowCnecName, "", false));
@@ -122,7 +122,7 @@ public class CsaProfileCnecCreator {
         if (inBaseCase) {
             String flowCnecName = assessedElementName + " - preventive";
             flowCnecAdder.withContingency(null)
-                .withId(assessedElementId)
+                .withId(flowCnecName)
                 .withName(flowCnecName)
                 .withInstant(Instant.PREVENTIVE)
                 .add();
@@ -224,10 +224,10 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean addCurrentLimit(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
-        String currentLimitId = currentLimit.getId(CsaProfileConstants.REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL);
-        Identifiable<?> networkElement = this.getNetworkElementInNetwork(currentLimitId);
+        String terminalId = currentLimit.getId(CsaProfileConstants.REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL);
+        Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "current limit equipment is missing in network : " + currentLimitId));
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "current limit equipment is missing in network : " + terminalId));
             return false;
         }
 
@@ -256,7 +256,7 @@ public class CsaProfileCnecCreator {
             return false;
         }
 
-        return this.addThreshold(assessedElementId, flowCnecAdder, currentLimit, networkElement);
+        return this.addThreshold(assessedElementId, flowCnecAdder, currentLimit, networkElement, getSideFromNetworkElement(networkElement, terminalId));
 
     }
 
@@ -353,8 +353,7 @@ public class CsaProfileCnecCreator {
         return true;
     }
 
-    private boolean addThreshold(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Identifiable<?> networkElement) {
-        Side side = this.getSideFromNetworkElement(networkElement);
+    private boolean addThreshold(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, Identifiable<?> networkElement, Side side) {
         if (side == null) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "could not find side of threshold with network element : " + networkElement.getId()));
             return false;
@@ -378,16 +377,16 @@ public class CsaProfileCnecCreator {
         return true;
     }
 
-    private Side getSideFromNetworkElement(Identifiable<?> networkElement) {
+    private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
         for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
             Optional<String> oAlias = networkElement.getAliasFromType(key);
-            if (oAlias.isPresent()) {
+            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
                 return Side.LEFT;
             }
         }
         for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
             Optional<String> oAlias = networkElement.getAliasFromType(key);
-            if (oAlias.isPresent()) {
+            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
                 return Side.RIGHT;
             }
         }

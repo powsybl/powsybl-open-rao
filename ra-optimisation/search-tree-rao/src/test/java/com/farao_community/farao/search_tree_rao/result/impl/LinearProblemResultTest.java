@@ -58,16 +58,24 @@ class LinearProblemResultTest {
 
         pst1 = Mockito.mock(PstRangeAction.class);
         Mockito.when(pst1.getId()).thenReturn("pst1");
-        Mockito.when(pst1.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        NetworkElement pst1NE = Mockito.mock(NetworkElement.class);
+        Mockito.when(pst1NE.getId()).thenReturn("pst1NE");
+        Mockito.when(pst1.getNetworkElements()).thenReturn(Set.of(pst1NE));
         pst2 = Mockito.mock(PstRangeAction.class);
         Mockito.when(pst2.getId()).thenReturn("pst2");
-        Mockito.when(pst2.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        NetworkElement pst2NE = Mockito.mock(NetworkElement.class);
+        Mockito.when(pst2NE.getId()).thenReturn("pst2NE");
+        Mockito.when(pst2.getNetworkElements()).thenReturn(Set.of(pst2NE));
         ra3 = Mockito.mock(RangeAction.class);
         Mockito.when(ra3.getId()).thenReturn("ra3");
-        Mockito.when(ra3.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        NetworkElement ra3NE = Mockito.mock(NetworkElement.class);
+        Mockito.when(ra3NE.getId()).thenReturn("ra3NE");
+        Mockito.when(ra3.getNetworkElements()).thenReturn(Set.of(ra3NE));
         ra4 = Mockito.mock(RangeAction.class);
         Mockito.when(ra4.getId()).thenReturn("ra4");
-        Mockito.when(ra4.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        NetworkElement ra4NE = Mockito.mock(NetworkElement.class);
+        Mockito.when(ra4NE.getId()).thenReturn("ra4NE");
+        Mockito.when(ra4.getNetworkElements()).thenReturn(Set.of(ra4NE));
 
         linearProblem = Mockito.mock(LinearProblem.class);
         rangeActionsPerState = Map.of(

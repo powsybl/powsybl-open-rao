@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cre
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     private boolean isCreationSuccessful;
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
-    private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContext;
+    private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts;
     private Set<CsaProfileCnecCreationContext> flowCnecCreationContexts;
 
     private CracCreationReport creationReport;
@@ -44,6 +45,17 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
+    }
+
+    protected CsaProfileCracCreationContext(CsaProfileCracCreationContext toCopy) {
+        this.crac = toCopy.crac;
+        this.creationReport = toCopy.creationReport;
+        this.timeStamp = toCopy.timeStamp;
+        this.networkName = toCopy.networkName;
+        this.isCreationSuccessful = toCopy.isCreationSuccessful;
+        this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
+        this.remedialActionCreationContexts = new HashSet<>(toCopy.remedialActionCreationContexts);
+        this.flowCnecCreationContexts = new HashSet<>(toCopy.flowCnecCreationContexts);
     }
 
     @Override
@@ -71,23 +83,27 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     public Set<CsaProfileContingencyCreationContext> getContingencyCreationContexts() {
-        return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
+        return new HashSet<>(this.contingencyCreationContexts);
     }
 
-    public Set<CsaProfileRemedialActionCreationContext> getRemedialActionCreationContext() {
-        return remedialActionCreationContext;
+    public Set<CsaProfileRemedialActionCreationContext> getRemedialActionCreationContexts() {
+        return new HashSet<>(remedialActionCreationContexts);
     }
 
-    public void setRemedialActionCreationContext(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContext) {
-        this.remedialActionCreationContext = remedialActionCreationContext;
+    public CsaProfileRemedialActionCreationContext getRemedialActionCreationContext(String nativeId) {
+        return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeId().equals(nativeId)).findFirst().orElse(null);
+    }
+
+    public void setRemedialActionCreationContexts(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts) {
+        this.remedialActionCreationContexts = remedialActionCreationContexts;
     }
 
     public void setFlowCnecCreationContexts(Set<CsaProfileCnecCreationContext> flowCnecCreationContexts) {
-        this.flowCnecCreationContexts = flowCnecCreationContexts.stream().collect(Collectors.toSet());
+        this.flowCnecCreationContexts = new HashSet<>(flowCnecCreationContexts);
     }
 
     public Set<CsaProfileCnecCreationContext> getFlowCnecCreationContexts() {
-        return this.flowCnecCreationContexts.stream().collect(Collectors.toSet());
+        return new HashSet<>(this.flowCnecCreationContexts);
     }
 
     @Override
@@ -110,7 +126,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     public void buildCreationReport() {
         creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
-        addToReport(remedialActionCreationContext, "RemedialActions");
+        addToReport(remedialActionCreationContexts, "RemedialActions");
         addToReport(flowCnecCreationContexts, "FlowCnecs");
     }
 

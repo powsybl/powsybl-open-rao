@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 
 /**
@@ -41,5 +42,20 @@ public enum Instant {
 
     public boolean comesBefore(Instant otherInstant) {
         return this.order < otherInstant.order;
+    }
+
+    public Instant getPreviousInstant() {
+        switch (this) {
+            case PREVENTIVE:
+                return null;
+            case OUTAGE:
+                return PREVENTIVE;
+            case AUTO:
+                return OUTAGE;
+            case CURATIVE:
+                return AUTO;
+            default:
+                throw new FaraoException("Unknown instant");
+        }
     }
 }

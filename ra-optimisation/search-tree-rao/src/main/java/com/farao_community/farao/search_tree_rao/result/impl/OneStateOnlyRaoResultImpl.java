@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
@@ -42,12 +41,12 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
         this.optimizedFlowCnecs = optimizedFlowCnecs;
     }
 
-    private FlowResult getAppropriateResult(OptimizationState optimizationState, FlowCnec flowCnec) {
+    private FlowResult getAppropriateResult(Instant optimizedInstant, FlowCnec flowCnec) {
         if (!optimizedFlowCnecs.contains(flowCnec)) {
             throw new FaraoException("Cnec not optimized in this perimeter.");
         }
         State state = flowCnec.getState();
-        if (optimizationState == OptimizationState.INITIAL) {
+        if (optimizedInstant == null) {
             return initialResult;
         }
         if (optimizedState.isPreventive()) {
@@ -84,33 +83,33 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
+    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
+    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getRelativeMargin(flowCnec, unit);
     }
 
     @Override
-    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getFlow(flowCnec, side, unit);
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getCommercialFlow(flowCnec, side, unit);
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        return getAppropriateResult(optimizationState, flowCnec).getLoopFlow(flowCnec, side, unit);
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        return getAppropriateResult(optimizationState, flowCnec).getPtdfZonalSum(flowCnec, side);
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+        return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
     }
 
     public PerimeterResult getPerimeterResult(State state) {
@@ -134,16 +133,16 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFunctionalCost(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public double getFunctionalCost(Instant optimizedInstant) {
+        if (optimizedInstant == null) {
             return initialResult.getFunctionalCost();
         } else {
             return postOptimizationResult.getFunctionalCost();
         }
     }
 
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public List<FlowCnec> getMostLimitingElements(Instant optimizedInstant, int number) {
+        if (optimizedInstant == null) {
             return initialResult.getMostLimitingElements(number);
         } else {
             return postOptimizationResult.getMostLimitingElements(number);
@@ -151,8 +150,8 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public double getVirtualCost(Instant optimizedInstant) {
+        if (optimizedInstant == null) {
             return initialResult.getVirtualCost();
         } else {
             return postOptimizationResult.getVirtualCost();
@@ -172,16 +171,16 @@ public class OneStateOnlyRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
+        if (optimizedInstant == null) {
             return initialResult.getVirtualCost(virtualCostName);
         } else {
             return postOptimizationResult.getVirtualCost(virtualCostName);
         }
     }
 
-    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public List<FlowCnec> getCostlyElements(Instant optimizedInstant, String virtualCostName, int number) {
+        if (optimizedInstant == null) {
             return initialResult.getCostlyElements(virtualCostName, number);
         } else {
             return postOptimizationResult.getCostlyElements(virtualCostName, number);

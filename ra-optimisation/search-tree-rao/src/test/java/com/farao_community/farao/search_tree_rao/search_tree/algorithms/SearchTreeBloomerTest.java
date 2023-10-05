@@ -427,7 +427,7 @@ class SearchTreeBloomerTest {
 
     @Test
     void testIsNetworkActionCloseToLocations() {
-        NetworkAction na1 = crac.newNetworkAction().withId("na").newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add().add();
+        NetworkAction na1 = (NetworkAction) crac.newNetworkAction().withId("na").newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add().add();
         NetworkAction na2 = mock(NetworkAction.class);
         Mockito.when(na2.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.empty()));
 
@@ -490,14 +490,14 @@ class SearchTreeBloomerTest {
     }
 
     private NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
-        return crac.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
+        return (NetworkAction) crac.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
     }
 
     private PstRangeAction createPstRangeActionWithOperator(String networkElementId, String operator) {
         Map<Integer, Double> conversionMap = new HashMap<>();
         conversionMap.put(0, 0.);
         conversionMap.put(1, 1.);
-        return crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
+        return (PstRangeAction) crac.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
     }
 
     @Test
@@ -550,5 +550,23 @@ class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, Integer.MAX_VALUE, maxTopoPerTso, maxRemedialActionsPerTso, false, 0, new ArrayList<>(), pState);
         Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfRaPerTso(naCombinations, previousLeaf);
         assertEquals(0, filteredNaCombination.size()); // combination is filtered out
+    }
+
+    @Test
+    void testDontFilterNullOperator() {
+        NetworkAction naNoOperator1 = createNetworkActionWithOperator("NNL2AA1  NNL3AA1  1", null);
+        List<NetworkActionCombination> listOfNaCombinations = List.of(new NetworkActionCombination(Set.of(naFr1, naBe1, naNoOperator1)));
+        Map<NetworkActionCombination, Boolean> naCombinations = new HashMap<>();
+        listOfNaCombinations.forEach(na -> naCombinations.put(na, false));
+
+        // previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(naFr1));
+
+        // max 2 TSOs
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, Integer.MAX_VALUE, 2, null, null, false, 0, new ArrayList<>(), pState);
+        Map<NetworkActionCombination, Boolean> filteredNaCombination = bloomer.removeCombinationsWhichExceedMaxNumberOfTsos(naCombinations, previousLeaf);
+
+        assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count
     }
 }

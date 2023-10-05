@@ -33,8 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Monitors AngleCnecs' angles.
@@ -67,6 +66,7 @@ public class AngleMonitoring {
      * Returns an AngleMonitoringResult
      */
     public AngleMonitoringResult run(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, OffsetDateTime glskOffsetDateTime) throws FaraoException {
+        BUSINESS_LOGS.info("----- Angle monitoring [start]");
         this.glskOffsetDateTime = glskOffsetDateTime;
         stateSpecificResults = new ArrayList<>();
         loadGlskCountries();
@@ -74,17 +74,19 @@ public class AngleMonitoring {
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
             stateSpecificResults.add(new AngleMonitoringResult(Collections.emptySet(), Collections.emptyMap(), AngleMonitoringResult.Status.SECURE));
+            BUSINESS_LOGS.info("----- Angle monitoring [end]");
             return assembleAngleMonitoringResults();
         }
 
         // I) Preventive state
         if (Objects.nonNull(crac.getPreventiveState())) {
             applyOptimalRemedialActions(crac.getPreventiveState(), inputNetwork);
-            stateSpecificResults.add(monitorAngleCnecs(loadFlowProvider, loadFlowParameters, crac.getPreventiveState(), inputNetwork));
+            stateSpecificResults.add(monitorAngleCnecsAndLog(loadFlowProvider, loadFlowParameters, crac.getPreventiveState(), inputNetwork));
         }
         // II) Curative states
         Set<State> contingencyStates = crac.getAngleCnecs().stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
+            BUSINESS_LOGS.info("----- Angle monitoring [end]");
             return assembleAngleMonitoringResults();
         }
 
@@ -106,7 +108,7 @@ public class AngleMonitoring {
                             try {
                                 state.getContingency().orElseThrow().apply(networkClone, null);
                                 applyOptimalRemedialActionsOnContingencyState(state, networkClone);
-                                stateSpecificResults.add(monitorAngleCnecs(loadFlowProvider, loadFlowParameters, state, networkClone));
+                                stateSpecificResults.add(monitorAngleCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone));
                             } catch (Exception e) {
                                 BUSINESS_WARNS.warn(e.getMessage());
                                 stateSpecificResults.add(catchAngleMonitoringResult(state, AngleMonitoringResult.Status.UNKNOWN));
@@ -128,6 +130,7 @@ public class AngleMonitoring {
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }
+        BUSINESS_LOGS.info("----- Angle monitoring [end]");
         return assembleAngleMonitoringResults();
     }
 
@@ -153,6 +156,14 @@ public class AngleMonitoring {
                 .forEach(na -> na.apply(networkClone));
         raoResult.getActivatedRangeActionsDuringState(state)
                 .forEach(ra -> ra.apply(networkClone, raoResult.getOptimizedSetPointOnState(state, ra)));
+    }
+
+    private AngleMonitoringResult monitorAngleCnecsAndLog(String loadFlowProvider, LoadFlowParameters loadFlowParameters, State state, Network networkClone) {
+        BUSINESS_LOGS.info("-- Monitoring angles at state \"{}\" [start]", state);
+        AngleMonitoringResult result = monitorAngleCnecs(loadFlowProvider, loadFlowParameters, state, networkClone);
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("-- Monitoring angles at state \"{}\" [end]", state);
+        return result;
     }
 
     /**
@@ -184,6 +195,7 @@ public class AngleMonitoring {
         if (!appliedNetworkActions.isEmpty()) {
             loadFlowIsOk = computeLoadFlow(loadFlowProvider, loadFlowParameters, networkClone);
             if (!loadFlowIsOk) {
+                BUSINESS_WARNS.warn("Load-flow computation failed at state {} after applying RAs. Skipping this state.", state);
                 Set<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
                 angleValues.forEach((angleCnecResult, angleResult) -> result.add(new AngleMonitoringResult.AngleResult(angleCnecResult, angleResult)));
                 return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), AngleMonitoringResult.Status.DIVERGENT);
@@ -200,6 +212,17 @@ public class AngleMonitoring {
         return new AngleMonitoringResult(result, Map.of(state, appliedNetworkActions), status);
     }
 
+    /**
+     * Get the voltage level of an element in the network
+     * @return a VoltageLevel or null if the element wasn't found
+      */
+    private VoltageLevel getVoltageLevelOfElement(String elementId, Network network) {
+        if (network.getBusBreakerView().getBus(elementId) != null) {
+            return network.getBusBreakerView().getBus(elementId).getVoltageLevel();
+        }
+        return network.getVoltageLevel(elementId);
+    }
+
     // ------- 1) Compute angles for all AngleCnecs -----
     /**
      * Angle computation on angleCnecs (parameter).
@@ -209,8 +232,8 @@ public class AngleMonitoring {
     private Map<AngleCnec, Double> computeAngles(Set<AngleCnec> angleCnecs, Network network) {
         Map<AngleCnec, Double> anglePerCnec = new HashMap<>();
         angleCnecs.forEach(ac -> {
-            VoltageLevel exportingVoltageLevel = network.getVoltageLevel(ac.getExportingNetworkElement().getId());
-            VoltageLevel importingVoltageLevel = network.getVoltageLevel(ac.getImportingNetworkElement().getId());
+            VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(ac.getExportingNetworkElement().getId(), network);
+            VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(ac.getImportingNetworkElement().getId(), network);
             Double angle = exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
                     - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
             anglePerCnec.put(ac, angle);
@@ -282,6 +305,7 @@ public class AngleMonitoring {
                 powerToBeRedispatched.putAll(tempPowerToBeRedispatched);
             }
         }
+        BUSINESS_LOGS.info("Applying the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", angleCnecId, appliedNetworkActions.stream().map(com.farao_community.farao.data.crac_api.Identifiable::getId).collect(Collectors.joining(", ")));
         return appliedNetworkActions;
     }
 
@@ -339,6 +363,7 @@ public class AngleMonitoring {
     private void redispatchNetworkActions(Network networkClone, Map<Country, Double> powerToBeRedispatched, Set<String> networkElementsToBeExcluded) {
         // Apply one redispatch action per country
         for (Map.Entry<Country, Double> redispatchPower : powerToBeRedispatched.entrySet()) {
+            BUSINESS_LOGS.info("Redispatching {} MW in {} [start]", redispatchPower.getValue(), redispatchPower.getKey());
             Set<CimGlskPoint> countryGlskPoints = cimGlskDocument.getGlskPoints().stream()
                     .filter(glskPoint -> redispatchPower.getKey().equals(new CountryEICode(glskPoint.getSubjectDomainmRID()).getCountry())
                     && isInTimeInterval(glskOffsetDateTime, glskPoint.getPointInterval().getStart().toString(), glskPoint.getPointInterval().getEnd().toString()))
@@ -348,7 +373,7 @@ public class AngleMonitoring {
                 throw new FaraoException(String.format("> 1 (%s) glskPoints defined for country %s", countryGlskPoints.size(), redispatchPower.getKey().getName()));
             }
             new RedispatchAction(redispatchPower.getValue(), networkElementsToBeExcluded, countryGlskPoints.iterator().next()).apply(networkClone);
-            BUSINESS_LOGS.info("Redispatching done for country %s", redispatchPower.getKey().name());
+            BUSINESS_LOGS.info("Redispatching {} MW in {} [end]", redispatchPower.getValue(), redispatchPower.getKey());
         }
     }
 
@@ -358,11 +383,13 @@ public class AngleMonitoring {
      * Returns false if loadFlow has not converged.
      */
     private boolean computeLoadFlow(String loadFlowProvider, LoadFlowParameters loadFlowParameters, Network networkClone) {
+        TECHNICAL_LOGS.info("Load-flow computation [start]");
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
                 .run(networkClone, loadFlowParameters);
         if (!loadFlowResult.isOk()) {
             BUSINESS_WARNS.warn("LoadFlow error.");
         }
+        TECHNICAL_LOGS.info("Load-flow computation [end]");
         return loadFlowResult.isOk();
     }
 
@@ -399,6 +426,7 @@ public class AngleMonitoring {
     }
 
     private AngleMonitoringResult catchAngleMonitoringResult(State state, AngleMonitoringResult.Status status) {
+        BUSINESS_WARNS.warn("Load-flow computation failed at state {}. Skipping this state.", state);
         TreeSet<AngleMonitoringResult.AngleResult> result = new TreeSet<>(Comparator.comparing(AngleMonitoringResult.AngleResult::getId));
         crac.getAngleCnecs(state).forEach(ac -> result.add(new AngleMonitoringResult.AngleResult(ac, Double.NaN)));
         return new AngleMonitoringResult(result, Map.of(state, Collections.emptySet()), status);
