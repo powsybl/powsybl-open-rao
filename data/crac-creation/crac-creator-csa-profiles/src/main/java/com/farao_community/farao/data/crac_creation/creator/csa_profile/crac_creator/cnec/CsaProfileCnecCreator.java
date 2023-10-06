@@ -110,7 +110,7 @@ public class CsaProfileCnecCreator {
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             cnecAdder = crac.newVoltageCnec()
                 .withMonitored(false)
-                .withOptimized(true)
+                .withOptimized(false)
                 .withReliabilityMargin(0);
 
             if (!this.addVoltageLimit(assessedElementId, (VoltageCnecAdder) cnecAdder, isCombinableWithContingency)) {
@@ -148,7 +148,7 @@ public class CsaProfileCnecCreator {
                 .add();
         } else {
             ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
-                .withId(assessedElementId)
+                .withId((contingencyId == null) ? assessedElementId : (assessedElementId + "-" + contingencyId))
                 .withName(cnecName)
                 .withInstant(instant)
                 .add();

@@ -111,7 +111,7 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
 
-    public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDUration";
+    public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
 
     public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
 

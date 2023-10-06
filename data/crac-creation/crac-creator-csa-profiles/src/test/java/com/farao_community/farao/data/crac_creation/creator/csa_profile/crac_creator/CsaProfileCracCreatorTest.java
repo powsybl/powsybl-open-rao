@@ -12,7 +12,9 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
@@ -107,10 +109,10 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(10, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(6, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(15, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(12, cracCreationContext.getCrac().getFlowCnecs().size());
-        assertEquals(0, cracCreationContext.getCrac().getVoltageCnecs().size());
+        assertEquals(7, cracCreationContext.getCrac().getVoltageCnecs().size());
 
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
@@ -161,8 +163,30 @@ public class CsaProfileCracCreatorTest {
             "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", "ELIA_CO1",
             1, Arrays.asList("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b"));
 
-        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+        List<VoltageCnec> listVoltageCnecs = cracCreationContext.getCrac().getVoltageCnecs()
+            .stream().sorted(Comparator.comparing(VoltageCnec::getId)).collect(Collectors.toList());
+
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(0), "614648d2-457e-4d67-838b-821102ce16ee",
+            "RTE_AE8 - preventive", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
+            null, new Double(440), null);
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(1), "614648d2-457e-4d67-838b-821102ce16ee-d9ef0d5e-732d-441e-9611-c817b0afbc41",
+            "RTE_AE8 - RTE_CO5 - curative", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
+            "d9ef0d5e-732d-441e-9611-c817b0afbc41", new Double(440), null);
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(2), "65174269-44fb-44ae-9d3e-f743176c4bcb",
+            "RTE_AE1 - preventive", "63d8319b-fae4-3511-0909-dd62359c17f2",
+            null, new Double(148.5), null);
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(3), "808b9ea1-bf10-448d-b03a-822ce473dbbb",
+            "RTE_AE3 - preventive", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
+            null, new Double(440), null);
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(4), "808b9ea1-bf10-448d-b03a-822ce473dbbb-e05bbe20-9d4a-40da-9777-8424d216785d",
+            "RTE_AE3 - RTE_CO1 - curative", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
+            "e05bbe20-9d4a-40da-9777-8424d216785d", new Double(440), null);
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(5), "992c2de6-e206-45b3-a76a-f4a691e8839a",
+            "ELIA_AE1 - preventive", "64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c",
+            null, new Double(415), null);
+        this.assertVoltageCnecEquality(listVoltageCnecs.get(6), "992c2de6-e206-45b3-a76a-f4a691e8839a-e9eab3fe-c328-4f78-9bc1-77adb59f6ba7",
+            "ELIA_AE1 - ELIA_CO1 - curative", "64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c",
+            "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", new Double(415), null);
     }
 
     @Test
@@ -179,10 +203,10 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(24, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(21, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(1, cracCreationContext.getCrac().getFlowCnecs().size());
-        assertEquals(0, cracCreationContext.getCrac().getVoltageCnecs().size());
+        assertEquals(5, cracCreationContext.getCrac().getVoltageCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
@@ -207,9 +231,6 @@ public class CsaProfileCracCreatorTest {
         this.assertContingencyEquality(listContingencies.get(6),
             "e05bbe20-9d4a-40da-9777-8424d216785d", "RTE_CO1",
             1, Arrays.asList("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
-
-        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
     }
 
     @Test
@@ -240,9 +261,6 @@ public class CsaProfileCracCreatorTest {
         this.assertContingencyEquality(listContingencies.get(1),
             "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
             1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
-
-        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
     }
 
     private void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingecyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {
@@ -271,5 +289,26 @@ public class CsaProfileCracCreatorTest {
         BranchThreshold threshold = fc.getThresholds().stream().collect(Collectors.toList()).get(0);
         assertEquals(expectedThresholdMax, threshold.max().get());
         assertEquals(expectedThresholdMin, threshold.min().get());
+    }
+
+    private void assertVoltageCnecEquality(VoltageCnec vc, String expectedVoltageCnecId, String expectedVoltageCnecName, String expectedNetworkElementId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
+        assertEquals(expectedVoltageCnecId, vc.getId());
+        assertEquals(expectedVoltageCnecName, vc.getName());
+        if (expectedContingencyId == null) {
+            assertFalse(vc.getState().getContingency().isPresent());
+        } else {
+            assertEquals(expectedContingencyId, vc.getState().getContingency().get().getId());
+        }
+        Threshold threshold = vc.getThresholds().stream().collect(Collectors.toList()).get(0);
+        if (expectedThresholdMax == null) {
+            assertFalse(threshold.max().isPresent());
+        } else {
+            assertEquals(expectedThresholdMax, threshold.max().get());
+        }
+        if (expectedThresholdMin == null) {
+            assertFalse(threshold.min().isPresent());
+        } else {
+            assertEquals(expectedThresholdMin, threshold.min().get());
+        }
     }
 }
