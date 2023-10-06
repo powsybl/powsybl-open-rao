@@ -4,6 +4,5 @@ import com.powsybl.iidm.network.Country;
 
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
-    Country getImportingCountry();
     Country getExportingCountry();
 }

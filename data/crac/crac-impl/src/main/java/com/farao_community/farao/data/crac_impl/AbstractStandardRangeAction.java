@@ -1,28 +1,24 @@
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
-import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.StandardRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.powsybl.iidm.network.Country;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
-import java.util.Map;
 
-public abstract class AbstractStandardRangeAction<T extends AbstractRangeAction<T>> extends AbstractRangeAction<T> implements HvdcRangeAction, InjectionRangeAction, CounterTradeRangeAction {
+public abstract class AbstractStandardRangeAction<T extends StandardRangeAction<T>> extends AbstractRangeAction<T> implements StandardRangeAction<T> {
 
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
 
-    AbstractStandardRangeAction(String id, String name, String operator, String groupId, List<UsageRule> usageRules,
-                             List<StandardRange> ranges, double initialSetpoint, Integer speed) {
+    AbstractStandardRangeAction(String id, String name, String operator, List<UsageRule> usageRules, String groupId,
+                                Integer speed, List<StandardRange> ranges, double initialSetpoint) {
         super(id, name, operator, usageRules, groupId, speed);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
     }
+
     @Override
     public List<StandardRange> getRanges() {
         return ranges;
@@ -73,5 +69,28 @@ public abstract class AbstractStandardRangeAction<T extends AbstractRangeAction<
     @Override
     public double getInitialSetpoint() {
         return initialSetpoint;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        return this.ranges.equals(((AbstractStandardRangeAction) o).getRanges());
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = super.hashCode();
+        for (StandardRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
+        return hashCode;
     }
 }
