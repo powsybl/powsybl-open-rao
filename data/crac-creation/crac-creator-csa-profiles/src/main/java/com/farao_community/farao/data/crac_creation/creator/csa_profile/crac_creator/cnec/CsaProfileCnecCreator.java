@@ -209,13 +209,13 @@ public class CsaProfileCnecCreator {
                 csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one voltage limit linked with the assessed element"));
                 return null;
             }
-            this.cnecLimit = voltageLimits.stream().findAny().get();
+            this.cnecLimit = voltageLimits.stream().findAny().orElse(null);
             return CsaProfileConstants.LimitType.VOLTAGE;
         } else if (currentLimits.size() != 1) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one current limit linked with the assessed element"));
             return null;
         }
-        this.cnecLimit = currentLimits.stream().findAny().get();
+        this.cnecLimit = currentLimits.stream().findAny().orElse(null);
         return CsaProfileConstants.LimitType.CURRENT;
     }
 
