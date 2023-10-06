@@ -157,3 +157,26 @@ WHERE {
                 cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
         }
 }
+
+# query: angleLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+WHERE {
+    ?angleLimit
+        rdf:type nc:VoltageAngleLimit ;
+        nc:VoltageLimit.normalValue ?normalValue ;
+        nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
+        nc:VoltageAngleLimit.OperationalLimitSet ?operationalLimitSet ;
+        nc:VoltageAngleLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Terminal ?terminal2 .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        cim:OperationalLimitType.direction ?direction .
+    OPTIONAL {
+            ?operationalLimitType
+                nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
+        }
+}

@@ -176,9 +176,19 @@ public final class CsaProfileConstants {
         }
     }
 
+    /**
+     * requests for angle cnec
+     */
+
+    public static final String EQUIPMENT_RELIABILITY_FILE_KEYWORD = "ER";
+    public static final String REQUEST_ANGLE_REFERENCE_TERMINAL = "AngleReferenceTerminal";
+    public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
+    public static final String REQUEST_ANGLE_LIMIT = "angleLimit";
+
     public enum LimitType {
-        CURRENT("currentLimit"),
-        VOLTAGE("voltageLimit");
+        ANGLE(REQUEST_ANGLE_LIMIT),
+        CURRENT(REQUEST_CURRENT_LIMIT),
+        VOLTAGE(REQUEST_VOLTAGE_LIMIT);
 
         LimitType(String type) {
             this.type = type;

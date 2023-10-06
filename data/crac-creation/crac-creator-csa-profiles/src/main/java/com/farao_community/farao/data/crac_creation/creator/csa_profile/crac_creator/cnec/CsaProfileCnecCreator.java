@@ -11,10 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
@@ -38,18 +35,20 @@ public class CsaProfileCnecCreator {
     private final Map<String, ArrayList<PropertyBag>> assessedElementsWithContingenciesPropertyBags;
     private final Map<String, ArrayList<PropertyBag>> currentLimitsPropertyBags;
     private final Map<String, ArrayList<PropertyBag>> voltageLimitsPropertyBags;
+    private final Map<String, ArrayList<PropertyBag>> angleLimitsPropertyBags;
     private Set<CsaProfileCnecCreationContext> csaProfileCnecCreationContexts;
     private CsaProfileCracCreationContext cracCreationContext;
     private Instant cnecInstant;
     private PropertyBag cnecLimit;
 
-    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
+    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
         this.assessedElementsPropertyBags = assessedElementsPropertyBags;
         this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.getMappedPropertyBags(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
         this.currentLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBags(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
         this.voltageLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBags(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+        this.angleLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBags(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_ANGLE_LIMIT);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddCnecs();
     }
@@ -116,6 +115,15 @@ public class CsaProfileCnecCreator {
             if (!this.addVoltageLimit(assessedElementId, (VoltageCnecAdder) cnecAdder, isCombinableWithContingency)) {
                 return;
             }
+        } else if (CsaProfileConstants.LimitType.ANGLE.equals(limitType)) {
+            cnecAdder = crac.newAngleCnec()
+                    .withMonitored(false)
+                    .withOptimized(true)
+                    .withReliabilityMargin(0);
+
+            if (!this.addAngleLimit(assessedElementId, (AngleCnecAdder) cnecAdder, isCombinableWithContingency)) {
+                return;
+            }
         } else {
             return;
         }
@@ -146,8 +154,14 @@ public class CsaProfileCnecCreator {
                 .withName(cnecName)
                 .withInstant(instant)
                 .add();
-        } else {
+        } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
+                .withId(assessedElementId)
+                .withName(cnecName)
+                .withInstant(instant)
+                .add();
+        } else {
+            ((AngleCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(assessedElementId)
                 .withName(cnecName)
                 .withInstant(instant)
@@ -203,8 +217,16 @@ public class CsaProfileCnecCreator {
         if (currentLimits == null) {
             List<PropertyBag> voltageLimits = this.voltageLimitsPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
             if (voltageLimits == null) {
-                csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no current limit nor voltage limit linked with the assessed element"));
-                return null;
+                List<PropertyBag> angleLimits = this.angleLimitsPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
+                if (angleLimits == null) {
+                    csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no current, voltage nor angle limit linked with the assessed element"));
+                    return null;
+                } else if (angleLimits.size() > 1) {
+                    csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one angle limit linked with the assessed element"));
+                    return null;
+                }
+                this.cnecLimit = angleLimits.get(0);
+                return CsaProfileConstants.LimitType.ANGLE;
             } else if (voltageLimits.size() > 1) {
                 csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one voltage limit linked with the assessed element"));
                 return null;
@@ -317,6 +339,11 @@ public class CsaProfileCnecCreator {
         }
 
         return this.addVoltageLimitThreshold(assessedElementId, voltageCnecAdder, cnecLimit);
+    }
+
+    private boolean addAngleLimit(String assessedElementId, AngleCnecAdder cnecAdder, boolean isCombinableWithContingency) {
+        // TODO
+        return true;
     }
 
     private boolean setNominalVoltage(String assessedElementId, FlowCnecAdder flowCnecAdder, Branch<?> branch) {
