@@ -33,8 +33,9 @@ import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCrac
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.*;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -53,6 +54,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class CimCracCreatorTest {
+    private static final double DOUBLE_TOLERANCE = 1e-6;
+
     private Crac importedCrac;
     private CimCracCreationContext cracCreationContext;
     private static Network baseNetwork;
@@ -279,9 +282,9 @@ class CimCracCreatorTest {
         assertEquals(side, threshold.getSide());
         assertEquals(unit, threshold.getUnit());
         assertTrue(threshold.limitsByMin());
-        assertEquals(min, threshold.min().get(), 0.0);
+        assertEquals(min, threshold.min().get(), DOUBLE_TOLERANCE);
         assertTrue(threshold.limitsByMax());
-        assertEquals(max, threshold.max().get(), 0.0);
+        assertEquals(max, threshold.max().get(), DOUBLE_TOLERANCE);
     }
 
     private void assertHasTwoThresholds(String cnecId, Unit unit, double min, double max) {
@@ -292,9 +295,9 @@ class CimCracCreatorTest {
         cnec.getThresholds().forEach(threshold -> {
             assertEquals(unit, threshold.getUnit());
             assertTrue(threshold.limitsByMin());
-            assertEquals(min, threshold.min().get(), 0.0);
+            assertEquals(min, threshold.min().get(), DOUBLE_TOLERANCE);
             assertTrue(threshold.limitsByMax());
-            assertEquals(max, threshold.max().get(), 0.0);
+            assertEquals(max, threshold.max().get(), DOUBLE_TOLERANCE);
         });
     }
 
@@ -928,5 +931,55 @@ class CimCracCreatorTest {
         assertEquals(12, importedCrac.getCnecs().size());
         assertCnecHasOutageDuplicate("CNEC-4 - Co-1 - auto");
         assertCnecHasOutageDuplicate("CNEC-4 - Co-2 - auto");
+    }
+
+    @Test
+    void testPermissiveImports() {
+        // Test that we can import contingencies from B56 & B57, and CNECs from B56
+        setUpWithSpeed("/cracs/CIM_21_5_1_permissive.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("AUTO_1", 1)));
+
+        // Contingencies
+        assertEquals(3, importedCrac.getContingencies().size());
+        assertContingencyImported("Co-one-1", "OIUYTR-QSCV-1 400 kV", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
+        assertContingencyImported("Co-one-2", "OIUYTR-LKJHGOI-1 400 kV", Set.of("_b58bf21a-096a-4dae-9a01-3f03b60c24c7"), false);
+        assertContingencyImported("Co-one-3", "AZERTY-LKJHG-1 400 kV", Set.of("_df16b3dd-c905-4a6f-84ee-f067be86f5da"), false);
+
+        // FlowCNECs
+        assertEquals(14, importedCrac.getFlowCnecs().size());
+
+        assertCnecImported("TUU_MR_31", Set.of(
+            "GHIOL_QSDFGH_1_220 - Co-one-1 - auto", "GHIOL_QSDFGH_1_220 - preventive", "GHIOL_QSDFGH_1_220 - Co-one-1 - outage",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - outage", "GHIOL_QSDFGH_1_220 - Co-one-3 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - curative",
+            "GHIOL_QSDFGH_1_220 - Co-one-3 - auto", "GHIOL_QSDFGH_1_220 - Co-one-1 - curative", "GHIOL_QSDFGH_1_220 - Co-one-2 - auto",
+            "GHIOL_QSDFGH_1_220 - Co-one-2 - outage"
+        ));
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.15, 1.15);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-2 - auto", Side.LEFT, Unit.PERCENT_IMAX, -1.1, 1.1);
+        assertHasOneThreshold("GHIOL_QSDFGH_1_220 - Co-one-3 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
+
+        assertCnecImported("TUU_MR_56", Set.of(
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - auto", "GHIOL_QSRBJH_1_400 - preventive", "GHIOL_QSRBJH_1_400 - Co-one-1 - outage",
+            "GHIOL_QSRBJH_1_400 - Co-one-1 - curative"
+        ));
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - preventive", Side.LEFT, Unit.PERCENT_IMAX, -1, 1);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - outage", Side.LEFT, Unit.PERCENT_IMAX, -1.5, 1.5);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - auto", Side.LEFT, Unit.PERCENT_IMAX, -1.3, 1.3);
+        assertHasOneThreshold("GHIOL_QSRBJH_1_400 - Co-one-1 - curative", Side.LEFT, Unit.PERCENT_IMAX, -1.05, 1.05);
+
+        // PRA_1
+        assertPstRangeActionImported("PRA_1", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", false);
+        PstRangeAction pra1 = importedCrac.getPstRangeAction("PRA_1");
+        assertEquals(7, pra1.getUsageRules().size());
+
+        // PRA_CRA_1
+        assertPstRangeActionImported("PRA_CRA_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
+        PstRangeAction praCra1 = importedCrac.getPstRangeAction("PRA_CRA_1");
+        assertEquals(6, praCra1.getUsageRules().size());
+
+        // AUTO_1
+        assertPstRangeActionImported("AUTO_1", "_e8a7eaec-51d6-4571-b3d9-c36d52073c33", true);
+        PstRangeAction auto1 = importedCrac.getPstRangeAction("AUTO_1");
+        assertEquals(2, auto1.getUsageRules().size());
     }
 }

@@ -42,6 +42,7 @@ public class NetworkActionCombination {
     public Set<String> getOperators() {
         return networkActionSet.stream()
             .map(NetworkAction::getOperator)
+            .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     }
 

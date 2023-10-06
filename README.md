@@ -33,14 +33,6 @@ Before installing **farao-core**, you need to install OR-Tools, a software suite
 
 Please refer to [OR-tools website](https://developers.google.com/optimization/install/download) for installation instructions.
 
-To build **farao-core**, enter on the command line:
-
-```
-$> git clone https://github.com/farao-community/farao-core.git
-$> cd farao-core
-$> ./install.sh
-```
-
 FARAO also needs a loadflow engine and a sensitivity calculation engine at runtime.
 You may use any engine integrated in [PowSyBl framework](https://www.powsybl.org/).
 

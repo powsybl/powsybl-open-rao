@@ -8,13 +8,16 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.commons.TsoEICode;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -25,22 +28,37 @@ public final class CsaProfileCracUtils {
 
     }
 
-    public static Map<String, ArrayList<PropertyBag>> getMappedPropertyBags(PropertyBags propertyBags, String property) {
-        Map<String, ArrayList<PropertyBag>> mappedPropertyBags = new HashMap<>();
+    public static Map<String, UsageMethod> getConstraintToUsageMethodMap() {
+        Map<String, UsageMethod> constraintToUsageMethodMap = new HashMap<>();
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString(), UsageMethod.FORCED);
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString(), UsageMethod.AVAILABLE);
+        constraintToUsageMethodMap.put(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString(), UsageMethod.UNAVAILABLE);
+        return constraintToUsageMethodMap;
+    }
+
+    public static Map<String, Set<PropertyBag>> getMappedPropertyBagsSet(PropertyBags propertyBags, String property) {
+        Map<String, Set<PropertyBag>> mappedPropertyBags = new HashMap<>();
         for (PropertyBag propertyBag : propertyBags) {
             String propValue = propertyBag.getId(property);
-            ArrayList<PropertyBag> propPropertyBags = mappedPropertyBags.get(propValue);
-            if (propPropertyBags == null) {
-                propPropertyBags = new ArrayList<>();
-                mappedPropertyBags.put(propValue, propPropertyBags);
-            }
+            Set<PropertyBag> propPropertyBags = mappedPropertyBags.computeIfAbsent(propValue, k -> new HashSet<>());
             propPropertyBags.add(propertyBag);
         }
         return mappedPropertyBags;
     }
 
-    public static String getUniqueName(String idWithEicCode, String elementId) {
-        return TsoEICode.fromEICode(idWithEicCode.substring(idWithEicCode.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(elementId);
+    public static String getUniqueName(String prefixUrl, String suffix) {
+        return TsoEICode.fromEICode(prefixUrl.substring(prefixUrl.lastIndexOf('/') + 1)).getDisplayName().concat("_").concat(suffix);
+    }
+
+    public static Optional<String> createRemedialActionName(String nativeRemedialActionName, String tsoNameUrl) {
+        if (nativeRemedialActionName != null) {
+            if (tsoNameUrl != null) {
+                return Optional.of(getUniqueName(tsoNameUrl, nativeRemedialActionName));
+            }
+            return Optional.of(nativeRemedialActionName);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public static boolean isValidInterval(OffsetDateTime dateTime, String startTime, String endTime) {
@@ -48,4 +66,49 @@ public final class CsaProfileCracUtils {
         OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
         return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
     }
+
+    public static int convertDurationToSeconds(String duration) {
+        Map<Character, Integer> durationFactors = new HashMap<>();
+        durationFactors.put('D', 86400);
+        durationFactors.put('H', 3600);
+        durationFactors.put('M', 60);
+        durationFactors.put('S', 1);
+
+        Pattern pattern = Pattern.compile("P(?:\\d+D)?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+S)?)?");
+        Matcher matcher = pattern.matcher(duration);
+
+        if (!matcher.matches()) {
+            throw new RuntimeException("Error occurred while converting time to implement to seconds, unknown pattern: " + duration);
+        }
+
+        int seconds = 0;
+
+        for (Map.Entry<Character, Integer> entry : durationFactors.entrySet()) {
+            Pattern unitPattern = Pattern.compile("(\\d+)" + entry.getKey());
+            Matcher unitMatcher = unitPattern.matcher(duration);
+
+            if (unitMatcher.find()) {
+                int value = Integer.parseInt(unitMatcher.group(1));
+                seconds += value * entry.getValue();
+            }
+        }
+
+        return seconds;
+    }
+
+    public static void checkPropertyReference(PropertyBag propertyBag, String remedialActionId, String propertyBagKind, String expectedPropertyReference) {
+        String actualPropertyReference = propertyBag.get(CsaProfileConstants.GRID_ALTERATION_PROPERTY_REFERENCE);
+        if (!actualPropertyReference.equals(expectedPropertyReference)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action '%s' will not be imported because '%s' must have a property reference with '%s' value, but it was: '%s'", remedialActionId, propertyBagKind, expectedPropertyReference, actualPropertyReference));
+        }
+    }
+
+    public static void checkNormalEnabled(PropertyBag propertyBag, String remedialActionId, String propertyBagKind) {
+        Optional<String> normalEnabledOpt = Optional.ofNullable(propertyBag.get(CsaProfileConstants.NORMAL_ENABLED));
+        if (normalEnabledOpt.isPresent() && !Boolean.parseBoolean(normalEnabledOpt.get())) {
+            throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action '%s' will not be imported because field 'normalEnabled' in '%s' must be true or empty", remedialActionId, propertyBagKind));
+        }
+    }
+
 }
+

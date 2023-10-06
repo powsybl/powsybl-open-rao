@@ -11,13 +11,13 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.Analog;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredRegisteredResource;
 import com.farao_community.farao.data.swe_cne_exporter.xsd.MonitoredSeries;
@@ -86,11 +86,11 @@ public class SweMonitoredSeriesCreator {
         return monitoredSeriesList;
     }
 
-    private double getCnecFlowClosestToThreshold(OptimizationState optimizationState, FlowCnec cnec) {
+    private double getCnecFlowClosestToThreshold(Instant optimizedInstant, FlowCnec cnec) {
         double flow = 0.0;
         double margin = Double.POSITIVE_INFINITY;
         for (Side side : cnec.getMonitoredSides()) {
-            double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizationState, cnec, side, Unit.AMPERE);
+            double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }
@@ -108,7 +108,7 @@ public class SweMonitoredSeriesCreator {
         Map<Integer, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {
             FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
-            int roundedFlow = (int) Math.round(getCnecFlowClosestToThreshold(OptimizationState.afterOptimizing(cnec.getState()), cnec));
+            int roundedFlow = (int) Math.round(getCnecFlowClosestToThreshold(cnec.getState().getInstant(), cnec));
             if (monitoredSeriesPerFlowValue.containsKey(roundedFlow) && includeMeasurements) {
                 mergeSeries(monitoredSeriesPerFlowValue.get(roundedFlow), cnec);
             } else if (!monitoredSeriesPerFlowValue.containsKey(roundedFlow)) {
@@ -126,7 +126,7 @@ public class SweMonitoredSeriesCreator {
         float roundedThreshold = Math.round(Math.min(
             Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
             Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
-        threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(OptimizationState.afterOptimizing(cnec.getState()), cnec) >= 0 ?
+        threshold.setPositiveFlowIn(getCnecFlowClosestToThreshold(cnec.getState().getInstant(), cnec) >= 0 ?
             DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
         threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
 
@@ -148,7 +148,7 @@ public class SweMonitoredSeriesCreator {
             Analog flow = new Analog();
             flow.setMeasurementType(FLOW_MEASUREMENT_TYPE);
             flow.setUnitSymbol(AMP_UNIT_SYMBOL);
-            float roundedFlow = Math.round(getCnecFlowClosestToThreshold(OptimizationState.afterOptimizing(cnec.getState()), cnec));
+            float roundedFlow = Math.round(getCnecFlowClosestToThreshold(cnec.getState().getInstant(), cnec));
             flow.setPositiveFlowIn(roundedFlow >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
             flow.setAnalogValuesValue(Math.abs(roundedFlow));
             registeredResource.getMeasurements().add(flow);

@@ -32,7 +32,7 @@ class HvdcRangeActionSensiHandlerTest {
     void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -47,7 +47,7 @@ class HvdcRangeActionSensiHandlerTest {
     void getSensitivityOnFlowTest() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE2AA11 FFR3AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -68,7 +68,7 @@ class HvdcRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
 
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("BBE1AA11 BBE2AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -84,7 +84,7 @@ class HvdcRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
         Crac crac = CracFactory.findDefault().create("test-crac");
 
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
+        HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction().withId("hvdcRangeId")
                 .withNetworkElement("unknownNetworkElement")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()

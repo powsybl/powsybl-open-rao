@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.*;
@@ -181,71 +180,59 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     @Override
     public ComputationStatus getComputationStatus(State state) {
-        List<OptimizationState> possibleOptimizationStates;
-        switch (state.getInstant()) {
-            case PREVENTIVE:
-            case OUTAGE:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_PRA);
-                break;
-            case AUTO:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
-                break;
-            case CURATIVE:
-                possibleOptimizationStates = List.of(OptimizationState.AFTER_CRA, OptimizationState.AFTER_ARA, OptimizationState.AFTER_PRA);
-                break;
-            default:
-                throw new FaraoException(String.format("Instant %s was not recognized", state.getInstant()));
-        }
-        for (OptimizationState optimizationState : possibleOptimizationStates) {
-            PerimeterResult perimeterResult = getPerimeterResult(optimizationState, state);
+        Instant instant = state.getInstant();
+        while (instant != null) {
+            PerimeterResult perimeterResult = getPerimeterResult(instant, state);
             if (Objects.nonNull(perimeterResult)) {
                 return perimeterResult.getSensitivityStatus(state);
             }
+            instant = instant.getPreviousInstant();
         }
         return FAILURE;
     }
 
-    public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
-        if (state.getInstant().comesBefore(optimizationState.getFirstInstant())) {
-            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", state.getInstant(), optimizationState));
+    public PerimeterResult getPerimeterResult(Instant optimizedInstant, State state) {
+        if (optimizedInstant == null) {
+            throw new FaraoException("No PerimeterResult for INITIAL optimization state");
         }
-        switch (optimizationState) {
-            case INITIAL:
-                throw new FaraoException("No PerimeterResult for INITIAL optimization state");
-            case AFTER_PRA:
-                return secondPreventivePerimeterResult;
-            case AFTER_ARA:
-                return postContingencyResults.keySet().stream()
-                    .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
-                    .findAny().map(postContingencyResults::get).orElse(null);
-            case AFTER_CRA:
-                return postContingencyResults.get(state);
-            default:
-                throw new FaraoException(String.format("OptimizationState %s was not recognized", optimizationState));
+        if (state.getInstant().comesBefore(optimizedInstant)) {
+            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", state.getInstant(), optimizedInstant));
         }
+        if (optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE) {
+            return secondPreventivePerimeterResult;
+        }
+        if (optimizedInstant == Instant.AUTO) {
+            return postContingencyResults.keySet().stream()
+                .filter(optimizedState -> optimizedState.getInstant() == Instant.AUTO && optimizedState.getContingency().equals(state.getContingency()))
+                .findAny().map(postContingencyResults::get).orElse(null);
+        }
+        if (optimizedInstant == Instant.CURATIVE) {
+            return postContingencyResults.get(state);
+        }
+        throw new FaraoException(String.format("Optimized instant %s was not recognized", optimizedInstant));
     }
 
     @Override
-    public double getFunctionalCost(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public double getFunctionalCost(Instant optimizedInstant) {
+        if (optimizedInstant == null) {
             return initialResult.getFunctionalCost();
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if ((optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
+            (optimizedInstant == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs.getFunctionalCost();
-        } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
+        } else if (optimizedInstant == Instant.CURATIVE && finalCostEvaluator != null) {
             // When a second preventive optimization has been run, use its updated cost evaluation
             return finalCostEvaluator.getFunctionalCost();
         } else {
             // No second preventive was run => use CRAO1 results
             // OR ARA
-            return getHighestFunctionalForInstant(optimizationState.getFirstInstant());
+            return getHighestFunctionalForInstant(optimizedInstant);
         }
     }
 
     @Override
-    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getMargin(flowCnec, unit);
         } else {
@@ -254,8 +241,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getRelativeMargin(flowCnec, unit);
         } else {
@@ -264,8 +251,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult =  getFlowResult(optimizationState, flowCnec);
+    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        FlowResult flowResult =  getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit);
         } else {
@@ -274,8 +261,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getCommercialFlow(flowCnec, side, unit);
         } else {
@@ -284,8 +271,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getLoopFlow(flowCnec, side, unit);
         } else {
@@ -294,8 +281,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec, Side side) {
-        FlowResult flowResult = getFlowResult(optimizationState, flowCnec);
+    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getPtdfZonalSum(flowCnec, side);
         } else {
@@ -303,16 +290,16 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         }
     }
 
-    private FlowResult getFlowResult(OptimizationState optimizationState, FlowCnec flowCnec) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    private FlowResult getFlowResult(Instant optimizedInstant, FlowCnec flowCnec) {
+        if (optimizedInstant == null) {
             return initialResult;
-        } else if (flowCnec.getState().getInstant().comesBefore(optimizationState.getFirstInstant())) {
-            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizationState));
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-                (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
+            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
+        } else if ((optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
+                (optimizedInstant == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs;
-        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizationState.getFirstInstant().equals(flowCnec.getState().getInstant())) {
+        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizedInstant.equals(flowCnec.getState().getInstant())) {
             // if cnec has been optimized during a post contingency instant
             return postContingencyResults.get(flowCnec.getState());
         } else if (!postContingencyResults.containsKey(flowCnec.getState())) {
@@ -353,17 +340,17 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public double getVirtualCost(Instant optimizedInstant) {
+        if (optimizedInstant == null) {
             return initialResult.getVirtualCost();
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if ((optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
+            (optimizedInstant == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             return resultsWithPrasForAllCnecs.getVirtualCost();
-        } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
+        } else if (optimizedInstant == Instant.CURATIVE && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost();
         } else {
             return postContingencyResults.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().equals(optimizationState.getFirstInstant()))
+                .filter(entry -> entry.getKey().getInstant().equals(optimizedInstant))
                 .map(Map.Entry::getValue)
                 .mapToDouble(ObjectiveFunctionResult::getVirtualCost)
                 .sum();
@@ -390,30 +377,30 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
+        if (optimizedInstant == null) {
             return initialResult.getVirtualCost(virtualCostName);
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if ((optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
+            (optimizedInstant == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             return resultsWithPrasForAllCnecs.getVirtualCost(virtualCostName);
-        } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
+        } else if (optimizedInstant == Instant.CURATIVE && finalCostEvaluator != null) {
             return finalCostEvaluator.getVirtualCost(virtualCostName);
         } else {
             return postContingencyResults.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().equals(optimizationState.getFirstInstant()))
+                .filter(entry -> entry.getKey().getInstant().equals(optimizedInstant))
                 .map(Map.Entry::getValue)
                 .mapToDouble(perimeterResult -> perimeterResult.getVirtualCost(virtualCostName))
                 .sum();
         }
     }
 
-    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
-        if (optimizationState == OptimizationState.INITIAL) {
+    public List<FlowCnec> getCostlyElements(Instant optimizedInstant, String virtualCostName, int number) {
+        if (optimizedInstant == null) {
             return initialResult.getCostlyElements(virtualCostName, number);
-        } else if ((optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) ||
-            (optimizationState == OptimizationState.AFTER_ARA && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if ((optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
+            (optimizedInstant == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             return resultsWithPrasForAllCnecs.getCostlyElements(virtualCostName, number);
-        } else if (optimizationState == OptimizationState.AFTER_CRA && finalCostEvaluator != null) {
+        } else if (optimizedInstant == Instant.CURATIVE && finalCostEvaluator != null) {
             return finalCostEvaluator.getCostlyElements(virtualCostName, number);
         } else {
             // TODO : for other cases, store values to be able to merge easily

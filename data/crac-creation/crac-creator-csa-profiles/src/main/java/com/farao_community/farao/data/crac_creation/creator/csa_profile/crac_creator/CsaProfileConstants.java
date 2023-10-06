@@ -72,7 +72,63 @@ public final class CsaProfileConstants {
     public static final String CONTINGENCY_FILE_KEYWORD = "CO";
 
     /**
-     * requests for cnec
+     * remedial actions
+     */
+
+    public static final String REMEDIAL_ACTION_NAME = "name";
+    public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
+    public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
+    public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
+    public static final String TOPOLOGY_ACTION = "topologyAction";
+    public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
+    public static final String TAP_POSITION_ACTION = "tapPositionAction";
+    public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
+    public static final String CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
+    public static final String MRID = "mRID";
+    public static final String TIME_TO_IMPLEMENT = "timeToImplement";
+    public static final String TSO = "tso";
+    public static final String NORMAL_AVAILABLE = "normalAvailable";
+    public static final String RA_KIND = "kind";
+    public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
+    public static final String SWITCH = "switchId";
+    public static final String NORMAL_ENABLED = "normalEnabled";
+    public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";
+    public static final String PROPERTY_REFERENCE_SWITCH_OPEN = "http://energy.referencedata.eu/PropertyReference/Switch.open";
+    public static final String PROPERTY_REFERENCE_ROTATING_MACHINE = "http://energy.referencedata.eu/PropertyReference/RotatingMachine.p";
+    public static final String PROPERTY_REFERENCE_TAP_POSITION = "http://energy.referencedata.eu/PropertyReference/TapChanger.step";
+
+    public static final String ROTATING_MACHINE = "rotatingMachineId";
+
+    public static final String TAP_CHANGER = "tapChangerId";
+
+    public static final String NORMAL_VALUE = "normalValue";
+
+    public static final String STATIC_PROPERTY_RANGE_VALUE_KIND = "valueKind";
+    public static final String STATIC_PROPERTY_RANGE_DIRECTION = "direction";
+    public static final String DIRECTION_NONE = "http://entsoe.eu/ns/nc#RelativeDirectionKind.none";
+    public static final String DIRECTION_DOWN = "http://entsoe.eu/ns/nc#RelativeDirectionKind.down";
+    public static final String DIRECTION_UP = "http://entsoe.eu/ns/nc#RelativeDirectionKind.up";
+    public static final String VALUE_KIND_ABSOLUTE = "http://entsoe.eu/ns/nc#ValueOffsetKind.absolute";
+
+    public enum RemedialActionKind {
+        CURATIVE("curative"),
+        PREVENTIVE("preventive");
+
+        RemedialActionKind(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+        private static final String URL = ENTSOE_NS_NC_URL + "#RemedialActionKind.";
+
+        @Override
+        public String toString() {
+            return RemedialActionKind.URL + this.name;
+        }
+    }
+
+    /**
+     * requests for flow cnec
      */
 
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";

@@ -10,8 +10,8 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
-import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_impl.ElementaryAngleCnecResult;
 import com.farao_community.farao.data.rao_result_impl.AngleCnecResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -30,7 +30,7 @@ final class AngleCnecResultArrayDeserializer {
     private AngleCnecResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(ANGLECNEC_ID)) {
@@ -44,37 +44,17 @@ final class AngleCnecResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: angleCnec with id %s does not exist in the Crac", angleCnecId));
             }
             AngleCnecResult angleCnecResult = raoResult.getAndCreateIfAbsentAngleCnecResult(angleCnec);
-            deserializeAngleCnecResult(jsonParser, angleCnecResult);
+            deserializeAngleCnecResult(jsonParser, angleCnecResult, jsonFileVersion);
         }
     }
 
-    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult) throws IOException {
+    private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnecResult angleCnecResult, String jsonFileVersion) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             ElementaryAngleCnecResult eAngleCnecResult;
-            switch (jsonParser.getCurrentName()) {
-                case INITIAL_OPT_STATE:
-                    jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.INITIAL);
-                    deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
-                    break;
-                case AFTER_PRA_OPT_STATE:
-                    jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_PRA);
-                    deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
-                    break;
-                case AFTER_ARA_OPT_STATE:
-                    jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_ARA);
-                    deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
-                    break;
-                case AFTER_CRA_OPT_STATE:
-                    jsonParser.nextToken();
-                    eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(OptimizationState.AFTER_CRA);
-                    deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
-                    break;
-                default:
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", ANGLECNEC_RESULTS, jsonParser.getCurrentName()));
-            }
+            Instant optimizedInstant = deserializeOptimizedInstant(jsonParser.getCurrentName(), jsonFileVersion);
+            jsonParser.nextToken();
+            eAngleCnecResult = angleCnecResult.getAndCreateIfAbsentResultForOptimizationState(optimizedInstant);
+            deserializeElementaryAngleCnecResult(jsonParser, eAngleCnecResult);
         }
     }
 

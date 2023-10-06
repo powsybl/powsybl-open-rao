@@ -13,9 +13,13 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.import12NodesNetwork;
@@ -24,6 +28,44 @@ import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CommonCracCreation {
+
+    private static class IidmPstHelper {
+
+        private final String pstId;
+        private int initialTapPosition;
+        private Map<Integer, Double> tapToAngleConversionMap;
+
+        public IidmPstHelper(String pstId, Network network) {
+            this.pstId = pstId;
+            interpretWithNetwork(network);
+        }
+
+        public int getInitialTap() {
+            return initialTapPosition;
+        }
+
+        public Map<Integer, Double> getTapToAngleConversionMap() {
+            return tapToAngleConversionMap;
+        }
+
+        private void interpretWithNetwork(Network network) {
+            TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
+            if (Objects.isNull(transformer)) {
+                return;
+            }
+            PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+            if (Objects.isNull(phaseTapChanger)) {
+                return;
+            }
+            this.initialTapPosition = phaseTapChanger.getTapPosition();
+            buildTapToAngleConversionMap(phaseTapChanger);
+        }
+
+        private void buildTapToAngleConversionMap(PhaseTapChanger phaseTapChanger) {
+            tapToAngleConversionMap = new HashMap<>();
+            phaseTapChanger.getAllSteps().forEach((tap, step) -> tapToAngleConversionMap.put(tap, step.getAlpha()));
+        }
+    }
 
     private CommonCracCreation() {
 

@@ -9,25 +9,30 @@ package com.farao_community.farao.monitoring.voltage_monitoring.json;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.monitoring.monitoring_common.json.MonitoringCommonDeserializer;
+import com.farao_community.farao.monitoring.voltage_monitoring.ExtremeVoltageValues;
+import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.farao_community.farao.monitoring.voltage_monitoring.ExtremeVoltageValues;
-import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.farao_community.farao.monitoring.monitoring_common.json.JsonCommonMonitoringResultConstants.*;
 import static com.farao_community.farao.monitoring.voltage_monitoring.json.JsonVoltageMonitoringResultConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class VoltageMonitoringResultDeserializer extends JsonDeserializer<VoltageMonitoringResult> {
+    private static final String UNEXPECTED_FIELD_ERROR = "Unexpected field %s in %s";
 
     private Crac crac;
 
@@ -45,16 +50,37 @@ public class VoltageMonitoringResultDeserializer extends JsonDeserializer<Voltag
         if (!firstFieldName.equals(TYPE) || !jsonParser.nextTextValue().equals(VOLTAGE_MONITORING_RESULT)) {
             throw new FaraoException(String.format("type of document must be specified at the beginning as %s", VOLTAGE_MONITORING_RESULT));
         }
+        VoltageMonitoringResult.Status status = null;
+        String secondFieldName = jsonParser.nextFieldName();
+        if (!secondFieldName.equals(STATUS)) {
+            throw new FaraoException("Status must be specified right after type of document.");
+        } else {
+            status = readStatus(jsonParser);
+        }
+
         Map<VoltageCnec, ExtremeVoltageValues> extremeVoltageValues = new HashMap<>();
+        Map<State, Set<NetworkAction>> appliedRas = new HashMap<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             if (jsonParser.getCurrentName().equals(VOLTAGE_VALUES)) {
                 jsonParser.nextToken();
                 readVoltageValues(jsonParser, extremeVoltageValues);
+            } else if (jsonParser.getCurrentName().equals(APPLIED_RAS)) {
+                jsonParser.nextToken();
+                MonitoringCommonDeserializer.readAppliedRas(jsonParser, appliedRas, crac);
             } else {
                 throw new FaraoException(String.format("Unexpected field %s in %s", jsonParser.getCurrentName(), VOLTAGE_MONITORING_RESULT));
             }
         }
-        return new VoltageMonitoringResult(extremeVoltageValues);
+        return new VoltageMonitoringResult(extremeVoltageValues, appliedRas, status);
+    }
+
+    private VoltageMonitoringResult.Status readStatus(JsonParser jsonParser) throws IOException {
+        String statusString = jsonParser.nextTextValue();
+        try {
+            return VoltageMonitoringResult.Status.valueOf(statusString);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unhandled status : %s", statusString));
+        }
     }
 
     private void readVoltageValues(JsonParser jsonParser, Map<VoltageCnec, ExtremeVoltageValues> voltageValues) throws IOException {
