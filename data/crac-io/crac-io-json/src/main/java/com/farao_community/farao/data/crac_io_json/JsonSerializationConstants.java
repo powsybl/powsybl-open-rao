@@ -13,8 +13,9 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -30,13 +31,14 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.6";
+    public static final String CRAC_IO_VERSION = "1.7";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
     v1.3: addition of hvdcRangeAction's and injectionRangeAction's initial setpoints
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
     v1.5: addition of VoltageCnecs
+    v1.7: addition of VoltageConstraints usage rules
      */
 
     // headers
@@ -70,6 +72,8 @@ public final class JsonSerializationConstants {
 
     public static final String VOLTAGE_CNECS = "voltageCnecs";
 
+    public static final String VOLTAGE_CNEC_ID = "voltageCnecId";
+
     public static final String THRESHOLDS = "thresholds";
     public static final String RELIABILITY_MARGIN = "reliabilityMargin";
     public static final String FRM = "frm";
@@ -95,6 +99,7 @@ public final class JsonSerializationConstants {
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules"; // retro-compatibility only
     public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
     public static final String ON_ANGLE_CONSTRAINT_USAGE_RULES = "onAngleConstraintUsageRules";
+    public static final String ON_VOLTAGE_CONSTRAINT_USAGE_RULES = "onVoltageConstraintUsageRules";
     public static final String ON_FLOW_CONSTRAINT_IN_COUNTRY_USAGE_RULES = "onFlowConstraintInCountryUsageRules";
 
     public static final String ID = "id";
@@ -389,6 +394,10 @@ public final class JsonSerializationConstants {
             String unit1 = serializeUnit(o1.getUnit());
             String unit2 = serializeUnit(o2.getUnit());
             if (unit1.equals(unit2)) {
+                if ((o1 instanceof BranchThreshold && o2 instanceof BranchThreshold) &&
+                    !((BranchThreshold) o1).getSide().equals(((BranchThreshold) o2).getSide())) {
+                    return serializeSide(((BranchThreshold) o1).getSide()).compareTo(serializeSide(((BranchThreshold) o2).getSide()));
+                }
                 if (o1.min().isPresent()) {
                     return -1;
                 }
@@ -396,6 +405,40 @@ public final class JsonSerializationConstants {
             } else {
                 return unit1.compareTo(unit2);
             }
+        }
+    }
+
+    public static class UsageRuleComparator implements Comparator<UsageRule> {
+        @Override
+        public int compare(UsageRule o1, UsageRule o2) {
+            if (!o1.getClass().equals(o2.getClass())) {
+                return o1.getClass().toString().compareTo(o2.getClass().toString());
+            }
+            if (!o1.getInstant().equals(o2.getInstant())) {
+                return o1.getInstant().comesBefore(o2.getInstant()) ? -1 : 1;
+            }
+            if (!o1.getUsageMethod().equals(o2.getUsageMethod())) {
+                return serializeUsageMethod(o1.getUsageMethod()).compareTo(serializeUsageMethod(o2.getUsageMethod()));
+            }
+            if (o1 instanceof OnInstant) {
+                return 0;
+            }
+            if (o1 instanceof OnContingencyState) {
+                return ((OnContingencyState) o1).getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
+            }
+            if (o1 instanceof OnFlowConstraint) {
+                return ((OnFlowConstraint) o1).getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
+            }
+            if (o1 instanceof OnFlowConstraintInCountry) {
+                return ((OnFlowConstraintInCountry) o1).getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
+            }
+            if (o1 instanceof OnAngleConstraint) {
+                return ((OnAngleConstraint) o1).getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
+            }
+            if (o1 instanceof OnVoltageConstraint) {
+                return ((OnVoltageConstraint) o1).getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
+            }
+            throw new FaraoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }
     }
 }

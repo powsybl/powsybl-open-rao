@@ -155,7 +155,10 @@ class AngleMonitoringTest {
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of(
+            "Some AngleCnecs are not secure:",
+            "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -4°."
+        ));
         assertEquals(angleMonitoringResult.getAngle(acPrev, Unit.DEGREE), -3.67, ANGLE_TOLERANCE);
     }
 
@@ -166,14 +169,17 @@ class AngleMonitoringTest {
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of(
+            "Some AngleCnecs are not secure:",
+            "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."
+        ));
     }
 
     @Test
     void testCurativeStateOnlyWithAvailableTopoRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
-        naL1Cur = crac.newNetworkAction()
+        naL1Cur = (NetworkAction) crac.newNetworkAction()
                 .withId("Open L1 - 2")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
@@ -181,14 +187,17 @@ class AngleMonitoringTest {
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of(
+            "Some AngleCnecs are not secure:",
+            "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -8°."
+        ));
     }
 
     @Test
     void testCurativeStateOnlyWithAvailableInjectionRa() {
         setUpCracFactory("network.xiidm");
         mockCurativeStatesSecure();
-        naL1Cur = crac.newNetworkAction()
+        naL1Cur = (NetworkAction) crac.newNetworkAction()
                 .withId("Injection L1 - 2")
                 .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
@@ -217,6 +226,18 @@ class AngleMonitoringTest {
     }
 
     @Test
+    void testAngleCnecOnBus() {
+        setUpCracFactory("network.xiidm");
+        crac.newContingency().withId("coL1").withNetworkElement("L2").add();
+        acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
+
+        runAngleMonitoring();
+        assertEquals(1, angleMonitoringResult.getAngleCnecsWithAngle().size());
+        assertEquals("acCur1", angleMonitoringResult.getAngleCnecsWithAngle().stream().findFirst().orElseThrow().getId());
+        assertTrue(angleMonitoringResult.isSecure());
+    }
+
+    @Test
     void testCracCim() {
         setUpCimCrac("/CIM_21_7_1_AngMon.xml", OffsetDateTime.parse("2021-04-02T05:00Z"), new CracCreationParameters());
         assertEquals(2, crac.getAngleCnecs().size());
@@ -237,6 +258,9 @@ class AngleMonitoringTest {
         // AngleCnecsWithAngle
         assertEquals(2, angleMonitoringResult.getAngleCnecsWithAngle().size());
         assertEquals(5.22, angleMonitoringResult.getAngle(crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of(
+            "Some AngleCnecs are not secure:",
+            "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5°."
+        ));
     }
 }

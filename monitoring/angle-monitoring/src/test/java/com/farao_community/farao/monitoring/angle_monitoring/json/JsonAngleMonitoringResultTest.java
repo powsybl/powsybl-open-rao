@@ -50,12 +50,12 @@ class JsonAngleMonitoringResultTest {
         ac1 = addAngleCnec("ac1", "impNe1", "expNe1", Instant.PREVENTIVE, null, 145., 150.);
         ac2 = addAngleCnec("ac2", "impNe2", "expNe2", Instant.CURATIVE, co1.getId(), 140., 145.);
         preventiveState = crac.getPreventiveState();
-        na1 = crac.newNetworkAction()
+        na1 = (NetworkAction) crac.newNetworkAction()
                 .withId("na1")
                 .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec(ac1.getId()).add()
                 .add();
-        na2 = crac.newNetworkAction()
+        na2 = (NetworkAction) crac.newNetworkAction()
                 .withId("na2")
                 .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(ac2.getId()).add()
@@ -102,7 +102,7 @@ class JsonAngleMonitoringResultTest {
         OutputStream os = new ByteArrayOutputStream();
         new AngleMonitoringResultExporter().export(angleMonitoringResult, os);
         String expected = new String(getClass().getResourceAsStream("/result-roundTrip.json").readAllBytes());
-        assertEquals(expected, os.toString());
+        assertEquals(expected.replaceAll("\r", ""), os.toString().replaceAll("\r", ""));
     }
 
     private boolean compareAngleResults(AngleMonitoringResult.AngleResult ar1, AngleMonitoringResult.AngleResult ar2) {

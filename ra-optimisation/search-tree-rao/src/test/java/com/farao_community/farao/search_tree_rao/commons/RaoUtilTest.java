@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
@@ -195,13 +194,13 @@ class RaoUtilTest {
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
 
-        NetworkAction na1 = crac.newNetworkAction().withId("na1")
+        RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
-        NetworkAction na2 = crac.newNetworkAction().withId("na2")
+        RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).add()
             .add();
@@ -230,17 +229,17 @@ class RaoUtilTest {
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
         FlowResult flowResult = mock(FlowResult.class);
 
-        NetworkAction na1 = crac.newNetworkAction().withId("na1")
+        RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.FR).add()
             .add();
 
-        NetworkAction na2 = crac.newNetworkAction().withId("na2")
+        RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.BE).add()
             .add();
 
-        NetworkAction na3 = crac.newNetworkAction().withId("na3")
+        RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.DE).add()
             .add();

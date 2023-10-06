@@ -22,6 +22,4 @@ public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRange
     HvdcRangeActionAdder withInitialSetpoint(double initialSetpoint);
 
     StandardRangeAdder<HvdcRangeActionAdder> newRange();
-
-    HvdcRangeAction add();
 }

@@ -13,9 +13,11 @@ import com.farao_community.farao.data.crac_creation.creator.api.CracCreationRepo
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.contingency.CsaProfileContingencyCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,8 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
 
+    private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts;
+
     private Set<CsaProfileCnecCreationContext> cnecCreationContexts;
 
     private CracCreationReport creationReport;
@@ -43,6 +47,17 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.creationReport = new CracCreationReport();
         this.timeStamp = timeStamp;
         this.networkName = networkName;
+    }
+
+    protected CsaProfileCracCreationContext(CsaProfileCracCreationContext toCopy) {
+        this.crac = toCopy.crac;
+        this.creationReport = toCopy.creationReport;
+        this.timeStamp = toCopy.timeStamp;
+        this.networkName = toCopy.networkName;
+        this.isCreationSuccessful = toCopy.isCreationSuccessful;
+        this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
+        this.remedialActionCreationContexts = new HashSet<>(toCopy.remedialActionCreationContexts);
+        this.cnecCreationContexts = new HashSet<>(toCopy.cnecCreationContexts);
     }
 
     @Override
@@ -70,7 +85,19 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     public Set<CsaProfileContingencyCreationContext> getContingencyCreationContexts() {
-        return this.contingencyCreationContexts.stream().collect(Collectors.toSet());
+        return new HashSet<>(this.contingencyCreationContexts);
+    }
+
+    public Set<CsaProfileRemedialActionCreationContext> getRemedialActionCreationContexts() {
+        return new HashSet<>(remedialActionCreationContexts);
+    }
+
+    public CsaProfileRemedialActionCreationContext getRemedialActionCreationContext(String nativeId) {
+        return remedialActionCreationContexts.stream().filter(rac -> rac.getNativeId().equals(nativeId)).findFirst().orElse(null);
+    }
+
+    public void setRemedialActionCreationContexts(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts) {
+        this.remedialActionCreationContexts = remedialActionCreationContexts;
     }
 
     public void setCnecCreationContexts(Set<CsaProfileCnecCreationContext> cnecCreationContexts) {
@@ -102,6 +129,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
         addToReport(cnecCreationContexts, "Cnecs");
+        addToReport(remedialActionCreationContexts, "RemedialActions");
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {

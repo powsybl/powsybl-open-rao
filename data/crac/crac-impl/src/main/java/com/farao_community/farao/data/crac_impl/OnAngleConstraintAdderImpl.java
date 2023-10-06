@@ -52,8 +52,6 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
         if (instant.equals(Instant.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
-        // TODO: when Instant.AUTO will be handled by FARAO, consider adding some states in the CRAC here.
-        // not required as as soon as there is no RA on AUTO instant
 
         AngleCnec angleCnec = owner.getCrac().getAngleCnec(angleCnecId);
         if (Objects.isNull(angleCnec)) {

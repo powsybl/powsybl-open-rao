@@ -39,27 +39,42 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     @Override
     public CsaProfileCrac importNativeCrac(InputStream inputStream) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
-        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry zipEntry;
-        try {
-            zipInputStream.getNextEntry();
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+            //max number of entries and max size of entry are checked to avoid ddos attack with malicious zip file
+            //TODO parametrization for gridcapa_swe_csa service
+            int maxNbEntries = 200;
+            int maxSizeEntry = 1_000_000_000;
+            int countEntries = 0;
+            while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) {
+                countEntries++;
                 if (!zipEntry.isDirectory()) {
                     FaraoLoggerProvider.BUSINESS_LOGS.info("csa profile crac import : import of file {}", zipEntry.getName());
+                    int currentSizeEntry = 0;
                     File tempFile = File.createTempFile("faraoCsaProfile", ".tmp");
-                    FileOutputStream outputStream = new FileOutputStream(tempFile);
-                    zipInputStream.transferTo(outputStream);
-                    outputStream.close();
-                    FileInputStream fileInputStream = new FileInputStream(tempFile);
-                    tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
+                    boolean tempFileOk = tempFile.setReadable(true, true) &&
+                        tempFile.setWritable(true, true);
+                    if (tempFileOk) {
+                        InputStream in = new BufferedInputStream(zipInputStream);
+                        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
+                            int nBytes = -1;
+                            byte[] buffer = new byte[2048];
+
+                            while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {
+                                out.write(buffer, 0, nBytes);
+                                currentSizeEntry += nBytes;
+
+                            }
+                        }
+                        FileInputStream fileInputStream = new FileInputStream(tempFile);
+                        tripleStoreCsaProfile.read(fileInputStream, CsaProfileConstants.RDF_BASE_URL, zipEntry.getName());
+                    }
                     if (!tempFile.delete()) {
                         FaraoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for csa profile crac import can't be deleted");
                         tempFile.deleteOnExit();
                     }
                 }
             }
-            zipInputStream.close();
-            inputStream.close();
         } catch (IOException e) {
             FaraoLoggerProvider.TECHNICAL_LOGS.error("csa profile crac import interrupted, cause : {}", e.getMessage());
         }
@@ -71,6 +86,6 @@ public class CsaProfileCracImporter implements NativeCracImporter<CsaProfileCrac
     public boolean exists(String fileName, InputStream inputStream) {
         TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(CsaProfileConstants.TRIPLESTORE_RDF4J_NAME);
         tripleStoreCsaProfile.read(inputStream, CsaProfileConstants.RDF_BASE_URL, "");
-        return tripleStoreCsaProfile != null && FilenameUtils.getExtension(fileName).equals(CsaProfileConstants.EXTENSION_FILE_CSA_PROFILE);
+        return FilenameUtils.getExtension(fileName).equals(CsaProfileConstants.EXTENSION_FILE_CSA_PROFILE);
     }
 }
