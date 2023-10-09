@@ -31,8 +31,10 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     private boolean isCreationSuccessful;
 
     private Set<CsaProfileContingencyCreationContext> contingencyCreationContexts;
+
     private Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts;
-    private Set<CsaProfileCnecCreationContext> flowCnecCreationContexts;
+
+    private Set<CsaProfileCnecCreationContext> cnecCreationContexts;
 
     private CracCreationReport creationReport;
 
@@ -55,7 +57,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.isCreationSuccessful = toCopy.isCreationSuccessful;
         this.contingencyCreationContexts = new HashSet<>(toCopy.contingencyCreationContexts);
         this.remedialActionCreationContexts = new HashSet<>(toCopy.remedialActionCreationContexts);
-        this.flowCnecCreationContexts = new HashSet<>(toCopy.flowCnecCreationContexts);
+        this.cnecCreationContexts = new HashSet<>(toCopy.cnecCreationContexts);
     }
 
     @Override
@@ -98,12 +100,12 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
         this.remedialActionCreationContexts = remedialActionCreationContexts;
     }
 
-    public void setFlowCnecCreationContexts(Set<CsaProfileCnecCreationContext> flowCnecCreationContexts) {
-        this.flowCnecCreationContexts = new HashSet<>(flowCnecCreationContexts);
+    public void setCnecCreationContexts(Set<CsaProfileCnecCreationContext> cnecCreationContexts) {
+        this.cnecCreationContexts = cnecCreationContexts.stream().collect(Collectors.toSet());
     }
 
-    public Set<CsaProfileCnecCreationContext> getFlowCnecCreationContexts() {
-        return new HashSet<>(this.flowCnecCreationContexts);
+    public Set<CsaProfileCnecCreationContext> getCnecCreationContexts() {
+        return this.cnecCreationContexts.stream().collect(Collectors.toSet());
     }
 
     @Override
@@ -126,8 +128,8 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     public void buildCreationReport() {
         creationReport = new CracCreationReport();
         addToReport(contingencyCreationContexts, "Contingencies");
+        addToReport(cnecCreationContexts, "Cnecs");
         addToReport(remedialActionCreationContexts, "RemedialActions");
-        addToReport(flowCnecCreationContexts, "FlowCnecs");
     }
 
     private void addToReport(Collection<? extends ElementaryCreationContext> contexts, String nativeTypeIdentifier) {

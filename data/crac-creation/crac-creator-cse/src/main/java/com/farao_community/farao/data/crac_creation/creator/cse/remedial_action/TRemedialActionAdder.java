@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cse.remedial_action;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
@@ -154,6 +155,7 @@ public class TRemedialActionAdder {
                 networkActionAdder.newInjectionSetPoint()
                     .withNetworkElement(generatorHelper.getGeneratorId())
                     .withSetpoint(tNode.getValue().getV())
+                    .withUnit(Unit.MEGAWATT)
                     .add();
             } catch (FaraoException e) {
                 cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.OTHER, e.getMessage()));
