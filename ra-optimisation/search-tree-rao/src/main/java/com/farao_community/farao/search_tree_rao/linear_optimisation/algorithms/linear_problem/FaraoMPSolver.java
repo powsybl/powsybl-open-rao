@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
@@ -125,6 +126,9 @@ public class FaraoMPSolver {
     }
 
     public LinearProblemStatus solve() {
+        if (FaraoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
+            mpSolver.enableOutput();
+        }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
