@@ -312,7 +312,7 @@ public class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(39, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(1, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(6, cracCreationContext.getCrac().getFlowCnecs().size());
         assertEquals(5, cracCreationContext.getCrac().getVoltageCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
@@ -921,5 +921,43 @@ public class CsaProfileCracCreatorTest {
         assertHasOnInstantUsageRule("open_fr1_fr2", PREVENTIVE, UsageMethod.AVAILABLE);
         assertNetworkActionImported("open_fr1_fr3", Set.of("FFR1AA1X-FFR1AA1--1"), false, 1);
         assertHasOnInstantUsageRule("open_fr1_fr3", PREVENTIVE, UsageMethod.AVAILABLE);
+    }
+
+    @Test
+    public void testCustomForAssessedElementWithContingencyRejection() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_42_CustomExample.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/CSA_42_CustomExample.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertNotNull(cracCreationContext);
+        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(3, cracCreationContext.getCrac().getFlowCnecs().size());
+        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+
+        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+            "RTE_AE - RTE_CO1 - curative",
+            "RTE_AE - RTE_CO1 - curative",
+            "FFR3AA1--FFR5AA1--1",
+            CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+            "RTE_AE - RTE_CO3 - curative",
+            "RTE_AE - RTE_CO3 - curative",
+            "FFR3AA1--FFR5AA1--1",
+            CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+            "RTE_AE - preventive",
+            "RTE_AE - preventive",
+            "FFR3AA1--FFR5AA1--1",
+            PREVENTIVE, null,
+            +1000, -1000, Side.RIGHT);
     }
 }
