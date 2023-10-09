@@ -55,24 +55,20 @@ public class VoltageMonitoring {
         }
 
         try {
-            try (AbstractNetworkPool networkPool =
-                     AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)
-            ) {
-                List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
-                    networkPool.submit(() -> {
-                            Network networkClone = networkPool.getAvailableNetwork();
-                            try {
-                                state.getContingency().orElseThrow().apply(networkClone, null);
-                                applyOptimalRemedialActionsOnContingencyState(state, networkClone);
-                                voltageValues.putAll(computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters));
-                            } catch (Exception e) {
-                                Thread.currentThread().interrupt();
-                                throw new FaraoException(CONTINGENCY_ERROR, e);
-                            }
-                            networkPool.releaseUsedNetwork(networkClone);
-                            return null;
-                        }
-                    )).collect(Collectors.toList());
+            try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
+                List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state -> networkPool.submit(() -> {
+                    Network networkClone = networkPool.getAvailableNetwork();
+                    try {
+                        state.getContingency().orElseThrow().apply(networkClone, null);
+                        applyOptimalRemedialActionsOnContingencyState(state, networkClone);
+                        voltageValues.putAll(computeVoltages(crac.getVoltageCnecs(state), networkClone, loadFlowProvider, loadFlowParameters));
+                    } catch (Exception e) {
+                        Thread.currentThread().interrupt();
+                        throw new FaraoException(CONTINGENCY_ERROR, e);
+                    }
+                    networkPool.releaseUsedNetwork(networkClone);
+                    return null;
+                })).collect(Collectors.toList());
                 for (ForkJoinTask<Object> task : tasks) {
                     try {
                         task.get();
@@ -91,8 +87,7 @@ public class VoltageMonitoring {
         if (state.getInstant().equals(Instant.CURATIVE)) {
             Optional<Contingency> contingency = state.getContingency();
             if (contingency.isPresent()) {
-                crac.getStates(contingency.get()).forEach(contingencyState ->
-                        applyOptimalRemedialActions(state, networkClone));
+                crac.getStates(contingency.get()).forEach(contingencyState -> applyOptimalRemedialActions(state, networkClone));
             } else {
                 throw new FaraoException(String.format("Curative state %s was defined without a contingency", state.getId()));
 
@@ -103,15 +98,12 @@ public class VoltageMonitoring {
     }
 
     private void applyOptimalRemedialActions(State state, Network network) {
-        raoResult.getActivatedNetworkActionsDuringState(state)
-            .forEach(na -> na.apply(network));
-        raoResult.getActivatedRangeActionsDuringState(state)
-            .forEach(ra -> ra.apply(network, raoResult.getOptimizedSetPointOnState(state, ra)));
+        raoResult.getActivatedNetworkActionsDuringState(state).forEach(na -> na.apply(network));
+        raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> ra.apply(network, raoResult.getOptimizedSetPointOnState(state, ra)));
     }
 
     private Map<VoltageCnec, ExtremeVoltageValues> computeVoltages(Set<VoltageCnec> voltageCnecs, Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
-            .run(network, loadFlowParameters);
+        LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
         if (!loadFlowResult.isOk()) {
             throw new FaraoException("LoadFlow error");
         }
