@@ -35,9 +35,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -264,17 +262,9 @@ public class SearchTree {
             TECHNICAL_LOGS.info("Leaves to evaluate: {}", amountOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(amountOfCombinations);
-        CountDownLatch latch = new CountDownLatch(amountOfCombinations);
-        naCombinationsSorted.keySet().forEach(naCombination ->
+        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.keySet().stream().map(naCombination ->
             networkPool.submit(() -> {
-                Network networkClone;
-                try {
-                    networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
-                } catch (InterruptedException e) {
-                    latch.countDown();
-                    Thread.currentThread().interrupt();
-                    throw new FaraoException(e);
-                }
+                Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
                 try {
                     if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                         boolean shouldRangeActionBeRemoved = naCombinationsSorted.get(naCombination);
@@ -289,7 +279,7 @@ public class SearchTree {
                             // todo : Not sure previousDepthOptimalLeaf.getRangeActions() returns what we expect, this needs to be investigated
                             previousDepthOptimalLeaf.getRangeActions()
                                 .forEach(ra ->
-                                        ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
+                                    ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                                 );
                         }
                         optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone);
@@ -301,20 +291,16 @@ public class SearchTree {
                     BUSINESS_WARNS.warn("Cannot optimize remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                 }
                 TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-                try {
-                    networkPool.releaseUsedNetwork(networkClone);
-                    latch.countDown();
-                } catch (InterruptedException ex) {
-                    latch.countDown();
-                    Thread.currentThread().interrupt();
-                    throw new FaraoException(ex);
-                }
+                networkPool.releaseUsedNetwork(networkClone);
+                return null; // we need to return null, in order for the compiler to know that this statement must be reached in normal cases
             })
-        );
-        // TODO : change the 24 hours to something more useful when a target end time is known by the RAO
-        boolean success = latch.await(24, TimeUnit.HOURS);
-        if (!success) {
-            throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
+        ).collect(Collectors.toList());
+        for (ForkJoinTask<Object> task : tasks) {
+            try {
+                task.get();
+            } catch (ExecutionException e) {
+                throw new FaraoException(e);
+            }
         }
     }
 

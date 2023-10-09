@@ -407,8 +407,8 @@ class VoltageMonitoringTest {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         //Add contingency that doesn't break the loadflow
-        crac.newContingency().withId("coVL3").withNetworkElement("VL3_Break L2").add();
-        VoltageCnec vc = addVoltageCnec("vcCur1", Instant.CURATIVE, "coVL3", "VL3", 375., 395.);
+        crac.newContingency().withId("coL3").withNetworkElement("L3").add();
+        VoltageCnec vc = addVoltageCnec("vcCur1", Instant.CURATIVE, "coL3", "VL3", 375., 395.);
         crac.newNetworkAction()
                 .withId("Open L1 - 2")
                 .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
