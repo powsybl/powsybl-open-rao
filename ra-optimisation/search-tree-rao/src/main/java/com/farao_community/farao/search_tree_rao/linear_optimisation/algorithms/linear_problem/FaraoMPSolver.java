@@ -8,15 +8,16 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
-import com.google.ortools.linearsolver.*;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
@@ -125,6 +126,9 @@ public class FaraoMPSolver {
     }
 
     public LinearProblemStatus solve() {
+        if (FaraoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
+            mpSolver.enableOutput();
+        }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 
