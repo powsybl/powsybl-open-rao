@@ -155,19 +155,19 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
 
-    public static final String REQUEST_CURRENT_LIMIT_NORMAL_VALUE = "normalValue";
+    public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_SET = "operationalLimitSet";
+    public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TYPE = "operationalLimitType";
+    public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL = "terminal";
+    public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND = "kind";
+    public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_DIRECTION = "direction";
+    public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
+    public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
 
     public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
 
@@ -229,6 +229,22 @@ public final class CsaProfileConstants {
         @Override
         public String toString() {
             return LimitDirectionKind.URL + this.direction;
+        }
+    }
+
+    public enum LimitType {
+        CURRENT("currentLimit"),
+        VOLTAGE("voltageLimit");
+
+        LimitType(String type) {
+            this.type = type;
+        }
+
+        private final String type;
+
+        @Override
+        public String toString() {
+            return this.type;
         }
     }
 }

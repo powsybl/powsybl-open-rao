@@ -36,7 +36,7 @@ class CsaProfileCracCreationContextTest {
         CsaProfileCnecCreationContext cncc = Mockito.mock(CsaProfileCnecCreationContext.class);
 
         context.setContingencyCreationContexts(Set.of(cocc));
-        context.setFlowCnecCreationContexts(Set.of(cncc));
+        context.setCnecCreationContexts(Set.of(cncc));
         context.setRemedialActionCreationContexts(Set.of(racc));
 
         CsaProfileCracCreationContext copy = new CsaProfileCracCreationContext(context);
@@ -46,6 +46,6 @@ class CsaProfileCracCreationContextTest {
         assertEquals("network_name", copy.getNetworkName());
         assertEquals(Set.of(cocc), copy.getContingencyCreationContexts());
         assertEquals(Set.of(racc), copy.getRemedialActionCreationContexts());
-        assertEquals(Set.of(cncc), copy.getFlowCnecCreationContexts());
+        assertEquals(Set.of(cncc), copy.getCnecCreationContexts());
     }
 }
