@@ -436,16 +436,32 @@ public class CsaProfileCnecCreator {
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
-        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
-            Optional<String> oAlias = networkElement.getAliasFromType(key);
-            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.LEFT;
+        if (networkElement instanceof TieLine) {
+            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
+                TieLine tieLine = (TieLine) networkElement;
+                Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.LEFT;
+                }
+                oAlias = tieLine.getDanglingLine2().getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.RIGHT;
+                }
+
             }
-        }
-        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
-            Optional<String> oAlias = networkElement.getAliasFromType(key);
-            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.RIGHT;
+        } else {
+            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
+                Optional<String> oAlias = networkElement.getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.LEFT;
+                }
+            }
+
+            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
+                Optional<String> oAlias = networkElement.getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.RIGHT;
+                }
             }
         }
         return null;

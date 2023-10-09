@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
-import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXnodeGlskHandler;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputationImpl;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParametersExtension;
@@ -201,11 +201,9 @@ public final class ToolProvider {
             toolProviderBuilder.withLoopFlowComputation(
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
-                new LoopFlowComputationWithXnodeGlskHandler(
+                new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
-                    raoInput.getReferenceProgram(),
-                    raoInput.getCrac().getContingencies(),
-                    raoInput.getNetwork()
+                    raoInput.getReferenceProgram()
                 )
             );
         }
@@ -217,8 +215,7 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                        raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries(),
-                    raoInput.getNetwork()
+                        raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries()
                 )
             );
         }

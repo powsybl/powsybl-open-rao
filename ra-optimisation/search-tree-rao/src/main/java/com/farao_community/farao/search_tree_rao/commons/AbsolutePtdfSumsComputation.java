@@ -9,12 +9,9 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.powsybl.glsk.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.loopflow_computation.XnodeGlskHandler;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
@@ -30,28 +27,19 @@ import java.util.stream.Collectors;
 public class AbsolutePtdfSumsComputation {
     private final ZonalData<SensitivityVariableSet> glskProvider;
     private final List<ZoneToZonePtdfDefinition> zTozPtdfs;
-    private final Network network;
 
-    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs, Network network) {
+    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs) {
         this.glskProvider = glskProvider;
         this.zTozPtdfs = zTozPtdfs;
-        this.network = network;
     }
 
     public Map<FlowCnec, Map<Side, Double>> computeAbsolutePtdfSums(Set<FlowCnec> flowCnecs, SystematicSensitivityResult sensitivityResult) {
-
-        Set<Contingency> contingencies = flowCnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isPresent())
-                .map(cnec -> cnec.getState().getContingency().get())
-                .collect(Collectors.toSet());
-        XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskProvider, contingencies, network);
-
         Map<FlowCnec, Map<Side, Double>> ptdfSums = new HashMap<>();
         List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
 
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
-                Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, side, glskProvider, eiCodesInPtdfs, sensitivityResult, xnodeGlskHandler);
+                Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, side, glskProvider, eiCodesInPtdfs, sensitivityResult);
                 double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
                 ptdfSums.computeIfAbsent(flowCnec, k -> new EnumMap<>(Side.class)).put(side, sumOfZToZPtdf);
             });
@@ -59,18 +47,12 @@ public class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, Side side, ZonalData<SensitivityVariableSet> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult, XnodeGlskHandler xnodeGlskHandler) {
+    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, Side side, ZonalData<SensitivityVariableSet> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
         Map<EICode, Double> ptdfs = new HashMap<>();
         for (EICode eiCode : eiCodesInBoundaries) {
             SensitivityVariableSet linearGlsk = glsks.getData(eiCode.getAreaCode());
             if (linearGlsk != null) {
-                double ptdfValue;
-                if (xnodeGlskHandler.isLinearGlskValidForCnec(flowCnec, linearGlsk)) {
-                    ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec, side);
-                } else {
-                    ptdfValue = 0;
-                }
-                ptdfs.put(eiCode, ptdfValue);
+                ptdfs.put(eiCode, sensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec, side));
             }
         }
         return ptdfs;
