@@ -29,7 +29,6 @@ import com.powsybl.loadflow.LoadFlowResult;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
