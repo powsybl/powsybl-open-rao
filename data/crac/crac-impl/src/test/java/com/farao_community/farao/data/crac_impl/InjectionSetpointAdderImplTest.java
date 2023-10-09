@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpointAdder;
@@ -39,6 +40,7 @@ class InjectionSetpointAdderImplTest {
         NetworkAction networkAction = (NetworkAction) networkActionAdder.newInjectionSetPoint()
             .withNetworkElement("groupNetworkElementId")
             .withSetpoint(100.)
+            .withUnit(Unit.MEGAWATT)
             .add()
             .add();
 
@@ -54,14 +56,40 @@ class InjectionSetpointAdderImplTest {
     @Test
     void testNoNetworkElement() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withSetpoint(100.);
-        assertThrows(FaraoException.class, injectionSetpointAdder::add);
+            .withSetpoint(100.).withUnit(Unit.MEGAWATT);
+        Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
+        assertEquals("Cannot add InjectionSetPoint without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
     }
 
     @Test
     void testNoSetpoint() {
         InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
-            .withNetworkElement("groupNetworkElementId");
-        assertThrows(FaraoException.class, injectionSetpointAdder::add);
+            .withNetworkElement("groupNetworkElementId").withUnit(Unit.MEGAWATT);
+        Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
+        assertEquals("Cannot add InjectionSetPoint without a setpoint. Please use withSetPoint() with a non null value", e.getMessage());
+    }
+
+    @Test
+    void testNoUnit() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement("groupNetworkElementId").withSetpoint(100.);
+        Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
+        assertEquals("Cannot add InjectionSetPoint without a unit. Please use withUnit() with a non null value", e.getMessage());
+    }
+
+    @Test
+    void testNegativeSetPointWithSectionCount() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement("groupNetworkElementId").withSetpoint(-100.).withUnit(Unit.SECTION_COUNT);
+        Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
+        assertEquals("With a SECTION_COUNT unit, setpoint should be a positive integer", e.getMessage());
+    }
+
+    @Test
+    void testNonIntegerSetPointWithSectionCount() {
+        InjectionSetpointAdder injectionSetpointAdder = networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement("groupNetworkElementId").withSetpoint(1.3).withUnit(Unit.SECTION_COUNT);
+        Exception e = assertThrows(FaraoException.class, injectionSetpointAdder::add);
+        assertEquals("With a SECTION_COUNT unit, setpoint should be a positive integer", e.getMessage());
     }
 }

@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.7";
+    public static final String CRAC_IO_VERSION = "1.8";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -39,6 +39,7 @@ public final class JsonSerializationConstants {
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
     v1.5: addition of VoltageCnecs
     v1.7: addition of VoltageConstraints usage rules
+    v1.8: addition of ShuntCompensator set-point action
      */
 
     // headers
@@ -136,6 +137,7 @@ public final class JsonSerializationConstants {
     public static final String KILOVOLT_UNIT = "kilovolt";
     public static final String PERCENT_IMAX_UNIT = "percent_imax";
     public static final String TAP_UNIT = "tap";
+    public static final String SECTION_COUNT_UNIT = "section_count";
 
     // rules, retro-compatibility only
     public static final String ON_LOW_VOLTAGE_LEVEL_RULE = "onLowVoltageLevel";
@@ -227,6 +229,8 @@ public final class JsonSerializationConstants {
                 return PERCENT_IMAX_UNIT;
             case TAP:
                 return TAP_UNIT;
+            case SECTION_COUNT:
+                return SECTION_COUNT_UNIT;
             default:
                 throw new FaraoException(String.format("Unsupported unit %s", unit));
         }
@@ -246,6 +250,8 @@ public final class JsonSerializationConstants {
                 return Unit.PERCENT_IMAX;
             case TAP_UNIT:
                 return Unit.TAP;
+            case SECTION_COUNT_UNIT:
+                return Unit.SECTION_COUNT;
             default:
                 throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
         }

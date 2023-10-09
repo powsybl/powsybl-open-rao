@@ -9,9 +9,11 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -27,7 +29,7 @@ class InjectionSetpointImplTest {
     @Test
     void basicMethods() {
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
-        InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10.);
+        InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10., Unit.MEGAWATT);
         assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
         assertEquals(mockedNetworkElement, injectionSetpoint.getNetworkElement());
         assertEquals(Set.of(mockedNetworkElement), injectionSetpoint.getNetworkElements());
@@ -39,7 +41,7 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _generator"),
-            100);
+            100, Unit.MEGAWATT);
 
         assertTrue(generatorSetpoint.hasImpactOnNetwork(network));
     }
@@ -49,7 +51,7 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _generator"),
-            2000);
+            2000, Unit.MEGAWATT);
 
         assertFalse(generatorSetpoint.hasImpactOnNetwork(network));
     }
@@ -59,7 +61,7 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("FFR1AA1 _generator"),
-                100);
+                100, Unit.MEGAWATT);
 
         generatorSetpoint.apply(network);
         assertEquals(100., network.getGenerator("FFR1AA1 _generator").getTargetP(), 1e-3);
@@ -70,7 +72,7 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _load"),
-            100);
+            100, Unit.MEGAWATT);
 
         assertTrue(loadSetpoint.hasImpactOnNetwork(network));
     }
@@ -80,7 +82,7 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("FFR1AA1 _load"),
-            1000);
+            1000, Unit.MEGAWATT);
 
         assertFalse(loadSetpoint.hasImpactOnNetwork(network));
     }
@@ -90,7 +92,7 @@ class InjectionSetpointImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("FFR1AA1 _load"),
-                100);
+                100, Unit.MEGAWATT);
 
         loadSetpoint.apply(network);
         assertEquals(100., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
@@ -102,7 +104,7 @@ class InjectionSetpointImplTest {
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("DL1"),
-            100);
+            100, Unit.MEGAWATT);
 
         assertTrue(danglingLineSetpoint.hasImpactOnNetwork(network));
     }
@@ -113,7 +115,7 @@ class InjectionSetpointImplTest {
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
             new NetworkElementImpl("DL1"),
-            0);
+            0, Unit.MEGAWATT);
 
         assertFalse(danglingLineSetpoint.hasImpactOnNetwork(network));
     }
@@ -124,10 +126,58 @@ class InjectionSetpointImplTest {
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
                 new NetworkElementImpl("DL1"),
-                100);
+                100, Unit.MEGAWATT);
 
         danglingLineSetpoint.apply(network);
         assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
+    }
+
+    @Test
+    void hasImpactOnNetworkForShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+                new NetworkElementImpl("SC1"),
+                0, Unit.SECTION_COUNT);
+        assertTrue(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void hasNoImpactOnNetworkForShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+                new NetworkElementImpl("SC1"),
+                1, Unit.SECTION_COUNT);
+        assertFalse(shuntCompensatorSetpoint.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void applyOnShuntCompensator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addShuntCompensator(network);
+        InjectionSetpointImpl shuntCompensatorSetpoint = new InjectionSetpointImpl(
+                new NetworkElementImpl("SC1"),
+                2, Unit.SECTION_COUNT);
+        shuntCompensatorSetpoint.apply(network);
+        assertEquals(2., network.getShuntCompensator("SC1").getSectionCount(), 1e-3);
+    }
+
+    @Test
+    void getUnit() {
+        InjectionSetpointImpl dummy = new InjectionSetpointImpl(
+                new NetworkElementImpl("wrong_name"),
+                100, Unit.MEGAWATT);
+        assertEquals(Unit.MEGAWATT, dummy.getUnit());
+    }
+
+    @Test
+    void hasImpactOnNetworkThrow() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpointImpl dummy = new InjectionSetpointImpl(
+                new NetworkElementImpl("wrong_name"),
+                100, Unit.MEGAWATT);
+        assertThrows(NotImplementedException.class, () -> dummy.hasImpactOnNetwork(network));
     }
 
     @Test
@@ -135,17 +185,17 @@ class InjectionSetpointImplTest {
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
             mockedNetworkElement,
-            10.);
+            10., Unit.MEGAWATT);
         assertEquals(injectionSetpoint, injectionSetpoint);
 
         InjectionSetpointImpl sameInjectionSetpoint = new InjectionSetpointImpl(
             mockedNetworkElement,
-            10.);
+            10., Unit.MEGAWATT);
         assertEquals(injectionSetpoint, sameInjectionSetpoint);
 
         InjectionSetpointImpl differentInjectionSetpoint = new InjectionSetpointImpl(
             mockedNetworkElement,
-            12.);
+            12., Unit.MEGAWATT);
         assertNotEquals(injectionSetpoint, differentInjectionSetpoint);
     }
 }

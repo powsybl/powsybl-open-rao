@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpointAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
@@ -25,7 +26,7 @@ public final class InjectionSetpointArrayDeserializer {
     private InjectionSetpointArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, NetworkActionAdder ownerAdder, Map<String, String> networkElementsNamesPerId, String version) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", INJECTION_SETPOINTS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -45,9 +46,15 @@ public final class InjectionSetpointArrayDeserializer {
                         jsonParser.nextToken();
                         adder.withSetpoint(jsonParser.getIntValue());
                         break;
+                    case UNIT:
+                        adder.withUnit(deserializeUnit(jsonParser.nextTextValue()));
+                        break;
                     default:
                         throw new FaraoException("Unexpected field in InjectionSetpoint: " + jsonParser.getCurrentName());
                 }
+            }
+            if (getPrimaryVersionNumber(version) < 2 && getSubVersionNumber(version) < 8) {
+                adder.withUnit(Unit.MEGAWATT);
             }
             adder.add();
         }

@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.SETPOINT;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -25,6 +24,7 @@ public class InjectionSetpointSerializer extends AbstractJsonSerializer<Injectio
         gen.writeStartObject();
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
         gen.writeNumberField(SETPOINT, value.getSetpoint());
+        gen.writeStringField(UNIT, serializeUnit(value.getUnit()));
         gen.writeEndObject();
     }
 }

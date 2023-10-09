@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
@@ -170,6 +171,7 @@ public class NetworkActionCreator {
         networkActionAdder.newInjectionSetPoint()
             .withNetworkElement(networkElementId)
             .withSetpoint(setpoint)
+            .withUnit(Unit.MEGAWATT)
             .add();
     }
 

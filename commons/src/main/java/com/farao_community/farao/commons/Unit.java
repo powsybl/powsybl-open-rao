@@ -21,7 +21,8 @@ public enum Unit {
     MEGAWATT(PhysicalParameter.FLOW, "MW"),
     KILOVOLT(PhysicalParameter.VOLTAGE, "kV"),
     PERCENT_IMAX(PhysicalParameter.FLOW, "%"),
-    TAP(PhysicalParameter.ANGLE, "");
+    TAP(PhysicalParameter.ANGLE, ""),
+    SECTION_COUNT(null, "");
 
     private PhysicalParameter physicalParameter;
     private String symbol;
