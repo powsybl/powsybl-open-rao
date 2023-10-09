@@ -21,16 +21,16 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.cim.CimGlskPoint;
 import com.powsybl.glsk.commons.CountryEICode;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
@@ -43,8 +43,6 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class AngleMonitoring {
-    public static final String CONTINGENCY_ERROR = "At least one contingency could not be monitored within the given time (24 hours). This should not happen.";
-
     private final Crac crac;
     private final Network inputNetwork;
     private final RaoResult raoResult;
@@ -89,40 +87,27 @@ public class AngleMonitoring {
         }
 
         try {
-            try (AbstractNetworkPool networkPool =
-                         AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)
-            ) {
-                CountDownLatch stateCountDownLatch = new CountDownLatch(contingencyStates.size());
-                contingencyStates.forEach(state ->
-                        networkPool.submit(() -> {
-                            Network networkClone = null;
-                            try {
-                                networkClone = networkPool.getAvailableNetwork();
-                            } catch (Exception e) {
-                                stateCountDownLatch.countDown();
-                                Thread.currentThread().interrupt();
-                                throw new FaraoException(CONTINGENCY_ERROR, e);
-                            }
-                            try {
-                                state.getContingency().orElseThrow().apply(networkClone, null);
-                                applyOptimalRemedialActionsOnContingencyState(state, networkClone);
-                                stateSpecificResults.add(monitorAngleCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone));
-                            } catch (Exception e) {
-                                BUSINESS_WARNS.warn(e.getMessage());
-                                stateSpecificResults.add(catchAngleMonitoringResult(state, AngleMonitoringResult.Status.UNKNOWN));
-                            }
-                            try {
-                                networkPool.releaseUsedNetwork(networkClone);
-                                stateCountDownLatch.countDown();
-                            } catch (InterruptedException ex) {
-                                stateCountDownLatch.countDown();
-                                Thread.currentThread().interrupt();
-                                throw new FaraoException(ex);
-                            }
-                        }));
-                boolean success = stateCountDownLatch.await(24, TimeUnit.HOURS);
-                if (!success) {
-                    throw new FaraoException(CONTINGENCY_ERROR);
+            try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
+                List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
+                    networkPool.submit(() -> {
+                        Network networkClone = networkPool.getAvailableNetwork();
+                        try {
+                            state.getContingency().orElseThrow().apply(networkClone, null);
+                            applyOptimalRemedialActionsOnContingencyState(state, networkClone);
+                            stateSpecificResults.add(monitorAngleCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone));
+                        } catch (Exception e) {
+                            BUSINESS_WARNS.warn(e.getMessage());
+                            stateSpecificResults.add(catchAngleMonitoringResult(state, AngleMonitoringResult.Status.UNKNOWN));
+                        }
+                        networkPool.releaseUsedNetwork(networkClone);
+                        return null;
+                    })).collect(Collectors.toList());
+                for (ForkJoinTask<Object> task : tasks) {
+                    try {
+                        task.get();
+                    } catch (ExecutionException e) {
+                        throw new FaraoException(e);
+                    }
                 }
             }
         } catch (Exception e) {
