@@ -109,7 +109,7 @@ public final class GlskVirtualHubs {
         }
 
         Optional<DanglingLine> danglingLine = findDanglingLineWithXNode(network, virtualHub.getNodeName());
-        if (danglingLine.isPresent()) {
+        if (danglingLine.isPresent() && !danglingLine.get().isPaired()) {
             return danglingLine.get();
         }
 
