@@ -199,7 +199,7 @@ class AngleMonitoringTest {
         mockCurativeStatesSecure();
         naL1Cur = (NetworkAction) crac.newNetworkAction()
                 .withId("Injection L1 - 2")
-                .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).add()
+                .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
                 .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
                 .add();
         runAngleMonitoring();

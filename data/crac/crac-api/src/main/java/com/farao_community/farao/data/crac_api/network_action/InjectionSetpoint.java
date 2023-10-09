@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_api.network_action;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 
 /***
@@ -25,4 +26,9 @@ public interface InjectionSetpoint extends ElementaryAction {
      * Get the Network Element associated to the elementary action
      */
     NetworkElement getNetworkElement();
+
+    /**
+     * Get the unit of the injection setpoint
+     */
+    Unit getUnit();
 }
