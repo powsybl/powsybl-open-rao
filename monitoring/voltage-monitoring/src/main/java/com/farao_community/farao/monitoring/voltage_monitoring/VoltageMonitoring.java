@@ -91,7 +91,7 @@ public class VoltageMonitoring {
                         }
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
-                    })).collect(Collectors.toList());
+                    })).toList();
                 for (ForkJoinTask<Object> task : tasks) {
                     try {
                         task.get();

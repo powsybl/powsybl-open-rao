@@ -101,7 +101,7 @@ public class AngleMonitoring {
                         }
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
-                    })).collect(Collectors.toList());
+                    })).toList();
                 for (ForkJoinTask<Object> task : tasks) {
                     try {
                         task.get();
@@ -315,9 +315,9 @@ public class AngleMonitoring {
                 return false;
             } else {
                 checkGlsks(country.get(), naId, angleCnecId);
-                if (ne instanceof Generator) {
+                if (ne.getType().equals(IdentifiableType.GENERATOR)) {
                     powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
-                } else if (ne instanceof Load) {
+                } else if (ne.getType().equals(IdentifiableType.LOAD)) {
                     powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
                 } else {
                     BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
