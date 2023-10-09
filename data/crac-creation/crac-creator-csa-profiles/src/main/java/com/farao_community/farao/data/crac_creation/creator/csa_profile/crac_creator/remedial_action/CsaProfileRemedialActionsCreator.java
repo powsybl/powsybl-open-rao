@@ -78,7 +78,7 @@ public class CsaProfileRemedialActionsCreator {
                 Optional<String> targetRemedialActionNameOpt = CsaProfileCracUtils.createRemedialActionName(nativeRaName, tsoName);
                 Optional<Integer> speedOpt = getSpeedOpt(parentRemedialActionPropertyBag.get(CsaProfileConstants.TIME_TO_IMPLEMENT));
 
-                if (remedialActionType.equals(RemedialActionType.NetworkAction)) {
+                if (remedialActionType.equals(RemedialActionType.NETWORK_ACTION)) {
                     remedialActionAdder = networkActionCreator.getNetworkActionAdder(linkedTopologyActions, linkedRotatingMachineActions, linkedStaticPropertyRanges, remedialActionId);
                 } else {
                     remedialActionAdder = pstRangeActionCreator.getPstRangeActionAdder(linkedTapPositionActions, linkedStaticPropertyRanges, remedialActionId);
@@ -89,22 +89,21 @@ public class CsaProfileRemedialActionsCreator {
                     remedialActionAdder.withOperator(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf("/") + 1)).getDisplayName());
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
-
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
                     // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
                     checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), randomCombinationConstraintKind);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
-                            .map(contingencyWithRemedialActionPropertyBag ->
-                                    checkContingencyAndGetFaraoId(
-                                            contingencyWithRemedialActionPropertyBag,
-                                            parentRemedialActionPropertyBag,
-                                            remedialActionId,
-                                            randomCombinationConstraintKind
-                                    )
+                        .map(contingencyWithRemedialActionPropertyBag ->
+                            checkContingencyAndGetFaraoId(
+                                contingencyWithRemedialActionPropertyBag,
+                                parentRemedialActionPropertyBag,
+                                remedialActionId,
+                                randomCombinationConstraintKind
                             )
-                            .collect(Collectors.toList());
+                        )
+                        .collect(Collectors.toList());
 
                     addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
                 } else { // no contingency linked to RA --> on instant usage rule
@@ -133,16 +132,16 @@ public class CsaProfileRemedialActionsCreator {
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
         faraoContingenciesIds.forEach(faraoContingencyId -> {
             remedialActionAdder.newOnContingencyStateUsageRule()
-                    .withInstant(Instant.CURATIVE)
-                    .withContingency(faraoContingencyId)
-                    .withUsageMethod(usageMethod).add();
+                .withInstant(Instant.CURATIVE)
+                .withContingency(faraoContingencyId)
+                .withUsageMethod(usageMethod).add();
         });
     }
 
     private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
         for (PropertyBag propertyBag : linkedContingencyWithRAs) {
             if (!propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND).equals(firstKind)) {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because ElementCombinationConstraintKind of a remedial action linked to a contingency must be all of the same kind");
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because ElementCombinationConstraintKind of a remedial action linked to a contingency must be all of the same kind");
             }
         }
     }
@@ -158,26 +157,26 @@ public class CsaProfileRemedialActionsCreator {
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
 
         if (!keyword.equals(CsaProfileConstants.REMEDIAL_ACTION_FILE_KEYWORD)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because Model.keyword must be RA, but it is " + keyword);
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Model.keyword must be RA, but it is " + keyword);
         }
         if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because required timestamp does not fall between Model.startDate and Model.endDate");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because required timestamp does not fall between Model.startDate and Model.endDate");
 
         }
         if (!normalAvailable) {
-            throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, "Remedial Action: " + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
+            throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         }
         if (!kind.equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString()) && !kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because Unsupported kind for remedial action" + remedialActionId);
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action" + remedialActionId);
         }
 
         if (linkedTopologyActions.containsKey(remedialActionId)
-                || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
-            return RemedialActionType.NetworkAction;
+            || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
+            return RemedialActionType.NETWORK_ACTION;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
-            return RemedialActionType.PstRangeAction;
+            return RemedialActionType.PST_RANGE_ACTION;
         } else {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial Action: " + remedialActionId + " will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
         }
     }
 
@@ -191,19 +190,19 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
-            remedialActionId, String combinationConstraintKind) {
+        remedialActionId, String combinationConstraintKind) {
         if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action" + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }
 
         if (!combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString()) && !combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action" + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because combinationConstraintKind of a ContingencyWithRemedialAction must be 'included, 'excluded' or 'considered', but it was: " + combinationConstraintKind);
         }
 
         String contingencyId = contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).substring(contingencyWithRemedialActionPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCY).lastIndexOf("_") + 1);
         Optional<CsaProfileContingencyCreationContext> importedCsaProfileContingencyCreationContextOpt = cracCreationContext.getContingencyCreationContexts().stream().filter(co -> co.isImported() && co.getNativeId().equals(contingencyId)).findAny();
         if (importedCsaProfileContingencyCreationContextOpt.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action" + remedialActionId + " will not be imported because contingency" + contingencyId + " linked to that remedialAction does not exist or was not imported by farao");
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because contingency" + contingencyId + " linked to that remedialAction does not exist or was not imported by farao");
         } else {
             String faraoContingencyId = importedCsaProfileContingencyCreationContextOpt.get().getContigencyId();
             CsaProfileCracUtils.checkNormalEnabled(contingencyWithRemedialActionPropertyBag, remedialActionId, "ContingencyWithRemedialAction");
@@ -220,8 +219,8 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     enum RemedialActionType {
-        PstRangeAction,
-        NetworkAction
+        PST_RANGE_ACTION,
+        NETWORK_ACTION
     }
 
 }

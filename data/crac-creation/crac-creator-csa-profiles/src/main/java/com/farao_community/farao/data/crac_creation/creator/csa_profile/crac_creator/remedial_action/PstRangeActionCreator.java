@@ -56,13 +56,13 @@ public class PstRangeActionCreator {
         String tapChangerId = rawId.substring(rawId.lastIndexOf("_") + 1);
         IidmPstHelper iidmPstHelper = new IidmPstHelper(tapChangerId, network);
         if (!iidmPstHelper.isValid()) {
-            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial Action: " + remedialActionId + " will not be imported because " + iidmPstHelper.getInvalidReason());
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because " + iidmPstHelper.getInvalidReason());
         }
 
         pstRangeActionAdder
-                .withNetworkElement(tapChangerId)
-                .withInitialTap(iidmPstHelper.getInitialTap())
-                .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap());
+            .withNetworkElement(tapChangerId)
+            .withInitialTap(iidmPstHelper.getInitialTap())
+            .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap());
 
         if (!linkedStaticPropertyRangesFoTapPositionAction.isEmpty()) {
             Optional<Integer> normalValueUp = Optional.empty();
@@ -72,7 +72,7 @@ public class PstRangeActionCreator {
                 String valueKind = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_VALUE_KIND);
 
                 if (!valueKind.equals(CsaProfileConstants.VALUE_KIND_ABSOLUTE)) {
-                    throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
+                    throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is 'absolute'");
                 } else {
                     String direction = staticPropertyRangePropertyBag.get(CsaProfileConstants.STATIC_PROPERTY_RANGE_DIRECTION);
                     int normalValue = (int) Float.parseFloat(staticPropertyRangePropertyBag.get(CsaProfileConstants.NORMAL_VALUE));
@@ -81,7 +81,7 @@ public class PstRangeActionCreator {
                     } else if (direction.equals(CsaProfileConstants.DIRECTION_UP)) {
                         normalValueUp = Optional.of(normalValue);
                     } else {
-                        throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Remedial Action: " + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
+                        throw new FaraoImportException(ImportStatus.NOT_YET_HANDLED_BY_FARAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong value of direction, the only allowed values are RelativeDirectionKind.up and RelativeDirectionKind.down");
                     }
                 }
             }

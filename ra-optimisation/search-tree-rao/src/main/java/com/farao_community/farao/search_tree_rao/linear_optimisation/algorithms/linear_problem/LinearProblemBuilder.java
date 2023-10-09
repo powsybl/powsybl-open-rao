@@ -135,7 +135,8 @@ public class LinearProblemBuilder {
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters(),
-            parameters.getObjectiveFunctionUnit()
+            parameters.getObjectiveFunctionUnit(),
+            parameters.getRaRangeShrinking()
         );
     }
 

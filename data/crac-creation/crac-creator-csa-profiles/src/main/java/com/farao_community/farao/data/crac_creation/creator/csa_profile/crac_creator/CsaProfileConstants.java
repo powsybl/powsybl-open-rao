@@ -76,6 +76,7 @@ public final class CsaProfileConstants {
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
+    public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
     public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
@@ -154,19 +155,19 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
 
-    public static final String REQUEST_CURRENT_LIMIT_NORMAL_VALUE = "normalValue";
+    public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_SET = "operationalLimitSet";
+    public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TYPE = "operationalLimitType";
+    public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL = "terminal";
+    public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND = "kind";
+    public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_DIRECTION = "direction";
+    public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
+    public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
 
     public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
 
@@ -230,6 +231,22 @@ public final class CsaProfileConstants {
         @Override
         public String toString() {
             return LimitDirectionKind.URL + this.direction;
+        }
+    }
+
+    public enum LimitType {
+        CURRENT("currentLimit"),
+        VOLTAGE("voltageLimit");
+
+        LimitType(String type) {
+            this.type = type;
+        }
+
+        private final String type;
+
+        @Override
+        public String toString() {
+            return this.type;
         }
     }
 }
