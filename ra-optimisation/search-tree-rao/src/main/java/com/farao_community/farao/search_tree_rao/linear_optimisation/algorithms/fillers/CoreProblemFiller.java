@@ -51,12 +51,14 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Unit unit;
     private int iteration = 0;
     private static final double RANGE_SHRINK_RATE = 0.667;
+    private final boolean raRangeShrinking;
 
     public CoreProblemFiller(OptimizationPerimeter optimizationContext,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionActivationResult raActivationFromParentLeaf,
                              RangeActionsOptimizationParameters rangeActionParameters,
-                             Unit unit) {
+                             Unit unit,
+                             boolean raRangeShrinking) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
@@ -64,6 +66,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
         this.rangeActionParameters = rangeActionParameters;
         this.unit = unit;
+        this.raRangeShrinking = raRangeShrinking;
     }
 
     @Override
@@ -85,7 +88,9 @@ public class CoreProblemFiller implements ProblemFiller {
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
-        updateRangeActionConstraints(linearProblem, rangeActionActivationResult);
+        if (raRangeShrinking) {
+            updateRangeActionConstraints(linearProblem, rangeActionActivationResult);
+        }
     }
 
     @Override

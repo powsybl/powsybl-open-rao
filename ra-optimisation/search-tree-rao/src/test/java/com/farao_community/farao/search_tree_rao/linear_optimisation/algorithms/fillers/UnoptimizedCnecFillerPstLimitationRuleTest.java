@@ -104,7 +104,8 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            MEGAWATT);
+            MEGAWATT,
+            false);
     }
 
     private void buildLinearProblemWithMaxMinMarginAndPositiveSensitivityValue() {
