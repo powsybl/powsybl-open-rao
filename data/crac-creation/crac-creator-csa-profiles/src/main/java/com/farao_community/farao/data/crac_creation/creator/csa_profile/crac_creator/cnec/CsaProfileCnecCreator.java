@@ -480,7 +480,7 @@ public class CsaProfileCnecCreator {
                 .withUnit(Unit.KILOVOLT)
                 .withMin(normalValue).add();
         } else if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "OperationalLimitType.direction is absolute"));
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only high and low voltage threshold values are handled for now (OperationalLimitType.direction is absolute)"));
             return false;
         }
         return true;
