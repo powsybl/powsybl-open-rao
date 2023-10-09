@@ -72,7 +72,6 @@ public class AngleMonitoring {
         if (crac.getAngleCnecs().isEmpty()) {
             BUSINESS_WARNS.warn("No AngleCnecs defined.");
             stateSpecificResults.add(new AngleMonitoringResult(Collections.emptySet(), Collections.emptyMap(), AngleMonitoringResult.Status.SECURE));
-            BUSINESS_LOGS.info("----- Angle monitoring [end]");
             return assembleAngleMonitoringResults();
         }
 
@@ -84,7 +83,6 @@ public class AngleMonitoring {
         // II) Curative states
         Set<State> contingencyStates = crac.getAngleCnecs().stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
-            BUSINESS_LOGS.info("----- Angle monitoring [end]");
             return assembleAngleMonitoringResults();
         }
 
@@ -103,7 +101,7 @@ public class AngleMonitoring {
                         }
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
-                    })).collect(Collectors.toList());
+                    })).toList();
                 for (ForkJoinTask<Object> task : tasks) {
                     try {
                         task.get();
@@ -115,7 +113,6 @@ public class AngleMonitoring {
         } catch (Exception e) {
             Thread.currentThread().interrupt();
         }
-        BUSINESS_LOGS.info("----- Angle monitoring [end]");
         return assembleAngleMonitoringResults();
     }
 
@@ -318,9 +315,9 @@ public class AngleMonitoring {
                 return false;
             } else {
                 checkGlsks(country.get(), naId, angleCnecId);
-                if (ne instanceof Generator) {
+                if (ne.getType().equals(IdentifiableType.GENERATOR)) {
                     powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
-                } else if (ne instanceof Load) {
+                } else if (ne.getType().equals(IdentifiableType.LOAD)) {
                     powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((InjectionSetpoint) ea).getSetpoint(), Double::sum);
                 } else {
                     BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
@@ -407,7 +404,10 @@ public class AngleMonitoring {
         } else if (stateSpecificResults.stream().anyMatch(AngleMonitoringResult::isUnknown)) {
             assembledStatus = AngleMonitoringResult.Status.UNKNOWN;
         }
-        return new AngleMonitoringResult(assembledAngleCnecsWithAngle, assembledAppliedCras, assembledStatus);
+        AngleMonitoringResult result = new AngleMonitoringResult(assembledAngleCnecsWithAngle, assembledAppliedCras, assembledStatus);
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("----- Angle monitoring [end]");
+        return result;
     }
 
     private AngleMonitoringResult catchAngleMonitoringResult(State state, AngleMonitoringResult.Status status) {

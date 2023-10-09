@@ -91,7 +91,7 @@ public class VoltageMonitoring {
                         }
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
-                    })).collect(Collectors.toList());
+                    })).toList();
                 for (ForkJoinTask<Object> task : tasks) {
                     try {
                         task.get();
@@ -103,10 +103,7 @@ public class VoltageMonitoring {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        VoltageMonitoringResult result = assembleVoltageMonitoringResults();
-        result.printConstraints().forEach(BUSINESS_LOGS::info);
-        BUSINESS_LOGS.info("----- Voltage monitoring [end]");
-        return result;
+        return assembleVoltageMonitoringResults();
     }
 
     /**
@@ -311,7 +308,10 @@ public class VoltageMonitoring {
         } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNKNOWN)) {
             securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
         }
-        return new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
+        VoltageMonitoringResult result = new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("----- Voltage monitoring [end]");
+        return result;
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus) {
