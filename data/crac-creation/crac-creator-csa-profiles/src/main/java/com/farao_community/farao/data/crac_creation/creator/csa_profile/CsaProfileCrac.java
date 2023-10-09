@@ -63,7 +63,7 @@ public class CsaProfileCrac implements NativeCrac {
     }
 
     public PropertyBags getAngleLimits() {
-        return this.queryTripleStore(CsaProfileConstants.REQUEST_ANGLE_LIMIT);
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_ANGLE_LIMIT, tripleStoreCsaProfileCrac.contextNames());
     }
 
     private PropertyBags queryTripleStore(String queryKey) {
