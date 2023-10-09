@@ -59,7 +59,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            Unit.MEGAWATT);
+            Unit.MEGAWATT,
+            false);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(state, Set.of(pstRangeAction));

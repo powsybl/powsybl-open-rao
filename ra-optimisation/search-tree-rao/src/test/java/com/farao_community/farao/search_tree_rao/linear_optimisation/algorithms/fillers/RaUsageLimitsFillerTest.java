@@ -115,7 +115,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionSetpointResult,
             prePerimeterRangeActionActivationResult,
             rangeActionParameters,
-            Unit.MEGAWATT);
+            Unit.MEGAWATT,
+            false);
     }
 
     @Test

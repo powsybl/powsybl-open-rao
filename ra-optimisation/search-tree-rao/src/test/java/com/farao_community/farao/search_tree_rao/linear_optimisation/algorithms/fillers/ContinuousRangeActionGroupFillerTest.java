@@ -63,7 +63,8 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            Unit.MEGAWATT);
+            Unit.MEGAWATT,
+            false);
 
         ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
             rangeActions);
