@@ -101,6 +101,6 @@ class OutageReader {
     }
 
     private DanglingLine findDanglingLineWithXnode(String xNodeId, Network network) {
-        return network.getDanglingLineStream().filter(danglingLine -> danglingLine.getUcteXnodeCode().equals(xNodeId)).findFirst().orElse(null);
+        return network.getDanglingLineStream().filter(danglingLine -> danglingLine.getPairingKey().equals(xNodeId)).findFirst().orElse(null);
     }
 }
