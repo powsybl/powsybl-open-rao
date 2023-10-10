@@ -7,9 +7,7 @@
 package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -31,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
-import static com.farao_community.farao.data.crac_api.Instant.PREVENTIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -101,7 +97,7 @@ class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
 
         // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, network);
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
         Map<FlowCnec, Map<Side, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // test results
@@ -126,65 +122,11 @@ class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{ES}-{DE}")); // ES doesn't exist in GLSK map, must be filtered
 
         // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, network);
+        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
         Map<FlowCnec, Map<Side, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
 
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)
         assertEquals(0.5, ptdfSums.get(crac.getFlowCnec("cnec1basecase")).get(Side.RIGHT), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) = 0.1 + 0.2 + 0.1 + 0.1
         assertEquals(0.3, ptdfSums.get(crac.getFlowCnec("cnec2basecase")).get(Side.LEFT), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.2) = 0 + 0.1 + 0.1 + 0.1
-    }
-
-    @Test
-    void testIgnoreGlskOnDisconnectedXnodes() {
-
-        // prepare data
-        Network network = Network.read("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
-        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_with_virtual_hubs.xml"))
-                .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
-
-        Crac crac = CracFactory.findDefault().create("cracId");
-
-        crac.newContingency()
-                .withId("contingency-on-internal-line")
-                .withNetworkElement("FFR1AA1  FFR3AA1  1")
-                .add();
-        crac.newContingency()
-                .withId("contingency-on-xnode")
-                .withNetworkElement("FFR1AA1  XLI_OB1B 1")
-                .add();
-
-        crac.newFlowCnec()
-                .withId("cnec1-in-basecase")
-                .withNetworkElement("NNL2AA1  NNL3AA1  1")
-                .withInstant(PREVENTIVE)
-                .withOptimized(true)
-                .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
-                .add();
-        crac.newFlowCnec()
-                .withId("cnec1-after-internal-contingency")
-                .withNetworkElement("NNL2AA1  NNL3AA1  1")
-                .withInstant(CURATIVE)
-                .withContingency("contingency-on-internal-line")
-                .withOptimized(true)
-                .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
-                .add();
-        crac.newFlowCnec()
-                .withId("cnec1-after-contingency-on-xNode")
-                .withNetworkElement("NNL2AA1  NNL3AA1  1")
-                .withInstant(CURATIVE)
-                .withContingency("contingency-on-xnode")
-                .withOptimized(true)
-                .newThreshold().withSide(Side.LEFT).withMax(1000.).withUnit(Unit.MEGAWATT).add()
-                .add();
-        List<ZoneToZonePtdfDefinition> boundaries = List.of(new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}"));
-
-        // compute zToz PTDF sum
-        AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries, network);
-        Map<FlowCnec, Map<Side, Double>> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
-
-        // test results
-        assertEquals(0.1, ptdfSums.get(crac.getFlowCnec("cnec1-in-basecase")).get(Side.LEFT), DOUBLE_TOLERANCE); // abs(0.2 - 0.1)
-        assertEquals(0.1, ptdfSums.get(crac.getFlowCnec("cnec1-after-internal-contingency")).get(Side.RIGHT), DOUBLE_TOLERANCE); // abs(0.2 - 0.1)
-        assertEquals(0.2, ptdfSums.get(crac.getFlowCnec("cnec1-after-contingency-on-xNode")).get(Side.LEFT), DOUBLE_TOLERANCE); // abs(0.2 - 0.0) PTDF of virtual hub is now 0
     }
 }

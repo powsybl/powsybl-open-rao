@@ -109,7 +109,7 @@ public class CsaProfileCnecCreator {
             }
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             cnecAdder = crac.newVoltageCnec()
-                .withMonitored(false)
+                .withMonitored(true)
                 .withOptimized(false)
                 .withReliabilityMargin(0);
 
@@ -437,16 +437,32 @@ public class CsaProfileCnecCreator {
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
-        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
-            Optional<String> oAlias = networkElement.getAliasFromType(key);
-            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.LEFT;
+        if (networkElement instanceof TieLine) {
+            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
+                TieLine tieLine = (TieLine) networkElement;
+                Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.LEFT;
+                }
+                oAlias = tieLine.getDanglingLine2().getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.RIGHT;
+                }
+
             }
-        }
-        for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
-            Optional<String> oAlias = networkElement.getAliasFromType(key);
-            if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
-                return Side.RIGHT;
+        } else {
+            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT) {
+                Optional<String> oAlias = networkElement.getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.LEFT;
+                }
+            }
+
+            for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT) {
+                Optional<String> oAlias = networkElement.getAliasFromType(key);
+                if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
+                    return Side.RIGHT;
+                }
             }
         }
         return null;
@@ -458,7 +474,7 @@ public class CsaProfileCnecCreator {
         String isInfiniteDurationStr = voltageLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
         boolean isInfiniteDuration = isInfiniteDurationStr != null && Boolean.parseBoolean(isInfiniteDurationStr);
         if (!isInfiniteDuration) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "cim:OperationalLimitType.isInfiniteDuration is not true"));
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only permanent voltage limits are handled for now (isInfiniteDuration is 'false')"));
             return false;
         }
 
@@ -481,7 +497,7 @@ public class CsaProfileCnecCreator {
                 .withUnit(Unit.KILOVOLT)
                 .withMin(normalValue).add();
         } else if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "OperationalLimitType.direction is absolute"));
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only high and low voltage threshold values are handled for now (OperationalLimitType.direction is absolute)"));
             return false;
         }
         return true;
