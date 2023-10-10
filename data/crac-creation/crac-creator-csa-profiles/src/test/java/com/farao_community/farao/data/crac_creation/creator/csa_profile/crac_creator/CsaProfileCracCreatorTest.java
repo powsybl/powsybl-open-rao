@@ -268,32 +268,104 @@ public class CsaProfileCracCreatorTest {
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
             .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
-        // TODO : check flow cnecs
+
+        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+            "ELIA_AE2 - preventive",
+            "ELIA_AE2 - preventive",
+            "b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+            PREVENTIVE, null,
+            +1574, -1574, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+            "REE_AE1 - REE_CO1 - curative",
+            "REE_AE1 - REE_CO1 - curative",
+            "891e77ff-39c6-4648-8eda-d81f730271f9 + a04e4e41-c0b4-496e-9ef3-390ea089411f",
+            CURATIVE, "8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe",
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+            "REE_AE1 - preventive",
+            "REE_AE1 - preventive",
+            "891e77ff-39c6-4648-8eda-d81f730271f9 + a04e4e41-c0b4-496e-9ef3-390ea089411f",
+            PREVENTIVE, null,
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+            "REE_AE2 - REE_CO2 - curative",
+            "REE_AE2 - REE_CO2 - curative",
+            "044cd003-c766-11e1-8775-005056c00008",
+            CURATIVE, "b6b780cb-9fe5-4c45-989d-447a927c3874",
+            +1000, -1000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(4),
+            "REE_AE2 - preventive",
+            "REE_AE2 - preventive",
+            "044cd003-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +1000, -1000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(5),
+            "REE_AE3 - REE_CO3 - auto",
+            "REE_AE3 - REE_CO3 - auto",
+            "048badc5-c766-11e1-8775-005056c00008",
+            AUTO, "13334fdf-9cc2-4341-adb6-1281269040b4",
+            +500.0, -500.0, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(6),
+            "REE_AE3 - preventive",
+            "REE_AE3 - preventive",
+            "048badc5-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +500, -500, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(7),
+            "REE_AE4 - preventive",
+            "REE_AE4 - preventive",
+            "0478c207-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(8),
+            "REE_AE5 - REE_CO4 - curative",
+            "REE_AE5 - REE_CO4 - curative",
+            "048badc5-c766-11e1-8775-005056c00008",
+            CURATIVE, "9d17b84c-33b5-4a68-b8b9-ed5b31038d40",
+            +1000, -1000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(9),
+            "REE_AE5 - preventive",
+            "REE_AE5 - preventive",
+            "048badc5-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +1000, -1000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(10),
+            "REE_AE6 - REE_CO5 - curative",
+            "REE_AE6 - REE_CO5 - curative",
+            "044a5f09-c766-11e1-8775-005056c00008",
+            CURATIVE, "96c96ad8-844c-4f3b-8b38-c886ba2c0214",
+            +2000, -2000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(11),
+            "REE_AE6 - preventive",
+            "REE_AE6 - preventive",
+            "044a5f09-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +2000, -2000, Side.LEFT);
 
         List<VoltageCnec> listVoltageCnecs = cracCreationContext.getCrac().getVoltageCnecs()
             .stream().sorted(Comparator.comparing(VoltageCnec::getId)).collect(Collectors.toList());
 
         this.assertVoltageCnecEquality(listVoltageCnecs.get(0), "ELIA_AE1 - ELIA_CO1 - curative",
             "ELIA_AE1 - ELIA_CO1 - curative", "64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c",
-            "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", new Double(415), null);
+            "e9eab3fe-c328-4f78-9bc1-77adb59f6ba7", Double.valueOf(415), null);
         this.assertVoltageCnecEquality(listVoltageCnecs.get(1), "ELIA_AE1 - preventive",
             "ELIA_AE1 - preventive", "64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c",
-            null, new Double(415), null);
+            null, Double.valueOf(415), null);
         this.assertVoltageCnecEquality(listVoltageCnecs.get(2), "RTE_AE1 - preventive",
             "RTE_AE1 - preventive", "63d8319b-fae4-3511-0909-dd62359c17f2",
-            null, new Double(148.5), null);
+            null, Double.valueOf(148.5), null);
         this.assertVoltageCnecEquality(listVoltageCnecs.get(3), "RTE_AE3 - RTE_CO1 - curative",
             "RTE_AE3 - RTE_CO1 - curative", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
-            "e05bbe20-9d4a-40da-9777-8424d216785d", new Double(440), null);
+            "e05bbe20-9d4a-40da-9777-8424d216785d", Double.valueOf(440), null);
         this.assertVoltageCnecEquality(listVoltageCnecs.get(4), "RTE_AE3 - preventive",
             "RTE_AE3 - preventive", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
-            null, new Double(440), null);
+            null, Double.valueOf(440), null);
         this.assertVoltageCnecEquality(listVoltageCnecs.get(5), "RTE_AE8 - RTE_CO5 - curative",
             "RTE_AE8 - RTE_CO5 - curative", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
-            "d9ef0d5e-732d-441e-9611-c817b0afbc41", new Double(440), null);
+            "d9ef0d5e-732d-441e-9611-c817b0afbc41", Double.valueOf(440), null);
         this.assertVoltageCnecEquality(listVoltageCnecs.get(6), "RTE_AE8 - preventive",
             "RTE_AE8 - preventive", "6f5e600f-dc92-80ac-b046-a4641f7b1db1",
-            null, new Double(440), null);
+            null, Double.valueOf(440), null);
     }
 
     @Test
@@ -341,7 +413,43 @@ public class CsaProfileCracCreatorTest {
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
             .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
-        // TODO : check flow cnecs
+
+        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+            "REE_AE1 - preventive",
+            "REE_AE1 - preventive",
+            "891e77ff-39c6-4648-8eda-d81f730271f9 + a04e4e41-c0b4-496e-9ef3-390ea089411f",
+            PREVENTIVE, null,
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+            "REE_AE2 - preventive",
+            "REE_AE2 - preventive",
+            "044cd003-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +1000, -1000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+            "REE_AE3 - preventive",
+            "REE_AE3 - preventive",
+            "048badc5-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +500, -500, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+            "REE_AE4 - preventive",
+            "REE_AE4 - preventive",
+            "0478c207-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(4),
+            "REE_AE5 - preventive",
+            "REE_AE5 - preventive",
+            "048badc5-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +1000, -1000, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(5),
+            "REE_AE6 - preventive",
+            "REE_AE6 - preventive",
+            "044a5f09-c766-11e1-8775-005056c00008",
+            PREVENTIVE, null,
+            +2000.0, -2000.0, Side.LEFT);
     }
 
     @Test
@@ -375,7 +483,31 @@ public class CsaProfileCracCreatorTest {
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
             .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
-        // TODO : check flow cnecs
+
+        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+            "ELIA_AE1 - ELIA_CO1 - curative",
+            "ELIA_AE1 - ELIA_CO1 - curative",
+            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+            CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
+            +1312, -1312, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+            "ELIA_AE1 - preventive",
+            "ELIA_AE1 - preventive",
+            "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+            PREVENTIVE, null,
+            +1312, -1312, Side.LEFT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+            "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
+            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+            CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+            +1876, -1876, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+            "TENNET_TSO_AE1NL - preventive",
+            "TENNET_TSO_AE1NL - preventive",
+            "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+            PREVENTIVE, null,
+            +1876, -1876, Side.RIGHT);
     }
 
     @Test
