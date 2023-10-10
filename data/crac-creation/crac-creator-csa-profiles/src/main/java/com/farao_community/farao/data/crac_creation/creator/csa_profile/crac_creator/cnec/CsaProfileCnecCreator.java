@@ -108,7 +108,7 @@ public class CsaProfileCnecCreator {
             }
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             cnecAdder = crac.newVoltageCnec()
-                .withMonitored(false)
+                .withMonitored(true)
                 .withOptimized(false)
                 .withReliabilityMargin(0);
 
