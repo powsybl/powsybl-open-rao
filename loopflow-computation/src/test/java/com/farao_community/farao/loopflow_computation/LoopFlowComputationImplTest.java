@@ -107,46 +107,49 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(Map.of(
             "gen1", new WeightedSensitivityVariable("gen1", 5f),
             "load1", new WeightedSensitivityVariable("load1", 6f),
-            "load2", new WeightedSensitivityVariable("load2", 6f)))
+            "dl1", new WeightedSensitivityVariable("dl1", 6f)))
             .when(linearGlsk).getVariablesById();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
-        Load load2 = Mockito.mock(Load.class);
+        DanglingLine dl1 = Mockito.mock(DanglingLine.class);
         Mockito.doReturn(gen1).when(network).getGenerator("gen1");
         Mockito.doReturn(load1).when(network).getLoad("load1");
-        Mockito.doReturn(load2).when(network).getLoad("load2");
+        Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(load2).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(dl1).getTerminal();
         assertFalse(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(true)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(load2).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(dl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(false)).when(load2).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(dl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(true)).when(load2).getTerminal();
+        Mockito.doReturn(mockInjection(true)).when(dl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load1).getTerminal();
-        Mockito.doReturn(mockInjection(true)).when(load2).getTerminal();
+        Mockito.doReturn(mockInjection(true)).when(dl1).getTerminal();
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
+        Mockito.doReturn(null).when(network).getDanglingLine("gen1");
         Mockito.doReturn(null).when(network).getGenerator("load1");
         Mockito.doReturn(null).when(network).getLoad("load1");
-        Mockito.doReturn(null).when(network).getGenerator("load2");
-        Mockito.doReturn(load2).when(network).getLoad("load2");
+        Mockito.doReturn(null).when(network).getDanglingLine("load1");
+        Mockito.doReturn(null).when(network).getGenerator("dl1");
+        Mockito.doReturn(null).when(network).getLoad("dl1");
+        Mockito.doReturn(dl1).when(network).getDanglingLine("dl1");
         assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
     }
 
@@ -191,6 +194,7 @@ class LoopFlowComputationImplTest {
         Generator genBe = Mockito.mock(Generator.class);
         Load loadFr = Mockito.mock(Load.class);
         Load loadBe = Mockito.mock(Load.class);
+        DanglingLine danglingLine = Mockito.mock(DanglingLine.class);
 
         Mockito.when(network.getGenerator("Generator DE")).thenReturn(genDe);
         Mockito.when(network.getGenerator("Generator NL")).thenReturn(genNl);
@@ -202,12 +206,14 @@ class LoopFlowComputationImplTest {
         Mockito.when(network.getLoad("Generator FR")).thenReturn(loadFr);
         Mockito.when(network.getLoad("Generator BE 1")).thenReturn(loadBe);
         Mockito.when(network.getLoad("Generator BE 2")).thenReturn(null);
+        Mockito.when(network.getDanglingLine("BE1-XBE")).thenReturn(danglingLine);
 
         Mockito.doReturn(mockInjection(true)).when(genDe).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(genNl).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(genBe).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(loadFr).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(danglingLine).getTerminal();
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
@@ -240,22 +246,22 @@ class LoopFlowComputationImplTest {
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(true);
         LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs());
 
-        assertEquals(-25., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
-        assertEquals(100., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
-        assertEquals(-25., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE2-NL"), Side.LEFT), DOUBLE_TOLERANCE);
-        assertEquals(25., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-DE"), Side.RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(25., loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(80., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE2-NL"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-DE"), Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(20., loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), Side.RIGHT), DOUBLE_TOLERANCE);
 
-        assertEquals(40, loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(40., loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(40., loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(40., loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE2-NL"), Side.LEFT), DOUBLE_TOLERANCE);
         assertEquals(60., loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-DE"), Side.RIGHT), DOUBLE_TOLERANCE);
         assertEquals(60., loopFlowResult.getCommercialFlow(crac.getFlowCnec("DE-NL"), Side.RIGHT), DOUBLE_TOLERANCE);
 
-        assertEquals(15., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
-        assertEquals(140., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
-        assertEquals(15., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL"), Side.LEFT), DOUBLE_TOLERANCE);
-        assertEquals(85., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE"), Side.RIGHT), DOUBLE_TOLERANCE);
-        assertEquals(85., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(20., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-BE1"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(120., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE1-BE2"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(20., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL"), Side.LEFT), DOUBLE_TOLERANCE);
+        assertEquals(80., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE"), Side.RIGHT), DOUBLE_TOLERANCE);
+        assertEquals(80., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), Side.RIGHT), DOUBLE_TOLERANCE);
     }
 }

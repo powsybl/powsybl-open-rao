@@ -32,6 +32,7 @@ class FaraoLoggerProviderTest {
     @Test
     void testBusinessLogs() {
         assertTrue(FaraoLoggerProvider.BUSINESS_LOGS.isInfoEnabled());
+        assertTrue(FaraoLoggerProvider.BUSINESS_LOGS.isTraceEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
 
@@ -54,6 +55,7 @@ class FaraoLoggerProviderTest {
     @Test
     void testBusinessWarns() {
         assertTrue(FaraoLoggerProvider.BUSINESS_WARNS.isInfoEnabled());
+        assertTrue(FaraoLoggerProvider.BUSINESS_WARNS.isTraceEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessWarns.class);
 
@@ -77,6 +79,7 @@ class FaraoLoggerProviderTest {
     @Test
     void testTechnicalLogs() {
         assertTrue(FaraoLoggerProvider.TECHNICAL_LOGS.isInfoEnabled());
+        assertTrue(FaraoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled());
 
         ListAppender<ILoggingEvent> listAppender = getLogs(TechnicalLogs.class);
 

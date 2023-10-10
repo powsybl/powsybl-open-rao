@@ -24,8 +24,8 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
@@ -36,7 +36,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class VoltageMonitoring {
-    public static final String CONTINGENCY_ERROR = "At least one contingency could not be monitored within the given time (24 hours). This should not happen.";
+    public static final String CONTINGENCY_ERROR = "At least one contingency could not be monitored. This should not happen.";
     private final Crac crac;
     private final Network network;
     private final RaoResult raoResult;
@@ -77,51 +77,33 @@ public class VoltageMonitoring {
         }
 
         try {
-            try (AbstractNetworkPool networkPool =
-                     AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)
-            ) {
-                CountDownLatch stateCountDownLatch = new CountDownLatch(contingencyStates.size());
-                contingencyStates.forEach(state ->
+            try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
+                List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
                     networkPool.submit(() -> {
-                        Network networkClone = null;
-                        try {
-                            networkClone = networkPool.getAvailableNetwork();
-                        } catch (InterruptedException e) {
-                            stateCountDownLatch.countDown();
-                            Thread.currentThread().interrupt();
-                            throw new FaraoException(CONTINGENCY_ERROR, e);
-                        }
+                        Network networkClone = networkPool.getAvailableNetwork();
                         try {
                             state.getContingency().orElseThrow().apply(networkClone, null);
                             applyOptimalRemedialActionsOnContingencyState(state, networkClone);
                             stateSpecificResults.add(monitorVoltageCnecsAndLog(loadFlowProvider, loadFlowParameters, state, networkClone));
                         } catch (Exception e) {
-                            stateCountDownLatch.countDown();
                             Thread.currentThread().interrupt();
                             throw new FaraoException(CONTINGENCY_ERROR, e);
                         }
-                        try {
-                            networkPool.releaseUsedNetwork(networkClone);
-                            stateCountDownLatch.countDown();
-                        } catch (InterruptedException ex) {
-                            stateCountDownLatch.countDown();
-                            Thread.currentThread().interrupt();
-                            throw new FaraoException(ex);
-                        }
+                        networkPool.releaseUsedNetwork(networkClone);
+                        return null;
+                    })).toList();
+                for (ForkJoinTask<Object> task : tasks) {
+                    try {
+                        task.get();
+                    } catch (ExecutionException e) {
+                        throw new FaraoException(e);
                     }
-                ));
-                boolean success = stateCountDownLatch.await(24, TimeUnit.HOURS);
-                if (!success) {
-                    throw new FaraoException(CONTINGENCY_ERROR);
                 }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        VoltageMonitoringResult result = assembleVoltageMonitoringResults();
-        result.printConstraints().forEach(BUSINESS_LOGS::info);
-        BUSINESS_LOGS.info("----- Voltage monitoring [end]");
-        return result;
+        return assembleVoltageMonitoringResults();
     }
 
     /**
@@ -133,7 +115,7 @@ public class VoltageMonitoring {
             Optional<Contingency> contingency = state.getContingency();
             if (contingency.isPresent()) {
                 crac.getStates(contingency.get()).forEach(contingencyState ->
-                        applyOptimalRemedialActions(state, networkClone));
+                    applyOptimalRemedialActions(state, networkClone));
             } else {
                 throw new FaraoException(String.format("Curative state %s was defined without a contingency", state.getId()));
 
@@ -226,9 +208,9 @@ public class VoltageMonitoring {
      */
     private static boolean thresholdOvershoot(VoltageCnec voltageCnec, ExtremeVoltageValues voltages) {
         return voltageCnec.getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMax() && voltages != null && voltages.getMax() > threshold.max().orElseThrow())
-                || voltageCnec.getThresholds().stream()
-                .anyMatch(threshold -> threshold.limitsByMin() && voltages != null && voltages.getMin() < threshold.min().orElseThrow());
+            .anyMatch(threshold -> threshold.limitsByMax() && voltages != null && voltages.getMax() > threshold.max().orElseThrow())
+            || voltageCnec.getThresholds().stream()
+            .anyMatch(threshold -> threshold.limitsByMin() && voltages != null && voltages.getMin() < threshold.min().orElseThrow());
     }
 
     /**
@@ -237,12 +219,12 @@ public class VoltageMonitoring {
      */
     private Set<NetworkAction> getVoltageCnecNetworkActions(State state, VoltageCnec voltageCnec) {
         Set<RemedialAction<?>> availableRemedialActions =
-                crac.getRemedialActions().stream()
-                        .filter(remedialAction ->
-                                remedialAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
-                                        .map(OnVoltageConstraint.class::cast)
-                                        .anyMatch(onVoltageConstraint -> onVoltageConstraint.getVoltageCnec().equals(voltageCnec)))
-                        .collect(Collectors.toSet());
+            crac.getRemedialActions().stream()
+                .filter(remedialAction ->
+                    remedialAction.getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
+                        .map(OnVoltageConstraint.class::cast)
+                        .anyMatch(onVoltageConstraint -> onVoltageConstraint.getVoltageCnec().equals(voltageCnec)))
+                .collect(Collectors.toSet());
         if (availableRemedialActions.isEmpty()) {
             BUSINESS_WARNS.warn("VoltageCnec {} in state {} has no associated RA. Voltage constraint cannot be secured.", voltageCnec.getId(), state.getId());
             return Collections.emptySet();
@@ -266,6 +248,7 @@ public class VoltageMonitoring {
 
     /**
      * Apply any topological network action
+     *
      * @param networkClone
      * @param availableNetworkActions
      * @return the set of applied network action
@@ -286,7 +269,7 @@ public class VoltageMonitoring {
     private boolean computeLoadFlow(String loadFlowProvider, LoadFlowParameters loadFlowParameters, Network networkClone) {
         TECHNICAL_LOGS.info("Load-flow computation [start]");
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
-                .run(networkClone, loadFlowParameters);
+            .run(networkClone, loadFlowParameters);
         if (!loadFlowResult.isOk()) {
             BUSINESS_WARNS.warn("LoadFlow error.");
         }
@@ -325,7 +308,10 @@ public class VoltageMonitoring {
         } else if (stateSpecificResults.stream().anyMatch(s -> s.getStatus() == VoltageMonitoringResult.Status.UNKNOWN)) {
             securityStatus = VoltageMonitoringResult.Status.UNKNOWN;
         }
-        return new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
+        VoltageMonitoringResult result = new VoltageMonitoringResult(extremeVoltageValuesMap, appliedRas, securityStatus);
+        result.printConstraints().forEach(BUSINESS_LOGS::info);
+        BUSINESS_LOGS.info("----- Voltage monitoring [end]");
+        return result;
     }
 
     private VoltageMonitoringResult catchVoltageMonitoringResult(State state, VoltageMonitoringResult.Status securityStatus) {

@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -76,9 +77,10 @@ public class NetworkActionCreator {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
         }
         networkActionAdder.newInjectionSetPoint()
-            .withSetpoint(normalValue)
-            .withNetworkElement(rotatingMachineId)
-            .add();
+                .withSetpoint(normalValue)
+                .withNetworkElement(rotatingMachineId)
+                .withUnit(Unit.MEGAWATT)
+                .add();
     }
 
     private Optional<Load> findLoad(String rotatingMachineId) {

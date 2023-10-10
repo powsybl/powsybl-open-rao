@@ -177,6 +177,8 @@ public final class CsaProfileConstants {
 
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
 
+    public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");
+
     public static final String IEC_URL = "http://iec.ch/TC57/";
 
     public enum ElementCombinationConstraintKind {

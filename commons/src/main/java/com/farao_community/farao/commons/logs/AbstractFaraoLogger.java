@@ -45,4 +45,9 @@ public abstract class AbstractFaraoLogger implements FaraoLogger {
     public boolean isInfoEnabled() {
         return logger.isInfoEnabled();
     }
+
+    @Override
+    public boolean isTraceEnabled() {
+        return logger.isTraceEnabled();
+    }
 }
