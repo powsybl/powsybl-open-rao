@@ -943,6 +943,8 @@ public class CsaProfileCracCreatorTest {
 
         Mockito.when(terminal1Mock.getId()).thenReturn("bdfd51d2-f48a-424e-a42d-0f6e712094bb");
         Mockito.when(terminal2Mock.getId()).thenReturn("601ac88b-14bc-448a-b8a7-e0b8874a478d");
+        Mockito.when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
+        Mockito.when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
         Mockito.when(switchMock.getId()).thenReturn("40ed5398-3a74-4581-a3c1-688f9764a2b5");
         Mockito.when(networkElementMock.getId()).thenReturn("1bac939d-d873-48e0-9640-5743f389f3de");
         Mockito.when(switchMock.isOpen()).thenReturn(false);
@@ -955,7 +957,7 @@ public class CsaProfileCracCreatorTest {
 
         assertEquals(4, cracCreationContext.getCrac().getAngleCnecs().size());
         List<AngleCnec> angleCnecs = cracCreationContext.getCrac().getAngleCnecs().stream()
-                .sorted(Comparator.comparing(AngleCnec::getId)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(AngleCnec::getId)).toList();
 
         // RTE_AE1 - preventive
         AngleCnec angleCnec1 = angleCnecs.get(0);
@@ -1015,6 +1017,8 @@ public class CsaProfileCracCreatorTest {
         BusbarSection terminal2Mock = Mockito.mock(BusbarSection.class);
         Mockito.when(terminal1Mock.getId()).thenReturn("7ce8103f-e4d4-4f1a-94a0-ffaf76049e38");
         Mockito.when(terminal2Mock.getId()).thenReturn("008952f4-0b93-4622-af28-49934dde3db3");
+        Mockito.when(terminal1Mock.getType()).thenReturn(IdentifiableType.BUS);
+        Mockito.when(terminal2Mock.getType()).thenReturn(IdentifiableType.BUS);
         Mockito.when(network.getIdentifiable("7ce8103f-e4d4-4f1a-94a0-ffaf76049e38")).thenReturn((Identifiable) terminal1Mock);
         Mockito.when(network.getIdentifiable("008952f4-0b93-4622-af28-49934dde3db3")).thenReturn((Identifiable) terminal2Mock);
 
@@ -1022,7 +1026,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(0, cracCreationContext.getCrac().getAngleCnecs().size());
 
         List<CsaProfileCnecCreationContext> cnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream()
-                .sorted(Comparator.comparing(CsaProfileCnecCreationContext::getNativeId)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(CsaProfileCnecCreationContext::getNativeId)).toList();
         assertEquals(6, cnecCreationContexts.size());
 
         // Missing AngleReferenceTerminal
