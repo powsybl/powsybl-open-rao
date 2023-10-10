@@ -396,7 +396,7 @@ public class CsaProfileCnecCreator {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "angle limit equipment is missing in network : " + terminalId));
             return null;
         }
-        if (!(networkElement instanceof BusbarSection)) {
+        if (!networkElement.getType().equals(IdentifiableType.BUS)) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "network element " + networkElement.getId() + " is not a bus bar section"));
             return null;
         }
