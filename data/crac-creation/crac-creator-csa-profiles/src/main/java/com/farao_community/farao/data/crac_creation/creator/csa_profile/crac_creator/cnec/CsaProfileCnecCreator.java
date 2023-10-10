@@ -118,7 +118,7 @@ public class CsaProfileCnecCreator {
         } else if (CsaProfileConstants.LimitType.ANGLE.equals(limitType)) {
 
             cnecAdder = crac.newAngleCnec()
-                    .withMonitored(false)
+                    .withMonitored(true)
                     .withOptimized(false)
                     .withReliabilityMargin(0);
 
