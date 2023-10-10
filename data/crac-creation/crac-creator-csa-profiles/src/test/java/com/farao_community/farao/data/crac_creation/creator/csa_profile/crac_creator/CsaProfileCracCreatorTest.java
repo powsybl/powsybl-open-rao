@@ -1069,7 +1069,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(3, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
             .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
@@ -1088,6 +1088,12 @@ public class CsaProfileCracCreatorTest {
         this.assertFlowCnecEquality(listFlowCnecs.get(2),
             "RTE_AE - preventive",
             "RTE_AE - preventive",
+            "FFR3AA1--FFR5AA1--1",
+            PREVENTIVE, null,
+            +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+            "RTE_AE2 - preventive",
+            "RTE_AE2 - preventive",
             "FFR3AA1--FFR5AA1--1",
             PREVENTIVE, null,
             +1000, -1000, Side.RIGHT);
