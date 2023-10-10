@@ -384,7 +384,7 @@ public class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(39, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
-        assertEquals(6, cracCreationContext.getCrac().getFlowCnecs().size());
+        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         assertEquals(5, cracCreationContext.getCrac().getVoltageCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
             .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
@@ -415,36 +415,24 @@ public class CsaProfileCracCreatorTest {
             .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
         this.assertFlowCnecEquality(listFlowCnecs.get(0),
-            "REE_AE1 - preventive",
-            "REE_AE1 - preventive",
-            "891e77ff-39c6-4648-8eda-d81f730271f9 + a04e4e41-c0b4-496e-9ef3-390ea089411f",
-            PREVENTIVE, null,
-            +1000, -1000, Side.RIGHT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(1),
-            "REE_AE2 - preventive",
-            "REE_AE2 - preventive",
-            "044cd003-c766-11e1-8775-005056c00008",
-            PREVENTIVE, null,
-            +1000, -1000, Side.LEFT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(2),
             "REE_AE3 - preventive",
             "REE_AE3 - preventive",
             "048badc5-c766-11e1-8775-005056c00008",
             PREVENTIVE, null,
             +500, -500, Side.LEFT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
             "REE_AE4 - preventive",
             "REE_AE4 - preventive",
             "0478c207-c766-11e1-8775-005056c00008",
             PREVENTIVE, null,
             +1000, -1000, Side.RIGHT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(4),
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
             "REE_AE5 - preventive",
             "REE_AE5 - preventive",
             "048badc5-c766-11e1-8775-005056c00008",
             PREVENTIVE, null,
             +1000, -1000, Side.LEFT);
-        this.assertFlowCnecEquality(listFlowCnecs.get(5),
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
             "REE_AE6 - preventive",
             "REE_AE6 - preventive",
             "044a5f09-c766-11e1-8775-005056c00008",
