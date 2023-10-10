@@ -390,7 +390,7 @@ public class CsaProfileCnecCreator {
         return this.addAngleLimitThreshold(assessedElementId, angleCnecAdder, cnecLimit, isFlowToRefTerminalIsNull);
     }
 
-    private String checkNetworkElementAndGetId(String assessedElementId, String terminalId) {
+    private String checkAngleNetworkElementAndGetId(String assessedElementId, String terminalId) {
         Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
         if (networkElement == null) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "angle limit equipment is missing in network : " + terminalId));
