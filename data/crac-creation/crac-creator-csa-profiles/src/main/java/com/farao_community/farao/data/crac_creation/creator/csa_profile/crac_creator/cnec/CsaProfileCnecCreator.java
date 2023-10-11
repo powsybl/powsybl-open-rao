@@ -131,9 +131,6 @@ public class CsaProfileCnecCreator {
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
                 combinableContingencies = this.checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
-                if (combinableContingencies == null) {
-                    return;
-                }
             }
         }
 
