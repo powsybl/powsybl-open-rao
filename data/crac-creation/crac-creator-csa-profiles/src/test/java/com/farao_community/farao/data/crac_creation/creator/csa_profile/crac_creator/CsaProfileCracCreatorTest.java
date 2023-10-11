@@ -10,12 +10,14 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
+import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
@@ -115,6 +117,27 @@ public class CsaProfileCracCreatorTest {
                         .map(OnFlowConstraint.class::cast)
                         .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
         );
+    }
+
+    private void assertVoltageCnecEquality(VoltageCnec vc, String expectedVoltageCnecId, String expectedVoltageCnecName, String expectedNetworkElementId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin) {
+        assertEquals(expectedVoltageCnecId, vc.getId());
+        assertEquals(expectedVoltageCnecName, vc.getName());
+        if (expectedContingencyId == null) {
+            assertFalse(vc.getState().getContingency().isPresent());
+        } else {
+            assertEquals(expectedContingencyId, vc.getState().getContingency().get().getId());
+        }
+        Threshold threshold = vc.getThresholds().stream().collect(Collectors.toList()).get(0);
+        if (expectedThresholdMax == null) {
+            assertFalse(threshold.max().isPresent());
+        } else {
+            assertEquals(expectedThresholdMax, threshold.max().get());
+        }
+        if (expectedThresholdMin == null) {
+            assertFalse(threshold.min().isPresent());
+        } else {
+            assertEquals(expectedThresholdMin, threshold.min().get());
+        }
     }
 
     @Test
@@ -1051,4 +1074,47 @@ public class CsaProfileCracCreatorTest {
 
     }
 
+    @Test
+    public void testCustomForAssessedElementWithContingencyRejection() {
+        Properties importParams = new Properties();
+        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_42_CustomExample.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+
+        CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
+        InputStream inputStream = getClass().getResourceAsStream("/CSA_42_CustomExample.zip");
+        CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
+
+        CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
+        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+
+        assertNotNull(cracCreationContext);
+        assertTrue(cracCreationContext.isCreationSuccessful());
+        assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
+        List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
+                .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+
+        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+                "RTE_AE - RTE_CO1 - curative",
+                "RTE_AE - RTE_CO1 - curative",
+                "FFR3AA1--FFR5AA1--1",
+                CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
+                +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(1),
+                "RTE_AE - RTE_CO3 - curative",
+                "RTE_AE - RTE_CO3 - curative",
+                "FFR3AA1--FFR5AA1--1",
+                CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
+                +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(2),
+                "RTE_AE - preventive",
+                "RTE_AE - preventive",
+                "FFR3AA1--FFR5AA1--1",
+                PREVENTIVE, null,
+                +1000, -1000, Side.RIGHT);
+        this.assertFlowCnecEquality(listFlowCnecs.get(3),
+                "RTE_AE2 - preventive",
+                "RTE_AE2 - preventive",
+                "FFR3AA1--FFR5AA1--1",
+                PREVENTIVE, null,
+                +1000, -1000, Side.RIGHT);
+    }
 }

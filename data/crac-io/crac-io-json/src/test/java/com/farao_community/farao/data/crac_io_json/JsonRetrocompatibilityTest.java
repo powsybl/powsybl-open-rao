@@ -205,6 +205,27 @@ class JsonRetrocompatibilityTest {
         testContentOfV1Point7Crac(crac);
     }
 
+    @Test
+    void importV1Point8Test() {
+
+        // renaming usage rules
+        // Branch threshold rule no longer handled
+
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.8.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(1, crac.getAngleCnecs().size());
+        assertEquals(1, crac.getVoltageCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(4, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point8Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
 
         // --------------------------
@@ -522,5 +543,12 @@ class JsonRetrocompatibilityTest {
         testContentOfV1Point6Crac(crac);
         // test new voltage constraint usage rules
         assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream).filter(OnVoltageConstraint.class::isInstance).count());
+    }
+
+    void testContentOfV1Point8Crac(Crac crac) {
+
+        testContentOfV1Point7Crac(crac);
+        // test new injection setpoint unit
+        assertEquals(Unit.MEGAWATT, ((InjectionSetpoint) crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().stream().filter(InjectionSetpoint.class::isInstance).findFirst().orElseThrow()).getUnit());
     }
 }

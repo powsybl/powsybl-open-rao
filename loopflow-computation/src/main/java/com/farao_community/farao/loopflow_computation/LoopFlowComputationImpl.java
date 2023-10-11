@@ -15,9 +15,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -79,22 +77,28 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     static boolean isInMainComponent(SensitivityVariableSet linearGlsk, Network network) {
         boolean atLeastOneGlskConnected = false;
         for (String glsk : linearGlsk.getVariablesById().keySet()) {
-            Generator generator = network.getGenerator(glsk);
-            if (generator != null) {
-                // If bus is disconnected, then powsybl returns a null bus
-                if (generator.getTerminal().getBusView().getBus() != null && generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
-                    atLeastOneGlskConnected = true;
-                }
-            } else {
-                Load load = network.getLoad(glsk);
-                if (load == null) {
-                    throw new FaraoException(String.format("%s is neither a generator nor a load in the network. It is not a valid GLSK.", glsk));
-                } else if (load.getTerminal().getBusView().getBus() != null && load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
-                    atLeastOneGlskConnected = true;
-                }
+            Injection<?> injection = getInjection(glsk, network);
+            if (injection == null) {
+                throw new FaraoException(String.format("%s is neither a generator nor a load nor a dangling line in the network. It is not a valid GLSK.", glsk));
+            }
+            // If bus is disconnected, then powsybl returns a null bus
+            if (injection.getTerminal().getBusView().getBus() != null && injection.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                atLeastOneGlskConnected = true;
             }
         }
         return atLeastOneGlskConnected;
+    }
+
+    static Injection<?> getInjection(String injectionId, Network network) {
+        Generator generator = network.getGenerator(injectionId);
+        if (generator != null) {
+            return  generator;
+        }
+        Load load = network.getLoad(injectionId);
+        if (load != null) {
+            return load;
+        }
+        return network.getDanglingLine(injectionId);
     }
 
     protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream(FlowCnec flowCnec) {

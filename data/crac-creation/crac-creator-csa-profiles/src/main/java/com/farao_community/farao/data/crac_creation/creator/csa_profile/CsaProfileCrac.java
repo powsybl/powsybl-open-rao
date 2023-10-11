@@ -62,6 +62,10 @@ public class CsaProfileCrac implements NativeCrac {
         return this.queryTripleStore(CsaProfileConstants.REQUEST_CURRENT_LIMIT);
     }
 
+    public PropertyBags getVoltageLimits() {
+        return this.queryTripleStore(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+    }
+
     private PropertyBags queryTripleStore(String queryKey) {
         return this.queryTripleStore(queryKey, new HashSet<>());
     }

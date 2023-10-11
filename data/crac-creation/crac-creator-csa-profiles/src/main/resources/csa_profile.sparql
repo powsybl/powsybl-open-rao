@@ -91,22 +91,18 @@ GRAPH <%s> {
         nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator ;
         nc:AssessedElement.OperationalLimit ?operationalLimit .
     OPTIONAL {
-        ?assessedElement
-            nc:AssessedElement.isCritical ?isCritical ;
-    }
+            ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+            }
     OPTIONAL {
-        ?assessedElement
-            nc:AssessedElement.isCritical ?isCritical ;
-            nc:AssessedElement.normalEnabled ?normalEnabled ;
-    }
+            ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+            }
     OPTIONAL {
         ?assessedElement
             nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
     }
     OPTIONAL {
-        ?assessedElement
-            nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
-    }
+            ?assessedElement nc:AssessedElement.isCritical ?isCritical .
+            }
 }
 }
 
@@ -160,6 +156,27 @@ WHERE {
     OPTIONAL {
             ?operationalLimitType
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
+        }
+}
+
+# query: voltageLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?voltageLimit
+        rdf:type cim:VoltageLimit ;
+        cim:VoltageLimit.normalValue ?normalValue ;
+        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Terminal ?terminal .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        cim:OperationalLimitType.direction ?direction .
+    OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
         }
 }
 
