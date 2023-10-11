@@ -91,11 +91,14 @@ GRAPH <%s> {
         nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator ;
         nc:AssessedElement.OperationalLimit ?operationalLimit .
     OPTIONAL {
-        ?assessedElement
-            nc:AssessedElement.isCritical ?isCritical ;
-            nc:AssessedElement.normalEnabled ?normalEnabled ;
-            nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
-    }
+            ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+            }
+    OPTIONAL {
+            ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+            }
+    OPTIONAL {
+            ?assessedElement nc:AssessedElement.isCritical ?isCritical .
+            }
 }
 }
 
