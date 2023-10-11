@@ -99,18 +99,18 @@ public class CsaProfileRemedialActionsCreator {
                     checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(remedialActionId, linkedContingencyWithRAs.get(remedialActionId), randomCombinationConstraintKind);
 
                     List<String> faraoContingenciesIds = linkedContingencyWithRAs.get(remedialActionId).stream()
-                        .map(contingencyWithRemedialActionPropertyBag ->
-                            checkContingencyAndGetFaraoId(
-                                contingencyWithRemedialActionPropertyBag,
-                                parentRemedialActionPropertyBag,
-                                remedialActionId,
-                                randomCombinationConstraintKind
+                            .map(contingencyWithRemedialActionPropertyBag ->
+                                    checkContingencyAndGetFaraoId(
+                                            contingencyWithRemedialActionPropertyBag,
+                                            parentRemedialActionPropertyBag,
+                                            remedialActionId,
+                                            randomCombinationConstraintKind
+                                    )
                             )
-                        )
-                        .collect(Collectors.toList());
+                            .collect(Collectors.toList());
 
                     addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
-                    remedialActionInstant = Instant.OUTAGE;
+                    remedialActionInstant = Instant.CURATIVE;
                 } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
@@ -121,9 +121,9 @@ public class CsaProfileRemedialActionsCreator {
                         remedialActionInstant = Instant.CURATIVE;
                     }
                 }
-                if (!assessedElementCombinableWithRaIsExcluded(remedialActionId)) {
-                    addOnConstraintUsageRule(remedialActionInstant, remedialActionAdder);
-                }
+
+                addOnConstraintUsageRule(remedialActionInstant, remedialActionAdder, remedialActionId);
+
                 remedialActionAdder.add();
                 csaProfileRemedialActionCreationContexts.add(CsaProfileRemedialActionCreationContext.imported(remedialActionId, remedialActionId, targetRemedialActionNameOpt.orElse(remedialActionId), "", false));
 
@@ -136,37 +136,43 @@ public class CsaProfileRemedialActionsCreator {
 
     private boolean assessedElementCombinableWithRaIsExcluded(String remedialActionId) {
         return onConstraintUsageRuleHelper.getExcludedAssessedElementsByRemedialAction().containsKey(remedialActionId)
-                && onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa().containsKey(onConstraintUsageRuleHelper.getExcludedAssessedElementsByRemedialAction().get(remedialActionId));
+                && onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa().containsKey(onConstraintUsageRuleHelper.getExcludedAssessedElementsByRemedialAction().get(remedialActionId));
     }
 
-    private void addOnConstraintUsageRule(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder) {
-        onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa().values().stream()
-                .flatMap(Set::stream).forEach(faraoCnecId -> {
-                    if (isInstantsCoherent(crac.getCnec(faraoCnecId).getState().getInstant(), remedialActionInstant)) {
-                        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(remedialActionInstant).withFlowCnec(faraoCnecId).add();
-                        // TODO add .withUsageMethod(UsageMethod.AVAILABLE) when API of OnFlowConstraintAdder is ready
-                    }
-                });
+    private void addOnConstraintUsageRule(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId) {
+        if (!assessedElementCombinableWithRaIsExcluded(importableRemedialActionId)) {
+            onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa().values().stream()
+                    .flatMap(Set::stream).forEach(faraoCnecName -> {
+                        if (isInstantsCoherent(crac.getCnec(faraoCnecName).getState().getInstant(), remedialActionInstant)) {
+                            remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(remedialActionInstant).withFlowCnec(faraoCnecName).add();
+                            // TODO add .withUsageMethod(UsageMethod.AVAILABLE) when API of OnFlowConstraintAdder is ready
+                        }
+                    });
+        }
 
         onConstraintUsageRuleHelper.getIncludedAssessedElementsByRemedialAction().forEach((remediaActionId, assessedElementId) -> {
-            if (onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
-                onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(faraoCnecId -> {
-                    if (isInstantsCoherent(crac.getCnec(faraoCnecId).getState().getInstant(), remedialActionInstant)) {
-                        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(remedialActionInstant).withFlowCnec(faraoCnecId).add();
-                        // TODO add .withUsageMethod(UsageMethod.FORCED) when API of OnFlowConstraintAdder is ready
-                    }
-                });
+            if (importableRemedialActionId.equals(remediaActionId)) {
+                if (onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
+                    onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(faraoCnecId -> {
+                        if (isInstantsCoherent(crac.getCnec(faraoCnecId).getState().getInstant(), remedialActionInstant)) {
+                            remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(remedialActionInstant).withFlowCnec(faraoCnecId).add();
+                            // TODO add .withUsageMethod(UsageMethod.FORCED) when API of OnFlowConstraintAdder is ready
+                        }
+                    });
+                }
             }
         });
 
         onConstraintUsageRuleHelper.getConsideredAssessedElementsByRemedialAction().forEach((remediaActionId, assessedElementId) -> {
-            if (onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
-                onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(faraoCnecId -> {
-                    if (isInstantsCoherent(crac.getCnec(faraoCnecId).getState().getInstant(), remedialActionInstant)) {
-                        remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(remedialActionInstant).withFlowCnec(faraoCnecId).add();
-                        // TODO add .withUsageMethod(UsageMethod.FORCED) when API of OnFlowConstraintAdder is ready
-                    }
-                });
+            if (importableRemedialActionId.equals(remediaActionId)) {
+                if (onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
+                    onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(faraoCnecId -> {
+                        if (isInstantsCoherent(crac.getCnec(faraoCnecId).getState().getInstant(), remedialActionInstant)) {
+                            remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(remedialActionInstant).withFlowCnec(faraoCnecId).add();
+                            // TODO add .withUsageMethod(UsageMethod.FORCED) when API of OnFlowConstraintAdder is ready
+                        }
+                    });
+                }
             }
         });
     }
@@ -177,12 +183,10 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
-        faraoContingenciesIds.forEach(faraoContingencyId -> {
-            remedialActionAdder.newOnContingencyStateUsageRule()
+        faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
                 .withInstant(Instant.CURATIVE)
                 .withContingency(faraoContingencyId)
-                .withUsageMethod(usageMethod).add();
-        });
+                .withUsageMethod(usageMethod).add());
     }
 
     private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
@@ -218,7 +222,7 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         if (linkedTopologyActions.containsKey(remedialActionId)
-            || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
+                || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PST_RANGE_ACTION;
@@ -237,7 +241,7 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
-        remedialActionId, String combinationConstraintKind) {
+            remedialActionId, String combinationConstraintKind) {
         if (!parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND).equals(CsaProfileConstants.RemedialActionKind.CURATIVE.toString())) {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because it is linked to a contingency but it's kind is not curative");
         }

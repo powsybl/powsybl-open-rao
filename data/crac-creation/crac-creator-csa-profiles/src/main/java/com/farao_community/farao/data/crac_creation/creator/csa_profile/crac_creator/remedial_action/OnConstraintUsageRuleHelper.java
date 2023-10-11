@@ -15,9 +15,7 @@ public class OnConstraintUsageRuleHelper {
     private final PropertyBags assessedElements;
     private final PropertyBags assessedElementsWithRemedialAction;
 
-    private Map<String, Set<String>> importedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa = new HashMap<String, Set<String>>();
-    private Map<String, Set<String>> importedFlowCnecsNativeIdsToFaraoIds = new HashMap<>();
-
+    private Map<String, Set<String>> importedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa = new HashMap<>();
     private final Map<String, String> excludedAssessedElementsByRemedialAction = new HashMap<>();
     private final Map<String, String> includedAssessedElementsByRemedialAction = new HashMap<>();
     private final Map<String, String> consideredAssessedElementsByRemedialAction = new HashMap<>();
@@ -35,17 +33,17 @@ public class OnConstraintUsageRuleHelper {
             assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).forEach(propertyBag -> {
                 String combinationConstraintKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
                 if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                    excludedAssessedElementsByRemedialAction.put(propertyBag.get("remedialAction"), propertyBag.get("assessedElement"));
+                    excludedAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
                 } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
-                    includedAssessedElementsByRemedialAction.put(propertyBag.get("remedialAction"), propertyBag.get("assessedElement"));
+                    includedAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
                 } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                    consideredAssessedElementsByRemedialAction.put(propertyBag.get("remedialAction"), propertyBag.get("assessedElement"));
+                    consideredAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementsWithRemedialAction: " + propertyBag.get("mRID") + " will not be imported because combinationConstraintKind is not in ['INCLUDED', 'EXCLUDED', 'CONSIDERED']");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementsWithRemedialAction: " + propertyBag.get("assessedElementWithRemedialAction") + " will not be imported because combinationConstraintKind is not in ['INCLUDED', 'EXCLUDED', 'CONSIDERED']");
                 }
             });
         } catch (Exception e) {
-            // TODO add not imported to context ?
+            // TODO check with @Peter how to say usage rule not added in context
         }
     }
 
@@ -58,42 +56,41 @@ public class OnConstraintUsageRuleHelper {
     }
 
     private void readAssessedElements() {
-        importedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa = fillNativeToFaraoFlowCnecIds();
+        importedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa = this.getImportedFlowCnecsNativeIdsToFaraoIds();
 
         List<String> nativeIdsOfCnecsCombinableWithRas = assessedElements.stream()
-                .filter(element -> Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
-                .map(element -> element.get("mRID")).collect(Collectors.toList());
+                .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
+                .map(element -> removePrefix(element.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).collect(Collectors.toList());
 
-        importedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
+        importedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
     }
 
-    private Map<String, Set<String>> fillNativeToFaraoFlowCnecIds() {
-        importedFlowCnecsNativeIdsToFaraoIds = csaProfileCnecCreationContexts.stream()
-                .filter(CsaProfileCnecCreationContext::isImported)
-                .collect(Collectors.groupingBy(
-                        CsaProfileCnecCreationContext::getNativeId,
-                        Collectors.mapping(CsaProfileCnecCreationContext::getFlowCnecId, Collectors.toSet())
-                ));
-        return importedFlowCnecsNativeIdsToFaraoIds;
-    }
-
-    public Map<String, Set<String>> getImportedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa() {
-        return importedFlowCnecsNativeIdsToFaraoIdsAndCombinableWithRa;
+    public Map<String, Set<String>> getImportedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa() {
+        return this.importedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa;
     }
 
     public Map<String, Set<String>> getImportedFlowCnecsNativeIdsToFaraoIds() {
-        return importedFlowCnecsNativeIdsToFaraoIds;
+        return csaProfileCnecCreationContexts.stream()
+                .filter(CsaProfileCnecCreationContext::isImported)
+                .collect(Collectors.groupingBy(
+                        CsaProfileCnecCreationContext::getNativeId,
+                        Collectors.mapping(CsaProfileCnecCreationContext::getFlowCnecName, Collectors.toSet())
+                ));
     }
 
     public Map<String, String> getExcludedAssessedElementsByRemedialAction() {
-        return excludedAssessedElementsByRemedialAction;
+        return this.excludedAssessedElementsByRemedialAction;
     }
 
     public Map<String, String> getIncludedAssessedElementsByRemedialAction() {
-        return includedAssessedElementsByRemedialAction;
+        return this.includedAssessedElementsByRemedialAction;
     }
 
     public Map<String, String> getConsideredAssessedElementsByRemedialAction() {
-        return consideredAssessedElementsByRemedialAction;
+        return this.consideredAssessedElementsByRemedialAction;
+    }
+
+    private String removePrefix(String mridWithPrefix) {
+        return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
     }
 }

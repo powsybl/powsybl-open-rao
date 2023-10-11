@@ -93,8 +93,18 @@ GRAPH <%s> {
     OPTIONAL {
         ?assessedElement
             nc:AssessedElement.isCritical ?isCritical ;
+    }
+    OPTIONAL {
+        ?assessedElement
+            nc:AssessedElement.isCritical ?isCritical ;
             nc:AssessedElement.normalEnabled ?normalEnabled ;
+    }
+    OPTIONAL {
+        ?assessedElement
             nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
+    }
+    OPTIONAL {
+        ?assessedElement
             nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
     }
 }

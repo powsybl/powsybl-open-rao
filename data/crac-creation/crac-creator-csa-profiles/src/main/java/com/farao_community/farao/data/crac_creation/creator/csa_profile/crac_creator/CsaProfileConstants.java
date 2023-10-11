@@ -132,6 +132,7 @@ public final class CsaProfileConstants {
      */
 
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
+    public static final String REQUEST_REMEDIAL_ACTION = "remedialAction";
 
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION = "assessedElementWithRemedialAction";
