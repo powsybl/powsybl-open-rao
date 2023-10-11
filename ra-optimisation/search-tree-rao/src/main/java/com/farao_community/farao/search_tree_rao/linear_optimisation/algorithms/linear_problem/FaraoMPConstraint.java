@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
-import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.google.ortools.linearsolver.MPConstraint;
 

@@ -317,7 +317,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         Optional<State> lastState = statesBeforeCnec.stream().filter(state ->
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecRangeActionMap.get(cnec)))
                 .findFirst();
-        // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) is unavailable for cnec
+        // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) can be unavailable for cnec
         return lastState.orElse(null);
     }
 
