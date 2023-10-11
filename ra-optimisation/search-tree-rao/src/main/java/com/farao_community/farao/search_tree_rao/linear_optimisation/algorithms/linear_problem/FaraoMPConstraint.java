@@ -33,6 +33,7 @@ public class FaraoMPConstraint {
 
     public void setCoefficient(FaraoMPVariable variable, double coeff) {
         if (coeff < 1e-6) {
+            // TODO : remove this log after running all tests
             FaraoLoggerProvider.TECHNICAL_LOGS.warn(
                 "Coefficient on variable '{}' in constraint '{}' is {} < 1e-6. This can cause numerical issues in MIP solver.",
                 variable.name(), mpConstraint.name(), coeff
