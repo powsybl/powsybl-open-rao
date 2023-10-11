@@ -7,6 +7,9 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 
+/**
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
+ */
 public abstract class AbstractStandardRangeAction<T extends StandardRangeAction<T>> extends AbstractRangeAction<T> implements StandardRangeAction<T> {
 
     private final List<StandardRange> ranges;

@@ -333,6 +333,12 @@ public interface Crac extends Identifiable<Crac> {
      */
     InjectionRangeActionAdder newInjectionRangeAction();
 
+
+    /**
+     * Get a {@link CounterTradeRangeActionAdder}, to add an {@link CounterTradeRangeAction} to the crac
+     */
+    CounterTradeRangeActionAdder newCounterTradeRangeAction();
+
     /**
      * Gather all the range actions present in the Crac. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.

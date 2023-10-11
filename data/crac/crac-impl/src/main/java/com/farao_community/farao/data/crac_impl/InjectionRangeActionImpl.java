@@ -116,6 +116,7 @@ public class InjectionRangeActionImpl extends AbstractStandardRangeAction<Inject
         if (!super.equals(o)) {
             return false;
         }
+
         return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys());
     }
 
