@@ -18,6 +18,26 @@ public final class CsaProfileConstants {
     }
 
     /**
+     * CSA Profiles keywords
+     */
+    public enum CsaProfile {
+        ASSESSED_ELEMENT("AE"),
+        CONTINGENCY("CO"),
+        EQUIPMENT_RELIABILITY("ER"),
+        REMEDIAL_ACTION("RA");
+
+        CsaProfile(String keyword) {
+            this.keyword = keyword;
+        }
+
+        private final String keyword;
+
+        public String getKeyword() {
+            return this.keyword;
+        }
+    }
+
+    /**
      * constants to read rdf files
      */
 
@@ -239,7 +259,6 @@ public final class CsaProfileConstants {
      */
 
     public static final String EQUIPMENT_RELIABILITY_FILE_KEYWORD = "ER";
-    public static final String REQUEST_ANGLE_REFERENCE_TERMINAL = "AngleReferenceTerminal";
     public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
     public static final String REQUEST_ANGLE_LIMIT = "angleLimit";
 
