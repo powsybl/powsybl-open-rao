@@ -128,7 +128,6 @@ public class CsaProfileRemedialActionsCreator {
                     }
                 }
 
-
                 addOnConstraintUsageRules(remedialActionInstant, remedialActionAdder, remedialActionId);
 
                 remedialActionAdder.add();
@@ -254,12 +253,12 @@ public class CsaProfileRemedialActionsCreator {
     }
 
     private void processAssessedElementsByRemedialAction(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId, UsageMethod usageMethod, Map<String, String> assessedElementsByRemedialAction) {
-            if(assessedElementsByRemedialAction.containsKey(importableRemedialActionId)) {
-                String assessedElementId = assessedElementsByRemedialAction.get(importableRemedialActionId);
-                    if (onConstraintUsageRuleHelper.getImportedCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
-                        onConstraintUsageRuleHelper.getImportedCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(handleCnecByType(remedialActionInstant, remedialActionAdder, usageMethod));
-                    }
-                }
+        if (assessedElementsByRemedialAction.containsKey(importableRemedialActionId)) {
+            String assessedElementId = assessedElementsByRemedialAction.get(importableRemedialActionId);
+            if (onConstraintUsageRuleHelper.getImportedCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
+                onConstraintUsageRuleHelper.getImportedCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(handleCnecByType(remedialActionInstant, remedialActionAdder, usageMethod));
+            }
+        }
     }
 
     private Consumer<String> handleCnecByType(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {

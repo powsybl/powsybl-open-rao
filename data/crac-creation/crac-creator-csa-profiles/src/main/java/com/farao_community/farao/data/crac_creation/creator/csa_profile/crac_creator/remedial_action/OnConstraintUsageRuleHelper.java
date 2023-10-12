@@ -7,10 +7,8 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -49,18 +47,18 @@ public class OnConstraintUsageRuleHelper {
     }
 
     public void readAssessedElementsWithRemedialAction() {
-            assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).forEach(propertyBag -> {
-                String combinationConstraintKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
-                if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
-                    excludedAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
-                } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
-                    includedAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
-                } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
-                    consideredAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
-                } else {
-                    throw new FaraoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION)));
-                }
-            });
+        assessedElementsWithRemedialAction.stream().filter(this::checkNormalEnabled).forEach(propertyBag -> {
+            String combinationConstraintKind = propertyBag.get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
+            if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
+                excludedAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
+            } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
+                includedAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
+            } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
+                consideredAssessedElementsByRemedialAction.put(removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_REMEDIAL_ACTION)), removePrefix(propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT)));
+            } else {
+                throw new FaraoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION)));
+            }
+        });
     }
 
     boolean checkNormalEnabled(PropertyBag propertyBag) {
