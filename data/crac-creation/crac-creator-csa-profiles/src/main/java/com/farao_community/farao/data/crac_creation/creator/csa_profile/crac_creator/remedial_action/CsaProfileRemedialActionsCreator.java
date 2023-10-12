@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -127,6 +128,7 @@ public class CsaProfileRemedialActionsCreator {
                     }
                 }
 
+
                 addOnConstraintUsageRules(remedialActionInstant, remedialActionAdder, remedialActionId);
 
                 remedialActionAdder.add();
@@ -238,7 +240,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private void addOnConstraintUsageRules(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId) {
         if (!assessedElementCombinableWithRaIsExcluded(importableRemedialActionId)) {
-            processAvailableAssessedElements(remedialActionInstant, remedialActionAdder);
+            processAvailableAssessedElements(remedialActionInstant, remedialActionAdder, UsageMethod.AVAILABLE);
         }
 
         processAssessedElementsByRemedialAction(remedialActionInstant, remedialActionAdder, importableRemedialActionId, UsageMethod.AVAILABLE, onConstraintUsageRuleHelper.getConsideredAssessedElementsByRemedialAction());
@@ -246,22 +248,21 @@ public class CsaProfileRemedialActionsCreator {
 
     }
 
-    private void processAvailableAssessedElements(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder) {
-        onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa().values().stream()
-                .flatMap(Set::stream).forEach(handleCnecByType(remedialActionInstant, remedialActionAdder));
+    private void processAvailableAssessedElements(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
+        onConstraintUsageRuleHelper.getImportedCnecsNativeToFaraoIdsAndCombinableWithRa().values().stream()
+                .flatMap(Set::stream).forEach(handleCnecByType(remedialActionInstant, remedialActionAdder, usageMethod));
     }
 
     private void processAssessedElementsByRemedialAction(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId, UsageMethod usageMethod, Map<String, String> assessedElementsByRemedialAction) {
-        assessedElementsByRemedialAction.forEach((remedialActionId, assessedElementId) -> {
-            if (importableRemedialActionId.equals(remedialActionId)) {
-                if (onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
-                    onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(handleCnecByType(remedialActionInstant, remedialActionAdder));
+            if(assessedElementsByRemedialAction.containsKey(importableRemedialActionId)) {
+                String assessedElementId = assessedElementsByRemedialAction.get(importableRemedialActionId);
+                    if (onConstraintUsageRuleHelper.getImportedCnecsNativeIdsToFaraoIds().containsKey(assessedElementId)) {
+                        onConstraintUsageRuleHelper.getImportedCnecsNativeIdsToFaraoIds().get(assessedElementId).forEach(handleCnecByType(remedialActionInstant, remedialActionAdder, usageMethod));
+                    }
                 }
-            }
-        });
     }
 
-    private Consumer<String> handleCnecByType(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder) {
+    private Consumer<String> handleCnecByType(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
         return faraoCnecId -> {
             Cnec cnec = crac.getCnec(faraoCnecId);
             if (isInstantsCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
@@ -284,7 +285,7 @@ public class CsaProfileRemedialActionsCreator {
                             .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                 } else {
-                    // FIXME how to say onXConstraint will not be considered
+                    throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass().toString()));
                 }
             }
         };
@@ -292,7 +293,7 @@ public class CsaProfileRemedialActionsCreator {
 
     private boolean assessedElementCombinableWithRaIsExcluded(String remedialActionId) {
         return onConstraintUsageRuleHelper.getExcludedAssessedElementsByRemedialAction().containsKey(remedialActionId)
-                && onConstraintUsageRuleHelper.getImportedFlowCnecsNativeIdsToFaraoNamesAndCombinableWithRa().containsKey(onConstraintUsageRuleHelper.getExcludedAssessedElementsByRemedialAction().get(remedialActionId));
+                && onConstraintUsageRuleHelper.getImportedCnecsNativeToFaraoIdsAndCombinableWithRa().containsKey(onConstraintUsageRuleHelper.getExcludedAssessedElementsByRemedialAction().get(remedialActionId));
     }
 
     public static boolean isInstantsCoherent(Instant cnecInstant, Instant remedialInstant) {
