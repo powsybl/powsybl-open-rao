@@ -118,9 +118,9 @@ public class CsaProfileCnecCreator {
         } else if (CsaProfileConstants.LimitType.ANGLE.equals(limitType)) {
 
             cnecAdder = crac.newAngleCnec()
-                    .withMonitored(true)
-                    .withOptimized(false)
-                    .withReliabilityMargin(0);
+                .withMonitored(true)
+                .withOptimized(false)
+                .withReliabilityMargin(0);
 
             if (!this.addAngleLimit(assessedElementId, (AngleCnecAdder) cnecAdder, isCombinableWithContingency)) {
                 return;
@@ -168,32 +168,18 @@ public class CsaProfileCnecCreator {
         csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
     }
 
-    private boolean checkProfileHeader(String elementId, PropertyBag propertyBag, String twoLettersKeyword) {
-        return checkProfileKeyword(elementId, propertyBag, twoLettersKeyword) && checkProfileValidityInterval(elementId, propertyBag);
-    }
-
-    private boolean checkProfileValidityInterval(String elementId, PropertyBag propertyBag) {
-        String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
-        if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(elementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkProfileKeyword(String elementId, PropertyBag propertyBag, String twoLettersKeyword) {
-        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        if (!twoLettersKeyword.equals(keyword)) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(elementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + twoLettersKeyword + ", but it is " + keyword));
-            return false;
-        }
-        return true;
-    }
-
     private boolean aeProfileDataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
-        if (!checkProfileHeader(assessedElementId, assessedElementPropertyBag, CsaProfileConstants.ASSESSED_ELEMENT_FILE_KEYWORD)) {
-            return false;
+        switch (CsaProfileCracUtils.checkProfileHeader(assessedElementPropertyBag, CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT, cracCreationContext.getTimeStamp())) {
+            case INVALID_KEYWORD -> {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.ASSESSED_ELEMENT));
+                return false;
+            }
+            case INVALID_INTERVAL -> {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
+                return false;
+            }
+            default -> {
+            }
         }
 
         String isCritical = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_CRITICAL);
@@ -213,7 +199,19 @@ public class CsaProfileCnecCreator {
     }
 
     private boolean erProfileDataCheck(String assessedElementId, PropertyBag angleLimitsPropertyBag) {
-        return checkProfileHeader(assessedElementId, angleLimitsPropertyBag, CsaProfileConstants.EQUIPMENT_RELIABILITY_FILE_KEYWORD);
+        switch (CsaProfileCracUtils.checkProfileHeader(angleLimitsPropertyBag, CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY, cracCreationContext.getTimeStamp())) {
+            case INVALID_KEYWORD -> {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.EQUIPMENT_RELIABILITY));
+                return false;
+            }
+            case INVALID_INTERVAL -> {
+                csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
+                return false;
+            }
+            default -> {
+                return true;
+            }
+        }
     }
 
     private Set<PropertyBag> getAssessedElementsWithContingencies(String assessedElementId, PropertyBag assessedElementPropertyBag, boolean inBaseCase) {
@@ -500,16 +498,16 @@ public class CsaProfileCnecCreator {
         String normalValueStr = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
         Double normalValue = Double.valueOf(normalValueStr);
         String direction = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
-        if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
+        if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
             flowCnecAdder.newThreshold().withSide(side)
                 .withUnit(Unit.AMPERE)
                 .withMax(normalValue)
                 .withMin(-normalValue).add();
-        } else if (CsaProfileConstants.LimitDirectionKind.HIGH.toString().equals(direction)) {
+        } else if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
             flowCnecAdder.newThreshold().withSide(side)
                 .withUnit(Unit.AMPERE)
                 .withMax(normalValue).add();
-        } else if (CsaProfileConstants.LimitDirectionKind.LOW.toString().equals(direction)) {
+        } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(direction)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "OperationalLimitType.direction is low"));
             return false;
         }
@@ -568,15 +566,15 @@ public class CsaProfileCnecCreator {
         String normalValueStr = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
         Double normalValue = Double.valueOf(normalValueStr);
         String direction = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
-        if (CsaProfileConstants.LimitDirectionKind.HIGH.toString().equals(direction)) {
+        if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
             voltageCnecAdder.newThreshold()
-                    .withUnit(Unit.KILOVOLT)
-                    .withMax(normalValue).add();
-        } else if (CsaProfileConstants.LimitDirectionKind.LOW.toString().equals(direction)) {
+                .withUnit(Unit.KILOVOLT)
+                .withMax(normalValue).add();
+        } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(direction)) {
             voltageCnecAdder.newThreshold()
-                    .withUnit(Unit.KILOVOLT)
-                    .withMin(normalValue).add();
-        } else if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
+                .withUnit(Unit.KILOVOLT)
+                .withMin(normalValue).add();
+        } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only high and low voltage threshold values are handled for now (OperationalLimitType.direction is absolute)"));
             return false;
         }
@@ -596,30 +594,30 @@ public class CsaProfileCnecCreator {
             return false;
         }
         String direction = angleLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
-        if (CsaProfileConstants.LimitDirectionKind.HIGH.toString().equals(direction)) {
-            if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(assessedElementId, isFlowToRefTerminalIsNull, CsaProfileConstants.LimitDirectionKind.HIGH)) {
+        if (CsaProfileConstants.OperationalLimitDirectionKind.HIGH.toString().equals(direction)) {
+            if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(assessedElementId, isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind.HIGH)) {
                 return false;
             }
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMax(normalValue).add();
-        } else if (CsaProfileConstants.LimitDirectionKind.LOW.toString().equals(direction)) {
-            if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(assessedElementId, isFlowToRefTerminalIsNull, CsaProfileConstants.LimitDirectionKind.LOW)) {
+                .withUnit(Unit.DEGREE)
+                .withMax(normalValue).add();
+        } else if (CsaProfileConstants.OperationalLimitDirectionKind.LOW.toString().equals(direction)) {
+            if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(assessedElementId, isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind.LOW)) {
                 return false;
             }
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMin(-normalValue).add();
-        } else if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
+                .withUnit(Unit.DEGREE)
+                .withMin(-normalValue).add();
+        } else if (CsaProfileConstants.OperationalLimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
             angleCnecAdder.newThreshold()
-                    .withUnit(Unit.DEGREE)
-                    .withMin(-normalValue)
-                    .withMax(normalValue).add();
+                .withUnit(Unit.DEGREE)
+                .withMin(-normalValue)
+                .withMax(normalValue).add();
         }
         return true;
     }
 
-    private boolean handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(String assessedElementId, boolean isFlowToRefTerminalIsNull, CsaProfileConstants.LimitDirectionKind direction) {
+    private boolean handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(String assessedElementId, boolean isFlowToRefTerminalIsNull, CsaProfileConstants.OperationalLimitDirectionKind direction) {
         if (isFlowToRefTerminalIsNull) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "ambiguous angle limit direction definition from an undefined VoltageAngleLimit.isFlowToRefTerminal and an OperationalLimit.OperationalLimitType : " + direction));
             return true;

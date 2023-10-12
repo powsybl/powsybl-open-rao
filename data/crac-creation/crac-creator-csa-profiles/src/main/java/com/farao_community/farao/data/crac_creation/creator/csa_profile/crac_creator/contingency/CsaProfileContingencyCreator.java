@@ -129,22 +129,20 @@ public class CsaProfileContingencyCreator {
     }
 
     private Set<PropertyBag> dataCheck(PropertyBag contingencyPropertyBag, String contingencyId) {
-        String keyword = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
-        String startTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = contingencyPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        switch (CsaProfileCracUtils.checkProfileHeader(contingencyPropertyBag, CsaProfileConstants.CsaProfile.CONTINGENCY, cracCreationContext.getTimeStamp())) {
+            case INVALID_KEYWORD -> {
+                csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.CONTINGENCY));
+                return new HashSet<>();
+            }
+            case INVALID_INTERVAL -> {
+                csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
+                return new HashSet<>();
+            }
+            default -> {
+            }
+        }
 
         Boolean mustStudy = Boolean.parseBoolean(contingencyPropertyBag.get(CsaProfileConstants.REQUEST_CONTINGENCIES_MUST_STUDY));
-
-        if (!CsaProfileConstants.CONTINGENCY_FILE_KEYWORD.equals(keyword)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be CO, but it is " + keyword));
-            return new HashSet<>();
-        }
-
-        if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
-            csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
-            return new HashSet<>();
-        }
-
         if (!Boolean.TRUE.equals(mustStudy)) {
             csaProfileContingencyCreationContexts.add(CsaProfileElementaryCreationContext.notImported(contingencyId, ImportStatus.NOT_FOR_RAO, "contingency.mustStudy is false"));
             return new HashSet<>();
