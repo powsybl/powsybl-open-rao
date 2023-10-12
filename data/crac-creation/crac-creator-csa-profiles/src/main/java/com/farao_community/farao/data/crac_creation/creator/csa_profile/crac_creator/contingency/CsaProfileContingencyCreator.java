@@ -41,7 +41,7 @@ public class CsaProfileContingencyCreator {
     private final Map<String, Set<PropertyBag>> contingencyEquipmentsPropertyBags;
 
     private Set<CsaProfileElementaryCreationContext> csaProfileContingencyCreationContexts;
-    private CsaProfileCracCreationContext cracCreationContext;
+    private final CsaProfileCracCreationContext cracCreationContext;
 
     public CsaProfileContingencyCreator(Crac crac, Network network, PropertyBags contingenciesPropertyBags, PropertyBags contingencyEquipmentsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
@@ -166,11 +166,13 @@ public class CsaProfileContingencyCreator {
             networkElementId = networkElement.getId();
         }
 
-        if (networkElement instanceof DanglingLine) {
-            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
-            if (optionalTieLine.isPresent()) {
-                networkElementId = optionalTieLine.get().getId();
-            }
+        if (networkElement != null) {
+            try {
+                Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+                if (optionalTieLine.isPresent()) {
+                    networkElementId = optionalTieLine.get().getId();
+                }
+            } catch (Exception ignored) { } // NOSONAR
         }
         return networkElementId;
     }

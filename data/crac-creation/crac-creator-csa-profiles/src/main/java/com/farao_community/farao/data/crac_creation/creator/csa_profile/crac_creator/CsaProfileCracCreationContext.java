@@ -16,7 +16,6 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -78,7 +77,7 @@ public class CsaProfileCracCreationContext implements CracCreationContext {
     }
 
     public void setContingencyCreationContexts(Set<CsaProfileElementaryCreationContext> contingencyCreationContexts) {
-        this.contingencyCreationContexts = contingencyCreationContexts.stream().collect(Collectors.toSet());
+        this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
     public Set<CsaProfileElementaryCreationContext> getContingencyCreationContexts() {
