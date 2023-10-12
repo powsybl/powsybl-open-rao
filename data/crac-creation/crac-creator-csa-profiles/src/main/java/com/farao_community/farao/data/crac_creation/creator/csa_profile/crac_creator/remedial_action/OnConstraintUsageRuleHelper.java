@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -10,6 +16,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public class OnConstraintUsageRuleHelper {
     private final Set<CsaProfileCnecCreationContext> csaProfileCnecCreationContexts;
     private final PropertyBags assessedElements;
@@ -43,7 +52,7 @@ public class OnConstraintUsageRuleHelper {
                 }
             });
         } catch (Exception e) {
-            // TODO check with @Peter how to say usage rule not added in context
+            // FIXME:  how to say usage rule not added in context
         }
     }
 

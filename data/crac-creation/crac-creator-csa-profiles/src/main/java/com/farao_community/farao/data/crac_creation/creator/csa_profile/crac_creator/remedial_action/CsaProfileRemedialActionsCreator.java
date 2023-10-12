@@ -284,7 +284,7 @@ public class CsaProfileRemedialActionsCreator {
                             .add();
                     // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                 } else {
-                    // TODO how to say onXConstraint will not be considered
+                    // FIXME how to say onXConstraint will not be considered
                 }
             }
         };
