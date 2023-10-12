@@ -37,7 +37,7 @@ public class CsaProfileCnecCreator {
     private final Map<String, Set<PropertyBag>> voltageLimitsPropertyBags;
     private final Map<String, Set<PropertyBag>> angleLimitsPropertyBags;
     private Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
-    private CsaProfileCracCreationContext cracCreationContext;
+    private final CsaProfileCracCreationContext cracCreationContext;
     private Instant cnecInstant;
     private PropertyBag cnecLimit;
 
@@ -84,7 +84,7 @@ public class CsaProfileCnecCreator {
         }
 
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
-        boolean isCombinableWithContingency = isCombinableWithContingencyStr != null && Boolean.parseBoolean(isCombinableWithContingencyStr);
+        boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
         Set<Contingency> combinableContingencies;
         if (isCombinableWithContingency) {
             combinableContingencies = cracCreationContext.getCrac().getContingencies();
@@ -454,12 +454,12 @@ public class CsaProfileCnecCreator {
     private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
         this.cnecInstant = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
-        Instant instant = null;
+        Instant instant;
 
         if (CsaProfileConstants.LimitKind.TATL.toString().equals(kind)) {
             String acceptableDurationStr = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
-            Double acceptableDuration = Double.valueOf(acceptableDurationStr);
-            if (acceptableDuration == null || acceptableDuration < 0) {
+            double acceptableDuration = Double.parseDouble(acceptableDurationStr);
+            if (acceptableDuration < 0) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.acceptableDuration is incorrect : " + acceptableDurationStr));
                 return false;
             } else if (acceptableDuration == 0) {
@@ -543,7 +543,7 @@ public class CsaProfileCnecCreator {
         this.cnecInstant = null;
 
         String isInfiniteDurationStr = voltageLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
-        boolean isInfiniteDuration = isInfiniteDurationStr != null && Boolean.parseBoolean(isInfiniteDurationStr);
+        boolean isInfiniteDuration = Boolean.parseBoolean(isInfiniteDurationStr);
         if (!isInfiniteDuration) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only permanent voltage limits are handled for now (isInfiniteDuration is 'false')"));
             return false;

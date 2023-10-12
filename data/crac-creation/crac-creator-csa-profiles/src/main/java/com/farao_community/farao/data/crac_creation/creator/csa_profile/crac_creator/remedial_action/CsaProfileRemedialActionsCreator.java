@@ -22,7 +22,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -103,7 +102,7 @@ public class CsaProfileRemedialActionsCreator {
                                 randomCombinationConstraintKind
                             )
                         )
-                        .collect(Collectors.toList());
+                        .toList();
 
                     addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
                 } else { // no contingency linked to RA --> on instant usage rule
@@ -130,12 +129,12 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
-        faraoContingenciesIds.forEach(faraoContingencyId -> {
+        faraoContingenciesIds.forEach(faraoContingencyId ->
             remedialActionAdder.newOnContingencyStateUsageRule()
                 .withInstant(Instant.CURATIVE)
                 .withContingency(faraoContingencyId)
-                .withUsageMethod(usageMethod).add();
-        });
+                .withUsageMethod(usageMethod).add()
+        );
     }
 
     private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
