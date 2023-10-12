@@ -11,10 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.CnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
@@ -26,7 +23,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -38,18 +34,20 @@ public class CsaProfileCnecCreator {
     private final Map<String, Set<PropertyBag>> assessedElementsWithContingenciesPropertyBags;
     private final Map<String, Set<PropertyBag>> currentLimitsPropertyBags;
     private final Map<String, Set<PropertyBag>> voltageLimitsPropertyBags;
+    private final Map<String, Set<PropertyBag>> angleLimitsPropertyBags;
     private Set<CsaProfileCnecCreationContext> csaProfileCnecCreationContexts;
     private CsaProfileCracCreationContext cracCreationContext;
     private Instant cnecInstant;
     private PropertyBag cnecLimit;
 
-    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
+    public CsaProfileCnecCreator(Crac crac, Network network, PropertyBags assessedElementsPropertyBags, PropertyBags assessedElementsWithContingenciesPropertyBags, PropertyBags currentLimitsPropertyBags, PropertyBags voltageLimitsPropertyBags, PropertyBags angleLimitsPropertyBags, CsaProfileCracCreationContext cracCreationContext) {
         this.crac = crac;
         this.network = network;
         this.assessedElementsPropertyBags = assessedElementsPropertyBags;
         this.assessedElementsWithContingenciesPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(assessedElementsWithContingenciesPropertyBags, CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
         this.currentLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(currentLimitsPropertyBags, CsaProfileConstants.REQUEST_CURRENT_LIMIT);
         this.voltageLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(voltageLimitsPropertyBags, CsaProfileConstants.REQUEST_VOLTAGE_LIMIT);
+        this.angleLimitsPropertyBags = CsaProfileCracUtils.getMappedPropertyBagsSet(angleLimitsPropertyBags, CsaProfileConstants.REQUEST_ANGLE_LIMIT);
         this.cracCreationContext = cracCreationContext;
         this.createAndAddCnecs();
     }
@@ -65,9 +63,9 @@ public class CsaProfileCnecCreator {
 
     private void addCnec(PropertyBag assessedElementPropertyBag) {
         String assessedElementId = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
-        boolean isDataCheckOk = this.dataCheck(assessedElementId, assessedElementPropertyBag);
+        boolean isAeProfileDataCheckOk = this.aeProfileDataCheck(assessedElementId, assessedElementPropertyBag);
 
-        if (!isDataCheckOk) {
+        if (!isAeProfileDataCheckOk) {
             return;
         }
 
@@ -116,6 +114,16 @@ public class CsaProfileCnecCreator {
             if (!this.addVoltageLimit(assessedElementId, (VoltageCnecAdder) cnecAdder, isCombinableWithContingency)) {
                 return;
             }
+        } else if (CsaProfileConstants.LimitType.ANGLE.equals(limitType)) {
+
+            cnecAdder = crac.newAngleCnec()
+                    .withMonitored(true)
+                    .withOptimized(false)
+                    .withReliabilityMargin(0);
+
+            if (!this.addAngleLimit(assessedElementId, (AngleCnecAdder) cnecAdder, isCombinableWithContingency)) {
+                return;
+            }
         } else {
             return;
         }
@@ -123,9 +131,6 @@ public class CsaProfileCnecCreator {
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
                 combinableContingencies = this.checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
-                if (combinableContingencies == null) {
-                    return;
-                }
             }
         }
 
@@ -146,8 +151,14 @@ public class CsaProfileCnecCreator {
                 .withName(cnecName)
                 .withInstant(instant)
                 .add();
-        } else {
+        } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
+                .withId(cnecName)
+                .withName(cnecName)
+                .withInstant(instant)
+                .add();
+        } else {
+            ((AngleCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
                 .withInstant(instant)
@@ -156,19 +167,31 @@ public class CsaProfileCnecCreator {
         csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
     }
 
-    private boolean dataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
-        String keyword = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+    private boolean checkProfileHeader(String elementId, PropertyBag propertyBag, String twoLettersKeyword) {
+        return checkProfileKeyword(elementId, propertyBag, twoLettersKeyword) && checkProfileValidityInterval(elementId, propertyBag);
+    }
 
-        if (!CsaProfileConstants.ASSESSED_ELEMENT_FILE_KEYWORD.equals(keyword)) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be AE, but it is " + keyword));
+    private boolean checkProfileValidityInterval(String elementId, PropertyBag propertyBag) {
+        String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
+        String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(elementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
             return false;
         }
+        return true;
+    }
 
-        String startTime = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
-        String endTime = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+    private boolean checkProfileKeyword(String elementId, PropertyBag propertyBag, String twoLettersKeyword) {
+        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+        if (!twoLettersKeyword.equals(keyword)) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(elementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + twoLettersKeyword + ", but it is " + keyword));
+            return false;
+        }
+        return true;
+    }
 
-        if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
+    private boolean aeProfileDataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
+        if (!checkProfileHeader(assessedElementId, assessedElementPropertyBag, CsaProfileConstants.ASSESSED_ELEMENT_FILE_KEYWORD)) {
             return false;
         }
 
@@ -188,6 +211,10 @@ public class CsaProfileCnecCreator {
         return true;
     }
 
+    private boolean erProfileDataCheck(String assessedElementId, PropertyBag angleLimitsPropertyBag) {
+        return checkProfileHeader(assessedElementId, angleLimitsPropertyBag, CsaProfileConstants.EQUIPMENT_RELIABILITY_FILE_KEYWORD);
+    }
+
     private Set<PropertyBag> getAssessedElementsWithContingencies(String assessedElementId, PropertyBag assessedElementPropertyBag, boolean inBaseCase) {
         Set<PropertyBag> assessedElementsWithContingencies = this.assessedElementsWithContingenciesPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT));
 
@@ -199,28 +226,36 @@ public class CsaProfileCnecCreator {
 
     private CsaProfileConstants.LimitType getLimit(String assessedElementId, PropertyBag assessedElementPropertyBag) {
         this.cnecLimit = null;
-        Set<PropertyBag> currentLimits = this.currentLimitsPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
-        if (currentLimits == null) {
-            Set<PropertyBag> voltageLimits = this.voltageLimitsPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
-            if (voltageLimits == null) {
-                csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no current limit nor voltage limit linked with the assessed element"));
-                return null;
-            } else if (voltageLimits.size() != 1) {
-                csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one voltage limit linked with the assessed element"));
-                return null;
-            }
-            this.cnecLimit = voltageLimits.stream().findAny().orElse(null);
-            return CsaProfileConstants.LimitType.VOLTAGE;
-        } else if (currentLimits.size() != 1) {
-            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one current limit linked with the assessed element"));
-            return null;
+
+        if (checkLimit(this.currentLimitsPropertyBags, "current", assessedElementId, assessedElementPropertyBag)) {
+            return CsaProfileConstants.LimitType.CURRENT;
         }
-        this.cnecLimit = currentLimits.stream().findAny().orElse(null);
-        return CsaProfileConstants.LimitType.CURRENT;
+        if (checkLimit(this.voltageLimitsPropertyBags, "voltage", assessedElementId, assessedElementPropertyBag)) {
+            return CsaProfileConstants.LimitType.VOLTAGE;
+        }
+        if (checkLimit(this.angleLimitsPropertyBags, "angle", assessedElementId, assessedElementPropertyBag)) {
+            return CsaProfileConstants.LimitType.ANGLE;
+        }
+
+        csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCOMPLETE_DATA, "no current, voltage nor angle limit linked with the assessed element"));
+        return null;
+    }
+
+    private boolean checkLimit(Map<String, Set<PropertyBag>> limitPropertyBags, String limitType, String assessedElementId, PropertyBag assessedElementPropertyBag) {
+        Set<PropertyBag> limits = limitPropertyBags.get(assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_OPERATIONAL_LIMIT));
+        if (limits != null) {
+            if (limits.size() != 1) {
+                csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "more than one " + limitType + " limit linked with the assessed element"));
+                return false;
+            }
+            this.cnecLimit = limits.stream().findAny().orElse(null);
+            return true;
+        }
+        return false;
     }
 
     private Set<Contingency> checkLinkAssessedElementContingency(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet, boolean isCombinableWithContingency) {
-        Set<Contingency> combinableContingencies = combinableContingenciesSet.stream().collect(Collectors.toSet());
+        Set<Contingency> combinableContingencies = new HashSet<>(combinableContingenciesSet);
         String normalEnabledWithContingencies = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
 
         if (normalEnabledWithContingencies != null && !Boolean.parseBoolean(normalEnabledWithContingencies)) {
@@ -317,6 +352,50 @@ public class CsaProfileCnecCreator {
         }
 
         return this.addVoltageLimitThreshold(assessedElementId, voltageCnecAdder, cnecLimit);
+    }
+
+    private boolean addAngleLimit(String assessedElementId, AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
+        boolean isErProfileDataCheckOk = this.erProfileDataCheck(assessedElementId, cnecLimit);
+
+        if (!isErProfileDataCheckOk) {
+            return false;
+        }
+
+        String isFlowToRefTerminalStr = cnecLimit.get(CsaProfileConstants.REQUEST_IS_FLOW_TO_REF_TERMINAL);
+        boolean isFlowToRefTerminalIsNull = isFlowToRefTerminalStr == null;
+        boolean isFlowToRefTerminal = isFlowToRefTerminalIsNull || Boolean.parseBoolean(isFlowToRefTerminalStr);
+
+        String terminal1Id = cnecLimit.getId("terminal1");
+        String terminal2Id = cnecLimit.getId("terminal2");
+
+        String networkElement1Id = checkAngleNetworkElementAndGetId(assessedElementId, terminal1Id);
+        if (networkElement1Id == null) {
+            return false;
+        }
+        String networkElement2Id = checkAngleNetworkElementAndGetId(assessedElementId, terminal2Id);
+        if (networkElement2Id == null) {
+            return false;
+        }
+
+        boolean areNetworkElementsOk = this.addAngleCnecElements(assessedElementId, angleCnecAdder, networkElement1Id, networkElement2Id, isFlowToRefTerminal);
+        if (!areNetworkElementsOk) {
+            return false;
+        }
+        this.addAngleLimitInstant(angleCnecAdder, inBaseCase);
+        return this.addAngleLimitThreshold(assessedElementId, angleCnecAdder, cnecLimit, isFlowToRefTerminalIsNull);
+    }
+
+    private String checkAngleNetworkElementAndGetId(String assessedElementId, String terminalId) {
+        Identifiable<?> networkElement = this.getNetworkElementInNetwork(terminalId);
+        if (networkElement == null) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "angle limit equipment is missing in network : " + terminalId));
+            return null;
+        }
+        if (!networkElement.getType().equals(IdentifiableType.BUS)) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "network element " + networkElement.getId() + " is not a bus bar section"));
+            return null;
+        }
+        return networkElement.getId();
     }
 
     private boolean setNominalVoltage(String assessedElementId, FlowCnecAdder flowCnecAdder, Branch<?> branch) {
@@ -490,16 +569,71 @@ public class CsaProfileCnecCreator {
         String direction = voltageLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
         if (CsaProfileConstants.LimitDirectionKind.HIGH.toString().equals(direction)) {
             voltageCnecAdder.newThreshold()
-                .withUnit(Unit.KILOVOLT)
-                .withMax(normalValue).add();
+                    .withUnit(Unit.KILOVOLT)
+                    .withMax(normalValue).add();
         } else if (CsaProfileConstants.LimitDirectionKind.LOW.toString().equals(direction)) {
             voltageCnecAdder.newThreshold()
-                .withUnit(Unit.KILOVOLT)
-                .withMin(normalValue).add();
+                    .withUnit(Unit.KILOVOLT)
+                    .withMin(normalValue).add();
         } else if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only high and low voltage threshold values are handled for now (OperationalLimitType.direction is absolute)"));
             return false;
         }
+        return true;
+    }
+
+    private void addAngleLimitInstant(AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
+        this.cnecInstant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
+        angleCnecAdder.withInstant(this.cnecInstant);
+    }
+
+    private boolean addAngleLimitThreshold(String assessedElementId, AngleCnecAdder angleCnecAdder, PropertyBag angleLimit, boolean isFlowToRefTerminalIsNull) {
+        String normalValueStr = angleLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE);
+        Double normalValue = Double.valueOf(normalValueStr);
+        if (normalValue < 0) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "angle limit's normal value is negative"));
+            return false;
+        }
+        String direction = angleLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION);
+        if (CsaProfileConstants.LimitDirectionKind.HIGH.toString().equals(direction)) {
+            if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(assessedElementId, isFlowToRefTerminalIsNull, CsaProfileConstants.LimitDirectionKind.HIGH)) {
+                return false;
+            }
+            angleCnecAdder.newThreshold()
+                    .withUnit(Unit.DEGREE)
+                    .withMax(normalValue).add();
+        } else if (CsaProfileConstants.LimitDirectionKind.LOW.toString().equals(direction)) {
+            if (handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(assessedElementId, isFlowToRefTerminalIsNull, CsaProfileConstants.LimitDirectionKind.LOW)) {
+                return false;
+            }
+            angleCnecAdder.newThreshold()
+                    .withUnit(Unit.DEGREE)
+                    .withMin(-normalValue).add();
+        } else if (CsaProfileConstants.LimitDirectionKind.ABSOLUTE.toString().equals(direction)) {
+            angleCnecAdder.newThreshold()
+                    .withUnit(Unit.DEGREE)
+                    .withMin(-normalValue)
+                    .withMax(normalValue).add();
+        }
+        return true;
+    }
+
+    private boolean handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(String assessedElementId, boolean isFlowToRefTerminalIsNull, CsaProfileConstants.LimitDirectionKind direction) {
+        if (isFlowToRefTerminalIsNull) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "ambiguous angle limit direction definition from an undefined VoltageAngleLimit.isFlowToRefTerminal and an OperationalLimit.OperationalLimitType : " + direction));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean addAngleCnecElements(String assessedElementId, AngleCnecAdder angleCnecAdder, String networkElement1Id, String networkElement2Id, boolean isFlowToRefTerminal) {
+        if (Objects.equals(networkElement1Id, networkElement2Id)) {
+            csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AngleCNEC's importing and exporting equipments are the same : " + networkElement1Id));
+            return false;
+        }
+        String importingElement = isFlowToRefTerminal ? networkElement1Id : networkElement2Id;
+        String exportingElement = isFlowToRefTerminal ? networkElement2Id : networkElement1Id;
+        angleCnecAdder.withImportingNetworkElement(importingElement).withExportingNetworkElement(exportingElement);
         return true;
     }
 }

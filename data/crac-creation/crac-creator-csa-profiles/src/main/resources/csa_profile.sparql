@@ -161,6 +161,38 @@ WHERE {
         }
 }
 
+# query: angleLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:Model.startDate ?startDate ;
+            dcat:Model.endDate ?endDate ;
+            dcat:Model.keyword ?keyword .
+        ?angleLimit
+            rdf:type nc:VoltageAngleLimit ;
+            nc:VoltageAngleLimit.normalValue ?normalValue ;
+            nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal2 .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            cim:OperationalLimitType.direction ?direction .
+
+        OPTIONAL {
+                ?angleLimit
+                    nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
+            }
+    }
+}
+
 # query: gridStateAlterationRemedialAction
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
@@ -202,7 +234,6 @@ WHERE {
         nc:ContingencyWithRemedialAction.Contingency ?contingency ;
         nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
 }
-
 
 # query: topologyAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
