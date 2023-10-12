@@ -153,16 +153,13 @@ public class CsaProfileRemedialActionsCreator {
 
         boolean normalAvailable = Boolean.parseBoolean(remedialActionPropertyBag.get(CsaProfileConstants.NORMAL_AVAILABLE));
 
-        switch (CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, CsaProfileConstants.CsaProfile.REMEDIAL_ACTION, cracCreationContext.getTimeStamp())) {
-            case INVALID_KEYWORD -> {
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION);
-            }
-            case INVALID_INTERVAL -> {
-                throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
-            }
-            default -> {
-            }
+        CsaProfileConstants.HeaderValidity headerValidity = CsaProfileCracUtils.checkProfileHeader(remedialActionPropertyBag, CsaProfileConstants.CsaProfile.REMEDIAL_ACTION, cracCreationContext.getTimeStamp());
+        if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_KEYWORD) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + CsaProfileConstants.CsaProfile.REMEDIAL_ACTION);
+        } else if (headerValidity == CsaProfileConstants.HeaderValidity.INVALID_INTERVAL) {
+            throw new FaraoImportException(ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate");
         }
+
         if (!normalAvailable) {
             throw new FaraoImportException(ImportStatus.NOT_FOR_RAO, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because RemedialAction.normalAvailable must be 'true' to be imported");
         }
