@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_api.parameters;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -24,12 +25,12 @@ public class RangeActionsOptimizationParameters {
     // Default values
     private static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
     private static final double DEFAULT_PST_PENALTY_COST = 0.01;
-    private static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    private static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 1e-6;
     private static final PstModel DEFAULT_PST_MODEL = PstModel.CONTINUOUS;
     private static final double DEFAULT_HVDC_PENALTY_COST = 0.001;
-    private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
+    private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 1e-6;
     private static final double DEFAULT_INJECTION_RA_PENALTY_COST = 0.001;
-    private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 0.0;
+    private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 1e-6;
     private static final RaRangeShrinking DEFAULT_RA_RANGE_SHRINKING = RaRangeShrinking.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
@@ -127,6 +128,9 @@ public class RangeActionsOptimizationParameters {
     }
 
     public void setPstSensitivityThreshold(double pstSensitivityThreshold) {
+        if (pstSensitivityThreshold < 1e-6) {
+            throw new FaraoException("pstSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.");
+        }
         this.pstSensitivityThreshold = pstSensitivityThreshold;
     }
 
@@ -143,6 +147,9 @@ public class RangeActionsOptimizationParameters {
     }
 
     public void setHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
+        if (hvdcSensitivityThreshold < 1e-6) {
+            throw new FaraoException("hvdcSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.");
+        }
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
     }
 
@@ -159,6 +166,9 @@ public class RangeActionsOptimizationParameters {
     }
 
     public void setInjectionRaSensitivityThreshold(double injectionRaSensitivityThreshold) {
+        if (injectionRaSensitivityThreshold < 1e-6) {
+            throw new FaraoException("injectionRaSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.");
+        }
         this.injectionRaSensitivityThreshold = injectionRaSensitivityThreshold;
     }
 

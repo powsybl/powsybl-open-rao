@@ -11,7 +11,11 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
@@ -48,12 +52,14 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
     private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap;
+    private final RangeActionsOptimizationParameters rangeActionParameters;
     private UnoptimizedCnecFillerRule selectedRule;
 
     public UnoptimizedCnecFiller(OptimizationPerimeter optimizationContext,
                                  Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
-                                 UnoptimizedCnecParameters unoptimizedCnecParameters) {
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
+                                 RangeActionsOptimizationParameters rangeActionParameters) {
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(flowCnecs);
@@ -61,6 +67,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
         this.flowCnecRangeActionMap = unoptimizedCnecParameters.getDoNotOptimizeCnecsSecuredByTheirPst();
+        this.rangeActionParameters = rangeActionParameters;
     }
 
     public enum UnoptimizedCnecFillerRule {
@@ -212,11 +219,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
             double maxSetpoint = setPointVariable.ub();
             double minSetpoint = setPointVariable.lb();
-            double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT);
+            double sensitivity = zeroIfSensitivityBelowThreshold(
+                flowCnecRangeActionMap.get(cnec), sensitivityResult.getSensitivityValue(cnec, side, flowCnecRangeActionMap.get(cnec), MEGAWATT));
             Optional<Double> minFlow = cnec.getLowerBound(side, MEGAWATT);
             Optional<Double> maxFlow = cnec.getUpperBound(side, MEGAWATT);
-            double bigM = maxSetpoint - minSetpoint;
 
+            double bigM = 20 * highestThresholdValue;
             if (minFlow.isPresent()) {
                 FaraoMPConstraint extendSetpointBounds;
                 if (buildConstraint) {
@@ -233,7 +241,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     }
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, -sensitivity);
-                extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * abs(sensitivity));
+                extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
                 double lb =  minFlow.get();
                 if (sensitivity >= 0) {
                     lb += -maxSetpoint * sensitivity;
@@ -257,7 +265,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
                     }
                 }
                 extendSetpointBounds.setCoefficient(setPointVariable, sensitivity);
-                extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM * abs(sensitivity));
+                extendSetpointBounds.setCoefficient(optimizeCnecBinaryVariable, bigM);
                 double lb =  -maxFlow.get();
                 if (sensitivity >= 0) {
                     lb += minSetpoint * abs(sensitivity);
@@ -304,17 +312,13 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private State getLastStateWithRangeActionAvailableForCnec(FlowCnec cnec) {
         List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
                 .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-                .collect(Collectors.toList());
+                .toList();
 
         Optional<State> lastState = statesBeforeCnec.stream().filter(state ->
                 optimizationContext.getRangeActionsPerState().get(state).contains(flowCnecRangeActionMap.get(cnec)))
                 .findFirst();
-        if (lastState.isEmpty()) {
-            // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) is unavailable for cnec
-            return null;
-        } else {
-            return lastState.get();
-        }
+        // Range action (referenced for "cnec" in flowCnecPstRangeActionMap) can be unavailable for cnec
+        return lastState.orElse(null);
     }
 
 /**
@@ -369,5 +373,22 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             constraint.setCoefficient(optimizeCnecBinaryVariable, bigM);
             constraint.setUb(constraint.ub() + bigM);
         }
+    }
+
+    /**
+     * Replace small sensitivity values with zero to avoid numerical issues
+     */
+    private double zeroIfSensitivityBelowThreshold(RangeAction<?> rangeAction, double sensitivity) {
+        double threshold;
+        if (rangeAction instanceof PstRangeAction) {
+            threshold = rangeActionParameters.getPstSensitivityThreshold();
+        } else if (rangeAction instanceof HvdcRangeAction) {
+            threshold =  rangeActionParameters.getHvdcSensitivityThreshold();
+        } else if (rangeAction instanceof InjectionRangeAction) {
+            threshold =  rangeActionParameters.getInjectionRaSensitivityThreshold();
+        } else {
+            throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
+        }
+        return Math.abs(sensitivity) >= threshold ? sensitivity : 0;
     }
 }

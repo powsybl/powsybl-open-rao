@@ -15,6 +15,7 @@ import com.farao_community.farao.search_tree_rao.commons.objective_function_eval
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,10 +43,6 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult) {
         this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult);
-    }
-
-    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive) {
-        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, secondPraoResult, secondPraoResult, secondPraoResult);
     }
 
     private void checkState(State stateToCheck) {
@@ -152,7 +149,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return firstCraoResult.getRangeActions();
+        // Some range actions can be excluded from first CRAO (for example if they are only available after a constraint)
+        // but re-optimised in second PRAO
+        Set<RangeAction<?>> rangeActions = new HashSet<>(firstCraoResult.getRangeActions());
+        rangeActions.addAll(secondPraoResult.getRangeActions());
+        return rangeActions;
     }
 
     @Override

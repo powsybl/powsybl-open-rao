@@ -10,12 +10,12 @@
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
     "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 0.0,
+    "pst-sensitivity-threshold" : 1.0E-6,
     "pst-model" : "CONTINUOUS",
     "hvdc-penalty-cost" : 0.001,
-    "hvdc-sensitivity-threshold" : 0.0,
+    "hvdc-sensitivity-threshold" : 1.0E-6,
     "injection-ra-penalty-cost" : 0.001,
-    "injection-ra-sensitivity-threshold" : 0.0,
+    "injection-ra-sensitivity-threshold" : 1.0E-6,
     "linear-optimization-solver" : {
       "solver" : "CBC",
       "relative-mip-gap" : 1.0E-4,

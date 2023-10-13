@@ -83,7 +83,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         elementaryResultMap.get(rangeAction).activate(state, setpoint);
     }
 
-    private void computeSetpointsPerStatePerPst() {
+    private synchronized void computeSetpointsPerStatePerPst() {
         if (!shouldRecomputeSetpointsPerState) {
             return;
         }

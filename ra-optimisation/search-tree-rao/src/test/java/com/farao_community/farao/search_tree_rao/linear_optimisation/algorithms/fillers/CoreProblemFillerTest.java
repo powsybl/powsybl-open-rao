@@ -71,7 +71,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForGlobal() {
-        initialize(Set.of(cnec1, cnec2), 0, 0, 0, crac.getPreventiveState(), false);
+        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), false);
     }
 
     private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState, boolean raRangeShrinking) {
@@ -100,7 +100,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void fillTestOnPreventive() {
-        initializeForPreventive(0, 0, 0);
+        initializeForPreventive(1e-6, 1e-6, 1e-6);
         State state = cnec1.getState();
 
         // check range action setpoint variable
@@ -220,7 +220,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void fillTestOnCurative() {
-        initialize(Set.of(cnec2), 0, 0, 0, cnec2.getState(), false);
+        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), false);
         State state = cnec2.getState();
 
         // check range action setpoint variable
@@ -389,7 +389,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void updateTestOnPreventive() {
-        initializeForPreventive(0, 0, 0);
+        initializeForPreventive(1e-6, 1e-6, 1e-6);
         State state = cnec1.getState();
         // update the problem with new data
         updateLinearProblem();
@@ -436,7 +436,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void updateTestOnCurativeWithRaRangeShrinking() {
-        initialize(Set.of(cnec2), 0, 0, 0, cnec2.getState(), true);
+        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), true);
         State state = cnec2.getState();
         // update the problem with new data
         updateLinearProblem();

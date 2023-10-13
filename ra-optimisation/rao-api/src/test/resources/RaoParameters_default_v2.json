@@ -7,8 +7,7 @@
   "range-actions-optimization" : {
     "max-mip-iterations" : 5,
     "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 0.0
-  
+    "pst-sensitivity-threshold" : 1.0E-6
   },
   "topological-actions-optimization" : {
     "max-search-tree-depth" : 5,
