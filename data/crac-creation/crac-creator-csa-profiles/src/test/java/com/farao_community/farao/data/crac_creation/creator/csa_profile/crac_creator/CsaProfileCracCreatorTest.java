@@ -877,45 +877,30 @@ class CsaProfileCracCreatorTest {
         InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_2_InvalidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-        checkRemedialActionCreationContextsForInvalidInjectionSetpoints(cracCreationContext);
+        checkRemedialActionCreationContextsForInvalidInjectionSetpoints();
     }
 
-    private void checkRemedialActionCreationContextsForInvalidInjectionSetpoints(CsaProfileCracCreationContext cracCreationContext) {
+    private void checkRemedialActionCreationContextsForInvalidInjectionSetpoints() {
         assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
-        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
-        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
-        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
-        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
-
-        assertEquals(18, remedialActionCreationContexts.size());
-        Map<Integer, String> errorForRAs = new HashMap<>();
-        errorForRAs.put(1, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
-        errorForRAs.put(2, "Remedial action parent-remedial-action-2 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
-        errorForRAs.put(3, "Remedial action 'parent-remedial-action-3' will not be imported because field 'normalEnabled' in 'RotatingMachineAction' must be true or empty");
-        errorForRAs.put(4, "Remedial action 'parent-remedial-action-4' will not be imported because 'RotatingMachineAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
-        errorForRAs.put(5, "Remedial action parent-remedial-action-5 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
-        errorForRAs.put(6, "Remedial action parent-remedial-action-6 will not be imported because there is no StaticPropertyRange linked to that RA");
-        errorForRAs.put(7, "Remedial action parent-remedial-action-7 will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
-        errorForRAs.put(8, "Remedial action parent-remedial-action-8 will not be imported because there is no StaticPropertyRange linked to that RA");
-        errorForRAs.put(9, "Remedial action 'parent-remedial-action-9' will not be imported because 'StaticPropertyRange' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
-        errorForRAs.put(10, "Remedial action parent-remedial-action-10 will not be imported because there is no StaticPropertyRange linked to that RA");
-        errorForRAs.put(11, "Remedial action parent-remedial-action-11 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        errorForRAs.put(12, "Remedial action parent-remedial-action-12 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        errorForRAs.put(13, "Remedial action parent-remedial-action-13 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        errorForRAs.put(14, "Remedial action parent-remedial-action-14 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        errorForRAs.put(15, "Remedial action parent-remedial-action-15 will not be imported because there is no StaticPropertyRange linked to that RA");
-        errorForRAs.put(16, "Remedial action parent-remedial-action-16 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
-        errorForRAs.put(17, "Remedial action parent-remedial-action-17 will not be imported because there is no StaticPropertyRange linked to that RA");
-        errorForRAs.put(18, "Remedial action parent-remedial-action-18 will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
-        for (int index = 1; index <= 18; index++) {
-            assertEquals(errorForRAs.get(index), getContextForSpecificRemedialAction(index, remedialActionCreationContexts).getImportStatusDetail());
-        }
-    }
-
-    private CsaProfileRemedialActionCreationContext getContextForSpecificRemedialAction(int remedialActionId, Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts) {
-        return remedialActionCreationContexts.stream().filter(context -> context.getNativeId().equals("parent-remedial-action-" + remedialActionId)).toList().get(0);
+        assertRaNotImported("parent-remedial-action-2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-2 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+        assertRaNotImported("parent-remedial-action-3", ImportStatus.NOT_FOR_RAO, "Remedial action 'parent-remedial-action-3' will not be imported because field 'normalEnabled' in 'RotatingMachineAction' must be true or empty");
+        assertRaNotImported("parent-remedial-action-4", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'parent-remedial-action-4' will not be imported because 'RotatingMachineAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
+        assertRaNotImported("parent-remedial-action-5", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-5 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+        assertRaNotImported("parent-remedial-action-6", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-6 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-7", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-7 will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
+        assertRaNotImported("parent-remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-8 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'parent-remedial-action-9' will not be imported because 'StaticPropertyRange' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
+        assertRaNotImported("parent-remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-10 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-11 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-12 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-13", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-13 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-14", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-14 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-15", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-15 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-16", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-16 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-17", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-17 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-18", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-18 will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
     }
 
     @Test

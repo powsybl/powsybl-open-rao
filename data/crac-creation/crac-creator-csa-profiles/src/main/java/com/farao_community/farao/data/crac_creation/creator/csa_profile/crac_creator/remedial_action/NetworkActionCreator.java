@@ -65,7 +65,7 @@ public class NetworkActionCreator {
         Optional<Generator> optionalGenerator = network.getGeneratorStream().filter(gen -> gen.getId().equals(rotatingMachineId)).findAny();
         Optional<Load> optionalLoad = findLoad(rotatingMachineId);
         if (optionalGenerator.isEmpty() && optionalLoad.isEmpty()) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId);
+            throw new FaraoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: " + rotatingMachineId);
         }
 
         PropertyBag staticPropertyRangePropertyBag = staticPropertyRangesLinkedToRotatingMachineAction.iterator().next(); // get a random one (in theory only one will be present in case of rotating machines)
