@@ -45,10 +45,6 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult);
     }
 
-    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive) {
-        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, secondPraoResult, secondPraoResult, secondPraoResult);
-    }
-
     private void checkState(State stateToCheck) {
         if (!state.equals(stateToCheck)) {
             throw new FaraoException(String.format("State %s is not the same as this result's state (%s)", stateToCheck, state.getId()));
