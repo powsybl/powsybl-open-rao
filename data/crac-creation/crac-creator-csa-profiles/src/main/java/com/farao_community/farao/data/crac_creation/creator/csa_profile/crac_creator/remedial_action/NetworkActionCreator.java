@@ -50,7 +50,7 @@ public class NetworkActionCreator {
                         staticPropertyRanges.get(rotatingMachineActionPropertyBag.getId("mRID")),
                         remedialActionId, networkActionAdder, rotatingMachineActionPropertyBag);
                 } else {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no linked StaticPropertyRange to that RA");
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
                 }
             }
         }

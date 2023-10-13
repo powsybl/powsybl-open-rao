@@ -22,7 +22,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -103,7 +102,7 @@ public class CsaProfileRemedialActionsCreator {
                                             randomCombinationConstraintKind
                                     )
                             )
-                            .collect(Collectors.toList());
+                            .toList();
 
                     addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
                 } else { // no contingency linked to RA --> on instant usage rule
@@ -170,8 +169,10 @@ public class CsaProfileRemedialActionsCreator {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action" + remedialActionId);
         }
 
-        if (linkedTopologyActions.containsKey(remedialActionId)
-                || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
+        if (linkedTopologyActions.containsKey(remedialActionId)) {
+            return RemedialActionType.NETWORK_ACTION;
+        } else if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
+            checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PST_RANGE_ACTION;
@@ -180,13 +181,24 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private boolean checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+    private void checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+        int numberOfStaticPropertyRanges = getNumberOfStaticPropertyRangeForRotatingMachineAction(rotatingMachineActionsForOneRa, staticPropertyRangesLinkedToRotatingMachineActions);
+        if (numberOfStaticPropertyRanges == 0) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+        } else if (numberOfStaticPropertyRanges > 1) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
+        }
+    }
+
+    private int getNumberOfStaticPropertyRangeForRotatingMachineAction(Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+        int numberOfStaticPropertyRanges = 0;
         for (PropertyBag rotatingMachineAction : rotatingMachineActionsForOneRa) {
-            if (staticPropertyRangesLinkedToRotatingMachineActions.containsKey(rotatingMachineAction.getId("mRID"))) {
-                return true;
+            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToRotatingMachineActions.get(rotatingMachineAction.getId("mRID"));
+            if (staticPropertyRangePropertyBags != null) {
+                numberOfStaticPropertyRanges += staticPropertyRangePropertyBags.size();
             }
         }
-        return false;
+        return numberOfStaticPropertyRanges;
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
