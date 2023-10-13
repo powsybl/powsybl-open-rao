@@ -83,6 +83,14 @@ class CsaProfileCracCreatorTest {
         assertEquals(Set.of(expectedThresholdSide), fc.getMonitoredSides());
     }
 
+    private void assertRaNotImported(String raId, ImportStatus importStatus, String importStatusDetail) {
+        CsaProfileRemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
+        assertNotNull(context);
+        assertFalse(context.isImported());
+        assertEquals(importStatusDetail, context.getImportStatusDetail());
+        assertEquals(importStatus, context.getImportStatus());
+    }
+
     private void assertPstRangeActionImported(String id, String networkElement, boolean isAltered, int numberOfUsageRules) {
         CsaProfileRemedialActionCreationContext remedialActionCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(remedialActionCreationContext);
@@ -871,10 +879,16 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
-        checkRemedialActionCreationContextsForInvalidInjectionSetpoints(cracCreationContext.getRemedialActionCreationContexts());
+        checkRemedialActionCreationContextsForInvalidInjectionSetpoints(cracCreationContext);
     }
 
-    private void checkRemedialActionCreationContextsForInvalidInjectionSetpoints(Set<CsaProfileRemedialActionCreationContext> remedialActionCreationContexts) {
+    private void checkRemedialActionCreationContextsForInvalidInjectionSetpoints(CsaProfileCracCreationContext cracCreationContext) {
+        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
+        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
+        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
+        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
+        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
+
         assertEquals(18, remedialActionCreationContexts.size());
         Map<Integer, String> errorForRAs = new HashMap<>();
         errorForRAs.put(1, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
