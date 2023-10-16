@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 
 /**
@@ -17,22 +16,30 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public enum Instant {
-    PREVENTIVE(0, "preventive"),
-    OUTAGE(1, "outage"),
-    AUTO(2, "auto"),
-    CURATIVE(3, "curative");
-
-    private final int order;
+public class Instant {
     private final String name;
+    private final InstantKind instantKind;
+    private final Instant previous;
+    private final int order;
 
-    Instant(int order, String name) {
-        this.order = order;
+    Instant(String name, InstantKind instantKind, Instant previous) {
+        if (previous == null) {
+            // TODO should first instant always be a preventive one ?
+            this.order = 0;
+        } else {
+            this.order = previous.getOrder() + 1;
+        }
         this.name = name;
+        this.instantKind = instantKind;
+        this.previous = previous;
     }
 
     public int getOrder() {
         return order;
+    }
+
+    public InstantKind getInstantKind() {
+        return instantKind;
     }
 
     @Override
@@ -45,17 +52,6 @@ public enum Instant {
     }
 
     public Instant getPreviousInstant() {
-        switch (this) {
-            case PREVENTIVE:
-                return null;
-            case OUTAGE:
-                return PREVENTIVE;
-            case AUTO:
-                return OUTAGE;
-            case CURATIVE:
-                return AUTO;
-            default:
-                throw new FaraoException("Unknown instant");
-        }
+        return previous;
     }
 }

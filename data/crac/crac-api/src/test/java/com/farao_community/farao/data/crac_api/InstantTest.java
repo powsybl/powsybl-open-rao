@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_api;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.farao_community.farao.data.crac_api.Instant.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -20,60 +19,31 @@ class InstantTest {
 
     @Test
     void testPreventive() {
-        Instant instant = Instant.PREVENTIVE;
+        Instant instant = new Instant("preventive", InstantKind.PREVENTIVE, null);
         assertEquals(0, instant.getOrder());
         assertEquals("preventive", instant.toString());
+        assertEquals(InstantKind.PREVENTIVE, instant.getInstantKind());
     }
 
     @Test
-    void testOutage() {
-        Instant instant = Instant.OUTAGE;
-        assertEquals(1, instant.getOrder());
-        assertEquals("outage", instant.toString());
-    }
+    void testCombineInstants() {
+        Instant instantPrev = new Instant("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new Instant("outage", InstantKind.OUTAGE, instantPrev);
+        Instant instantAuto = new Instant("auto", InstantKind.AUTO, instantOutage);
+        Instant instantCurative = new Instant("curative", InstantKind.CURATIVE, instantAuto);
 
-    @Test
-    void testAuto() {
-        Instant instant = Instant.AUTO;
-        assertEquals(2, instant.getOrder());
-        assertEquals("auto", instant.toString());
-    }
+        assertEquals(0, instantPrev.getOrder());
+        assertEquals(1, instantOutage.getOrder());
+        assertEquals(2, instantAuto.getOrder());
+        assertEquals(3, instantCurative.getOrder());
 
-    @Test
-    void testCurative() {
-        Instant instant = Instant.CURATIVE;
-        assertEquals(3, instant.getOrder());
-        assertEquals("curative", instant.toString());
-    }
+        assertNull(instantPrev.getPreviousInstant());
+        assertEquals(instantPrev, instantOutage.getPreviousInstant());
+        assertEquals(instantOutage, instantAuto.getPreviousInstant());
+        assertEquals(instantAuto, instantCurative.getPreviousInstant());
 
-    @Test
-    void testComesBefore() {
-        assertFalse(PREVENTIVE.comesBefore(PREVENTIVE));
-        assertTrue(PREVENTIVE.comesBefore(OUTAGE));
-        assertTrue(PREVENTIVE.comesBefore(AUTO));
-        assertTrue(PREVENTIVE.comesBefore(CURATIVE));
-
-        assertFalse(OUTAGE.comesBefore(PREVENTIVE));
-        assertFalse(OUTAGE.comesBefore(OUTAGE));
-        assertTrue(OUTAGE.comesBefore(AUTO));
-        assertTrue(OUTAGE.comesBefore(CURATIVE));
-
-        assertFalse(AUTO.comesBefore(PREVENTIVE));
-        assertFalse(AUTO.comesBefore(OUTAGE));
-        assertFalse(AUTO.comesBefore(AUTO));
-        assertTrue(AUTO.comesBefore(CURATIVE));
-
-        assertFalse(CURATIVE.comesBefore(PREVENTIVE));
-        assertFalse(CURATIVE.comesBefore(OUTAGE));
-        assertFalse(CURATIVE.comesBefore(AUTO));
-        assertFalse(CURATIVE.comesBefore(CURATIVE));
-    }
-
-    @Test
-    void testGetPreviousInstant() {
-        assertEquals(null, PREVENTIVE.getPreviousInstant());
-        assertEquals(PREVENTIVE, OUTAGE.getPreviousInstant());
-        assertEquals(OUTAGE, AUTO.getPreviousInstant());
-        assertEquals(AUTO, CURATIVE.getPreviousInstant());
+        assertFalse(instantAuto.comesBefore(instantAuto));
+        assertTrue(instantOutage.comesBefore(instantCurative));
+        assertFalse(instantOutage.comesBefore(instantPrev));
     }
 }
