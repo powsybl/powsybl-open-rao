@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,48 +10,23 @@ package com.farao_community.farao.data.crac_api;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 
 /**
- * Enum representing the instants at which {@link Cnec} can be monitored and
- * {@link RemedialAction} applied.
+ * Class representing the instants at which a {@link Cnec} can be monitored and
+ * a {@link RemedialAction} applied.
  *
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class Instant {
-    private final String name;
-    private final InstantKind instantKind;
-    private final Instant previous;
-    private final int order;
+public interface Instant extends Identifiable<Instant> {
 
-    Instant(String name, InstantKind instantKind, Instant previous) {
-        if (previous == null) {
-            // TODO should first instant always be a preventive one ?
-            this.order = 0;
-        } else {
-            this.order = previous.getOrder() + 1;
-        }
-        this.name = name;
-        this.instantKind = instantKind;
-        this.previous = previous;
-    }
+    public int getOrder();
 
-    public int getOrder() {
-        return order;
-    }
-
-    public InstantKind getInstantKind() {
-        return instantKind;
-    }
+    public InstantKind getInstantKind();
 
     @Override
-    public String toString() {
-        return name;
-    }
+    public String toString();
 
-    public boolean comesBefore(Instant otherInstant) {
-        return this.order < otherInstant.order;
-    }
+    public boolean comesBefore(Instant otherInstant);
 
-    public Instant getPreviousInstant() {
-        return previous;
-    }
+    public Instant getPreviousInstant();
+
 }

@@ -58,6 +58,26 @@ public interface Crac extends Identifiable<Crac> {
      */
     void removeContingency(String id);
 
+    // Instants management
+
+    /**
+     * Gather all the states present in the Crac. It returns a set because instants must not
+     * be duplicated and there is no defined order for instants.
+     */
+    // TODO: return a list instead?
+    Set<Instant> getInstants();
+
+    /**
+     * Select the preventive state. This state is unique. It's the only state that is
+     * defined on the preventive instant, with no contingency.
+     */
+    Instant getPreventiveInstant();
+
+    /**
+     * Gather all the instants present in the Crac with the correct instantKind.
+     */
+    Set<Instant> getInstants(InstantKind instantKind);
+
     // States management
 
     /**

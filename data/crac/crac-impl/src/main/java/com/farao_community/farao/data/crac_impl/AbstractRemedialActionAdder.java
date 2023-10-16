@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.usage_rule.*;
@@ -80,19 +81,19 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
         return this.crac;
     }
 
-    static void checkOnConstraintUsageRules(Instant instant, Cnec<?> cnec) {
+    static void checkOnConstraintUsageRules(InstantKind instantKind, Cnec<?> cnec) {
         // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
         // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant AUTO
         // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant CURATIVE
 
-        Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
-            Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
-            Instant.AUTO, Set.of(Instant.AUTO),
-            Instant.CURATIVE, Set.of(Instant.CURATIVE)
+        Map<InstantKind, Set<InstantKind>> allowedCnecInstantKindPerRaInstantKind = Map.of(
+            InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
+            InstantKind.AUTO, Set.of(InstantKind.AUTO),
+            InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
         );
 
-        if (!allowedCnecInstantPerRaInstant.get(instant).contains(cnec.getState().getInstant())) {
-            throw new FaraoException(String.format("Remedial actions available at instant %s on a CNEC constraint at instant %s are not allowed.", instant, cnec.getState().getInstant()));
+        if (!allowedCnecInstantKindPerRaInstantKind.get(instantKind).contains(cnec.getState().getInstant().getInstantKind())) {
+            throw new FaraoException(String.format("Remedial actions available at instant %s on a CNEC constraint at instant %s are not allowed.", instantKind, cnec.getState().getInstant().getInstantKind()));
         }
     }
 }

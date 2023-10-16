@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
@@ -46,10 +47,10 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
 

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.re
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -409,16 +410,16 @@ public class RemedialActionSeriesCreator {
 
         checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
 
-        if (instant.equals(Instant.PREVENTIVE) || (instant.equals(Instant.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE) || (instant.getInstantKind().equals(InstantKind.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
-            UsageMethod usageMethod = instant.equals(Instant.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
+            UsageMethod usageMethod = instant.getInstantKind().equals(InstantKind.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
             RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
         }
     }
 
     private static void checkUsageRulesContingencies(Instant instant, List<Contingency> contingencies, List<String> invalidContingencies) {
-        switch (instant) {
+        switch (instant.getInstantKind()) {
             case PREVENTIVE:
                 if ((Objects.nonNull(contingencies) && !contingencies.isEmpty()) || (Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty())) {
                     throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
@@ -462,12 +463,12 @@ public class RemedialActionSeriesCreator {
         // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
         // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
         //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
-        Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
-            Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
-            Instant.AUTO, Set.of(Instant.AUTO),
-            Instant.CURATIVE, Set.of(Instant.CURATIVE)
+        Map<InstantKind, Set<InstantKind>> allowedCnecInstantKindPerRaInstantKind = Map.of(
+            InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
+            InstantKind.AUTO, Set.of(InstantKind.AUTO),
+            InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
         );
-        if (!allowedCnecInstantPerRaInstant.get(instant).contains(flowCnec.getState().getInstant())) {
+        if (!allowedCnecInstantKindPerRaInstantKind.get(instant.getInstantKind()).contains(flowCnec.getState().getInstant().getInstantKind())) {
             return;
         }
         adder.newOnFlowConstraintUsageRule()

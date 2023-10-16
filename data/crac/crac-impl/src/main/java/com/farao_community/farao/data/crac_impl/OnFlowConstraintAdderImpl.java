@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
@@ -22,7 +23,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
     private T owner;
-    private Instant instant;
+    private InstantKind instantKind;
     private String flowCnecId;
 
     OnFlowConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -30,8 +31,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
-    public OnFlowConstraintAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnFlowConstraintAdder<T> withInstantKind(InstantKind instantKind) {
+        this.instantKind = instantKind;
         return this;
     }
 
@@ -43,13 +44,13 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantKind, "OnFlowConstraint", "instantKind", "withInstantKind()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instantKind.equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instantKind.equals(InstantKind.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
 
@@ -58,7 +59,9 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
             throw new FaraoException(String.format("FlowCnec %s does not exist in crac. Consider adding it first.", flowCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, flowCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instantKind, flowCnec);
+
+        //TODO : you'll need the order to get the correct instant once we have more than one curative/auto instant
 
         OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instant, flowCnec);
         owner.addUsageRule(onFlowConstraint);

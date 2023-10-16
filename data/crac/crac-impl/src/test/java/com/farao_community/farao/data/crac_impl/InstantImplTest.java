@@ -5,8 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api;
+package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,11 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-class InstantTest {
+class InstantImplTest {
 
     @Test
     void testPreventive() {
-        Instant instant = new Instant("preventive", InstantKind.PREVENTIVE, null);
+        Instant instant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
         assertEquals(0, instant.getOrder());
         assertEquals("preventive", instant.toString());
         assertEquals(InstantKind.PREVENTIVE, instant.getInstantKind());
@@ -27,10 +29,10 @@ class InstantTest {
 
     @Test
     void testCombineInstants() {
-        Instant instantPrev = new Instant("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new Instant("outage", InstantKind.OUTAGE, instantPrev);
-        Instant instantAuto = new Instant("auto", InstantKind.AUTO, instantOutage);
-        Instant instantCurative = new Instant("curative", InstantKind.CURATIVE, instantAuto);
+        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
 
         assertEquals(0, instantPrev.getOrder());
         assertEquals(1, instantOutage.getOrder());

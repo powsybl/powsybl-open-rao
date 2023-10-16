@@ -32,6 +32,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private final Map<String, NetworkElement> networkElements = new HashMap<>();
     private final Map<String, Contingency> contingencies = new HashMap<>();
+    private final Map<String, Instant> instants = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, AngleCnec> angleCnecs = new HashMap<>();
@@ -147,6 +148,23 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
+    @Override
+    public Set<Instant> getInstants() {
+        return new HashSet<>(instants.values());
+    }
+
+    @Override
+    public Instant getPreventiveInstant() {
+        return instants.get("preventive");
+    }
+
+    @Override
+    public Set<Instant> getInstants(InstantKind instantKind) {
+        return instants.values().stream()
+            .filter(instant -> instant.getInstantKind().equals(instantKind))
+            .collect(Collectors.toSet());
+    }
+
     void addContingency(Contingency contingency) {
         contingencies.put(contingency.getId(), contingency);
     }
@@ -212,7 +230,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
         if (getState(contingency, instant) != null) {
