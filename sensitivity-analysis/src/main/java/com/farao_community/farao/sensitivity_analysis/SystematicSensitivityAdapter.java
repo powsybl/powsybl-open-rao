@@ -9,6 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.contingency.Contingency;
@@ -19,6 +20,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -53,7 +55,16 @@ final class SystematicSensitivityAdapter {
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, Instant.OUTAGE).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        Instant instant = getInstantClosestToPreventive(cnecSensitivityProvider);
+        return new SystematicSensitivityResult().completeData(result, instant).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+    }
+
+    private static Instant getInstantClosestToPreventive(CnecSensitivityProvider cnecSensitivityProvider) {
+        return cnecSensitivityProvider.getFlowCnecs().stream()
+            .map(flowCnec -> flowCnec.getState().getInstant())
+            .filter(instant1 -> instant1.getInstantKind() != InstantKind.PREVENTIVE)
+            .min(Comparator.comparing(Instant::getOrder))
+            .orElse(null);
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,

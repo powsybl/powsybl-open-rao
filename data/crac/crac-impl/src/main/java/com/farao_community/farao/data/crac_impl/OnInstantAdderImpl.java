@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstantAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -45,10 +46,10 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnInstant usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
 

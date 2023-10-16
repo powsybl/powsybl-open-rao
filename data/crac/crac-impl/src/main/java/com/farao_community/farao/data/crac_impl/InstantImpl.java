@@ -19,7 +19,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements Instant {
+public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements Instant<InstantImpl> {
 
     private final InstantKind instantKind;
     private final Instant previous;
@@ -51,7 +51,7 @@ public class InstantImpl extends AbstractIdentifiable<InstantImpl> implements In
     }
 
     public boolean comesBefore(Instant otherInstant) {
-        return this.order < otherInstant.order;
+        return this.order < otherInstant.getOrder();
     }
 
     public Instant getPreviousInstant() {

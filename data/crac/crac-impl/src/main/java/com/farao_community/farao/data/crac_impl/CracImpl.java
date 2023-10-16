@@ -149,6 +149,20 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Instant addInstant(Instant instant){
+        String id = instant.getId();
+        if (instants.containsKey(id)) {
+            if (instant == instants.get(id)) {
+                return instants.get(id);
+            } else {
+                throw new FaraoException(format("Instant %s is already defined with other arguments", id));
+            }
+        }
+        instants.put(id, instant);
+        return instant;
+    }
+
+    @Override
     public Set<Instant> getInstants() {
         return new HashSet<>(instants.values());
     }

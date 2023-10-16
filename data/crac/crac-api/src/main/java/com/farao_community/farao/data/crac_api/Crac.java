@@ -61,6 +61,13 @@ public interface Crac extends Identifiable<Crac> {
     // Instants management
 
     /**
+     * Add instant
+     *
+     * @return
+     */
+    Instant addInstant(Instant instant);
+
+    /**
      * Gather all the states present in the Crac. It returns a set because instants must not
      * be duplicated and there is no defined order for instants.
      */
