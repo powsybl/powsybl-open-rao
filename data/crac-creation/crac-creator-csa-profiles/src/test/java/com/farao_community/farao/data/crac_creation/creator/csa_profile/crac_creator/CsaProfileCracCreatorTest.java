@@ -33,8 +33,8 @@ import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -386,7 +386,7 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(39, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(42, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         assertEquals(5, cracCreationContext.getCrac().getVoltageCnecs().size());
@@ -1121,7 +1121,7 @@ public class CsaProfileCracCreatorTest {
 
         assertEquals(4, cracCreationContext.getCrac().getAngleCnecs().size());
         List<AngleCnec> angleCnecs = cracCreationContext.getCrac().getAngleCnecs().stream()
-                .sorted(Comparator.comparing(AngleCnec::getId)).toList();
+            .sorted(Comparator.comparing(AngleCnec::getId)).toList();
 
         // RTE_AE1 - preventive
         AngleCnec angleCnec1 = angleCnecs.get(0);
@@ -1190,7 +1190,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(0, cracCreationContext.getCrac().getAngleCnecs().size());
 
         List<CsaProfileCnecCreationContext> cnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream()
-                .sorted(Comparator.comparing(CsaProfileCnecCreationContext::getNativeId)).toList();
+            .sorted(Comparator.comparing(CsaProfileCnecCreationContext::getNativeId)).toList();
         assertEquals(6, cnecCreationContexts.size());
 
         // Missing AngleReferenceTerminal
