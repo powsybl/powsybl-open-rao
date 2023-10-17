@@ -49,7 +49,7 @@ class NetworkActionImplTest {
             "id",
             "name",
             "operator",
-            Collections.singletonList(mockedUsageRule1),
+            new HashSet<>(Collections.singleton(mockedUsageRule1)),
             Collections.singleton(mockedElementaryAction1),
             10
         );
@@ -68,7 +68,7 @@ class NetworkActionImplTest {
             "id",
             "name",
             "operator",
-            Arrays.asList(mockedUsageRule1, mockedUsageRule2),
+            new HashSet<>(mockedUsageRule1, mockedUsageRule2),
             new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2)),
             10
         );
@@ -88,7 +88,7 @@ class NetworkActionImplTest {
             "id",
             "name",
             "operator",
-            List.of(mockedUsageRule1, mockedUsageRule2),
+            new HashSet<>(List.of(mockedUsageRule1, mockedUsageRule2)),
             Set.of(mockedElementaryAction1, mockedElementaryAction2),
             10
         );
@@ -111,7 +111,7 @@ class NetworkActionImplTest {
             "id",
             "name",
             "operator",
-            List.of(mockedUsageRule1, mockedUsageRule2),
+            new HashSet<>(List.of(mockedUsageRule1, mockedUsageRule2)),
             Set.of(mockedElementaryAction1, mockedElementaryAction2),
             10
         );

@@ -20,7 +20,7 @@ import java.util.*;
  */
 public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<T>> extends AbstractIdentifiableAdder<T> implements RemedialActionAdder<T> {
 
-    protected final List<UsageRule> usageRules = new ArrayList<>();
+    protected final Set<UsageRule> usageRules = new HashSet<>();
     private final CracImpl crac;
     protected String operator;
     protected Integer speed;

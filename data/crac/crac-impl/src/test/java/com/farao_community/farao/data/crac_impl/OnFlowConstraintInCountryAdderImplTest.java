@@ -87,8 +87,8 @@ class OnFlowConstraintInCountryAdderImplTest {
             .add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
-        OnFlowConstraintInCountry onFlowConstraint = (OnFlowConstraintInCountry) remedialAction.getUsageRules().get(0);
+        assertTrue(remedialAction.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
+        OnFlowConstraintInCountry onFlowConstraint = (OnFlowConstraintInCountry) remedialAction.getUsageRules().iterator().next();
         assertEquals(instantPrev, onFlowConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));

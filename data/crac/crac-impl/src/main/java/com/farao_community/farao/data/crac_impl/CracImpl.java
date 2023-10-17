@@ -194,7 +194,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
         return getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
             && cnec.getState().getContingency().get().getId().equals(contingencyId))
-            || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
+            || getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
             .anyMatch(usageMethod -> (usageMethod instanceof OnContingencyStateImpl onContingencyState)
                 && onContingencyState.getContingency().getId().equals(contingencyId));
     }
@@ -285,7 +285,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
             || getRemedialActions().stream()
             .map(RemedialAction::getUsageRules)
-            .flatMap(List::stream)
+            .flatMap(Set::stream)
             .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
     }
 

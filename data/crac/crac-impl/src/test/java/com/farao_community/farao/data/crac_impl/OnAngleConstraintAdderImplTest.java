@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnAngleConstraintAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -71,10 +72,11 @@ class OnAngleConstraintAdderImplTest {
             .withAngleCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
+        UsageRule usageRule = networkAction.getUsageRules().iterator().next();
 
         assertEquals(1, networkAction.getUsageRules().size());
-        assertTrue(networkAction.getUsageRules().get(0) instanceof OnAngleConstraint);
-        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) networkAction.getUsageRules().get(0);
+        assertTrue(usageRule instanceof OnAngleConstraint);
+        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
         assertEquals(instantPrev, onAngleConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getPreventiveState()));
@@ -90,10 +92,11 @@ class OnAngleConstraintAdderImplTest {
             .withAngleCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
+        UsageRule usageRule = networkAction.getUsageRules().iterator().next();
 
         assertEquals(1, networkAction.getUsageRules().size());
-        assertTrue(networkAction.getUsageRules().get(0) instanceof OnAngleConstraint);
-        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) networkAction.getUsageRules().get(0);
+        assertTrue(usageRule instanceof OnAngleConstraint);
+        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) usageRule;
         assertEquals(instantCurative, onAngleConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), instantCurative)));
