@@ -10,21 +10,31 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class OnFlowConstraintInCountryAdderImplTest {
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
@@ -41,7 +51,7 @@ class OnFlowConstraintInCountryAdderImplTest {
         crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
@@ -71,7 +81,7 @@ class OnFlowConstraintInCountryAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withCountry(Country.FR)
             .add()
             .add();
@@ -79,10 +89,10 @@ class OnFlowConstraintInCountryAdderImplTest {
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnFlowConstraintInCountry);
         OnFlowConstraintInCountry onFlowConstraint = (OnFlowConstraintInCountry) remedialAction.getUsageRules().get(0);
-        assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
+        assertEquals(instantPrev, onFlowConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
-        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
+        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), instantCurative)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
         assertEquals(Country.FR, onFlowConstraint.getCountry());
@@ -90,13 +100,13 @@ class OnFlowConstraintInCountryAdderImplTest {
 
     @Test
     void testOutageException() {
-        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.OUTAGE).withCountry(Country.FR);
+        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instantOutage).withCountry(Country.FR);
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testAbsentCountryException() {
-        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(Instant.PREVENTIVE);
+        OnFlowConstraintInCountryAdder adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instantPrev);
         assertThrows(FaraoException.class, adder::add);
     }
 

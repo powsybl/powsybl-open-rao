@@ -118,7 +118,7 @@ public interface Crac extends Identifiable<Crac> {
      * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
-    Set<State> getStates(InstantKind instant);
+    Set<State> getStates(Instant instant);
 
     /**
      * Select a unique state after a contingency and at a specific instant.
@@ -140,7 +140,7 @@ public interface Crac extends Identifiable<Crac> {
      * @return Unordered set of states at the same specified instant.
      */
     default Set<State> getStatesFromInstant(Instant instant) {
-        return getStates(instant.getInstantKind());
+        return getStates(instant);
     }
 
     /**

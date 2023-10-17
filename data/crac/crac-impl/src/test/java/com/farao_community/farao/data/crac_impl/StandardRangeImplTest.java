@@ -10,7 +10,8 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

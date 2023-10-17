@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -18,13 +19,19 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class NetworkActionAdderImplTest {
 
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
     private Crac crac;
 
     @BeforeEach
@@ -44,13 +51,13 @@ class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .withOperator("operator")
             .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
             .newOnInstantUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
+            .withInstant(instantPrev)
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -68,13 +75,13 @@ class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .withOperator("operator")
             .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
             .newPstSetPoint()
-                .withNetworkElement("anotherPstNetworkElementId")
-                .withSetpoint(4)
-                .add()
+            .withNetworkElement("anotherPstNetworkElementId")
+            .withSetpoint(4)
+            .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -92,18 +99,18 @@ class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .withOperator("operator")
             .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
             .newOnInstantUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
+            .withInstant(instantPrev)
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
             .newOnContingencyStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withContingency("contingencyId")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
+            .withInstant(instantCurative)
+            .withContingency("contingencyId")
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -120,9 +127,9 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withOperator("operator")
             .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -138,9 +145,9 @@ class NetworkActionAdderImplTest {
             .withId("networkActionId")
             .withName("networkActionName")
             .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
@@ -152,12 +159,12 @@ class NetworkActionAdderImplTest {
     @Test
     void testNokWithoutId() {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-                .withName("networkActionName")
-                .withOperator("operator")
-                .newPstSetPoint()
-                    .withNetworkElement("pstNetworkElementId")
-                    .withSetpoint(6)
-                    .add();
+            .withName("networkActionName")
+            .withOperator("operator")
+            .newPstSetPoint()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add();
         assertThrows(FaraoException.class, networkActionAdder::add);
     }
 
@@ -188,14 +195,14 @@ class NetworkActionAdderImplTest {
     @Test
     void testOkWithoutSpeed() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-                .withId("networkActionId")
-                .withName("networkActionName")
-                .withOperator("operator")
-                .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
-                .add();
+            .withId("networkActionId")
+            .withName("networkActionName")
+            .withOperator("operator")
+            .newPstSetPoint()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
+            .add();
 
         assertEquals(Optional.empty(), networkAction.getSpeed());
     }
@@ -203,15 +210,15 @@ class NetworkActionAdderImplTest {
     @Test
     void testOkWithSpeed() {
         NetworkAction networkAction = (NetworkAction) crac.newNetworkAction()
-                .withId("networkActionId")
-                .withName("networkActionName")
-                .withOperator("operator")
-                .withSpeed(123)
-                .newPstSetPoint()
-                .withNetworkElement("pstNetworkElementId")
-                .withSetpoint(6)
-                .add()
-                .add();
+            .withId("networkActionId")
+            .withName("networkActionName")
+            .withOperator("operator")
+            .withSpeed(123)
+            .newPstSetPoint()
+            .withNetworkElement("pstNetworkElementId")
+            .withSetpoint(6)
+            .add()
+            .add();
 
         assertEquals(123, networkAction.getSpeed().get().intValue());
     }

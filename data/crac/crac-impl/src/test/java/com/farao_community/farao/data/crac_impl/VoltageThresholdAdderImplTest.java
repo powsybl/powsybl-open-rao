@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.threshold.VoltageThresholdAdder;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class VoltageThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
     private Crac crac;
     private Contingency contingency;
 
@@ -37,7 +40,7 @@ class VoltageThresholdAdderImplTest {
     @Test
     void testAddThresholdInDegree() {
         VoltageCnec cnec = crac.newVoltageCnec()
-            .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
+            .withId("test-cnec").withInstant(instantOutage).withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-250.0).withMax(1000.0).add()
             .add();

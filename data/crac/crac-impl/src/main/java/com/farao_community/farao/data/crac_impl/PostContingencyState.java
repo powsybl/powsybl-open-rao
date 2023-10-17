@@ -24,7 +24,7 @@ public class PostContingencyState implements State {
     private final Instant instant;
 
     PostContingencyState(Contingency contingency, Instant instant) {
-        this.id = contingency.getId() + " - " + instant.toString();
+        this.id = contingency.getId() + " - " + instant.getId();
         this.contingency = contingency;
         this.instant = instant;
     }

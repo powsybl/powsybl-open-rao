@@ -12,11 +12,13 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
-import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -37,7 +39,7 @@ class StandardRangeAdderImplTest {
     @Test
     void testOk() {
         HvdcRangeAction hvdcRangeAction = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
-                .add();
+            .add();
 
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(-5, hvdcRangeAction.getRanges().get(0).getMin(), 1e-6);

@@ -7,17 +7,26 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 class PostContingencyStateTest {
 
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
     private Contingency contingency1;
     private Contingency contingency2;
 
@@ -36,38 +45,38 @@ class PostContingencyStateTest {
 
     @Test
     void testEquals() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
-        PostContingencyState state2 = new PostContingencyState(contingency1, Instant.OUTAGE);
+        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
+        PostContingencyState state2 = new PostContingencyState(contingency1, instantOutage);
 
         assertEquals(state1, state2);
     }
 
     @Test
     void testNotEqualsByInstant() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
-        PostContingencyState state2 = new PostContingencyState(contingency1, Instant.CURATIVE);
+        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
+        PostContingencyState state2 = new PostContingencyState(contingency1, instantCurative);
 
         assertNotEquals(state1, state2);
     }
 
     @Test
     void testNotEqualsByContingency() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, Instant.CURATIVE);
-        PostContingencyState state2 = new PostContingencyState(contingency2, Instant.CURATIVE);
+        PostContingencyState state1 = new PostContingencyState(contingency1, instantCurative);
+        PostContingencyState state2 = new PostContingencyState(contingency2, instantCurative);
 
         assertNotEquals(state1, state2);
     }
 
     @Test
     void testToStringAfterContingency() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
+        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
         assertEquals("contingency1 - outage", state1.toString());
     }
 
     @Test
     void testCompareTo() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, Instant.OUTAGE);
-        PostContingencyState state2 = new PostContingencyState(contingency1, Instant.CURATIVE);
+        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
+        PostContingencyState state2 = new PostContingencyState(contingency1, instantCurative);
 
         assertTrue(state2.compareTo(state1) > 0);
     }

@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
 
 import java.util.Optional;
@@ -19,20 +18,20 @@ import java.util.Optional;
  */
 public class PreventiveState implements State {
 
-    private final Instant preventiveInstant = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private final Instant instant;
 
-    PreventiveState() {
+    PreventiveState(Instant instant) {
+        this.instant = instant;
     }
 
     @Override
     public String getId() {
-        return "preventive";
+        return instant.getId();
     }
 
     @Override
     public Instant getInstant() {
-        //TODO : make sure we don't create many preventive instants
-        return preventiveInstant;
+        return instant;
     }
 
     @Override

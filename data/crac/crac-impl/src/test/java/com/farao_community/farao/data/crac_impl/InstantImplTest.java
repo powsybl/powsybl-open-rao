@@ -11,7 +11,10 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

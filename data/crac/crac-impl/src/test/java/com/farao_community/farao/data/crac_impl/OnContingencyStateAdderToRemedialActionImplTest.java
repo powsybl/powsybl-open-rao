@@ -15,13 +15,19 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class OnContingencyStateAdderToRemedialActionImplTest {
 
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
     private Crac crac;
     private Contingency contingency;
     private RemedialAction<?> remedialAction = null;
@@ -29,14 +35,14 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
-        ((CracImpl) crac).addPreventiveState();
+        ((CracImpl) crac).addPreventiveState(instantPrev);
 
         contingency = crac.newContingency()
             .withId("contingencyId")
             .withNetworkElement("networkElementId")
             .add();
 
-        ((CracImpl) crac).addState(contingency, Instant.CURATIVE);
+        ((CracImpl) crac).addState(contingency, instantCurative);
 
         remedialAction = crac.newNetworkAction()
             .withId("networkActionId")
@@ -48,11 +54,11 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
     @Test
     void testOk() {
-        remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, Instant.CURATIVE)).withUsageMethod(UsageMethod.FORCED).add();
+        remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, instantCurative)).withUsageMethod(UsageMethod.FORCED).add();
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
-        assertEquals(Instant.CURATIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
+        assertEquals(instantCurative, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
         assertEquals(contingency, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getContingency().orElse(null));
         assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
@@ -63,7 +69,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
-        assertEquals(Instant.PREVENTIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
+        assertEquals(instantPrev, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
         assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
     }
 
@@ -77,7 +83,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     @Test
     void testNoUsageMethod() {
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
-            .withState(crac.getState(contingency, Instant.CURATIVE));
+            .withState(crac.getState(contingency, instantCurative));
         assertThrows(FaraoException.class, onStateAdderToRemedialAction::add);
     }
 
@@ -91,7 +97,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
     @Test
     void testOutageInstant() {
-        State outageState = ((CracImpl) crac).addState(contingency, Instant.OUTAGE);
+        State outageState = ((CracImpl) crac).addState(contingency, instantOutage);
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withState(outageState)
             .withUsageMethod(UsageMethod.AVAILABLE);

@@ -84,8 +84,8 @@ class ContingencyImplTest {
         assertEquals(contingencyImpl1.hashCode(), contingencyImpl2.hashCode());
 
         ContingencyImpl contingencyImpl3 = new ContingencyImpl(
-                "contingency-3", "contingency-1",
-                Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
+            "contingency-3", "contingency-1",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
         assertNotEquals(contingencyImpl1, contingencyImpl3);
         assertTrue(contingencyImpl1.hashCode() < contingencyImpl3.hashCode());

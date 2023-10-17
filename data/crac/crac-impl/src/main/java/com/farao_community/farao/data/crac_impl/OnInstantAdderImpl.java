@@ -50,7 +50,7 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
             throw new FaraoException("OnInstant usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            owner.getCrac().addPreventiveState();
+            owner.getCrac().addPreventiveState(instant);
         }
 
         OnInstant onInstant = new OnInstantImpl(usageMethod, instant);

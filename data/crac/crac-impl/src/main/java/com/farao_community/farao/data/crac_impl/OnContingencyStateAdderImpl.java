@@ -63,7 +63,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
             if (usageMethod != UsageMethod.FORCED) {
                 throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
-            state = owner.getCrac().addPreventiveState();
+            state = owner.getCrac().addPreventiveState(instant);
         } else if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {

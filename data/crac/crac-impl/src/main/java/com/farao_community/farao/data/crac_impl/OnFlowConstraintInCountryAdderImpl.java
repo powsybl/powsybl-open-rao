@@ -49,7 +49,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
             throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            owner.getCrac().addPreventiveState();
+            owner.getCrac().addPreventiveState(instant);
         }
 
         OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(instant, country);

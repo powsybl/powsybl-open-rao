@@ -8,10 +8,12 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Country;
@@ -20,15 +22,25 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionImplTest {
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
     private Crac crac;
     private PstRangeActionAdder pstRangeActionAdder;
     private String networkElementId;
@@ -50,7 +62,7 @@ class PstRangeActionImplTest {
             .withName("pst-range-action-name")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(instantPrev).withUsageMethod(UsageMethod.AVAILABLE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap)
             .withInitialTap(0);
     }
@@ -115,7 +127,7 @@ class PstRangeActionImplTest {
     void pstWithRelativeToPreviousInstantRange() {
 
         PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(instantCurative).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
             .add();
 
@@ -189,7 +201,7 @@ class PstRangeActionImplTest {
             .withName("pst-range-action-name-2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(instantPrev).withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap2)
             .withInitialTap(0)

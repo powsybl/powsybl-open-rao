@@ -34,15 +34,15 @@ class ContingencyAdderImplTest {
     @Test
     void testAddContingencies() {
         Contingency con1 = crac.newContingency()
-                .withId("conId1")
-                .withName("conName1")
-                .withNetworkElement("neId1", "neName1")
-                .add();
+            .withId("conId1")
+            .withName("conName1")
+            .withNetworkElement("neId1", "neName1")
+            .add();
         Contingency con2 = crac.newContingency()
-                .withNetworkElement("neId2-1")
-                .withNetworkElement("neId2-2", "neName2-2")
-                .withId("conId2")
-                .add();
+            .withNetworkElement("neId2-1")
+            .withNetworkElement("neId2-2", "neName2-2")
+            .withId("conId2")
+            .add();
         assertEquals(2, crac.getContingencies().size());
 
         // Verify 1st contingency content
@@ -102,25 +102,25 @@ class ContingencyAdderImplTest {
     @Test
     void testAddExistingSameContingency() {
         Contingency contingency1 = crac.newContingency()
-                .withId("conId1")
-                .withName("conName1")
-                .withNetworkElement("neId1", "neName1")
-                .add();
+            .withId("conId1")
+            .withName("conName1")
+            .withNetworkElement("neId1", "neName1")
+            .add();
         Contingency contingency2 = crac.newContingency()
-                .withId("conId1")
-                .withName("conName1")
-                .withNetworkElement("neId1", "neName1")
-                .add();
+            .withId("conId1")
+            .withName("conName1")
+            .withNetworkElement("neId1", "neName1")
+            .add();
         assertSame(contingency1, contingency2);
     }
 
     @Test
     void testAddExistingDifferentContingency() {
         crac.newContingency()
-                .withId("conId1")
-                .withName("conName1")
-                .withNetworkElement("neId1", "neName1")
-                .add();
+            .withId("conId1")
+            .withName("conName1")
+            .withNetworkElement("neId1", "neName1")
+            .add();
         ContingencyAdder contingencyAdder = crac.newContingency()
             .withId("conId1")
             .withName("conName1")

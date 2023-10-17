@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -20,12 +21,19 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class OnAngleConstraintAdderImplTest {
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
@@ -43,7 +51,7 @@ class OnAngleConstraintAdderImplTest {
             .withId("cnec2stateCurativeContingency1")
             .withExportingNetworkElement("FFR2AA1")
             .withImportingNetworkElement("DDE3AA1")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR3")
             .withOperator("operator2")
             .newThreshold().withUnit(Unit.DEGREE).withMin(-1500.).withMax(1500.).add()
@@ -59,7 +67,7 @@ class OnAngleConstraintAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction<?> networkAction = remedialActionAdder.newOnAngleConstraintUsageRule()
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withAngleCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
@@ -67,10 +75,10 @@ class OnAngleConstraintAdderImplTest {
         assertEquals(1, networkAction.getUsageRules().size());
         assertTrue(networkAction.getUsageRules().get(0) instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) networkAction.getUsageRules().get(0);
-        assertEquals(Instant.PREVENTIVE, onAngleConstraint.getInstant());
+        assertEquals(instantPrev, onAngleConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getPreventiveState()));
-        assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
+        assertEquals(UsageMethod.UNDEFINED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), instantCurative)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
@@ -78,7 +86,7 @@ class OnAngleConstraintAdderImplTest {
     @Test
     void testOkCurative() {
         RemedialAction<?> networkAction = remedialActionAdder.newOnAngleConstraintUsageRule()
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withAngleCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
@@ -86,28 +94,28 @@ class OnAngleConstraintAdderImplTest {
         assertEquals(1, networkAction.getUsageRules().size());
         assertTrue(networkAction.getUsageRules().get(0) instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) networkAction.getUsageRules().get(0);
-        assertEquals(Instant.CURATIVE, onAngleConstraint.getInstant());
+        assertEquals(instantCurative, onAngleConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod());
-        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
+        assertEquals(UsageMethod.TO_BE_EVALUATED, onAngleConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), instantCurative)));
         assertEquals(1, crac.getStates().size());
     }
 
     @Test
     void testOutageException() {
-        OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.OUTAGE).withAngleCnec("cnec2stateCurativeContingency1");
+        OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantOutage).withAngleCnec("cnec2stateCurativeContingency1");
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testAbsentCnecException() {
-        OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE)
+        OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantPrev)
             .withAngleCnec("fake_cnec");
         assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     void testNoCnecException() {
-        OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE);
+        OnAngleConstraintAdder<NetworkActionAdder> adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantPrev);
         assertThrows(FaraoException.class, adder::add);
     }
 
@@ -125,7 +133,7 @@ class OnAngleConstraintAdderImplTest {
             .withInstant(instant)
             .withOperator("operator2")
             .newThreshold().withUnit(Unit.DEGREE).withMin(-1500.).withMax(1500.).add();
-        if (!instant.equals(Instant.PREVENTIVE)) {
+        if (!instant.equals(instantPrev)) {
             adder.withContingency("Contingency FR1 FR3");
         }
         adder.add();
@@ -134,36 +142,36 @@ class OnAngleConstraintAdderImplTest {
     @Test
     void testOnConstraintInstantCheck() {
         // todo : mm chose pour on flow constraint in country, dans le code
-        addCnec("cnec-prev", Instant.PREVENTIVE);
-        addCnec("cnec-out", Instant.OUTAGE);
-        addCnec("cnec-auto", Instant.AUTO);
-        addCnec("cnec-cur", Instant.CURATIVE);
+        addCnec("cnec-prev", instantPrev);
+        addCnec("cnec-out", instantOutage);
+        addCnec("cnec-auto", instantAuto);
+        addCnec("cnec-cur", instantCurative);
 
         OnAngleConstraintAdder<NetworkActionAdder> adder;
 
         // PREVENTIVE RA
-        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec("cnec-prev").add(); // ok
-        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec("cnec-out").add(); // ok
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec("cnec-auto"); // nok
+        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantPrev).withAngleCnec("cnec-prev").add(); // ok
+        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantPrev).withAngleCnec("cnec-out").add(); // ok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantPrev).withAngleCnec("cnec-auto"); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantPrev).withAngleCnec("cnec-cur").add(); // ok
 
         // AUTO RA
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.AUTO).withAngleCnec("cnec-prev"); // nok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantAuto).withAngleCnec("cnec-prev"); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.AUTO).withAngleCnec("cnec-out"); // nok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantAuto).withAngleCnec("cnec-out"); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.AUTO).withAngleCnec("cnec-auto").add(); // ok
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.AUTO).withAngleCnec("cnec-cur"); // nok
+        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantAuto).withAngleCnec("cnec-auto").add(); // ok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantAuto).withAngleCnec("cnec-cur"); // nok
         assertThrows(FaraoException.class, adder::add);
 
         // CURATIVE RA
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec("cnec-prev"); // nok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantCurative).withAngleCnec("cnec-prev"); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec("cnec-out"); // nok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantCurative).withAngleCnec("cnec-out"); // nok
         assertThrows(FaraoException.class, adder::add);
-        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec("cnec-auto"); // nok
+        adder = remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantCurative).withAngleCnec("cnec-auto"); // nok
         assertThrows(FaraoException.class, adder::add);
-        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec("cnec-cur").add(); // ok
+        remedialActionAdder.newOnAngleConstraintUsageRule().withInstant(instantCurative).withAngleCnec("cnec-cur").add(); // ok
     }
 }

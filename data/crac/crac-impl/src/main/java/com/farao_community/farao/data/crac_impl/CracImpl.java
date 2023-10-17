@@ -223,9 +223,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<State> getStates(InstantKind instantKind) {
+    public Set<State> getStates(Instant instant) {
         return states.values().stream()
-            .filter(state -> state.getInstant().getInstantKind().equals(instantKind))
+            .filter(state -> state.getInstant().equals(instant))
             .collect(Collectors.toSet());
     }
 
@@ -235,11 +235,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return states.get(contingency.getId() + " - " + instant.toString());
     }
 
-    State addPreventiveState() {
+    State addPreventiveState(Instant instant) {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState();
+            State state = new PreventiveState(instant);
             states.put(state.getId(), state);
             return state;
         }

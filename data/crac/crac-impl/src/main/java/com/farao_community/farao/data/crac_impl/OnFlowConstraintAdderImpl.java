@@ -51,7 +51,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            owner.getCrac().addPreventiveState();
+            owner.getCrac().addPreventiveState(instant);
         }
 
         FlowCnec flowCnec = owner.getCrac().getFlowCnec(flowCnecId);

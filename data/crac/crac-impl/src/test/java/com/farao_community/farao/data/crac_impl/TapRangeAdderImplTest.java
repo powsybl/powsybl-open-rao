@@ -9,17 +9,18 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

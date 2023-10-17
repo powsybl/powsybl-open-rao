@@ -8,11 +8,15 @@
 package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -28,44 +32,10 @@ import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CommonCracCreation {
-
-    private static class IidmPstHelper {
-
-        private final String pstId;
-        private int initialTapPosition;
-        private Map<Integer, Double> tapToAngleConversionMap;
-
-        public IidmPstHelper(String pstId, Network network) {
-            this.pstId = pstId;
-            interpretWithNetwork(network);
-        }
-
-        public int getInitialTap() {
-            return initialTapPosition;
-        }
-
-        public Map<Integer, Double> getTapToAngleConversionMap() {
-            return tapToAngleConversionMap;
-        }
-
-        private void interpretWithNetwork(Network network) {
-            TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
-            if (Objects.isNull(transformer)) {
-                return;
-            }
-            PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-            if (Objects.isNull(phaseTapChanger)) {
-                return;
-            }
-            this.initialTapPosition = phaseTapChanger.getTapPosition();
-            buildTapToAngleConversionMap(phaseTapChanger);
-        }
-
-        private void buildTapToAngleConversionMap(PhaseTapChanger phaseTapChanger) {
-            tapToAngleConversionMap = new HashMap<>();
-            phaseTapChanger.getAllSteps().forEach((tap, step) -> tapToAngleConversionMap.put(tap, step.getAlpha()));
-        }
-    }
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
 
     private CommonCracCreation() {
 
@@ -99,7 +69,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder1 = crac.newFlowCnec()
             .withId("cnec1basecase")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withOptimized(true)
             .withOperator("operator1")
             .withNominalVoltage(380.)
@@ -116,7 +86,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder2 = crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency1")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator1")
@@ -134,7 +104,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder3 = crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency2")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator1")
@@ -152,7 +122,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder4 = crac.newFlowCnec()
             .withId("cnec2basecase")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withOptimized(true)
             .withOperator("operator2")
             .withNominalVoltage(380.)
@@ -175,7 +145,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder5 = crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
@@ -199,7 +169,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder6 = crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency2")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator2")
@@ -238,7 +208,7 @@ public final class CommonCracCreation {
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
             .newOnInstantUsageRule()
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newTapRange()
@@ -267,7 +237,7 @@ public final class CommonCracCreation {
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
             .newOnContingencyStateUsageRule()
-            .withInstant(Instant.CURATIVE)
+            .withInstant(instantCurative)
             .withContingency("Contingency FR1 FR3")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -292,8 +262,8 @@ public final class CommonCracCreation {
             .withId("pst")
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
-            .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withInstant(Instant.CURATIVE).withContingency("Contingency FR1 FR3").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(instantPrev).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(instantCurative).withContingency("Contingency FR1 FR3").withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-16)
@@ -304,5 +274,43 @@ public final class CommonCracCreation {
             .add();
 
         return crac;
+    }
+
+    private static class IidmPstHelper {
+
+        private final String pstId;
+        private int initialTapPosition;
+        private Map<Integer, Double> tapToAngleConversionMap;
+
+        public IidmPstHelper(String pstId, Network network) {
+            this.pstId = pstId;
+            interpretWithNetwork(network);
+        }
+
+        public int getInitialTap() {
+            return initialTapPosition;
+        }
+
+        public Map<Integer, Double> getTapToAngleConversionMap() {
+            return tapToAngleConversionMap;
+        }
+
+        private void interpretWithNetwork(Network network) {
+            TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
+            if (Objects.isNull(transformer)) {
+                return;
+            }
+            PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+            if (Objects.isNull(phaseTapChanger)) {
+                return;
+            }
+            this.initialTapPosition = phaseTapChanger.getTapPosition();
+            buildTapToAngleConversionMap(phaseTapChanger);
+        }
+
+        private void buildTapToAngleConversionMap(PhaseTapChanger phaseTapChanger) {
+            tapToAngleConversionMap = new HashMap<>();
+            phaseTapChanger.getAllSteps().forEach((tap, step) -> tapToAngleConversionMap.put(tap, step.getAlpha()));
+        }
     }
 }

@@ -51,7 +51,7 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
             throw new FaraoException("OnVoltageConstraint usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            owner.getCrac().addPreventiveState();
+            owner.getCrac().addPreventiveState(instant);
         }
 
         VoltageCnec voltageCnec = owner.getCrac().getVoltageCnec(voltageCnecId);
