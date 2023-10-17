@@ -36,7 +36,7 @@ public class OnConstraintUsageRuleHelper {
         List<String> nativeIdsOfCnecsCombinableWithRas = assessedElements.stream()
                 .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
                 .map(element -> removePrefix(element.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).collect(Collectors.toList());
-        Map<String, Set<String>> nativeToFaraoCnecIdsCombinableWithRas =  getImportedCnecsNativeIdsToFaraoIds();
+        Map<String, Set<String>> nativeToFaraoCnecIdsCombinableWithRas = getImportedCnecsNativeIdsToFaraoIds();
         nativeToFaraoCnecIdsCombinableWithRas.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
         nativeToFaraoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);
     }
@@ -73,8 +73,6 @@ public class OnConstraintUsageRuleHelper {
         return normalEnabledOpt.isEmpty() || Boolean.parseBoolean(normalEnabledOpt.get());
     }
 
-
-
     private Map<String, Set<String>> getImportedCnecsNativeIdsToFaraoIds() {
         return csaProfileCnecCreationContexts.stream()
                 .filter(CsaProfileCnecCreationContext::isImported)
@@ -87,6 +85,7 @@ public class OnConstraintUsageRuleHelper {
     private String removePrefix(String mridWithPrefix) {
         return mridWithPrefix.substring(mridWithPrefix.lastIndexOf("_") + 1);
     }
+
     public Set<String> getImportedCnecsCombinableWithRas() {
         return importedCnecsCombinableWithRas;
     }

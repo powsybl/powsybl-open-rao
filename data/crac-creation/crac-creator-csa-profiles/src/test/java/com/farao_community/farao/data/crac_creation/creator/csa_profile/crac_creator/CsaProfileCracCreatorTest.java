@@ -52,7 +52,7 @@ public class CsaProfileCracCreatorTest {
         assertEquals(expectedContingencyId, c.getId());
         assertEquals(expectedContingencyName, c.getName());
         List<NetworkElement> networkElements = c.getNetworkElements().stream()
-                .sorted(Comparator.comparing(NetworkElement::getId)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(NetworkElement::getId)).toList();
         assertEquals(expectedNetworkElementsSize, networkElements.size());
         for (int i = 0; i < expectedNetworkElementsSize; i++) {
             assertEquals(expectedNetworkElementsIds.get(i), networkElements.get(i).getId());
@@ -71,7 +71,7 @@ public class CsaProfileCracCreatorTest {
             assertEquals(expectedContingencyId, fc.getState().getContingency().get().getId());
         }
 
-        BranchThreshold threshold = fc.getThresholds().stream().toList().get(0);
+        BranchThreshold threshold = fc.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
         assertEquals(Set.of(expectedThresholdSide), fc.getMonitoredSides());
@@ -90,7 +90,7 @@ public class CsaProfileCracCreatorTest {
             assertEquals(expectedContingencyId, angleCnec.getState().getContingency().get().getId());
         }
 
-        Threshold threshold = angleCnec.getThresholds().stream().toList().get(0);
+        Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
         assertEquals(isMonitored, angleCnec.isMonitored());
@@ -108,7 +108,7 @@ public class CsaProfileCracCreatorTest {
             assertEquals(expectedContingencyId, voltageCnec.getState().getContingency().get().getId());
         }
 
-        Threshold threshold = voltageCnec.getThresholds().stream().toList().get(0);
+        Threshold threshold = voltageCnec.getThresholds().stream().toList().iterator().next();
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
         assertEquals(isMonitored, voltageCnec.isMonitored());
@@ -195,7 +195,7 @@ public class CsaProfileCracCreatorTest {
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
-        this.assertContingencyEquality(listContingencies.get(0),
+        this.assertContingencyEquality(listContingencies.iterator().next(),
                 "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
                 1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
         this.assertContingencyEquality(listContingencies.get(1),
@@ -206,7 +206,7 @@ public class CsaProfileCracCreatorTest {
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
-        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+        this.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
                 "ELIA_AE1 - ELIA_CO1 - curative",
                 "ELIA_AE1 - ELIA_CO1 - curative",
                 "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
@@ -256,7 +256,7 @@ public class CsaProfileCracCreatorTest {
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
-        this.assertContingencyEquality(listContingencies.get(0),
+        this.assertContingencyEquality(listContingencies.iterator().next(),
                 "13334fdf-9cc2-4341-adb6-1281269040b4", "REE_CO3",
                 2, Arrays.asList("04566cf8-c766-11e1-8775-005056c00008", "0475dbd8-c766-11e1-8775-005056c00008"));
         this.assertContingencyEquality(listContingencies.get(1),
@@ -321,13 +321,13 @@ public class CsaProfileCracCreatorTest {
 
         assertNotNull(cracCreationContext);
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(39, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(42, cracCreationContext.getCreationReport().getReport().size());
         assertEquals(7, cracCreationContext.getCrac().getContingencies().size());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
-        this.assertContingencyEquality(listContingencies.get(0),
+        this.assertContingencyEquality(listContingencies.iterator().next(),
                 "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
                 1, Arrays.asList("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
         this.assertContingencyEquality(listContingencies.get(1),
@@ -375,7 +375,7 @@ public class CsaProfileCracCreatorTest {
         List<Contingency> listContingencies = cracCreationContext.getCrac().getContingencies()
                 .stream().sorted(Comparator.comparing(Contingency::getId)).collect(Collectors.toList());
 
-        this.assertContingencyEquality(listContingencies.get(0),
+        this.assertContingencyEquality(listContingencies.iterator().next(),
                 "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
                 1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
         this.assertContingencyEquality(listContingencies.get(1),
@@ -406,15 +406,15 @@ public class CsaProfileCracCreatorTest {
         assertEquals("RA17", ra17.getName());
         assertEquals("2db971f1-ed3d-4ea6-acf5-983c4289d51b", ra17.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra17.getElementaryActions().iterator().next()).getActionType());
-        assertEquals(PREVENTIVE, ra17.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra17.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra17.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra17.getUsageRules().iterator().next().getUsageMethod());
         // RA11 (on instant)
         NetworkAction ra11 = cracCreationContext.getCrac().getNetworkAction("b2555ccc-6562-4887-8abc-19a6e51cfe36");
         assertEquals("RA11", ra11.getName());
         assertEquals("86dff3a9-afae-4122-afeb-651f2c01c795", ra11.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra11.getElementaryActions().iterator().next()).getActionType());
-        assertEquals(PREVENTIVE, ra11.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra11.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra11.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra11.getUsageRules().iterator().next().getUsageMethod());
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("d9bd3aaf-cda3-4b54-bb2e-b03dd9925817");
         assertEquals("RA2", ra2.getName());
@@ -424,59 +424,59 @@ public class CsaProfileCracCreatorTest {
         assertTrue(topologicalActions.stream().anyMatch(action -> action.getNetworkElement().getId().equals("39428c75-098b-4366-861d-2df2a857a805")));
         assertTrue(topologicalActions.stream().anyMatch(action -> action.getNetworkElement().getId().equals("902046a4-40e9-421d-9ef1-9adab0d9d41d")));
         assertTrue(topologicalActions.stream().allMatch(action -> action.getActionType().equals(ActionType.OPEN)));
-        assertEquals(PREVENTIVE, ra2.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         // RA13 (on state)
         NetworkAction ra13 = cracCreationContext.getCrac().getNetworkAction("1fd630a9-b9d8-414b-ac84-b47a093af936");
         assertEquals("RA13", ra13.getName());
-        assertEquals(UsageMethod.FORCED, ra13.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra13.getUsageRules().get(0).getInstant());
-        assertEquals("b6b780cb-9fe5-4c45-989d-447a927c3874", ((OnContingencyStateImpl) ra13.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra13.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra13.getUsageRules().iterator().next().getInstant());
+        assertEquals("b6b780cb-9fe5-4c45-989d-447a927c3874", ((OnContingencyStateImpl) ra13.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("52effb0d-091b-4867-a0a2-387109cdad5c", ra13.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra13.getElementaryActions().iterator().next()).getActionType());
 
         // RA22 (on state)
         NetworkAction ra22 = cracCreationContext.getCrac().getNetworkAction("d856a2a2-3de4-4a7b-aea4-d363c13d9014");
         assertEquals("RA22", ra22.getName());
-        assertEquals(UsageMethod.FORCED, ra22.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra22.getUsageRules().get(0).getInstant());
-        assertEquals("96c96ad8-844c-4f3b-8b38-c886ba2c0214", ((OnContingencyStateImpl) ra22.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra22.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra22.getUsageRules().iterator().next().getInstant());
+        assertEquals("96c96ad8-844c-4f3b-8b38-c886ba2c0214", ((OnContingencyStateImpl) ra22.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("c871da6f-816f-4398-82a4-698550cbee58", ra22.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra22.getElementaryActions().iterator().next()).getActionType());
 
         // RA14 (on state)
         NetworkAction ra14 = cracCreationContext.getCrac().getNetworkAction("c8bf6b19-1c3b-4ce6-a15c-99995a3c88ce");
         assertEquals("RA14", ra14.getName());
-        assertEquals(UsageMethod.FORCED, ra14.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra14.getUsageRules().get(0).getInstant());
-        assertEquals("13334fdf-9cc2-4341-adb6-1281269040b4", ((OnContingencyStateImpl) ra14.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra14.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra14.getUsageRules().iterator().next().getInstant());
+        assertEquals("13334fdf-9cc2-4341-adb6-1281269040b4", ((OnContingencyStateImpl) ra14.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("88e2e417-fc08-41a7-a711-4c6d0784ac4f", ra14.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra14.getElementaryActions().iterator().next()).getActionType());
 
         // RA21 (on state)
         NetworkAction ra21 = cracCreationContext.getCrac().getNetworkAction("fb487cc2-0f7b-4958-8f66-1d3fabf7840d");
         assertEquals("RA21", ra21.getName());
-        assertEquals(UsageMethod.FORCED, ra21.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra21.getUsageRules().get(0).getInstant());
-        assertEquals("9d17b84c-33b5-4a68-b8b9-ed5b31038d40", ((OnContingencyStateImpl) ra21.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra21.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra21.getUsageRules().iterator().next().getInstant());
+        assertEquals("9d17b84c-33b5-4a68-b8b9-ed5b31038d40", ((OnContingencyStateImpl) ra21.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("65b97d2e-d749-41df-aa8f-0be4629d5e0e", ra21.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra21.getElementaryActions().iterator().next()).getActionType());
 
         // RA3 (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("5e401955-387e-45ce-b126-dd142b06b20c");
         assertEquals("RA3", ra3.getName());
-        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra3.getUsageRules().get(0).getInstant());
-        assertEquals("475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", ((OnContingencyStateImpl) ra3.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals("475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("8e55fb9d-e514-4f4b-8a5d-8fd05b1dc02e", ra3.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra3.getElementaryActions().iterator().next()).getActionType());
 
         // RA5 (on state)
         NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("587cb391-ed16-4a1d-876e-f90241addce5");
         assertEquals("RA5", ra5.getName());
-        assertEquals(UsageMethod.FORCED, ra5.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra5.getUsageRules().get(0).getInstant());
-        assertEquals("5d587c7e-9ced-416a-ad17-6ef9b241a998", ((OnContingencyStateImpl) ra5.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra5.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra5.getUsageRules().iterator().next().getInstant());
+        assertEquals("5d587c7e-9ced-416a-ad17-6ef9b241a998", ((OnContingencyStateImpl) ra5.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("21f21596-302e-4e0e-8009-2b8c3c23517f", ra5.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra5.getElementaryActions().iterator().next()).getActionType());
     }
@@ -499,35 +499,35 @@ public class CsaProfileCracCreatorTest {
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-topological-action-parent-remedial-action");
         assertEquals("RA1", ra1.getName());
-        assertEquals(PREVENTIVE, ra1.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
 
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("on-instant-curative-topological-action-parent-remedial-action");
         assertEquals("RA2", ra2.getName());
-        assertEquals(CURATIVE, ra2.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
+        assertEquals(CURATIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
 
         // RA3 (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-considered-curative-topological-action-parent-remedial-action");
         assertEquals("RA3", ra3.getName());
-        assertEquals(CURATIVE, ra3.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().get(0).getUsageMethod());
+        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("switch", ra3.getNetworkElements().iterator().next().getId());
 
         // RA4 (on state)
         NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-topological-action-parent-remedial-action");
         assertEquals("RA4", ra4.getName());
-        assertEquals(CURATIVE, ra4.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.FORCED, ra4.getUsageRules().get(0).getUsageMethod());
+        assertEquals(CURATIVE, ra4.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.FORCED, ra4.getUsageRules().iterator().next().getUsageMethod());
 
         // RA5 (on instant + on instant)
         NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("on-state-excluded-curative-topological-action-parent-remedial-action");
         assertEquals("RA5", ra5.getName());
         List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).collect(Collectors.toList());
         assertEquals(2, usageRules.size());
-        assertEquals(CURATIVE, usageRules.get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, usageRules.get(0).getUsageMethod());
+        assertEquals(CURATIVE, usageRules.iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, usageRules.iterator().next().getUsageMethod());
 
         assertEquals(CURATIVE, usageRules.get(1).getInstant());
         assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
@@ -537,22 +537,22 @@ public class CsaProfileCracCreatorTest {
         NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("topological-action-with-tso-name-parent-remedial-action");
         assertEquals("RTE_RA7", ra7.getName());
         assertEquals("RTE", ra7.getOperator());
-        assertEquals(PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra7.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().iterator().next().getUsageMethod());
 
         // nameless-topological-action-with-speed-parent-remedial-action (on instant)
         NetworkAction raNameless = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
         assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getName());
-        assertEquals(PREVENTIVE, raNameless.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, raNameless.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().iterator().next().getUsageMethod());
         assertEquals(137, raNameless.getSpeed().get());
 
         // nameless-topological-action-with-tso-name-parent-remedial-action (on instant)
         NetworkAction raNameless2 = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-tso-name-parent-remedial-action");
         assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getName());
         assertEquals("RTE", raNameless2.getOperator());
-        assertEquals(PREVENTIVE, raNameless2.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, raNameless2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().iterator().next().getUsageMethod());
     }
 
     @Test
@@ -675,24 +675,24 @@ public class CsaProfileCracCreatorTest {
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-action");
         assertEquals("RA1", ra1.getName());
-        assertEquals(PREVENTIVE, ra1.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(75., ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
 
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("on-instant-curative-remedial-action");
         assertEquals("RA2", ra2.getName());
-        assertEquals(CURATIVE, ra2.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().get(0).getUsageMethod());
+        assertEquals(CURATIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(17.3, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
 
         // on-instant-preventive-nameless-remedial-action-with-speed (on instant)
         NetworkAction namelessRa = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-nameless-remedial-action-with-speed");
         assertEquals("on-instant-preventive-nameless-remedial-action-with-speed", namelessRa.getName());
-        assertEquals(PREVENTIVE, namelessRa.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, namelessRa.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, namelessRa.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, namelessRa.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(22.4, ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
         assertEquals(137, namelessRa.getSpeed().get());
@@ -700,8 +700,8 @@ public class CsaProfileCracCreatorTest {
         // RTE_RA7 (on instant)
         NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-with-tso-name");
         assertEquals("RTE_RA7", ra7.getName());
-        assertEquals(PREVENTIVE, ra7.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, ra7.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(100., ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
         assertEquals("RTE", ra7.getOperator());
@@ -709,8 +709,8 @@ public class CsaProfileCracCreatorTest {
         // on-instant-nameless-preventive-remedial-with-tso-name (on instant)
         NetworkAction namelessRa2 = cracCreationContext.getCrac().getNetworkAction("on-instant-nameless-preventive-remedial-with-tso-name");
         assertEquals("on-instant-nameless-preventive-remedial-with-tso-name", namelessRa2.getName());
-        assertEquals(PREVENTIVE, namelessRa2.getUsageRules().get(0).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, namelessRa2.getUsageRules().get(0).getUsageMethod());
+        assertEquals(PREVENTIVE, namelessRa2.getUsageRules().iterator().next().getInstant());
+        assertEquals(UsageMethod.AVAILABLE, namelessRa2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(98., ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
         assertEquals("RTE", ra7.getOperator());
@@ -718,18 +718,18 @@ public class CsaProfileCracCreatorTest {
         // on-state-included-curative-remedial-action (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-remedial-action");
         assertEquals("RA3", ra3.getName());
-        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra3.getUsageRules().get(0).getInstant());
-        assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra3.getNetworkElements().iterator().next().getId());
         assertEquals(2.8, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
 
         // on-state-considered-curative-remedial-action (on state)
         NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("on-state-considered-curative-remedial-action");
         assertEquals("RA4", ra4.getName());
-        assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().get(0).getUsageMethod());
-        assertEquals(CURATIVE, ra4.getUsageRules().get(0).getInstant());
-        assertEquals("contingency", ((OnContingencyStateImpl) ra4.getUsageRules().get(0)).getContingency().getId());
+        assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().iterator().next().getUsageMethod());
+        assertEquals(CURATIVE, ra4.getUsageRules().iterator().next().getInstant());
+        assertEquals("contingency", ((OnContingencyStateImpl) ra4.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra4.getNetworkElements().iterator().next().getId());
         assertEquals(15.6, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
 
@@ -739,7 +739,7 @@ public class CsaProfileCracCreatorTest {
         List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).collect(Collectors.toList());
         assertEquals(2, usageRules.size());
         assertTrue(ra5.getUsageRules().stream().map(UsageRule::getInstant).allMatch(i -> i.equals(CURATIVE)));
-        assertEquals(UsageMethod.AVAILABLE, usageRules.get(0).getUsageMethod());
+        assertEquals(UsageMethod.AVAILABLE, usageRules.iterator().next().getUsageMethod());
         assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
         assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());
         assertEquals("rotating-machine", ra5.getNetworkElements().iterator().next().getId());
@@ -777,11 +777,11 @@ public class CsaProfileCracCreatorTest {
         assertEquals("36b83adb-3d45-4693-8967-96627b5f9ec9", eliaRa1.getNetworkElement().getId());
         assertEquals(10, eliaRa1.getInitialTap());
         assertEquals(1, eliaRa1.getRanges().size());
-        assertEquals(5., eliaRa1.getRanges().get(0).getMinTap());
-        assertEquals(20., eliaRa1.getRanges().get(0).getMaxTap());
-        assertEquals(2, eliaRa1.getUsageRules().size());
-        assertEquals(CURATIVE, eliaRa1.getUsageRules().get(0).getInstant());
-        assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().get(0)).getState().getContingency().get().getId());
+        assertEquals(5., eliaRa1.getRanges().iterator().next().getMinTap());
+        assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
+        assertEquals(1, eliaRa1.getUsageRules().size());
+        assertEquals(CURATIVE, eliaRa1.getUsageRules().iterator().next().getInstant());
+       // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(1, 4.926567934889113),
                 Map.entry(2, 4.4625049779277965),
@@ -830,8 +830,8 @@ public class CsaProfileCracCreatorTest {
         assertEquals(13, reeRa1.getInitialTap());
         assertEquals(0, reeRa1.getRanges().size());
         assertEquals(1, reeRa1.getUsageRules().size());
-        assertEquals(CURATIVE, reeRa1.getUsageRules().get(0).getInstant());
-        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().get(0)).getState().getContingency().get().getId());
+        assertEquals(CURATIVE, reeRa1.getUsageRules().iterator().next().getInstant());
+        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
                 Map.entry(-1, -2.0),
                 Map.entry(0, 0.0),
@@ -950,7 +950,7 @@ public class CsaProfileCracCreatorTest {
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
                 .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
 
-        this.assertFlowCnecEquality(listFlowCnecs.get(0),
+        this.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
                 "RTE_AE - RTE_CO1 - curative",
                 "RTE_AE - RTE_CO1 - curative",
                 "FFR3AA1--FFR5AA1--1",
@@ -1009,7 +1009,7 @@ public class CsaProfileCracCreatorTest {
                 .sorted(Comparator.comparing(AngleCnec::getId)).toList();
 
         // RTE_AE1 - preventive
-        AngleCnec angleCnec1 = angleCnecs.get(0);
+        AngleCnec angleCnec1 = angleCnecs.iterator().next();
         assertEquals("RTE_AE1 - preventive", angleCnec1.getId());
         assertEquals("RTE_AE1 - preventive", angleCnec1.getName());
         assertEquals("601ac88b-14bc-448a-b8a7-e0b8874a478d", angleCnec1.getImportingNetworkElement().getId());
@@ -1079,8 +1079,8 @@ public class CsaProfileCracCreatorTest {
         assertEquals(6, cnecCreationContexts.size());
 
         // Missing AngleReferenceTerminal
-        assertEquals("61f31133-5d71-4d60-bc17-70bed6610101", cnecCreationContexts.get(0).getNativeId());
-        assertEquals("angle limit equipment is missing in network : eb090246-2037-481f-baba-36ab347ff119", cnecCreationContexts.get(0).getImportStatusDetail());
+        assertEquals("61f31133-5d71-4d60-bc17-70bed6610101", cnecCreationContexts.iterator().next().getNativeId());
+        assertEquals("angle limit equipment is missing in network : eb090246-2037-481f-baba-36ab347ff119", cnecCreationContexts.iterator().next().getImportStatusDetail());
 
         // Importing and exporting network elements are the same terminal
         assertEquals("690b90c4-892c-4638-a083-6cf8e8e1cfc2", cnecCreationContexts.get(1).getNativeId());
@@ -1117,20 +1117,19 @@ public class CsaProfileCracCreatorTest {
 
         PstRangeAction eliaRa1 = cracCreationContext.getCrac().getPstRangeAction("7fc2fc14-eea6-4e69-b8d9-a3edc218e687");
 
-        assertEquals(2, eliaRa1.getUsageRules().size());
+        assertEquals(1, eliaRa1.getUsageRules().size());
 
         assertEquals("ELIA_RA1", eliaRa1.getName());
         assertEquals("ELIA", eliaRa1.getOperator());
         assertEquals("36b83adb-3d45-4693-8967-96627b5f9ec9", eliaRa1.getNetworkElement().getId());
 
-        assertEquals(CURATIVE, eliaRa1.getUsageRules().get(0).getInstant());
-        assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().get(0)).getState().getContingency().get().getId());
-        assertEquals(UsageMethod.FORCED, eliaRa1.getUsageRules().get(0).getUsageMethod());
+        Iterator<UsageRule> usageRuleIterator = eliaRa1.getUsageRules().iterator();
+        UsageRule usageRule1 = usageRuleIterator.next();
 
-        assertEquals(CURATIVE, eliaRa1.getUsageRules().get(1).getInstant());
-        assertEquals("ELIA_AE1 - ELIA_CO1 - curative", ((OnFlowConstraintImpl) eliaRa1.getUsageRules().get(1)).getFlowCnec().getId());
+        assertEquals(CURATIVE, usageRule1.getInstant());
+        assertEquals("ELIA_AE1 - ELIA_CO1 - curative", ((OnFlowConstraintImpl) usageRule1).getFlowCnec().getId());
         // TODO assert that UsageMethod.FORCED
-
+        // assertEquals(UsageMethod.FORCED, usageRule1.getUsageMethod());
         assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", cracCreationContext.getRemedialActionCreationContexts().stream().filter(raC -> !raC.isImported()).findAny().get().getNativeId());
 
     }
@@ -1257,24 +1256,20 @@ public class CsaProfileCracCreatorTest {
 
         //4 remedial actions and a total of 8 onFlowConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
-        assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("c8fcaef5-67f2-42c5-b736-ca91dcbcfe59"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 3);
+        assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("c8fcaef5-67f2-42c5-b736-ca91dcbcfe59"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "da5a6a83-0314-46cc-a03b-9dc300d7fbae", CURATIVE, UsageMethod.AVAILABLE);
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
 
@@ -1353,24 +1348,20 @@ public class CsaProfileCracCreatorTest {
 
         //4 remedial actions and a total of 8 onAngleConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
-        assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 3);
+        assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "da5a6a83-0314-46cc-a03b-9dc300d7fbae", CURATIVE, UsageMethod.AVAILABLE);
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
     }
@@ -1451,24 +1442,20 @@ public class CsaProfileCracCreatorTest {
 
         //4 remedial actions and a total of 8 onVoltageConstraint usage rules.
         assertEquals(4, cracCreationContext.getCrac().getRemedialActions().size());
-        assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("c8fcaef5-67f2-42c5-b736-ca91dcbcfe59"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), false, 3);
-        assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 3);
+        assertNetworkActionImported(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", Set.of("c8fcaef5-67f2-42c5-b736-ca91dcbcfe59"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), false, 2);
+        assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnInstantUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", PREVENTIVE, UsageMethod.AVAILABLE);
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnContingencyStateUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "da5a6a83-0314-46cc-a03b-9dc300d7fbae", CURATIVE, UsageMethod.AVAILABLE);
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
         assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
     }

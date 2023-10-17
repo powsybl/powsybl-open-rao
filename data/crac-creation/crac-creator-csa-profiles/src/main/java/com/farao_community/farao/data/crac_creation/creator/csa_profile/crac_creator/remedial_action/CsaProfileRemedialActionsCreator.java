@@ -27,7 +27,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -115,7 +114,6 @@ public class CsaProfileRemedialActionsCreator {
                                     )
                             )
                             .collect(Collectors.toList());
-
 
                     boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId);
                     if (!hasAtLeastOneOnConstraintUsageRule) {
@@ -298,7 +296,6 @@ public class CsaProfileRemedialActionsCreator {
             return false;
         };
     }
-
 
     public static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
         switch (remedialInstant) {
