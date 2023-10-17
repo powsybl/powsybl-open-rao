@@ -30,6 +30,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
 
     /**
      * Set the ID of the identifiable to add
+     *
      * @param id: ID to set
      * @return the identifiable adder instance
      */
@@ -40,6 +41,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
 
     /**
      * Set the name of the identifiable to add
+     *
      * @param name: NAME to set
      * @return the identifiable adder instance
      */

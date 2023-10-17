@@ -11,7 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -23,13 +24,8 @@ import static java.lang.String.format;
  */
 public class BranchBoundsCache {
 
-    private enum Bound {
-        LOWER,
-        UPPER
-    }
-
-    private List<Boolean> boundsComputed = Arrays.asList(false, false, false, false, false, false, false, false);
-    private List<Double> boundValues = Arrays.asList(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    private final List<Boolean> boundsComputed = Arrays.asList(false, false, false, false, false, false, false, false);
+    private final List<Double> boundValues = Arrays.asList(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
     private static int getIndex(Side side, Unit unit, Bound bound) {
         if (unit.equals(Unit.AMPERE)) {
@@ -87,5 +83,10 @@ public class BranchBoundsCache {
     public void setUpperBound(Double upperBound, Side side, Unit unit) {
         boundValues.set(getIndex(side, unit, Bound.UPPER), upperBound);
         boundsComputed.set(getIndex(side, unit, Bound.UPPER), true);
+    }
+
+    private enum Bound {
+        LOWER,
+        UPPER
     }
 }

@@ -8,10 +8,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -19,12 +19,11 @@ import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
  */
 public class TapRangeAdderImpl implements TapRangeAdder {
 
+    private static final String CLASS_NAME = "TapRange";
+    private final PstRangeActionAdderImpl ownerAdder;
     private Integer minTap;
     private Integer maxTap;
     private RangeType rangeType;
-    private static final String CLASS_NAME = "TapRange";
-
-    private PstRangeActionAdderImpl ownerAdder;
 
     TapRangeAdderImpl(PstRangeActionAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;

@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
-    protected String operator;
-    protected List<UsageRule> usageRules;
-    protected Integer speed = null;
+    protected final String operator;
+    protected final List<UsageRule> usageRules;
+    protected final Integer speed;
 
     protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules, Integer speed) {
         super(id, name);
@@ -37,9 +37,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
-        super(id, name);
-        this.operator = operator;
-        this.usageRules = usageRules;
+        this(id, name, operator, usageRules, null);
+    }
+
+    private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
+        return cnec.getLocation(network).stream()
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     void addUsageRule(UsageRule usageRule) {
@@ -100,14 +105,11 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
      */
     @Override
     public boolean isRemedialActionAvailable(State state, boolean evaluatedCondition) {
-        switch (getUsageMethod(state)) {
-            case AVAILABLE:
-                return true;
-            case TO_BE_EVALUATED:
-                return evaluatedCondition;
-            default:
-                return false;
-        }
+        return switch (getUsageMethod(state)) {
+            case AVAILABLE -> true;
+            case TO_BE_EVALUATED -> evaluatedCondition;
+            default -> false;
+        };
     }
 
     /**
@@ -117,31 +119,24 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         Set<FlowCnec> toBeConsideredCnecs = new HashSet<>();
         // OnFlowConstraint
         List<OnFlowConstraint> onFlowConstraintUsageRules = getUsageRules().stream().filter(OnFlowConstraint.class::isInstance).map(OnFlowConstraint.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
+            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
         onFlowConstraintUsageRules.forEach(onFlowConstraint -> toBeConsideredCnecs.add(onFlowConstraint.getFlowCnec()));
 
         // OnFlowConstraintInCountry
         List<OnFlowConstraintInCountry> onFlowConstraintInCountryUsageRules = getUsageRules().stream().filter(OnFlowConstraintInCountry.class::isInstance).map(OnFlowConstraintInCountry.class::cast)
-                .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).collect(Collectors.toList());
+            .filter(ofc -> ofc.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)).toList();
         onFlowConstraintInCountryUsageRules.forEach(onFlowConstraintInCountry -> {
-            Map<Instant, Set<Instant>> allowedCnecInstantPerRaInstant = Map.of(
-                    Instant.PREVENTIVE, Set.of(Instant.PREVENTIVE, Instant.OUTAGE, Instant.CURATIVE),
-                    Instant.AUTO, Set.of(Instant.AUTO),
-                    Instant.CURATIVE, Set.of(Instant.CURATIVE)
+            Map<InstantKind, Set<InstantKind>> allowedCnecInstantPerRaInstant = Map.of(
+                InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
+                InstantKind.AUTO, Set.of(InstantKind.AUTO),
+                InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
             );
             toBeConsideredCnecs.addAll(perimeterCnecs.stream()
-                    .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant()).contains(cnec.getState().getInstant()))
-                    .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
-                    .collect(Collectors.toSet()));
+                .filter(cnec -> allowedCnecInstantPerRaInstant.get(onFlowConstraintInCountry.getInstant().getInstantKind()).contains(cnec.getState().getInstant().getInstantKind()))
+                .filter(cnec -> isCnecInCountry(cnec, onFlowConstraintInCountry.getCountry(), network))
+                .collect(Collectors.toSet()));
         });
         return toBeConsideredCnecs;
-    }
-
-    private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
-        return cnec.getLocation(network).stream()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     @Override
@@ -154,8 +149,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         }
         AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction)
-                && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
-                && ((operator != null && operator.equals(remedialAction.operator)) || (operator == null && remedialAction.operator == null));
+            && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules()))
+            && ((operator != null && operator.equals(remedialAction.operator)) || (operator == null && remedialAction.operator == null));
     }
 
     @Override

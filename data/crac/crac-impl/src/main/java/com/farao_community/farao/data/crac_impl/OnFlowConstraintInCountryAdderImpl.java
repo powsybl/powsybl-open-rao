@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountry;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintInCountryAdder;
 import com.powsybl.iidm.network.Country;
@@ -19,7 +20,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintInCountryAdder<T> {
 
-    private T owner;
+    private final T owner;
     private Instant instant;
     private Country country;
 
@@ -44,10 +45,10 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(country, "OnFlowConstraintInCountry", "country", "withCountry()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
 

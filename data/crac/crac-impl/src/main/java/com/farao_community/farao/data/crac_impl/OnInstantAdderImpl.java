@@ -21,7 +21,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnInstantAdder<T> {
 
-    private T owner;
+    private final T owner;
     private Instant instant;
     private UsageMethod usageMethod;
 

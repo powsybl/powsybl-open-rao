@@ -20,10 +20,10 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
 
     protected final Set<NetworkElement> networkElements;
     protected final State state;
+    protected final String operator;
+    protected final double reliabilityMargin;
     protected boolean optimized;
     protected boolean monitored;
-    protected String operator = null;
-    protected double reliabilityMargin = 0;
 
     protected AbstractCnec(String id,
                            String name,
@@ -58,7 +58,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     public void setOptimized(boolean optimized) {
         this.optimized = optimized;
     }
@@ -69,7 +69,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     public void setMonitored(boolean monitored) {
         this.monitored = monitored;
     }

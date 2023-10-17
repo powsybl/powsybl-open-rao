@@ -17,9 +17,8 @@ import com.powsybl.commons.extensions.AbstractExtendable;
  */
 public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
 
+    protected final String name;
     private final String id;
-
-    protected String name;
 
     protected AbstractIdentifiable(String id, String name) {
         this.id = id;

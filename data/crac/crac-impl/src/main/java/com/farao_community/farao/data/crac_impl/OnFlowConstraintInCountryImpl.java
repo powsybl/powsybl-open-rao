@@ -16,8 +16,8 @@ import com.powsybl.iidm.network.Country;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements OnFlowConstraintInCountry {
-    private Instant instant;
-    private Country country;
+    private final Instant instant;
+    private final Country country;
 
     OnFlowConstraintInCountryImpl(Instant instant, Country country) {
         super(UsageMethod.TO_BE_EVALUATED);

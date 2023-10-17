@@ -29,14 +29,14 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     private String networkElementId;
     private String networkElementName;
 
-    @Override
-    protected String getTypeDescription() {
-        return HVDC_RANGE_ACTION;
-    }
-
     HvdcRangeActionAdderImpl(CracImpl owner) {
         super(owner);
         this.ranges = new ArrayList<>();
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return HVDC_RANGE_ACTION;
     }
 
     @Override

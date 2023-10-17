@@ -22,8 +22,8 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnFlowConstraintAdder<T> {
 
-    private T owner;
-    private InstantKind instantKind;
+    private final T owner;
+    private Instant instant;
     private String flowCnecId;
 
     OnFlowConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -31,8 +31,8 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
     }
 
     @Override
-    public OnFlowConstraintAdder<T> withInstantKind(InstantKind instantKind) {
-        this.instantKind = instantKind;
+    public OnFlowConstraintAdder<T> withInstant(Instant instant) {
+        this.instant = instant;
         return this;
     }
 
@@ -44,13 +44,13 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instantKind, "OnFlowConstraint", "instantKind", "withInstantKind()");
+        assertAttributeNotNull(instant, "OnFlowConstraint", "instantKind", "withInstantKind()");
         assertAttributeNotNull(flowCnecId, "OnFlowConstraint", "flow cnec", "withFlowCnec()");
 
-        if (instantKind.equals(InstantKind.OUTAGE)) {
+        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnFlowConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instantKind.equals(InstantKind.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
 
@@ -59,7 +59,7 @@ public class OnFlowConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>>
             throw new FaraoException(String.format("FlowCnec %s does not exist in crac. Consider adding it first.", flowCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instantKind, flowCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant.getInstantKind(), flowCnec);
 
         //TODO : you'll need the order to get the correct instant once we have more than one curative/auto instant
 

@@ -19,7 +19,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class TopologicalActionAdderImpl implements TopologicalActionAdder {
 
-    private NetworkActionAdderImpl ownerAdder;
+    private final NetworkActionAdderImpl ownerAdder;
     private String networkElementId;
     private String networkElementName;
     private ActionType actionType;

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -47,7 +48,7 @@ public final class CracValidator {
      */
     private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
-        crac.getStates(Instant.AUTO).forEach(state -> {
+        crac.getStates(InstantKind.AUTO).forEach(state -> {
             if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
                 // 1. Auto state has no RA => it will not constitute a perimeter
                 //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them
@@ -66,6 +67,7 @@ public final class CracValidator {
     }
 
     private static void duplicateCnecOnOutageInstant(Crac crac, FlowCnec cnec) {
+        Instant outageInstant = getOutageInstant(cnec);
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
             .withNetworkElement(cnec.getNetworkElement().getId())
@@ -74,11 +76,20 @@ public final class CracValidator {
             .withNominalVoltage(cnec.getNominalVoltage(Side.LEFT), Side.LEFT)
             .withNominalVoltage(cnec.getNominalVoltage(Side.RIGHT), Side.RIGHT)
             .withReliabilityMargin(cnec.getReliabilityMargin())
-            .withInstant(Instant.OUTAGE).withContingency(cnec.getState().getContingency().orElseThrow().getId())
+            .withInstant(outageInstant)
+            .withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());
         copyThresholds(cnec, adder);
         adder.add();
+    }
+
+    private static Instant getOutageInstant(FlowCnec cnec) {
+        Instant outageInstant = cnec.getState().getInstant();
+        while (!outageInstant.getInstantKind().equals(InstantKind.OUTAGE)) {
+            outageInstant = outageInstant.getPreviousInstant();
+        }
+        return outageInstant;
     }
 
     private static boolean hasNoRemedialAction(State state, Crac crac) {

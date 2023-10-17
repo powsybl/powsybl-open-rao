@@ -65,11 +65,11 @@ public final class PstSetpointImpl implements PstSetpoint {
             phaseTapChanger.setTapPosition(normalizedSetPoint);
         } else {
             throw new FaraoException(String.format(
-                    "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
-                    normalizedSetPoint,
-                    phaseTapChanger.getLowTapPosition(),
-                    phaseTapChanger.getHighTapPosition(),
-                    networkElement.getId()));
+                "Tap value %d not in the range of high and low tap positions [%d,%d] of the phase tap changer %s steps",
+                normalizedSetPoint,
+                phaseTapChanger.getLowTapPosition(),
+                phaseTapChanger.getHighTapPosition(),
+                networkElement.getId()));
         }
     }
 
@@ -81,7 +81,7 @@ public final class PstSetpointImpl implements PstSetpoint {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PstSetpointImpl oPstSetPoint =  (PstSetpointImpl) o;
+        PstSetpointImpl oPstSetPoint = (PstSetpointImpl) o;
         return oPstSetPoint.getNetworkElement().equals(this.networkElement)
             && oPstSetPoint.getSetpoint() == this.setpoint;
     }

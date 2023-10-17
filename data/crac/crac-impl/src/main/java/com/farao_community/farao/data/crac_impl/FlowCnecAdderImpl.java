@@ -67,7 +67,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt) {
         this.nominalVLeft = nominalVoltageInKiloVolt;
         this.nominalVRight = nominalVoltageInKiloVolt;
-        return this;    }
+        return this;
+    }
 
     @Override
     public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, Side side) {
@@ -76,7 +77,8 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         } else if (side.equals(Side.RIGHT)) {
             this.nominalVRight = nominalVoltageInKiloVolt;
         }
-        return this;    }
+        return this;
+    }
 
     @Override
     public BranchThresholdAdder newThreshold() {
@@ -128,7 +130,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         }
 
         if ((this.thresholds.stream().anyMatch(th -> th.getUnit().equals(Unit.AMPERE) || th.getUnit().equals(Unit.PERCENT_IMAX)))
-                && (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight))) {
+            && (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight))) {
             /*
             In the SearchTreeRao, nominal voltages are required in order to handle AMPERE threshold, as:
                 - in the sensi in DC, conversion must be made as AMPERE are not returned by the sensi engine

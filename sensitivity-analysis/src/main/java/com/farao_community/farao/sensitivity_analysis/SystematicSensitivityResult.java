@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class SystematicSensitivityResult {
 
     private final StateResult nStateResult = new StateResult();
-    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new EnumMap<>(Instant.class);
+    private final Map<Instant, Map<String, StateResult>> postContingencyResults = new HashMap<>();
     private final Map<Cnec, StateResult> memoizedStateResultPerCnec = new HashMap<>();
     private SensitivityComputationStatus status;
     public SystematicSensitivityResult() {
@@ -191,7 +191,7 @@ public class SystematicSensitivityResult {
             List<Instant> possibleInstants = postContingencyResults.keySet().stream()
                 .filter(instant -> instant.comesBefore(state.getInstant()) || instant.equals(state.getInstant()))
                 .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
-                .collect(Collectors.toList());
+                .toList();
             for (Instant instant : possibleInstants) {
                 // Use latest sensi computed on state
                 if (postContingencyResults.get(instant).containsKey(optionalContingency.get().getId())) {
@@ -256,7 +256,7 @@ public class SystematicSensitivityResult {
             List<Instant> possibleInstants = postContingencyResults.keySet().stream()
                 .filter(instant -> instant.comesBefore(cnec.getState().getInstant()) || instant.equals(cnec.getState().getInstant()))
                 .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
-                .collect(Collectors.toList());
+                .toList();
             for (Instant instant : possibleInstants) {
                 // Use latest sensi computed on the cnec's contingency amidst the last instants before cnec state.
                 String contingencyId = optionalContingency.get().getId();

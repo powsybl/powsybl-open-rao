@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class OnAngleConstraintImpl extends AbstractUsageRule implements OnAngleConstraint {
-    private Instant instant;
-    private AngleCnec angleCnec;
+    private final Instant instant;
+    private final AngleCnec angleCnec;
 
     OnAngleConstraintImpl(Instant instant, AngleCnec angleCnec) {
         super(UsageMethod.TO_BE_EVALUATED);

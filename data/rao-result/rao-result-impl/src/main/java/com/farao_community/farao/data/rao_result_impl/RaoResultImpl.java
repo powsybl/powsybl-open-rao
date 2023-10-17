@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
@@ -82,8 +83,8 @@ public class RaoResultImpl implements RaoResult {
         if (flowCnec.getState().getInstant().comesBefore(instant)) {
             instant = flowCnec.getState().getInstant();
         }
-        if (instant.equals(Instant.OUTAGE)) {
-            instant = Instant.PREVENTIVE;
+        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
+            instant = instant.getPreviousInstant();
         }
         return instant;
     }
@@ -185,10 +186,10 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction) {
-            return isActivatedDuringState(state, (NetworkAction) remedialAction);
-        } else if (remedialAction instanceof RangeAction<?>) {
-            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+            return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -307,33 +308,19 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private State stateBefore(String contingencyId, Instant instant) {
-        if (instant.comesBefore(Instant.AUTO)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE) || instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             return crac.getPreventiveState();
         }
-        State stateBefore = lookupState(contingencyId, instantBefore(instant));
+        State stateBefore = lookupState(contingencyId, instant.getPreviousInstant());
         if (Objects.nonNull(stateBefore)) {
             return stateBefore;
         } else {
-            return stateBefore(contingencyId, instantBefore(instant));
-        }
-    }
-
-    private Instant instantBefore(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-            case OUTAGE:
-                return Instant.PREVENTIVE;
-            case AUTO:
-                return Instant.OUTAGE;
-            case CURATIVE:
-                return Instant.AUTO;
-            default:
-                throw new FaraoException(String.format("Unknown instant: %s", instant));
+            return stateBefore(contingencyId, instant.getPreviousInstant());
         }
     }
 
     private State lookupState(String contingencyId, Instant instant) {
-        return crac.getStates(instant).stream()
+        return crac.getStates(instant.getInstantKind()).stream()
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);

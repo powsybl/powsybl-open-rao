@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnVoltageConstraintAdder;
@@ -46,10 +47,10 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
         assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(voltageCnecId, "OnVoltageConstraint", "voltage cnec", "withVoltageCnec()");
 
-        if (instant.equals(Instant.OUTAGE)) {
+        if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnVoltageConstraint usage rules are not allowed for OUTAGE instant.");
         }
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
         }
 
@@ -58,7 +59,7 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
             throw new FaraoException(String.format("VoltageCnec %s does not exist in crac. Consider adding it first.", voltageCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, voltageCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant.getInstantKind(), voltageCnec);
 
         OnVoltageConstraint onVoltageConstraint = new OnVoltageConstraintImpl(instant, voltageCnec);
         owner.addUsageRule(onVoltageConstraint);

@@ -17,11 +17,11 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class PstSetpointAdderImpl implements PstSetpointAdder {
 
-    private NetworkActionAdderImpl ownerAdder;
+    private static final String CLASS_NAME = "PstSetPoint";
+    private final NetworkActionAdderImpl ownerAdder;
     private String networkElementId;
     private String networkElementName;
     private Integer setpoint;
-    private static final String CLASS_NAME = "PstSetPoint";
 
     PstSetpointAdderImpl(NetworkActionAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;

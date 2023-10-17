@@ -20,7 +20,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
 
-    private NetworkActionAdderImpl ownerAdder;
+    private final NetworkActionAdderImpl ownerAdder;
     private String networkElementId;
     private String networkElementName;
     private Double setpoint;

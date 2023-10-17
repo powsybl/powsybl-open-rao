@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class ContingencyImpl extends AbstractIdentifiable<Contingency> implements Contingency {
 
-    private Set<NetworkElement> networkElements;
+    private final Set<NetworkElement> networkElements;
 
     ContingencyImpl(String id, String name, final Set<NetworkElement> networkElements) {
         super(id, name);

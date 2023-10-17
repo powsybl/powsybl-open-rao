@@ -8,15 +8,20 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,7 +43,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int highTapPosition;
 
     PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
+                       NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed) {
         super(id, name, operator, usageRules, groupId, speed);
         this.networkElement = networkElement;
         this.ranges = ranges;
@@ -164,7 +169,7 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
         int maxTap = highTapPosition;
         int previousInstantTap = convertAngleToTap(previousInstantSetPoint);
 
-        for (TapRange range: ranges) {
+        for (TapRange range : ranges) {
             minTap = Math.max(minTap, getRangeMinTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
             maxTap = Math.min(maxTap, getRangeMaxTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
         }
@@ -183,16 +188,11 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
     private int convertTapToAbsoluteCenteredOnZero(int tap, RangeType initialRangeType, int prePerimeterTapPosition) {
 
-        switch (initialRangeType) {
-            case ABSOLUTE:
-                return tap;
-            case RELATIVE_TO_INITIAL_NETWORK:
-                return initialTapPosition + tap;
-            case RELATIVE_TO_PREVIOUS_INSTANT:
-                return prePerimeterTapPosition + tap;
-            default:
-                throw new FaraoException(String.format("Unknown Range Type %s", initialRangeType));
-        }
+        return switch (initialRangeType) {
+            case ABSOLUTE -> tap;
+            case RELATIVE_TO_INITIAL_NETWORK -> initialTapPosition + tap;
+            case RELATIVE_TO_PREVIOUS_INSTANT -> prePerimeterTapPosition + tap;
+        };
     }
 
     private PhaseTapChanger getPhaseTapChanger(Network network) {

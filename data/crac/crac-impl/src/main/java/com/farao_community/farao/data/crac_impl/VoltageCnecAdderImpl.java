@@ -25,8 +25,8 @@ import static java.lang.String.format;
  */
 public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder> implements VoltageCnecAdder {
 
-    private final Set<Threshold> thresholds = new HashSet<>();
     private static final String CNEC_TYPE = "VoltageCnec";
+    private final Set<Threshold> thresholds = new HashSet<>();
 
     VoltageCnecAdderImpl(CracImpl owner) {
         super(owner);

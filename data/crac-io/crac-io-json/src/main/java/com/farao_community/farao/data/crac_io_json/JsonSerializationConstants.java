@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -186,30 +187,19 @@ public final class JsonSerializationConstants {
     // serialization of enums
 
     public static String serializeInstant(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-                return PREVENTIVE_INSTANT;
-            case OUTAGE:
-                return OUTAGE_INSTANT;
-            case AUTO:
-                return AUTO_INSTANT;
-            case CURATIVE:
-                return CURATIVE_INSTANT;
-            default:
-                throw new FaraoException(String.format("Unsupported instant %s", instant));
-        }
+        return instant.getInstantKind().toString();
     }
 
-    public static Instant deserializeInstant(String stringValue) {
+    public static InstantKind deserializeInstant(String stringValue) {
         switch (stringValue) {
             case PREVENTIVE_INSTANT:
-                return Instant.PREVENTIVE;
+                return InstantKind.PREVENTIVE;
             case OUTAGE_INSTANT:
-                return Instant.OUTAGE;
+                return InstantKind.OUTAGE;
             case AUTO_INSTANT:
-                return Instant.AUTO;
+                return InstantKind.AUTO;
             case CURATIVE_INSTANT:
-                return Instant.CURATIVE;
+                return InstantKind.CURATIVE;
             default:
                 throw new FaraoException(String.format("Unrecognized instant %s", stringValue));
         }
@@ -285,12 +275,10 @@ public final class JsonSerializationConstants {
      */
     public static Side convertBranchThresholdRuleToSide(String branchThresholdRule, Pair<Double, Double> nominalV) {
         switch (branchThresholdRule) {
-            case ON_LEFT_SIDE_RULE:
-            case ON_REGULATED_SIDE_RULE:
+            case ON_LEFT_SIDE_RULE, ON_REGULATED_SIDE_RULE:
                 // This is true only when the network is in UCTE format.
                 return Side.LEFT;
-            case ON_RIGHT_SIDE_RULE:
-            case ON_NON_REGULATED_SIDE_RULE:
+            case ON_RIGHT_SIDE_RULE, ON_NON_REGULATED_SIDE_RULE:
                 // This is true only when the network is in UCTE format.
                 return Side.RIGHT;
             case ON_LOW_VOLTAGE_LEVEL_RULE:
@@ -400,9 +388,9 @@ public final class JsonSerializationConstants {
             String unit1 = serializeUnit(o1.getUnit());
             String unit2 = serializeUnit(o2.getUnit());
             if (unit1.equals(unit2)) {
-                if ((o1 instanceof BranchThreshold && o2 instanceof BranchThreshold) &&
-                    !((BranchThreshold) o1).getSide().equals(((BranchThreshold) o2).getSide())) {
-                    return serializeSide(((BranchThreshold) o1).getSide()).compareTo(serializeSide(((BranchThreshold) o2).getSide()));
+                if ((o1 instanceof BranchThreshold branchThreshold1 && o2 instanceof BranchThreshold branchThreshold2) &&
+                    !branchThreshold1.getSide().equals(branchThreshold2.getSide())) {
+                    return serializeSide(branchThreshold1.getSide()).compareTo(serializeSide(branchThreshold2.getSide()));
                 }
                 if (o1.min().isPresent()) {
                     return -1;
@@ -429,20 +417,20 @@ public final class JsonSerializationConstants {
             if (o1 instanceof OnInstant) {
                 return 0;
             }
-            if (o1 instanceof OnContingencyState) {
-                return ((OnContingencyState) o1).getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
+            if (o1 instanceof OnContingencyState onContingencyState) {
+                return onContingencyState.getState().getId().compareTo(((OnContingencyState) o2).getState().getId());
             }
-            if (o1 instanceof OnFlowConstraint) {
-                return ((OnFlowConstraint) o1).getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
+            if (o1 instanceof OnFlowConstraint onFlowConstraint) {
+                return onFlowConstraint.getFlowCnec().getId().compareTo(((OnFlowConstraint) o2).getFlowCnec().getId());
             }
-            if (o1 instanceof OnFlowConstraintInCountry) {
-                return ((OnFlowConstraintInCountry) o1).getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
+            if (o1 instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+                return onFlowConstraintInCountry.getCountry().toString().compareTo(((OnFlowConstraintInCountry) o2).getCountry().toString());
             }
-            if (o1 instanceof OnAngleConstraint) {
-                return ((OnAngleConstraint) o1).getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
+            if (o1 instanceof OnAngleConstraint onAngleConstraint) {
+                return onAngleConstraint.getAngleCnec().getId().compareTo(((OnAngleConstraint) o2).getAngleCnec().getId());
             }
-            if (o1 instanceof OnVoltageConstraint) {
-                return ((OnVoltageConstraint) o1).getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
+            if (o1 instanceof OnVoltageConstraint onVoltageConstraint) {
+                return onVoltageConstraint.getVoltageCnec().getId().compareTo(((OnVoltageConstraint) o2).getVoltageCnec().getId());
             }
             throw new FaraoException(String.format("Unknown usage rule type: %s", o1.getClass()));
         }

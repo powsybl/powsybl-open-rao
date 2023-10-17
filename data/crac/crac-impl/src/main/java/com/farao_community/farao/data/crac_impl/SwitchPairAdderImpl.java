@@ -8,7 +8,8 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.network_action.*;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.network_action.SwitchPairAdder;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -17,7 +18,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class SwitchPairAdderImpl implements SwitchPairAdder {
 
-    private NetworkActionAdderImpl ownerAdder;
+    private final NetworkActionAdderImpl ownerAdder;
     private String switchToOpenId;
     private String switchToOpenName;
     private String switchToCloseId;

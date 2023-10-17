@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
  */
 public abstract class AbstractUsageRule implements UsageRule {
 
-    protected UsageMethod usageMethod;
+    protected final UsageMethod usageMethod;
 
     protected AbstractUsageRule(UsageMethod usageMethod) {
         this.usageMethod = usageMethod;
@@ -41,7 +41,7 @@ public abstract class AbstractUsageRule implements UsageRule {
     }
 
     @Override
-    public int hashCode()  {
+    public int hashCode() {
         return usageMethod.hashCode() * 23;
     }
 }

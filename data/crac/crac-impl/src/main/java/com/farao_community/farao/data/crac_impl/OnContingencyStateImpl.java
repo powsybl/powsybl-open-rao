@@ -20,7 +20,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
  */
 public final class OnContingencyStateImpl extends AbstractUsageRule implements OnContingencyState {
 
-    private State state;
+    private final State state;
 
     OnContingencyStateImpl(UsageMethod usageMethod, State state) {
         super(usageMethod);

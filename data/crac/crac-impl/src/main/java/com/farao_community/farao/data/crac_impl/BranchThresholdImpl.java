@@ -23,7 +23,7 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
     /**
      * Side of the network element which is monitored
      */
-    protected Side side;
+    protected final Side side;
 
     /**
      * Direction in which the flow is monitored
@@ -51,12 +51,12 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
         BranchThresholdImpl otherT = (BranchThresholdImpl) o;
 
         return super.equals(otherT)
-                && side.equals(otherT.getSide());
+            && side.equals(otherT.getSide());
     }
 
     @Override
     public int hashCode() {
         return super.hashCode()
-                + 31 * side.hashCode();
+            + 31 * side.hashCode();
     }
 }

@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.fasterxml.jackson.annotation.*;
 
 import java.util.Optional;
 
@@ -20,9 +19,9 @@ import java.util.Optional;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class PostContingencyState implements State {
-    private String id;
-    private Contingency contingency;
-    private Instant instant;
+    private final String id;
+    private final Contingency contingency;
+    private final Instant instant;
 
     PostContingencyState(Contingency contingency, Instant instant) {
         this.id = contingency.getId() + " - " + instant.toString();

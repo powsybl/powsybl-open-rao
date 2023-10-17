@@ -8,19 +8,21 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.InstantKind;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
-import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -28,21 +30,21 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINES
  */
 public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRangeActionAdder> implements PstRangeActionAdder {
     public static final String PST_RANGE_ACTION = "PstRangeAction";
+    private final List<TapRange> ranges;
     private String networkElementId;
     private String networkElementName;
-    private List<TapRange> ranges;
     private String groupId = null;
     private Integer initialTap = null;
     private Map<Integer, Double> tapToAngleConversionMap;
 
-    @Override
-    protected String getTypeDescription() {
-        return PST_RANGE_ACTION;
-    }
-
     PstRangeActionAdderImpl(CracImpl owner) {
         super(owner);
         this.ranges = new ArrayList<>();
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return PST_RANGE_ACTION;
     }
 
     @Override
@@ -110,8 +112,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     private boolean isPreventiveUsageRule(UsageRule usageRule) {
-        return  (usageRule instanceof OnInstant && ((OnInstant) usageRule).getInstant().equals(Instant.PREVENTIVE))
-            || (usageRule instanceof OnContingencyState && ((OnContingencyState) usageRule).getInstant().equals(Instant.PREVENTIVE));
+        return (usageRule instanceof OnInstant && usageRule.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE))
+            || (usageRule instanceof OnContingencyState && usageRule.getInstant().getInstantKind().equals(InstantKind.PREVENTIVE));
     }
 
     private List<TapRange> checkRanges() {
@@ -170,7 +172,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
     void checkAutoUsageRules() {
         usageRules.forEach(usageRule -> {
-            if (usageRule.getInstant().equals(Instant.AUTO) && Objects.isNull(speed)) {
+            if (usageRule.getInstant().getInstantKind().equals(InstantKind.AUTO) && Objects.isNull(speed)) {
                 throw new FaraoException("Cannot create an AUTO Pst range action without speed defined");
             }
         });

@@ -9,8 +9,10 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.usage_rule.*;
+import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -23,11 +25,11 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnContingencyStateAdder<T> {
 
-    private T owner;
+    private static final String CLASS_NAME = "OnContingencyState";
+    private final T owner;
     private Instant instant;
     private String contingencyId;
     private UsageMethod usageMethod;
-    private static final String CLASS_NAME = "OnContingencyState";
 
     OnContingencyStateAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -57,12 +59,12 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
 
         State state;
-        if (instant.equals(Instant.PREVENTIVE)) {
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             if (usageMethod != UsageMethod.FORCED) {
                 throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
             state = owner.getCrac().addPreventiveState();
-        } else if (instant.equals(Instant.OUTAGE)) {
+        } else if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {
             assertAttributeNotNull(contingencyId, CLASS_NAME, "contingency", "withContingency()");

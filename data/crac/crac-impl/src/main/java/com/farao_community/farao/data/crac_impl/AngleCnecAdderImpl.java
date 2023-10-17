@@ -25,10 +25,10 @@ import static java.lang.String.format;
  */
 public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> implements AngleCnecAdder {
 
+    private static final String CNEC_TYPE = "AngleCnec";
     private final Set<Threshold> thresholds = new HashSet<>();
     private String exportingNetworkElementId;
     private String importingNetworkElementId;
-    private static final String CNEC_TYPE = "AngleCnec";
 
     AngleCnecAdderImpl(CracImpl owner) {
         super(owner);

@@ -22,7 +22,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  */
 public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnAngleConstraintAdder<T> {
 
-    private T owner;
+    private final T owner;
     private Instant instant;
     private String angleCnecId;
 
@@ -59,7 +59,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
             throw new FaraoException(String.format("AngleCnec %s does not exist in crac. Consider adding it first.", angleCnecId));
         }
 
-        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, angleCnec);
+        AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant.getInstantKind(), angleCnec);
 
         OnAngleConstraint onAngleConstraint = new OnAngleConstraintImpl(instant, angleCnec);
         owner.addUsageRule(onAngleConstraint);

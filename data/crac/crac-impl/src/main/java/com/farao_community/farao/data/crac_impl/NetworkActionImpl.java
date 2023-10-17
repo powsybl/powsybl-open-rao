@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Network;
 
@@ -28,7 +28,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     private final Set<ElementaryAction> elementaryActions;
 
     NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
-                             Set<ElementaryAction> elementaryNetworkActions, Integer speed) {
+                      Set<ElementaryAction> elementaryNetworkActions, Integer speed) {
         super(id, name, operator, usageRules, speed);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
     }
@@ -76,5 +76,4 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     public int hashCode() {
         return super.hashCode();
     }
-
 }
