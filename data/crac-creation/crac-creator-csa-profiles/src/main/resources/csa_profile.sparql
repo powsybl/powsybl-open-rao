@@ -97,9 +97,28 @@ GRAPH <%s> {
             ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
             }
     OPTIONAL {
+        ?assessedElement
+            nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
+    }
+    OPTIONAL {
             ?assessedElement nc:AssessedElement.isCritical ?isCritical .
             }
 }
+}
+
+# query: assessedElementWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+WHERE {
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
+        nc:AssessedElementWithRemedialAction.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithRemedialAction.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithRemedialAction
+            nc:AssessedElementWithRemedialAction.normalEnabled ?normalEnabled .
+    }
 }
 
 # query: assessedElementWithContingency
