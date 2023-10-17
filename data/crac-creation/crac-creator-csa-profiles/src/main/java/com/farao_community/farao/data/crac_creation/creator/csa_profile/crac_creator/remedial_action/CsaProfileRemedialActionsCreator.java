@@ -256,13 +256,13 @@ public class CsaProfileRemedialActionsCreator {
 
     private boolean processAvailableAssessedElementsCombinableWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
         List<Boolean> flags = onConstraintUsageRuleHelper.getImportedCnecsCombinableWithRas().stream().map(addOnConstraintUsageRuleForCnec(remedialActionInstant, remedialActionAdder, usageMethod)).toList();
-        return flags.stream().anyMatch(v -> v);
+        return flags.contains(true);
     }
 
     private boolean processAssessedElementsWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId, UsageMethod usageMethod, Map<String, Set<String>> cnecsByRemedialAction) {
         if (cnecsByRemedialAction.containsKey(importableRemedialActionId)) {
             List<Boolean> flags = cnecsByRemedialAction.get(importableRemedialActionId).stream().map(addOnConstraintUsageRuleForCnec(remedialActionInstant, remedialActionAdder, usageMethod)).toList();
-            return flags.stream().anyMatch(v -> v);
+            return flags.contains(true);
         }
         return false;
     }
@@ -276,18 +276,21 @@ public class CsaProfileRemedialActionsCreator {
                             .withInstant(remedialActionInstant)
                             .withFlowCnec(cnecId)
                             .add();
+                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof VoltageCnec) {
                     remedialActionAdder.newOnVoltageConstraintUsageRule()
                             .withInstant(remedialActionInstant)
                             .withVoltageCnec(cnecId)
                             .add();
+                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else if (cnec instanceof AngleCnec) {
                     remedialActionAdder.newOnAngleConstraintUsageRule()
                             .withInstant(remedialActionInstant)
                             .withAngleCnec(cnecId)
                             .add();
+                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
                     return true;
                 } else {
                     throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass().toString()));
