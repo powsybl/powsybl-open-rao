@@ -237,4 +237,18 @@ class RaoParametersConsistencyTest {
         assertEquals("TSO REE has a maximum number of allowed CRAs smaller than the number of allowed PST CRAs. This is not supported.", exception.getMessage());
         assertTrue(rulpcp.getMaxCurativePstPerTso().isEmpty());
     }
+
+    @Test
+    void testFailsOnLowSensitivityThreshold() {
+        RaoParameters parameters = new RaoParameters();
+
+        Exception e = assertThrows(FaraoException.class, () -> parameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.));
+        assertEquals("pstSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
+
+        e = assertThrows(FaraoException.class, () -> parameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(1e-7));
+        assertEquals("hvdcSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
+
+        e = assertThrows(FaraoException.class, () -> parameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.));
+        assertEquals("injectionRaSensitivityThreshold should be greater than 1e-6, to avoid numerical issues.", e.getMessage());
+    }
 }

@@ -69,23 +69,12 @@ final class RangeActionResultArraySerializer {
     }
 
     private static boolean safeIsActivatedDuringState(RaoResult raoResult, State state, RangeAction<?> rangeAction) {
-        // isActivatedDuringState might throw an exception, for instance if the RAO was run one one state only, and the
+        // isActivatedDuringState might throw an exception, for instance if the RAO was run on one state only, and the
         // state in argument of this method is not the same state.
         try {
             return raoResult.isActivatedDuringState(state, rangeAction);
         } catch (FaraoException e) {
             return false;
-        }
-    }
-
-    static Integer safeGetPreOptimizedTap(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
-        if (pstRangeAction == null) {
-            return null;
-        }
-        try {
-            return raoResult.getPreOptimizationTapOnState(state, pstRangeAction);
-        } catch (FaraoException e) {
-            return null;
         }
     }
 
