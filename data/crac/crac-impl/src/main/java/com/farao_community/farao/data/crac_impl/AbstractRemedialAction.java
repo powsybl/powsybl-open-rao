@@ -36,7 +36,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         this.speed = speed;
     }
 
-    protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
+    protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules) {
         this(id, name, operator, usageRules, null);
     }
 

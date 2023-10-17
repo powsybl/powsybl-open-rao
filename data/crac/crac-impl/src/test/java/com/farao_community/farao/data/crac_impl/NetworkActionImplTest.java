@@ -68,7 +68,7 @@ class NetworkActionImplTest {
             "id",
             "name",
             "operator",
-            new HashSet<>(mockedUsageRule1, mockedUsageRule2),
+            new HashSet<>(Arrays.asList(mockedUsageRule1, mockedUsageRule2)),
             new HashSet<>(Arrays.asList(mockedElementaryAction1, mockedElementaryAction2)),
             10
         );
