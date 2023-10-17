@@ -8,25 +8,35 @@
 package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.powsybl.iidm.network.Network;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
 class CracCleanerTest {
+    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
 
     private Network network;
 
@@ -60,14 +70,14 @@ class CracCleanerTest {
         crac.newFlowCnec()
             .withId("cnec1prev")
             .withNetworkElement("FFR1AA1  FFR2AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withOptimized(true)
             .withMonitored(true)
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withSide(Side.LEFT)
-                .withMin(-500.0)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT)
+            .withMin(-500.0)
+            .add()
             .withIMax(5000.)
             .withNominalVoltage(380.)
             .add();
@@ -75,14 +85,14 @@ class CracCleanerTest {
         crac.newFlowCnec()
             .withId("cnec2prev")
             .withNetworkElement("element that does not exist")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .withOptimized(true)
             .withMonitored(true)
             .newThreshold()
-                .withUnit(Unit.PERCENT_IMAX)
-                .withSide(Side.LEFT)
-                .withMin(-0.3)
-                .add()
+            .withUnit(Unit.PERCENT_IMAX)
+            .withSide(Side.LEFT)
+            .withMin(-0.3)
+            .add()
             .withIMax(5000.)
             .withNominalVoltage(380.)
             .add();
@@ -90,15 +100,15 @@ class CracCleanerTest {
         crac.newFlowCnec()
             .withId("cnec1cur")
             .withNetworkElement("element that does not exist")
-            .withInstant(Instant.OUTAGE)
+            .withInstant(instantOutage)
             .withContingency("contingendy1Id")
             .withOptimized(true)
             .withMonitored(true)
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withSide(Side.LEFT)
-                .withMin(-800.)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT)
+            .withMin(-800.)
+            .add()
             .withIMax(5000.)
             .withNominalVoltage(380.)
             .add();
@@ -106,15 +116,15 @@ class CracCleanerTest {
         crac.newFlowCnec()
             .withId("cnec3cur")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .withInstant(Instant.OUTAGE)
+            .withInstant(instantOutage)
             .withContingency("contThatShouldBeRemoved")
             .withOptimized(true)
             .withMonitored(true)
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withSide(Side.LEFT)
-                .withMin(-500.)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withSide(Side.LEFT)
+            .withMin(-500.)
+            .add()
             .withIMax(5000.)
             .withNominalVoltage(380.)
             .add();
@@ -125,9 +135,9 @@ class CracCleanerTest {
             .withName("topoRaName1")
             .withOperator("operator")
             .newTopologicalAction()
-                .withNetworkElement("element that does not exist")
-                .withActionType(ActionType.OPEN)
-                .add()
+            .withNetworkElement("element that does not exist")
+            .withActionType(ActionType.OPEN)
+            .add()
             .add();
 
         crac.newNetworkAction()
@@ -135,9 +145,9 @@ class CracCleanerTest {
             .withName("topoRaName2")
             .withOperator("operator")
             .newTopologicalAction()
-                .withNetworkElement("FFR1AA1  FFR2AA1  1")
-                .withActionType(ActionType.CLOSE)
-                .add()
+            .withNetworkElement("FFR1AA1  FFR2AA1  1")
+            .withActionType(ActionType.CLOSE)
+            .add()
             .add();
 
         crac.newNetworkAction()
@@ -145,13 +155,13 @@ class CracCleanerTest {
             .withName("topoRaName2")
             .withOperator("operator")
             .newTopologicalAction()
-                .withNetworkElement("FFR1AA1  FFR2AA1  1")
-                .withActionType(ActionType.CLOSE)
-                .add()
+            .withNetworkElement("FFR1AA1  FFR2AA1  1")
+            .withActionType(ActionType.CLOSE)
+            .add()
             .newTopologicalAction()
-                .withNetworkElement("element that does not exist")
-                .withActionType(ActionType.OPEN)
-                .add()
+            .withNetworkElement("element that does not exist")
+            .withActionType(ActionType.OPEN)
+            .add()
             .add();
 
         crac.newPstRangeAction()
@@ -162,14 +172,14 @@ class CracCleanerTest {
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, -20., 2, 20.))
             .newTapRange()
-                .withMinTap(1)
-                .withMaxTap(16)
-                .withRangeType(RangeType.ABSOLUTE)
-                .add()
+            .withMinTap(1)
+            .withMaxTap(16)
+            .withRangeType(RangeType.ABSOLUTE)
+            .add()
             .newOnInstantUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .withInstant(Instant.PREVENTIVE)
-                .add()
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .withInstant(instantPrev)
+            .add()
             .add();
 
         crac.newPstRangeAction()
@@ -180,14 +190,14 @@ class CracCleanerTest {
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, -20., 2, 20.))
             .newTapRange()
-                .withMinTap(1)
-                .withMaxTap(16)
-                .withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)
-                .add()
+            .withMinTap(1)
+            .withMaxTap(16)
+            .withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)
+            .add()
             .newOnInstantUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .withInstant(Instant.PREVENTIVE)
-                .add()
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .withInstant(instantPrev)
+            .add()
             .add();
 
         // check crac before clean
@@ -225,13 +235,13 @@ class CracCleanerTest {
             .withOptimized(true)
             .withMonitored(true)
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .newThreshold()
-                .withUnit(Unit.MEGAWATT)
-                .withMin(0.0)
-                .withMax(0.0)
-                .withSide(Side.LEFT)
-                .add()
+            .withUnit(Unit.MEGAWATT)
+            .withMin(0.0)
+            .withMax(0.0)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         crac.newFlowCnec()
@@ -239,13 +249,13 @@ class CracCleanerTest {
             .withOptimized(true)
             .withMonitored(false)
             .withNetworkElement("BBE1AA1  BBE3AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .newThreshold()
-                .withUnit(Unit.MEGAWATT)
-                .withMin(0.0)
-                .withMax(0.0)
-                .withSide(Side.LEFT)
-                .add()
+            .withUnit(Unit.MEGAWATT)
+            .withMin(0.0)
+            .withMax(0.0)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         crac.newFlowCnec()
@@ -253,13 +263,13 @@ class CracCleanerTest {
             .withOptimized(false)
             .withMonitored(true)
             .withNetworkElement("FFR1AA1  FFR2AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .newThreshold()
-                .withUnit(Unit.MEGAWATT)
-                .withMin(0.0)
-                .withMax(0.0)
-                .withSide(Side.LEFT)
-                .add()
+            .withUnit(Unit.MEGAWATT)
+            .withMin(0.0)
+            .withMax(0.0)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         crac.newFlowCnec()
@@ -267,13 +277,13 @@ class CracCleanerTest {
             .withOptimized(false)
             .withMonitored(false)
             .withNetworkElement("FFR1AA1  FFR3AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstant(instantPrev)
             .newThreshold()
-                .withUnit(Unit.MEGAWATT)
-                .withMin(0.0)
-                .withMax(0.0)
-                .withSide(Side.LEFT)
-                .add()
+            .withUnit(Unit.MEGAWATT)
+            .withMin(0.0)
+            .withMax(0.0)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         return crac;
@@ -319,19 +329,19 @@ class CracCleanerTest {
             .withName("topoRaName")
             .withOperator("operator")
             .newTopologicalAction()
-                .withNetworkElement("FFR1AA1  FFR3AA1  1")
-                .withActionType(ActionType.OPEN)
-                .add()
+            .withNetworkElement("FFR1AA1  FFR3AA1  1")
+            .withActionType(ActionType.OPEN)
+            .add()
             .newOnContingencyStateUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .withInstant(Instant.CURATIVE)
-                .withContingency("cont_exists")
-                .add()
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .withInstant(instantCurative)
+            .withContingency("cont_exists")
+            .add()
             .newOnContingencyStateUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .withInstant(Instant.CURATIVE)
-                .withContingency("cont_unknown")
-                .add()
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .withInstant(instantCurative)
+            .withContingency("cont_unknown")
+            .add()
             .add();
 
         crac.newPstRangeAction()
@@ -342,15 +352,15 @@ class CracCleanerTest {
             .withInitialTap(1)
             .withTapToAngleConversionMap(Map.of(1, -20., 2, 20.))
             .newOnContingencyStateUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .withInstant(Instant.CURATIVE)
-                .withContingency("cont_exists")
-                .add()
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .withInstant(instantCurative)
+            .withContingency("cont_exists")
+            .add()
             .newOnContingencyStateUsageRule()
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .withInstant(Instant.CURATIVE)
-                .withContingency("cont_unknown")
-                .add()
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .withInstant(instantCurative)
+            .withContingency("cont_unknown")
+            .add()
             .add();
 
         CracCleaner cracCleaner = new CracCleaner();
