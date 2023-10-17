@@ -15,10 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CracImplFactoryTest {
-    private final String factoryName = "CracImplFactory";
-
     @Test
     void testDependencyInjection() {
+        String factoryName = "CracImplFactory";
         assertEquals(factoryName, new CracImplFactory().getName());
         CracFactory factory = CracFactory.find(factoryName);
         assertNotNull(factory);
