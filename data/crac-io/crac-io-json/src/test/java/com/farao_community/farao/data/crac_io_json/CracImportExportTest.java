@@ -24,8 +24,8 @@ import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
@@ -206,8 +206,10 @@ class CracImportExportTest {
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
-        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getUsageRules().get(0) instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) crac.getNetworkAction("injectionSetpointRaId").getUsageRules().get(0);
+        UsageRule injectionSetpointRaUsageRule =  crac.getNetworkAction("injectionSetpointRaId").getUsageRules().iterator().next();
+
+        assertTrue(injectionSetpointRaUsageRule instanceof OnFlowConstraint);
+        OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) injectionSetpointRaUsageRule;
         assertEquals("cnec3autoId", onFlowConstraint1.getFlowCnec().getId());
         assertEquals(AUTO, onFlowConstraint1.getInstant());
 
@@ -262,22 +264,26 @@ class CracImportExportTest {
 
         // check OnFlowConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange2Id").getUsageRules().size());
-        assertTrue(crac.getPstRangeAction("pstRange2Id").getUsageRules().get(0) instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) crac.getPstRangeAction("pstRange2Id").getUsageRules().get(0);
+        UsageRule pstRange2UsageRule =  crac.getPstRangeAction("pstRange2Id").getUsageRules().iterator().next();
+
+        assertTrue(pstRange2UsageRule instanceof OnFlowConstraint);
+        OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) pstRange2UsageRule;
         assertEquals(PREVENTIVE, onFlowConstraint2.getInstant());
         assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
 
         // check OnAngleConstraint usage rule
         assertEquals(1, crac.getPstRangeAction("pstRange3Id").getUsageRules().size());
-        assertTrue(crac.getPstRangeAction("pstRange3Id").getUsageRules().get(0) instanceof OnAngleConstraint);
-        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) crac.getPstRangeAction("pstRange3Id").getUsageRules().get(0);
+        UsageRule pstRange3UsageRule =  crac.getPstRangeAction("pstRange3Id").getUsageRules().iterator().next();
+
+        assertTrue(pstRange3UsageRule instanceof OnAngleConstraint);
+        OnAngleConstraint onAngleConstraint = (OnAngleConstraint) pstRange3UsageRule;
         assertEquals(CURATIVE, onAngleConstraint.getInstant());
         assertSame(crac.getCnec("angleCnecId"), onAngleConstraint.getAngleCnec());
 
         // check OnVoltageConstraint usage rule
-        List<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
+        Set<UsageRule> pstRange4IdUsageRules = crac.getPstRangeAction("pstRange4Id").getUsageRules();
         assertEquals(1, pstRange4IdUsageRules.size());
-        UsageRule pstRange4IdFirstUsageRules = pstRange4IdUsageRules.get(0);
+        UsageRule pstRange4IdFirstUsageRules = pstRange4IdUsageRules.iterator().next();
         assertTrue(pstRange4IdFirstUsageRules instanceof OnVoltageConstraint);
         OnVoltageConstraint onVoltageConstraint = (OnVoltageConstraint) pstRange4IdFirstUsageRules;
         assertEquals(CURATIVE, onVoltageConstraint.getInstant());
@@ -308,10 +314,12 @@ class CracImportExportTest {
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
 
         // Check OnFlowConstraintInCountry usage rules
-        List<UsageRule> usageRules = crac.getRemedialAction("hvdcRange1Id").getUsageRules();
+        Set<UsageRule> usageRules = crac.getHvdcRangeAction("hvdcRange1Id").getUsageRules();
         assertEquals(1, usageRules.size());
-        assertTrue(usageRules.get(0) instanceof OnFlowConstraintInCountry);
-        OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) usageRules.get(0);
+        UsageRule hvdcRange1UsageRule =  usageRules.iterator().next();
+
+        assertTrue(hvdcRange1UsageRule instanceof OnFlowConstraintInCountry);
+        OnFlowConstraintInCountry ur = (OnFlowConstraintInCountry) hvdcRange1UsageRule;
         assertEquals(PREVENTIVE, ur.getInstant());
         assertEquals(Country.FR, ur.getCountry());
 
@@ -332,7 +340,7 @@ class CracImportExportTest {
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // Check OnFlowConstraintInCountry usage rules
-        usageRules = crac.getRemedialAction("injectionRange1Id").getUsageRules();
+        usageRules = crac.getInjectionRangeAction("injectionRange1Id").getUsageRules();
         assertEquals(2, usageRules.size());
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(CURATIVE, ur.getInstant());

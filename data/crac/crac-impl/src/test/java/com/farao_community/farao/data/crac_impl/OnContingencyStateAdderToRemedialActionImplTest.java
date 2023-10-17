@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyState;
 import com.farao_community.farao.data.crac_api.usage_rule.OnContingencyStateAdderToRemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,21 +51,23 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     void testOk() {
         remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, Instant.CURATIVE)).withUsageMethod(UsageMethod.FORCED).add();
 
+        UsageRule usageRule = remedialAction.getUsageRules().iterator().next();
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
-        assertEquals(Instant.CURATIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
-        assertEquals(contingency, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getContingency().orElse(null));
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
+        assertTrue(usageRule instanceof OnContingencyState);
+        assertEquals(Instant.CURATIVE, ((OnContingencyState) usageRule).getState().getInstant());
+        assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
+        assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
     }
 
     @Test
     void testOkPreventive() {
         remedialAction.newOnStateUsageRule().withState(crac.getPreventiveState()).withUsageMethod(UsageMethod.FORCED).add();
+        UsageRule usageRule = remedialAction.getUsageRules().iterator().next();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnContingencyState);
-        assertEquals(Instant.PREVENTIVE, ((OnContingencyState) remedialAction.getUsageRules().get(0)).getState().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().get(0).getUsageMethod());
+        assertTrue(usageRule instanceof OnContingencyState);
+        assertEquals(Instant.PREVENTIVE, ((OnContingencyState) usageRule).getState().getInstant());
+        assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
     }
 
     @Test

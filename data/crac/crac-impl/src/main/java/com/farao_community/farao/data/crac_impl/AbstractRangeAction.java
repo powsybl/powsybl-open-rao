@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -19,7 +19,7 @@ public abstract class AbstractRangeAction<T extends RangeAction<T>> extends Abst
 
     protected String groupId = null;
 
-    AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules, String groupId, Integer speed) {
+    AbstractRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId, Integer speed) {
         super(id, name, operator, usageRules, speed);
         this.groupId = groupId;
     }

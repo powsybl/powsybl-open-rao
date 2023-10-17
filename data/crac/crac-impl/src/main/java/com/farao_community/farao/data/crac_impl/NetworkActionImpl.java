@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,7 +26,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     private final Set<ElementaryAction> elementaryActions;
 
-    NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
+    NetworkActionImpl(String id, String name, String operator, Set<UsageRule> usageRules,
                              Set<ElementaryAction> elementaryNetworkActions, Integer speed) {
         super(id, name, operator, usageRules, speed);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);

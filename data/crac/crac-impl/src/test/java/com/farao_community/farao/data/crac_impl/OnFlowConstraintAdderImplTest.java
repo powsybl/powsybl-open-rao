@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -77,10 +78,11 @@ class OnFlowConstraintAdderImplTest {
             .withFlowCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
+        UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) remedialAction.getUsageRules().get(0);
+        assertTrue(usageRule instanceof OnFlowConstraint);
+        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
@@ -96,10 +98,11 @@ class OnFlowConstraintAdderImplTest {
             .withFlowCnec("cnec2stateCurativeContingency1")
             .add()
             .add();
+        UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnFlowConstraint);
-        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) remedialAction.getUsageRules().get(0);
+        assertTrue(usageRule instanceof OnFlowConstraint);
+        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) usageRule;
         assertEquals(Instant.CURATIVE, onFlowConstraint.getInstant());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), Instant.CURATIVE)));
