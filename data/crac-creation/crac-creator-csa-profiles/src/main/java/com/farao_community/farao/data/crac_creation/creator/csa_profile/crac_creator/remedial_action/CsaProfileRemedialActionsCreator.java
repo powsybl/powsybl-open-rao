@@ -28,7 +28,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -61,6 +60,7 @@ public class CsaProfileRemedialActionsCreator {
         this.tapPositionPropertyBags = tapPositionPropertyBags;
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
+        this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
         createAndAddRemedialActions();
     }
 

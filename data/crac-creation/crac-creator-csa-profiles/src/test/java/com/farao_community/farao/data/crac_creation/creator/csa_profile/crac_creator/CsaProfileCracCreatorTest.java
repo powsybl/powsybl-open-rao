@@ -46,9 +46,8 @@ import java.util.stream.Stream;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static com.farao_community.farao.data.crac_api.Instant.*;
 
-public class CsaProfileCracCreatorTest {
+class CsaProfileCracCreatorTest {
 
     private CsaProfileCracCreationContext cracCreationContext;
     private Crac importedCrac;
@@ -629,7 +628,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreInvalidTopologicalActions() {
+    void testIgnoreInvalidTopologicalActions() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_9_InvalidTopologicalActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -1139,7 +1138,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnFlowConstraintUsageRule() {
+    void checkOnFlowConstraintUsageRule() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -1170,7 +1169,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkNoOnConstraintUsageRuleIsCreated() {
+    void checkNoOnConstraintUsageRuleIsCreated() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -1186,7 +1185,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnConstraintWith4FlowCnecs() {
+    void checkOnConstraintWith4FlowCnecs() {
         Network network = Mockito.spy(Network.create("Test", "code"));
 
         VoltageLevel voltageLevel1 = Mockito.mock(VoltageLevel.class);
@@ -1311,7 +1310,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnConstraintWith4AngleCnecs() {
+    void checkOnConstraintWith4AngleCnecs() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-11/CSA_11_4_OnAngleConstraint.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -1402,7 +1401,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnConstraintWith4VoltageCnecs() {
+    void checkOnConstraintWith4VoltageCnecs() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-11/CSA_11_5_OnVoltageConstraint.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
