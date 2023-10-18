@@ -558,6 +558,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActions.values());
         rangeActionsSet.addAll(hvdcRangeActions.values());
         rangeActionsSet.addAll(injectionRangeActions.values());
+        rangeActionsSet.addAll(counterTradeRangeActions.values());
         return rangeActionsSet;
     }
 
@@ -589,8 +590,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return pstRangeActions.get(id);
         } else if (hvdcRangeActions.get(id) != null) {
             return hvdcRangeActions.get(id);
-        } else {
+        } else if (injectionRangeActions.get(id) != null) {
             return injectionRangeActions.get(id);
+        } else {
+            return counterTradeRangeActions.get(id);
         }
     }
 
