@@ -19,7 +19,8 @@ public class CounterTradeRangeActionSerializer extends AbstractJsonSerializer<Co
         gen.writeStringField(NAME, value.getName());
         gen.writeStringField(OPERATOR, value.getOperator());
         UsageRulesSerializer.serializeUsageRules(value, gen);
-        gen.writeStringField(EXPORTING_COUNTRY, value.getExportingCountry().getName());
+        gen.writeStringField(EXPORTING_COUNTRY, value.getExportingCountry().toString());
+        gen.writeStringField(IMPORTING_COUNTRY, value.getImportingCountry().toString());
         serializeGroupId(value, gen);
         gen.writeNumberField(INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRemedialActionSpeed(value, gen);

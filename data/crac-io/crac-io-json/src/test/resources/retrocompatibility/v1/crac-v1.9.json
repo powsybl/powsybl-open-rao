@@ -358,6 +358,7 @@
       "usageMethod" : "available"
     } ],
     "exportingCountry" : "FR",
+    "importingCountry" : "DE",
     "initialSetpoint" : 50,
     "ranges" : [ {
       "min" : -500.0,

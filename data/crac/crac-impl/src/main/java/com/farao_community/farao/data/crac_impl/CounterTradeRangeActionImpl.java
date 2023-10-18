@@ -8,6 +8,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -18,16 +19,18 @@ import java.util.Set;
 public class CounterTradeRangeActionImpl extends AbstractStandardRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 
     private final Country exportingCountry;
+    private final Country importingCountry;
 
     CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                             List<StandardRange> ranges, double initialSetpoint, Integer speed, Country exportingCountry) {
+                             List<StandardRange> ranges, double initialSetpoint, Integer speed, Country exportingCountry, Country importingCountry) {
         super(id, name, operator, usageRules, groupId, speed, ranges, initialSetpoint);
         this.exportingCountry = exportingCountry;
+        this.importingCountry = importingCountry;
     }
 
     @Override
     public Set<NetworkElement> getNetworkElements() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -38,6 +41,11 @@ public class CounterTradeRangeActionImpl extends AbstractStandardRangeAction<Cou
     @Override
     public Country getExportingCountry() {
         return exportingCountry;
+    }
+
+    @Override
+    public Country getImportingCountry() {
+        return importingCountry;
     }
 
     @Override

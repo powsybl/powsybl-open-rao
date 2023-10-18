@@ -77,6 +77,9 @@ public final class CounterTradeRangeActionArrayDeserializer {
                     case EXPORTING_COUNTRY:
                         counterTradeRangeActionAdder.withExportingCountry(Country.valueOf(jsonParser.nextTextValue()));
                         break;
+                    case IMPORTING_COUNTRY:
+                        counterTradeRangeActionAdder.withImportingCountry(Country.valueOf(jsonParser.nextTextValue()));
+                        break;
                     case GROUP_ID:
                         counterTradeRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                         break;

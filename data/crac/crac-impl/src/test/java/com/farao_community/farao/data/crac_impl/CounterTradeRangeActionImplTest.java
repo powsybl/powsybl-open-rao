@@ -31,6 +31,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withExportingCountry(Country.FR)
+                .withImportingCountry(Country.DE)
                 .add();
         Exception e = assertThrows(FaraoException.class, () -> counterTradeRangeAction.apply(network, 100.));
         assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
@@ -43,6 +44,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
                 .withExportingCountry(Country.FR)
+                .withImportingCountry(Country.DE)
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
@@ -57,6 +59,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
                 .withExportingCountry(Country.FR)
+                .withImportingCountry(Country.DE)
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));

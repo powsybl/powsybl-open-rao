@@ -8,12 +8,16 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -51,6 +55,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         serializePstRangeActions(crac, gen);
         serializeHvdcRangeActions(crac, gen);
         serializeInjectionRangeActions(crac, gen);
+        serializeCounterTradeRangeActions(crac, gen);
         serializeNetworkActions(crac, gen);
 
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
@@ -155,6 +160,17 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
                 .collect(Collectors.toList());
         for (InjectionRangeAction injectionRangeAction : sortedInjectionRangeActionList) {
             gen.writeObject(injectionRangeAction);
+        }
+        gen.writeEndArray();
+    }
+
+    private void serializeCounterTradeRangeActions(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(COUNTER_TRADE_RANGE_ACTIONS);
+        List<CounterTradeRangeAction> sortedCounterTradeRangeActionList = crac.getCounterTradeRangeActions().stream()
+                .sorted(Comparator.comparing(CounterTradeRangeAction::getId))
+                .collect(Collectors.toList());
+        for (CounterTradeRangeAction counterTradeRangeAction : sortedCounterTradeRangeActionList) {
+            gen.writeObject(counterTradeRangeAction);
         }
         gen.writeEndArray();
     }

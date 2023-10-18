@@ -313,6 +313,7 @@ class CastorFullOptimizationTest {
         ra10 = (RangeAction<?>) crac.newCounterTradeRangeAction()
                 .withId("ra10")
                 .withExportingCountry(Country.FR)
+                .withImportingCountry(Country.DE)
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.UNDEFINED).add()
                 .newRange().withMin(-1000).withMax(1000).add()

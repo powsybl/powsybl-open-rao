@@ -8,4 +8,6 @@ import com.powsybl.iidm.network.Country;
 public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeActionAdder> {
 
     CounterTradeRangeActionAdder withExportingCountry(Country exportingCountry);
+
+    CounterTradeRangeActionAdder withImportingCountry(Country importingCountry);
 }

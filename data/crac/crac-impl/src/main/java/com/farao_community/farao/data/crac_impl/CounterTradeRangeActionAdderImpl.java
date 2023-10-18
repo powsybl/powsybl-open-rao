@@ -14,10 +14,11 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
  */
-public class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
+class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
-    public Country exportingCountry;
+    private Country exportingCountry;
+    private Country importingCountry;
 
     @Override
     protected String getTypeDescription() {
@@ -35,6 +36,12 @@ public class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActio
     }
 
     @Override
+    public CounterTradeRangeActionAdder withImportingCountry(Country importingCountry) {
+        this.importingCountry = importingCountry;
+        return this;
+    }
+
+    @Override
     public CounterTradeRangeAction add() {
         checkId();
         checkAutoUsageRules();
@@ -42,8 +49,9 @@ public class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActio
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
         }
 
-        // check exporting country
+        // check exporting and importing country
         assertAttributeNotNull(exportingCountry, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingCountry()");
+        assertAttributeNotNull(importingCountry, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingCountry()");
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
@@ -53,7 +61,7 @@ public class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActio
             BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
-        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, this.exportingCountry);
+        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, this.exportingCountry, this.importingCountry);
         this.getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
 

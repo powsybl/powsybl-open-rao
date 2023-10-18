@@ -266,6 +266,7 @@ public final class ExhaustiveCracCreation {
         crac.newCounterTradeRangeAction().withId("counterTradeRange1Id")
                 .withName("counterTradeRange1Name")
                 .withExportingCountry(Country.FR)
+                .withImportingCountry(Country.DE)
                 .newRange().withMin(-500).withMax(500).add()
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()

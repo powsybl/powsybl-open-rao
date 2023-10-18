@@ -58,6 +58,7 @@ public final class JsonSerializationConstants {
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
     public static final String NETWORK_ELEMENT_IDS_AND_KEYS = "networkElementIdsAndKeys";
     public static final String EXPORTING_COUNTRY = "exportingCountry";
+    public static final String IMPORTING_COUNTRY = "importingCountry";
 
     public static final String GROUP_ID = "groupId";
     public static final String SPEED = "speed";
