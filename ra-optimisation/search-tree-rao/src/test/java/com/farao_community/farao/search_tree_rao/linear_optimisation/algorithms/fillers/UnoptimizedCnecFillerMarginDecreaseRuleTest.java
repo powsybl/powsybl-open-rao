@@ -50,6 +50,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     private FlowCnec cnecFr;
     private double constraintCoeff;
     private OptimizationPerimeter optimizationPerimeter;
+    private RangeActionsOptimizationParameters rangeActionParameters;
 
     @BeforeEach
     public void setUp() {
@@ -81,14 +82,15 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
         raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
         raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            MEGAWATT);
+            MEGAWATT,
+            false);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
@@ -101,7 +103,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 optimizationPerimeter,
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                unoptimizedCnecParameters
+                unoptimizedCnecParameters,
+                rangeActionParameters
         );
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -135,7 +138,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
                 optimizationPerimeter,
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                unoptimizedCnecParameters
+                unoptimizedCnecParameters,
+                rangeActionParameters
         );
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

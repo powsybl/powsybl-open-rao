@@ -347,26 +347,6 @@
       "max" : 1000.0
     } ]
   } ],
-  "counterTradeRangeActions" : [ {
-    "id" : "counterTradeRange1Id",
-    "name" : "counterTradeRange1Name",
-    "operator" : null,
-    "speed" : 30,
-    "onContingencyStateUsageRules" : [ {
-      "instant" : "curative",
-      "contingencyId" : "contingency1Id",
-      "usageMethod" : "available"
-    } ],
-    "exportingCountry" : "FR",
-    "initialSetpoint" : 50,
-    "ranges" : [ {
-      "min" : -500.0,
-      "max" : 500.0
-    }, {
-      "min" : -1000.0,
-      "max" : 1000.0
-    } ]
-  } ],
   "networkActions" : [ {
     "id" : "complexNetworkActionId",
     "name" : "complexNetworkActionName",
@@ -394,8 +374,9 @@
     } ],
     "injectionSetpoints" : [ {
       "networkElementId" : "injection",
-      "setpoint" : 260.0
-    } ]
+      "setpoint" : 260.0,
+      "unit" : "megawatt"
+    }]
   }, {
     "id" : "pstSetpointRaId",
     "name" : "pstSetpointRaName",

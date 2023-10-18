@@ -10,12 +10,12 @@
   "range-actions-optimization" : {
     "max-mip-iterations" : 10,
     "pst-penalty-cost" : 0.01,
-    "pst-sensitivity-threshold" : 0.0,
+    "pst-sensitivity-threshold" : 1.0E-6,
     "pst-model" : "CONTINUOUS",
     "hvdc-penalty-cost" : 0.001,
-    "hvdc-sensitivity-threshold" : 0.0,
+    "hvdc-sensitivity-threshold" : 1.0E-6,
     "injection-ra-penalty-cost" : 0.001,
-    "injection-ra-sensitivity-threshold" : 0.0,
+    "injection-ra-sensitivity-threshold" : 1.0E-6,
     "ra-range-shrinking" : "DISABLED",
     "linear-optimization-solver" : {
       "solver" : "CBC",
@@ -108,7 +108,6 @@
             "debugDir" : null,
             "incrementalTransformerVoltageControlOuterLoopMaxTapShift" : 3,
             "secondaryVoltageControl" : false,
-            "controllerToPilotPointVoltageSensiEpsilon" : 0.01,
             "reactiveLimitsMaxPqPvSwitch" : 3,
             "phaseShifterControlMode" : "CONTINUOUS_WITH_DISCRETISATION",
             "alwaysUpdateNetwork" : false,
@@ -116,7 +115,9 @@
             "reportedFeatures" : [ ],
             "slackBusCountryFilter" : [ ],
             "actionableSwitchesIds" : [ ],
-            "asymmetrical" : false
+            "asymmetrical" : false,
+            "reactivePowerDispatchMode" : "Q_EQUAL_PROPORTION",
+            "outerLoopNames" : null
           }
         }
       },

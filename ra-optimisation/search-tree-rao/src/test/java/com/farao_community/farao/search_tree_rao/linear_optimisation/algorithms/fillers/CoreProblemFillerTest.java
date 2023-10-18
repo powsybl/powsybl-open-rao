@@ -67,18 +67,14 @@ class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
-        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState());
-    }
-
-    private void initializeForCurative() {
-        initialize(Set.of(cnec2), 0, 0, 0, cnec2.getState());
+        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState(), false);
     }
 
     private void initializeForGlobal() {
-        initialize(Set.of(cnec1, cnec2), 0, 0, 0, crac.getPreventiveState());
+        initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), false);
     }
 
-    private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState) {
+    private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState, boolean raRangeShrinking) {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);
@@ -98,13 +94,13 @@ class CoreProblemFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            Unit.MEGAWATT);
+            Unit.MEGAWATT, raRangeShrinking);
         buildLinearProblem();
     }
 
     @Test
     void fillTestOnPreventive() {
-        initializeForPreventive(0, 0, 0);
+        initializeForPreventive(1e-6, 1e-6, 1e-6);
         State state = cnec1.getState();
 
         // check range action setpoint variable
@@ -224,7 +220,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void fillTestOnCurative() {
-        initializeForCurative();
+        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), false);
         State state = cnec2.getState();
 
         // check range action setpoint variable
@@ -393,7 +389,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void updateTestOnPreventive() {
-        initializeForPreventive(0, 0, 0);
+        initializeForPreventive(1e-6, 1e-6, 1e-6);
         State state = cnec1.getState();
         // update the problem with new data
         updateLinearProblem();
@@ -426,23 +422,21 @@ class CoreProblemFillerTest extends AbstractFillerTest {
         assertNull(flowConstraint2);
 
         // check the number of variables and constraints
+        // No iterative relative variation constraint should be created since CoreProblemFiller.raRangeShrinking = false
         // total number of variables 3 :
         //      - 1 per CNEC (flow)
-        //      - 2 per range action (set-point and variation)
-        // total number of constraints 4 :
+        //      - 2 per range action (set-point)
+        // total number of constraints 3 :
         //      - 1 per CNEC (flow constraint)
-        //      - 3 per range action (absolute variation constraints and iterative relative variation constraint: created before 2nd iteration)
-        assertEquals(3, linearProblem.numVariables());
-        assertEquals(4, linearProblem.numConstraints());
+        //      - 2 per range action (absolute variation constraints)
 
-        // assert that no other constraint is created after 2nd iteration
-        updateLinearProblem();
-        assertEquals(4, linearProblem.numConstraints());
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(3, linearProblem.numConstraints());
     }
 
     @Test
-    void updateTestOnCurative() {
-        initializeForCurative();
+    void updateTestOnCurativeWithRaRangeShrinking() {
+        initialize(Set.of(cnec2), 1e-6, 1e-6, 1e-6, cnec2.getState(), true);
         State state = cnec2.getState();
         // update the problem with new data
         updateLinearProblem();
@@ -505,7 +499,8 @@ class CoreProblemFillerTest extends AbstractFillerTest {
             initialRangeActionSetpointResult,
             new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
             rangeActionParameters,
-            Unit.MEGAWATT);
+            Unit.MEGAWATT,
+            false);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withSolver(mpSolver)
@@ -526,7 +521,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState());
+        initialize(Set.of(cnec1), 2.5, 2.5, 2.5, crac.getPreventiveState(), false);
         flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -543,7 +538,7 @@ class CoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) > 1/.5 should not be filtered
         when(flowResult.getMargin(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState());
+        initialize(Set.of(cnec1), 1.5, 1.5, 1.5, crac.getPreventiveState(), false);
         flowConstraint = linearProblem.getFlowConstraint(cnec1, Side.LEFT);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction, cnec1.getState());
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);

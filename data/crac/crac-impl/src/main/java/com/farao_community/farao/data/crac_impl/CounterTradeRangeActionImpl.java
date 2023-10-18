@@ -19,7 +19,7 @@ public class CounterTradeRangeActionImpl extends AbstractStandardRangeAction<Cou
 
     private final Country exportingCountry;
 
-    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, List<UsageRule> usageRules,
+    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
                              List<StandardRange> ranges, double initialSetpoint, Integer speed, Country exportingCountry) {
         super(id, name, operator, usageRules, groupId, speed, ranges, initialSetpoint);
         this.exportingCountry = exportingCountry;

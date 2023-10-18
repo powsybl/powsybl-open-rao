@@ -83,13 +83,13 @@ public final class CsaProfileCracUtils {
 
         int seconds = 0;
 
-        for (char unit : durationFactors.keySet()) {
-            Pattern unitPattern = Pattern.compile("(\\d+)" + unit);
+        for (Map.Entry<Character, Integer> entry : durationFactors.entrySet()) {
+            Pattern unitPattern = Pattern.compile("(\\d+)" + entry.getKey());
             Matcher unitMatcher = unitPattern.matcher(duration);
 
             if (unitMatcher.find()) {
                 int value = Integer.parseInt(unitMatcher.group(1));
-                seconds += value * durationFactors.get(unit);
+                seconds += value * entry.getValue();
             }
         }
 

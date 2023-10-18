@@ -76,6 +76,7 @@ public final class CsaProfileConstants {
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
+    public static final String REMEDIAL_ACTION_MESSAGE = "Remedial action ";
     public static final String REMEDIAL_ACTION_FILE_KEYWORD = "RA";
     public static final String GRID_STATE_ALTERATION_REMEDIAL_ACTION = "gridStateAlterationRemedialAction";
     public static final String TOPOLOGY_ACTION = "topologyAction";
@@ -131,8 +132,10 @@ public final class CsaProfileConstants {
      */
 
     public static final String REQUEST_ASSESSED_ELEMENT = "assessedElement";
+    public static final String REQUEST_REMEDIAL_ACTION = "remedialAction";
 
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY = "assessedElementWithContingency";
+    public static final String REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION = "assessedElementWithRemedialAction";
 
     public static final String REQUEST_ASSESSED_ELEMENT_IN_BASE_CASE = "inBaseCase";
 
@@ -147,6 +150,7 @@ public final class CsaProfileConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
 
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
+    public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
 
     public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
 
@@ -154,19 +158,19 @@ public final class CsaProfileConstants {
 
     public static final String REQUEST_CURRENT_LIMIT = "currentLimit";
 
-    public static final String REQUEST_CURRENT_LIMIT_NORMAL_VALUE = "normalValue";
+    public static final String REQUEST_VOLTAGE_LIMIT = "voltageLimit";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_SET = "operationalLimitSet";
+    public static final String REQUEST_OPERATIONAL_LIMIT_NORMAL_VALUE = "normalValue";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TYPE = "operationalLimitType";
+    public static final String REQUEST_OPERATIONAL_LIMIT_TERMINAL = "terminal";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_TERMINAL = "terminal";
+    public static final String REQUEST_OPERATIONAL_LIMIT_KIND = "kind";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_KIND = "kind";
+    public static final String REQUEST_OPERATIONAL_LIMIT_DIRECTION = "direction";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_DIRECTION = "direction";
+    public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
 
-    public static final String REQUEST_CURRENT_LIMIT_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
+    public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
 
     public static final String ASSESSED_ELEMENT_FILE_KEYWORD = "AE";
 
@@ -175,6 +179,8 @@ public final class CsaProfileConstants {
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
 
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
+
+    public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");
 
     public static final String IEC_URL = "http://iec.ch/TC57/";
 
@@ -228,6 +234,32 @@ public final class CsaProfileConstants {
         @Override
         public String toString() {
             return LimitDirectionKind.URL + this.direction;
+        }
+    }
+
+    /**
+     * requests for angle cnec
+     */
+
+    public static final String EQUIPMENT_RELIABILITY_FILE_KEYWORD = "ER";
+    public static final String REQUEST_ANGLE_REFERENCE_TERMINAL = "AngleReferenceTerminal";
+    public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
+    public static final String REQUEST_ANGLE_LIMIT = "angleLimit";
+
+    public enum LimitType {
+        ANGLE(REQUEST_ANGLE_LIMIT),
+        CURRENT(REQUEST_CURRENT_LIMIT),
+        VOLTAGE(REQUEST_VOLTAGE_LIMIT);
+
+        LimitType(String type) {
+            this.type = type;
+        }
+
+        private final String type;
+
+        @Override
+        public String toString() {
+            return this.type;
         }
     }
 }

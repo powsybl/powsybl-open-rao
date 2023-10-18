@@ -6,6 +6,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
@@ -15,7 +16,7 @@ public abstract class AbstractStandardRangeAction<T extends StandardRangeAction<
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
 
-    AbstractStandardRangeAction(String id, String name, String operator, List<UsageRule> usageRules, String groupId,
+    AbstractStandardRangeAction(String id, String name, String operator, Set<UsageRule> usageRules, String groupId,
                                 Integer speed, List<StandardRange> ranges, double initialSetpoint) {
         super(id, name, operator, usageRules, groupId, speed);
         this.ranges = ranges;

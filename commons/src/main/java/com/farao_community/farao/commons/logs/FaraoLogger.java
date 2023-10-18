@@ -24,4 +24,6 @@ public interface FaraoLogger {
     void debug(String format, Object... arguments);
 
     boolean isInfoEnabled();
+
+    boolean isTraceEnabled();
 }

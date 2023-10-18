@@ -91,12 +91,34 @@ GRAPH <%s> {
         nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator ;
         nc:AssessedElement.OperationalLimit ?operationalLimit .
     OPTIONAL {
+            ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+            }
+    OPTIONAL {
+            ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+            }
+    OPTIONAL {
         ?assessedElement
-            nc:AssessedElement.isCritical ?isCritical ;
-            nc:AssessedElement.normalEnabled ?normalEnabled ;
-            nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+            nc:AssessedElement.isCombinableWithRemedialAction ?isCombinableWithRemedialAction ;
     }
+    OPTIONAL {
+            ?assessedElement nc:AssessedElement.isCritical ?isCritical .
+            }
 }
+}
+
+# query: assessedElementWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+WHERE {
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
+        nc:AssessedElementWithRemedialAction.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithRemedialAction.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithRemedialAction
+            nc:AssessedElementWithRemedialAction.normalEnabled ?normalEnabled .
+    }
 }
 
 # query: assessedElementWithContingency
@@ -135,6 +157,59 @@ WHERE {
             ?operationalLimitType
                 cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
         }
+}
+
+# query: voltageLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+WHERE {
+    ?voltageLimit
+        rdf:type cim:VoltageLimit ;
+        cim:VoltageLimit.normalValue ?normalValue ;
+        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Terminal ?terminal .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        cim:OperationalLimitType.direction ?direction .
+    OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
+        }
+}
+
+# query: angleLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:Model.startDate ?startDate ;
+            dcat:Model.endDate ?endDate ;
+            dcat:Model.keyword ?keyword .
+        ?angleLimit
+            rdf:type nc:VoltageAngleLimit ;
+            nc:VoltageAngleLimit.normalValue ?normalValue ;
+            nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal2 .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            cim:OperationalLimitType.direction ?direction .
+
+        OPTIONAL {
+                ?angleLimit
+                    nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
+            }
+    }
 }
 
 # query: gridStateAlterationRemedialAction
@@ -178,7 +253,6 @@ WHERE {
         nc:ContingencyWithRemedialAction.Contingency ?contingency ;
         nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
 }
-
 
 # query: topologyAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>

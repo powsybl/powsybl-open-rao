@@ -16,15 +16,15 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 public final class CsaProfileCnecCreationContext implements ElementaryCreationContext {
     private String nativeId;
     private String flowCnecId;
-    private String flowCnecName;
+    private String cnecName;
     private ImportStatus importStatus;
     private String importStatusDetail;
     private boolean isAltered;
 
-    private CsaProfileCnecCreationContext(String nativeId, String flowCnecId, String flowCnecName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
+    private CsaProfileCnecCreationContext(String nativeId, String flowCnecId, String cnecName, ImportStatus importStatus, String importStatusDetail, boolean isAltered) {
         this.nativeId = nativeId;
         this.flowCnecId = flowCnecId;
-        this.flowCnecName = flowCnecName;
+        this.cnecName = cnecName;
         this.importStatus = importStatus;
         this.importStatusDetail = importStatusDetail;
         this.isAltered = isAltered;
@@ -43,12 +43,8 @@ public final class CsaProfileCnecCreationContext implements ElementaryCreationCo
         return nativeId;
     }
 
-    public String getFlowCnecId() {
-        return flowCnecId;
-    }
-
-    public String getFlowCnecName() {
-        return flowCnecName;
+    public String getCnecId() {
+        return cnecName;
     }
 
     @Override
