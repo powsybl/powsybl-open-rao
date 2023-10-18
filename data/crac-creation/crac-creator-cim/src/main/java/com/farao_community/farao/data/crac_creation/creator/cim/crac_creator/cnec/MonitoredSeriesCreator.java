@@ -36,9 +36,9 @@ public class MonitoredSeriesCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
-    private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private final CimCracCreationContext cracCreationContext;
     private final Set<Side> defaultMonitoredSides;
+    private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
 
     public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Network network, CimCracCreationContext cracCreationContext, Set<Side> defaultMonitoredSides) {
         this.cimTimeSeries = cimTimeSeries;
@@ -156,7 +156,7 @@ public class MonitoredSeriesCreator {
             );
             // TSO can define multiple Monitored_Series with same mRID. Add information from new one to old one
             MonitoredSeriesCreationContext mscc2 = monitoredSeriesCreationContexts.get(nativeId);
-            ImportStatus importStatus = null;
+            ImportStatus importStatus;
             boolean isAltered = false;
             if (mscc.isImported() == mscc2.isImported()) {
                 importStatus = mscc.getImportStatus();
@@ -166,7 +166,7 @@ public class MonitoredSeriesCreator {
             }
             String importStatusDetail =
                 mscc.getImportStatusDetail()
-                    + (mscc.getImportStatusDetail().length() > 0 && mscc2.getImportStatusDetail().length() > 0 ? " - " : "")
+                    + (!mscc.getImportStatusDetail().isEmpty() && !mscc2.getImportStatusDetail().isEmpty() ? " - " : "")
                     + mscc2.getImportStatusDetail();
             newMscc = new MonitoredSeriesCreationContext(
                 mscc.getNativeId(),
@@ -204,31 +204,24 @@ public class MonitoredSeriesCreator {
     }
 
     private Instant getMeasurementInstant(Analog measurement) {
-        switch (measurement.getMeasurementType()) {
-            case CNECS_N_STATE_MEASUREMENT_TYPE:
-                return Instant.PREVENTIVE;
-            case CNECS_OUTAGE_STATE_MEASUREMENT_TYPE:
-                return Instant.OUTAGE;
-            case CNECS_AUTO_STATE_MEASUREMENT_TYPE:
-                return Instant.AUTO;
-            case CNECS_CURATIVE_STATE_MEASUREMENT_TYPE:
-                return Instant.CURATIVE;
-            default:
+        return switch (measurement.getMeasurementType()) {
+            case CNECS_N_STATE_MEASUREMENT_TYPE -> Instant.PREVENTIVE;
+            case CNECS_OUTAGE_STATE_MEASUREMENT_TYPE -> Instant.OUTAGE;
+            case CNECS_AUTO_STATE_MEASUREMENT_TYPE -> Instant.AUTO;
+            case CNECS_CURATIVE_STATE_MEASUREMENT_TYPE -> Instant.CURATIVE;
+            default ->
                 throw new FaraoException(String.format("Unrecognized measurementType: %s", measurement.getMeasurementType()));
-        }
+        };
     }
 
     private Unit getMeasurementUnit(Analog measurement) {
-        switch (measurement.getUnitSymbol()) {
-            case CNECS_PATL_UNIT_SYMBOL:
-                return Unit.PERCENT_IMAX;
-            case MEGAWATT_UNIT_SYMBOL:
-                return Unit.MEGAWATT;
-            case AMPERES_UNIT_SYMBOL:
-                return Unit.AMPERE;
-            default:
+        return switch (measurement.getUnitSymbol()) {
+            case CNECS_PATL_UNIT_SYMBOL -> Unit.PERCENT_IMAX;
+            case MEGAWATT_UNIT_SYMBOL -> Unit.MEGAWATT;
+            case AMPERES_UNIT_SYMBOL -> Unit.AMPERE;
+            default ->
                 throw new FaraoException(String.format("Unrecognized unitSymbol: %s", measurement.getUnitSymbol()));
-        }
+        };
     }
 
     private String getMeasurementDirection(Analog measurement) {
@@ -264,7 +257,7 @@ public class MonitoredSeriesCreator {
 
         flowCnecAdder.withNetworkElement(branchHelper.getBranch().getId());
 
-        String cnecId = null;
+        String cnecId;
 
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
@@ -288,8 +281,8 @@ public class MonitoredSeriesCreator {
             flowCnecAdder.withContingency(contingencyId);
             cnecId += " - " + contingencyId;
         }
-        flowCnecAdder.withInstant(instant);
-        cnecId += " - " + instant.toString();
+        flowCnecAdder.withInstantId(instant.getId());
+        cnecId += " - " + instant.getId();
 
         if (Objects.isNull(crac.getFlowCnec(cnecId))) {
             flowCnecAdder.withId(cnecId);
@@ -311,7 +304,7 @@ public class MonitoredSeriesCreator {
 
         Set<Side> monitoredSides = defaultMonitoredSides;
         if (branchHelper.isHalfLine()) {
-            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ?  "LEFT" : "RIGHT");
+            modifiedCnecId += " - " + (branchHelper.getTieLineSide() == Branch.Side.ONE ? "LEFT" : "RIGHT");
             monitoredSides = Set.of(Side.fromIidmSide(branchHelper.getTieLineSide()));
         } else if (unit.equals(Unit.AMPERE) &&
             Math.abs(branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV() - branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV()) > 1.) {

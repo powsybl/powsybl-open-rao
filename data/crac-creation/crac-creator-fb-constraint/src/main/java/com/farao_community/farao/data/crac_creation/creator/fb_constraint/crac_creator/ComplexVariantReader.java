@@ -6,7 +6,9 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -14,8 +16,10 @@ import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.Ac
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 
@@ -34,14 +38,6 @@ class ComplexVariantReader {
     private ImportStatus importStatus;
     private String importStatusDetail;
 
-    boolean isComplexVariantValid() {
-        return importStatus.equals(ImportStatus.IMPORTED);
-    }
-
-    IndependantComplexVariant getComplexVariant() {
-        return complexVariant;
-    }
-
     ComplexVariantReader(IndependantComplexVariant complexVariant, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<String> validCoIds) {
         this.complexVariant = complexVariant;
 
@@ -51,27 +47,35 @@ class ComplexVariantReader {
         }
     }
 
+    boolean isComplexVariantValid() {
+        return importStatus.equals(ImportStatus.IMPORTED);
+    }
+
+    IndependantComplexVariant getComplexVariant() {
+        return complexVariant;
+    }
+
     void addRemedialAction(Crac crac) {
         if (type.equals(ActionReader.Type.PST)) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
-                    .withId(complexVariant.getId())
-                    .withName(complexVariant.getName())
-                    .withOperator(complexVariant.getTsoOrigin());
+                .withId(complexVariant.getId())
+                .withName(complexVariant.getName())
+                .withOperator(complexVariant.getTsoOrigin());
             actionReaders.get(0).addAction(pstRangeActionAdder);
             addUsageRules(pstRangeActionAdder);
             pstRangeActionAdder.add();
             complexVariantCreationContext = PstComplexVariantCreationContext.imported(
-                    complexVariant.getId(),
-                    actionReaders.get(0).getNativeNetworkElementId(),
-                    getCreatedRaId(),
-                    actionReaders.get(0).isInverted(),
-                    actionReaders.get(0).getInversionMessage()
+                complexVariant.getId(),
+                actionReaders.get(0).getNativeNetworkElementId(),
+                getCreatedRaId(),
+                actionReaders.get(0).isInverted(),
+                actionReaders.get(0).getInversionMessage()
             );
         } else {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-                    .withId(complexVariant.getId())
-                    .withName(complexVariant.getName())
-                    .withOperator(complexVariant.getTsoOrigin());
+                .withId(complexVariant.getId())
+                .withName(complexVariant.getName())
+                .withOperator(complexVariant.getTsoOrigin());
             actionReaders.forEach(action -> action.addAction(networkActionAdder));
             addUsageRules(networkActionAdder);
             networkActionAdder.add();
@@ -109,8 +113,8 @@ class ComplexVariantReader {
 
         // interpret actions
         actionReaders = complexVariant.getActionsSet().get(0).getAction().stream()
-                .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
-                .collect(Collectors.toList());
+            .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
+            .toList();
 
         Optional<ActionReader> invalidAction = actionReaders.stream().filter(actionReader -> !actionReader.isActionValid()).findAny();
 
@@ -155,7 +159,7 @@ class ComplexVariantReader {
                 return;
             }
 
-            afterCoList = actionsSet.getAfterCOList().getAfterCOId().stream().filter(validCoIds::contains).collect(Collectors.toList());
+            afterCoList = actionsSet.getAfterCOList().getAfterCOId().stream().filter(validCoIds::contains).toList();
             if (afterCoList.isEmpty()) {
                 this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
                 this.importStatusDetail = String.format("complex variant %s was removed as all its 'afterCO' are invalid", complexVariant.getId());
@@ -168,18 +172,18 @@ class ComplexVariantReader {
 
         if (actionsSetType.isPreventive()) {
             remedialActionAdder.newOnInstantUsageRule()
-                    .withInstant(Instant.PREVENTIVE)
-                    .withUsageMethod(AVAILABLE)
-                    .add();
+                .withInstantId(Instant.PREVENTIVE)
+                .withUsageMethod(AVAILABLE)
+                .add();
         }
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
             for (String co : afterCoList) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
-                        .withContingency(co)
-                        .withInstant(Instant.CURATIVE)
-                        .withUsageMethod(AVAILABLE)
-                        .add();
+                    .withContingency(co)
+                    .withInstantId(Instant.CURATIVE)
+                    .withUsageMethod(AVAILABLE)
+                    .add();
             }
         }
     }

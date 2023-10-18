@@ -26,21 +26,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class VoltageThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
     private Crac crac;
     private Contingency contingency;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
         contingency = crac.newContingency().withId("conId").add();
     }
 
     @Test
     void testAddThresholdInDegree() {
         VoltageCnec cnec = crac.newVoltageCnec()
-            .withId("test-cnec").withInstant(instantOutage).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId(INSTANT_OUTAGE.getId()).withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-250.0).withMax(1000.0).add()
             .add();

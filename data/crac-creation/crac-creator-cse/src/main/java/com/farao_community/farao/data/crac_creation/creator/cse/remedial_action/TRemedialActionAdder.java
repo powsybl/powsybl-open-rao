@@ -13,15 +13,15 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.cse.*;
+import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
+import com.farao_community.farao.data.crac_creation.creator.cse.CseCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.BusBarChangeSwitches;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
-import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UctePstHelper;
@@ -31,13 +31,14 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public class TRemedialActionAdder {
+    private static final String ABSOLUTE_VARIATION_TYPE = "ABSOLUTE";
     private final TCRACSeries tcracSeries;
     private final Crac crac;
     private final Network network;
@@ -45,8 +46,6 @@ public class TRemedialActionAdder {
     private final CseCracCreationContext cseCracCreationContext;
     private final Map<String, Set<String>> remedialActionsForCnecsMap;
     private final CseCracCreationParameters cseCracCreationParameters;
-
-    private static final String ABSOLUTE_VARIATION_TYPE = "ABSOLUTE";
 
     public TRemedialActionAdder(TCRACSeries tcracSeries, Crac crac, Network network, UcteNetworkAnalyzer ucteNetworkAnalyzer, Map<String, Set<String>> remedialActionsForCnecsMap, CseCracCreationContext cseCracCreationContext, CseCracCreationParameters cseCracCreationParameters) {
         this.tcracSeries = tcracSeries;
@@ -56,6 +55,28 @@ public class TRemedialActionAdder {
         this.cseCracCreationContext = cseCracCreationContext;
         this.remedialActionsForCnecsMap = remedialActionsForCnecsMap;
         this.cseCracCreationParameters = cseCracCreationParameters;
+    }
+
+    private static ActionType convertActionType(TStatusType tStatusType) {
+        return (Objects.equals(tStatusType.getV(), "CLOSE")) ? ActionType.CLOSE : ActionType.OPEN;
+    }
+
+    private static RangeType convertRangeType(TVariationType tVariationType) {
+        if (tVariationType.getV().equals(ABSOLUTE_VARIATION_TYPE)) {
+            return RangeType.ABSOLUTE;
+        } else {
+            throw new IllegalArgumentException(String.format("%s type is not handled by the importer", tVariationType.getV()));
+        }
+    }
+
+    private static Instant getInstant(TApplication tApplication) {
+        return switch (tApplication.getV()) {
+            case "PREVENTIVE" -> Instant.PREVENTIVE;
+            case "SPS" -> Instant.AUTO;
+            case "CURATIVE" -> Instant.CURATIVE;
+            default ->
+                throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
+        };
     }
 
     public void add() {
@@ -130,7 +151,7 @@ public class TRemedialActionAdder {
             .withOperator(tRemedialAction.getOperator().getV());
 
         boolean isAltered = false;
-        String alteringDetail = null;
+        StringBuilder alteringDetail = null;
         for (TNode tNode : tRemedialAction.getGeneration().getNode()) {
             if (!tNode.getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
                 cseCracCreationContext.addRemedialActionCreationContext(
@@ -146,9 +167,9 @@ public class TRemedialActionAdder {
             } else if (generatorHelper.isAltered()) {
                 isAltered = true;
                 if (alteringDetail == null) {
-                    alteringDetail = generatorHelper.getDetail();
+                    alteringDetail = new StringBuilder(generatorHelper.getDetail());
                 } else {
-                    alteringDetail += ", " + generatorHelper.getDetail();
+                    alteringDetail.append(", ").append(generatorHelper.getDetail());
                 }
             }
             try {
@@ -166,7 +187,8 @@ public class TRemedialActionAdder {
         // After looping on all nodes
         addUsageRules(networkActionAdder, tRemedialAction);
         networkActionAdder.add();
-        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail));
+        assert alteringDetail != null;
+        cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, createdRAId, isAltered, alteringDetail.toString()));
     }
 
     private void importPstRangeAction(TRemedialAction tRemedialAction) {
@@ -284,7 +306,7 @@ public class TRemedialActionAdder {
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {
             List<RangeActionGroup> groups = cseCracCreationParameters.getRangeActionGroups().stream()
                 .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
-                .collect(Collectors.toList());
+                .toList();
             if (groups.size() == 1) {
                 injectionRangeActionAdder.withGroupId(groups.get(0).toString());
             } else if (groups.size() > 1) {
@@ -301,37 +323,6 @@ public class TRemedialActionAdder {
             generatorFromHelper.getGeneratorId(),
             hvdcNodes.getToNode().getV(),
             generatorToHelper.getGeneratorId()));
-    }
-
-    private static ActionType convertActionType(TStatusType tStatusType) {
-        switch (tStatusType.getV()) {
-            case "CLOSE":
-                return ActionType.CLOSE;
-            case "OPEN":
-            default:
-                return ActionType.OPEN;
-        }
-    }
-
-    private static RangeType convertRangeType(TVariationType tVariationType) {
-        if (tVariationType.getV().equals(ABSOLUTE_VARIATION_TYPE)) {
-            return RangeType.ABSOLUTE;
-        } else {
-            throw new IllegalArgumentException(String.format("%s type is not handled by the importer", tVariationType.getV()));
-        }
-    }
-
-    private static Instant getInstant(TApplication tApplication) {
-        switch (tApplication.getV()) {
-            case "PREVENTIVE":
-                return Instant.PREVENTIVE;
-            case "SPS":
-                return Instant.AUTO;
-            case "CURATIVE":
-                return Instant.CURATIVE;
-            default:
-                throw new IllegalArgumentException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        }
     }
 
     void addUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {
@@ -367,7 +358,7 @@ public class TRemedialActionAdder {
 
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
-            .withInstant(raApplicationInstant)
+            .withInstantId(raApplicationInstant.getId())
             .withCountry(country)
             .add();
     }
@@ -375,7 +366,7 @@ public class TRemedialActionAdder {
     private void addOnInstantUsageRules(RemedialActionAdder<?> remedialActionAdder, Instant raApplicationInstant) {
         // RA is available for all countries
         remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(raApplicationInstant)
+            .withInstantId(raApplicationInstant.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
@@ -384,9 +375,9 @@ public class TRemedialActionAdder {
         if (remedialActionsForCnecsMap.containsKey(tRemedialAction.getName().getV())) {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
                 // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
-                if (raApplicationInstant.compareTo(crac.getFlowCnec(flowCnecId).getState().getInstant()) <= 0) {
+                if (raApplicationInstant.comesBefore(crac.getFlowCnec(flowCnecId).getState().getInstant())) {
                     remedialActionAdder.newOnFlowConstraintUsageRule()
-                        .withInstant(raApplicationInstant)
+                        .withInstantId(raApplicationInstant.getId())
                         .withFlowCnec(flowCnecId)
                         .add();
                 }

@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
@@ -38,7 +37,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -46,7 +47,7 @@ import static org.mockito.Mockito.when;
  */
 class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private static final double MAX_ABS_THRESHOLD = 1000;
-
+    private final Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap = new HashMap<>();
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
@@ -54,7 +55,6 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
     private FlowCnec classicCnec;
     private PstRangeAction pstRangeActionInSeries;
     private OptimizationPerimeter optimizationPerimeter;
-    private Map<FlowCnec, RangeAction<?>> flowCnecRangeActionMap = new HashMap<>();
     private double constraintCoeff;
     private RangeActionsOptimizationParameters rangeActionParameters;
 
@@ -68,18 +68,18 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
             .withNetworkElement("neId")
             .newThreshold().withSide(Side.LEFT).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
             .withOptimized(true)
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .withOperator("NL")
             .add();
         crac.newPstRangeAction().withId("pstRangeActionInSeries")
-                .withName("pstRange1Name")
-                .withOperator("RTE")
-                .withNetworkElement("pst")
-                .withInitialTap(1)
-                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
-                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .add();
+            .withName("pstRange1Name")
+            .withOperator("RTE")
+            .withNetworkElement("pst")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+            .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(INSTANT_PREV.getId()).add()
+            .add();
 
         // Set initial margins on both preventive CNECs
         cnecInSeries = crac.getFlowCnec("cnecId");
@@ -117,11 +117,11 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         when(initialFlowResult.getMargin(cnecInSeries, Unit.MEGAWATT)).thenReturn(400.);
         when(sensitivityResult.getSensitivityValue(cnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(sensiValue);
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                optimizationPerimeter,
-                Set.of(classicCnec, cnecInSeries),
-                initialFlowResult,
-                unoptimizedCnecParameters,
-                rangeActionParameters
+            optimizationPerimeter,
+            Set.of(classicCnec, cnecInSeries),
+            initialFlowResult,
+            unoptimizedCnecParameters,
+            rangeActionParameters
         );
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -140,18 +140,18 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         when(initialFlowResult.getMargin(cnecInSeries, Unit.MEGAWATT)).thenReturn(600.);
         when(sensitivityResult.getSensitivityValue(cnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-4.);
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                optimizationPerimeter,
-                Set.of(classicCnec, cnecInSeries),
-                initialFlowResult,
-                unoptimizedCnecParameters,
-                rangeActionParameters
+            optimizationPerimeter,
+            Set.of(classicCnec, cnecInSeries),
+            initialFlowResult,
+            unoptimizedCnecParameters,
+            rangeActionParameters
         );
         linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(coreProblemFiller)
-                .withProblemFiller(maxMinMarginFiller)
-                .withProblemFiller(unoptimizedCnecFiller)
-                .withSolver(mpSolver)
-                .build();
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(maxMinMarginFiller)
+            .withProblemFiller(unoptimizedCnecFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
@@ -165,21 +165,21 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         when(initialFlowResult.getPtdfZonalSum(classicCnec, Side.LEFT)).thenReturn(2.6);
         when(sensitivityResult.getSensitivityValue(cnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(5.);
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-                Set.of(classicCnec, cnecInSeries),
-                initialFlowResult,
-                Unit.MEGAWATT,
-                maxMinRelativeMarginParameters
+            Set.of(classicCnec, cnecInSeries),
+            initialFlowResult,
+            Unit.MEGAWATT,
+            maxMinRelativeMarginParameters
         );
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(classicCnec, Side.LEFT), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
         double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(classicCnec, Side.LEFT, MEGAWATT, MEGAWATT);
-        constraintCoeff =  5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecInSeries, classicCnec), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
+        constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecInSeries, classicCnec), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                optimizationPerimeter,
-                Set.of(cnecInSeries, classicCnec),
-                initialFlowResult,
-                unoptimizedCnecParameters,
-                rangeActionParameters
+            optimizationPerimeter,
+            Set.of(cnecInSeries, classicCnec),
+            initialFlowResult,
+            unoptimizedCnecParameters,
+            rangeActionParameters
         );
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -200,28 +200,28 @@ class UnoptimizedCnecFillerPstLimitationRuleTest extends AbstractFillerTest {
         when(initialFlowResult.getPtdfZonalSum(classicCnec, Side.LEFT)).thenReturn(2.6);
         when(sensitivityResult.getSensitivityValue(cnecInSeries, Side.LEFT, pstRangeActionInSeries, Unit.MEGAWATT)).thenReturn(-4.);
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-                Set.of(classicCnec, cnecInSeries),
-                initialFlowResult,
-                Unit.MEGAWATT,
-                maxMinRelativeMarginParameters
+            Set.of(classicCnec, cnecInSeries),
+            initialFlowResult,
+            Unit.MEGAWATT,
+            maxMinRelativeMarginParameters
         );
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(classicCnec, Side.LEFT), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
         double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(classicCnec, Side.LEFT, MEGAWATT, MEGAWATT);
-        constraintCoeff =  5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecInSeries, classicCnec), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
+        constraintCoeff = 5 * RaoUtil.getLargestCnecThreshold(Set.of(cnecInSeries, classicCnec), MEGAWATT) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                optimizationPerimeter,
-                Set.of(cnecInSeries, classicCnec),
-                initialFlowResult,
-                unoptimizedCnecParameters,
-                rangeActionParameters
+            optimizationPerimeter,
+            Set.of(cnecInSeries, classicCnec),
+            initialFlowResult,
+            unoptimizedCnecParameters,
+            rangeActionParameters
         );
         linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(coreProblemFiller)
-                .withProblemFiller(maxMinRelativeMarginFiller)
-                .withProblemFiller(unoptimizedCnecFiller)
-                .withSolver(mpSolver)
-                .build();
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(maxMinRelativeMarginFiller)
+            .withProblemFiller(unoptimizedCnecFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 

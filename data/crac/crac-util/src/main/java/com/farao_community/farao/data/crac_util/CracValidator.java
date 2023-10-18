@@ -8,11 +8,7 @@
 package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -80,7 +76,7 @@ public final class CracValidator {
             .withNominalVoltage(cnec.getNominalVoltage(Side.LEFT), Side.LEFT)
             .withNominalVoltage(cnec.getNominalVoltage(Side.RIGHT), Side.RIGHT)
             .withReliabilityMargin(cnec.getReliabilityMargin())
-            .withInstant(outageInstant)
+            .withInstantId(outageInstant.getId())
             .withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());

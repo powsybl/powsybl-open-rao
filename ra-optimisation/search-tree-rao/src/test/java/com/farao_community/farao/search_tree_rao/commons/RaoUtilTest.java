@@ -9,10 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -20,6 +17,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -53,6 +51,10 @@ import static org.mockito.Mockito.when;
 
 class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private RaoParameters raoParameters;
     private RaoInput raoInput;
     private Network network;
@@ -63,6 +65,10 @@ class RaoUtilTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         variantId = network.getVariantManager().getWorkingVariantId();
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
             .withNetworkVariantId(variantId)
@@ -189,22 +195,21 @@ class RaoUtilTest {
 
     @Test
     void testIsOnFlowConstraintAvailable() {
-        State optimizedState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        State optimizedState = crac.getState("Contingency FR1 FR3", INSTANT_CURATIVE);
 
         FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowResult flowResult = mock(FlowResult.class);
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         assertTrue(na1.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na1.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).add()
+            .newOnFlowConstraintUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withFlowCnec(flowCnec.getId()).add()
             .add();
-        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().iterator().next();
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         assertFalse(na2.isRemedialActionAvailable(optimizedState, RaoUtil.isAnyMarginNegative(flowResult, na2.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), raoParameters.getObjectiveFunctionParameters().getType().getUnit())));
@@ -223,7 +228,7 @@ class RaoUtilTest {
     @Test
     void testIsOnFlowConstraintInCountryAvailable() {
         State optimizedState = Mockito.mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(optimizedState.getInstant()).thenReturn(INSTANT_CURATIVE);
 
         FlowCnec cnecFrBe = crac.getFlowCnec("cnec1stateCurativeContingency1");
         FlowCnec cnecFrDe = crac.getFlowCnec("cnec2stateCurativeContingency2");
@@ -231,17 +236,17 @@ class RaoUtilTest {
 
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.FR).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withCountry(Country.FR).add()
             .add();
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.BE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withCountry(Country.BE).add()
             .add();
 
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTopologicalAction().withNetworkElement("ne3").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.DE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withCountry(Country.DE).add()
             .add();
 
         when(flowResult.getMargin(any(), any())).thenReturn(100.);
@@ -268,7 +273,7 @@ class RaoUtilTest {
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, true);
 
         when(flowResult.getMargin(eq(cnecFrBe), any())).thenReturn(-150.);
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(optimizedState.getInstant()).thenReturn(INSTANT_PREV);
         assertIsOnFlowInCountryAvailable(na1, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na2, optimizedState, flowResult, false);
         assertIsOnFlowInCountryAvailable(na3, optimizedState, flowResult, false);

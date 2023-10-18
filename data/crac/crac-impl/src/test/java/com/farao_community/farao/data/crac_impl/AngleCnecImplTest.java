@@ -29,12 +29,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class AngleCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
 
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
+        crac.addInstant(INSTANT_PREV);
     }
 
     private AngleCnecAdder initPreventiveCnecAdder() {
@@ -44,7 +45,7 @@ class AngleCnecImplTest {
             .withExportingNetworkElement("exportingNetworkElement")
             .withImportingNetworkElement("importingNetworkElement")
             .withOperator("FR")
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withOptimized(false);
     }
 
@@ -57,7 +58,7 @@ class AngleCnecImplTest {
             .withId("cnec-1-id")
             .withExportingNetworkElement("BBE1AA1")
             .withImportingNetworkElement("BBE2AA1")
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 
@@ -65,7 +66,7 @@ class AngleCnecImplTest {
             .withId("cnec-2-id")
             .withExportingNetworkElement("DDE2AA1")
             .withImportingNetworkElement("NNL3AA1")
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 

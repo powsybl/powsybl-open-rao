@@ -30,8 +30,8 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
     }
 
     @Override
-    public OnInstantAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnInstantAdder<T> withInstantId(String instantId) {
+        this.instant = owner.getCrac().getInstant(instantId);
         return this;
     }
 

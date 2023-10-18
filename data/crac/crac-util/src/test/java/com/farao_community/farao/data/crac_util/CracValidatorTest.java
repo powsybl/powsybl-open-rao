@@ -25,16 +25,18 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class CracValidatorTest {
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
     private Crac crac;
     private Network network;
 
@@ -45,11 +47,15 @@ class CracValidatorTest {
         crac = CracFactory.findDefault().create("crac");
         crac.newContingency().withId("co-1").withNetworkElement("BBE1AA1  BBE2AA1  1").add();
         crac.newContingency().withId("co-2").withNetworkElement("BBE1AA1  BBE3AA1  1").add();
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
 
         crac.newFlowCnec()
             .withId("auto-cnec-1")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
-            .withContingency("co-1").withInstant(instantAuto)
+            .withContingency("co-1")
+            .withInstantId(INSTANT_AUTO.getId())
             .withNominalVoltage(400., Side.LEFT)
             .withNominalVoltage(200., Side.RIGHT)
             .withIMax(2000., Side.LEFT)
@@ -64,7 +70,8 @@ class CracValidatorTest {
         crac.newFlowCnec()
             .withId("auto-cnec-2")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withContingency("co-1").withInstant(instantAuto)
+            .withContingency("co-1")
+            .withInstantId(INSTANT_AUTO.getId())
             .withNominalVoltage(300., Side.LEFT)
             .withNominalVoltage(900., Side.RIGHT)
             .withIMax(40, Side.LEFT)
@@ -76,7 +83,8 @@ class CracValidatorTest {
         crac.newFlowCnec()
             .withId("auto-cnec-3")
             .withNetworkElement("BBE1AA1  BBE3AA1  1")
-            .withContingency("co-2").withInstant(instantAuto)
+            .withContingency("co-2")
+            .withInstantId(INSTANT_AUTO.getId())
             .withNominalVoltage(500., Side.LEFT)
             .withNominalVoltage(700., Side.RIGHT)
             .withIMax(200., Side.LEFT)
@@ -94,7 +102,7 @@ class CracValidatorTest {
         assertNotNull(duplicate);
         assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
-        assertEquals(instantOutage, duplicate.getState().getInstant());
+        assertEquals(INSTANT_OUTAGE, duplicate.getState().getInstant());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
@@ -107,14 +115,14 @@ class CracValidatorTest {
 
     @Test
     void testDuplicateAutoCnecsWithInvalidInstant() {
-        FaraoException exception = assertThrows(FaraoException.class, () -> CracValidator.validateCrac(crac, network, instantOutage));
+        FaraoException exception = assertThrows(FaraoException.class, () -> CracValidator.validateCrac(crac, network, INSTANT_OUTAGE));
         assertEquals("Instant should be an auto instant", exception.getMessage());
     }
 
     @Test
     void testDuplicateAutoCnecs0() {
         // No auto RA in CRAC => no auto perimeter => no need to duplicate CNECs
-        List<String> report = CracValidator.validateCrac(crac, network, instantAuto);
+        List<String> report = CracValidator.validateCrac(crac, network, INSTANT_AUTO);
 
         assertEquals(3, crac.getFlowCnecs().size());
     }
@@ -125,9 +133,9 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(instantAuto).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstantId(INSTANT_AUTO.getId()).add()
             .add();
-        List<String> report = CracValidator.validateCrac(crac, network, instantAuto);
+        List<String> report = CracValidator.validateCrac(crac, network, INSTANT_AUTO);
 
         assertEquals(6, crac.getFlowCnecs().size());
 
@@ -147,11 +155,11 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstant(instantAuto).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(instantAuto).add()
+            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstantId(INSTANT_AUTO.getId()).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstantId(INSTANT_AUTO.getId()).add()
             .add();
 
-        List<String> report = CracValidator.validateCrac(crac, network, instantAuto);
+        List<String> report = CracValidator.validateCrac(crac, network, INSTANT_AUTO);
 
         assertEquals(5, crac.getFlowCnecs().size());
 
@@ -169,16 +177,16 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstant(instantAuto).add()
+            .newOnFlowConstraintUsageRule().withFlowCnec("auto-cnec-1").withInstantId(INSTANT_AUTO.getId()).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.DE).withInstant(instantAuto).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(instantAuto).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.DE).withInstantId(INSTANT_AUTO.getId()).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstantId(INSTANT_AUTO.getId()).add()
             .add();
 
-        List<String> report = CracValidator.validateCrac(crac, network, instantAuto);
+        List<String> report = CracValidator.validateCrac(crac, network, INSTANT_AUTO);
 
         assertEquals(4, crac.getFlowCnecs().size());
 
@@ -194,15 +202,15 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(instantAuto).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstantId(INSTANT_AUTO.getId()).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(instantAuto).add()
+            .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstantId(INSTANT_AUTO.getId()).add()
             .add();
 
-        List<String> report = CracValidator.validateCrac(crac, network, instantAuto);
+        List<String> report = CracValidator.validateCrac(crac, network, INSTANT_AUTO);
 
         assertEquals(4, crac.getFlowCnecs().size());
 
@@ -218,11 +226,11 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTopologicalAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(instantAuto).add()
-            .newOnContingencyStateUsageRule().withContingency("co-2").withUsageMethod(UsageMethod.FORCED).withInstant(instantAuto).add()
+            .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstantId(INSTANT_AUTO.getId()).add()
+            .newOnContingencyStateUsageRule().withContingency("co-2").withUsageMethod(UsageMethod.FORCED).withInstantId(INSTANT_AUTO.getId()).add()
             .add();
 
-        CracValidator.validateCrac(crac, network, instantAuto);
+        CracValidator.validateCrac(crac, network, INSTANT_AUTO);
         assertEquals(3, crac.getFlowCnecs().size());
     }
 }

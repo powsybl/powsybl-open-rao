@@ -29,8 +29,8 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     }
 
     @Override
-    public OnFlowConstraintInCountryAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnFlowConstraintInCountryAdder<T> withInstantId(String instantId) {
+        this.instant = owner.getCrac().getInstant(instantId);
         return this;
     }
 

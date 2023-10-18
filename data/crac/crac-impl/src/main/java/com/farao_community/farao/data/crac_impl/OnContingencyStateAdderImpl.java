@@ -42,8 +42,8 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
     }
 
     @Override
-    public OnContingencyStateAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnContingencyStateAdder<T> withInstantId(String instantId) {
+        this.instant = owner.getCrac().getInstant(instantId);
         return this;
     }
 

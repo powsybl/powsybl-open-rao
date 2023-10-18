@@ -30,16 +30,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class OnInstantAdderImplTest {
 
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
     private NetworkActionAdder remedialActionAdder;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         crac.newContingency()
             .withId("contingencyId")
             .withNetworkElement("networkElementId")
@@ -54,7 +58,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -62,7 +66,7 @@ class OnInstantAdderImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnInstant);
-        assertEquals(instantPrev, usageRule.getInstant());
+        assertEquals(INSTANT_PREV, usageRule.getInstant());
         assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
@@ -71,7 +75,7 @@ class OnInstantAdderImplTest {
     @Test
     void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -80,7 +84,7 @@ class OnInstantAdderImplTest {
 
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnInstant);
-        assertEquals(instantCurative, usageRule.getInstant());
+        assertEquals(INSTANT_CURATIVE, usageRule.getInstant());
         assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
     }
 
@@ -94,14 +98,14 @@ class OnInstantAdderImplTest {
     @Test
     void testNoUsageMethod() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(instantPrev);
+            .withInstantId(INSTANT_PREV.getId());
         assertThrows(FaraoException.class, onInstantAdder::add);
     }
 
     @Test
     void testOutageInstant() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(instantOutage)
+            .withInstantId(INSTANT_OUTAGE.getId())
             .withUsageMethod(UsageMethod.AVAILABLE);
         assertThrows(FaraoException.class, onInstantAdder::add);
     }

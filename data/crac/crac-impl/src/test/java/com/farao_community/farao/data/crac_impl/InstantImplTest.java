@@ -32,23 +32,23 @@ class InstantImplTest {
 
     @Test
     void testCombineInstants() {
-        Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-        Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-        Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-        Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+        Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+        Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+        Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+        Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
-        assertEquals(0, instantPrev.getOrder());
-        assertEquals(1, instantOutage.getOrder());
-        assertEquals(2, instantAuto.getOrder());
-        assertEquals(3, instantCurative.getOrder());
+        assertEquals(0, INSTANT_PREV.getOrder());
+        assertEquals(1, INSTANT_OUTAGE.getOrder());
+        assertEquals(2, INSTANT_AUTO.getOrder());
+        assertEquals(3, INSTANT_CURATIVE.getOrder());
 
-        assertNull(instantPrev.getPreviousInstant());
-        assertEquals(instantPrev, instantOutage.getPreviousInstant());
-        assertEquals(instantOutage, instantAuto.getPreviousInstant());
-        assertEquals(instantAuto, instantCurative.getPreviousInstant());
+        assertNull(INSTANT_PREV.getPreviousInstant());
+        assertEquals(INSTANT_PREV, INSTANT_OUTAGE.getPreviousInstant());
+        assertEquals(INSTANT_OUTAGE, INSTANT_AUTO.getPreviousInstant());
+        assertEquals(INSTANT_AUTO, INSTANT_CURATIVE.getPreviousInstant());
 
-        assertFalse(instantAuto.comesBefore(instantAuto));
-        assertTrue(instantOutage.comesBefore(instantCurative));
-        assertFalse(instantOutage.comesBefore(instantPrev));
+        assertFalse(INSTANT_AUTO.comesBefore(INSTANT_AUTO));
+        assertTrue(INSTANT_OUTAGE.comesBefore(INSTANT_CURATIVE));
+        assertFalse(INSTANT_OUTAGE.comesBefore(INSTANT_PREV));
     }
 }

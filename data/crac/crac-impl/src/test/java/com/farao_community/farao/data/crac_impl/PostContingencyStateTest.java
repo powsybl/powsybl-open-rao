@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class PostContingencyStateTest {
 
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Contingency contingency1;
     private Contingency contingency2;
 
@@ -45,38 +45,38 @@ class PostContingencyStateTest {
 
     @Test
     void testEquals() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
-        PostContingencyState state2 = new PostContingencyState(contingency1, instantOutage);
+        PostContingencyState state1 = new PostContingencyState(contingency1, INSTANT_OUTAGE);
+        PostContingencyState state2 = new PostContingencyState(contingency1, INSTANT_OUTAGE);
 
         assertEquals(state1, state2);
     }
 
     @Test
     void testNotEqualsByInstant() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
-        PostContingencyState state2 = new PostContingencyState(contingency1, instantCurative);
+        PostContingencyState state1 = new PostContingencyState(contingency1, INSTANT_OUTAGE);
+        PostContingencyState state2 = new PostContingencyState(contingency1, INSTANT_CURATIVE);
 
         assertNotEquals(state1, state2);
     }
 
     @Test
     void testNotEqualsByContingency() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, instantCurative);
-        PostContingencyState state2 = new PostContingencyState(contingency2, instantCurative);
+        PostContingencyState state1 = new PostContingencyState(contingency1, INSTANT_CURATIVE);
+        PostContingencyState state2 = new PostContingencyState(contingency2, INSTANT_CURATIVE);
 
         assertNotEquals(state1, state2);
     }
 
     @Test
     void testToStringAfterContingency() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
+        PostContingencyState state1 = new PostContingencyState(contingency1, INSTANT_OUTAGE);
         assertEquals("contingency1 - outage", state1.toString());
     }
 
     @Test
     void testCompareTo() {
-        PostContingencyState state1 = new PostContingencyState(contingency1, instantOutage);
-        PostContingencyState state2 = new PostContingencyState(contingency1, instantCurative);
+        PostContingencyState state1 = new PostContingencyState(contingency1, INSTANT_OUTAGE);
+        PostContingencyState state2 = new PostContingencyState(contingency1, INSTANT_CURATIVE);
 
         assertTrue(state2.compareTo(state1) > 0);
     }

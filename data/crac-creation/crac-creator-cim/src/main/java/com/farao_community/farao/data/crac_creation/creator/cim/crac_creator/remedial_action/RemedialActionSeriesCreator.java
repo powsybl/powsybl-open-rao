@@ -7,11 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
 
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.RemedialActionAdder;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -40,17 +36,17 @@ public class RemedialActionSeriesCreator {
     private final Crac crac;
     private final Network network;
     private final List<TimeSeries> cimTimeSeries;
-    private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private final CimCracCreationContext cracCreationContext;
+    private final CimCracCreationParameters cimCracCreationParameters;
+    private final Map<String, PstRangeActionCreator> pstRangeActionCreators = new HashMap<>();
+    private final Map<String, NetworkActionCreator> networkActionCreators = new HashMap<>();
+    private final Set<HvdcRangeActionCreator> hvdcRangeActionCreators = new HashSet<>();
+    private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private List<Contingency> contingencies;
     private List<String> invalidContingencies;
     private HvdcRangeActionCreator hvdcRangeActionCreator = null;
     private Set<FlowCnec> flowCnecs;
     private AngleCnec angleCnec;
-    private final CimCracCreationParameters cimCracCreationParameters;
-    private final Map<String, PstRangeActionCreator> pstRangeActionCreators = new HashMap<>();
-    private final Map<String, NetworkActionCreator> networkActionCreators = new HashMap<>();
-    private final Set<HvdcRangeActionCreator> hvdcRangeActionCreators = new HashSet<>();
     private Country sharedDomain;
 
     public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext, CimCracCreationParameters cimCracCreationParameters) {
@@ -59,6 +55,152 @@ public class RemedialActionSeriesCreator {
         this.network = network;
         this.cracCreationContext = cracCreationContext;
         this.cimCracCreationParameters = cimCracCreationParameters;
+    }
+
+    /*---------------- STATIC METHODS ----------------------*/
+    public static RemedialActionSeriesCreationContext importWithContingencies(String createdRemedialActionId, List<String> invalidContingencies) {
+        if (invalidContingencies.isEmpty()) {
+            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, "");
+        } else {
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList));
+        }
+    }
+
+    public static RemedialActionSeriesCreationContext importPstRaWithContingencies(String createdRemedialActionId, String networkElementNativeMrid, String networkElementNativeName, List<String> invalidContingencies) {
+        if (invalidContingencies.isEmpty()) {
+            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, false, "");
+        } else {
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s were not imported", contingencyList));
+        }
+    }
+
+    public static void checkPstUnit(String unitSymbol) {
+        if (Objects.isNull(unitSymbol)) {
+            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit symbol");
+        }
+        if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol));
+        }
+    }
+
+    public static void addUsageRules(String applicationModeMarketObjectStatus,
+                                     RemedialActionAdder<?> remedialActionAdder,
+                                     List<Contingency> contingencies,
+                                     List<String> invalidContingencies,
+                                     Set<FlowCnec> flowCnecs,
+                                     AngleCnec angleCnec,
+                                     Country sharedDomain) {
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
+        }
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
+        }
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
+            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
+        }
+        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
+            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.AUTO);
+        }
+    }
+
+    private static void addUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
+                                               List<Contingency> contingencies,
+                                               List<String> invalidContingencies,
+                                               Set<FlowCnec> flowCnecs,
+                                               AngleCnec angleCnec,
+                                               Country sharedDomain,
+                                               Instant instant) {
+        if (!flowCnecs.isEmpty()) {
+            flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
+            return;
+        }
+        if (Objects.nonNull(angleCnec)) {
+            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec);
+            return;
+        }
+        if (!Objects.isNull(sharedDomain)) {
+            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstantId(instant.getId()).withCountry(sharedDomain).add();
+            return;
+        }
+
+        checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
+
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE) || (instant.getInstantKind().equals(InstantKind.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
+            addOnInstantUsageRules(remedialActionAdder, instant);
+        } else {
+            UsageMethod usageMethod = instant.getInstantKind().equals(InstantKind.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
+            RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
+        }
+    }
+
+    private static void checkUsageRulesContingencies(Instant instant, List<Contingency> contingencies, List<String> invalidContingencies) {
+        switch (instant.getInstantKind()) {
+            case PREVENTIVE:
+                if ((Objects.nonNull(contingencies) && !contingencies.isEmpty()) || (Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty())) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
+                }
+                break;
+            case AUTO:
+                if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO");
+                }
+                if (contingencies.isEmpty()) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant");
+                }
+                break;
+            case CURATIVE:
+                if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
+                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant");
+                }
+                break;
+            default:
+                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant %s", instant));
+        }
+    }
+
+    private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
+        adder.newOnInstantUsageRule()
+            .withInstantId(raApplicationInstant.getId())
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add();
+    }
+
+    private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
+        contingencies.forEach(contingency ->
+            adder.newOnContingencyStateUsageRule()
+                .withInstantId(raApplicationInstant.getId())
+                .withUsageMethod(usageMethod)
+                .withContingency(contingency.getId())
+                .add());
+    }
+
+    private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
+        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
+        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
+        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+        Map<InstantKind, Set<InstantKind>> allowedCnecInstantKindPerRaInstantKind = Map.of(
+            InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
+            InstantKind.AUTO, Set.of(InstantKind.AUTO),
+            InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
+        );
+        if (!allowedCnecInstantKindPerRaInstantKind.get(instant.getInstantKind()).contains(flowCnec.getState().getInstant().getInstantKind())) {
+            return;
+        }
+        adder.newOnFlowConstraintUsageRule()
+            .withFlowCnec(flowCnec.getId())
+            .withInstantId(instant.getId())
+            .add();
+    }
+
+    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec) {
+        adder.newOnAngleConstraintUsageRule()
+            .withAngleCnec(angleCnec.getId())
+            .withInstantId(Instant.CURATIVE)
+            .add();
     }
 
     private Set<Series> getRaSeries() {
@@ -336,152 +478,6 @@ public class RemedialActionSeriesCreator {
             // In this case, only import extra usage rules
             addExtraUsageRules(applicationModeMarketObjectStatus, createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
         }
-    }
-
-    /*---------------- STATIC METHODS ----------------------*/
-    public static RemedialActionSeriesCreationContext importWithContingencies(String createdRemedialActionId, List<String> invalidContingencies) {
-        if (invalidContingencies.isEmpty()) {
-            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, "");
-        } else {
-            String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList));
-        }
-    }
-
-    public static RemedialActionSeriesCreationContext importPstRaWithContingencies(String createdRemedialActionId, String networkElementNativeMrid, String networkElementNativeName, List<String> invalidContingencies) {
-        if (invalidContingencies.isEmpty()) {
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, false, "");
-        } else {
-            String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, networkElementNativeMrid, networkElementNativeName, true, String.format("Contingencies %s were not imported", contingencyList));
-        }
-    }
-
-    public static void checkPstUnit(String unitSymbol) {
-        if (Objects.isNull(unitSymbol)) {
-            throw new FaraoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit symbol");
-        }
-        if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
-            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol));
-        }
-    }
-
-    public static void addUsageRules(String applicationModeMarketObjectStatus,
-                                     RemedialActionAdder<?> remedialActionAdder,
-                                     List<Contingency> contingencies,
-                                     List<String> invalidContingencies,
-                                     Set<FlowCnec> flowCnecs,
-                                     AngleCnec angleCnec,
-                                     Country sharedDomain) {
-        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
-        }
-        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
-        }
-        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, null, null, flowCnecs, angleCnec, sharedDomain, Instant.PREVENTIVE);
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.CURATIVE);
-        }
-        if (applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
-            addUsageRulesAtInstant(remedialActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain, Instant.AUTO);
-        }
-    }
-
-    private static void addUsageRulesAtInstant(RemedialActionAdder<?> remedialActionAdder,
-                                               List<Contingency> contingencies,
-                                               List<String> invalidContingencies,
-                                               Set<FlowCnec> flowCnecs,
-                                               AngleCnec angleCnec,
-                                               Country sharedDomain,
-                                               Instant instant) {
-        if (!flowCnecs.isEmpty()) {
-            flowCnecs.forEach(flowCnec -> addOnFlowConstraintUsageRule(remedialActionAdder, flowCnec, instant));
-            return;
-        }
-        if (Objects.nonNull(angleCnec)) {
-            addOnAngleConstraintUsageRule(remedialActionAdder, angleCnec);
-            return;
-        }
-        if (!Objects.isNull(sharedDomain)) {
-            remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(instant).withCountry(sharedDomain).add();
-            return;
-        }
-
-        checkUsageRulesContingencies(instant, contingencies, invalidContingencies);
-
-        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE) || (instant.getInstantKind().equals(InstantKind.CURATIVE) && (contingencies == null || contingencies.isEmpty()))) {
-            addOnInstantUsageRules(remedialActionAdder, instant);
-        } else {
-            UsageMethod usageMethod = instant.getInstantKind().equals(InstantKind.CURATIVE) ? UsageMethod.AVAILABLE : UsageMethod.FORCED;
-            RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
-        }
-    }
-
-    private static void checkUsageRulesContingencies(Instant instant, List<Contingency> contingencies, List<String> invalidContingencies) {
-        switch (instant.getInstantKind()) {
-            case PREVENTIVE:
-                if ((Objects.nonNull(contingencies) && !contingencies.isEmpty()) || (Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty())) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
-                }
-                break;
-            case AUTO:
-                if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO");
-                }
-                if (contingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant");
-                }
-                break;
-            case CURATIVE:
-                if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
-                    throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant");
-                }
-                break;
-            default:
-                throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant %s", instant));
-        }
-    }
-
-    private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
-        adder.newOnInstantUsageRule()
-            .withInstant(raApplicationInstant)
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add();
-    }
-
-    private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
-        contingencies.forEach(contingency ->
-            adder.newOnContingencyStateUsageRule()
-                .withInstant(raApplicationInstant)
-                .withUsageMethod(usageMethod)
-                .withContingency(contingency.getId())
-                .add());
-    }
-
-    private static void addOnFlowConstraintUsageRule(RemedialActionAdder<?> adder, FlowCnec flowCnec, Instant instant) {
-        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
-        //  Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
-        Map<InstantKind, Set<InstantKind>> allowedCnecInstantKindPerRaInstantKind = Map.of(
-            InstantKind.PREVENTIVE, Set.of(InstantKind.PREVENTIVE, InstantKind.OUTAGE, InstantKind.CURATIVE),
-            InstantKind.AUTO, Set.of(InstantKind.AUTO),
-            InstantKind.CURATIVE, Set.of(InstantKind.CURATIVE)
-        );
-        if (!allowedCnecInstantKindPerRaInstantKind.get(instant.getInstantKind()).contains(flowCnec.getState().getInstant().getInstantKind())) {
-            return;
-        }
-        adder.newOnFlowConstraintUsageRule()
-            .withFlowCnec(flowCnec.getId())
-            .withInstant(instant)
-            .add();
-    }
-
-    private static void addOnAngleConstraintUsageRule(RemedialActionAdder<?> adder, AngleCnec angleCnec) {
-        adder.newOnAngleConstraintUsageRule()
-            .withAngleCnec(angleCnec.getId())
-            .withInstant(Instant.CURATIVE)
-            .add();
     }
 
     /*-------------- SERIES CHECKS ------------------------------*/

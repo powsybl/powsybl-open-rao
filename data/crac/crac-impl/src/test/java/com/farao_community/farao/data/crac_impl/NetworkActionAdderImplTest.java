@@ -28,15 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class NetworkActionAdderImplTest {
 
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
 
         crac.newContingency()
             .withId("contingencyId")
@@ -55,7 +59,7 @@ class NetworkActionAdderImplTest {
             .withSetpoint(6)
             .add()
             .newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -103,11 +107,11 @@ class NetworkActionAdderImplTest {
             .withSetpoint(6)
             .add()
             .newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newOnContingencyStateUsageRule()
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -220,7 +224,7 @@ class NetworkActionAdderImplTest {
             .add()
             .add();
 
-        assertEquals(123, networkAction.getSpeed().get().intValue());
+        assertEquals(123, networkAction.getSpeed().orElseThrow().intValue());
     }
 
 }

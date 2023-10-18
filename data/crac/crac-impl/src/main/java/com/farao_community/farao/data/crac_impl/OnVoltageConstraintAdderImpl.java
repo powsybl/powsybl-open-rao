@@ -31,8 +31,8 @@ public class OnVoltageConstraintAdderImpl<T extends AbstractRemedialActionAdder<
     }
 
     @Override
-    public OnVoltageConstraintAdder<T> withInstant(Instant instant) {
-        this.instant = instant;
+    public OnVoltageConstraintAdder<T> withInstantId(String instantId) {
+        this.instant = owner.getCrac().getInstant(instantId);
         return this;
     }
 

@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class OnFlowConstraintImplTest {
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private FlowCnec flowCnec;
     private State preventiveState;
     private State curativeState;
@@ -37,18 +37,18 @@ class OnFlowConstraintImplTest {
     public void setUp() {
         flowCnec = Mockito.mock(FlowCnec.class);
         preventiveState = Mockito.mock(State.class);
-        Mockito.when(preventiveState.getInstant()).thenReturn(instantPrev);
+        Mockito.when(preventiveState.getInstant()).thenReturn(INSTANT_PREV);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         curativeState = Mockito.mock(State.class);
-        Mockito.when(curativeState.getInstant()).thenReturn(instantCurative);
+        Mockito.when(curativeState.getInstant()).thenReturn(INSTANT_CURATIVE);
         Mockito.when(curativeState.isPreventive()).thenReturn(false);
     }
 
     @Test
     void testConstructor() {
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instantPrev, flowCnec);
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(INSTANT_PREV, flowCnec);
 
-        assertEquals(instantPrev, onFlowConstraint.getInstant());
+        assertEquals(INSTANT_PREV, onFlowConstraint.getInstant());
         assertSame(flowCnec, onFlowConstraint.getFlowCnec());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod());
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
@@ -57,22 +57,22 @@ class OnFlowConstraintImplTest {
 
     @Test
     void testEquals() {
-        OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(instantPrev, flowCnec);
+        OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(INSTANT_PREV, flowCnec);
         assertEquals(onFlowConstraint1, onFlowConstraint1);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
 
         assertNotNull(onFlowConstraint1);
         assertNotEquals(onFlowConstraint1, Mockito.mock(OnInstantImpl.class));
 
-        OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(instantPrev, flowCnec);
+        OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(INSTANT_PREV, flowCnec);
         assertEquals(onFlowConstraint1, onFlowConstraint2);
         assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintImpl(instantCurative, flowCnec);
+        onFlowConstraint2 = new OnFlowConstraintImpl(INSTANT_CURATIVE, flowCnec);
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
 
-        onFlowConstraint2 = new OnFlowConstraintImpl(instantPrev, Mockito.mock(FlowCnec.class));
+        onFlowConstraint2 = new OnFlowConstraintImpl(INSTANT_PREV, Mockito.mock(FlowCnec.class));
         assertNotEquals(onFlowConstraint1, onFlowConstraint2);
         assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
     }
@@ -80,16 +80,16 @@ class OnFlowConstraintImplTest {
     @Test
     void testGetUsageMethod() {
         State curativeState2 = Mockito.mock(State.class);
-        Mockito.when(curativeState2.getInstant()).thenReturn(instantCurative);
+        Mockito.when(curativeState2.getInstant()).thenReturn(INSTANT_CURATIVE);
         Mockito.when(curativeState2.isPreventive()).thenReturn(false);
 
-        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(instantPrev, flowCnec);
+        OnFlowConstraint onFlowConstraint = new OnFlowConstraintImpl(INSTANT_PREV, flowCnec);
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState2));
 
         Mockito.when(flowCnec.getState()).thenReturn(curativeState);
-        onFlowConstraint = new OnFlowConstraintImpl(instantCurative, flowCnec);
+        onFlowConstraint = new OnFlowConstraintImpl(INSTANT_CURATIVE, flowCnec);
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(curativeState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState2));

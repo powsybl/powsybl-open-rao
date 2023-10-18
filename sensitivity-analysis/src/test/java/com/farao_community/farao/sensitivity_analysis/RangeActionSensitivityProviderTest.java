@@ -27,11 +27,16 @@ import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -73,7 +78,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(Instant.CURATIVE)
+            .withInstantId(Instant.CURATIVE)
             .withContingency("contingency-generator")
             .add();
 
@@ -87,7 +92,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(Instant.CURATIVE)
+            .withInstantId(Instant.CURATIVE)
             .withContingency("contingency-hvdc")
             .add();
 
@@ -101,7 +106,7 @@ class RangeActionSensitivityProviderTest {
             .withMax(10.)
             .add()
             .withNominalVoltage(380.)
-            .withInstant(Instant.CURATIVE)
+            .withInstantId(Instant.CURATIVE)
             .withContingency("contingency-busbar-section")
             .add();
 
@@ -153,7 +158,7 @@ class RangeActionSensitivityProviderTest {
             .withMin(-10.)
             .withMax(10.)
             .add()
-            .withInstant(Instant.CURATIVE)
+            .withInstantId(Instant.CURATIVE)
             .withContingency("contingency-fail")
             .withNominalVoltage(380.)
             .add();
@@ -236,7 +241,7 @@ class RangeActionSensitivityProviderTest {
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(Instant.PREVENTIVE)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
@@ -285,7 +290,7 @@ class RangeActionSensitivityProviderTest {
         FlowCnec flowCnec = crac.newFlowCnec()
             .withId("cnec")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(Instant.PREVENTIVE)
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
 

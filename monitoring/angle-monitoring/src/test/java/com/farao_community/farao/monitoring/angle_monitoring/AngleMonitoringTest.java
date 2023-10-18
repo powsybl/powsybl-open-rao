@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_creation.creator.cim.CimCrac;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreator;
 import com.farao_community.farao.data.crac_creation.creator.cim.importer.CimCracImporter;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -36,7 +37,10 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +50,10 @@ import static org.mockito.Mockito.when;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class AngleMonitoringTest {
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private static final double ANGLE_TOLERANCE = 0.5;
     private OffsetDateTime glskOffsetDateTime;
     private Network network;
@@ -72,13 +80,17 @@ class AngleMonitoringTest {
     public void setUpCimCrac(String fileName, OffsetDateTime parametrableOffsetDateTime, CracCreationParameters cracCreationParameters) {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        network = Network.read(Paths.get(new File(Objects.requireNonNull(AngleMonitoringTest.class.getResource("/MicroGrid.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
         CimCracImporter cracImporter = new CimCracImporter();
         CimCrac cimCrac = cracImporter.importNativeCrac(is);
         CimCracCreator cimCracCreator = new CimCracCreator();
         CimCracCreationContext cracCreationContext = cimCracCreator.createCrac(cimCrac, network, parametrableOffsetDateTime, cracCreationParameters);
         crac = cracCreationContext.getCrac();
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45MicroGridTest.xml"));
         glskOffsetDateTime = OffsetDateTime.parse("2021-04-02T05:30Z");
     }
@@ -86,43 +98,47 @@ class AngleMonitoringTest {
     public void setUpCracFactory(String networkFileName) {
         network = Network.read(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml"));
         glskOffsetDateTime = OffsetDateTime.parse("2017-04-12T02:30Z");
     }
 
     public void mockPreventiveState() {
-        acPrev = addAngleCnec("acPrev", Instant.PREVENTIVE, null, "VL1", "VL2", -2., 500.);
+        acPrev = addAngleCnec("acPrev", INSTANT_PREV.getId(), null, "VL1", "VL2", -2., 500.);
         crac.newNetworkAction()
-                .withId("Open L1 - 1")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.PREVENTIVE).withAngleCnec(acPrev.getId()).add()
-                .add();
+            .withId("Open L1 - 1")
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnAngleConstraintUsageRule().withInstantId(INSTANT_PREV.getId()).withAngleCnec(acPrev.getId()).add()
+            .add();
     }
 
     public void mockCurativeStates() {
         crac.newContingency().withId("coL1").withNetworkElement("L1").add();
         crac.newContingency().withId("coL2").withNetworkElement("L2").add();
         crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
-        acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", "VL1", "VL2", -3., null);
+        acCur1 = addAngleCnec("acCur1", INSTANT_CURATIVE.getId(), "coL1", "VL1", "VL2", -3., null);
     }
 
     public void mockCurativeStatesSecure() {
         crac.newContingency().withId("coL1").withNetworkElement("L1").add();
         crac.newContingency().withId("coL2").withNetworkElement("L2").add();
         crac.newContingency().withId("coL1L2").withNetworkElement("L1").withNetworkElement("L2").add();
-        acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", "VL1", "VL2", -6., null);
+        acCur1 = addAngleCnec("acCur1", INSTANT_CURATIVE.getId(), "coL1", "VL1", "VL2", -6., null);
     }
 
-    private AngleCnec addAngleCnec(String id, Instant instant, String contingency, String importingNetworkElement, String exportingNetworkElement, Double min, Double max) {
+    private AngleCnec addAngleCnec(String id, String instantId, String contingency, String importingNetworkElement, String exportingNetworkElement, Double min, Double max) {
         return crac.newAngleCnec()
-                .withId(id)
-                .withInstant(instant)
-                .withContingency(contingency)
-                .withImportingNetworkElement(importingNetworkElement)
-                .withExportingNetworkElement(exportingNetworkElement)
-                .withMonitored()
-                .newThreshold().withUnit(Unit.DEGREE).withMin(min).withMax(max).add()
-                .add();
+            .withId(id)
+            .withInstantId(instantId)
+            .withContingency(contingency)
+            .withImportingNetworkElement(importingNetworkElement)
+            .withExportingNetworkElement(exportingNetworkElement)
+            .withMonitored()
+            .newThreshold().withUnit(Unit.DEGREE).withMin(min).withMax(max).add()
+            .add();
     }
 
     private void runAngleMonitoring() {
@@ -180,10 +196,10 @@ class AngleMonitoringTest {
         setUpCracFactory("network.xiidm");
         mockCurativeStates();
         naL1Cur = (NetworkAction) crac.newNetworkAction()
-                .withId("Open L1 - 2")
-                .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
-                .add();
+            .withId("Open L1 - 2")
+            .newTopologicalAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnAngleConstraintUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withAngleCnec(acCur1.getId()).add()
+            .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isUnsecure());
         angleMonitoringResult.getAppliedCras().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
@@ -198,10 +214,10 @@ class AngleMonitoringTest {
         setUpCracFactory("network.xiidm");
         mockCurativeStatesSecure();
         naL1Cur = (NetworkAction) crac.newNetworkAction()
-                .withId("Injection L1 - 2")
-                .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnAngleConstraintUsageRule().withInstant(Instant.CURATIVE).withAngleCnec(acCur1.getId()).add()
-                .add();
+            .withId("Injection L1 - 2")
+            .newInjectionSetPoint().withNetworkElement("LD2").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
+            .newOnAngleConstraintUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withAngleCnec(acCur1.getId()).add()
+            .add();
         runAngleMonitoring();
         assertTrue(angleMonitoringResult.isSecure());
         assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedCras("coL1 - curative"));
@@ -229,7 +245,7 @@ class AngleMonitoringTest {
     void testAngleCnecOnBus() {
         setUpCracFactory("network.xiidm");
         crac.newContingency().withId("coL1").withNetworkElement("L2").add();
-        acCur1 = addAngleCnec("acCur1", Instant.CURATIVE, "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
+        acCur1 = addAngleCnec("acCur1", INSTANT_CURATIVE.getId(), "coL1", network.getBusView().getBus("VL1_0").getId(), "VL2", -8., null);
 
         runAngleMonitoring();
         assertEquals(1, angleMonitoringResult.getAngleCnecsWithAngle().size());
@@ -249,7 +265,7 @@ class AngleMonitoringTest {
         assertFalse(angleMonitoringResult.isSecure());
         assertFalse(angleMonitoringResult.isUnknown());
         // Applied cras
-        State state = crac.getState("Co-1", Instant.CURATIVE);
+        State state = crac.getState("Co-1", INSTANT_CURATIVE);
         assertEquals(1, angleMonitoringResult.getAppliedCras(state).size());
         assertTrue(angleMonitoringResult.getAppliedCras(state).contains(crac.getNetworkAction("RA-1")));
         assertEquals(1, angleMonitoringResult.getAppliedCras("Co-1 - curative").size());

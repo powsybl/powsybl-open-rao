@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -56,7 +55,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecOn2sides = crac.newFlowCnec()
             .withId("cnec-2-sides")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.LEFT).add()
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.RIGHT).add()
             .add();
@@ -88,9 +87,9 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getLoopFlow(cnec1, Side.LEFT, Unit.MEGAWATT)).thenReturn(initialLoopFlowValue);
         maxLoopFlowFiller = new MaxLoopFlowFiller(
-                Set.of(cnec1),
-                initialFlowResult,
-                loopFlowParameters
+            Set.of(cnec1),
+            initialFlowResult,
+            loopFlowParameters
         );
     }
 

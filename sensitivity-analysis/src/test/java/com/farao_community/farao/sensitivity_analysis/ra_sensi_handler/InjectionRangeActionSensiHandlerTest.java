@@ -10,10 +10,12 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -27,19 +29,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class InjectionRangeActionSensiHandlerTest {
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
 
     @Test
     void checkConsistencyOKTest() {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant(INSTANT_PREV);
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
-                .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
-                .withNetworkElementAndKey(0.4, "BBE2AA12_load")
-                .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
-                .withNetworkElementAndKey(-0.3, "FFR3AA12_load")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+            .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
+            .withNetworkElementAndKey(0.4, "BBE2AA12_load")
+            .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
+            .withNetworkElementAndKey(-0.3, "FFR3AA12_load")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
@@ -51,10 +55,10 @@ class InjectionRangeActionSensiHandlerTest {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
-                .withNetworkElementAndKey(1, "BBE2AA12_generator")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+            .withNetworkElementAndKey(1, "BBE2AA12_generator")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
@@ -71,13 +75,13 @@ class InjectionRangeActionSensiHandlerTest {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.getFlowCnec("cnec1basecase");
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
-                .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
-                .withNetworkElementAndKey(0.4, "BBE2AA12_load")
-                .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
-                .withNetworkElementAndKey(-0.3, "FFR3AA12_load")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+            .withNetworkElementAndKey(0.4, "BBE2AA12_generator")
+            .withNetworkElementAndKey(0.4, "BBE2AA12_load")
+            .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
+            .withNetworkElementAndKey(-0.3, "FFR3AA12_load")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
@@ -96,10 +100,10 @@ class InjectionRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
-                .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+            .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 
@@ -111,10 +115,10 @@ class InjectionRangeActionSensiHandlerTest {
         Network network = Network.read("TestCase16NodesWithUcteHvdc.uct", getClass().getResourceAsStream("/TestCase16NodesWithUcteHvdc.uct"));
         Crac crac = CracFactory.findDefault().create("test-crac");
         InjectionRangeAction injectionRangeAction = (InjectionRangeAction) crac.newInjectionRangeAction().withId("injectionRangeId")
-                .withNetworkElementAndKey(1, "unknown")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
+            .withNetworkElementAndKey(1, "unknown")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
 

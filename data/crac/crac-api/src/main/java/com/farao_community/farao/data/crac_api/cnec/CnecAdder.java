@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_api.cnec;
 
 import com.farao_community.farao.data.crac_api.IdentifiableAdder;
-import com.farao_community.farao.data.crac_api.Instant;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -19,7 +18,7 @@ public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> 
 
     J withNetworkElement(String networkElementId);
 
-    J withInstant(Instant instant);
+    J withInstantId(String instantId);
 
     J withContingency(String contingencyId);
 

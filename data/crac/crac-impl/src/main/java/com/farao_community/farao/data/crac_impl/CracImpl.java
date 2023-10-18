@@ -181,6 +181,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             .collect(Collectors.toSet());
     }
 
+    @Override
+    public Instant getInstant(String instantId) {
+        return instants.get(instantId);
+    }
+
     void addContingency(Contingency contingency) {
         contingencies.put(contingency.getId(), contingency);
     }

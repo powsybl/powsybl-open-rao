@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -30,9 +29,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -49,45 +53,45 @@ class MnecFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         mnec1 = crac.newFlowCnec()
-                .withId("MNEC1 - N - preventive")
-                .withNetworkElement("DDE2AA1  NNL3AA1  1")
-                .newThreshold()
-                .withMin(-1000.)
-                .withSide(Side.RIGHT)
-                .withMax(1000.0)
-                .withUnit(Unit.MEGAWATT)
-                .add()
-                .withNominalVoltage(380.)
-                .withOptimized(true)
-                .withMonitored(true)
-                .withInstant(Instant.PREVENTIVE)
-                .add();
+            .withId("MNEC1 - N - preventive")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+            .withMin(-1000.)
+            .withSide(Side.RIGHT)
+            .withMax(1000.0)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .withNominalVoltage(380.)
+            .withOptimized(true)
+            .withMonitored(true)
+            .withInstantId(INSTANT_PREV.getId())
+            .add();
 
         mnec2 = crac.newFlowCnec()
-                .withId("MNEC2 - N - preventive")
-                .withNetworkElement("NNL2AA1  BBE3AA1  1")
-                .newThreshold()
-                .withMin(-100.)
-                .withSide(Side.LEFT)
-                .withMax(100.0)
-                .withUnit(Unit.MEGAWATT)
-                .add()
-                .withNominalVoltage(380.)
-                .withOptimized(true)
-                .withMonitored(true)
-                .withInstant(Instant.PREVENTIVE)
-                .add();
+            .withId("MNEC2 - N - preventive")
+            .withNetworkElement("NNL2AA1  BBE3AA1  1")
+            .newThreshold()
+            .withMin(-100.)
+            .withSide(Side.LEFT)
+            .withMax(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .withNominalVoltage(380.)
+            .withOptimized(true)
+            .withMonitored(true)
+            .withInstantId(INSTANT_PREV.getId())
+            .add();
 
         mnec3 = crac.newFlowCnec()
-                .withId("MNEC3 - N - preventive")
-                .withNetworkElement("NNL2AA1  BBE3AA1  1")
-                .newThreshold().withMin(-100.).withSide(Side.LEFT).withMax(100.0).withUnit(Unit.MEGAWATT).add()
-                .newThreshold().withMin(-100.).withSide(Side.RIGHT).withMax(100.0).withUnit(Unit.MEGAWATT).add()
-                .withNominalVoltage(380.)
-                .withOptimized(true)
-                .withMonitored(true)
-                .withInstant(Instant.PREVENTIVE)
-                .add();
+            .withId("MNEC3 - N - preventive")
+            .withNetworkElement("NNL2AA1  BBE3AA1  1")
+            .newThreshold().withMin(-100.).withSide(Side.LEFT).withMax(100.0).withUnit(Unit.MEGAWATT).add()
+            .newThreshold().withMin(-100.).withSide(Side.RIGHT).withMax(100.0).withUnit(Unit.MEGAWATT).add()
+            .withNominalVoltage(380.)
+            .withOptimized(true)
+            .withMonitored(true)
+            .withInstantId(INSTANT_PREV.getId())
+            .add();
 
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
 
@@ -105,11 +109,11 @@ class MnecFillerTest extends AbstractFillerTest {
         RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
 
         coreProblemFiller = new CoreProblemFiller(
-                optimizationPerimeter,
-                initialRangeActionSetpointResult,
-                new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
-                rangeActionParameters,
-                Unit.MEGAWATT,
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            rangeActionParameters,
+            Unit.MEGAWATT,
             false);
     }
 
@@ -124,15 +128,15 @@ class MnecFillerTest extends AbstractFillerTest {
         when(flowResult.getFlow(mnec3, Side.LEFT, Unit.MEGAWATT)).thenReturn(-200.);
         when(flowResult.getFlow(mnec3, Side.RIGHT, Unit.MEGAWATT)).thenReturn(-200.);
         MnecFiller mnecFiller = new MnecFiller(
-                flowResult,
-                Set.of(mnec1, mnec2, mnec3),
-                unit,
-                parameters);
+            flowResult,
+            Set.of(mnec1, mnec2, mnec3),
+            unit,
+            parameters);
         linearProblem = new LinearProblemBuilder()
-                .withProblemFiller(coreProblemFiller)
-                .withProblemFiller(mnecFiller)
-                .withSolver(mpSolver)
-                .build();
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(mnecFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
@@ -156,7 +160,7 @@ class MnecFillerTest extends AbstractFillerTest {
         fillProblemWithFiller(Unit.MEGAWATT);
 
         crac.getFlowCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> cnec.getMonitoredSides().forEach(side ->
-                assertNull(linearProblem.getMnecFlowConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD))));
+            assertNull(linearProblem.getMnecFlowConstraint(cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD))));
 
         FaraoMPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, Side.RIGHT, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct1Max);

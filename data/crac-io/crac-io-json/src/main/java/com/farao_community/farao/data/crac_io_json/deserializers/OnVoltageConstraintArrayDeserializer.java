@@ -15,7 +15,8 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.INSTANT;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.VOLTAGE_CNEC_ID;
 
 /**
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
@@ -30,7 +31,7 @@ public final class OnVoltageConstraintArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstantId(jsonParser.nextTextValue());
                         break;
                     case VOLTAGE_CNEC_ID:
                         adder.withVoltageCnec(jsonParser.nextTextValue());

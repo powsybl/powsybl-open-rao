@@ -8,10 +8,13 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
@@ -53,6 +56,7 @@ abstract class AbstractFillerTest {
     static final String CNEC_2_ID = "Tieline BE FR - Defaut - N-1 NL1-NL3"; // monitored on right side
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
+    static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
 
     FaraoMPSolver mpSolver;
     FlowCnec cnec1;
@@ -67,6 +71,7 @@ abstract class AbstractFillerTest {
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
+        crac.addInstant(INSTANT_PREV);
         network = NetworkImportsUtil.import12NodesNetwork();
 
         // get cnec and rangeAction
@@ -91,31 +96,31 @@ abstract class AbstractFillerTest {
         crac.removePstRangeAction(RANGE_ACTION_ID);
 
         crac.newPstRangeAction()
-                .withId("pst1-group1")
-                .withGroupId("group1")
-                .withNetworkElement("BBE2AA1  BBE3AA1  1")
-                .withInitialTap(0)
-                .withTapToAngleConversionMap(tapToAngle)
-                .newTapRange()
-                .withRangeType(RangeType.ABSOLUTE)
-                .withMinTap(-2)
-                .withMaxTap(5)
-                .add()
-                .withOperator("RTE")
-                .add();
+            .withId("pst1-group1")
+            .withGroupId("group1")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(tapToAngle)
+            .newTapRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMinTap(-2)
+            .withMaxTap(5)
+            .add()
+            .withOperator("RTE")
+            .add();
         crac.newPstRangeAction()
-                .withId("pst2-group1")
-                .withGroupId("group1")
-                .withNetworkElement("BBE1AA1  BBE3AA1  1")
-                .withInitialTap(0)
-                .withTapToAngleConversionMap(tapToAngle)
-                .newTapRange()
-                .withRangeType(RangeType.ABSOLUTE)
-                .withMinTap(-5)
-                .withMaxTap(10)
-                .add()
-                .withOperator("RTE")
-                .add();
+            .withId("pst2-group1")
+            .withGroupId("group1")
+            .withNetworkElement("BBE1AA1  BBE3AA1  1")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(tapToAngle)
+            .newTapRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withMinTap(-5)
+            .withMaxTap(10)
+            .add()
+            .withOperator("RTE")
+            .add();
     }
 
     protected void useNetworkWithTwoPsts() {

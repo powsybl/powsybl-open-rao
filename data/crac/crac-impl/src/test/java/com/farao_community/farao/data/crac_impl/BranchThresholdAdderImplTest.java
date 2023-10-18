@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class BranchThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
     private Contingency contingency;
 
@@ -44,7 +44,7 @@ class BranchThresholdAdderImplTest {
     @Test
     void testAddThresholdInMW() {
         FlowCnec cnec = crac.newFlowCnec()
-            .withId("test-cnec").withInstant(instantOutage).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId(INSTANT_OUTAGE.getId()).withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withSide(Side.LEFT).add()
             .add();
@@ -55,7 +55,7 @@ class BranchThresholdAdderImplTest {
     @Test
     void testAddThresholdInA() {
         FlowCnec cnec = crac.newFlowCnec()
-            .withId("test-cnec").withInstant(instantOutage).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId(INSTANT_OUTAGE.getId()).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withSide(Side.LEFT).add()
             .withNominalVoltage(220.)
@@ -67,7 +67,7 @@ class BranchThresholdAdderImplTest {
     @Test
     void testAddThresholdInPercent() {
         FlowCnec cnec = crac.newFlowCnec()
-            .withId("test-cnec").withInstant(instantCurative).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId(INSTANT_CURATIVE.getId()).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withSide(Side.LEFT).add()
             .withNominalVoltage(220.)

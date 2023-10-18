@@ -27,10 +27,10 @@ import java.util.Objects;
 public class AdditionalConstraintSeriesCreator {
     private final Crac crac;
     private final Network network;
-    private AdditionalConstraintSeries additionalConstraintSerie;
-    private CimCracCreationContext cracCreationContext;
-    private String contingencyId;
-    private String cimSerieId;
+    private final AdditionalConstraintSeries additionalConstraintSerie;
+    private final CimCracCreationContext cracCreationContext;
+    private final String contingencyId;
+    private final String cimSerieId;
 
     public AdditionalConstraintSeriesCreator(Crac crac, Network network, AdditionalConstraintSeries additionalConstraintSerie, String contingencyId, String cimSerieId, CimCracCreationContext cracCreationContext) {
         this.crac = crac;
@@ -49,15 +49,15 @@ public class AdditionalConstraintSeriesCreator {
         }
 
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec()
-                .withId(additionalConstraintSerieId)
-                .withName(additionalConstraintSerie.getName())
-                .withMonitored()
-                .withOptimized(false)
-                .withReliabilityMargin(0.)
-                .newThreshold().withUnit(Unit.DEGREE).withMax(additionalConstraintSerie.getQuantityQuantity().doubleValue())
-                .withMin(-additionalConstraintSerie.getQuantityQuantity().doubleValue()).add()
-                .withInstant(Instant.CURATIVE)
-                .withContingency(contingencyId);
+            .withId(additionalConstraintSerieId)
+            .withName(additionalConstraintSerie.getName())
+            .withMonitored()
+            .withOptimized(false)
+            .withReliabilityMargin(0.)
+            .newThreshold().withUnit(Unit.DEGREE).withMax(additionalConstraintSerie.getQuantityQuantity().doubleValue())
+            .withMin(-additionalConstraintSerie.getQuantityQuantity().doubleValue()).add()
+            .withInstantId(Instant.CURATIVE)
+            .withContingency(contingencyId);
 
         for (AdditionalConstraintRegisteredResource rr : additionalConstraintSerie.getRegisteredResource()) {
             String networkElement = rr.getMRID().getValue();

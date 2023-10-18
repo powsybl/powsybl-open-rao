@@ -16,7 +16,8 @@ import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.COUNTRY;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.INSTANT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -31,7 +32,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstantId(jsonParser.nextTextValue());
                         break;
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));

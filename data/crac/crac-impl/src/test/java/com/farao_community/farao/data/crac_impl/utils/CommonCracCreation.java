@@ -32,10 +32,10 @@ import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public final class CommonCracCreation {
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    public static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    public static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    public static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    public static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     private CommonCracCreation() {
 
@@ -52,6 +52,10 @@ public final class CommonCracCreation {
     public static Crac create(CracFactory cracFactory, Set<Side> monitoredCnecSides) {
 
         Crac crac = cracFactory.create("idSimpleCracTestUS", "nameSimpleCracTestUS");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
 
         // Contingencies
         crac.newContingency()
@@ -69,7 +73,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder1 = crac.newFlowCnec()
             .withId("cnec1basecase")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withOptimized(true)
             .withOperator("operator1")
             .withNominalVoltage(380.)
@@ -86,7 +90,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder2 = crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency1")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator1")
@@ -104,7 +108,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder3 = crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency2")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator1")
@@ -122,7 +126,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder4 = crac.newFlowCnec()
             .withId("cnec2basecase")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withOptimized(true)
             .withOperator("operator2")
             .withNominalVoltage(380.)
@@ -145,7 +149,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder5 = crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withContingency("Contingency FR1 FR3")
             .withOptimized(true)
             .withOperator("operator2")
@@ -169,7 +173,7 @@ public final class CommonCracCreation {
         FlowCnecAdder cnecAdder6 = crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency2")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator2")
@@ -200,6 +204,10 @@ public final class CommonCracCreation {
 
     public static Crac createWithPreventivePstRange(Set<Side> monitoredCnecSides) {
         Crac crac = create(monitoredCnecSides);
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
@@ -208,7 +216,7 @@ public final class CommonCracCreation {
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
             .newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newTapRange()
@@ -229,6 +237,10 @@ public final class CommonCracCreation {
 
     public static Crac createWithCurativePstRange(Set<Side> monitoredCnecSides) {
         Crac crac = create();
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
@@ -237,7 +249,7 @@ public final class CommonCracCreation {
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
             .newOnContingencyStateUsageRule()
-            .withInstant(instantCurative)
+            .withInstantId(INSTANT_CURATIVE.getId())
             .withContingency("Contingency FR1 FR3")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -255,6 +267,10 @@ public final class CommonCracCreation {
 
     public static Crac createWithPreventiveAndCurativePstRange() {
         Crac crac = create();
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         Network network = import12NodesNetwork();
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
@@ -262,8 +278,13 @@ public final class CommonCracCreation {
             .withId("pst")
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
-            .newOnInstantUsageRule().withInstant(instantPrev).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withInstant(instantCurative).withContingency("Contingency FR1 FR3").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule()
+            .withInstantId(INSTANT_PREV.getId())
+            .withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule()
+            .withInstantId(INSTANT_CURATIVE.getId())
+            .withContingency("Contingency FR1 FR3")
+            .withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-16)

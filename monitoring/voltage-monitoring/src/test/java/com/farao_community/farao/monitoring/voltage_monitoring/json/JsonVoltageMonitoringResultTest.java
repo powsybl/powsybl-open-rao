@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult.Status.UNKNOWN;
@@ -33,6 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class JsonVoltageMonitoringResultTest {
     private static final double VOLTAGE_TOLERANCE = 0.5;
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     Crac crac;
     VoltageCnec vc1;
@@ -44,27 +50,31 @@ class JsonVoltageMonitoringResultTest {
     @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
-        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., Instant.PREVENTIVE, null);
-        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., Instant.CURATIVE, co1.getId());
+        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., INSTANT_PREV, null);
+        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., INSTANT_CURATIVE, co1.getId());
         preventiveState = crac.getPreventiveState();
         crac.newNetworkAction()
-                .withId("na1")
-                .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(Instant.PREVENTIVE).withVoltageCnec(vc1.getId()).add()
-                .add();
+            .withId("na1")
+            .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
+            .newOnVoltageConstraintUsageRule().withInstantId(INSTANT_PREV.getId()).withVoltageCnec(vc1.getId()).add()
+            .add();
         crac.newNetworkAction()
-                .withId("na2")
-                .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-                .newOnVoltageConstraintUsageRule().withInstant(Instant.CURATIVE).withVoltageCnec(vc2.getId()).add()
-                .add();
+            .withId("na2")
+            .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
+            .newOnVoltageConstraintUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withVoltageCnec(vc2.getId()).add()
+            .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }
 
     private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max, Instant instant, String contingencyId) {
         return crac.newVoltageCnec()
             .withId(id)
-            .withInstant(instant)
+            .withInstantId(instant.getId())
             .withNetworkElement(networkElement)
             .withMonitored()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(min).withMax(max).add()
@@ -84,14 +94,14 @@ class JsonVoltageMonitoringResultTest {
         assertEquals(143.1, voltageMonitoringResult.getMinVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(147.7, voltageMonitoringResult.getMaxVoltage(vc2), VOLTAGE_TOLERANCE);
         assertEquals(List.of(
-            "Some voltage CNECs are not secure:",
-            "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
-            "Network element VL46 at state co1 - curative has a voltage of 143 - 148 kV."),
+                "Some voltage CNECs are not secure:",
+                "Network element VL45 at state preventive has a voltage of 144 - 148 kV.",
+                "Network element VL46 at state co1 - curative has a voltage of 143 - 148 kV."),
             voltageMonitoringResult.printConstraints());
 
         OutputStream os = new ByteArrayOutputStream();
         new VoltageMonitoringResultExporter().export(voltageMonitoringResult, os);
-        String expected = new String(getClass().getResourceAsStream("/result.json").readAllBytes());
+        String expected = new String(Objects.requireNonNull(getClass().getResourceAsStream("/result.json")).readAllBytes());
         assertEquals(expected.replaceAll("\r", ""), os.toString().replaceAll("\r", ""));
     }
 

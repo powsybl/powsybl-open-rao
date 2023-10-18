@@ -35,8 +35,8 @@ public class CsaProfileCnecCreator {
     private final Map<String, Set<PropertyBag>> currentLimitsPropertyBags;
     private final Map<String, Set<PropertyBag>> voltageLimitsPropertyBags;
     private final Map<String, Set<PropertyBag>> angleLimitsPropertyBags;
+    private final CsaProfileCracCreationContext cracCreationContext;
     private Set<CsaProfileCnecCreationContext> csaProfileCnecCreationContexts;
-    private CsaProfileCracCreationContext cracCreationContext;
     private Instant cnecInstant;
     private PropertyBag cnecLimit;
 
@@ -84,7 +84,7 @@ public class CsaProfileCnecCreator {
         }
 
         String isCombinableWithContingencyStr = assessedElementPropertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY);
-        boolean isCombinableWithContingency = isCombinableWithContingencyStr != null && Boolean.parseBoolean(isCombinableWithContingencyStr);
+        boolean isCombinableWithContingency = Boolean.parseBoolean(isCombinableWithContingencyStr);
         Set<Contingency> combinableContingencies;
         if (isCombinableWithContingency) {
             combinableContingencies = cracCreationContext.getCrac().getContingencies();
@@ -153,19 +153,19 @@ public class CsaProfileCnecCreator {
             ((FlowCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
-                .withInstant(instant)
+                .withInstantId(instant.getId())
                 .add();
         } else if (CsaProfileConstants.LimitType.VOLTAGE.equals(limitType)) {
             ((VoltageCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
-                .withInstant(instant)
+                .withInstantId(instant.getId())
                 .add();
         } else {
             ((AngleCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
                 .withName(cnecName)
-                .withInstant(instant)
+                .withInstantId(instant.getId())
                 .add();
         }
 
@@ -460,8 +460,8 @@ public class CsaProfileCnecCreator {
             }
         }
 
-        if (networkElement instanceof DanglingLine) {
-            Optional<TieLine> optionalTieLine = ((DanglingLine) networkElement).getTieLine();
+        if (networkElement instanceof DanglingLine danglingLine) {
+            Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
             if (optionalTieLine.isPresent()) {
                 networkElement = optionalTieLine.get();
             }
@@ -472,12 +472,12 @@ public class CsaProfileCnecCreator {
     private boolean addCurrentLimitInstant(String assessedElementId, FlowCnecAdder flowCnecAdder, PropertyBag currentLimit, boolean inBaseCase) {
         this.cnecInstant = null;
         String kind = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_KIND);
-        Instant instant = null;
+        Instant instant;
 
         if (CsaProfileConstants.LimitKind.TATL.toString().equals(kind)) {
             String acceptableDurationStr = currentLimit.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION);
-            Double acceptableDuration = Double.valueOf(acceptableDurationStr);
-            if (acceptableDuration == null || acceptableDuration < 0) {
+            double acceptableDuration = Double.parseDouble(acceptableDurationStr);
+            if (acceptableDuration < 0) {
                 csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.acceptableDuration is incorrect : " + acceptableDurationStr));
                 return false;
             } else if (acceptableDuration == 0) {
@@ -489,10 +489,10 @@ public class CsaProfileCnecCreator {
             } else {
                 instant = Instant.CURATIVE;
             }
-            flowCnecAdder.withInstant(instant);
+            flowCnecAdder.withInstantId(instant.getId());
         } else if (CsaProfileConstants.LimitKind.PATL.toString().equals(kind)) {
             instant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
-            flowCnecAdder.withInstant(instant);
+            flowCnecAdder.withInstantId(instant.getId());
         } else {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "OperationalLimitType.kind is incorrect : " + kind));
             return false;
@@ -526,9 +526,8 @@ public class CsaProfileCnecCreator {
     }
 
     private Side getSideFromNetworkElement(Identifiable<?> networkElement, String terminalId) {
-        if (networkElement instanceof TieLine) {
+        if (networkElement instanceof TieLine tieLine) {
             for (String key : CsaProfileConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE) {
-                TieLine tieLine = (TieLine) networkElement;
                 Optional<String> oAlias = tieLine.getDanglingLine1().getAliasFromType(key);
                 if (oAlias.isPresent() && oAlias.get().equals(terminalId)) {
                     return Side.LEFT;
@@ -561,14 +560,14 @@ public class CsaProfileCnecCreator {
         this.cnecInstant = null;
 
         String isInfiniteDurationStr = voltageLimit.get(CsaProfileConstants.REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION);
-        boolean isInfiniteDuration = isInfiniteDurationStr != null && Boolean.parseBoolean(isInfiniteDurationStr);
+        boolean isInfiniteDuration = Boolean.parseBoolean(isInfiniteDurationStr);
         if (!isInfiniteDuration) {
             csaProfileCnecCreationContexts.add(CsaProfileCnecCreationContext.notImported(assessedElementId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Only permanent voltage limits are handled for now (isInfiniteDuration is 'false')"));
             return false;
         }
 
         this.cnecInstant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
-        voltageCnecAdder.withInstant(this.cnecInstant);
+        voltageCnecAdder.withInstantId(this.cnecInstant.getId());
         return true;
     }
 
@@ -594,7 +593,7 @@ public class CsaProfileCnecCreator {
 
     private void addAngleLimitInstant(AngleCnecAdder angleCnecAdder, boolean inBaseCase) {
         this.cnecInstant = inBaseCase ? Instant.PREVENTIVE : Instant.CURATIVE;
-        angleCnecAdder.withInstant(this.cnecInstant);
+        angleCnecAdder.withInstantId(this.cnecInstant.getId());
     }
 
     private boolean addAngleLimitThreshold(String assessedElementId, AngleCnecAdder angleCnecAdder, PropertyBag angleLimit, boolean isFlowToRefTerminalIsNull) {

@@ -6,17 +6,19 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
+import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.CracImplFactory;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.mockito.Mockito;
@@ -27,15 +29,15 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * Test case is a network with 5 nodes and 1 xnode (in 4 countries).
- *
- *       FR   (+100 MW)       BE 1  (+125 MW)
- *          + ------------ +---------------------------+ XBE (-25 MW)
- *          |              |
- *          |              +  BE 2 (-100 MW)
- *          |              |
- *          + ------------ +
- *       DE   (0 MW)          NL  (-100 MW)
- *
+ * <p>
+ * FR   (+100 MW)       BE 1  (+125 MW)
+ * + ------------ +---------------------------+ XBE (-25 MW)
+ * |              |
+ * |              +  BE 2 (-100 MW)
+ * |              |
+ * + ------------ +
+ * DE   (0 MW)          NL  (-100 MW)
+ * <p>
  * All lines have same impedance and are monitored.
  * Each Country GLSK is a simple one node GLSK, except for Belgium where GLSKs are equally distributed
  * on the 2 nodes + the xnode
@@ -45,6 +47,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 final class ExampleGenerator {
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
 
     private ExampleGenerator() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -320,65 +323,66 @@ final class ExampleGenerator {
 
     static Crac crac() {
         Crac crac = new CracImplFactory().create("test-crac");
+        crac.addInstant(INSTANT_PREV);
 
         crac.newFlowCnec()
             .withId("FR-BE1")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .withNetworkElement("FR-BE1")
             .newThreshold()
-                .withMin(-200.)
-                .withMax(200.)
-                .withUnit(MEGAWATT)
-                .withSide(Side.LEFT)
-                .add()
+            .withMin(-200.)
+            .withMax(200.)
+            .withUnit(MEGAWATT)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         crac.newFlowCnec()
             .withId("FR-DE")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .withNetworkElement("FR-DE")
             .newThreshold()
-                .withMin(-200.)
-                .withMax(200.)
-                .withUnit(MEGAWATT)
-                .withSide(Side.RIGHT)
-                .add()
+            .withMin(-200.)
+            .withMax(200.)
+            .withUnit(MEGAWATT)
+            .withSide(Side.RIGHT)
+            .add()
             .add();
 
         crac.newFlowCnec()
             .withId("BE2-NL")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .withNetworkElement("BE2-NL")
             .newThreshold()
-                .withMin(-200.)
-                .withMax(200.)
-                .withUnit(MEGAWATT)
-                .withSide(Side.LEFT)
-                .add()
+            .withMin(-200.)
+            .withMax(200.)
+            .withUnit(MEGAWATT)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         crac.newFlowCnec()
             .withId("DE-NL")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .withNetworkElement("DE-NL")
             .newThreshold()
-                .withMin(-200.)
-                .withMax(200.)
-                .withUnit(MEGAWATT)
-                .withSide(Side.RIGHT)
-                .add()
+            .withMin(-200.)
+            .withMax(200.)
+            .withUnit(MEGAWATT)
+            .withSide(Side.RIGHT)
+            .add()
             .add();
 
         crac.newFlowCnec()
             .withId("BE1-BE2")
-            .withInstant(Instant.PREVENTIVE)
+            .withInstantId(INSTANT_PREV.getId())
             .withNetworkElement("BE1-BE2")
             .newThreshold()
-                .withMin(-200.)
-                .withMax(200.)
-                .withUnit(MEGAWATT)
-                .withSide(Side.LEFT)
-                .add()
+            .withMin(-200.)
+            .withMax(200.)
+            .withUnit(MEGAWATT)
+            .withSide(Side.LEFT)
+            .add()
             .add();
 
         return crac;

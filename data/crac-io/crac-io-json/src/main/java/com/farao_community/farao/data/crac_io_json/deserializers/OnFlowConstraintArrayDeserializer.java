@@ -15,7 +15,8 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.FLOW_CNEC_ID;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.INSTANT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -30,7 +31,7 @@ public final class OnFlowConstraintArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
-                        adder.withInstant(deserializeInstant(jsonParser.nextTextValue()));
+                        adder.withInstantId(jsonParser.nextTextValue());
                         break;
                     case FLOW_CNEC_ID:
                         adder.withFlowCnec(jsonParser.nextTextValue());

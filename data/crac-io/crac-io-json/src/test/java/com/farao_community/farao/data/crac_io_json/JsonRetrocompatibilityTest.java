@@ -52,10 +52,10 @@ class JsonRetrocompatibilityTest {
     Instead, we need to ensure that the JSON CRAC files used in this class can still
     be imported as is. Using versioning of the importer if needed.
      */
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
-    private static final Instant instantCurative = new InstantImpl("curative", InstantKind.CURATIVE, instantAuto);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     @Test
     void importV1Point0Test() {
@@ -263,12 +263,12 @@ class JsonRetrocompatibilityTest {
         assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getName());
 
         // check instants and contingencies
-        assertEquals(instantPrev, crac.getFlowCnec("cnec1prevId").getState().getInstant());
+        assertEquals(INSTANT_PREV, crac.getFlowCnec("cnec1prevId").getState().getInstant());
         assertTrue(crac.getFlowCnec("cnec1prevId").getState().getContingency().isEmpty());
-        assertEquals(instantCurative, crac.getFlowCnec("cnec3curId").getState().getInstant());
-        assertEquals("contingency2Id", crac.getFlowCnec("cnec3curId").getState().getContingency().get().getId());
-        assertEquals(instantAuto, crac.getFlowCnec("cnec3autoId").getState().getInstant());
-        assertEquals("contingency2Id", crac.getFlowCnec("cnec3autoId").getState().getContingency().get().getId());
+        assertEquals(INSTANT_CURATIVE, crac.getFlowCnec("cnec3curId").getState().getInstant());
+        assertEquals("contingency2Id", crac.getFlowCnec("cnec3curId").getState().getContingency().orElseThrow().getId());
+        assertEquals(INSTANT_AUTO, crac.getFlowCnec("cnec3autoId").getState().getInstant());
+        assertEquals("contingency2Id", crac.getFlowCnec("cnec3autoId").getState().getContingency().orElseThrow().getId());
 
         // check monitored and optimized
         assertFalse(crac.getFlowCnec("cnec3prevId").isOptimized());
@@ -330,7 +330,7 @@ class JsonRetrocompatibilityTest {
 
         assertTrue(complexNetworkActionUsageRule instanceof OnInstant);
         OnInstant onInstant = (OnInstant) complexNetworkActionUsageRule;
-        assertEquals(instantPrev, onInstant.getInstant());
+        assertEquals(INSTANT_PREV, onInstant.getInstant());
         assertEquals(AVAILABLE, onInstant.getUsageMethod());
 
         // check several usage rules
@@ -338,12 +338,12 @@ class JsonRetrocompatibilityTest {
 
         // check onContingencyState usage Rule
         OnContingencyState onContingencyState = crac.getNetworkAction("pstSetpointRaId").getUsageRules().stream()
-                .filter(ur -> ur instanceof OnContingencyState)
-                .map(ur -> (OnContingencyState) ur)
-                .findAny().orElse(null);
+            .filter(ur -> ur instanceof OnContingencyState)
+            .map(ur -> (OnContingencyState) ur)
+            .findAny().orElse(null);
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
-        assertEquals(instantCurative, onContingencyState.getInstant());
+        assertEquals(INSTANT_CURATIVE, onContingencyState.getInstant());
         assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
@@ -353,7 +353,7 @@ class JsonRetrocompatibilityTest {
         assertTrue(injectionSetpointRaUsageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint1 = (OnFlowConstraint) injectionSetpointRaUsageRule;
         assertEquals("cnec3autoId", onFlowConstraint1.getFlowCnec().getId());
-        assertEquals(instantAuto, onFlowConstraint1.getInstant());
+        assertEquals(INSTANT_AUTO, onFlowConstraint1.getInstant());
 
         // ----------------------------
         // --- test PstRangeActions ---
@@ -377,11 +377,11 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getPstRangeAction("pstRange1Id").getRanges().size());
 
         TapRange absRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.ABSOLUTE))
+            .findAny().orElse(null);
         TapRange relRange = crac.getPstRangeAction("pstRange1Id").getRanges().stream()
-                .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
-                .findAny().orElse(null);
+            .filter(tapRange -> tapRange.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK))
+            .findAny().orElse(null);
 
         assertNotNull(absRange);
         assertEquals(1, absRange.getMinTap());
@@ -397,7 +397,7 @@ class JsonRetrocompatibilityTest {
 
         assertTrue(pstRange2UsageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) pstRange2UsageRule;
-        assertEquals(instantPrev, onFlowConstraint2.getInstant());
+        assertEquals(INSTANT_PREV, onFlowConstraint2.getInstant());
         assertSame(crac.getCnec("cnec3prevId"), onFlowConstraint2.getFlowCnec());
 
         // -----------------------------
@@ -417,7 +417,7 @@ class JsonRetrocompatibilityTest {
 
         assertTrue(hvdcRange2UsageRule instanceof OnFlowConstraint);
         OnFlowConstraint onFlowConstraint3 = (OnFlowConstraint) hvdcRange2UsageRule;
-        assertEquals(instantPrev, onFlowConstraint3.getInstant());
+        assertEquals(INSTANT_PREV, onFlowConstraint3.getInstant());
         assertSame(crac.getCnec("cnec3curId"), onFlowConstraint3.getFlowCnec());
 
         // check Hvdc range
@@ -489,8 +489,8 @@ class JsonRetrocompatibilityTest {
 
         assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
         assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
-        assertEquals(instantCurative, angleCnec.getState().getInstant());
-        assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
+        assertEquals(INSTANT_CURATIVE, angleCnec.getState().getInstant());
+        assertEquals("contingency1Id", angleCnec.getState().getContingency().orElseThrow().getId());
         assertFalse(angleCnec.isOptimized());
         assertTrue(angleCnec.isMonitored());
         assertEquals("operator1", angleCnec.getOperator());
@@ -508,7 +508,7 @@ class JsonRetrocompatibilityTest {
         assertTrue(pstRange3UsageRule instanceof OnAngleConstraint);
         OnAngleConstraint onAngleConstraint = (OnAngleConstraint) pstRange3UsageRule;
         assertEquals("angleCnecId", onAngleConstraint.getAngleCnec().getId());
-        assertEquals(instantCurative, onAngleConstraint.getInstant());
+        assertEquals(INSTANT_CURATIVE, onAngleConstraint.getInstant());
 
         // check usage rules
         assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnAngleConstraint.class::isInstance).count());
@@ -523,8 +523,8 @@ class JsonRetrocompatibilityTest {
         assertNotNull(voltageCnec);
 
         assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
-        assertEquals(instantCurative, voltageCnec.getState().getInstant());
-        assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
+        assertEquals(INSTANT_CURATIVE, voltageCnec.getState().getInstant());
+        assertEquals("contingency1Id", voltageCnec.getState().getContingency().orElseThrow().getId());
         assertFalse(voltageCnec.isOptimized());
         assertTrue(voltageCnec.isMonitored());
         assertEquals("operator1", voltageCnec.getOperator());
@@ -544,10 +544,10 @@ class JsonRetrocompatibilityTest {
         assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnFlowConstraint.class::isInstance).count());
         assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnAngleConstraint.class::isInstance).count());
         // test speed
-        assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().get().intValue());
-        assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().get().intValue());
-        assertEquals(30, crac.getInjectionRangeAction("injectionRange1Id").getSpeed().get().intValue());
-        assertEquals(40, crac.getNetworkAction("complexNetworkActionId").getSpeed().get().intValue());
+        assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().orElseThrow().intValue());
+        assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().orElseThrow().intValue());
+        assertEquals(30, crac.getInjectionRangeAction("injectionRange1Id").getSpeed().orElseThrow().intValue());
+        assertEquals(40, crac.getNetworkAction("complexNetworkActionId").getSpeed().orElseThrow().intValue());
     }
 
     void testContentOfV1Point7Crac(Crac crac) {

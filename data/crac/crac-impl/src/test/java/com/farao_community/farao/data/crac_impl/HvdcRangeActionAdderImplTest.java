@@ -26,15 +26,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class HvdcRangeActionAdderImplTest {
-    private static final Instant instantPrev = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant instantOutage = new InstantImpl("outage", InstantKind.OUTAGE, instantPrev);
-    private static final Instant instantAuto = new InstantImpl("auto", InstantKind.AUTO, instantOutage);
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
     private CracImpl crac;
     private String networkElementId;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
         networkElementId = "BBE2AA11 FFR3AA11 1";
     }
 
@@ -47,7 +50,7 @@ class HvdcRangeActionAdderImplTest {
             .withGroupId("groupId1")
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -72,7 +75,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(instantAuto)
+            .withInstantId(INSTANT_AUTO.getId())
             .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
@@ -84,7 +87,7 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(networkElementId));
-        assertEquals(1, hvdcRangeAction.getSpeed().get().intValue());
+        assertEquals(1, hvdcRangeAction.getSpeed().orElseThrow().intValue());
         assertEquals(1.0, hvdcRangeAction.getInitialSetpoint());
     }
 
@@ -98,7 +101,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(instantAuto)
+            .withInstantId(INSTANT_AUTO.getId())
             .withUsageMethod(UsageMethod.FORCED)
             .add();
         assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
@@ -112,7 +115,7 @@ class HvdcRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -153,7 +156,7 @@ class HvdcRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstant(instantPrev)
+            .withInstantId(INSTANT_PREV.getId())
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();

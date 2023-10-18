@@ -35,7 +35,7 @@ public class VoltageCnecsCreator {
     private final VoltageCnecsCreationParameters voltageCnecsCreationParameters;
     private final CimCracCreationContext cracCreationContext;
     private final Network network;
-    private Map<String, String> networkElementNativeIdPerId = new HashMap<>();
+    private final Map<String, String> networkElementNativeIdPerId = new HashMap<>();
     private Map<String, String> contingencyNativeNamePerId = new HashMap<>();
 
     public VoltageCnecsCreator(VoltageCnecsCreationParameters voltageCnecsCreationParameters, CimCracCreationContext cracCreationContext, Network network) {
@@ -132,7 +132,7 @@ public class VoltageCnecsCreator {
         try {
             adder.withId(cnecId)
                 .withNetworkElement(networkElementId)
-                .withInstant(instant)
+                .withInstantId(instant.getId())
                 .withMonitored()
                 .newThreshold().withUnit(threshold.getUnit()).withMin(threshold.getMin()).withMax(threshold.getMax()).add()
                 .add();

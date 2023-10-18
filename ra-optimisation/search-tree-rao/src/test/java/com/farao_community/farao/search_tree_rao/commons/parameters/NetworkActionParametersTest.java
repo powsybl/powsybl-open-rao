@@ -9,9 +9,11 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.ExhaustiveCracCreation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
@@ -24,18 +26,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class NetworkActionParametersTest {
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
 
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = ExhaustiveCracCreation.create();
+        crac.addInstant(INSTANT_PREV);
     }
 
     @Test
@@ -80,35 +86,35 @@ class NetworkActionParametersTest {
         Crac crac = CracFactory.findDefault().create("crac");
 
         crac.newNetworkAction()
-                .withId("topological-action-1")
-                .withOperator("operator-1")
-                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .add();
+            .withId("topological-action-1")
+            .withOperator("operator-1")
+            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(INSTANT_PREV.getId()).add()
+            .add();
 
         crac.newNetworkAction()
-                .withId("topological-action-2")
-                .withOperator("operator-2")
-                .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .add();
+            .withId("topological-action-2")
+            .withOperator("operator-2")
+            .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(INSTANT_PREV.getId()).add()
+            .add();
 
         crac.newNetworkAction()
-                .withId("pst-setpoint")
-                .withOperator("operator-2")
-                .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .add();
+            .withId("pst-setpoint")
+            .withOperator("operator-2")
+            .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(INSTANT_PREV.getId()).add()
+            .add();
 
         // test list
         RaoParameters parameters = new RaoParameters();
 
         parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(
-                List.of("topological-action-1", "topological-action-2"), // OK
-                List.of("topological-action-1", "topological-action-2", "pst-setpoint"), // OK
-                List.of("topological-action-1", "unknown-na-id"), // should be filtered
-                List.of("topological-action-1"), // should be filtered (one action only)
-                new ArrayList<>())); // should be filtered
+            List.of("topological-action-1", "topological-action-2"), // OK
+            List.of("topological-action-1", "topological-action-2", "pst-setpoint"), // OK
+            List.of("topological-action-1", "unknown-na-id"), // should be filtered
+            List.of("topological-action-1"), // should be filtered (one action only)
+            new ArrayList<>())); // should be filtered
 
         List<NetworkActionCombination> naCombinations = NetworkActionParameters.computePredefinedCombinations(crac, parameters.getTopoOptimizationParameters());
 
