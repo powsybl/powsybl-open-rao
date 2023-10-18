@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -31,11 +30,6 @@ public class CounterTradeRangeActionImpl extends AbstractStandardRangeAction<Cou
     @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.emptySet();
-    }
-
-    @Override
-    public Set<Optional<Country>> getLocation(Network network) {
-        return super.getLocation(network);
     }
 
     @Override

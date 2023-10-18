@@ -168,7 +168,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         gen.writeArrayFieldStart(COUNTER_TRADE_RANGE_ACTIONS);
         List<CounterTradeRangeAction> sortedCounterTradeRangeActionList = crac.getCounterTradeRangeActions().stream()
                 .sorted(Comparator.comparing(CounterTradeRangeAction::getId))
-                .collect(Collectors.toList());
+                .toList();
         for (CounterTradeRangeAction counterTradeRangeAction : sortedCounterTradeRangeActionList) {
             gen.writeObject(counterTradeRangeAction);
         }
