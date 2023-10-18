@@ -34,6 +34,7 @@ class VoltageCnecImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
+        crac.addInstant(INSTANT_PREV);
     }
 
     private VoltageCnecAdder initPreventiveCnecAdder() {

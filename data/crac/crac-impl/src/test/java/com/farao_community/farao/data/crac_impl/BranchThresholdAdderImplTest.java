@@ -38,6 +38,10 @@ class BranchThresholdAdderImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
+        crac.addInstant(INSTANT_PREV);
+        crac.addInstant(INSTANT_OUTAGE);
+        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant(INSTANT_CURATIVE);
         contingency = crac.newContingency().withId("conId").add();
     }
 
