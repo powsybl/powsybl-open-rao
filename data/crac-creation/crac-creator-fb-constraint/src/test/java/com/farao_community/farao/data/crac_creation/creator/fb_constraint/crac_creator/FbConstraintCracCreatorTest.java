@@ -156,9 +156,9 @@ class FbConstraintCracCreatorTest {
         assertEquals("PRA_PST_BE", rangeAction.getName());
         assertEquals("BE", rangeAction.getOperator());
         assertEquals(1, rangeAction.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, rangeAction.getUsageRules().get(0).getUsageMethod());
-        assertTrue(rangeAction.getUsageRules().get(0) instanceof OnInstant);
-        assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, rangeAction.getUsageRules().iterator().next().getUsageMethod());
+        assertTrue(rangeAction.getUsageRules().iterator().next() instanceof OnInstant);
+        assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getUsageRules().iterator().next().getInstant());
         assertTrue(rangeAction.getGroupId().isPresent());
         assertEquals("1", rangeAction.getGroupId().get());
         assertEquals(1, rangeAction.getRanges().size());
@@ -176,9 +176,9 @@ class FbConstraintCracCreatorTest {
         assertEquals("PRA_TOPO_FR", topoPra.getName());
         assertEquals("FR", topoPra.getOperator());
         assertEquals(1, topoPra.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, topoPra.getUsageRules().get(0).getUsageMethod());
-        assertTrue(topoPra.getUsageRules().get(0) instanceof OnInstant);
-        assertEquals(crac.getPreventiveState().getInstant(), topoPra.getUsageRules().get(0).getInstant());
+        assertEquals(UsageMethod.AVAILABLE, topoPra.getUsageRules().iterator().next().getUsageMethod());
+        assertTrue(topoPra.getUsageRules().iterator().next() instanceof OnInstant);
+        assertEquals(crac.getPreventiveState().getInstant(), topoPra.getUsageRules().iterator().next().getInstant());
         assertEquals(NetworkActionImpl.class, topoPra.getClass());
         assertEquals(2, topoPra.getElementaryActions().size());
 
@@ -188,8 +188,8 @@ class FbConstraintCracCreatorTest {
         assertEquals("CRA_TOPO_FR", topoCra.getName());
         assertEquals("FR", topoCra.getOperator());
         assertEquals(2, topoCra.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, topoCra.getUsageRules().get(0).getUsageMethod());
-        assertTrue(topoCra.getUsageRules().get(0) instanceof OnContingencyState);
+        assertEquals(UsageMethod.AVAILABLE, topoCra.getUsageRules().iterator().next().getUsageMethod());
+        assertTrue(topoCra.getUsageRules().iterator().next() instanceof OnContingencyState);
         assertEquals(NetworkActionImpl.class, topoCra.getClass());
         assertEquals(1, topoCra.getElementaryActions().size());
 
