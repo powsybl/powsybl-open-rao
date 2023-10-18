@@ -44,10 +44,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static com.farao_community.farao.data.crac_api.Instant.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CsaProfileCracCreatorTest {
+class CsaProfileCracCreatorTest {
+
+    private CsaProfileCracCreationContext cracCreationContext;
+    private Crac importedCrac;
+
     private void assertContingencyEquality(Contingency c, String expectedContingencyId, String expectedContingencyName, int expectedNetworkElementsSize, List<String> expectedNetworkElementsIds) {
         assertEquals(expectedContingencyId, c.getId());
         assertEquals(expectedContingencyName, c.getName());
@@ -75,6 +79,14 @@ public class CsaProfileCracCreatorTest {
         assertEquals(expectedThresholdMax, threshold.max().orElse(null));
         assertEquals(expectedThresholdMin, threshold.min().orElse(null));
         assertEquals(Set.of(expectedThresholdSide), fc.getMonitoredSides());
+    }
+
+    private void assertRaNotImported(String raId, ImportStatus importStatus, String importStatusDetail) {
+        CsaProfileRemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
+        assertNotNull(context);
+        assertFalse(context.isImported());
+        assertEquals(importStatusDetail, context.getImportStatusDetail());
+        assertEquals(importStatus, context.getImportStatus());
     }
 
     private void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,
@@ -177,7 +189,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testTC1ContingenciesAndFlowCnecs() {
+    void testTC1ContingenciesAndFlowCnecs() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -236,7 +248,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testTC2ContingenciesAndFlowCnecs() {
+    void testTC2ContingenciesAndFlowCnecs() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -308,7 +320,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testCreateCracCSATestWithRejectedFiles() {
+    void testCreateCracCSATestWithRejectedFiles() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_Test_With_Rejected_Files.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -355,7 +367,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testCreateCracCSATestWithRefusedContingencies() {
+    void testCreateCracCSATestWithRefusedContingencies() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/Test_With_Refused_Contingencies.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -388,7 +400,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testTC2ImportNetworkActions() {
+    void testTC2ImportNetworkActions() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -482,7 +494,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testImportNetworkActions() {
+    void testImportNetworkActions() {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getSwitch("switch")).thenReturn(Mockito.mock(Switch.class));
         Branch networkElementMock = Mockito.mock(Branch.class);
@@ -556,7 +568,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreWrongRAKeyword() {
+    void testIgnoreWrongRAKeyword() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_5_WrongKeyword.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -571,7 +583,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreUnhandledProfile() {
+    void testIgnoreUnhandledProfile() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_6_NotYetValidProfile.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -586,7 +598,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreOutdatedProfile() {
+    void testIgnoreOutdatedProfile() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_7_OutdatedProfile.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -601,7 +613,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreInvalidNetworkActions() {
+    void testIgnoreInvalidNetworkActions() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_8_InvalidRemedialActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -616,7 +628,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreInvalidTopologicalActions() {
+    void testIgnoreInvalidTopologicalActions() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_9_InvalidTopologicalActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -631,7 +643,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreInvalidContingenciesWithNetworkActions() {
+    void testIgnoreInvalidContingenciesWithNetworkActions() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_9_10_InvalidContingenciesWithRemedialActions.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -646,7 +658,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testImportInjectionSetpointActions() {
+    void testImportInjectionSetpointActions() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_1_ValidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -747,19 +759,41 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testIgnoreInvalidInjectionSetpointProfile() {
+    void testIgnoreInvalidInjectionSetpointProfile() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_2_InvalidProfiles.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_2_InvalidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
-        CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
+        cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
+        checkRemedialActionCreationContextsForInvalidInjectionSetpoints();
+    }
+
+    private void checkRemedialActionCreationContextsForInvalidInjectionSetpoints() {
+        assertRaNotImported("parent-remedial-action-1", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Remedial action parent-remedial-action-1 will not be imported because Network model does not contain a generator, neither a load with id of RotatingMachine: unknown-rotating-machine");
+        assertRaNotImported("parent-remedial-action-2", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-2 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+        assertRaNotImported("parent-remedial-action-3", ImportStatus.NOT_FOR_RAO, "Remedial action 'parent-remedial-action-3' will not be imported because field 'normalEnabled' in 'RotatingMachineAction' must be true or empty");
+        assertRaNotImported("parent-remedial-action-4", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'parent-remedial-action-4' will not be imported because 'RotatingMachineAction' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
+        assertRaNotImported("parent-remedial-action-5", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-5 will not be imported because there is no topology actions, no Set point actions, nor tap position action linked to that RA");
+        assertRaNotImported("parent-remedial-action-6", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-6 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-7", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-7 will not be imported because StaticPropertyRange has a non float-castable normalValue so no set-point value was retrieved");
+        assertRaNotImported("parent-remedial-action-8", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-8 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-9", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action 'parent-remedial-action-9' will not be imported because 'StaticPropertyRange' must have a property reference with 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.p' value, but it was: 'http://energy.referencedata.eu/PropertyReference/RotatingMachine.q'");
+        assertRaNotImported("parent-remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-10 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-11 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-12 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-13", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-13 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-14", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-14 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-15", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-15 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-16", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-16 will not be imported because StaticPropertyRange has wrong values of valueKind and direction, the only allowed combination is absolute + none");
+        assertRaNotImported("parent-remedial-action-17", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-17 will not be imported because there is no StaticPropertyRange linked to that RA");
+        assertRaNotImported("parent-remedial-action-18", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action parent-remedial-action-18 will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
     }
 
     @Test
-    public void testTC1ImportPstRangeActions() {
+    void testTC1ImportPstRangeActions() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -813,7 +847,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testTC2ImportPstRangeActions() {
+    void testTC2ImportPstRangeActions() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -882,7 +916,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testCustomImportCase() {
+    void testCustomImportCase() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestCase_13_5_4.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -933,7 +967,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void testCustomForAssessedElementWithContingencyRejection() {
+    void testCustomForAssessedElementWithContingencyRejection() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_42_CustomExample.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -1104,7 +1138,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnFlowConstraintUsageRule() {
+    void checkOnFlowConstraintUsageRule() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -1135,7 +1169,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkNoOnConstraintUsageRuleIsCreated() {
+    void checkNoOnConstraintUsageRuleIsCreated() {
         Properties importParams = new Properties();
         Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-9/CSA_TestConfiguration_TC2_27Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
@@ -1151,7 +1185,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnConstraintWith4FlowCnecs() {
+    void checkOnConstraintWith4FlowCnecs() {
         Network network = Mockito.spy(Network.create("Test", "code"));
 
         VoltageLevel voltageLevel1 = Mockito.mock(VoltageLevel.class);
@@ -1276,7 +1310,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnConstraintWith4AngleCnecs() {
+    void checkOnConstraintWith4AngleCnecs() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-11/CSA_11_4_OnAngleConstraint.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -1367,7 +1401,7 @@ public class CsaProfileCracCreatorTest {
     }
 
     @Test
-    public void checkOnConstraintWith4VoltageCnecs() {
+    void checkOnConstraintWith4VoltageCnecs() {
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-11/CSA_11_5_OnVoltageConstraint.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
