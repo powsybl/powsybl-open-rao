@@ -11,8 +11,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CounterTradeRangeActionImplTest {
 
@@ -39,7 +38,7 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void getMinMaxAdmissibleSetpointTest() {
-        CounterTradeRangeAction ira = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
                 .withId("injectionRangeActionId")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
@@ -47,7 +46,20 @@ class CounterTradeRangeActionImplTest {
                 .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
-        assertEquals(-1000, ira.getMinAdmissibleSetpoint(0.0), 1e-3);
-        assertEquals(400, ira.getMaxAdmissibleSetpoint(0.0), 1e-3);
+        assertEquals(-1000, counterTradeRangeAction.getMinAdmissibleSetpoint(0.0), 1e-3);
+        assertEquals(400, counterTradeRangeAction.getMaxAdmissibleSetpoint(0.0), 1e-3);
+    }
+
+    @Test
+    void getCurrentSetpointTest() {
+        CounterTradeRangeAction counterTradeRangeAction = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+                .withId("injectionRangeActionId")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newRange().withMin(-1300).withMax(400).add()
+                .withExportingCountry(Country.FR)
+                .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+        assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
+
     }
 }

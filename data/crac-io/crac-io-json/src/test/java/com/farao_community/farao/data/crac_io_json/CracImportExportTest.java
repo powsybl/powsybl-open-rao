@@ -337,5 +337,24 @@ class CracImportExportTest {
         ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
         assertEquals(CURATIVE, ur.getInstant());
         assertEquals(Country.ES, ur.getCountry());
+
+        // ---------------------------------
+        // --- test CounterTradeRangeAction ---
+        // ---------------------------------
+
+        assertNotNull(crac.getCounterTradeRangeAction("counterTradeRange1Id"));
+
+        assertEquals("counterTradeRange1Name", crac.getCounterTradeRangeAction("counterTradeRange1Id").getName());
+        assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
+        assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
+        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
+        assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
+
+        // Check OnFlowConstraintInCountry usage rules
+        usageRules = crac.getRemedialAction("counterTradeRange1Id").getUsageRules();
+        assertEquals(2, usageRules.size());
+        ur = (OnFlowConstraintInCountry) usageRules.stream().filter(OnFlowConstraintInCountry.class::isInstance).findAny().orElseThrow();
+        assertEquals(CURATIVE, ur.getInstant());
+        assertEquals(Country.ES, ur.getCountry());
     }
 }

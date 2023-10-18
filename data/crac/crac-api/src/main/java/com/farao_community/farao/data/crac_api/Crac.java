@@ -379,6 +379,12 @@ public interface Crac extends Identifiable<Crac> {
     Set<InjectionRangeAction> getInjectionRangeActions();
 
     /**
+     * Gather all the CounterTradeRangeAction present in the Crac. It returns a set because remedial
+     * actions must not be duplicated and there is no defined order for remedial actions.
+     */
+    Set<CounterTradeRangeAction> getCounterTradeRangeActions();
+
+    /**
      * Find a PstRangeAction by its id, returns null if the remedial action does not exists
      */
     PstRangeAction getPstRangeAction(String pstRangeActionId);
@@ -392,6 +398,11 @@ public interface Crac extends Identifiable<Crac> {
      * Find an InjectionRangeAction by its id, returns null if the remedial action does not exists
      */
     InjectionRangeAction getInjectionRangeAction(String injectionRangeActionId);
+
+    /**
+     * Find a CounterTradeRangeAction by its id, returns null if the remedial action does not exists
+     */
+    CounterTradeRangeAction getCounterTradeRangeAction(String counterTradeRangeActionId);
 
     /**
      * Remove a PstRangeAction - identified by its id - from the Crac

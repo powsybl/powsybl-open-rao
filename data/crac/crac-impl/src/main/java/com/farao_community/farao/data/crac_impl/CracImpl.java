@@ -539,6 +539,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Set<CounterTradeRangeAction> getCounterTradeRangeActions() {
+        return new HashSet<>(counterTradeRangeActions.values());
+    }
+
+    @Override
     public PstRangeAction getPstRangeAction(String pstRangeActionId) {
         return pstRangeActions.get(pstRangeActionId);
     }
@@ -551,6 +556,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public InjectionRangeAction getInjectionRangeAction(String injectionRangActionId) {
         return injectionRangeActions.get(injectionRangActionId);
+    }
+
+    @Override
+    public CounterTradeRangeAction getCounterTradeRangeAction(String counterTradeRangActionId) {
+        return counterTradeRangeActions.get(counterTradeRangActionId);
     }
 
     @Override

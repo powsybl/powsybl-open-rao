@@ -263,6 +263,15 @@ public final class ExhaustiveCracCreation {
                 .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
+        crac.newCounterTradeRangeAction().withId("counterTradeRange1Id")
+                .withName("counterTradeRange1Name")
+                .withExportingCountry(Country.FR)
+                .newRange().withMin(-500).withMax(500).add()
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnFlowConstraintInCountryUsageRule().withInstant(Instant.CURATIVE).withCountry(Country.ES).add()
+                .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+
         return crac;
     }
 }

@@ -260,7 +260,8 @@ public class RaoResultImpl implements RaoResult {
             final State finalStateBefore = stateBefore;
             Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
                     rangeActionResults.entrySet().stream().filter(entry ->
-                    entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
+                            entry.getKey().getNetworkElements() != null
+                            && entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
                             && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
             if (activatedRangeAction.isPresent()) {
                 return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);

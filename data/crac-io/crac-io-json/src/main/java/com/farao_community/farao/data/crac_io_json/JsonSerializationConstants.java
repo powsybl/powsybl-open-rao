@@ -31,7 +31,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "1.7";
+    public static final String CRAC_IO_VERSION = "1.8";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -39,6 +39,7 @@ public final class JsonSerializationConstants {
     v1.4: addition of AngleCnecs; frm renamed to reliabilityMargin
     v1.5: addition of VoltageCnecs
     v1.7: addition of VoltageConstraints usage rules
+    v1.8: addition of counterTradeRangeAction
      */
 
     // headers
@@ -55,6 +56,7 @@ public final class JsonSerializationConstants {
     public static final String IMPORTING_NETWORK_ELEMENT_ID = "importingNetworkElementId";
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
     public static final String NETWORK_ELEMENT_IDS_AND_KEYS = "networkElementIdsAndKeys";
+    public static final String EXPORTING_COUNTRY = "exportingCountry";
 
     public static final String GROUP_ID = "groupId";
     public static final String SPEED = "speed";
@@ -85,6 +87,7 @@ public final class JsonSerializationConstants {
     public static final String PST_RANGE_ACTIONS = "pstRangeActions";
     public static final String HVDC_RANGE_ACTIONS = "hvdcRangeActions";
     public static final String INJECTION_RANGE_ACTIONS = "injectionRangeActions";
+    public static final String COUNTER_TRADE_RANGE_ACTIONS = "counterTradeRangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";
