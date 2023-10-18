@@ -24,7 +24,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
             CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction();
 
             while (!jsonParser.nextToken().isStructEnd()) {
-                counterTradeRangeActionAdder = addElement(counterTradeRangeActionAdder, jsonParser, version);
+                addElement(counterTradeRangeActionAdder, jsonParser, version);
             }
             if (getPrimaryVersionNumber(version) <= 1 && getSubVersionNumber(version) < 3) {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
@@ -34,7 +34,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
         }
     }
 
-    private static CounterTradeRangeActionAdder addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
+    private static void addElement(CounterTradeRangeActionAdder counterTradeRangeActionAdder, JsonParser jsonParser, String version) throws IOException {
         switch (jsonParser.getCurrentName()) {
             case ID:
                 counterTradeRangeActionAdder.withId(jsonParser.nextTextValue());
@@ -111,6 +111,5 @@ public final class CounterTradeRangeActionArrayDeserializer {
             default:
                 throw new FaraoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
         }
-        return counterTradeRangeActionAdder;
     }
 }

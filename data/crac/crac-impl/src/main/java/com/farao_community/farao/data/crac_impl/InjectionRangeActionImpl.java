@@ -14,23 +14,25 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionRangeActionImpl extends AbstractStandardRangeAction<InjectionRangeAction> implements InjectionRangeAction {
+public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRangeAction> implements InjectionRangeAction {
 
     private final Map<NetworkElement, Double> injectionDistributionKeys;
+    private final List<StandardRange> ranges;
+    private final double initialSetpoint;
 
     InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
                              List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed) {
-        super(id, name, operator, usageRules, groupId, speed, ranges, initialSetpoint);
+        super(id, name, operator, usageRules, groupId, speed);
+        this.ranges = ranges;
+        this.initialSetpoint = initialSetpoint;
         this.injectionDistributionKeys = injectionDistributionKeys;
     }
 
@@ -42,6 +44,58 @@ public class InjectionRangeActionImpl extends AbstractStandardRangeAction<Inject
     @Override
     public Map<NetworkElement, Double> getInjectionDistributionKeys() {
         return injectionDistributionKeys;
+    }
+
+    @Override
+    public List<StandardRange> getRanges() {
+        return ranges;
+    }
+
+    @Override
+    public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
+        double minAdmissibleSetpoint = Double.NEGATIVE_INFINITY;
+        for (StandardRange range : ranges) {
+            switch (range.getRangeType()) {
+                case ABSOLUTE:
+                    minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, range.getMin());
+                    break;
+                case RELATIVE_TO_INITIAL_NETWORK:
+                    minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, initialSetpoint + range.getMin());
+                    break;
+                case RELATIVE_TO_PREVIOUS_INSTANT:
+                    minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, previousInstantSetPoint + range.getMin());
+                    break;
+                default:
+                    throw new NotImplementedException("Range Action type is not implemented yet.");
+            }
+        }
+        return minAdmissibleSetpoint;
+    }
+
+    @Override
+    public double getMaxAdmissibleSetpoint(double previousInstantSetPoint) {
+        double maxAdmissibleSetpoint = Double.POSITIVE_INFINITY;
+        for (StandardRange range : ranges) {
+            switch (range.getRangeType()) {
+                case ABSOLUTE:
+                    maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, range.getMax());
+                    break;
+                case RELATIVE_TO_INITIAL_NETWORK:
+                    maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, initialSetpoint + range.getMax());
+                    break;
+                case RELATIVE_TO_PREVIOUS_INSTANT:
+                    maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, previousInstantSetPoint + range.getMax());
+                    break;
+                default:
+                    throw new NotImplementedException("Range Action type is not implemented yet.");
+            }
+        }
+        return maxAdmissibleSetpoint;
+    }
+
+    @Override
+    public double getInitialSetpoint() {
+        return initialSetpoint;
     }
 
     @Override
@@ -116,13 +170,16 @@ public class InjectionRangeActionImpl extends AbstractStandardRangeAction<Inject
         if (!super.equals(o)) {
             return false;
         }
-
-        return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys());
+        return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
+                && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
+        for (StandardRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
         hashCode += 31 * injectionDistributionKeys.hashCode();
         return hashCode;
     }
