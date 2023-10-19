@@ -54,4 +54,9 @@ public final class OnInstantImpl extends AbstractUsageRule implements OnInstant 
     public Instant getInstant() {
         return instant;
     }
+
+    @Override
+    public String getInstantId() {
+        return instant.getId();
+    }
 }

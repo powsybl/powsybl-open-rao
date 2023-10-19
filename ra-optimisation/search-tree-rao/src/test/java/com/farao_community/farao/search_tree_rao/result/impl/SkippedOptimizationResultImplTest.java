@@ -25,7 +25,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -52,18 +55,30 @@ class SkippedOptimizationResultImplTest {
         assertEquals(0, skippedOptimizationResult.getVirtualCost(), 1e-6);
         assertEquals(0, skippedOptimizationResult.getVirtualCost("emptyString"), 1e-6);
         assertTrue(skippedOptimizationResult.getVirtualCostNames().isEmpty());
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
-        assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-        assertThrows(FaraoException.class, skippedOptimizationResult::getObjectiveFunction);
+        FaraoException exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, rangeAction, unit));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getSensitivityValue(flowCnec, side, sensitivityVariableSet, unit));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getFlow(flowCnec, side, unit));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCommercialFlow(flowCnec, side, unit));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSum(flowCnec, side));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, skippedOptimizationResult::getObjectiveFunction);
+        assertEquals("", exception.getMessage());
     }
 
     @Test

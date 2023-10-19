@@ -18,13 +18,13 @@ import org.mockito.Mockito;
 
 import java.util.Map;
 
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
-import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -53,9 +53,9 @@ class FlowResultImplTest {
         when(fixedPtdfs.getPtdfZonalSum(loopFlowCnec, LEFT)).thenThrow(new FaraoException("a mock of what would happen if trying to access ptdf sum"));
 
         branchResult = new FlowResultImpl(
-                systematicSensitivityResult,
-                fixedCommercialFlows,
-                fixedPtdfs
+            systematicSensitivityResult,
+            fixedCommercialFlows,
+            fixedPtdfs
         );
     }
 
@@ -71,13 +71,16 @@ class FlowResultImplTest {
         assertEquals(500, branchResult.getFlow(optimizedCnec, RIGHT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(235, branchResult.getFlow(optimizedCnec, RIGHT, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertThrows(FaraoException.class, () -> branchResult.getPtdfZonalSum(loopFlowCnec, LEFT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> branchResult.getPtdfZonalSum(loopFlowCnec, LEFT));
+        assertEquals("", exception.getMessage());
         assertEquals(30., branchResult.getPtdfZonalSum(optimizedCnec, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(Map.of(optimizedCnec, Map.of(RIGHT, 30.)), branchResult.getPtdfZonalSums());
 
         assertEquals(200, branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.AMPERE));
-        assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(optimizedCnec, RIGHT, Unit.MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(loopFlowCnec, LEFT, Unit.AMPERE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResult.getCommercialFlow(optimizedCnec, RIGHT, Unit.MEGAWATT));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -91,9 +94,13 @@ class FlowResultImplTest {
 
     @Test
     void testWrongFlowUnit() {
-        assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.KILOVOLT));
-        assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.DEGREE));
-        assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.PERCENT_IMAX));
-        assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.TAP));
+        FaraoException exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.KILOVOLT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.DEGREE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.PERCENT_IMAX));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResult.getFlow(optimizedCnec, RIGHT, Unit.TAP));
+        assertEquals("", exception.getMessage());
     }
 }

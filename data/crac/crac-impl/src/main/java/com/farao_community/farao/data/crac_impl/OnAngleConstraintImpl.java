@@ -36,6 +36,11 @@ public class OnAngleConstraintImpl extends AbstractUsageRule implements OnAngleC
     }
 
     @Override
+    public String getInstantId() {
+        return instant.getId();
+    }
+
+    @Override
     public UsageMethod getUsageMethod(State state) {
         if (state.isPreventive()) {
             return state.getInstant().equals(instant) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;

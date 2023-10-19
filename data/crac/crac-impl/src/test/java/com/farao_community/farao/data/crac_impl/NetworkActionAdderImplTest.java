@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
@@ -28,19 +27,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class NetworkActionAdderImplTest {
 
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
 
         crac.newContingency()
             .withId("contingencyId")
@@ -59,7 +54,7 @@ class NetworkActionAdderImplTest {
             .withSetpoint(6)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -107,11 +102,11 @@ class NetworkActionAdderImplTest {
             .withSetpoint(6)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newOnContingencyStateUsageRule()
-            .withInstantId(INSTANT_CURATIVE.getId())
+            .withInstantId("curative")
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
@@ -169,7 +164,8 @@ class NetworkActionAdderImplTest {
             .withNetworkElement("pstNetworkElementId")
             .withSetpoint(6)
             .add();
-        assertThrows(FaraoException.class, networkActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
+        assertEquals("Cannot add a NetworkAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -184,7 +180,8 @@ class NetworkActionAdderImplTest {
         NetworkActionAdder networkActionAdder = crac.newNetworkAction()
             .withId("sameId")
             .withOperator("BE");
-        assertThrows(FaraoException.class, networkActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
+        assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }
 
     @Test
@@ -193,7 +190,8 @@ class NetworkActionAdderImplTest {
             .withId("networkActionName")
             .withName("networkActionName")
             .withOperator("operator");
-        assertThrows(FaraoException.class, networkActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, networkActionAdder::add);
+        assertEquals("NetworkAction networkActionName has to have at least one ElementaryAction.", exception.getMessage());
     }
 
     @Test

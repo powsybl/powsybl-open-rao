@@ -6,9 +6,9 @@
  */
 package com.farao_community.farao.data.refprog.refprog_xml_importer;
 
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
@@ -31,31 +31,35 @@ class RefProgImporterTest {
     @Test
     void testUnexistantFile() {
         Path path = Paths.get("/refProg_12nodes_doesntexist.xml");
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(path, offsetDateTime));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(path, offsetDateTime));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongXml() {
         InputStream inputStream = getClass().getResourceAsStream("/wrong_refProg.xml");
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testRefProgWithoutInterval() {
         InputStream inputStream = getClass().getResourceAsStream("/refProg_noInterval.xml");
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongTimestamp() {
         offsetDateTime = OffsetDateTime.of(2020, 1, 6, 23, 0, 0, 0, ZoneOffset.UTC);
         InputStream inputStream = getClass().getResourceAsStream("/refProg_12nodes.xml");
-        assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RefProgImporter.importRefProg(inputStream, offsetDateTime));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testImportSimpleFile() {
-        offsetDateTime = OffsetDateTime.of(2020, 1, 6, 21, 00, 0, 0, ZoneOffset.UTC);
+        offsetDateTime = OffsetDateTime.of(2020, 1, 6, 21, 0, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
         assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(4, referenceProgram.getListOfAreas().size());
@@ -71,7 +75,7 @@ class RefProgImporterTest {
 
     @Test
     void testImportSimpleFileWithoutFlowForTimestamp() {
-        offsetDateTime = OffsetDateTime.of(2020, 1, 6, 19, 00, 0, 0, ZoneOffset.UTC);
+        offsetDateTime = OffsetDateTime.of(2020, 1, 6, 19, 0, 0, 0, ZoneOffset.UTC);
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/refProg_12nodes.xml"), offsetDateTime);
         assertEquals(4, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(4, referenceProgram.getListOfAreas().size());

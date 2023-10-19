@@ -18,8 +18,8 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 
 import java.util.HashMap;
@@ -51,32 +51,32 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
         return initialResult.getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
         return initialResult.getRelativeMargin(flowCnec, unit);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getCommercialFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
         return initialResult.getLoopFlow(flowCnec, side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
         return initialResult.getPtdfZonalSum(flowCnec, side);
     }
 
@@ -107,10 +107,10 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction) {
-            return isActivatedDuringState(state, (NetworkAction) remedialAction);
-        } else if (remedialAction instanceof RangeAction<?>) {
-            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+            return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -165,8 +165,8 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
         initialResult.getRangeActions().forEach(ra -> {
-            if (ra instanceof PstRangeAction) {
-                tapPerPst.put((PstRangeAction) ra, initialResult.getTap((PstRangeAction) ra));
+            if (ra instanceof PstRangeAction pstRangeAction) {
+                tapPerPst.put(pstRangeAction, initialResult.getTap(pstRangeAction));
             }
         });
         return tapPerPst;
@@ -182,16 +182,16 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     }
 
     @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
+    }
+
+    @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
     }
 }

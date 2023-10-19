@@ -19,9 +19,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -182,7 +182,8 @@ class JsonRaoParametersTest extends AbstractConverterTest {
     @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField", "NegativeField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
-        assertThrows(FaraoException.class, () -> JsonRaoParameters.read(inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> JsonRaoParameters.read(inputStream));
+        assertEquals("", exception.getMessage());
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {

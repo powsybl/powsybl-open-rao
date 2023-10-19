@@ -77,7 +77,8 @@ class TapRangeAdderImplTest {
         TapRangeAdder tapRangeAdder = pstRangeActionAdder.newTapRange()
             .withMinTap(-5)
             .withMaxTap(10);
-        assertThrows(FaraoException.class, tapRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, tapRangeAdder::add);
+        assertEquals("Cannot add TapRange without a range type. Please use withRangeType() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -98,6 +99,7 @@ class TapRangeAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(5)
             .withMaxTap(-10);
-        assertThrows(FaraoException.class, tapRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, tapRangeAdder::add);
+        assertEquals("Max tap of TapRange must be equal or greater than min tap.", exception.getMessage());
     }
 }

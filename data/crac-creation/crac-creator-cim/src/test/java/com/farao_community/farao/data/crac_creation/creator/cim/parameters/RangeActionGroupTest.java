@@ -50,8 +50,11 @@ class RangeActionGroupTest {
     void isValidTest() {
         assertEquals(List.of("rangeAction1", "rangeAction2"), RangeActionGroup.parse("rangeAction1 + rangeAction2"));
         assertEquals(List.of("range action 1", "range action 2"), RangeActionGroup.parse("range action 1 + range action 2"));
-        assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1 and rangeAction2"));
-        assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1"));
-        assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1+rangeAction2"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1 and rangeAction2"));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1"));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> RangeActionGroup.parse("rangeAction1+rangeAction2"));
+        assertEquals("", exception.getMessage());
     }
 }

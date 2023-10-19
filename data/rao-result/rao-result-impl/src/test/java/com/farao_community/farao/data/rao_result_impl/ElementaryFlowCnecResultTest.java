@@ -97,6 +97,7 @@ class ElementaryFlowCnecResultTest {
     @Test
     void notAFlowUnitTest() {
         ElementaryFlowCnecResult elementaryFlowCnecResult = new ElementaryFlowCnecResult();
-        assertThrows(FaraoException.class, () -> elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 100, Unit.KILOVOLT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> elementaryFlowCnecResult.setLoopFlow(Side.RIGHT, 100, Unit.KILOVOLT));
+        assertEquals("", exception.getMessage());
     }
 }

@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.monitoring.voltage_monitoring.VoltageMonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,10 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class JsonVoltageMonitoringResultTest {
     private static final double VOLTAGE_TOLERANCE = 0.5;
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     Crac crac;
     VoltageCnec vc1;
@@ -50,31 +45,31 @@ class JsonVoltageMonitoringResultTest {
     @BeforeEach
     public void setUp() {
         crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         co1 = crac.newContingency().withId("co1").withNetworkElement("co1-ne").add();
-        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., INSTANT_PREV, null);
-        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., INSTANT_CURATIVE, co1.getId());
+        vc1 = addVoltageCnec("VL45", "VL45", 145., 150., "preventive", null);
+        vc2 = addVoltageCnec("VL46", "VL46", 140., 145., "curative", co1.getId());
         preventiveState = crac.getPreventiveState();
         crac.newNetworkAction()
             .withId("na1")
             .newInjectionSetPoint().withNetworkElement("ne1").withSetpoint(50.).withUnit(Unit.MEGAWATT).add()
-            .newOnVoltageConstraintUsageRule().withInstantId(INSTANT_PREV.getId()).withVoltageCnec(vc1.getId()).add()
+            .newOnVoltageConstraintUsageRule().withInstantId("preventive").withVoltageCnec(vc1.getId()).add()
             .add();
         crac.newNetworkAction()
             .withId("na2")
             .newInjectionSetPoint().withNetworkElement("ne2").withSetpoint(150.).withUnit(Unit.MEGAWATT).add()
-            .newOnVoltageConstraintUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withVoltageCnec(vc2.getId()).add()
+            .newOnVoltageConstraintUsageRule().withInstantId("curative").withVoltageCnec(vc2.getId()).add()
             .add();
         voltageMonitoringResultImporter = new VoltageMonitoringResultImporter();
     }
 
-    private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max, Instant instant, String contingencyId) {
+    private VoltageCnec addVoltageCnec(String id, String networkElement, Double min, Double max, String instantId, String contingencyId) {
         return crac.newVoltageCnec()
             .withId(id)
-            .withInstantId(instant.getId())
+            .withInstantId(instantId)
             .withNetworkElement(networkElement)
             .withMonitored()
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(min).withMax(max).add()
@@ -109,6 +104,7 @@ class JsonVoltageMonitoringResultTest {
     @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/result-" + source + ".json");
-        assertThrows(FaraoException.class, () -> voltageMonitoringResultImporter.importVoltageMonitoringResult(inputStream, crac));
+        FaraoException exception = assertThrows(FaraoException.class, () -> voltageMonitoringResultImporter.importVoltageMonitoringResult(inputStream, crac));
+        assertEquals("", exception.getMessage());
     }
 }

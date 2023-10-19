@@ -51,18 +51,21 @@ class StandardRangeAdderImplTest {
     @Test
     void testNoMin() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(16);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertEquals("StandardRange min value was not defined.", exception.getMessage());
     }
 
     @Test
     void testNoMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(16);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertEquals("StandardRange max value was not defined.", exception.getMessage());
     }
 
     @Test
     void testMinGreaterThanMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10).withMax(-5);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertEquals("Max value of StandardRange must be equal or greater than min value.", exception.getMessage());
     }
 }

@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ZoneToZonePtdfDefinitionTest {
 
@@ -65,32 +67,38 @@ class ZoneToZonePtdfDefinitionTest {
 
     @Test
     void testWrongSyntax1() {
-        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR-ES"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR-ES"));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongSyntax2() {
-        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR/ES"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("FR/ES"));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongSyntax3() {
-        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{{FR}-{ES}"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{{FR}-{ES}"));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongSyntax4() {
-        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FR}/{ES}"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FR}/{ES}"));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongSyntax5() {
-        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FRANCE}-{ES}"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{FRANCE}-{ES}"));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongSyntax6() {
-        assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{}/{ES}"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ZoneToZonePtdfDefinition("{}/{ES}"));
+        assertEquals("", exception.getMessage());
     }
 
     @Test

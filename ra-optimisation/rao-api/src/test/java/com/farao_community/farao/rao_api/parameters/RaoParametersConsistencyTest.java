@@ -12,12 +12,13 @@ import com.farao_community.farao.rao_api.parameters.extensions.LoopFlowParameter
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersConsistencyTest {
     @Test
@@ -172,7 +173,8 @@ class RaoParametersConsistencyTest {
         NotOptimizedCnecsParameters nocp = parameters.getNotOptimizedCnecsParameters();
 
         nocp.setDoNotOptimizeCnecsSecuredByTheirPst(Map.of("cnec1", "pst1"));
-        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true));
+        FaraoException exception = assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -182,7 +184,8 @@ class RaoParametersConsistencyTest {
 
         nocp.setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
         Map<String, String> stringMap = Map.of("cnec1", "pst1");
-        assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(stringMap));
+        FaraoException exception = assertThrows(FaraoException.class, () -> nocp.setDoNotOptimizeCnecsSecuredByTheirPst(stringMap));
+        assertEquals("", exception.getMessage());
     }
 
     @Test

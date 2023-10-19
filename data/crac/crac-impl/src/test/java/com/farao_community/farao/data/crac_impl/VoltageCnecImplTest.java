@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.cnec.VoltageCnecAdder;
@@ -28,13 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VoltageCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
-        crac.addInstant(INSTANT_PREV);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
     }
 
     private VoltageCnecAdder initPreventiveCnecAdder() {
@@ -43,7 +41,7 @@ class VoltageCnecImplTest {
             .withName("voltage-cnec-name")
             .withNetworkElement("networkElement")
             .withOperator("FR")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized(false);
     }
 
@@ -55,14 +53,14 @@ class VoltageCnecImplTest {
         VoltageCnec cnec1 = crac.newVoltageCnec()
             .withId("cnec-1-id")
             .withNetworkElement("BBE1AA1")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add()
             .add();
 
         VoltageCnec cnec2 = crac.newVoltageCnec()
             .withId("cnec-2-id")
             .withNetworkElement("DDE2AA1")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.).add()
             .add();
 

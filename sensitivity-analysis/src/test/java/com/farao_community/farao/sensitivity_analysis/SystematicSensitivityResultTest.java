@@ -176,14 +176,14 @@ class SystematicSensitivityResultTest {
         nStateCnec = crac.newFlowCnec()
             .withId("cnec-prev")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstantId(CommonCracCreation.INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.LEFT).add()
             .add();
         contingencyCnec = crac.newFlowCnec()
             .withId("cnec-cur")
             .withNetworkElement("BBE1AA11 FFR5AA11 1")
             .withContingency("co")
-            .withInstantId(CommonCracCreation.INSTANT_OUTAGE.getId())
+            .withInstantId("outage")
             .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(Side.RIGHT).add()
             .add();
         hvdcRangeAction = (HvdcRangeAction) crac.newHvdcRangeAction()

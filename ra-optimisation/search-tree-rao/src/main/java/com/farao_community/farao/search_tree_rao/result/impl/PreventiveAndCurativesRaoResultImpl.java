@@ -21,8 +21,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.StateTree;
+import com.farao_community.farao.search_tree_rao.result.api.*;
 
 import java.util.*;
 
@@ -133,6 +133,14 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         return results;
     }
 
+    /**
+     * Returns true if the perimeter has an actual functional cost, ie has CNECs
+     * (as opposed to a perimeter with pure MNECs only)
+     */
+    private static boolean hasActualFunctionalCost(PerimeterResult perimeterResult) {
+        return !perimeterResult.getMostLimitingElements(1).isEmpty();
+    }
+
     private Set<String> getContingenciesToExclude(StateTree stateTree) {
         Set<String> contingenciesToExclude = new HashSet<>();
         stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
@@ -231,8 +239,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
+    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstantId, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getMargin(flowCnec, unit);
         } else {
@@ -241,8 +249,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
+    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstantId, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getRelativeMargin(flowCnec, unit);
         } else {
@@ -251,8 +259,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult =  getFlowResult(optimizedInstant, flowCnec);
+    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstantId, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getFlow(flowCnec, side, unit);
         } else {
@@ -261,8 +269,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
+    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstantId, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getCommercialFlow(flowCnec, side, unit);
         } else {
@@ -271,8 +279,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
+    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+        FlowResult flowResult = getFlowResult(optimizedInstantId, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getLoopFlow(flowCnec, side, unit);
         } else {
@@ -281,8 +289,8 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
-        FlowResult flowResult = getFlowResult(optimizedInstant, flowCnec);
+    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
+        FlowResult flowResult = getFlowResult(optimizedInstantId, flowCnec);
         if (Objects.nonNull(flowResult)) {
             return flowResult.getPtdfZonalSum(flowCnec, side);
         } else {
@@ -290,16 +298,16 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         }
     }
 
-    private FlowResult getFlowResult(Instant optimizedInstant, FlowCnec flowCnec) {
-        if (optimizedInstant == null) {
+    private FlowResult getFlowResult(String optimizedInstantId, FlowCnec flowCnec) {
+        if (optimizedInstantId == null) {
             return initialResult;
-        } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstant)) {
-            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstant));
-        } else if ((optimizedInstant == Instant.PREVENTIVE || optimizedInstant == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
-                (optimizedInstant == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
+        } else if (flowCnec.getState().getInstant().comesBefore(optimizedInstantId)) {
+            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", flowCnec.getState().getInstant(), optimizedInstantId));
+        } else if ((optimizedInstantId == Instant.PREVENTIVE || optimizedInstantId == Instant.OUTAGE || postContingencyResults.isEmpty()) ||
+            (optimizedInstantId == Instant.AUTO && postContingencyResults.keySet().stream().noneMatch(state -> state.getInstant().equals(Instant.AUTO)))) {
             // using postPreventiveResult would exclude curative CNECs
             return resultsWithPrasForAllCnecs;
-        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizedInstant.equals(flowCnec.getState().getInstant())) {
+        } else if (postContingencyResults.containsKey(flowCnec.getState()) && optimizedInstantId.equals(flowCnec.getState().getInstant().getId())) {
             // if cnec has been optimized during a post contingency instant
             return postContingencyResults.get(flowCnec.getState());
         } else if (!postContingencyResults.containsKey(flowCnec.getState())) {
@@ -326,17 +334,9 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
         return highestFunctionalCost;
     }
 
-    /**
-     * Returns true if the perimeter has an actual functional cost, ie has CNECs
-     * (as opposed to a perimeter with pure MNECs only)
-     */
-    private static boolean hasActualFunctionalCost(PerimeterResult perimeterResult) {
-        return !perimeterResult.getMostLimitingElements(1).isEmpty();
-    }
-
     public List<FlowCnec> getMostLimitingElements() {
         //TODO : store values to be able to merge easily
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -410,10 +410,10 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        if (remedialAction instanceof NetworkAction) {
-            return isActivatedDuringState(state, (NetworkAction) remedialAction);
-        } else if (remedialAction instanceof RangeAction<?>) {
-            return isActivatedDuringState(state, (RangeAction<?>) remedialAction);
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        } else if (remedialAction instanceof RangeAction<?> rangeAction) {
+            return isActivatedDuringState(state, rangeAction);
         } else {
             throw new FaraoException("Unrecognized remedial action type");
         }
@@ -573,16 +573,16 @@ public class PreventiveAndCurativesRaoResultImpl implements RaoResult {
     }
 
     @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
+    }
+
+    @Override
     public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         if (this.optimizationStepsExecuted.isOverwritePossible(optimizationStepsExecuted)) {
             this.optimizationStepsExecuted = optimizationStepsExecuted;
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
     }
 }

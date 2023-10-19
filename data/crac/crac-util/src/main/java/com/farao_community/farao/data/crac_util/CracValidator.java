@@ -48,7 +48,7 @@ public final class CracValidator {
             throw new FaraoException("Instant should be an auto instant");
         }
         List<String> report = new ArrayList<>();
-        crac.getStates(instantAuto).forEach(state -> {
+        crac.getStates(instantAuto.getId()).forEach(state -> {
             if (hasNoRemedialAction(state, crac) || hasGlobalRemedialActions(state, crac)) {
                 // 1. Auto state has no RA => it will not constitute a perimeter
                 //    => Auto CNECs will be optimized in preventive RAO, no need to duplicate them

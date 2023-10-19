@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +29,11 @@ class BasecaseScenarioTest {
     @BeforeEach
     public void setUp() {
         basecaseState = Mockito.mock(State.class);
-        Mockito.when(basecaseState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Mockito.when(basecaseState.getInstant().getId()).thenReturn("preventive");
         otherState1 = Mockito.mock(State.class);
-        Mockito.when(otherState1.getInstant()).thenReturn(Instant.OUTAGE);
+        Mockito.when(otherState1.getInstant().getId()).thenReturn("outage");
         otherState2 = Mockito.mock(State.class);
-        Mockito.when(otherState2.getInstant()).thenReturn(Instant.CURATIVE);
+        Mockito.when(otherState2.getInstant().getId()).thenReturn("curative");
     }
 
     @Test
@@ -62,13 +61,15 @@ class BasecaseScenarioTest {
     void testWrongBasecaseScenario() {
         Set<State> otherStates = Set.of(otherState2);
         assertThrows(NullPointerException.class, () -> new BasecaseScenario(null, otherStates));
-        assertThrows(FaraoException.class, () -> new BasecaseScenario(otherState1, otherStates));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(otherState1, otherStates));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongOtherScenario() {
         Set<State> otherStates = Set.of(basecaseState, otherState1);
-        assertThrows(FaraoException.class, () -> new BasecaseScenario(basecaseState, otherStates));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new BasecaseScenario(basecaseState, otherStates));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -81,6 +82,7 @@ class BasecaseScenarioTest {
         assertEquals(Set.of(otherState1, otherState2), basecaseScenario.getOtherStates());
         basecaseScenario.addOtherState(otherState2);
         assertEquals(Set.of(otherState1, otherState2), basecaseScenario.getOtherStates());
-        assertThrows(FaraoException.class, () -> basecaseScenario.addOtherState(basecaseState));
+        FaraoException exception = assertThrows(FaraoException.class, () -> basecaseScenario.addOtherState(basecaseState));
+        assertEquals("", exception.getMessage());
     }
 }

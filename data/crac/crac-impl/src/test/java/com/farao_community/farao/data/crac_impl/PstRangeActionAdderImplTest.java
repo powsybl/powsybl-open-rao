@@ -28,9 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionAdderImplTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
     private CracImpl crac;
     private String networkElementId;
     private Map<Integer, Double> validTapToAngleConversionMap;
@@ -38,9 +35,9 @@ class PstRangeActionAdderImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
         networkElementId = "BBE2AA1  BBE3AA1  1";
         validTapToAngleConversionMap = Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.);
     }
@@ -58,7 +55,7 @@ class PstRangeActionAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .withInitialTap(1)
@@ -87,12 +84,13 @@ class PstRangeActionAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_AUTO.getId())
+            .withInstantId("auto")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("Cannot create an AUTO Pst range action without speed defined", exception.getMessage());
     }
 
     @Test
@@ -109,7 +107,7 @@ class PstRangeActionAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_AUTO.getId())
+            .withInstantId("auto")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .withInitialTap(1)
@@ -131,7 +129,7 @@ class PstRangeActionAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .withInitialTap(0)
@@ -180,7 +178,7 @@ class PstRangeActionAdderImplTest {
             .withRangeType(RangeType.ABSOLUTE)
             .add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .withInitialTap(-2)
@@ -201,7 +199,8 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("Cannot add a PstRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -211,7 +210,8 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("Cannot add PstRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -228,7 +228,8 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement("networkElementId")
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        assertThrows(FaraoException.class, adder::add);
+        FaraoException exception = assertThrows(FaraoException.class, adder::add);
+        assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }
 
     @Test
@@ -238,7 +239,8 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("Cannot add PstRangeAction without a initial tap. Please use withInitialTap() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -248,7 +250,8 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .withOperator("BE")
             .withInitialTap(0);
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("Cannot add PstRangeAction without a tap to angle conversion map. Please use withTapToAngleConversionMap() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -259,7 +262,8 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0)
             .withTapToAngleConversionMap(new HashMap<>());
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("TapToAngleConversionMap of PST id1 should at least contain 2 entries.", exception.getMessage());
     }
 
     @Test
@@ -270,7 +274,8 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-2, -20., 2, 20.));
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("TapToAngleConversionMap of PST id1 should contain all the consecutive taps between -2 and 2", exception.getMessage());
     }
 
     @Test
@@ -281,7 +286,8 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-2, -20., -1, -15., 0, 0., 1, -10., 2, 20.));
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("TapToAngleConversionMap of PST id1 should be increasing or decreasing", exception.getMessage());
     }
 
     @Test
@@ -292,7 +298,8 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(10)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
-        assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstRangeActionAdder::add);
+        assertEquals("initialTap of PST id1 must be included into its tapToAngleConversionMap", exception.getMessage());
     }
 
     @Test
@@ -302,7 +309,7 @@ class PstRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newTapRange()
             .withMinTap(-10).withMaxTap(10).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(-2)
             .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();

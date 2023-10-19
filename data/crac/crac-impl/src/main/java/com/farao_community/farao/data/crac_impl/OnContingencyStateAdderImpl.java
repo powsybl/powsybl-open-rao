@@ -27,7 +27,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
 
     private static final String CLASS_NAME = "OnContingencyState";
     private final T owner;
-    private Instant instant;
+    private String instantId;
     private String contingencyId;
     private UsageMethod usageMethod;
 
@@ -43,7 +43,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
 
     @Override
     public OnContingencyStateAdder<T> withInstantId(String instantId) {
-        this.instant = owner.getCrac().getInstant(instantId);
+        this.instantId = instantId;
         return this;
     }
 
@@ -55,15 +55,16 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, CLASS_NAME, "instant", "withInstant()");
+        assertAttributeNotNull(instantId, CLASS_NAME, "instant", "withInstant()");
         assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
 
         State state;
+        Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             if (usageMethod != UsageMethod.FORCED) {
                 throw new FaraoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant, except when FORCED. Please use newOnInstantUsageRule() instead.");
             }
-            state = owner.getCrac().addPreventiveState(instant);
+            state = owner.getCrac().addPreventiveState(instantId);
         } else if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         } else {
@@ -72,7 +73,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
             if (contingency == null) {
                 throw new FaraoException(String.format("Contingency %s of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", contingencyId));
             }
-            state = owner.getCrac().addState(contingency, instant);
+            state = owner.getCrac().addState(contingency, instantId);
         }
 
         owner.addUsageRule(new OnContingencyStateImpl(usageMethod, state));

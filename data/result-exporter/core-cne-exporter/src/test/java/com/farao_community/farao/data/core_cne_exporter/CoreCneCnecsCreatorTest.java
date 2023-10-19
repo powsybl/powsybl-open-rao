@@ -13,11 +13,13 @@ import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters
 import com.farao_community.farao.data.cne_exporter_commons.CneHelper;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.core_cne_exporter.xsd.*;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
@@ -43,10 +45,6 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class CoreCneCnecsCreatorTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     private Crac crac;
     private Network network;
@@ -59,10 +57,10 @@ class CoreCneCnecsCreatorTest {
         CneUtil.initUniqueIds();
         network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
         crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         raoResult = Mockito.mock(RaoResult.class);
         raoParameters = new RaoParameters();
         exporterParameters = new CneExporterParameters("22XCORESO------S-20211115-F299v1", 2, "10YDOM-REGION-1V", CneExporterParameters.ProcessType.DAY_AHEAD_CC,
@@ -150,7 +148,7 @@ class CoreCneCnecsCreatorTest {
             .withId("bbb_cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("FR")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
@@ -163,7 +161,7 @@ class CoreCneCnecsCreatorTest {
             .withId("aaa_cnec2")
             .withNetworkElement("NNL2AA1  NNL3AA1  1")
             .withOperator("NL")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(10.)
@@ -215,7 +213,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D8")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withMonitored()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)
@@ -252,7 +250,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D7")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized()
             .withMonitored()
             .withNominalVoltage(400.)
@@ -305,7 +303,7 @@ class CoreCneCnecsCreatorTest {
             .withId("zzz_cnec1 - N")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(30.)
@@ -315,7 +313,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1 - Outage")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstantId(INSTANT_OUTAGE.getId())
+            .withInstantId("outage")
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
@@ -326,7 +324,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1 - Curative")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D2")
-            .withInstantId(INSTANT_CURATIVE.getId())
+            .withInstantId("curative")
             .withContingency("contingency1")
             .withOptimized()
             .withNominalVoltage(400.)
@@ -381,7 +379,7 @@ class CoreCneCnecsCreatorTest {
             .withId("cnec1")
             .withNetworkElement("FFR2AA1  DDE3AA1  1")
             .withOperator("D4")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized()
             .withNominalVoltage(400.)
             .withReliabilityMargin(0.)

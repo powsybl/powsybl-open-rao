@@ -58,13 +58,15 @@ class PstSetpointAdderImplTest {
     void testNoNetworkElement() {
         PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
             .withSetpoint(0);
-        assertThrows(FaraoException.class, pstSetpointAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstSetpointAdder::add);
+        assertEquals("Cannot add PstSetPoint without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoSetpoint() {
         PstSetpointAdder pstSetpointAdder = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId");
-        assertThrows(FaraoException.class, pstSetpointAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, pstSetpointAdder::add);
+        assertEquals("Cannot add PstSetPoint without a setpoint. Please use withSetPoint() with a non null value", exception.getMessage());
     }
 }

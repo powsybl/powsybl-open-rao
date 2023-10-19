@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -70,6 +71,12 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
         String name = jsonParser.nextTextValue();
         Crac crac = cracFactory.create(id, name);
+        // TODO check version before add instants
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
+
 
         Map<String, String> deserializedNetworkElementsNamesPerId = null;
 

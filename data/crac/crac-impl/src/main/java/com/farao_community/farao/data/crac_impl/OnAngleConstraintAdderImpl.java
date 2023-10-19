@@ -23,7 +23,7 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
 public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>> implements OnAngleConstraintAdder<T> {
 
     private final T owner;
-    private Instant instant;
+    private String instantId;
     private String angleCnecId;
 
     OnAngleConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -32,7 +32,7 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
     @Override
     public OnAngleConstraintAdder<T> withInstantId(String instantId) {
-        this.instant = owner.getCrac().getInstant(instantId);
+        this.instantId = instantId;
         return this;
     }
 
@@ -44,14 +44,15 @@ public class OnAngleConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>
 
     @Override
     public T add() {
-        assertAttributeNotNull(instant, "OnInstant", "instant", "withInstant()");
+        assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
         assertAttributeNotNull(angleCnecId, "OnAngleConstraint", "angle cnec", "withAngleCnec()");
 
+        Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.getInstantKind().equals(InstantKind.OUTAGE)) {
             throw new FaraoException("OnAngleConstraint usage rules are not allowed for OUTAGE instant.");
         }
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
-            owner.getCrac().addPreventiveState(instant);
+            owner.getCrac().addPreventiveState(instantId);
         }
 
         AngleCnec angleCnec = owner.getCrac().getAngleCnec(angleCnecId);

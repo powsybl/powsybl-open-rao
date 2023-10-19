@@ -54,13 +54,15 @@ class TopologicalActionAdderImplTest {
     void testNoNetworkElement() {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withActionType(ActionType.OPEN);
-        assertThrows(FaraoException.class, topologicalActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, topologicalActionAdder::add);
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testNoActionType() {
         TopologicalActionAdder topologicalActionAdder = networkActionAdder.newTopologicalAction()
             .withNetworkElement("branchNetworkElementId");
-        assertThrows(FaraoException.class, topologicalActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, topologicalActionAdder::add);
+        assertEquals("", exception.getMessage());
     }
 }

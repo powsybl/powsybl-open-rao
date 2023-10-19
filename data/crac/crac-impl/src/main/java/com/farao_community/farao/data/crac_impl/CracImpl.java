@@ -151,17 +151,31 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Instant addInstant(Instant instant) {
-        String id = instant.getId();
-        if (instants.containsKey(id)) {
-            if (instant == instants.get(id)) {
-                return instants.get(id);
+    public Instant addInstant(String instantId, InstantKind instantKind, String prevInstantId) {
+        if (instants.containsKey(instantId)) {
+            Instant instant = instants.get(instantId);
+            if (instantKind == instant.getInstantKind() && Objects.equals(prevInstantId, instant.getPreviousInstant().getId())) {
+                return instant;
             } else {
-                throw new FaraoException(format("Instant %s is already defined with other arguments", id));
+                throw new FaraoException(format("Instant %s is already defined with other arguments", instantId));
             }
         }
-        instants.put(id, instant);
+        Instant prevInstant = getPrevInstant(prevInstantId);
+        Instant instant = new InstantImpl(instantId, instantKind, prevInstant);
+        instants.put(instantId, instant);
         return instant;
+
+    }
+
+    private Instant getPrevInstant(String prevInstantId) {
+        if (prevInstantId == null) {
+            return null;
+        }
+        Instant prevInstant = instants.get(prevInstantId);
+        if (prevInstant == null) {
+            throw new FaraoException(format("Previous instant %s has not been defined", prevInstantId));
+        }
+        return prevInstant;
     }
 
     @Override
@@ -183,6 +197,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Instant getInstant(String instantId) {
+        if (!instants.containsKey(instantId)) {
+            throw new FaraoException("Instant '%s' has not been defined");
+        }
         return instants.get(instantId);
     }
 
@@ -228,35 +245,36 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<State> getStates(Instant instant) {
+    public Set<State> getStates(String instantId) {
         return states.values().stream()
-            .filter(state -> state.getInstant().equals(instant))
+            .filter(state -> state.getInstant().getId().equals(instantId))
             .collect(Collectors.toSet());
     }
 
     @Override
-    public State getState(Contingency contingency, Instant instant) {
+    public State getState(Contingency contingency, String instantId) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
-        return states.get(contingency.getId() + " - " + instant.toString());
+        return states.get(contingency.getId() + " - " + instantId);
     }
 
-    State addPreventiveState(Instant instant) {
+    State addPreventiveState(String instantId) {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState(instant);
+            State state = new PreventiveState(getInstant(instantId));
             states.put(state.getId(), state);
             return state;
         }
     }
 
-    State addState(Contingency contingency, Instant instant) {
+    State addState(Contingency contingency, String instantId) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
+        Instant instant = getInstant(instantId);
         if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
-        if (getState(contingency, instant) != null) {
-            return getState(contingency, instant);
+        if (getState(contingency, instantId) != null) {
+            return getState(contingency, instantId);
         } else {
             if (!contingencies.containsKey(contingency.getId())) {
                 throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));

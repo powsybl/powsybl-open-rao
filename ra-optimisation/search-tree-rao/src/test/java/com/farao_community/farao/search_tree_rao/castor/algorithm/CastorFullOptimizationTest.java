@@ -20,7 +20,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
@@ -55,10 +54,6 @@ import static org.mockito.Mockito.when;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class CastorFullOptimizationTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
     private Network network;
     private State state1;
@@ -78,10 +73,10 @@ class CastorFullOptimizationTest {
     public void setup() {
         network = Network.read("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
         crac = CracImporters.importCrac("crac/small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"));
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         RaoInput inputs = Mockito.mock(RaoInput.class);
         when(inputs.getNetwork()).thenReturn(network);
         when(inputs.getNetworkVariantId()).thenReturn(network.getVariantManager().getWorkingVariantId());
@@ -152,13 +147,13 @@ class CastorFullOptimizationTest {
         parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE);
         setCost(preventiveResult, -100.);
         // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-200.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(-200.);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         // case 2 : final cost = preventive cost - minObjImprovement
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-110.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(-110.);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         // case 3 : final cost > preventive cost - minObjImprovement
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-109.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(-109.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
 
         // CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
@@ -166,23 +161,23 @@ class CastorFullOptimizationTest {
         // case 1 : all curatives are better than preventive (cost <= preventive cost - minObjImprovement), SECURE
         setCost(optimizationResult1, -200.);
         setCost(optimizationResult2, -300.);
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-200.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(-200.);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         setCost(optimizationResult1, -110.);
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-110.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(-110.);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         // case 2 : all curatives are better than preventive (cost < preventive cost - minObjImprovement), UNSECURE
         setCost(preventiveResult, 1000.);
         setCost(optimizationResult1, 0.);
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(0.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(0.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         setCost(optimizationResult1, 10.);
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(10.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(10.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
         // case 3 : one curative has cost > preventive cost - minObjImprovement, SECURE
         setCost(preventiveResult, -100.);
         setCost(optimizationResult1, -109.);
-        when(postFirstPreventiveRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-109.);
+        when(postFirstPreventiveRaoResult.getCost("curative")).thenReturn(-109.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstPreventiveRaoResult, null, 0));
     }
 
@@ -219,24 +214,24 @@ class CastorFullOptimizationTest {
 
         RaoResult postFirstRaoResult = Mockito.mock(RaoResult.class);
         when(postFirstRaoResult.getCost(null)).thenReturn(-100.);
-        when(postFirstRaoResult.getCost(INSTANT_PREV)).thenReturn(-10.);
-        when(postFirstRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-120.);
+        when(postFirstRaoResult.getCost("preventive")).thenReturn(-10.);
+        when(postFirstRaoResult.getCost("curative")).thenReturn(-120.);
 
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
 
-        when(postFirstRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-100.);
+        when(postFirstRaoResult.getCost("curative")).thenReturn(-100.);
         assertFalse(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
 
-        when(postFirstRaoResult.getCost(INSTANT_CURATIVE)).thenReturn(-95.);
+        when(postFirstRaoResult.getCost("curative")).thenReturn(-95.);
         assertTrue(CastorFullOptimization.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults, postFirstRaoResult, null, 0));
     }
 
     private void setUpCracWithRAs() {
         crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("contingency1-ne")
@@ -249,7 +244,7 @@ class CastorFullOptimizationTest {
             .withId("cnec")
             .withNetworkElement("cnec-ne")
             .withContingency("contingency1")
-            .withInstantId(INSTANT_CURATIVE.getId())
+            .withInstantId("curative")
             .withNominalVoltage(220.)
             .newThreshold().withSide(Side.RIGHT).withMax(1000.).withUnit(Unit.AMPERE).add()
             .add();
@@ -257,24 +252,24 @@ class CastorFullOptimizationTest {
         ra1 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra1")
             .withNetworkElement("ra1-ne")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.UNDEFINED).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId("curative").withUsageMethod(UsageMethod.UNDEFINED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra2 : preventive and curative
         ra2 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra2")
             .withNetworkElement("ra2-ne")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.UNAVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra3 : preventive and curative
         ra3 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra3")
             .withNetworkElement("ra3-ne")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra4 : preventive only, but with same NetworkElement as ra5
@@ -282,7 +277,7 @@ class CastorFullOptimizationTest {
             .withId("ra4")
             .withNetworkElement("ra4-ne1")
             .withNetworkElement("ra4-ne2")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra5 : curative only, but with same NetworkElement as ra4
@@ -290,22 +285,22 @@ class CastorFullOptimizationTest {
             .withId("ra5")
             .withNetworkElement("ra4-ne1")
             .withNetworkElement("ra4-ne2")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra6 : preventive and curative (onFlowConstraint)
         ra6 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra6")
             .withNetworkElement("ra6-ne")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstantId(INSTANT_CURATIVE.getId()).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstantId("curative").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra7 : auto only
         ra7 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra7")
             .withNetworkElement("ra7-ne")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId(INSTANT_AUTO.getId()).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId("auto").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .withSpeed(1)
             .add();
@@ -313,8 +308,8 @@ class CastorFullOptimizationTest {
         ra8 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra8")
             .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId(INSTANT_AUTO.getId()).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId("auto").withUsageMethod(UsageMethod.FORCED).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .withSpeed(2)
             .add();
@@ -322,19 +317,19 @@ class CastorFullOptimizationTest {
         ra9 = (RangeAction<?>) crac.newPstRangeAction()
             .withId("ra9")
             .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // na1 : preventive + curative
         na1 = (NetworkAction) crac.newNetworkAction()
             .withId("na1")
             .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        state1 = crac.getState(contingency1, INSTANT_CURATIVE);
-        state2 = crac.getState(contingency2, INSTANT_CURATIVE);
+        state1 = crac.getState(contingency1, "curative");
+        state2 = crac.getState(contingency2, "curative");
     }
 
     @Test
@@ -445,10 +440,10 @@ class CastorFullOptimizationTest {
         HashMap<Integer, Double> tapToAngleConversionMap = new HashMap<>();
         phaseTapChanger.getAllSteps().forEach((stepInt, step) -> tapToAngleConversionMap.put(stepInt, step.getAlpha()));
         crac = CracFactory.findDefault().create("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         Contingency contingency1 = crac.newContingency()
             .withId("contingency1")
             .withNetworkElement("contingency1-ne")
@@ -462,21 +457,21 @@ class CastorFullOptimizationTest {
             .withId("ra1")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add();
         if (curative) {
-            adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
+            adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add();
         }
         ra1 = (RangeAction<?>) adder.add();
         // na1 : preventive + curative
         na1 = (NetworkAction) crac.newNetworkAction()
             .withId("na1")
             .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
 
-        state1 = crac.getState(contingency1, INSTANT_CURATIVE);
-        state2 = crac.getState(contingency2, INSTANT_CURATIVE);
+        state1 = crac.getState(contingency1, "curative");
+        state2 = crac.getState(contingency2, "curative");
     }
 
     @Test
@@ -521,7 +516,7 @@ class CastorFullOptimizationTest {
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         CastorFullOptimization.addAppliedNetworkActionsPostContingency(INSTANT_AUTO, appliedRemedialActions, curativeResults);
-        CastorFullOptimization.addAppliedNetworkActionsPostContingency(INSTANT_CURATIVE, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedNetworkActionsPostContingency("curative", appliedRemedialActions, curativeResults);
 
         // do not apply network action
         // do not apply range action as it was not yet added to applied RAs
@@ -539,7 +534,7 @@ class CastorFullOptimizationTest {
 
         // add range action
         CastorFullOptimization.addAppliedRangeActionsPostContingency(INSTANT_AUTO, appliedRemedialActions, curativeResults);
-        CastorFullOptimization.addAppliedRangeActionsPostContingency(INSTANT_CURATIVE, appliedRemedialActions, curativeResults);
+        CastorFullOptimization.addAppliedRangeActionsPostContingency("curative", appliedRemedialActions, curativeResults);
 
         // apply also range action
         appliedRemedialActions.applyOnNetwork(state1, network);
@@ -554,10 +549,10 @@ class CastorFullOptimizationTest {
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_oneIteration_v2.json"));
 
@@ -573,20 +568,20 @@ class CastorFullOptimizationTest {
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(493.56, raoResult.getFunctionalCost(INSTANT_PREV), 1.);
-        assertEquals(256.78, raoResult.getFunctionalCost(INSTANT_CURATIVE), 1.);
+        assertEquals(493.56, raoResult.getFunctionalCost("preventive"), 1.);
+        assertEquals(256.78, raoResult.getFunctionalCost("curative"), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), INSTANT_CURATIVE)));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), "curative")));
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getOptimizationStepsExecuted());
     }
 
@@ -596,10 +591,10 @@ class CastorFullOptimizationTest {
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -609,12 +604,13 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(INSTANT_PREV), 1.);
-        assertEquals(-555.91, raoResult.getFunctionalCost(INSTANT_CURATIVE), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost("preventive"), 1.);
+        assertEquals(-555.91, raoResult.getFunctionalCost("curative"), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), INSTANT_CURATIVE)));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), "curative")));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        FaraoException exception = assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -623,10 +619,10 @@ class CastorFullOptimizationTest {
 
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P.json"));
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
 
@@ -637,12 +633,13 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(371.88, raoResult.getFunctionalCost(null), 1.);
-        assertEquals(674.6, raoResult.getFunctionalCost(INSTANT_PREV), 1.);
-        assertEquals(-555.91, raoResult.getFunctionalCost(INSTANT_CURATIVE), 1.);
+        assertEquals(674.6, raoResult.getFunctionalCost("preventive"), 1.);
+        assertEquals(-555.91, raoResult.getFunctionalCost("curative"), 1.);
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), INSTANT_CURATIVE)));
+        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), "curative")));
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        FaraoException exception = assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -656,10 +653,10 @@ class CastorFullOptimizationTest {
         // Set up RAO and run
         Network network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
         crac = CracImporters.importCrac("crac/small-crac-2P.json", getClass().getResourceAsStream("/crac/small-crac-2P_cost_increase.json"));
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
         raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
@@ -667,7 +664,8 @@ class CastorFullOptimizationTest {
 
         // Test Optimization steps executed
         assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getOptimizationStepsExecuted());
-        assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        FaraoException exception = assertThrows(FaraoException.class, () -> raoResult.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertEquals("", exception.getMessage());
 
         // Test final log after RAO fallbacks
         listAppender.stop();

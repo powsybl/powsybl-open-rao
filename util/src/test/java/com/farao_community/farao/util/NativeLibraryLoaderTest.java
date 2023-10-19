@@ -9,6 +9,7 @@ package com.farao_community.farao.util;
 import com.farao_community.farao.commons.FaraoException;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -18,6 +19,7 @@ class NativeLibraryLoaderTest {
 
     @Test
     void shouldFailWhenLibraryNotFound() {
-        assertThrows(FaraoException.class, () -> NativeLibraryLoader.loadNativeLibrary("thisLibraryWillNeverExist"));
+        FaraoException exception = assertThrows(FaraoException.class, () -> NativeLibraryLoader.loadNativeLibrary("thisLibraryWillNeverExist"));
+        assertEquals("", exception.getMessage());
     }
 }

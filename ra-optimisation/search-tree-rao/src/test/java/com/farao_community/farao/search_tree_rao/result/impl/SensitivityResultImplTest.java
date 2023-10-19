@@ -16,9 +16,10 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.commons.Unit.*;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
@@ -31,7 +32,7 @@ class SensitivityResultImplTest {
     void testSensitivitiesOnRangeAction() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
-                systematicSensitivityResult
+            systematicSensitivityResult
         );
 
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
@@ -40,17 +41,21 @@ class SensitivityResultImplTest {
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, KILOVOLT));
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, KILOVOLT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, DEGREE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, PERCENT_IMAX));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, rangeAction, TAP));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testSensitivitiesOnLinearGLSK() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
-                systematicSensitivityResult
+            systematicSensitivityResult
         );
 
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
@@ -58,14 +63,15 @@ class SensitivityResultImplTest {
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec, LEFT)).thenReturn(8.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, AMPERE));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, LEFT, linearGlsk, AMPERE));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testStatus() {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SensitivityResultImpl sensitivityResultImpl = new SensitivityResultImpl(
-                systematicSensitivityResult
+            systematicSensitivityResult
         );
 
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);

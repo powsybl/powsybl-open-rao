@@ -12,10 +12,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -55,13 +58,14 @@ class JsonVoltageCnecsCreationParametersTest {
         String exportedString = os.toString();
 
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-for-round-trip.json");
-        assertEquals(new String(inputStream.readAllBytes()).replaceAll("\r", ""), exportedString.replaceAll("\r", ""));
+        assertEquals(new String(Objects.requireNonNull(inputStream).readAllBytes()).replaceAll("\r", ""), exportedString.replaceAll("\r", ""));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"nok1", "nok2", "nok3", "nok4", "nok5", "nok6", "nok7", "nok8", "nok9"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/voltage-cnecs-creation-parameters-" + source + ".json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        assertEquals("", exception.getMessage());
     }
 }

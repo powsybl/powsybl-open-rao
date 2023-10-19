@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -37,10 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class PstRangeActionImplTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
     private PstRangeActionAdder pstRangeActionAdder;
     private String networkElementId;
@@ -51,10 +46,10 @@ class PstRangeActionImplTest {
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         network = NetworkImportsUtil.import12NodesNetwork();
         networkElementId = "BBE2AA1  BBE3AA1  1";
         phaseTapChanger = network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger();
@@ -66,7 +61,7 @@ class PstRangeActionImplTest {
             .withName("pst-range-action-name")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap)
             .withInitialTap(0);
     }
@@ -86,20 +81,23 @@ class PstRangeActionImplTest {
     @Test
     void applyOutOfBound() {
         PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
-        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        assertEquals("Angle value 50.0000 not is the range of minimum and maximum angle values [-6.2276,6.2276] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", exception.getMessage());
     }
 
     @Test
     void applyOnUnknownPst() {
         PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.withNetworkElement("unknownNetworkElement").add();
-        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        assertEquals("PST unknownNetworkElement does not exist in the current network", exception.getMessage());
     }
 
     @Test
     void applyOnTransformerWithNoPhaseShifter() {
         Network network = Network.read("TestCase12Nodes_no_pst.uct", getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
         PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder.add();
-        assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> pstRa.apply(network, 50));
+        assertEquals("Transformer BBE2AA1  BBE3AA1  1 is not a PST but is defined as a TapRange", exception.getMessage());
     }
 
     @Test
@@ -131,7 +129,7 @@ class PstRangeActionImplTest {
     void pstWithRelativeToPreviousInstantRange() {
 
         PstRangeAction pstRa = (PstRangeAction) pstRangeActionAdder
-            .newOnInstantUsageRule().withInstantId(INSTANT_CURATIVE.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("curative").withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
             .add();
 
@@ -205,7 +203,7 @@ class PstRangeActionImplTest {
             .withName("pst-range-action-name-2")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap2)
             .withInitialTap(0)

@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -32,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class HvdcRangeActionImplTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
     private HvdcRangeActionAdder hvdcRangeActionAdder;
     private Network network;
     private Network networkWithAngleDroop;
@@ -42,7 +40,7 @@ class HvdcRangeActionImplTest {
     @BeforeEach
     public void setUp() {
         Crac crac = new CracImplFactory().create("cracId");
-        crac.addInstant(INSTANT_PREV);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         network = NetworkImportsUtil.import16NodesNetworkWithHvdc();
         networkWithAngleDroop = NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs();
         String networkElementId = "BBE2AA11 FFR3AA11 1";
@@ -52,7 +50,7 @@ class HvdcRangeActionImplTest {
             .withName("hvdc-range-action-name")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstantId(INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add();
 
         hvdcLine = network.getHvdcLine(networkElementId);
         hvdcLineWithAngleDroop = networkWithAngleDroop.getHvdcLine(networkElementId);
@@ -110,12 +108,14 @@ class HvdcRangeActionImplTest {
     void applyOnUnknownHvdc() {
         HvdcRangeAction hvdcRa = (HvdcRangeAction) hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
             .withNetworkElement("unknownNetworkElement").add();
-        assertThrows(FaraoException.class, () -> hvdcRa.apply(network, 50));
+        FaraoException exception = assertThrows(FaraoException.class, () -> hvdcRa.apply(network, 50));
+        assertEquals("HvdcLine unknownNetworkElement does not exist in the current network.", exception.getMessage());
     }
 
     @Test
     void hvdcWithoutSpecificRange() {
-        assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.add());
+        FaraoException exception = assertThrows(FaraoException.class, () -> hvdcRangeActionAdder.add());
+        assertEquals("Cannot add HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 
     @Test
@@ -130,13 +130,15 @@ class HvdcRangeActionImplTest {
     @Test
     void hvdcWithNoMin() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(10);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertEquals("StandardRange min value was not defined.", exception.getMessage());
     }
 
     @Test
     void hvdcWithNoMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10);
-        assertThrows(FaraoException.class, standardRangeAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, standardRangeAdder::add);
+        assertEquals("StandardRange max value was not defined.", exception.getMessage());
     }
 
     @Test

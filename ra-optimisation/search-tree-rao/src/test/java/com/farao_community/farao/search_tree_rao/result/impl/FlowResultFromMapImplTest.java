@@ -41,9 +41,9 @@ class FlowResultFromMapImplTest {
         loopFlowCnec = Mockito.mock(FlowCnec.class);
         optimizedCnec = Mockito.mock(FlowCnec.class);
         branchResultFromMap = new FlowResultFromMapImpl(
-                systematicSensitivityResult,
-                Map.of(loopFlowCnec, Map.of(LEFT, 200., RIGHT, 250.)),
-                Map.of(optimizedCnec, Map.of(LEFT, 30., RIGHT, 35.))
+            systematicSensitivityResult,
+            Map.of(loopFlowCnec, Map.of(LEFT, 200., RIGHT, 250.)),
+            Map.of(optimizedCnec, Map.of(LEFT, 30., RIGHT, 35.))
         );
     }
 
@@ -67,18 +67,24 @@ class FlowResultFromMapImplTest {
         assertEquals(235, branchResultFromMap.getFlow(optimizedCnec, LEFT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(285, branchResultFromMap.getFlow(optimizedCnec, RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, LEFT));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, RIGHT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, LEFT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec, RIGHT));
+        assertEquals("", exception.getMessage());
         assertEquals(30., branchResultFromMap.getPtdfZonalSum(optimizedCnec, LEFT), DOUBLE_TOLERANCE);
         assertEquals(35., branchResultFromMap.getPtdfZonalSum(optimizedCnec, RIGHT), DOUBLE_TOLERANCE);
         assertEquals(Map.of(optimizedCnec, Map.of(LEFT, 30., RIGHT, 35.)), branchResultFromMap.getPtdfZonalSums());
 
         assertEquals(200, branchResultFromMap.getCommercialFlow(loopFlowCnec, LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(250, branchResultFromMap.getCommercialFlow(loopFlowCnec, RIGHT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, LEFT, AMPERE));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, RIGHT, AMPERE));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, LEFT, MEGAWATT));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, RIGHT, MEGAWATT));
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, LEFT, AMPERE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, RIGHT, AMPERE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, LEFT, MEGAWATT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, RIGHT, MEGAWATT));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -95,9 +101,13 @@ class FlowResultFromMapImplTest {
 
     @Test
     void testWrongFlowUnit() {
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));
-        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, TAP));
+        FaraoException exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, KILOVOLT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, DEGREE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, LEFT, PERCENT_IMAX));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, RIGHT, TAP));
+        assertEquals("", exception.getMessage());
     }
 }

@@ -55,7 +55,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnecOn2sides = crac.newFlowCnec()
             .withId("cnec-2-sides")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.LEFT).add()
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(Side.RIGHT).add()
             .add();

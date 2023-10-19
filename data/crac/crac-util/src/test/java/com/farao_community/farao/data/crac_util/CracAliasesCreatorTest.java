@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -28,28 +28,32 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions1() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-1.json");
-        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-1.json", inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-1.json", inputStream));
+        assertEquals("Extensions are deprecated since CRAC version 1.7", exception.getMessage());
     }
 
     @Test
     void testDeprecatedCracExtensions2() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-2.json");
-        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-2.json", inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-2.json", inputStream));
+        assertEquals("Extensions are deprecated since CRAC version 1.7", exception.getMessage());
     }
 
     @Test
     void testDeprecatedCracExtensions3() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-3.json");
-        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-3.json", inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-3.json", inputStream));
+        assertEquals("FlowCnec cnec3curId does not exist in crac. Consider adding it first.", exception.getMessage()); // TODO review this
     }
 
     @Test
     void testDeprecatedCracExtensions4() {
         // Extensions have been deprecated
         InputStream inputStream = getClass().getResourceAsStream("/deprecated-crac-for-aliases-4.json");
-        assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-4.json", inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> CracImporters.importCrac("deprecated-crac-for-aliases-4.json", inputStream));
+        assertEquals("Contingency contingency1Id of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", exception.getMessage()); // TODO review this
     }
 
     @Test

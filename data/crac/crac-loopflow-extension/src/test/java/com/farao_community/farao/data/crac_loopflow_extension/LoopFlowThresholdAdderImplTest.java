@@ -4,11 +4,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,20 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LoopFlowThresholdAdderImplTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-
     private FlowCnec flowCnec;
 
     @BeforeEach
     public void setUp() {
 
         Crac crac = CracFactory.findDefault().create("cracId", "cracName");
-        crac.addInstant(INSTANT_PREV);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
         flowCnec = crac.newFlowCnec()
             .withId("flowCnecId")
             .withName("flowCnecName")
             .withNetworkElement("networkElementId")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOperator("operator")
             .withOptimized(true)
             .newThreshold()
@@ -60,14 +56,16 @@ class LoopFlowThresholdAdderImplTest {
     void addLoopFlowThresholdNoValue() {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT);
-        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void addLoopFlowThresholdNoUnit() {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withValue(100.0);
-        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -75,7 +73,8 @@ class LoopFlowThresholdAdderImplTest {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT)
             .withValue(-100.0);
-        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -83,6 +82,7 @@ class LoopFlowThresholdAdderImplTest {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.PERCENT_IMAX)
             .withValue(25);
-        assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, loopFlowThresholdAdder::add);
+        assertEquals("", exception.getMessage());
     }
 }

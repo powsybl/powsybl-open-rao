@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -26,18 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class HvdcRangeActionAdderImplTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
     private CracImpl crac;
     private String networkElementId;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
         networkElementId = "BBE2AA11 FFR3AA11 1";
     }
 
@@ -50,7 +46,7 @@ class HvdcRangeActionAdderImplTest {
             .withGroupId("groupId1")
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -75,7 +71,7 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_AUTO.getId())
+            .withInstantId("auto")
             .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
@@ -101,10 +97,11 @@ class HvdcRangeActionAdderImplTest {
             .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_AUTO.getId())
+            .withInstantId("auto")
             .withUsageMethod(UsageMethod.FORCED)
             .add();
-        assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        assertEquals("Cannot create an AUTO standard range action without speed defined", exception.getMessage());
     }
 
     @Test
@@ -115,7 +112,7 @@ class HvdcRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -156,7 +153,7 @@ class HvdcRangeActionAdderImplTest {
             .withNetworkElement(networkElementId)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
@@ -173,7 +170,8 @@ class HvdcRangeActionAdderImplTest {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction()
             .withOperator("BE")
             .withNetworkElement(networkElementId);
-        assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        assertEquals("Cannot add a HvdcRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -181,7 +179,8 @@ class HvdcRangeActionAdderImplTest {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction()
             .withId("id1")
             .withOperator("BE");
-        assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        assertEquals("Cannot add HvdcRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -195,6 +194,7 @@ class HvdcRangeActionAdderImplTest {
             .withId("sameId")
             .withOperator("BE")
             .withNetworkElement("networkElementId");
-        assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, hvdcRangeActionAdder::add);
+        assertEquals("Cannot add HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 }

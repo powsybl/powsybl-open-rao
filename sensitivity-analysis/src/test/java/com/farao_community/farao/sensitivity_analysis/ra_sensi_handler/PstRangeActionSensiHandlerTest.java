@@ -58,14 +58,15 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("pstOnBranch")
             .withNetworkElement("BBE1AA1  BB23AA1  1")
-            .newOnInstantUsageRule().withInstantId(CommonCracCreation.INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
             .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
-        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -75,13 +76,14 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = (PstRangeAction) crac.newPstRangeAction()
             .withId("pstOnNonExistingElement")
             .withNetworkElement("unknown")
-            .newOnInstantUsageRule().withInstantId(CommonCracCreation.INSTANT_PREV.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstantId("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
             .withInitialTap(0)
             .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
             .add();
 
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(pstRangeAction);
-        assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> sensiHandler.checkConsistency(network));
+        assertEquals("", exception.getMessage());
     }
 }

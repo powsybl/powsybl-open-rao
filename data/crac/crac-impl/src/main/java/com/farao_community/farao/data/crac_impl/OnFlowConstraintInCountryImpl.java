@@ -36,6 +36,11 @@ public class OnFlowConstraintInCountryImpl extends AbstractUsageRule implements 
     }
 
     @Override
+    public String getInstantId() {
+        return instant.getId();
+    }
+
+    @Override
     public UsageMethod getUsageMethod(State state) {
         return state.getInstant().equals(instant) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;
     }

@@ -26,7 +26,9 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot <baptiste.seguinot at rte-france.com>
@@ -75,7 +77,8 @@ class RaoTest {
     void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
         List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock(), new AnotherRaoProviderMock());
-        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
+        FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -90,7 +93,8 @@ class RaoTest {
     void testDefaultNoProvider() {
         // case with no provider
         List<RaoProvider> raoProviders = ImmutableList.of();
-        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
+        FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -107,6 +111,7 @@ class RaoTest {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         List<RaoProvider> raoProviders = ImmutableList.of(new RaoProviderMock());
-        assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
+        FaraoException exception = assertThrows(FaraoException.class, () -> Rao.find(null, raoProviders, platformConfig));
+        assertEquals("", exception.getMessage());
     }
 }

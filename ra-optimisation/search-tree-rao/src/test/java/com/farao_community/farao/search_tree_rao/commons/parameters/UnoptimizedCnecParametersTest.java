@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -17,7 +16,6 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
-import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,20 +29,16 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class UnoptimizedCnecParametersTest {
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
 
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImpl("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
     }
 
     @Test
@@ -74,7 +68,7 @@ class UnoptimizedCnecParametersTest {
 
         crac.newFlowCnec().withId("flowCnec-1")
             .withNetworkElement("ne1Id")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOperator("operator1")
             .withOptimized()
             .newThreshold().withSide(Side.RIGHT).withUnit(Unit.AMPERE).withMin(-500.).add()
@@ -86,7 +80,7 @@ class UnoptimizedCnecParametersTest {
 
         crac.newFlowCnec().withId("flowCnec-2")
             .withNetworkElement("ne2Id")
-            .withInstantId(INSTANT_CURATIVE.getId())
+            .withInstantId("curative")
             .withContingency("co2")
             .withOperator("operator1")
             .withOptimized()
@@ -103,7 +97,7 @@ class UnoptimizedCnecParametersTest {
             .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
             .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId(INSTANT_PREV.getId()).add()
+            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstantId("preventive").add()
             .add();
 
         crac.newPstRangeAction().withId("pstRange2Id")

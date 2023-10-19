@@ -165,7 +165,8 @@ class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
             Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
-        assertThrows(FaraoException.class, () -> provider.getContingencies(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> provider.getContingencies(network));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -303,6 +304,7 @@ class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        assertThrows(FaraoException.class, () -> provider.getBasecaseFactors(network));
+        FaraoException exception = assertThrows(FaraoException.class, () -> provider.getBasecaseFactors(network));
+        assertEquals("", exception.getMessage());
     }
 }

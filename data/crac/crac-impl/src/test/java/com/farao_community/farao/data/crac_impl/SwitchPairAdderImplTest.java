@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class SwitchPairAdderImplTest {
-
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
@@ -79,14 +78,16 @@ class SwitchPairAdderImplTest {
     void testNoSwitchToOpen() {
         SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToClose("test");
-        assertThrows(FaraoException.class, switchPairAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, switchPairAdder::add);
+        assertEquals("Cannot add SwitchPair without a switch to open. Please use withSwitchToOpen() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoSwitchToClose() {
         SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("test");
-        assertThrows(FaraoException.class, switchPairAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, switchPairAdder::add);
+        assertEquals("Cannot add SwitchPair without a switch to close. Please use withSwitchToClose() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -94,6 +95,7 @@ class SwitchPairAdderImplTest {
         SwitchPairAdder switchPairAdder = networkActionAdder.newSwitchPair()
             .withSwitchToOpen("test")
             .withSwitchToClose("test");
-        assertThrows(FaraoException.class, switchPairAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, switchPairAdder::add);
+        assertEquals("A switch pair cannot be created with the same switch to open & close!", exception.getMessage());
     }
 }

@@ -9,7 +9,9 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -39,32 +41,32 @@ public class FailedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
+    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
+    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -149,12 +151,12 @@ public class FailedRaoResultImpl implements RaoResult {
     }
 
     @Override
-    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+    public void setOptimizationStepsExecuted(OptimizationStepsExecuted optimizationStepsExecuted) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 }

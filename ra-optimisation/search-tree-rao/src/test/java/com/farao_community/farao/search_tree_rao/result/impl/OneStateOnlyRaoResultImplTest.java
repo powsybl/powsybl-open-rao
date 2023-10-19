@@ -9,7 +9,10 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -17,6 +20,7 @@ import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_impl.InstantImpl;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -39,6 +43,10 @@ import static org.mockito.Mockito.when;
  */
 class OneStateOnlyRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
+    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
+    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
+    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
+    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private State optimizedState;
     private PrePerimeterResult initialResult;
     private OptimizationResult postOptimizationResult;
@@ -164,7 +172,7 @@ class OneStateOnlyRaoResultImplTest {
 
     @Test
     void testPreventiveCase() {
-        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(optimizedState.getInstant()).thenReturn(INSTANT_PREV);
         when(optimizedState.isPreventive()).thenReturn(true);
 
         assertSame(initialResult, output.getInitialResult());
@@ -172,25 +180,25 @@ class OneStateOnlyRaoResultImplTest {
         assertNotNull(output.getPerimeterResult(optimizedState));
 
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getFunctionalCost(Instant.PREVENTIVE), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getFunctionalCost(INSTANT_PREV), DOUBLE_TOLERANCE);
 
         assertEquals(List.of(cnec1), output.getMostLimitingElements(null, 10));
-        assertEquals(List.of(cnec2), output.getMostLimitingElements(Instant.PREVENTIVE, 100));
+        assertEquals(List.of(cnec2), output.getMostLimitingElements(INSTANT_PREV, 100));
 
         assertEquals(100., output.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(-100., output.getVirtualCost(Instant.PREVENTIVE), DOUBLE_TOLERANCE);
+        assertEquals(-100., output.getVirtualCost(INSTANT_PREV), DOUBLE_TOLERANCE);
 
         assertEquals(Set.of("mnec", "lf"), output.getVirtualCostNames());
 
         assertEquals(20., output.getVirtualCost(null, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(80., output.getVirtualCost(null, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(-20., output.getVirtualCost(Instant.PREVENTIVE, "mnec"), DOUBLE_TOLERANCE);
-        assertEquals(-80., output.getVirtualCost(Instant.PREVENTIVE, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-20., output.getVirtualCost(INSTANT_PREV, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-80., output.getVirtualCost(INSTANT_PREV, "lf"), DOUBLE_TOLERANCE);
 
         assertEquals(List.of(cnec2), output.getCostlyElements(null, "mnec", 10));
         assertEquals(List.of(cnec1), output.getCostlyElements(null, "lf", 100));
-        assertEquals(List.of(cnec1), output.getCostlyElements(Instant.PREVENTIVE, "mnec", 1000));
-        assertEquals(List.of(cnec2), output.getCostlyElements(Instant.PREVENTIVE, "lf", 10000));
+        assertEquals(List.of(cnec1), output.getCostlyElements(INSTANT_PREV, "mnec", 1000));
+        assertEquals(List.of(cnec2), output.getCostlyElements(INSTANT_PREV, "lf", 10000));
 
         assertFalse(output.wasActivatedBeforeState(optimizedState, networkAction));
         assertTrue(output.isActivatedDuringState(optimizedState, networkAction));
@@ -234,77 +242,90 @@ class OneStateOnlyRaoResultImplTest {
         assertEquals(50, output.getLoopFlow(null, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // cnec1 afterPRA
-        assertEquals(500., output.getMargin(Instant.PREVENTIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(250., output.getMargin(Instant.PREVENTIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1500., output.getRelativeMargin(Instant.PREVENTIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(750., output.getRelativeMargin(Instant.PREVENTIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20, output.getFlow(Instant.PREVENTIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(10, output.getFlow(Instant.PREVENTIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20, output.getCommercialFlow(Instant.PREVENTIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(10, output.getCommercialFlow(Instant.PREVENTIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.PREVENTIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.PREVENTIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(INSTANT_PREV, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(250., output.getMargin(INSTANT_PREV, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1500., output.getRelativeMargin(INSTANT_PREV, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(750., output.getRelativeMargin(INSTANT_PREV, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getFlow(INSTANT_PREV, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getFlow(INSTANT_PREV, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getCommercialFlow(INSTANT_PREV, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getCommercialFlow(INSTANT_PREV, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_PREV, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_PREV, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // cnec2 afterPRA
-        assertEquals(1000., output.getMargin(Instant.PREVENTIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(500., output.getMargin(Instant.PREVENTIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(2000., output.getRelativeMargin(Instant.PREVENTIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(Instant.PREVENTIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-700, output.getFlow(Instant.PREVENTIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(300, output.getFlow(Instant.PREVENTIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-600, output.getCommercialFlow(Instant.PREVENTIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(250, output.getCommercialFlow(Instant.PREVENTIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-100, output.getLoopFlow(Instant.PREVENTIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(50, output.getLoopFlow(Instant.PREVENTIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(INSTANT_PREV, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(INSTANT_PREV, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(2000., output.getRelativeMargin(INSTANT_PREV, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(INSTANT_PREV, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-700, output.getFlow(INSTANT_PREV, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(300, output.getFlow(INSTANT_PREV, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-600, output.getCommercialFlow(INSTANT_PREV, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(250, output.getCommercialFlow(INSTANT_PREV, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-100, output.getLoopFlow(INSTANT_PREV, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(50, output.getLoopFlow(INSTANT_PREV, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // cnec1 afterCRA
-        assertEquals(500., output.getMargin(Instant.CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(250., output.getMargin(Instant.CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1500., output.getRelativeMargin(Instant.CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(750., output.getRelativeMargin(Instant.CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20, output.getFlow(Instant.CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(10, output.getFlow(Instant.CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20, output.getCommercialFlow(Instant.CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(10, output.getCommercialFlow(Instant.CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(INSTANT_CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(250., output.getMargin(INSTANT_CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1500., output.getRelativeMargin(INSTANT_CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(750., output.getRelativeMargin(INSTANT_CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getFlow(INSTANT_CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getFlow(INSTANT_CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20, output.getCommercialFlow(INSTANT_CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(10, output.getCommercialFlow(INSTANT_CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // cnec2 afterCRA
-        assertEquals(1000., output.getMargin(Instant.CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(500., output.getMargin(Instant.CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(2000., output.getRelativeMargin(Instant.CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(Instant.CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-700, output.getFlow(Instant.CURATIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(300, output.getFlow(Instant.CURATIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-600, output.getCommercialFlow(Instant.CURATIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(250, output.getCommercialFlow(Instant.CURATIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-100, output.getLoopFlow(Instant.CURATIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(50, output.getLoopFlow(Instant.CURATIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(INSTANT_CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(INSTANT_CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(2000., output.getRelativeMargin(INSTANT_CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(INSTANT_CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-700, output.getFlow(INSTANT_CURATIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(300, output.getFlow(INSTANT_CURATIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-600, output.getCommercialFlow(INSTANT_CURATIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(250, output.getCommercialFlow(INSTANT_CURATIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-100, output.getLoopFlow(INSTANT_CURATIVE, cnec2, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(50, output.getLoopFlow(INSTANT_CURATIVE, cnec2, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // using another state
         State otherState = mock(State.class);
         assertNull(output.getPerimeterResult(otherState));
-        assertThrows(FaraoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
-        assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
-        assertThrows(FaraoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
+        FaraoException exception = assertThrows(FaraoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
+        assertEquals("", exception.getMessage());
 
-        assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, rangeAction));
-        assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(otherState, pstRangeAction));
-        assertThrows(FaraoException.class, () -> output.getOptimizedTapOnState(otherState, pstRangeAction));
-        assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(otherState, rangeAction));
-        assertThrows(FaraoException.class, () -> output.getOptimizedSetPointOnState(otherState, rangeAction));
-        assertThrows(FaraoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
-        assertThrows(FaraoException.class, () -> output.getOptimizedTapsOnState(otherState));
-        assertThrows(FaraoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertThrows(FaraoException.class, () -> output.getMargin(Instant.CURATIVE, mock(FlowCnec.class), Unit.MEGAWATT), "Cnec not optimized in this perimeter.");
+        exception = assertThrows(FaraoException.class, () -> output.isActivatedDuringState(otherState, rangeAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(otherState, pstRangeAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getOptimizedTapOnState(otherState, pstRangeAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(otherState, rangeAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getOptimizedSetPointOnState(otherState, rangeAction));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getOptimizedTapsOnState(otherState));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(INSTANT_CURATIVE, mock(FlowCnec.class), Unit.MEGAWATT), "Cnec not optimized in this perimeter.");
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testCurativeCase1() {
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(optimizedState.getInstant()).thenReturn(INSTANT_CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
-        assertThrows(FaraoException.class, output::getPostPreventivePerimeterResult);
+        FaraoException exception = assertThrows(FaraoException.class, output::getPostPreventivePerimeterResult);
+        assertEquals("", exception.getMessage());
 
         // margins
         when(cnec1state.isPreventive()).thenReturn(true);
@@ -325,45 +346,45 @@ class OneStateOnlyRaoResultImplTest {
         assertEquals(-150, output.getCommercialFlow(null, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(0, output.getLoopFlow(null, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(0, output.getLoopFlow(null, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getMargin(Instant.PREVENTIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(Instant.PREVENTIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-2000., output.getRelativeMargin(Instant.PREVENTIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getRelativeMargin(Instant.PREVENTIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-300, output.getFlow(Instant.PREVENTIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-150, output.getFlow(Instant.PREVENTIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-300, output.getCommercialFlow(Instant.PREVENTIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-150, output.getCommercialFlow(Instant.PREVENTIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.PREVENTIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.PREVENTIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getMargin(Instant.CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(Instant.CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-2000., output.getRelativeMargin(Instant.CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getRelativeMargin(Instant.CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-300, output.getFlow(Instant.CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-150, output.getFlow(Instant.CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-300, output.getCommercialFlow(Instant.CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-150, output.getCommercialFlow(Instant.CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(0, output.getLoopFlow(Instant.CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getMargin(INSTANT_PREV, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-500., output.getMargin(INSTANT_PREV, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-2000., output.getRelativeMargin(INSTANT_PREV, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getRelativeMargin(INSTANT_PREV, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getFlow(INSTANT_PREV, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getFlow(INSTANT_PREV, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getCommercialFlow(INSTANT_PREV, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getCommercialFlow(INSTANT_PREV, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_PREV, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_PREV, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getMargin(INSTANT_CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-500., output.getMargin(INSTANT_CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-2000., output.getRelativeMargin(INSTANT_CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getRelativeMargin(INSTANT_CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getFlow(INSTANT_CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getFlow(INSTANT_CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-300, output.getCommercialFlow(INSTANT_CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, output.getCommercialFlow(INSTANT_CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_CURATIVE, cnec1, Side.LEFT, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, output.getLoopFlow(INSTANT_CURATIVE, cnec1, Side.RIGHT, AMPERE), DOUBLE_TOLERANCE);
 
         // cnec2
         assertEquals(-500., output.getMargin(null, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-250., output.getMargin(null, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-1500., output.getRelativeMargin(null, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-750., output.getRelativeMargin(null, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getMargin(Instant.PREVENTIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(500., output.getMargin(Instant.PREVENTIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(2000., output.getRelativeMargin(Instant.PREVENTIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(Instant.PREVENTIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getMargin(Instant.CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(500., output.getMargin(Instant.CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(2000., output.getRelativeMargin(Instant.CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1000., output.getRelativeMargin(Instant.CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(INSTANT_PREV, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(INSTANT_PREV, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(2000., output.getRelativeMargin(INSTANT_PREV, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(INSTANT_PREV, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getMargin(INSTANT_CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500., output.getMargin(INSTANT_CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(2000., output.getRelativeMargin(INSTANT_CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1000., output.getRelativeMargin(INSTANT_CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testCurativeCase2() {
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+        when(optimizedState.getInstant()).thenReturn(INSTANT_CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
         // margins
@@ -384,23 +405,23 @@ class OneStateOnlyRaoResultImplTest {
         assertEquals(-1500., output.getRelativeMargin(null, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-750., output.getRelativeMargin(null, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(-1000., output.getMargin(Instant.PREVENTIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(Instant.PREVENTIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-2000., output.getRelativeMargin(Instant.PREVENTIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getRelativeMargin(Instant.PREVENTIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(Instant.PREVENTIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-250., output.getMargin(Instant.PREVENTIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-1500., output.getRelativeMargin(Instant.PREVENTIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-750., output.getRelativeMargin(Instant.PREVENTIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getMargin(INSTANT_PREV, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-500., output.getMargin(INSTANT_PREV, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-2000., output.getRelativeMargin(INSTANT_PREV, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getRelativeMargin(INSTANT_PREV, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-500., output.getMargin(INSTANT_PREV, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-250., output.getMargin(INSTANT_PREV, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1500., output.getRelativeMargin(INSTANT_PREV, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-750., output.getRelativeMargin(INSTANT_PREV, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(-1000., output.getMargin(Instant.CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(Instant.CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-2000., output.getRelativeMargin(Instant.CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-1000., output.getRelativeMargin(Instant.CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-500., output.getMargin(Instant.CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-250., output.getMargin(Instant.CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-1500., output.getRelativeMargin(Instant.CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(-750., output.getRelativeMargin(Instant.CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getMargin(INSTANT_CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-500., output.getMargin(INSTANT_CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-2000., output.getRelativeMargin(INSTANT_CURATIVE, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-1000., output.getRelativeMargin(INSTANT_CURATIVE, cnec1, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-500., output.getMargin(INSTANT_CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-250., output.getMargin(INSTANT_CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-1500., output.getRelativeMargin(INSTANT_CURATIVE, cnec2, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-750., output.getRelativeMargin(INSTANT_CURATIVE, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -409,9 +430,12 @@ class OneStateOnlyRaoResultImplTest {
         assertFalse(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
         output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
         assertTrue(output.getOptimizationStepsExecuted().hasRunSecondPreventive());
-        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
-        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
-        assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        FaraoException exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.setOptimizationStepsExecuted(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
@@ -420,15 +444,23 @@ class OneStateOnlyRaoResultImplTest {
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         Instant optInstant = mock(Instant.class);
 
-        assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
-        assertThrows(FaraoException.class, () -> output.getMargin(optInstant, voltageCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> output.getMargin(optInstant, voltageCnec, AMPERE));
+        FaraoException exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, MEGAWATT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, voltageCnec, MEGAWATT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, voltageCnec, AMPERE));
+        assertEquals("", exception.getMessage());
 
-        assertThrows(FaraoException.class, () -> output.getVoltage(optInstant, voltageCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> output.getVoltage(optInstant, voltageCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstant, voltageCnec, MEGAWATT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getVoltage(optInstant, voltageCnec, AMPERE));
+        assertEquals("", exception.getMessage());
 
-        assertThrows(FaraoException.class, () -> output.getAngle(optInstant, angleCnec, MEGAWATT));
-        assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
+        exception = assertThrows(FaraoException.class, () -> output.getAngle(optInstant, angleCnec, MEGAWATT));
+        assertEquals("", exception.getMessage());
+        exception = assertThrows(FaraoException.class, () -> output.getMargin(optInstant, angleCnec, AMPERE));
+        assertEquals("", exception.getMessage());
     }
 }

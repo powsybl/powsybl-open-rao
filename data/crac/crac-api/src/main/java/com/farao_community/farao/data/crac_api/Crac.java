@@ -68,7 +68,7 @@ public interface Crac extends Identifiable<Crac> {
      *
      * @return
      */
-    Instant addInstant(Instant instant);
+    Instant addInstant(String instantId, InstantKind instantKind, String prevInstantId);
 
     /**
      * Gather all the states present in the Crac. It returns a set because instants must not
@@ -123,20 +123,20 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant: The instant at which we want to gather states.
+     * @param instantId : The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
-    Set<State> getStates(Instant instant);
+    Set<State> getStates(String instantId);
 
     /**
      * Select a unique state after a contingency and at a specific instant.
      * Can return null if no matching state or contingency are found.
      *
-     * @param contingency: The contingency after which we want to select the state.
-     * @param instant:     The instant at which we want to select the state.
+     * @param contingency : The contingency after which we want to select the state.
+     * @param instantId   :     The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant.
      */
-    State getState(Contingency contingency, Instant instant);
+    State getState(Contingency contingency, String instantId);
 
     /**
      * Unordered set of States defined at the same instant. It will be either the preventive state or
@@ -144,11 +144,11 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant: The instant at which we want to gather states.
+     * @param instantId : The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
-    default Set<State> getStatesFromInstant(Instant instant) {
-        return getStates(instant);
+    default Set<State> getStatesFromInstant(String instantId) {
+        return getStates(instantId);
     }
 
     /**
@@ -170,18 +170,18 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
-     * @param contingencyId: The contingency id after which we want to select the state.
-     * @param instant:       The instant at which we want to select the state.
+     * @param contingencyId : The contingency id after which we want to select the state.
+     * @param instantId     :       The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
-    default State getState(String contingencyId, Instant instant) {
+    default State getState(String contingencyId, String instantId) {
         Objects.requireNonNull(contingencyId, "Contingency ID should be defined.");
-        Objects.requireNonNull(instant, "Instant should be defined.");
+        Objects.requireNonNull(instantId, "Instant should be defined.");
         if (getContingency(contingencyId) == null) {
             throw new FaraoException(format("Contingency %s does not exist, as well as the related state.", contingencyId));
         }
-        return getState(getContingency(contingencyId), instant);
+        return getState(getContingency(contingencyId), instantId);
     }
 
     // Cnecs management

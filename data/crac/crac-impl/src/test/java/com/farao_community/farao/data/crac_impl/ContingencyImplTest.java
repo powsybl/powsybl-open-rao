@@ -95,7 +95,8 @@ class ContingencyImplTest {
     void testApplyFails() {
         ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("None")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
-        assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
+        FaraoException exception = assertThrows(FaraoException.class, () -> contingencyImpl.apply(network, computationManager));
+        assertEquals("Unable to apply contingency element None", exception.getMessage());
     }
 
     @Test

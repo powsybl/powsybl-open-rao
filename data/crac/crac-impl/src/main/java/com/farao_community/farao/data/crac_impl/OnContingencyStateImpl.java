@@ -62,4 +62,9 @@ public final class OnContingencyStateImpl extends AbstractUsageRule implements O
     public Instant getInstant() {
         return state.getInstant();
     }
+
+    @Override
+    public String getInstantId() {
+        return state.getInstant().getId();
+    }
 }

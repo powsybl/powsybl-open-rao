@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -28,27 +27,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class BranchThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
-    private static final Instant INSTANT_OUTAGE = new InstantImpl("outage", InstantKind.OUTAGE, INSTANT_PREV);
-    private static final Instant INSTANT_AUTO = new InstantImpl("auto", InstantKind.AUTO, INSTANT_OUTAGE);
-    private static final Instant INSTANT_CURATIVE = new InstantImpl("curative", InstantKind.CURATIVE, INSTANT_AUTO);
     private Crac crac;
     private Contingency contingency;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("test-crac");
-        crac.addInstant(INSTANT_PREV);
-        crac.addInstant(INSTANT_OUTAGE);
-        crac.addInstant(INSTANT_AUTO);
-        crac.addInstant(INSTANT_CURATIVE);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
+        crac.addInstant("outage", InstantKind.OUTAGE, "preventive");
+        crac.addInstant("auto", InstantKind.AUTO, "outage");
+        crac.addInstant("curative", InstantKind.CURATIVE, "auto");
         contingency = crac.newContingency().withId("conId").add();
     }
 
     @Test
     void testAddThresholdInMW() {
         FlowCnec cnec = crac.newFlowCnec()
-            .withId("test-cnec").withInstantId(INSTANT_OUTAGE.getId()).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId("outage").withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withSide(Side.LEFT).add()
             .add();
@@ -59,7 +54,7 @@ class BranchThresholdAdderImplTest {
     @Test
     void testAddThresholdInA() {
         FlowCnec cnec = crac.newFlowCnec()
-            .withId("test-cnec").withInstantId(INSTANT_OUTAGE.getId()).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId("outage").withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withSide(Side.LEFT).add()
             .withNominalVoltage(220.)
@@ -71,7 +66,7 @@ class BranchThresholdAdderImplTest {
     @Test
     void testAddThresholdInPercent() {
         FlowCnec cnec = crac.newFlowCnec()
-            .withId("test-cnec").withInstantId(INSTANT_CURATIVE.getId()).withContingency(contingency.getId())
+            .withId("test-cnec").withInstantId("curative").withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withSide(Side.LEFT).add()
             .withNominalVoltage(220.)
@@ -90,7 +85,8 @@ class BranchThresholdAdderImplTest {
     @Test
     void testUnsupportedUnitFail() {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold();
-        assertThrows(FaraoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
+        FaraoException exception = assertThrows(FaraoException.class, () -> branchThresholdAdder.withUnit(Unit.KILOVOLT));
+        assertEquals("kV Unit is not suited to measure a FLOW value.", exception.getMessage());
     }
 
     @Test
@@ -98,7 +94,8 @@ class BranchThresholdAdderImplTest {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withMax(1000.0)
             .withSide(Side.LEFT);
-        assertThrows(FaraoException.class, branchThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, branchThresholdAdder::add);
+        assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -106,7 +103,8 @@ class BranchThresholdAdderImplTest {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withUnit(Unit.AMPERE)
             .withSide(Side.LEFT);
-        assertThrows(FaraoException.class, branchThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, branchThresholdAdder::add);
+        assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
     }
 
     @Test
@@ -114,6 +112,7 @@ class BranchThresholdAdderImplTest {
         BranchThresholdAdder branchThresholdAdder = crac.newFlowCnec().newThreshold()
             .withUnit(Unit.AMPERE)
             .withMax(1000.0);
-        assertThrows(FaraoException.class, branchThresholdAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, branchThresholdAdder::add);
+        assertEquals("Cannot add BranchThreshold without a Side. Please use withSide() with a non null value", exception.getMessage());
     }
 }

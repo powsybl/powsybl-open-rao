@@ -19,7 +19,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -96,7 +99,8 @@ class JsonCimCracCreationParametersTest {
     @ValueSource(strings = {"nok", "nok-same-speed", "nok3", "nok4", "nok5", "nok-aligned"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/parameters/cim-crac-creation-parameters-" + source + ".json");
-        assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        FaraoException exception = assertThrows(FaraoException.class, () -> JsonCracCreationParameters.read(inputStream));
+        assertEquals("", exception.getMessage());
     }
 
     @Test

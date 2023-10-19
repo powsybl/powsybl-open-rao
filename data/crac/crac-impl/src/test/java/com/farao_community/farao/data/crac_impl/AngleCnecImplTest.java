@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
@@ -29,13 +28,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class AngleCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1e-3;
 
-    private static final Instant INSTANT_PREV = new InstantImpl("preventive", InstantKind.PREVENTIVE, null);
     private Crac crac;
 
     @BeforeEach
     public void setUp() {
         crac = new CracImplFactory().create("cracId");
-        crac.addInstant(INSTANT_PREV);
+        crac.addInstant("preventive", InstantKind.PREVENTIVE, null);
     }
 
     private AngleCnecAdder initPreventiveCnecAdder() {
@@ -45,7 +43,7 @@ class AngleCnecImplTest {
             .withExportingNetworkElement("exportingNetworkElement")
             .withImportingNetworkElement("importingNetworkElement")
             .withOperator("FR")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .withOptimized(false);
     }
 
@@ -58,7 +56,7 @@ class AngleCnecImplTest {
             .withId("cnec-1-id")
             .withExportingNetworkElement("BBE1AA1")
             .withImportingNetworkElement("BBE2AA1")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 
@@ -66,7 +64,7 @@ class AngleCnecImplTest {
             .withId("cnec-2-id")
             .withExportingNetworkElement("DDE2AA1")
             .withImportingNetworkElement("NNL3AA1")
-            .withInstantId(INSTANT_PREV.getId())
+            .withInstantId("preventive")
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 

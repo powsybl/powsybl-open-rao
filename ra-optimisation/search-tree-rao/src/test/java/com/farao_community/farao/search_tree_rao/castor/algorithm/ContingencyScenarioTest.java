@@ -71,19 +71,23 @@ class ContingencyScenarioTest {
     @Test
     void testWrongAutoContingency() {
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.empty());
-        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        assertEquals("", exception.getMessage());
 
         Mockito.when(automatonState.getContingency()).thenReturn(Optional.of(Mockito.mock(Contingency.class)));
-        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        assertEquals("", exception.getMessage());
     }
 
     @Test
     void testWrongCurativeContingency() {
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.empty());
-        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        FaraoException exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        assertEquals("", exception.getMessage());
 
         Mockito.when(curativeState.getContingency()).thenReturn(Optional.of(Mockito.mock(Contingency.class)));
-        assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        exception = assertThrows(FaraoException.class, () -> new ContingencyScenario(contingency, automatonState, curativeState));
+        assertEquals("", exception.getMessage());
     }
 
 }

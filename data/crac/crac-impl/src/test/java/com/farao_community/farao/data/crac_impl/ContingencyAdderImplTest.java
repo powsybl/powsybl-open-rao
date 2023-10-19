@@ -82,7 +82,8 @@ class ContingencyAdderImplTest {
         ContingencyAdder contingencyAdder = crac.newContingency()
             .withName("conName1")
             .withNetworkElement("neId1", "neName1");
-        assertThrows(FaraoException.class, contingencyAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, contingencyAdder::add);
+        assertEquals("Cannot add a Contingency object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -125,6 +126,7 @@ class ContingencyAdderImplTest {
             .withId("conId1")
             .withName("conName1")
             .withNetworkElement("neId2", "neName1");
-        assertThrows(FaraoException.class, contingencyAdder::add);
+        FaraoException exception = assertThrows(FaraoException.class, contingencyAdder::add);
+        assertEquals("A contingency with the same ID (conId1) but a different name or network elements already exists.", exception.getMessage());
     }
 }

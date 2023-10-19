@@ -8,11 +8,7 @@ package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -21,8 +17,8 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.OptimizationStepsExecuted;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 
 import java.util.*;
 import java.util.function.Function;
@@ -41,8 +37,6 @@ public class RaoResultImpl implements RaoResult {
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private final Crac crac;
-
-    private ComputationStatus sensitivityStatus;
     private final Map<State, ComputationStatus> sensitivityStatusPerState = new HashMap<>();
     private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
@@ -50,15 +44,11 @@ public class RaoResultImpl implements RaoResult {
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<Instant, CostResult> costResults = new HashMap<>();
-
+    private ComputationStatus sensitivityStatus;
     private OptimizationStepsExecuted optimizationStepsExecuted = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
         this.crac = crac;
-    }
-
-    public void setComputationStatus(ComputationStatus computationStatus) {
-        this.sensitivityStatus = computationStatus;
     }
 
     public void setComputationStatus(State state, ComputationStatus computationStatus) {
@@ -68,6 +58,10 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public ComputationStatus getComputationStatus() {
         return sensitivityStatus;
+    }
+
+    public void setComputationStatus(ComputationStatus computationStatus) {
+        this.sensitivityStatus = computationStatus;
     }
 
     @Override
@@ -90,8 +84,8 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
+    public double getFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getFlow(side, unit);
     }
 
     @Override
@@ -105,8 +99,8 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
+    public double getMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getMargin(unit);
     }
 
     @Override
@@ -120,23 +114,23 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getRelativeMargin(unit);
+    public double getRelativeMargin(String optimizedInstantId, FlowCnec flowCnec, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getRelativeMargin(unit);
     }
 
     @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
+    public double getLoopFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getLoopFlow(side, unit);
     }
 
     @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, Side side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
+    public double getCommercialFlow(String optimizedInstantId, FlowCnec flowCnec, Side side, Unit unit) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getCommercialFlow(side, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, Side side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
+    public double getPtdfZonalSum(String optimizedInstantId, FlowCnec flowCnec, Side side) {
+        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstantId, flowCnec)).getPtdfZonalSum(side);
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
@@ -208,16 +202,16 @@ public class RaoResultImpl implements RaoResult {
 
         // if it is activated in the preventive state, return true
         if (networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-                .getStatesWithActivation().stream()
-                .anyMatch(State::isPreventive)) {
+            .getStatesWithActivation().stream()
+            .anyMatch(State::isPreventive)) {
             return true;
         }
 
         return networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-                .getStatesWithActivation().stream()
-                .filter(st -> st.getContingency().isPresent())
-                .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
-                .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
+            .getStatesWithActivation().stream()
+            .filter(st -> st.getContingency().isPresent())
+            .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
+            .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
     }
 
     @Override
@@ -228,9 +222,9 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         return networkActionResults.entrySet().stream()
-                .filter(e -> e.getValue().getStatesWithActivation().contains(state))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+            .filter(e -> e.getValue().getStatesWithActivation().contains(state))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
     }
 
     public RangeActionResult getAndCreateIfAbsentRangeActionResult(RangeAction<?> rangeAction) {
@@ -269,9 +263,9 @@ public class RaoResultImpl implements RaoResult {
         while (Objects.nonNull(stateBefore)) {
             final State finalStateBefore = stateBefore;
             Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
-                    rangeActionResults.entrySet().stream().filter(entry ->
+                rangeActionResults.entrySet().stream().filter(entry ->
                     entry.getKey().getNetworkElements().equals(rangeAction.getNetworkElements())
-                            && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
+                        && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
             if (activatedRangeAction.isPresent()) {
                 return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);
             }
@@ -284,9 +278,9 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         return rangeActionResults.entrySet().stream()
-                .filter(e -> e.getValue().isActivatedDuringState(state))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+            .filter(e -> e.getValue().isActivatedDuringState(state))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -321,9 +315,14 @@ public class RaoResultImpl implements RaoResult {
 
     private State lookupState(String contingencyId, Instant instant) {
         return crac.getStates(instant.getInstantKind()).stream()
-                .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
-                .findAny()
-                .orElse(null);
+            .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
+            .findAny()
+            .orElse(null);
+    }
+
+    @Override
+    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
+        return optimizationStepsExecuted;
     }
 
     @Override
@@ -333,10 +332,5 @@ public class RaoResultImpl implements RaoResult {
         } else {
             throw new FaraoException("The RaoResult object should not be modified outside of its usual routine");
         }
-    }
-
-    @Override
-    public OptimizationStepsExecuted getOptimizationStepsExecuted() {
-        return optimizationStepsExecuted;
     }
 }
