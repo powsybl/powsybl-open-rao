@@ -360,6 +360,14 @@
       "instant" : "preventive",
       "flowCnecId" : "cnec3curId"
     } ],
+    "onVoltageConstraintUsageRules" : [ {
+      "instant" : "curative",
+      "voltageCnecId" : "voltageCnecId"
+    } ],
+    "onAngleConstraintUsageRules" : [ {
+      "instant" : "curative",
+      "angleCnecId" : "angleCnecId"
+    } ],
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency1Id",
