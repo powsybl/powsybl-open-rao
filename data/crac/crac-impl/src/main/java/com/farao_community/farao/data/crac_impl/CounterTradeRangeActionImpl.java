@@ -7,7 +7,6 @@ import com.farao_community.farao.data.crac_api.range_action.CounterTradeRangeAct
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,44 +38,12 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     @Override
     public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
-        double minAdmissibleSetpoint = Double.NEGATIVE_INFINITY;
-        for (StandardRange range : ranges) {
-            switch (range.getRangeType()) {
-                case ABSOLUTE:
-                    minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, range.getMin());
-                    break;
-                case RELATIVE_TO_INITIAL_NETWORK:
-                    minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, initialSetpoint + range.getMin());
-                    break;
-                case RELATIVE_TO_PREVIOUS_INSTANT:
-                    minAdmissibleSetpoint = Math.max(minAdmissibleSetpoint, previousInstantSetPoint + range.getMin());
-                    break;
-                default:
-                    throw new NotImplementedException("Range Action type is not implemented yet.");
-            }
-        }
-        return minAdmissibleSetpoint;
+        return StandardRangeActionUtils.getMinAdmissibleSetpoint(previousInstantSetPoint, ranges, initialSetpoint);
     }
 
     @Override
     public double getMaxAdmissibleSetpoint(double previousInstantSetPoint) {
-        double maxAdmissibleSetpoint = Double.POSITIVE_INFINITY;
-        for (StandardRange range : ranges) {
-            switch (range.getRangeType()) {
-                case ABSOLUTE:
-                    maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, range.getMax());
-                    break;
-                case RELATIVE_TO_INITIAL_NETWORK:
-                    maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, initialSetpoint + range.getMax());
-                    break;
-                case RELATIVE_TO_PREVIOUS_INSTANT:
-                    maxAdmissibleSetpoint = Math.min(maxAdmissibleSetpoint, previousInstantSetPoint + range.getMax());
-                    break;
-                default:
-                    throw new NotImplementedException("Range Action type is not implemented yet.");
-            }
-        }
-        return maxAdmissibleSetpoint;
+        return StandardRangeActionUtils.getMaxAdmissibleSetpoint(previousInstantSetPoint, ranges, initialSetpoint);
     }
 
     @Override
