@@ -352,6 +352,14 @@
     "name" : "counterTradeRange1Name",
     "operator" : null,
     "speed" : 30,
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive",
+      "usageMethod" : "available"
+    } ],
+    "onFlowConstraintUsageRules" : [ {
+      "instant" : "preventive",
+      "flowCnecId" : "cnec3curId"
+    } ],
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency1Id",
