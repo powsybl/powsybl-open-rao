@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
@@ -28,6 +29,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final FlowResult initialFlowResult;
+    private final PtdfApproximation ptdfApproximationLevel;
     private final Unit unit;
     private final double ptdfSumLowerBound;
     private final double highestThreshold;
@@ -40,6 +42,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
                                       RelativeMarginsParametersExtension maxMinRelativeMarginParameters) {
         super(optimizedCnecs, unit);
         this.initialFlowResult = initialFlowResult;
+        this.ptdfApproximationLevel = maxMinRelativeMarginParameters.getPtdfApproximation();
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
         this.highestThreshold = RaoUtil.getLargestCnecThreshold(optimizedCnecs, MEGAWATT);
@@ -59,9 +62,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
     @Override
     public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // Objective does not change, nothing to do
-        // TODO : update PTDF coefficients if approx is set to ..._AND_PST
-        if (true) {
+        if (ptdfApproximationLevel.shouldUpdatePtdfWithPstChange()) {
             setOrUpdateRelativeMarginCoefficients(linearProblem, flowResult);
         }
     }
