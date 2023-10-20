@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_cr
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileElementaryCreationContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class OnConstraintUsageRuleHelper {
-    private final Set<CsaProfileCnecCreationContext> csaProfileCnecCreationContexts;
+    private final Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts;
 
     private final Set<String> importedCnecsCombinableWithRas = new HashSet<>();
     private final Map<String, Set<String>> excludedCnecsByRemedialAction = new HashMap<>();
     private final Map<String, Set<String>> includedCnecsByRemedialAction = new HashMap<>();
     private final Map<String, Set<String>> consideredCnecsElementsByRemedialAction = new HashMap<>();
 
-    public OnConstraintUsageRuleHelper(Set<CsaProfileCnecCreationContext> csaProfileCnecCreationContexts, PropertyBags assessedElements, PropertyBags assessedElementsWithRemedialAction) {
+    public OnConstraintUsageRuleHelper(Set<CsaProfileElementaryCreationContext> csaProfileCnecCreationContexts, PropertyBags assessedElements, PropertyBags assessedElementsWithRemedialAction) {
         this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
         readAssessedElementsCombinableWithRemedialActions(assessedElements);
         readAssessedElementsWithRemedialAction(assessedElementsWithRemedialAction);
@@ -34,8 +34,8 @@ public class OnConstraintUsageRuleHelper {
 
     private void readAssessedElementsCombinableWithRemedialActions(PropertyBags assessedElements) {
         List<String> nativeIdsOfCnecsCombinableWithRas = assessedElements.stream()
-                .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
-                .map(element -> removePrefix(element.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).collect(Collectors.toList());
+            .filter(element -> element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION) != null && Boolean.parseBoolean(element.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION)))
+            .map(element -> removePrefix(element.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT))).collect(Collectors.toList());
         Map<String, Set<String>> nativeToFaraoCnecIdsCombinableWithRas = getImportedCnecsNativeIdsToFaraoIds();
         nativeToFaraoCnecIdsCombinableWithRas.keySet().retainAll(nativeIdsOfCnecsCombinableWithRas);
         nativeToFaraoCnecIdsCombinableWithRas.values().stream().flatMap(Set::stream).forEach(importedCnecsCombinableWithRas::add);
@@ -52,16 +52,16 @@ public class OnConstraintUsageRuleHelper {
 
             if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString())) {
                 excludedCnecsByRemedialAction
-                        .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                        .addAll(faraoCnecIds);
+                    .computeIfAbsent(remedialActionId, k -> new HashSet<>())
+                    .addAll(faraoCnecIds);
             } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString())) {
                 includedCnecsByRemedialAction
-                        .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                        .addAll(faraoCnecIds);
+                    .computeIfAbsent(remedialActionId, k -> new HashSet<>())
+                    .addAll(faraoCnecIds);
             } else if (combinationConstraintKind.equals(CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString())) {
                 consideredCnecsElementsByRemedialAction
-                        .computeIfAbsent(remedialActionId, k -> new HashSet<>())
-                        .addAll(faraoCnecIds);
+                    .computeIfAbsent(remedialActionId, k -> new HashSet<>())
+                    .addAll(faraoCnecIds);
             } else {
                 throw new FaraoException(String.format("Unsupported combinationConstraintKind of AssessedElementsWithRemedialAction with id %s, only  ['INCLUDED', 'EXCLUDED', 'CONSIDERED'] are supported ", propertyBag.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION)));
             }
@@ -75,11 +75,11 @@ public class OnConstraintUsageRuleHelper {
 
     private Map<String, Set<String>> getImportedCnecsNativeIdsToFaraoIds() {
         return csaProfileCnecCreationContexts.stream()
-                .filter(CsaProfileCnecCreationContext::isImported)
-                .collect(Collectors.groupingBy(
-                        CsaProfileCnecCreationContext::getNativeId,
-                        Collectors.mapping(CsaProfileCnecCreationContext::getCnecId, Collectors.toSet())
-                ));
+            .filter(CsaProfileElementaryCreationContext::isImported)
+            .collect(Collectors.groupingBy(
+                CsaProfileElementaryCreationContext::getNativeId,
+                Collectors.mapping(CsaProfileElementaryCreationContext::getElementId, Collectors.toSet())
+            ));
     }
 
     private String removePrefix(String mridWithPrefix) {

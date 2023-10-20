@@ -24,8 +24,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.*;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.CsaProfileCrac;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.cnec.CsaProfileCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action.CsaProfileRemedialActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.importer.CsaProfileCracImporter;
 import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.farao_community.farao.data.crac_impl.OnFlowConstraintImpl;
@@ -87,7 +85,7 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertRaNotImported(String raId, ImportStatus importStatus, String importStatusDetail) {
-        CsaProfileRemedialActionCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
+        CsaProfileElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext(raId);
         assertNotNull(context);
         assertFalse(context.isImported());
         assertEquals(importStatusDetail, context.getImportStatusDetail());
@@ -132,7 +130,7 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertPstRangeActionImported(CsaProfileCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules) {
-        CsaProfileRemedialActionCreationContext remedialActionCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        CsaProfileElementaryCreationContext remedialActionCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(remedialActionCreationContext);
         assertTrue(remedialActionCreationContext.isImported());
         assertEquals(isAltered, remedialActionCreationContext.isAltered());
@@ -143,7 +141,7 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertNetworkActionImported(CsaProfileCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules) {
-        CsaProfileRemedialActionCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        CsaProfileElementaryCreationContext remedialActionSeriesCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
         assertNotNull(remedialActionSeriesCreationContext);
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
@@ -214,10 +212,10 @@ class CsaProfileCracCreatorTest {
 
         this.assertContingencyEquality(listContingencies.iterator().next(),
             "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
-            1, List.of("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
+            1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
         this.assertContingencyEquality(listContingencies.get(1),
             "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
-            1, List.of("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+            1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
 
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
@@ -348,8 +346,8 @@ class CsaProfileCracCreatorTest {
             "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
             1, List.of("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
         this.assertContingencyEquality(listContingencies.get(1),
-            "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
-            1, List.of("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
+                "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
+                1, Arrays.asList("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
         this.assertContingencyEquality(listContingencies.get(2),
             "5d587c7e-9ced-416a-ad17-6ef9b241a998", "RTE_CO3",
             1, List.of("2ab1b800-0c93-4517-86b5-8fd6a3a24ee7"));
@@ -1113,8 +1111,8 @@ class CsaProfileCracCreatorTest {
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
         assertEquals(0, cracCreationContext.getCrac().getAngleCnecs().size());
 
-        List<CsaProfileCnecCreationContext> cnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream()
-            .sorted(Comparator.comparing(CsaProfileCnecCreationContext::getNativeId)).toList();
+        List<CsaProfileElementaryCreationContext> cnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream()
+            .sorted(Comparator.comparing(CsaProfileElementaryCreationContext::getNativeId)).toList();
         assertEquals(6, cnecCreationContexts.size());
 
         // Missing AngleReferenceTerminal
