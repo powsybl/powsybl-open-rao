@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.cne_exporter_commons.CneExporterParameters;
 import com.farao_community.farao.data.cne_exporter_commons.CneUtil;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -113,7 +114,7 @@ public class SweCne {
         RaoResult raoResult = sweCneHelper.getRaoResult();
         AngleMonitoringResult angleMonitoringResult = sweCneHelper.getAngleMonitoringResult();
         boolean isDivergent = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
-        boolean isUnsecure = raoResult.getFunctionalCost(InstantKind.CURATIVE) > 0;
+        boolean isUnsecure = raoResult.getFunctionalCost(cracCreationContext.getCrac().getUniqueInstant(InstantKind.CURATIVE)) > 0;
         if (Objects.nonNull(angleMonitoringResult)) {
             isDivergent = isDivergent || angleMonitoringResult.isDivergent();
             isUnsecure = isUnsecure || angleMonitoringResult.isUnsecure();

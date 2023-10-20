@@ -97,8 +97,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case INSTANT:
-                        String stringValue = jsonParser.nextTextValue();
-                        instant = stringValue;
+                        instant = crac.getInstant(jsonParser.nextTextValue());
                         break;
                     case CONTINGENCY:
                         contingencyId = jsonParser.nextTextValue();
@@ -124,7 +123,7 @@ public class AngleMonitoringResultDeserializer extends JsonDeserializer<AngleMon
             State state = getState(instant, contingencyId, crac);
             if (angleResults.stream().anyMatch(angleResult -> angleResult.getAngleCnec().equals(angleCnec) &&
                 angleResult.getState().equals(state))) {
-                throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant.toString(), contingencyId));
+                throw new FaraoException(String.format("Angle values for AngleCnec %s, instant %s and contingency %s are defined more than once", cnecId, instant, contingencyId));
             }
             angleResults.add(new AngleMonitoringResult.AngleResult(angleCnec, quantity));
         }

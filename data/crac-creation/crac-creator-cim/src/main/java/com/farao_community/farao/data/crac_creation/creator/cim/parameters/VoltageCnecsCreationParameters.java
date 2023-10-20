@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 
 import java.util.Map;
 import java.util.Objects;
@@ -21,10 +20,10 @@ import java.util.Set;
  */
 public class VoltageCnecsCreationParameters {
 
-    private Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
-    private Set<String> monitoredNetworkElements;
+    private final Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds;
+    private final Set<String> monitoredNetworkElements;
 
-    public VoltageCnecsCreationParameters(Map<Instant, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, Set<String> monitoredNetworkElements) {
+    public VoltageCnecsCreationParameters(Map<String, VoltageMonitoredContingenciesAndThresholds> monitoredStatesAndThresholds, Set<String> monitoredNetworkElements) {
         Objects.requireNonNull(monitoredStatesAndThresholds);
         Objects.requireNonNull(monitoredNetworkElements);
         if (monitoredStatesAndThresholds.isEmpty() || monitoredNetworkElements.isEmpty()) {
@@ -34,7 +33,7 @@ public class VoltageCnecsCreationParameters {
         this.monitoredNetworkElements = monitoredNetworkElements;
     }
 
-    public Map<Instant, VoltageMonitoredContingenciesAndThresholds> getMonitoredStatesAndThresholds() {
+    public Map<String, VoltageMonitoredContingenciesAndThresholds> getMonitoredStatesAndThresholds() {
         return monitoredStatesAndThresholds;
     }
 

@@ -18,15 +18,14 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
  */
 public interface Instant<T extends Instant<T>> extends Identifiable<T> {
 
-    public int getOrder();
+    int getOrder();
 
-    public InstantKind getInstantKind();
+    InstantKind getInstantKind();
 
     @Override
-    public String toString();
+    String toString();
 
-    public boolean comesBefore(Instant otherInstant);
+    boolean comesBefore(Instant otherInstant);
 
-    public Instant getPreviousInstant();
-
+    Instant getPreviousInstant();
 }

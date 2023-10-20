@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
@@ -27,16 +26,16 @@ import java.util.stream.Collectors;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class CimCracCreationContext implements CracCreationContext {
-    private Crac crac;
-    private boolean isCreationSuccessful;
-    private Set<CimContingencyCreationContext> contingencyCreationContexts;
     private final Set<AngleCnecCreationContext> angleCnecCreationContexts;
-    private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
     private final Set<VoltageCnecCreationContext> voltageCnecCreationContexts;
-    private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
     private final CracCreationReport creationReport;
     private final OffsetDateTime timeStamp;
     private final String networkName;
+    private Crac crac;
+    private boolean isCreationSuccessful;
+    private Set<CimContingencyCreationContext> contingencyCreationContexts;
+    private Map<String, MonitoredSeriesCreationContext> monitoredSeriesCreationContexts;
+    private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
 
     CimCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
         this.crac = crac;
@@ -123,7 +122,7 @@ public class CimCracCreationContext implements CracCreationContext {
     private void addToReport(Set<VoltageCnecCreationContext> voltageCnecCreationContexts) {
         voltageCnecCreationContexts.stream().filter(context -> !context.isImported()).forEach(context -> {
                 String neId = context.getNativeNetworkElementId() != null ? context.getNativeNetworkElementId() : "all";
-                String instant = context.getInstant() != null ? context.getInstant().toString().toLowerCase() : "all";
+                String instant = context.getInstantId() != null ? context.getInstantId().toLowerCase() : "all";
                 String coName = context.getNativeContingencyName() != null ? context.getNativeContingencyName() : "all";
                 creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()));
             }
@@ -165,10 +164,10 @@ public class CimCracCreationContext implements CracCreationContext {
         return new HashSet<>(voltageCnecCreationContexts);
     }
 
-    public VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, Instant instant, String nativeContingencyName) {
+    public VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName) {
         return voltageCnecCreationContexts.stream().filter(creationContext ->
             nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId())
-                && instant.equals(creationContext.getInstant())
+                && instantId.equals(creationContext.getInstantId())
                 && ((nativeContingencyName == null && creationContext.getNativeContingencyName() == null) || (nativeContingencyName != null && nativeContingencyName.equals(creationContext.getNativeContingencyName())))
         ).findAny().orElse(null);
     }
@@ -181,12 +180,12 @@ public class CimCracCreationContext implements CracCreationContext {
         return voltageCnecCreationContexts.stream().filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName())).collect(Collectors.toSet());
     }
 
-    public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
-        this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
-    }
-
     public Set<CimContingencyCreationContext> getContingencyCreationContexts() {
         return new HashSet<>(contingencyCreationContexts);
+    }
+
+    public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
+        this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
     public MonitoredSeriesCreationContext getMonitoredSeriesCreationContext(String seriesId) {
@@ -201,12 +200,12 @@ public class CimCracCreationContext implements CracCreationContext {
         this.monitoredSeriesCreationContexts = monitoredSeriesCreationContexts;
     }
 
-    public void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
-        this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
-    }
-
     public Set<RemedialActionSeriesCreationContext> getRemedialActionSeriesCreationContexts() {
         return remedialActionSeriesCreationContexts;
+    }
+
+    public void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
+        this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId) {

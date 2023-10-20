@@ -338,7 +338,7 @@ class CoreCneCnecsCreatorTest {
         mockCnecResult(cnecCur, 85, 18, 28, 108, 208, .1);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), INSTANT_CURATIVE))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
+        when(raoResult.getActivatedNetworkActionsDuringState(crac.getState(cnecCur.getState().getContingency().orElseThrow(), "curative"))).thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
         CoreCneCnecsCreator cneCnecsCreator = new CoreCneCnecsCreator(cneHelper, new MockCracCreationContext(crac));
 

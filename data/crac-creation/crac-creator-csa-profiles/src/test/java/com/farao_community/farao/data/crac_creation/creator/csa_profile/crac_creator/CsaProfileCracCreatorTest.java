@@ -8,7 +8,10 @@
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -29,7 +32,6 @@ import com.farao_community.farao.data.crac_impl.OnContingencyStateImpl;
 import com.farao_community.farao.data.crac_impl.OnFlowConstraintImpl;
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,9 +44,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.farao_community.farao.data.crac_api.InstantKind.CURATIVE;
-import static com.farao_community.farao.data.crac_api.InstantKind.OUTAGE;
-import static com.farao_community.farao.data.crac_api.InstantKind.PREVENTIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -67,11 +66,11 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertFlowCnecEquality(FlowCnec fc, String expectedFlowCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                        Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
+                                        String expectedInstantId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, Side expectedThresholdSide) {
         assertEquals(expectedFlowCnecId, fc.getId());
         assertEquals(expectedFlowCnecName, fc.getName());
         assertEquals(expectedNetworkElementId, fc.getNetworkElement().getId());
-        assertEquals(expectedInstant, fc.getState().getInstant());
+        assertEquals(expectedInstantId, fc.getState().getInstant().getId());
         if (expectedContingencyId == null) {
             assertFalse(fc.getState().getContingency().isPresent());
         } else {
@@ -93,12 +92,12 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertAngleCnecEquality(AngleCnec angleCnec, String expectedFlowCnecId, String expectedFlowCnecName, String expectedImportingNetworkElementId, String expectedExportingNetworkElementId,
-                                         Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
+                                         String expectedInstantId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
         assertEquals(expectedFlowCnecId, angleCnec.getId());
         assertEquals(expectedFlowCnecName, angleCnec.getName());
         assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElement().getId());
         assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElement().getId());
-        assertEquals(expectedInstant, angleCnec.getState().getInstant());
+        assertEquals(expectedInstantId, angleCnec.getState().getInstant().getId());
         if (expectedContingencyId == null) {
             assertFalse(angleCnec.getState().getContingency().isPresent());
         } else {
@@ -112,11 +111,11 @@ class CsaProfileCracCreatorTest {
     }
 
     private void assertVoltageCnecEquality(VoltageCnec voltageCnec, String expectedVoltageCnecId, String expectedFlowCnecName, String expectedNetworkElementId,
-                                           Instant expectedInstant, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
+                                           String expectedInstantId, String expectedContingencyId, Double expectedThresholdMax, Double expectedThresholdMin, boolean isMonitored) {
         assertEquals(expectedVoltageCnecId, voltageCnec.getId());
         assertEquals(expectedFlowCnecName, voltageCnec.getName());
         assertEquals(expectedNetworkElementId, voltageCnec.getNetworkElement().getId());
-        assertEquals(expectedInstant, voltageCnec.getState().getInstant());
+        assertEquals(expectedInstantId, voltageCnec.getState().getInstant().getId());
         if (expectedContingencyId == null) {
             assertFalse(voltageCnec.getState().getContingency().isPresent());
         } else {
@@ -151,50 +150,50 @@ class CsaProfileCracCreatorTest {
         assertEquals(numberOfUsageRules, cracCreationContext.getCrac().getNetworkAction(id).getUsageRules().size());
     }
 
-    private void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
+    private void assertHasOnInstantUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String instantId, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
                 .map(OnInstant.class::cast)
-                .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    private void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
+    private void assertHasOnContingencyStateUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String contingencyId, String instantId, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
                 .map(OnContingencyState.class::cast)
-                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    private void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, Instant instant, UsageMethod usageMethod) {
+    private void assertHasOnFlowConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String flowCnecId, String instantId, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnFlowConstraint.class::isInstance)
                 .map(OnFlowConstraint.class::cast)
-                .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getFlowCnec().getId().equals(flowCnecId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    private void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, Instant instant, UsageMethod usageMethod) {
+    private void assertHasOnAngleConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String angleCnecId, String instantId, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnAngleConstraint.class::isInstance)
                 .map(OnAngleConstraint.class::cast)
-                .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getAngleCnec().getId().equals(angleCnecId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
-    private void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, Instant instant, UsageMethod usageMethod) {
+    private void assertHasOnVoltageConstraintUsageRule(CsaProfileCracCreationContext cracCreationContext, String raId, String voltageCnecId, String instantId, UsageMethod usageMethod) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnVoltageConstraint.class::isInstance)
                 .map(OnVoltageConstraint.class::cast)
-                .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getVoltageCnec().getId().equals(voltageCnecId) && ur.getInstant().getId().equals(instantId) && ur.getUsageMethod().equals(usageMethod))
         );
     }
 
     @Test
     void testTC1ContingenciesAndFlowCnecs() {
         Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
@@ -212,10 +211,10 @@ class CsaProfileCracCreatorTest {
 
         this.assertContingencyEquality(listContingencies.iterator().next(),
             "493480ba-93c3-426e-bee5-347d8dda3749", "ELIA_CO1",
-            1, Arrays.asList("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
+            1, List.of("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13"));
         this.assertContingencyEquality(listContingencies.get(1),
             "c0a25fd7-eee0-4191-98a5-71a74469d36e", "TENNET_TSO_CO1",
-            1, Arrays.asList("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
+            1, List.of("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc"));
 
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
@@ -225,25 +224,25 @@ class CsaProfileCracCreatorTest {
             "ELIA_AE1 - ELIA_CO1 - curative",
             "ELIA_AE1 - ELIA_CO1 - curative",
             "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-            CURATIVE, "493480ba-93c3-426e-bee5-347d8dda3749",
+            "curative", "493480ba-93c3-426e-bee5-347d8dda3749",
             +1312., -1312., Side.LEFT);
         this.assertFlowCnecEquality(listFlowCnecs.get(1),
             "ELIA_AE1 - preventive",
             "ELIA_AE1 - preventive",
             "ffbabc27-1ccd-4fdc-b037-e341706c8d29",
-            PREVENTIVE, null,
+            "preventive", null,
             +1312., -1312., Side.LEFT);
         this.assertFlowCnecEquality(listFlowCnecs.get(2),
             "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
             "TENNET_TSO_AE1NL - TENNET_TSO_CO1 - curative",
             "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-            CURATIVE, "c0a25fd7-eee0-4191-98a5-71a74469d36e",
+            "curative", "c0a25fd7-eee0-4191-98a5-71a74469d36e",
             +1876., -1876., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(3),
             "TENNET_TSO_AE1NL - preventive",
             "TENNET_TSO_AE1NL - preventive",
             "b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
-            PREVENTIVE, null,
+            "preventive", null,
             +1876., -1876., Side.RIGHT);
 
         // csa-9-1
@@ -346,8 +345,8 @@ class CsaProfileCracCreatorTest {
             "264e9a19-ae28-4c85-a43c-6b7818ca0e6c", "RTE_CO4",
             1, List.of("536f4b84-db4c-4545-96e9-bb5a87f65d13 + d9622e7f-5bf0-4e7e-b766-b8596c6fe4ae"));
         this.assertContingencyEquality(listContingencies.get(1),
-                "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
-                1, Arrays.asList("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
+            "475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", "RTE_CO2",
+            1, List.of("e02e1166-1c43-4a4d-8c5a-82298ee0c8f5"));
         this.assertContingencyEquality(listContingencies.get(2),
             "5d587c7e-9ced-416a-ad17-6ef9b241a998", "RTE_CO3",
             1, List.of("2ab1b800-0c93-4517-86b5-8fd6a3a24ee7"));
@@ -365,7 +364,7 @@ class CsaProfileCracCreatorTest {
             1, List.of("f1c13f90-6d89-4a37-a51c-94742ad2dd72"));
 
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
         // TODO : check flow cnecs
     }
 
@@ -421,14 +420,14 @@ class CsaProfileCracCreatorTest {
         assertEquals("RA17", ra17.getName());
         assertEquals("2db971f1-ed3d-4ea6-acf5-983c4289d51b", ra17.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra17.getElementaryActions().iterator().next()).getActionType());
-        assertEquals(PREVENTIVE, ra17.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra17.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra17.getUsageRules().iterator().next().getUsageMethod());
         // RA11 (on instant)
         NetworkAction ra11 = cracCreationContext.getCrac().getNetworkAction("b2555ccc-6562-4887-8abc-19a6e51cfe36");
         assertEquals("RA11", ra11.getName());
         assertEquals("86dff3a9-afae-4122-afeb-651f2c01c795", ra11.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra11.getElementaryActions().iterator().next()).getActionType());
-        assertEquals(PREVENTIVE, ra11.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra11.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra11.getUsageRules().iterator().next().getUsageMethod());
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("d9bd3aaf-cda3-4b54-bb2e-b03dd9925817");
@@ -439,13 +438,13 @@ class CsaProfileCracCreatorTest {
         assertTrue(topologicalActions.stream().anyMatch(action -> action.getNetworkElement().getId().equals("39428c75-098b-4366-861d-2df2a857a805")));
         assertTrue(topologicalActions.stream().anyMatch(action -> action.getNetworkElement().getId().equals("902046a4-40e9-421d-9ef1-9adab0d9d41d")));
         assertTrue(topologicalActions.stream().allMatch(action -> action.getActionType().equals(ActionType.OPEN)));
-        assertEquals(PREVENTIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         // RA13 (on state)
         NetworkAction ra13 = cracCreationContext.getCrac().getNetworkAction("1fd630a9-b9d8-414b-ac84-b47a093af936");
         assertEquals("RA13", ra13.getName());
         assertEquals(UsageMethod.FORCED, ra13.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra13.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra13.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("b6b780cb-9fe5-4c45-989d-447a927c3874", ((OnContingencyStateImpl) ra13.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("52effb0d-091b-4867-a0a2-387109cdad5c", ra13.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra13.getElementaryActions().iterator().next()).getActionType());
@@ -454,7 +453,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra22 = cracCreationContext.getCrac().getNetworkAction("d856a2a2-3de4-4a7b-aea4-d363c13d9014");
         assertEquals("RA22", ra22.getName());
         assertEquals(UsageMethod.FORCED, ra22.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra22.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra22.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("96c96ad8-844c-4f3b-8b38-c886ba2c0214", ((OnContingencyStateImpl) ra22.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("c871da6f-816f-4398-82a4-698550cbee58", ra22.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra22.getElementaryActions().iterator().next()).getActionType());
@@ -463,7 +462,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra14 = cracCreationContext.getCrac().getNetworkAction("c8bf6b19-1c3b-4ce6-a15c-99995a3c88ce");
         assertEquals("RA14", ra14.getName());
         assertEquals(UsageMethod.FORCED, ra14.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra14.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra14.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("13334fdf-9cc2-4341-adb6-1281269040b4", ((OnContingencyStateImpl) ra14.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("88e2e417-fc08-41a7-a711-4c6d0784ac4f", ra14.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra14.getElementaryActions().iterator().next()).getActionType());
@@ -472,7 +471,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra21 = cracCreationContext.getCrac().getNetworkAction("fb487cc2-0f7b-4958-8f66-1d3fabf7840d");
         assertEquals("RA21", ra21.getName());
         assertEquals(UsageMethod.FORCED, ra21.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra21.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra21.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("9d17b84c-33b5-4a68-b8b9-ed5b31038d40", ((OnContingencyStateImpl) ra21.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("65b97d2e-d749-41df-aa8f-0be4629d5e0e", ra21.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra21.getElementaryActions().iterator().next()).getActionType());
@@ -481,7 +480,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("5e401955-387e-45ce-b126-dd142b06b20c");
         assertEquals("RA3", ra3.getName());
         assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra3.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("475ba18f-cbf5-490b-b65d-e8e03f9bcbc4", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("8e55fb9d-e514-4f4b-8a5d-8fd05b1dc02e", ra3.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra3.getElementaryActions().iterator().next()).getActionType());
@@ -490,7 +489,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("587cb391-ed16-4a1d-876e-f90241addce5");
         assertEquals("RA5", ra5.getName());
         assertEquals(UsageMethod.FORCED, ra5.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra5.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra5.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("5d587c7e-9ced-416a-ad17-6ef9b241a998", ((OnContingencyStateImpl) ra5.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("21f21596-302e-4e0e-8009-2b8c3c23517f", ra5.getNetworkElements().iterator().next().getId());
         assertEquals(ActionType.OPEN, ((TopologicalAction) ra5.getElementaryActions().iterator().next()).getActionType());
@@ -514,26 +513,26 @@ class CsaProfileCracCreatorTest {
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-topological-action-parent-remedial-action");
         assertEquals("RA1", ra1.getName());
-        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra1.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
 
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("on-instant-curative-topological-action-parent-remedial-action");
         assertEquals("RA2", ra2.getName());
-        assertEquals(CURATIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
 
         // RA3 (on state)
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-considered-curative-topological-action-parent-remedial-action");
         assertEquals("RA3", ra3.getName());
-        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra3.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra3.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("switch", ra3.getNetworkElements().iterator().next().getId());
 
         // RA4 (on state)
         NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-topological-action-parent-remedial-action");
         assertEquals("RA4", ra4.getName());
-        assertEquals(CURATIVE, ra4.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra4.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.FORCED, ra4.getUsageRules().iterator().next().getUsageMethod());
 
         // RA5 (on instant + on instant)
@@ -541,32 +540,32 @@ class CsaProfileCracCreatorTest {
         assertEquals("RA5", ra5.getName());
         List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
         assertEquals(2, usageRules.size());
-        assertEquals(CURATIVE, usageRules.iterator().next().getInstant());
+        assertEquals("curative", usageRules.iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, usageRules.iterator().next().getUsageMethod());
 
-        assertEquals(CURATIVE, usageRules.get(1).getInstant());
+        assertEquals("curative", usageRules.get(1).getInstant().getId());
         assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
-        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());
+        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().orElseThrow().getId());
 
         // RTE_RA7 (on instant)
         NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("topological-action-with-tso-name-parent-remedial-action");
         assertEquals("RTE_RA7", ra7.getName());
         assertEquals("RTE", ra7.getOperator());
-        assertEquals(PREVENTIVE, ra7.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra7.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().iterator().next().getUsageMethod());
 
         // nameless-topological-action-with-speed-parent-remedial-action (on instant)
         NetworkAction raNameless = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-speed-parent-remedial-action");
         assertEquals("nameless-topological-action-with-speed-parent-remedial-action", raNameless.getName());
-        assertEquals(PREVENTIVE, raNameless.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", raNameless.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, raNameless.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(137, raNameless.getSpeed().get());
+        assertEquals(137, raNameless.getSpeed().orElseThrow());
 
         // nameless-topological-action-with-tso-name-parent-remedial-action (on instant)
         NetworkAction raNameless2 = cracCreationContext.getCrac().getNetworkAction("nameless-topological-action-with-tso-name-parent-remedial-action");
         assertEquals("nameless-topological-action-with-tso-name-parent-remedial-action", raNameless2.getName());
         assertEquals("RTE", raNameless2.getOperator());
-        assertEquals(PREVENTIVE, raNameless2.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", raNameless2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, raNameless2.getUsageRules().iterator().next().getUsageMethod());
     }
 
@@ -677,10 +676,9 @@ class CsaProfileCracCreatorTest {
         Mockito.when(loadMock.getId()).thenReturn("rotating-machine");
         Mockito.when(network.getLoadStream()).thenAnswer(invocation -> {
             Stream<Load> loadStream = Stream.of(loadMock);
-            Stream<Load> filteredStream = loadStream.filter(load ->
+            return loadStream.filter(load ->
                 load.getId().equals("rotating-machine")
             );
-            return filteredStream;
         });
 
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
@@ -690,7 +688,7 @@ class CsaProfileCracCreatorTest {
         // RA1 (on instant)
         NetworkAction ra1 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-action");
         assertEquals("RA1", ra1.getName());
-        assertEquals(PREVENTIVE, ra1.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra1.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra1.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(75., ((InjectionSetpoint) ra1.getElementaryActions().iterator().next()).getSetpoint());
@@ -698,7 +696,7 @@ class CsaProfileCracCreatorTest {
         // RA2 (on instant)
         NetworkAction ra2 = cracCreationContext.getCrac().getNetworkAction("on-instant-curative-remedial-action");
         assertEquals("RA2", ra2.getName());
-        assertEquals(CURATIVE, ra2.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(17.3, ((InjectionSetpoint) ra2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -706,16 +704,16 @@ class CsaProfileCracCreatorTest {
         // on-instant-preventive-nameless-remedial-action-with-speed (on instant)
         NetworkAction namelessRa = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-nameless-remedial-action-with-speed");
         assertEquals("on-instant-preventive-nameless-remedial-action-with-speed", namelessRa.getName());
-        assertEquals(PREVENTIVE, namelessRa.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", namelessRa.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, namelessRa.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(22.4, ((InjectionSetpoint) namelessRa.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
-        assertEquals(137, namelessRa.getSpeed().get());
+        assertEquals(137, namelessRa.getSpeed().orElseThrow());
 
         // RTE_RA7 (on instant)
         NetworkAction ra7 = cracCreationContext.getCrac().getNetworkAction("on-instant-preventive-remedial-with-tso-name");
         assertEquals("RTE_RA7", ra7.getName());
-        assertEquals(PREVENTIVE, ra7.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", ra7.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, ra7.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(100., ((InjectionSetpoint) ra7.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -724,7 +722,7 @@ class CsaProfileCracCreatorTest {
         // on-instant-nameless-preventive-remedial-with-tso-name (on instant)
         NetworkAction namelessRa2 = cracCreationContext.getCrac().getNetworkAction("on-instant-nameless-preventive-remedial-with-tso-name");
         assertEquals("on-instant-nameless-preventive-remedial-with-tso-name", namelessRa2.getName());
-        assertEquals(PREVENTIVE, namelessRa2.getUsageRules().iterator().next().getInstant());
+        assertEquals("preventive", namelessRa2.getUsageRules().iterator().next().getInstant().getId());
         assertEquals(UsageMethod.AVAILABLE, namelessRa2.getUsageRules().iterator().next().getUsageMethod());
         assertEquals("rotating-machine", ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getNetworkElement().getId());
         assertEquals(98., ((InjectionSetpoint) namelessRa2.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -734,7 +732,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra3 = cracCreationContext.getCrac().getNetworkAction("on-state-included-curative-remedial-action");
         assertEquals("RA3", ra3.getName());
         assertEquals(UsageMethod.FORCED, ra3.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra3.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra3.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("contingency", ((OnContingencyStateImpl) ra3.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra3.getNetworkElements().iterator().next().getId());
         assertEquals(2.8, ((InjectionSetpoint) ra3.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -743,7 +741,7 @@ class CsaProfileCracCreatorTest {
         NetworkAction ra4 = cracCreationContext.getCrac().getNetworkAction("on-state-considered-curative-remedial-action");
         assertEquals("RA4", ra4.getName());
         assertEquals(UsageMethod.AVAILABLE, ra4.getUsageRules().iterator().next().getUsageMethod());
-        assertEquals(CURATIVE, ra4.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", ra4.getUsageRules().iterator().next().getInstant().getId());
         assertEquals("contingency", ((OnContingencyStateImpl) ra4.getUsageRules().iterator().next()).getContingency().getId());
         assertEquals("rotating-machine", ra4.getNetworkElements().iterator().next().getId());
         assertEquals(15.6, ((InjectionSetpoint) ra4.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
@@ -751,12 +749,12 @@ class CsaProfileCracCreatorTest {
         // on-state-excluded-curative-remedial-action (on state + on instant)
         NetworkAction ra5 = cracCreationContext.getCrac().getNetworkAction("on-state-excluded-curative-remedial-action");
         assertEquals("RA5", ra5.getName());
-        List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).collect(Collectors.toList());
+        List<UsageRule> usageRules = ra5.getUsageRules().stream().sorted(Comparator.comparing(UsageRule::getUsageMethod)).toList();
         assertEquals(2, usageRules.size());
-        assertTrue(ra5.getUsageRules().stream().map(UsageRule::getInstant).allMatch(i -> i.equals(CURATIVE)));
+        assertTrue(ra5.getUsageRules().stream().map(usageRule -> usageRule.getInstant().getId()).allMatch(i -> i.equals("curative")));
         assertEquals(UsageMethod.AVAILABLE, usageRules.iterator().next().getUsageMethod());
         assertEquals(UsageMethod.UNAVAILABLE, usageRules.get(1).getUsageMethod());
-        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().get().getId());
+        assertEquals("contingency", ((OnContingencyStateImpl) usageRules.get(1)).getState().getContingency().orElseThrow().getId());
         assertEquals("rotating-machine", ra5.getNetworkElements().iterator().next().getId());
         assertEquals(25.7, ((InjectionSetpoint) ra5.getElementaryActions().iterator().next()).getSetpoint(), 0.1);
     }
@@ -764,7 +762,7 @@ class CsaProfileCracCreatorTest {
     @Test
     void testIgnoreInvalidInjectionSetpointProfile() {
         Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_2_InvalidProfiles.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource("/csa-23/CSA_23_2_InvalidProfiles.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/csa-23/CSA_23_2_InvalidProfiles.zip");
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
@@ -798,7 +796,7 @@ class CsaProfileCracCreatorTest {
     @Test
     void testTC1ImportPstRangeActions() {
         Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource("/TestConfiguration_TC1_v29Mar2023.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/TestConfiguration_TC1_v29Mar2023.zip");
@@ -817,7 +815,7 @@ class CsaProfileCracCreatorTest {
         assertEquals(5., eliaRa1.getRanges().iterator().next().getMinTap());
         assertEquals(20., eliaRa1.getRanges().iterator().next().getMaxTap());
         assertEquals(1, eliaRa1.getUsageRules().size());
-        assertEquals(CURATIVE, eliaRa1.getUsageRules().iterator().next().getInstant());
+        assertEquals("curative", eliaRa1.getUsageRules().iterator().next().getInstant().getId());
         // TODO waiting for PO to check US, after implementation of CSA11 behaviour changed, assertEquals("493480ba-93c3-426e-bee5-347d8dda3749", ((OnContingencyStateImpl) eliaRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
             Map.entry(1, 4.926567934889113),
@@ -856,7 +854,7 @@ class CsaProfileCracCreatorTest {
         CsaProfileCrac nativeCrac = cracImporter.importNativeCrac(inputStream);
 
         Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource("/CSA_TestConfiguration_TC2_Draft_v14Apr2023.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         CsaProfileCracCreator cracCreator = new CsaProfileCracCreator();
         CsaProfileCracCreationContext cracCreationContext = cracCreator.createCrac(nativeCrac, network, OffsetDateTime.parse("2023-03-29T12:00Z"), new CracCreationParameters());
@@ -867,8 +865,8 @@ class CsaProfileCracCreatorTest {
         assertEquals(13, reeRa1.getInitialTap());
         assertEquals(0, reeRa1.getRanges().size());
         assertEquals(1, reeRa1.getUsageRules().size());
-        assertEquals(CURATIVE, reeRa1.getUsageRules().iterator().next().getInstant());
-        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().get().getId());
+        assertEquals("curative", reeRa1.getUsageRules().iterator().next().getInstant().getId());
+        assertEquals("8cdec4c6-10c3-40c1-9eeb-7f6ae8d9b3fe", ((OnContingencyStateImpl) reeRa1.getUsageRules().iterator().next()).getState().getContingency().orElseThrow().getId());
         Map<Integer, Double> expectedTapToAngleMap = Map.ofEntries(
             Map.entry(-1, -2.0),
             Map.entry(0, 0.0),
@@ -914,14 +912,14 @@ class CsaProfileCracCreatorTest {
         );
         assertEquals(expectedTapToAngleMap, reeRa1.getTapToAngleConversionMap());
 
-        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("5e5ff13e-2043-4468-9351-01920d3d9504")).findAny().get().getImportStatus());
-        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("2e4f4212-7b30-4316-9fce-ca618f2a8a05")).findAny().get().getImportStatus());
+        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("5e5ff13e-2043-4468-9351-01920d3d9504")).findAny().orElseThrow().getImportStatus());
+        assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> ra.getNativeId().equals("2e4f4212-7b30-4316-9fce-ca618f2a8a05")).findAny().orElseThrow().getImportStatus());
     }
 
     @Test
     void testCustomImportCase() {
         Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/TestCase_13_5_4.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource("/TestCase_13_5_4.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/TestCase_13_5_4.zip");
@@ -940,39 +938,39 @@ class CsaProfileCracCreatorTest {
         // Check Flow Cnecs
         assertEquals(6, importedCrac.getFlowCnecs().size());
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR2AA1--FFR3AA1--2 - RTE_co1_fr2_fr3_1 - curative",
-            "FFR2AA1--FFR3AA1--2", CURATIVE, "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
+            "FFR2AA1--FFR3AA1--2", "curative", "co1_fr2_fr3_1", 2500., -2500., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - outage",
-            "FFR3AA1--FFR5AA1--1", OUTAGE, "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
+            "FFR3AA1--FFR5AA1--1", "outage", "co1_fr2_fr3_1", 1500., -1500., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - preventive"), "RTE_FFR2AA1--DDE3AA1--1 - preventive", "RTE_FFR2AA1--DDE3AA1--1 - preventive",
-            "FFR2AA1--DDE3AA1--1", PREVENTIVE, null, 1000., -1000., Side.RIGHT);
+            "FFR2AA1--DDE3AA1--1", "preventive", null, 1000., -1000., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative"), "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative", "RTE_FFR3AA1--FFR5AA1--1 - RTE_co1_fr2_fr3_1 - curative",
-            "FFR3AA1--FFR5AA1--1", CURATIVE, "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
+            "FFR3AA1--FFR5AA1--1", "curative", "co1_fr2_fr3_1", 1000., -1000., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive"), "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive", "TENNET_TSO_NNL2AA1--BBE3AA1--1 - preventive",
-            "NNL2AA1--BBE3AA1--1", PREVENTIVE, null, 5000., -5000., Side.RIGHT);
+            "NNL2AA1--BBE3AA1--1", "preventive", null, 5000., -5000., Side.RIGHT);
         assertFlowCnecEquality(importedCrac.getFlowCnec("RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage"), "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage", "RTE_FFR2AA1--DDE3AA1--1 - RTE_co1_fr2_fr3_1 - outage",
-            "FFR2AA1--DDE3AA1--1", OUTAGE, "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
+            "FFR2AA1--DDE3AA1--1", "outage", "co1_fr2_fr3_1", 1200., -1200., Side.RIGHT);
 
         // Check PST RAs
         assertPstRangeActionImported(cracCreationContext, "pst_be", "BBE2AA1--BBE3AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_be", CURATIVE, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "pst_be", "curative", UsageMethod.AVAILABLE);
         assertPstRangeActionImported(cracCreationContext, "pst_fr_cra", "FFR2AA1--FFR4AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_cra", CURATIVE, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_cra", "curative", UsageMethod.AVAILABLE);
         assertPstRangeActionImported(cracCreationContext, "pst_fr_pra", "FFR2AA1--FFR4AA1--1", false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_pra", PREVENTIVE, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "pst_fr_pra", "preventive", UsageMethod.AVAILABLE);
 
         // Check topo RAs
         assertNetworkActionImported(cracCreationContext, "close_fr1_fr5", Set.of("FFR1AA1Z-FFR1AA1--1"), false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "close_fr1_fr5", CURATIVE, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "close_fr1_fr5", "curative", UsageMethod.AVAILABLE);
         assertNetworkActionImported(cracCreationContext, "open_fr1_fr2", Set.of("FFR1AA1Y-FFR1AA1--1"), false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr2", PREVENTIVE, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr2", "preventive", UsageMethod.AVAILABLE);
         assertNetworkActionImported(cracCreationContext, "open_fr1_fr3", Set.of("FFR1AA1X-FFR1AA1--1"), false, 1);
-        assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr3", PREVENTIVE, UsageMethod.AVAILABLE);
+        assertHasOnInstantUsageRule(cracCreationContext, "open_fr1_fr3", "preventive", UsageMethod.AVAILABLE);
     }
 
     @Test
     void testCustomForAssessedElementWithContingencyRejection() {
         Properties importParams = new Properties();
-        Network network = Network.read(Paths.get(new File(CsaProfileCracCreatorTest.class.getResource("/CSA_42_CustomExample.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        Network network = Network.read(Paths.get(new File(Objects.requireNonNull(CsaProfileCracCreatorTest.class.getResource("/CSA_42_CustomExample.zip")).getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
         CsaProfileCracImporter cracImporter = new CsaProfileCracImporter();
         InputStream inputStream = getClass().getResourceAsStream("/CSA_42_CustomExample.zip");
@@ -985,31 +983,31 @@ class CsaProfileCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(4, cracCreationContext.getCrac().getFlowCnecs().size());
         List<FlowCnec> listFlowCnecs = cracCreationContext.getCrac().getFlowCnecs()
-            .stream().sorted(Comparator.comparing(FlowCnec::getId)).collect(Collectors.toList());
+            .stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
 
         this.assertFlowCnecEquality(listFlowCnecs.iterator().next(),
             "RTE_AE - RTE_CO1 - curative",
             "RTE_AE - RTE_CO1 - curative",
             "FFR3AA1--FFR5AA1--1",
-            CURATIVE, "0451f8be-83d7-45da-b80b-4014259ff624",
+            "curative", "0451f8be-83d7-45da-b80b-4014259ff624",
             +1000., -1000., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(1),
             "RTE_AE - RTE_CO3 - curative",
             "RTE_AE - RTE_CO3 - curative",
             "FFR3AA1--FFR5AA1--1",
-            CURATIVE, "4491d904-93c4-41d4-a509-57f9fed2e31c",
+            "curative", "4491d904-93c4-41d4-a509-57f9fed2e31c",
             +1000., -1000., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(2),
             "RTE_AE - preventive",
             "RTE_AE - preventive",
             "FFR3AA1--FFR5AA1--1",
-            PREVENTIVE, null,
+            "preventive", null,
             +1000., -1000., Side.RIGHT);
         this.assertFlowCnecEquality(listFlowCnecs.get(3),
             "RTE_AE2 - preventive",
             "RTE_AE2 - preventive",
             "FFR3AA1--FFR5AA1--1",
-            PREVENTIVE, null,
+            "preventive", null,
             +1000., -1000., Side.RIGHT);
     }
 
@@ -1163,11 +1161,11 @@ class CsaProfileCracCreatorTest {
         Iterator<UsageRule> usageRuleIterator = eliaRa1.getUsageRules().iterator();
         UsageRule usageRule1 = usageRuleIterator.next();
 
-        assertEquals(CURATIVE, usageRule1.getInstant());
+        assertEquals("curative", usageRule1.getInstant().getId());
         assertEquals("ELIA_AE1 - ELIA_CO1 - curative", ((OnFlowConstraintImpl) usageRule1).getFlowCnec().getId());
         // TODO assert that UsageMethod.FORCED
         // assertEquals(UsageMethod.FORCED, usageRule1.getUsageMethod());
-        assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", cracCreationContext.getRemedialActionCreationContexts().stream().filter(raC -> !raC.isImported()).findAny().get().getNativeId());
+        assertEquals("5c1e945b-4598-437f-b8ae-7c6d4b475a6c", cracCreationContext.getRemedialActionCreationContexts().stream().filter(raC -> !raC.isImported()).findAny().orElseThrow().getNativeId());
 
     }
 
@@ -1255,7 +1253,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 - RTE_CO1 - curative",
             "RTE_AE1 - RTE_CO1 - curative",
             "60038442-5c02-21a9-22ad-f0554a65a466",
-            CURATIVE,
+            "curative",
             "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
             1000.,
             -1000.,
@@ -1265,7 +1263,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 - preventive",
             "RTE_AE1 - preventive",
             "60038442-5c02-21a9-22ad-f0554a65a466",
-            PREVENTIVE,
+            "preventive",
             null,
             1000.,
             -1000.,
@@ -1275,7 +1273,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 - RTE_CO2 - curative",
             "RTE_AE2 - RTE_CO2 - curative",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            CURATIVE,
+            "curative",
             "410a7075-51df-4c5c-aa80-0bb1bbe41190",
             1000.,
             -1000.,
@@ -1285,7 +1283,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 - preventive",
             "RTE_AE2 - preventive",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            PREVENTIVE,
+            "preventive",
             null,
             1000.,
             -1000.,
@@ -1298,17 +1296,17 @@ class CsaProfileCracCreatorTest {
         assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), false, 2);
         assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
 
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnFlowConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", "curative", UsageMethod.TO_BE_EVALUATED);
 
     }
 
@@ -1344,7 +1342,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 - RTE_CO1 - curative",
             "60038442-5c02-21a9-22ad-f0554a65a466",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            CURATIVE,
+            "curative",
             "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
             30.,
             -30.,
@@ -1355,7 +1353,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 - preventive",
             "60038442-5c02-21a9-22ad-f0554a65a466",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            PREVENTIVE,
+            "preventive",
             null,
             30.,
             -30.,
@@ -1366,7 +1364,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 - RTE_CO2 - curative",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
             "60038442-5c02-21a9-22ad-f0554a65a466",
-            CURATIVE,
+            "curative",
             "410a7075-51df-4c5c-aa80-0bb1bbe41190",
             15.,
             -15.,
@@ -1377,7 +1375,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 - preventive",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
             "60038442-5c02-21a9-22ad-f0554a65a466",
-            PREVENTIVE,
+            "preventive",
             null,
             15.,
             -15.,
@@ -1390,17 +1388,17 @@ class CsaProfileCracCreatorTest {
         assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
         assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("f9c8d9ce-6c44-4293-b60e-93c658411d68"), false, 2);
 
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnAngleConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", "curative", UsageMethod.TO_BE_EVALUATED);
     }
 
     @Test
@@ -1441,7 +1439,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 - RTE_CO1 - curative",
             "RTE_AE1 - RTE_CO1 - curative",
             "60038442-5c02-21a9-22ad-f0554a65a466",
-            CURATIVE,
+            "curative",
             "6c9656a6-84c2-4967-aabc-51f63a7abdf1",
             817.,
             null,
@@ -1451,7 +1449,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE1 - preventive",
             "RTE_AE1 - preventive",
             "60038442-5c02-21a9-22ad-f0554a65a466",
-            PREVENTIVE,
+            "preventive",
             null,
             817.,
             null,
@@ -1461,7 +1459,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 - RTE_CO2 - curative",
             "RTE_AE2 - RTE_CO2 - curative",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            CURATIVE,
+            "curative",
             "410a7075-51df-4c5c-aa80-0bb1bbe41190",
             null,
             520.,
@@ -1471,7 +1469,7 @@ class CsaProfileCracCreatorTest {
             "RTE_AE2 - preventive",
             "RTE_AE2 - preventive",
             "65e9a6a7-8488-7b17-6344-cb7d61b7920b",
-            PREVENTIVE,
+            "preventive",
             null,
             null,
             520.,
@@ -1484,17 +1482,17 @@ class CsaProfileCracCreatorTest {
         assertNetworkActionImported(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", Set.of("50719289-6406-4d69-9dd7-6de60aecd2d4"), false, 2);
         assertNetworkActionImported(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", Set.of("468fdb4a-49d6-4ea9-b216-928d057b65f0"), false, 2);
 
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "6c283463-9aac-4d9b-9d0b-6710c5b2aa00", "RTE_AE1 - RTE_CO1 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "0af9ce7e-8013-4362-96a0-40ac0a970eb6", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", PREVENTIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", PREVENTIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - preventive", "preventive", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "f17a745b-60a1-4acd-887f-ebc8349b4597", "RTE_AE2 - RTE_CO2 - curative", "preventive", UsageMethod.TO_BE_EVALUATED);
 
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
-        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", CURATIVE, UsageMethod.TO_BE_EVALUATED);
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE1 - RTE_CO1 - curative", "curative", UsageMethod.TO_BE_EVALUATED); // TODO change TO_BE_EVALUATED by AVAILABLE
+        assertHasOnVoltageConstraintUsageRule(cracCreationContext, "a8f21a9a-49dc-4c2a-9745-405392f0d87b", "RTE_AE2 - RTE_CO2 - curative", "curative", UsageMethod.TO_BE_EVALUATED);
     }
 
 }

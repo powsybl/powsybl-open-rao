@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.swe_cne_exporter;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -71,7 +70,7 @@ public class SweMonitoredSeriesCreator {
                                 }
                             )
                     )
-        );
+            );
     }
 
     public List<MonitoredSeries> generateMonitoredSeries(Contingency contingency) {
@@ -158,8 +157,8 @@ public class SweMonitoredSeriesCreator {
             threshold.setUnitSymbol(AMP_UNIT_SYMBOL);
             Side side = cnec.getMonitoredSides().contains(Side.LEFT) ? Side.LEFT : cnec.getMonitoredSides().iterator().next();
             float roundedThreshold = Math.round(Math.min(
-                    Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
-                    Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
+                Math.abs(cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)),
+                Math.abs(cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))));
             threshold.setPositiveFlowIn(roundedFlow >= 0 ? DIRECT_POSITIVE_FLOW_IN : OPPOSITE_POSITIVE_FLOW_IN);
             threshold.setAnalogValuesValue(Math.abs(roundedThreshold));
             registeredResource.getMeasurements().add(threshold);
@@ -170,17 +169,11 @@ public class SweMonitoredSeriesCreator {
     }
 
     private String getThresholdMeasurementType(FlowCnec cnec) {
-        switch (cnec.getState().getInstant()) {
-            case PREVENTIVE:
-                return PATL_MEASUREMENT_TYPE;
-            case OUTAGE:
-                return TATL_MEASUREMENT_TYPE;
-            case AUTO:
-                return AUTO_MEASUREMENT_TYPE;
-            case CURATIVE:
-                return CURATIVE_MEASUREMENT_TYPE;
-            default:
-                throw new FaraoException(String.format("Unexpected instant: %s", cnec.getState().getInstant().toString()));
-        }
+        return switch (cnec.getState().getInstant().getInstantKind()) {
+            case PREVENTIVE -> PATL_MEASUREMENT_TYPE;
+            case OUTAGE -> TATL_MEASUREMENT_TYPE;
+            case AUTO -> AUTO_MEASUREMENT_TYPE;
+            case CURATIVE -> CURATIVE_MEASUREMENT_TYPE;
+        };
     }
 }

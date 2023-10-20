@@ -240,9 +240,9 @@ class CoreCneRemedialActionsCreatorTest {
             .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet());
-        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", INSTANT_OUTAGE))).thenReturn(new HashSet());
-        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", INSTANT_CURATIVE))).thenReturn(Set.of(pstRangeAction));
-        Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", INSTANT_CURATIVE), pstRangeAction)).thenReturn(16);
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", "outage"))).thenReturn(new HashSet());
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", "curative"))).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", "curative"), pstRangeAction)).thenReturn(16);
         Mockito.when(raoResult.isActivatedDuringState(crac.getStates().iterator().next(), pstRangeAction)).thenReturn(true);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
@@ -354,8 +354,8 @@ class CoreCneRemedialActionsCreatorTest {
             .add();
 
         Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet());
-        Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", INSTANT_OUTAGE))).thenReturn(new HashSet());
-        Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", INSTANT_CURATIVE))).thenReturn(Set.of(networkAction));
+        Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", "outage"))).thenReturn(new HashSet());
+        Mockito.when(raoResult.getActivatedNetworkActionsDuringState(crac.getState("contingency-id", "curative"))).thenReturn(Set.of(networkAction));
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);
@@ -498,10 +498,10 @@ class CoreCneRemedialActionsCreatorTest {
             .add();
 
         Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState())).thenReturn(new HashSet());
-        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", INSTANT_OUTAGE))).thenReturn(new HashSet());
-        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", INSTANT_CURATIVE))).thenReturn(Set.of(pstRangeAction));
-        Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", INSTANT_CURATIVE), pstRangeAction)).thenReturn(16);
-        Mockito.when(raoResult.isActivatedDuringState(crac.getState("contingency-id", INSTANT_CURATIVE), pstRangeAction)).thenReturn(true);
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", "outage"))).thenReturn(new HashSet());
+        Mockito.when(raoResult.getActivatedRangeActionsDuringState(crac.getState("contingency-id", "curative"))).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(raoResult.getOptimizedTapOnState(crac.getState("contingency-id", "curative"), pstRangeAction)).thenReturn(16);
+        Mockito.when(raoResult.isActivatedDuringState(crac.getState("contingency-id", "curative"), pstRangeAction)).thenReturn(true);
 
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         CneHelper cneHelper = new CneHelper(crac, network, raoResult, raoParameters, exporterParameters);

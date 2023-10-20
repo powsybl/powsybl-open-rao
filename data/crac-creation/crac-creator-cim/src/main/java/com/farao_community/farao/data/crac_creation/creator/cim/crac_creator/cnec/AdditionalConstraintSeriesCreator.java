@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cn
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnecAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -55,7 +56,7 @@ public class AdditionalConstraintSeriesCreator {
             .withReliabilityMargin(0.)
             .newThreshold().withUnit(Unit.DEGREE).withMax(additionalConstraintSerie.getQuantityQuantity().doubleValue())
             .withMin(-additionalConstraintSerie.getQuantityQuantity().doubleValue()).add()
-            .withInstantId(InstantKind.CURATIVE)
+            .withInstantId(crac.getUniqueInstant(InstantKind.CURATIVE).getId())
             .withContingency(contingencyId);
 
         for (AdditionalConstraintRegisteredResource rr : additionalConstraintSerie.getRegisteredResource()) {

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.swe_cne_exporter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 

@@ -8,10 +8,7 @@
 package com.farao_community.farao.data.swe_cne_exporter;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.InstantKind;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.AngleCnecCreationContext;
@@ -62,7 +59,9 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(angleMonitoringResult.getAngle(angleCnec2, Unit.DEGREE)).thenReturn(-21.34);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(acc1, acc2));
         State curativeState = Mockito.mock(State.class);
-        Mockito.when(curativeState.getInstant()).thenReturn(InstantKind.CURATIVE);
+        Instant instantCurative = Mockito.mock(Instant.class);
+        Mockito.when(instantCurative.getInstantKind()).thenReturn(InstantKind.CURATIVE);
+        Mockito.when(curativeState.getInstant()).thenReturn(instantCurative);
         Mockito.when(angleCnec1.getState()).thenReturn(curativeState);
         Mockito.when(angleCnec2.getState()).thenReturn(curativeState);
         return new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
@@ -75,7 +74,9 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(crac.getAngleCnec(accPrev.getCreatedCnecId())).thenReturn(angleCnecPrev);
         Mockito.when(angleCnecPrev.getName()).thenReturn("AngleCnecNamePrev");
         State prevState = Mockito.mock(State.class);
-        Mockito.when(prevState.getInstant()).thenReturn(InstantKind.PREVENTIVE);
+        Instant instantPrev = Mockito.mock(Instant.class);
+        Mockito.when(instantPrev.getInstantKind()).thenReturn(InstantKind.PREVENTIVE);
+        Mockito.when(prevState.getInstant()).thenReturn(instantPrev);
         Mockito.when(angleCnecPrev.getState()).thenReturn(prevState);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(accPrev));
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);
@@ -93,11 +94,15 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(crac.getAngleCnec(accAuto.getCreatedCnecId())).thenReturn(angleCnecAuto);
         Mockito.when(angleCnecOutage.getName()).thenReturn("AngleCnecNameOutage");
         State outageState = Mockito.mock(State.class);
-        Mockito.when(outageState.getInstant()).thenReturn(InstantKind.OUTAGE);
+        Instant instantOutage = Mockito.mock(Instant.class);
+        Mockito.when(instantOutage.getInstantKind()).thenReturn(InstantKind.OUTAGE);
+        Mockito.when(outageState.getInstant()).thenReturn(instantOutage);
         Mockito.when(angleCnecOutage.getState()).thenReturn(outageState);
         Mockito.when(angleCnecAuto.getName()).thenReturn("AngleCnecNameAuto");
         State autoState = Mockito.mock(State.class);
-        Mockito.when(autoState.getInstant()).thenReturn(InstantKind.AUTO);
+        Instant instantAuto = Mockito.mock(Instant.class);
+        Mockito.when(instantAuto.getInstantKind()).thenReturn(InstantKind.AUTO);
+        Mockito.when(autoState.getInstant()).thenReturn(instantAuto);
         Mockito.when(angleCnecAuto.getState()).thenReturn(autoState);
         Mockito.when(cracCreationContext.getAngleCnecCreationContexts()).thenReturn(Set.of(accOutage, accAuto));
         SweAdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new SweAdditionalConstraintSeriesCreator(sweCneHelper, cracCreationContext);

@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.InstantKind;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
@@ -192,7 +193,7 @@ public class MonitoredSeriesCreator {
         String direction;
         double threshold;
         try {
-            instant = getMeasurementInstant(measurement);
+            instant = crac.getUniqueInstant(getMeasurementInstant(measurement));
             unit = getMeasurementUnit(measurement);
             direction = getMeasurementDirection(measurement);
             threshold = (unit.equals(Unit.PERCENT_IMAX) ? 0.01 : 1) * measurement.getAnalogValuesValue(); // FARAO uses relative convention for %Imax (0 <= threshold <= 1)
@@ -203,7 +204,7 @@ public class MonitoredSeriesCreator {
         return addCnecs(cnecId, branchHelper, isMnec, direction, unit, threshold, contingencies, instant);
     }
 
-    private Instant getMeasurementInstant(Analog measurement) {
+    private InstantKind getMeasurementInstant(Analog measurement) {
         return switch (measurement.getMeasurementType()) {
             case CNECS_N_STATE_MEASUREMENT_TYPE -> InstantKind.PREVENTIVE;
             case CNECS_OUTAGE_STATE_MEASUREMENT_TYPE -> InstantKind.OUTAGE;
@@ -239,7 +240,7 @@ public class MonitoredSeriesCreator {
                                                 boolean isMnec, String direction, Unit unit, double threshold,
                                                 List<Contingency> contingencies, Instant instant) {
         MeasurementCreationContext measurementCreationContext = MeasurementCreationContext.imported();
-        if (instant == InstantKind.PREVENTIVE) {
+        if (instant.getInstantKind() == InstantKind.PREVENTIVE) {
             addCnecsOnContingency(cnecNativeId, branchHelper, isMnec, direction, unit, threshold, null, instant, measurementCreationContext);
         } else {
             contingencies.forEach(contingency ->
@@ -277,7 +278,7 @@ public class MonitoredSeriesCreator {
             flowCnecAdder.withOptimized();
         }
 
-        if (instant != InstantKind.PREVENTIVE) {
+        if (instant.getInstantKind() != InstantKind.PREVENTIVE) {
             flowCnecAdder.withContingency(contingencyId);
             cnecId += " - " + contingencyId;
         }

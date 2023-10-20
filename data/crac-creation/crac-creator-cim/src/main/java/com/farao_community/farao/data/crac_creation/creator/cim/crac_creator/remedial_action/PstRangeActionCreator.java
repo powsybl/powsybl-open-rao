@@ -17,9 +17,9 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.RangeActionGroup;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants;
-import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.creator.cim.parameters.CimCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.RemedialActionRegisteredResource;
+import com.farao_community.farao.data.crac_creation.util.FaraoImportException;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Country;
@@ -40,14 +40,14 @@ public class PstRangeActionCreator {
     private final String createdRemedialActionId;
     private final String createdRemedialActionName;
     private final String applicationModeMarketObjectStatus;
-    private RemedialActionSeriesCreationContext pstRangeActionCreationContext;
     private final RemedialActionRegisteredResource pstRegisteredResource;
     private final List<Contingency> contingencies;
     private final List<String> invalidContingencies;
     private final Set<FlowCnec> flowCnecs;
     private final AngleCnec angleCnec;
-    private PstRangeActionAdder pstRangeActionAdder;
     private final Country sharedDomain;
+    private RemedialActionSeriesCreationContext pstRangeActionCreationContext;
+    private PstRangeActionAdder pstRangeActionAdder;
 
     public PstRangeActionCreator(Crac crac, Network network, String createdRemedialActionId, String createdRemedialActionName, String applicationModeMarketObjectStatus, RemedialActionRegisteredResource pstRegisteredResource, List<Contingency> contingencies, List<String> invalidContingencies, Set<FlowCnec> flowCnecs, AngleCnec angleCnec, Country sharedDomain) {
         this.crac = crac;
@@ -116,7 +116,7 @@ public class PstRangeActionCreator {
 
             // --- Resource capacity
             defineTapRange(pstRangeActionAdder, pstHelper, rangeType);
-            RemedialActionSeriesCreator.addUsageRules(applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, flowCnecs, angleCnec, sharedDomain);
 
             this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies);
         } catch (FaraoImportException e) {

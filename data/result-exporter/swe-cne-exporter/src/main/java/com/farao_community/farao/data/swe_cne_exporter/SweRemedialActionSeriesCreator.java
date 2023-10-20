@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.cne_exporter_commons.CneConstants.*;
 
@@ -65,7 +64,7 @@ public class SweRemedialActionSeriesCreator {
             //CURATIVE && AUTO
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.AUTO), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.AUTO).getId()), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -73,7 +72,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.CURATIVE), raSeriesCreationContext, false);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.CURATIVE).getId()), raSeriesCreationContext, false);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -112,7 +111,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.AUTO), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.AUTO).getId()), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }
@@ -120,7 +119,7 @@ public class SweRemedialActionSeriesCreator {
             );
             sortedRas.forEach(
                 raSeriesCreationContext -> {
-                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, InstantKind.CURATIVE), raSeriesCreationContext, true);
+                    RemedialActionSeries raSeries = generateRaSeries(crac.getState(contingency, crac.getUniqueInstant(InstantKind.CURATIVE).getId()), raSeriesCreationContext, true);
                     if (Objects.nonNull(raSeries)) {
                         remedialActionSeriesList.add(raSeries);
                     }

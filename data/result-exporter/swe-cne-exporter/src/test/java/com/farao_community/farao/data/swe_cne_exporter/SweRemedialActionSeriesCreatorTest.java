@@ -68,11 +68,11 @@ class SweRemedialActionSeriesCreatorTest {
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs1", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 2", "hvdcPtEs2", HvdcRangeAction.class);
 
-        State preventiveState = addStateToCrac(InstantKind.PREVENTIVE, null);
+        State preventiveState = addStateToCrac(crac.getUniqueInstant(InstantKind.PREVENTIVE), null);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
-        State autoState = addStateToCrac(InstantKind.AUTO, contingency);
-        State curativeState = addStateToCrac(InstantKind.CURATIVE, contingency);
+        State autoState = addStateToCrac(crac.getUniqueInstant(InstantKind.AUTO), contingency);
+        State curativeState = addStateToCrac(crac.getUniqueInstant(InstantKind.CURATIVE), contingency);
 
         addNetworkActionToRaoResult(preventiveState, "networkActionCreatedId");
         addNetworkActionToRaoResult(preventiveState, "na_missing");
@@ -120,8 +120,8 @@ class SweRemedialActionSeriesCreatorTest {
         State state = Mockito.mock(State.class);
         Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
-        Mockito.when(crac.getState(contingency, instant)).thenReturn(state);
-        if (instant.equals(InstantKind.PREVENTIVE)) {
+        Mockito.when(crac.getState(contingency, instant.getId())).thenReturn(state);
+        if (instant.getInstantKind().equals(InstantKind.PREVENTIVE)) {
             Mockito.when(state.isPreventive()).thenReturn(true);
             Mockito.when(crac.getPreventiveState()).thenReturn(state);
         } else {
