@@ -171,9 +171,9 @@ public class CsaProfileCnecCreator {
         }
 
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "", false));
         } else {
-            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, assessedElementId, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, cnecName, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
         }
     }
 
