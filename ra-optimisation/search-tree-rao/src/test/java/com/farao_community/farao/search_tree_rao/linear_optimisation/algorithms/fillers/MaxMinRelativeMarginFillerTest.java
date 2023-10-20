@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.ObjectiveFunctionParameters;
 import com.farao_community.farao.rao_api.parameters.RangeActionsOptimizationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.extensions.PtdfApproximation;
 import com.farao_community.farao.rao_api.parameters.extensions.RelativeMarginsParametersExtension;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPConstraint;
@@ -174,7 +175,15 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     @Test
     void testMustUpdatePtdf() {
-        createMaxMinRelativeMarginFiller(MEGAWATT, 0.9);
+        parameters.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, Side.LEFT)).thenReturn(0.9);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+            Set.of(cnec1),
+            initialFlowResult,
+            MEGAWATT,
+            parameters
+        );
         buildLinearProblem();
         linearProblem.updateBetweenSensiIteration(mockFlowResult(0.6), sensitivityResult, new RangeActionActivationResultImpl(initialRangeActionSetpointResult));
         checkFillerContentMw(0.6);
