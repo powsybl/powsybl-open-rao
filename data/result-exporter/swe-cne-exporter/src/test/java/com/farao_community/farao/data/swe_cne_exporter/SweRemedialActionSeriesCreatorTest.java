@@ -68,11 +68,11 @@ class SweRemedialActionSeriesCreatorTest {
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 1", "hvdcPtEs1", HvdcRangeAction.class);
         addRemedialActionToCrac("hvdcPtEs + hvdcEsPt - 2", "hvdcPtEs2", HvdcRangeAction.class);
 
-        State preventiveState = addStateToCrac(crac.getUniqueInstant(InstantKind.PREVENTIVE), null);
+        State preventiveState = addStateToCrac(crac.getInstant("preventive"), null);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("contingency");
-        State autoState = addStateToCrac(crac.getUniqueInstant(InstantKind.AUTO), contingency);
-        State curativeState = addStateToCrac(crac.getUniqueInstant(InstantKind.CURATIVE), contingency);
+        State autoState = addStateToCrac(crac.getInstant("auto"), contingency);
+        State curativeState = addStateToCrac(crac.getInstant("curative"), contingency);
 
         addNetworkActionToRaoResult(preventiveState, "networkActionCreatedId");
         addNetworkActionToRaoResult(preventiveState, "na_missing");

@@ -190,12 +190,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Instant getUniqueInstant(InstantKind instantKind) {
-        Set<Instant> instants = getInstants(instantKind);
-        if (instants.size() != 1) {
-            throw new FaraoException("Crac does not contain exactly one outage instant");
+        Set<Instant> instantsOfKind = getInstants(instantKind);
+        if (instantsOfKind.size() != 1) {
+            throw new FaraoException(String.format("Crac does not contain exactly one '%s' instant. It contains %d instants of kind %s", instantKind.toString(), instantsOfKind.size(), instantKind.toString()));
         }
-        return instants.stream().findFirst().orElseThrow(
-            () -> new FaraoException(String.format("Should not occur as there is only one %s instant", instantKind))
+        return instantsOfKind.stream().findFirst().orElseThrow(
+            () -> new FaraoException(String.format("Should not occur as there is only one '%s' instant", instantKind))
         );
     }
 
@@ -209,7 +209,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Instant getInstant(String instantId) {
         if (!instants.containsKey(instantId)) {
-            throw new FaraoException("Instant '%s' has not been defined");
+            throw new FaraoException(String.format("Instant '%s' has not been defined", instantId));
         }
         return instants.get(instantId);
     }

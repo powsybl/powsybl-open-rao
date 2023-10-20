@@ -61,7 +61,7 @@ class SystematicSensitivityResultTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(Side.LEFT, Side.RIGHT));
-        instantOutageOrder = crac.getUniqueInstant(InstantKind.CURATIVE).getOrder();
+        instantOutageOrder = crac.getInstant("curative").getOrder();
 
         ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
