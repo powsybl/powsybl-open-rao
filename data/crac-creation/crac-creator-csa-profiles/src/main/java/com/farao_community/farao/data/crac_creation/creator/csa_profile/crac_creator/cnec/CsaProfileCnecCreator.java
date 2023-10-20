@@ -63,6 +63,7 @@ public class CsaProfileCnecCreator {
     }
 
     private void addCnec(PropertyBag assessedElementPropertyBag) {
+        String rejectedLinksAssessedElementContingency = "";
         String assessedElementId = assessedElementPropertyBag.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT);
         boolean isAeProfileDataCheckOk = this.aeProfileDataCheck(assessedElementId, assessedElementPropertyBag);
 
@@ -131,21 +132,24 @@ public class CsaProfileCnecCreator {
 
         if (assessedElementsWithContingencies != null) {
             for (PropertyBag assessedElementWithContingencies : assessedElementsWithContingencies) {
-                combinableContingencies = this.checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
+                boolean isCheckLinkOk = this.checkLinkAssessedElementContingency(assessedElementId, assessedElementWithContingencies, combinableContingencies, isCombinableWithContingency);
+                if (!isCheckLinkOk) {
+                    rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency.concat(assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY) + " ");
+                }
             }
         }
 
         for (Contingency contingency : combinableContingencies) {
             String cnecName = assessedElementName + " - " + contingency.getName() + " - " + cnecInstant.toString();
-            this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant);
+            this.addCnec(cnecAdder, limitType, contingency.getId(), assessedElementId, cnecName, cnecInstant, rejectedLinksAssessedElementContingency);
         }
         if (inBaseCase) {
             String cnecName = assessedElementName + " - preventive";
-            this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE);
+            this.addCnec(cnecAdder, limitType, null, assessedElementId, cnecName, Instant.PREVENTIVE, rejectedLinksAssessedElementContingency);
         }
     }
 
-    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant) {
+    private void addCnec(CnecAdder cnecAdder, CsaProfileConstants.LimitType limitType, String contingencyId, String assessedElementId, String cnecName, Instant instant, String rejectedLinksAssessedElementContingency) {
         if (CsaProfileConstants.LimitType.CURRENT.equals(limitType)) {
             ((FlowCnecAdder) cnecAdder).withContingency(contingencyId)
                 .withId(cnecName)
@@ -165,7 +169,35 @@ public class CsaProfileCnecCreator {
                 .withInstant(instant)
                 .add();
         }
-        csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
+
+        if (rejectedLinksAssessedElementContingency.isEmpty()) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, assessedElementId, cnecName, "", false));
+        } else {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.imported(assessedElementId, assessedElementId, cnecName, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency, true));
+        }
+    }
+
+    private boolean checkProfileHeader(String elementId, PropertyBag propertyBag, String twoLettersKeyword) {
+        return checkProfileKeyword(elementId, propertyBag, twoLettersKeyword) && checkProfileValidityInterval(elementId, propertyBag);
+    }
+
+    private boolean checkProfileValidityInterval(String elementId, PropertyBag propertyBag) {
+        String startTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_START_DATE);
+        String endTime = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_END_DATE);
+        if (!CsaProfileCracUtils.isValidInterval(cracCreationContext.getTimeStamp(), startTime, endTime)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(elementId, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "Required timestamp does not fall between Model.startDate and Model.endDate"));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkProfileKeyword(String elementId, PropertyBag propertyBag, String twoLettersKeyword) {
+        String keyword = propertyBag.get(CsaProfileConstants.REQUEST_HEADER_KEYWORD);
+        if (!twoLettersKeyword.equals(keyword)) {
+            csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(elementId, ImportStatus.INCONSISTENCY_IN_DATA, "Model.keyword must be " + twoLettersKeyword + ", but it is " + keyword));
+            return false;
+        }
+        return true;
     }
 
     private boolean aeProfileDataCheck(String assessedElementId, PropertyBag assessedElementPropertyBag) {
@@ -246,44 +278,45 @@ public class CsaProfileCnecCreator {
         return false;
     }
 
-    private Set<Contingency> checkLinkAssessedElementContingency(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet, boolean isCombinableWithContingency) {
-        Set<Contingency> combinableContingencies = new HashSet<>(combinableContingenciesSet);
+    private boolean checkLinkAssessedElementContingency(String assessedElementId, PropertyBag assessedElementWithContingencies, Set<Contingency> combinableContingenciesSet, boolean isCombinableWithContingency) {
         String normalEnabledWithContingencies = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED);
 
         if (normalEnabledWithContingencies != null && !Boolean.parseBoolean(normalEnabledWithContingencies)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.NOT_FOR_RAO, "AssessedElementWithContingency.normalEnabled is false"));
-            return combinableContingencies;
+            return false;
         }
 
         String contingencyId = assessedElementWithContingencies.getId(CsaProfileConstants.REQUEST_CONTINGENCY);
         String combinationConstraintKind = assessedElementWithContingencies.get(CsaProfileConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND);
         if (CsaProfileConstants.ElementCombinationConstraintKind.CONSIDERED.toString().equals(combinationConstraintKind)) {
             csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementWithContingency.combinationConstraintKind is considered"));
-            return combinableContingencies;
+            return false;
         }
         if (CsaProfileConstants.ElementCombinationConstraintKind.INCLUDED.toString().equals(combinationConstraintKind) && !isCombinableWithContingency) {
             Contingency contingencyToLink = crac.getContingency(contingencyId);
             if (contingencyToLink == null) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "the contingency "
                     + contingencyId + " linked to the assessed element doesn't exist in the CRAC"));
+                return false;
             } else {
-                combinableContingencies.add(contingencyToLink);
+                combinableContingenciesSet.add(contingencyToLink);
+                return true;
             }
-            return combinableContingencies;
         }
         if (CsaProfileConstants.ElementCombinationConstraintKind.EXCLUDED.toString().equals(combinationConstraintKind) && isCombinableWithContingency) {
             Contingency contingencyToRemove = crac.getContingency(contingencyId);
             if (contingencyToRemove == null) {
                 csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "the contingency "
                     + contingencyId + " excluded from the contingencies linked to the assessed element doesn't exist in the CRAC"));
+                return false;
             } else {
-                combinableContingencies.remove(contingencyToRemove);
+                combinableContingenciesSet.remove(contingencyToRemove);
+                return true;
             }
-            return combinableContingencies;
         }
         csaProfileCnecCreationContexts.add(CsaProfileElementaryCreationContext.notImported(assessedElementId, ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElementWithContingency.combinationConstraintKind = "
             + combinationConstraintKind + " and AssessedElement.isCombinableWithContingency = " + isCombinableWithContingency + " have inconsistent values"));
-        return combinableContingencies;
+        return false;
     }
 
     private boolean addCurrentLimit(String assessedElementId, FlowCnecAdder flowCnecAdder, boolean inBaseCase) {

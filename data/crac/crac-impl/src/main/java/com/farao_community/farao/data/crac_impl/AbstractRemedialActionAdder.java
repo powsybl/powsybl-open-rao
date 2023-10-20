@@ -22,7 +22,7 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     protected String operator;
     protected Integer speed;
-    protected List<UsageRule> usageRules = new ArrayList<>();
+    protected Set<UsageRule> usageRules = new HashSet<>();
     private final CracImpl crac;
 
     AbstractRemedialActionAdder(CracImpl crac) {

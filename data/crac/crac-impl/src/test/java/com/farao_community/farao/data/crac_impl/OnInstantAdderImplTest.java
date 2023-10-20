@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstant;
 import com.farao_community.farao.data.crac_api.usage_rule.OnInstantAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,11 +50,12 @@ class OnInstantAdderImplTest {
             .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
+        UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
 
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnInstant);
-        assertEquals(Instant.PREVENTIVE, ((OnInstant) remedialAction.getUsageRules().get(0)).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ((OnInstant) remedialAction.getUsageRules().get(0)).getUsageMethod());
+        assertTrue(usageRule instanceof OnInstant);
+        assertEquals(Instant.PREVENTIVE, usageRule.getInstant());
+        assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
@@ -66,10 +68,12 @@ class OnInstantAdderImplTest {
                 .add()
                 .add();
 
+        UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
+
         assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(remedialAction.getUsageRules().get(0) instanceof OnInstant);
-        assertEquals(Instant.CURATIVE, ((OnInstant) remedialAction.getUsageRules().get(0)).getInstant());
-        assertEquals(UsageMethod.AVAILABLE, ((OnInstant) remedialAction.getUsageRules().get(0)).getUsageMethod());
+        assertTrue(usageRule instanceof OnInstant);
+        assertEquals(Instant.CURATIVE, usageRule.getInstant());
+        assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
     }
 
     @Test

@@ -6,10 +6,15 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.remedial_action;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.TsoEICode;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
+import com.farao_community.farao.data.crac_api.cnec.AngleCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.VoltageCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.csa_profile.crac_creator.CsaProfileConstants;
@@ -22,6 +27,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -35,7 +41,7 @@ public class CsaProfileRemedialActionsCreator {
     private final PropertyBags tapPositionPropertyBags;
     private final PropertyBags staticPropertyRangesPropertyBags;
     private final PropertyBags contingencyWithRemedialActionsPropertyBags;
-
+    private final OnConstraintUsageRuleHelper onConstraintUsageRuleHelper;
     private final CsaProfileCracCreationContext cracCreationContext;
     Set<CsaProfileElementaryCreationContext> csaProfileRemedialActionCreationContexts = new HashSet<>();
 
@@ -43,7 +49,8 @@ public class CsaProfileRemedialActionsCreator {
                                             PropertyBags topologyActionsPropertyBags,
                                             PropertyBags rotatingMachineActionsPropertyBags,
                                             PropertyBags tapPositionPropertyBags,
-                                            PropertyBags staticPropertyRangesPropertyBags) {
+                                            PropertyBags staticPropertyRangesPropertyBags,
+                                            OnConstraintUsageRuleHelper onConstraintUsageRuleHelper) {
         this.crac = crac;
         this.network = network;
         this.gridStateAlterationRemedialActionPropertyBags = gridStateAlterationRemedialActionPropertyBags;
@@ -53,6 +60,7 @@ public class CsaProfileRemedialActionsCreator {
         this.tapPositionPropertyBags = tapPositionPropertyBags;
         this.staticPropertyRangesPropertyBags = staticPropertyRangesPropertyBags;
         this.cracCreationContext = cracCreationContext;
+        this.onConstraintUsageRuleHelper = onConstraintUsageRuleHelper;
         createAndAddRemedialActions();
     }
 
@@ -88,6 +96,8 @@ public class CsaProfileRemedialActionsCreator {
                     remedialActionAdder.withOperator(TsoEICode.fromEICode(tsoName.substring(tsoName.lastIndexOf("/") + 1)).getDisplayName());
                 }
                 speedOpt.ifPresent(remedialActionAdder::withSpeed);
+
+                Instant remedialActionInstant;
                 if (linkedContingencyWithRAs.containsKey(remedialActionId)) {
                     // on state usage rule
                     String randomCombinationConstraintKind = linkedContingencyWithRAs.get(remedialActionId).iterator().next().get(CsaProfileConstants.COMBINATION_CONSTRAINT_KIND);
@@ -104,13 +114,24 @@ public class CsaProfileRemedialActionsCreator {
                         )
                         .toList();
 
-                    addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
+                    boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId);
+                    if (!hasAtLeastOneOnConstraintUsageRule) {
+                        addOnContingencyStateUsageRules(remedialActionAdder, faraoContingenciesIds, randomCombinationConstraintKind);
+                    }
                 } else { // no contingency linked to RA --> on instant usage rule
                     String kind = parentRemedialActionPropertyBag.get(CsaProfileConstants.RA_KIND);
                     if (kind.equals(CsaProfileConstants.RemedialActionKind.PREVENTIVE.toString())) {
-                        remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add();
+                        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.PREVENTIVE, remedialActionAdder, remedialActionId);
+                        if (!hasAtLeastOneOnConstraintUsageRule) {
+
+                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add();
+                        }
                     } else {
-                        remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
+                        boolean hasAtLeastOneOnConstraintUsageRule = addOnConstraintUsageRules(Instant.CURATIVE, remedialActionAdder, remedialActionId);
+                        if (!hasAtLeastOneOnConstraintUsageRule) {
+
+                            remedialActionAdder.newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.CURATIVE).add();
+                        }
                     }
                 }
                 remedialActionAdder.add();
@@ -129,12 +150,10 @@ public class CsaProfileRemedialActionsCreator {
         }
 
         UsageMethod usageMethod = CsaProfileCracUtils.getConstraintToUsageMethodMap().get(randomCombinationConstraintKind);
-        faraoContingenciesIds.forEach(faraoContingencyId ->
-            remedialActionAdder.newOnContingencyStateUsageRule()
-                .withInstant(Instant.CURATIVE)
-                .withContingency(faraoContingencyId)
-                .withUsageMethod(usageMethod).add()
-        );
+        faraoContingenciesIds.forEach(faraoContingencyId -> remedialActionAdder.newOnContingencyStateUsageRule()
+            .withInstant(Instant.CURATIVE)
+            .withContingency(faraoContingencyId)
+            .withUsageMethod(usageMethod).add());
     }
 
     private void checkAllContingenciesLinkedToRaHaveTheSameConstraintKind(String remedialActionId, Set<PropertyBag> linkedContingencyWithRAs, String firstKind) {
@@ -166,8 +185,10 @@ public class CsaProfileRemedialActionsCreator {
             throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because Unsupported kind for remedial action" + remedialActionId);
         }
 
-        if (linkedTopologyActions.containsKey(remedialActionId)
-            || (linkedRotatingMachineActions.containsKey(remedialActionId) && checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges))) {
+        if (linkedTopologyActions.containsKey(remedialActionId)) {
+            return RemedialActionType.NETWORK_ACTION;
+        } else if (linkedRotatingMachineActions.containsKey(remedialActionId)) {
+            checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(remedialActionId, linkedRotatingMachineActions.get(remedialActionId), linkedStaticPropertyRanges);
             return RemedialActionType.NETWORK_ACTION;
         } else if (linkedTapPositionActions.containsKey(remedialActionId)) { // StaticPropertyRanges not mandatory in case of tapPositionsActions
             return RemedialActionType.PST_RANGE_ACTION;
@@ -176,13 +197,24 @@ public class CsaProfileRemedialActionsCreator {
         }
     }
 
-    private boolean checkEachRotatingMachineHasAtLeastOneStaticPropertyRange(Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+    private void checkEachRotatingMachineHasExactlyOneStaticPropertyRangeElseThrowException(String remedialActionId, Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+        int numberOfStaticPropertyRanges = getNumberOfStaticPropertyRangeForRotatingMachineAction(rotatingMachineActionsForOneRa, staticPropertyRangesLinkedToRotatingMachineActions);
+        if (numberOfStaticPropertyRanges == 0) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because there is no StaticPropertyRange linked to that RA");
+        } else if (numberOfStaticPropertyRanges > 1) {
+            throw new FaraoImportException(ImportStatus.INCONSISTENCY_IN_DATA, CsaProfileConstants.REMEDIAL_ACTION_MESSAGE + remedialActionId + " will not be imported because several conflictual StaticPropertyRanges are linked to that RA's RotatingMachineAction");
+        }
+    }
+
+    private int getNumberOfStaticPropertyRangeForRotatingMachineAction(Set<PropertyBag> rotatingMachineActionsForOneRa, Map<String, Set<PropertyBag>> staticPropertyRangesLinkedToRotatingMachineActions) {
+        int numberOfStaticPropertyRanges = 0;
         for (PropertyBag rotatingMachineAction : rotatingMachineActionsForOneRa) {
-            if (staticPropertyRangesLinkedToRotatingMachineActions.containsKey(rotatingMachineAction.getId("mRID"))) {
-                return true;
+            Set<PropertyBag> staticPropertyRangePropertyBags = staticPropertyRangesLinkedToRotatingMachineActions.get(rotatingMachineAction.getId("mRID"));
+            if (staticPropertyRangePropertyBags != null) {
+                numberOfStaticPropertyRanges += staticPropertyRangePropertyBags.size();
             }
         }
-        return false;
+        return numberOfStaticPropertyRanges;
     }
 
     private String checkContingencyAndGetFaraoId(PropertyBag contingencyWithRemedialActionPropertyBag, PropertyBag parentRemedialActionPropertyBag, String
@@ -219,4 +251,74 @@ public class CsaProfileRemedialActionsCreator {
         NETWORK_ACTION
     }
 
+    private boolean addOnConstraintUsageRules(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId) {
+        boolean flag1 = false;
+        boolean flag2;
+        boolean flag3;
+        if (!onConstraintUsageRuleHelper.getExcludedCnecsByRemedialAction().containsKey(importableRemedialActionId)) {
+            flag1 = processAvailableAssessedElementsCombinableWithRemedialActions(remedialActionInstant, remedialActionAdder, UsageMethod.AVAILABLE);
+        }
+        flag2 = processAssessedElementsWithRemedialActions(remedialActionInstant, remedialActionAdder, importableRemedialActionId, UsageMethod.AVAILABLE, onConstraintUsageRuleHelper.getConsideredCnecsElementsByRemedialAction());
+        flag3 = processAssessedElementsWithRemedialActions(remedialActionInstant, remedialActionAdder, importableRemedialActionId, UsageMethod.FORCED, onConstraintUsageRuleHelper.getIncludedCnecsByRemedialAction());
+        return flag1 || flag2 || flag3;
+    }
+
+    private boolean processAvailableAssessedElementsCombinableWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
+        List<Boolean> flags = onConstraintUsageRuleHelper.getImportedCnecsCombinableWithRas().stream().map(addOnConstraintUsageRuleForCnec(remedialActionInstant, remedialActionAdder, usageMethod)).toList();
+        return flags.contains(true);
+    }
+
+    private boolean processAssessedElementsWithRemedialActions(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, String importableRemedialActionId, UsageMethod usageMethod, Map<String, Set<String>> cnecsByRemedialAction) {
+        if (cnecsByRemedialAction.containsKey(importableRemedialActionId)) {
+            List<Boolean> flags = cnecsByRemedialAction.get(importableRemedialActionId).stream().map(addOnConstraintUsageRuleForCnec(remedialActionInstant, remedialActionAdder, usageMethod)).toList();
+            return flags.contains(true);
+        }
+        return false;
+    }
+
+    private Function<String, Boolean> addOnConstraintUsageRuleForCnec(Instant remedialActionInstant, RemedialActionAdder remedialActionAdder, UsageMethod usageMethod) {
+        return cnecId -> {
+            Cnec cnec = crac.getCnec(cnecId);
+            if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), remedialActionInstant)) {
+                if (cnec instanceof FlowCnec) {
+                    remedialActionAdder.newOnFlowConstraintUsageRule()
+                        .withInstant(remedialActionInstant)
+                        .withFlowCnec(cnecId)
+                        .add();
+                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
+                    return true;
+                } else if (cnec instanceof VoltageCnec) {
+                    remedialActionAdder.newOnVoltageConstraintUsageRule()
+                        .withInstant(remedialActionInstant)
+                        .withVoltageCnec(cnecId)
+                        .add();
+                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
+                    return true;
+                } else if (cnec instanceof AngleCnec) {
+                    remedialActionAdder.newOnAngleConstraintUsageRule()
+                        .withInstant(remedialActionInstant)
+                        .withAngleCnec(cnecId)
+                        .add();
+                    // TODO add .withUsageMethod(usageMethod) when API of OnFlowConstraintAdder is ready
+                    return true;
+                } else {
+                    throw new FaraoException(String.format("Unsupported cnec type %s", cnec.getClass().toString()));
+                }
+            }
+            return false;
+        };
+    }
+
+    public static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
+        switch (remedialInstant) {
+            case PREVENTIVE:
+                return cnecInstant == Instant.PREVENTIVE || cnecInstant == Instant.OUTAGE || cnecInstant == Instant.CURATIVE;
+            case AUTO:
+                return cnecInstant == Instant.AUTO;
+            case CURATIVE:
+                return cnecInstant == Instant.CURATIVE;
+            default:
+                return false;
+        }
+    }
 }
